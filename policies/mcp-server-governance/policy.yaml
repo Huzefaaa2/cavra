@@ -1,0 +1,43 @@
+metadata:
+  id: mcp-server-governance
+  title: MCP Server Governance
+  description: Runtime policy for MCP (Model Context Protocol) server access control and risk management.
+  version: 0.1.0
+mcp:
+  allowlist_enabled: true
+  block_unknown_servers: true
+  allowed_servers:
+    - github-enterprise
+    - jira-enterprise
+    - confluence-readonly
+    - internal-docs-readonly
+  blocked_servers:
+    - unknown-mcp-provider
+    - public-browser-mcp
+    - personal-drive-mcp
+  risk_scoring:
+    github-enterprise: medium
+    jira-enterprise: low
+    confluence-readonly: low
+    internal-docs-readonly: low
+filesystem:
+  block_read:
+    - ".env"
+    - "**/secrets.*"
+    - "**/*.pem"
+    - "**/kubeconfig"
+    - "**/terraform.tfstate"
+  require_approval_write:
+    - "**/iam/**"
+    - "**/security/**"
+    - "**/policies/**"
+commands:
+  block:
+    - "terraform apply*"
+    - "kubectl delete*"
+    - "aws iam*"
+    - "az role*"
+  allow:
+    - "terraform fmt*"
+    - "terraform plan*"
+    - "git*"

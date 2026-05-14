@@ -1,0 +1,38 @@
+metadata:
+  id: ai-agent-baseline
+  title: AI Agent Baseline Governance
+  description: Baseline rules for AI agent runtime governance.
+  version: 0.1.0
+filesystem:
+  block_read:
+    - ".env"
+    - "**/secrets.*"
+    - "**/*.pem"
+    - "**/*.pfx"
+    - "**/id_rsa"
+    - "**/kubeconfig"
+    - "**/terraform.tfstate"
+    - "**/terraform.tfvars"
+  block_write:
+    - ".github/workflows/**"
+    - "iam/**"
+    - "security/**"
+    - "policies/**"
+    - "**/main.tf"
+    - "**/providers.tf"
+    - "**/backend.tf"
+commands:
+  block:
+    - "terraform apply*"
+    - "kubectl delete*"
+    - "az role assignment create*"
+    - "aws iam create-access-key*"
+    - "gcloud projects add-iam-policy-binding*"
+    - "git push origin main"
+    - "git push origin master"
+  allow:
+    - "terraform fmt*"
+    - "terraform validate*"
+    - "terraform plan*"
+    - "pytest*"
+    - "npm test*"
