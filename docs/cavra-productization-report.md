@@ -110,11 +110,13 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 Phase 2, Policy Engine Hardening, is now implemented. Added strict JSON Schema policy validation, policy inheritance resolver, normalized compile output, semantic policy diff, policy signature metadata, signature verification, and tests for bundled policy validation, inheritance, diff, and tamper detection.
 
-Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, Ed25519 manifest signatures, key IDs, trust-root verification, rotation guidance, retention policy artifacts, PR attestation output and verification reports, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, evidence metadata indexing, SQLite search with filters and pagination, hosted console views, initial SQLite migration, API metadata persistence, CLI evidence commands, and evidence tests.
+Phase 3, Evidence Hub and Attestation, is near complete. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, Ed25519 manifest signatures, key IDs, trust-root verification, rotation guidance, retention policy artifacts, PR attestation output and verification reports, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, evidence metadata indexing, SQLite search with filters and pagination, hosted console views, initial SQLite migration, API metadata persistence, CLI evidence commands, and evidence tests.
 
-Next recommended implementation work: finish Phase 3 with console API wiring for deployed topologies, production migration automation, and automated trust-root distribution guidance. Then continue to Phase 4, Approval Router.
+Phase 4, Approval Router, is complete for the current production-readiness slice. Added JSON and SQLite approval persistence, API and CLI approval lifecycle, break-glass evidence, repository-specific routing, signed OIDC/JWKS validation, repository RBAC policy files, live approval provider delivery, console approval actions, console break-glass creation, and approval audit detail views.
 
-Later roadmap backlog: persistent API storage, real approval providers, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, and signed releases.
+Next recommended implementation work: start Phase 5, Agent Registry and MCP Trust Registry, with governed agent identities, MCP server trust tiers, capability metadata, approval state, last-seen metadata, and registry-backed runtime decisions. Keep hosted attestation artifact retrieval as a narrow Phase 3 follow-up.
+
+Later roadmap backlog: full persistent API storage for every domain, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, immutable evidence storage, SBOM automation, and signed releases.
 
 ## Market, partner, and commercialization summary
 

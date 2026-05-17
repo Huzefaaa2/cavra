@@ -198,7 +198,7 @@ The `Before the Agent Acts` sandbox now includes the first hosted console slice:
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, verify PR attestation coverage, and approve, deny, or expire pending approval requests from the console queue.
+Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
 
@@ -215,7 +215,7 @@ Current phase status:
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
-- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, and console actions.
+- Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -225,7 +225,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add console break-glass creation and approval audit detail views.
+- Start Phase 5 Agent Registry and MCP Trust Registry with governed agent identities and MCP trust tiers.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value

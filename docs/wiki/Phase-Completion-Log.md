@@ -43,7 +43,7 @@ Completed:
 
 Phase 3: Evidence Hub and Attestation.
 
-Status: in progress.
+Status: complete for the current production-readiness slice.
 
 Completed:
 - Evidence bundle manifest generation.
@@ -69,7 +69,7 @@ Completed:
 - Idempotent SQLite migration automation with `cavra evidence migrate`.
 - Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: continue Phase 4 Approval Router with console break-glass creation and approval audit detail views. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+Recommended next issue: start Phase 5 Agent Registry and MCP Trust Registry. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
 
 ## Phase 4: Approval Router
 
@@ -92,8 +92,10 @@ Completed:
 - Credential-free Slack, Teams, Jira, ServiceNow, and webhook request specs.
 - Secret-backed live provider delivery with retry, timeout, and redacted delivery evidence.
 - Console approval actions for approve, deny, and expire.
+- Console break-glass creation.
+- Approval audit detail views for lifecycle history, evidence references, decision context, and external references.
 
-Recommended next issue: add console break-glass creation, approval audit detail views, and hosted attestation artifact retrieval.
+Recommended next issue: start Phase 5 with agent registry models/API, MCP server trust tiers, capability metadata, approval state, last-seen metadata, and registry-backed runtime decisions. Keep hosted attestation artifact retrieval as a narrow Phase 3 follow-up.
 
 ## Transparent Agent Methodology Enablement
 

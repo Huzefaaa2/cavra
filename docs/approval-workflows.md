@@ -19,6 +19,7 @@ Phase 4 introduces a local approval router for self-hosted pilots:
 - Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported without live provider credentials.
 - Credential-free HTTP request specs can be exported for approval-provider integration testing.
 - Live approval provider delivery can send Slack, Teams, Jira, ServiceNow, or generic webhook requests with secret-backed URLs and tokens.
+- The sandbox console supports approval queue actions, break-glass creation, and approval audit detail views.
 
 Default approval store:
 
@@ -136,6 +137,8 @@ The sandbox console now includes an approval queue table. It loads `GET /approva
 
 Pending rows expose approve, deny, and expire actions. When the API is reachable the console posts to the approval lifecycle endpoint; static demos update local sample state.
 
+The console also includes a break-glass form that posts to `POST /approvals/break-glass` and an approval audit detail panel that reads `GET /approvals/{approval_id}`. Static demos retain local sample state so the workflow remains usable without a backend.
+
 ## Provider Payloads
 
 `cavra approval export-notifications` writes:
@@ -180,6 +183,7 @@ Delivery evidence is written to `.cavra/approvals/deliveries` by default. Author
 - As a repository owner, I can delegate approval rights to ownership groups for a specific repository without granting global approval authority.
 - As a change manager, I can deliver approval requests to existing ITSM or ChatOps systems and retain delivery evidence.
 - As an incident commander, I can use break glass only when a mandatory justification is captured.
+- As an auditor, I can inspect approval history, evidence references, external references, and decision context from one approval detail view.
 - As an auditor, I can see approval state in CAVRA evidence and PR attestations.
 
 ## Enterprise Challenge Solved

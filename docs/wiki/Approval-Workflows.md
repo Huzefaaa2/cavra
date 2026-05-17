@@ -17,6 +17,7 @@ CAVRA routes risky AI-agent actions to human approvers while safe actions contin
 - Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported.
 - Credential-free provider request specs can be exported for integration testing without secrets.
 - Live provider delivery can send approval requests to Slack, Teams, Jira, ServiceNow, or generic webhooks with secret-backed URLs and tokens.
+- The sandbox console supports approval queue actions, break-glass creation, and approval audit detail views.
 
 ## API
 
@@ -97,6 +98,8 @@ approval_rbac:
 - As an identity administrator, I can require signed OIDC tokens from trusted issuers.
 - As a repository owner, I can delegate approval rights to repository ownership groups without granting global approval authority.
 - As a change manager, I can deliver approval requests to ITSM or ChatOps systems and retain redacted delivery evidence.
+- As an incident commander, I can create a break-glass override from the console with mandatory evidence.
+- As an auditor, I can inspect approval history, evidence references, external references, and decision context from one detail view.
 - As an incident commander, I can use break glass only with mandatory evidence.
 - As an auditor, I can see approval outcomes in evidence and PR attestations.
 

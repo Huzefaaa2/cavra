@@ -108,7 +108,7 @@ Exit criteria:
 
 ## Phase 4: Approval Router
 
-Status: in progress.
+Status: complete for the current production-readiness slice.
 
 Goal: route risky actions to the right human approvers without blocking safe work.
 
@@ -128,6 +128,8 @@ Implement:
 - Signed OIDC token validation with JWKS, issuer, audience, expiry, and not-before checks. Delivered.
 - Repository RBAC policy files with group mappings and repository-scoped approval permissions. Delivered.
 - Console approval actions for approve, deny, and expire. Delivered.
+- Console break-glass creation. Delivered.
+- Approval audit detail views. Delivered.
 
 User stories:
 - As an IAM owner, I receive approval requests for privilege expansion.
@@ -293,10 +295,12 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: continue Phase 4, Approval Router, with richer console approval operations. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
+Next recommended implementation phase: Phase 5, Agent Registry and MCP Trust Registry. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Add console break-glass creation and approval audit detail views.
+- Add agent registry models and API for governed AI-agent identities.
+- Add MCP server registry with trust tier, owner, capabilities, approval state, and last-seen metadata.
+- Add registry-backed runtime decisions for known and unknown MCP servers.
 - Add hosted attestation artifact download APIs backed by governed object storage.

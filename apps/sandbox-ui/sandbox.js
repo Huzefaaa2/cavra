@@ -52,7 +52,11 @@ const approvalCatalog = [
     requested_at: new Date().toISOString(),
     expires_at: "2026-05-18T00:00:00Z",
     external_ref: "CHG-100",
-    decision: { target: "iam/admin-role.tf", rule_id: "filesystem.write.require_approval" }
+    decision: { target: "iam/admin-role.tf", rule_id: "filesystem.write.require_approval", reason: "IAM privilege change requires review." },
+    evidence_refs: ["approval://apr_demo_iam", "evidence://demo-session/dec_demo_iam"],
+    history: [
+      { event: "requested", actor: "developer", timestamp: new Date().toISOString(), reason: "IAM privilege change requires review." }
+    ]
   },
   {
     approval_id: "apr_break_glass",
@@ -65,7 +69,12 @@ const approvalCatalog = [
     expires_at: "2026-05-17T20:00:00Z",
     external_ref: "INC-777",
     break_glass: true,
-    decision: { target: "terraform apply", rule_id: "commands.block" }
+    break_glass_reason: "Production recovery for active incident.",
+    decision: { target: "terraform apply", rule_id: "commands.block", reason: "Autonomous production-impacting infrastructure change is prohibited." },
+    evidence_refs: ["approval://apr_break_glass", "incident://INC-777"],
+    history: [
+      { event: "break_glass", actor: "incident-commander", timestamp: new Date().toISOString(), reason: "Production recovery for active incident." }
+    ]
   }
 ];
 
@@ -227,11 +236,13 @@ function renderApprovalRows(items) {
   rows.innerHTML = "";
   for (const item of items) {
     const stateClass = item.state === "break_glass" ? "warn" : item.state === "denied" ? "block" : "allow";
+    const detailAction = `<button class="approvalDetailAction secondary" data-id="${escapeHtml(item.approval_id)}">Details</button>`;
     const actions = item.state === "pending"
       ? `<button class="approvalAction" data-action="approve" data-id="${escapeHtml(item.approval_id)}">Approve</button>
          <button class="approvalAction secondary" data-action="deny" data-id="${escapeHtml(item.approval_id)}">Deny</button>
-         <button class="approvalAction secondary" data-action="expire" data-id="${escapeHtml(item.approval_id)}">Expire</button>`
-      : "";
+         <button class="approvalAction secondary" data-action="expire" data-id="${escapeHtml(item.approval_id)}">Expire</button>
+         ${detailAction}`
+      : detailAction;
     rows.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${escapeHtml(item.approval_id || "unknown")}</td>
@@ -244,6 +255,33 @@ function renderApprovalRows(items) {
       </tr>
     `);
   }
+}
+
+function renderApprovalDetail(item) {
+  const panel = document.querySelector("#approvalDetail");
+  if (!item) {
+    panel.textContent = "Approval record not found.";
+    return;
+  }
+  const history = Array.isArray(item.history) ? item.history : [];
+  const evidenceRefs = Array.isArray(item.evidence_refs) ? item.evidence_refs : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Approval</dt><dd>${escapeHtml(item.approval_id || "unknown")}</dd>
+      <dt>State</dt><dd>${escapeHtml(item.state || "pending")}</dd>
+      <dt>Approver group</dt><dd>${escapeHtml(item.approver_group || "Repository Owners")}</dd>
+      <dt>Requested by</dt><dd>${escapeHtml(item.requested_by || "ai-agent")}</dd>
+      <dt>Decided by</dt><dd>${escapeHtml(item.decided_by || "n/a")}</dd>
+      <dt>External ref</dt><dd>${escapeHtml(item.external_ref || "n/a")}</dd>
+      <dt>Decision target</dt><dd>${escapeHtml(item.decision?.target || item.decision_id || "unknown")}</dd>
+      <dt>Rule</dt><dd>${escapeHtml(item.decision?.rule_id || "n/a")}</dd>
+      <dt>Reason</dt><dd>${escapeHtml(item.decision_reason || item.break_glass_reason || item.decision?.reason || "n/a")}</dd>
+    </dl>
+    <h3>Evidence</h3>
+    <ul>${evidenceRefs.length ? evidenceRefs.map((ref) => `<li>${escapeHtml(ref)}</li>`).join("") : "<li>n/a</li>"}</ul>
+    <h3>History</h3>
+    <ul>${history.length ? history.map((event) => `<li><strong>${escapeHtml(event.event || "event")}</strong> ${escapeHtml(event.actor || "unknown")}<br><small>${escapeHtml(event.timestamp || "")}</small><br>${escapeHtml(event.reason || "")}</li>`).join("") : "<li>n/a</li>"}</ul>
+  `;
 }
 
 async function refreshEvidence() {
@@ -272,7 +310,92 @@ async function submitApprovalAction(approvalId, action) {
       item.state = action === "approve" ? "approved" : action === "deny" ? "denied" : "expired";
       item.decided_by = "console-user";
       item.decision_reason = reason;
+      item.history = [
+        ...(Array.isArray(item.history) ? item.history : []),
+        { event: item.state, actor: "console-user", timestamp: new Date().toISOString(), reason }
+      ];
     }
+  }
+  await refreshApprovals();
+}
+
+async function showApprovalDetail(approvalId) {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(`/approvals/${approvalId}`));
+    if (!response.ok) throw new Error("Approval API unavailable");
+    renderApprovalDetail(await response.json());
+  } catch {
+    renderApprovalDetail(approvalCatalog.find((approval) => approval.approval_id === approvalId));
+  }
+}
+
+async function createBreakGlassApproval() {
+  const target = document.querySelector("#breakGlassTarget").value.trim();
+  const rule = document.querySelector("#breakGlassRule").value.trim();
+  const actor = document.querySelector("#breakGlassActor").value.trim();
+  const group = document.querySelector("#breakGlassGroup").value.trim();
+  const externalRef = document.querySelector("#breakGlassRef").value.trim();
+  const reason = document.querySelector("#breakGlassReason").value.trim();
+  const ttlHours = Number(document.querySelector("#breakGlassTtl").value || 4);
+  const status = document.querySelector("#breakGlassStatus");
+  if (!target || !actor || !group || !reason) {
+    status.textContent = "Target, actor, group, and reason are required.";
+    status.className = "status-line warn";
+    return;
+  }
+  const payload = {
+    decision: {
+      decision_id: `dec_console_${Date.now()}`,
+      session_id: "console-break-glass",
+      action_type: "execute_command",
+      target,
+      rule_id: rule || "commands.block",
+      decision: "block",
+      severity: "critical",
+      reason: "Emergency override requested from console.",
+      evidence_refs: [`console://break-glass/${Date.now()}`]
+    },
+    actor,
+    reason,
+    approver_group: group,
+    external_ref: externalRef || undefined,
+    ttl_hours: ttlHours
+  };
+  try {
+    const response = await fetch(apiUrl("/approvals/break-glass"), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error("Approval API unavailable");
+    const created = await response.json();
+    status.textContent = `Break-glass approval created: ${created.approval_id}`;
+    status.className = "status-line ok";
+    renderApprovalDetail(created);
+  } catch {
+    const created = {
+      schema_version: "cavra.approval.v1",
+      product: "CAVRA",
+      approval_id: `apr_console_${Date.now()}`,
+      decision_id: payload.decision.decision_id,
+      session_id: payload.decision.session_id,
+      state: "break_glass",
+      approver_group: group,
+      requested_by: actor,
+      requested_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString(),
+      external_ref: externalRef || undefined,
+      break_glass: true,
+      break_glass_reason: reason,
+      decision: payload.decision,
+      evidence_refs: [`approval://console/${Date.now()}`, ...payload.decision.evidence_refs],
+      history: [{ event: "break_glass", actor, timestamp: new Date().toISOString(), reason }]
+    };
+    approvalCatalog.unshift(created);
+    status.textContent = `Break-glass approval created locally: ${created.approval_id}`;
+    status.className = "status-line ok";
+    renderApprovalDetail(created);
   }
   await refreshApprovals();
 }
@@ -295,11 +418,17 @@ async function verifyAttestation() {
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
+document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
-  const button = event.target.closest(".approvalAction");
-  if (!button) return;
-  await submitApprovalAction(button.dataset.id, button.dataset.action);
+  const detailButton = event.target.closest(".approvalDetailAction");
+  if (detailButton) {
+    await showApprovalDetail(detailButton.dataset.id);
+    return;
+  }
+  const actionButton = event.target.closest(".approvalAction");
+  if (!actionButton) return;
+  await submitApprovalAction(actionButton.dataset.id, actionButton.dataset.action);
 });
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
 document.querySelector("#copyInstall").addEventListener("click", async () => {

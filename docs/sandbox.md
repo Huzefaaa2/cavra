@@ -14,6 +14,8 @@ The same surface now includes the first hosted evidence console views:
 - PR attestation verification for selected sessions.
 - Approval queue view with state and approver group filters.
 - Approval queue actions for approve, deny, and expire on pending requests.
+- Break-glass creation for emergency overrides with actor, reason, approver group, external reference, and TTL.
+- Approval audit detail view for decision context, lifecycle history, evidence references, and external references.
 - Operational readiness summary for trust roots, SQLite search, attestation verification, and database migrations.
 
 When the API is available at the same origin, the console attempts to load `GET /evidence?limit=50`. If the API is not available, it uses built-in sample evidence metadata so the console remains usable as a static demo.
@@ -42,6 +44,6 @@ CAVRA_APPROVAL_RBAC_FILE=.cavra/approval-rbac.yaml \
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 
-If the page is hosted separately, set `window.CAVRA_API_BASE = "https://api.cavra.example"` before loading `sandbox.js`. The console first reads `/console/config`, then queries `/evidence` with signer, blocked-count, approval-state, and limit filters and `/approvals` with state and approver-group filters. Pending approval actions post to `/approvals/{approval_id}/approve`, `/approvals/{approval_id}/deny`, or `/approvals/{approval_id}/expire`.
+If the page is hosted separately, set `window.CAVRA_API_BASE = "https://api.cavra.example"` before loading `sandbox.js`. The console first reads `/console/config`, then queries `/evidence` with signer, blocked-count, approval-state, and limit filters and `/approvals` with state and approver-group filters. Pending approval actions post to `/approvals/{approval_id}/approve`, `/approvals/{approval_id}/deny`, or `/approvals/{approval_id}/expire`. Break-glass creation posts to `/approvals/break-glass`, and audit details read `/approvals/{approval_id}`.
 
 For security, the API does not index server-side bundle paths. Index evidence locally with `cavra evidence index` or `cavra evidence index --sqlite`, then persist metadata through the API or SQLite store.
