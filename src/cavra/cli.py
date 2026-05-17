@@ -11,10 +11,7 @@ from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
 from cavra.evidence import create_evidence_bundle, verify_evidence_bundle
-from cavra.integrations import (
-    CommandInterceptor,
-    GitHubPRAttestationExporter,
-)
+from cavra.integrations import CommandInterceptor
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -111,7 +108,7 @@ def exec_command(
     result = interceptor.execute(command)
 
     if result.success:
-        console.print(f"[green]✓[/green] Command executed successfully")
+        console.print("[green]✓[/green] Command executed successfully")
         if result.output:
             console.print(result.output)
     else:

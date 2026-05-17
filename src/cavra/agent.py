@@ -3,7 +3,6 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from cavra.audit import SessionAudit, action_from_decision
 from cavra.runtime import RuntimeGuard

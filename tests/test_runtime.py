@@ -1,11 +1,9 @@
 from pathlib import Path
 
-from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
 
 
 def test_runtime_guard_blocks_sensitive_read() -> None:
-    registry = PolicyRegistry(root=Path(__file__).resolve().parents[1] / "policies")
     guard = RuntimeGuard(policy_pack="cavra-ai-agent-baseline")
     decision = guard.evaluate_file_access(Path(".env"), "read")
     assert decision.decision == "block"

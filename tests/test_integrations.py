@@ -1,17 +1,14 @@
 from pathlib import Path
 
-from cavra.audit import AuditAction, SessionAudit, create_attestation_markdown
+from cavra.audit import AuditAction, SessionAudit
 from cavra.integrations import (
     CommandInterceptor,
     GitHubPRAttestationExporter,
 )
-from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
 
 
 def test_command_interceptor_blocks_terraform_apply() -> None:
-    root = Path(__file__).resolve().parents[1] / "policies"
-    registry = PolicyRegistry(root=root)
     guard = RuntimeGuard(policy_pack="cavra-ai-agent-baseline")
 
     session = SessionAudit(session_id="test-001", tool="claude-code", repo=Path("."))

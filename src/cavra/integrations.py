@@ -4,7 +4,6 @@ import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from cavra.audit import SessionAudit, action_from_decision, create_attestation_markdown
 from cavra.runtime import RuntimeGuard
