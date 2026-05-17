@@ -205,7 +205,7 @@ def create_app():
         try:
             return activity_store.upsert_session(payload)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+            raise HTTPException(status_code=400, detail="invalid session record") from exc
 
     @app.get("/sessions/{session_id}")
     def session_item(session_id: str) -> dict:
@@ -227,7 +227,7 @@ def create_app():
         try:
             return registry_store.upsert_agent(payload)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+            raise HTTPException(status_code=400, detail="approval provider delivery request is invalid") from exc
 
     @app.get("/agents/{agent_id}")
     def agent(agent_id: str) -> dict:

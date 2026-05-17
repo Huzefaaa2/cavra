@@ -252,19 +252,34 @@ class SQLiteActivityStore:
     ) -> dict[str, Any]:
         limit = max(1, min(limit, 500))
         offset = max(0, offset)
-        where, params = _sql_filters(
-            session_id=session_id,
-            agent_id=agent_id,
-            repository=repository,
-            policy_pack=policy_pack,
-            decision=decision,
-            severity=severity,
-            action_type=action_type,
-        )
+        params = _optional_filter_params(session_id, agent_id, repository, policy_pack, decision, severity, action_type)
         with self._connect() as connection:
-            total = connection.execute(f"SELECT COUNT(*) AS count FROM activity_decisions {where}", params).fetchone()["count"]
+            total = connection.execute(
+                """
+                SELECT COUNT(*) AS count FROM activity_decisions
+                WHERE (? IS NULL OR session_id = ?)
+                  AND (? IS NULL OR agent_id = ?)
+                  AND (? IS NULL OR repository = ?)
+                  AND (? IS NULL OR policy_pack = ?)
+                  AND (? IS NULL OR decision = ?)
+                  AND (? IS NULL OR severity = ?)
+                  AND (? IS NULL OR action_type = ?)
+                """,
+                params,
+            ).fetchone()["count"]
             rows = connection.execute(
-                f"SELECT payload FROM activity_decisions {where} ORDER BY timestamp DESC, decision_id ASC LIMIT ? OFFSET ?",
+                """
+                SELECT payload FROM activity_decisions
+                WHERE (? IS NULL OR session_id = ?)
+                  AND (? IS NULL OR agent_id = ?)
+                  AND (? IS NULL OR repository = ?)
+                  AND (? IS NULL OR policy_pack = ?)
+                  AND (? IS NULL OR decision = ?)
+                  AND (? IS NULL OR severity = ?)
+                  AND (? IS NULL OR action_type = ?)
+                ORDER BY timestamp DESC, decision_id ASC
+                LIMIT ? OFFSET ?
+                """,
                 [*params, limit, offset],
             ).fetchall()
         return {"items": [json.loads(row["payload"]) for row in rows], "total": total, "limit": limit, "offset": offset}
@@ -316,11 +331,28 @@ class SQLiteActivityStore:
     ) -> dict[str, Any]:
         limit = max(1, min(limit, 500))
         offset = max(0, offset)
-        where, params = _sql_filters(agent_id=agent_id, repository=repository, policy_pack=policy_pack, state=state)
+        params = _optional_filter_params(agent_id, repository, policy_pack, state)
         with self._connect() as connection:
-            total = connection.execute(f"SELECT COUNT(*) AS count FROM activity_sessions {where}", params).fetchone()["count"]
+            total = connection.execute(
+                """
+                SELECT COUNT(*) AS count FROM activity_sessions
+                WHERE (? IS NULL OR agent_id = ?)
+                  AND (? IS NULL OR repository = ?)
+                  AND (? IS NULL OR policy_pack = ?)
+                  AND (? IS NULL OR state = ?)
+                """,
+                params,
+            ).fetchone()["count"]
             rows = connection.execute(
-                f"SELECT payload FROM activity_sessions {where} ORDER BY updated_at DESC, session_id ASC LIMIT ? OFFSET ?",
+                """
+                SELECT payload FROM activity_sessions
+                WHERE (? IS NULL OR agent_id = ?)
+                  AND (? IS NULL OR repository = ?)
+                  AND (? IS NULL OR policy_pack = ?)
+                  AND (? IS NULL OR state = ?)
+                ORDER BY updated_at DESC, session_id ASC
+                LIMIT ? OFFSET ?
+                """,
                 [*params, limit, offset],
             ).fetchall()
         return {"items": [json.loads(row["payload"]) for row in rows], "total": total, "limit": limit, "offset": offset}
@@ -411,14 +443,11 @@ def _session_row(record: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
-def _sql_filters(**filters: str | None) -> tuple[str, list[Any]]:
-    clauses: list[str] = []
+def _optional_filter_params(*values: str | None) -> list[Any]:
     params: list[Any] = []
-    for key, value in filters.items():
-        if value:
-            clauses.append(f"{key} = ?")
-            params.append(value)
-    return (f"WHERE {' AND '.join(clauses)}" if clauses else "", params)
+    for value in values:
+        params.extend([value, value])
+    return params
 
 
 def _filter_records(items: list[dict[str, Any]], **filters: str | None) -> list[dict[str, Any]]:
