@@ -40,6 +40,7 @@ Architecture references:
 
 - [C4 context diagram](docs/diagrams/c4-context.md)
 - [C4 container diagram](docs/diagrams/c4-container.md)
+- [C4 container SVG](docs/diagrams/c4-container.svg)
 - [Runtime component diagram](docs/diagrams/c4-component-runtime.md)
 - [Runtime decision flow](docs/diagrams/runtime-decision-flow.md)
 - [Evidence lifecycle](docs/diagrams/evidence-lifecycle.md)
@@ -111,14 +112,16 @@ cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
 
 CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, and sandbox evidence bundles. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
 
-Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, immutable storage reference plans, and verifier commands.
+Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, and verifier commands.
 
 ```bash
 cavra evidence bundle --output .cavra/evidence/latest --signer platform-security
 cavra evidence verify .cavra/evidence/latest
 cavra evidence siem-event .cavra/evidence/latest
 cavra evidence export-siem .cavra/evidence/latest --output .cavra/evidence/siem
+cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
+cavra evidence index .cavra/evidence/latest --store .cavra/evidence/metadata.json
 ```
 
 ## Human approvals
@@ -182,7 +185,7 @@ Current phase status:
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
 - Phase 3: Evidence Hub and Attestation - in progress in PR #1.
-- Phase 4: Approval Router - next recommended implementation phase after evidence retention and API persistence are expanded.
+- Phase 4: Approval Router - next recommended implementation phase after public/private key signature hardening is completed.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -192,9 +195,9 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Expand evidence signing to public/private key signatures.
-- Add evidence retention controls.
-- Persist evidence metadata in the API.
+- Harden public/private key evidence signatures with key IDs, trust roots, and rotation guidance.
+- Add evidence API pagination, filtering, and database-backed persistence.
+- Add PR attestation verifier output.
 
 ## User stories and enterprise value
 

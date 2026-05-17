@@ -1,9 +1,12 @@
 from pathlib import Path
 
 from cavra.evidence import (
+    EvidenceMetadataStore,
     create_evidence_bundle,
     export_immutable_storage_plan,
+    export_retention_policy,
     export_siem_payloads,
+    generate_ed25519_keypair,
     verify_evidence_bundle,
 )
 from cavra.runtime import RuntimeGuard
@@ -25,6 +28,7 @@ def test_create_and_verify_evidence_bundle(tmp_path: Path) -> None:
     assert (tmp_path / "pr-attestation.md").exists()
     assert (tmp_path / "compliance-mapping.md").exists()
     assert (tmp_path / "siem-event.json").exists()
+    assert (tmp_path / "retention-policy.json").exists()
     ok, errors = verify_evidence_bundle(tmp_path, key="secret")
     assert ok, errors
 
@@ -83,3 +87,61 @@ def test_export_immutable_storage_plan(tmp_path: Path) -> None:
     assert (output_dir / "immutable-storage-plan.md").exists()
     assert "enterprise-cavra-evidence" in plan_path.read_text(encoding="utf-8")
     assert "enterpriseevidence" in plan_path.read_text(encoding="utf-8")
+
+
+def test_ed25519_signed_evidence_bundle_verifies(tmp_path: Path) -> None:
+    private_key = tmp_path / "private.pem"
+    public_key = tmp_path / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+
+    create_evidence_bundle(
+        _decisions(),
+        tmp_path / "bundle",
+        session_id="pytest",
+        signer="pytest",
+        private_key=private_key,
+    )
+
+    ok, errors = verify_evidence_bundle(tmp_path / "bundle", public_key=public_key)
+    assert ok, errors
+
+
+def test_retention_policy_minimum_is_enforced(tmp_path: Path) -> None:
+    create_evidence_bundle(_decisions(), tmp_path, session_id="pytest", retention_days=30)
+
+    ok, errors = verify_evidence_bundle(tmp_path, minimum_retention_days=365)
+
+    assert not ok
+    assert "retention policy below minimum" in errors
+
+
+def test_export_retention_policy_for_existing_bundle(tmp_path: Path) -> None:
+    bundle_dir = tmp_path / "bundle"
+    output_dir = tmp_path / "retention"
+    create_evidence_bundle(_decisions(), bundle_dir, session_id="pytest")
+
+    result = export_retention_policy(
+        bundle_dir,
+        output_dir,
+        retention_days=365,
+        classification="audit",
+        legal_hold=True,
+    )
+
+    assert result.output_dir == output_dir
+    policy = (output_dir / "retention-policy.json").read_text(encoding="utf-8")
+    assert "audit" in policy
+    assert "365" in policy
+    assert (output_dir / "retention-policy.md").exists()
+
+
+def test_evidence_metadata_store_indexes_bundle(tmp_path: Path) -> None:
+    bundle_dir = tmp_path / "bundle"
+    create_evidence_bundle(_decisions(), bundle_dir, session_id="pytest")
+    store = EvidenceMetadataStore(tmp_path / "metadata.json")
+
+    metadata = store.index_bundle(bundle_dir)
+
+    assert metadata["session_id"] == "pytest"
+    assert metadata["decision_count"] == 3
+    assert store.get("pytest")["blocked_count"] == 2

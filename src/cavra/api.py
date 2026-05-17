@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Optional
 
+from cavra.evidence import EvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
 
 try:
-    from fastapi import FastAPI, Response
+    from fastapi import FastAPI, HTTPException, Response
 except ImportError:  # pragma: no cover
     FastAPI = None
+    HTTPException = None
     Response = None
 
 
@@ -22,6 +26,9 @@ def create_app():
         version="0.1.0",
     )
     runs: dict[str, dict] = {}
+    evidence_store = EvidenceMetadataStore(
+        Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json"))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -55,7 +62,6 @@ def create_app():
     @app.get("/agents")
     @app.get("/repositories")
     @app.get("/approvals")
-    @app.get("/evidence")
     @app.get("/integrations")
     @app.get("/mcp/servers")
     @app.get("/mcp/trust")
@@ -63,6 +69,33 @@ def create_app():
     @app.get("/compliance/mappings")
     def empty_collection() -> list[dict]:
         return []
+
+    @app.get("/evidence")
+    def evidence_index() -> list[dict]:
+        return evidence_store.list()
+
+    @app.post("/evidence")
+    def upsert_evidence_metadata(payload: dict) -> dict:
+        try:
+            return evidence_store.upsert(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/evidence/index-bundle")
+    def index_evidence_bundle(payload: dict) -> dict:
+        try:
+            return evidence_store.index_bundle(Path(payload["bundle_dir"]))
+        except KeyError as exc:
+            raise HTTPException(status_code=400, detail="bundle_dir is required") from exc
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/evidence/{session_id}")
+    def evidence_metadata(session_id: str) -> dict:
+        item = evidence_store.get(session_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="evidence metadata not found")
+        return item
 
     @app.get("/api/sandbox/scenarios")
     def sandbox_scenarios() -> list[dict]:

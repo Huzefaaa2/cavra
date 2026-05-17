@@ -30,7 +30,7 @@ Added production implementation governance docs: `docs/production-roadmap.md`, `
 
 Added wiki-ready pages under `docs/wiki/`, including Home, White Paper, Production Roadmap, Implementation Plan, User Stories, Enterprise Challenges, Diagrams, and Phase Completion Log.
 
-Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram sources and SVG image assets.
+Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram sources and SVG image assets. The C4 container diagram now has a more elaborate grouped architecture view and a user-friendly SVG asset.
 
 Added GitHub repository readiness controls and documentation: protected `main`, Dependabot, CodeQL, PR template, CODEOWNERS, issue templates, VS Code recommendations, release documentation policy, and repository readiness guide.
 
@@ -38,7 +38,7 @@ Added high-quality user-facing diagram images for architecture, runtime flow, ev
 
 Added transparent CAVRA engineering-agent methodology: declarative agent manifests, agent task issue template, label catalog, conservative GitHub Actions orchestrator scaffold, `cavra-agentic-delivery` policy pack, architecture documentation, wiki pages, and the user-facing agent orchestration diagram. The methodology explicitly requires bot identities and prohibits fake human developer identities.
 
-Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, and `983dc54`.
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, and `66cd075`.
 
 ## Claude Code and MCP status
 
@@ -83,6 +83,10 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 - `PYTHONPATH=src python3 -m cavra.cli evidence siem-event /tmp/cavra-evidence` -> passed.
 - `PYTHONPATH=src python3 -m cavra.cli evidence export-siem /tmp/cavra-phase3-bundle --output /tmp/cavra-phase3-siem` -> passed.
 - `PYTHONPATH=src python3 -m cavra.cli evidence storage-plan /tmp/cavra-phase3-bundle --output /tmp/cavra-phase3-storage --retention-days 365` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence generate-keypair ...` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence verify /tmp/cavra-phase3-signed --public-key ... --minimum-retention-days 365` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence retention-policy /tmp/cavra-phase3-signed --output /tmp/cavra-phase3-retention --retention-days 365` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence index /tmp/cavra-phase3-signed --store /tmp/cavra-evidence-metadata.json` -> passed.
 - `docker run --rm cavra:local evidence bundle --output /tmp/cavra-evidence --key secret` -> passed.
 - `docker run --rm -v cavra-evidence-check:/tmp/evidence cavra:local evidence verify /tmp/evidence --key secret` -> passed.
 
@@ -102,9 +106,9 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 Phase 2, Policy Engine Hardening, is now implemented. Added strict JSON Schema policy validation, policy inheritance resolver, normalized compile output, semantic policy diff, policy signature metadata, signature verification, and tests for bundled policy validation, inheritance, diff, and tamper detection.
 
-Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, PR attestation output, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, CLI evidence commands, and evidence tests.
+Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, Ed25519 manifest signatures, retention policy artifacts, PR attestation output, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, evidence metadata indexing, API metadata persistence, CLI evidence commands, and evidence tests.
 
-Next recommended implementation work: finish Phase 3 with public/private key evidence signatures, evidence retention controls, and API persistence for evidence metadata. Then continue to Phase 4, Approval Router.
+Next recommended implementation work: finish Phase 3 with key trust roots, key IDs, rotation guidance, database-backed evidence search, and PR attestation verifier output. Then continue to Phase 4, Approval Router.
 
 Later roadmap backlog: persistent API storage, real approval providers, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, and signed releases.
 

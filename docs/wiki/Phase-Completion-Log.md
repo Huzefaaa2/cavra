@@ -55,8 +55,12 @@ Completed:
 - Evidence verification command.
 - Splunk HEC, Microsoft Sentinel, Datadog, and generic webhook SIEM export payloads.
 - S3 Object Lock and Azure immutable blob immutable storage reference plans.
+- Ed25519 evidence manifest signatures and key generation.
+- Evidence retention policy artifacts and minimum-retention verification.
+- Evidence metadata indexing and API persistence.
+- More elaborate C4 container diagram for enterprise architecture review.
 
-Recommended next issue: evidence retention policy controls and API persistence for evidence metadata.
+Recommended next issue: key trust roots, key IDs, rotation guidance, database-backed evidence search, and PR attestation verifier output.
 
 ## Transparent Agent Methodology Enablement
 

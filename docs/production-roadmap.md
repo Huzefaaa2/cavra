@@ -76,11 +76,14 @@ Delivered:
 - Compliance mapping report per policy pack.
 - Provider-specific SIEM export payloads for Splunk HEC, Microsoft Sentinel, Datadog, and generic webhooks.
 - Immutable evidence storage reference plans for S3 Object Lock and Azure immutable blob.
+- Ed25519 manifest signatures and evidence keypair generation.
+- Evidence retention policy artifacts and minimum-retention verification.
+- Evidence metadata indexing through CLI and API endpoints.
 
 Remaining:
-- Evidence retention policy controls.
-- Public/private key evidence signatures.
-- API persistence for evidence metadata.
+- Key trust roots, key IDs, and rotation guidance.
+- Database-backed evidence metadata persistence with pagination and filters.
+- PR attestation verifier output.
 
 User stories:
 - As an auditor, I can download a complete evidence bundle for an AI-agent session.
@@ -273,14 +276,12 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: Phase 3, Evidence Hub and Attestation.
+Next recommended implementation phase: finish Phase 3, Evidence Hub and Attestation.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, and policy signature metadata. The next production risk is evidence integrity. CAVRA needs signed evidence bundles, manifests, checksum verification, PR attestation verification, compliance reports, and SIEM-ready event exports.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, and API metadata persistence. The remaining Phase 3 risk is operational trust management and searchable evidence at enterprise scale.
 
 Immediate next tasks:
-- Add evidence bundle manifest generation.
-- Add checksum verification for evidence bundles.
-- Add signed evidence bundle metadata.
 - Add PR attestation verifier output.
-- Add SIEM event export tests.
-- Add evidence retention controls.
+- Add key trust roots, key IDs, and key rotation guidance.
+- Add database-backed evidence metadata storage.
+- Add evidence search filters and pagination.

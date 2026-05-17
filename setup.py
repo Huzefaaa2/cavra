@@ -43,10 +43,12 @@ setup(
         "python-dateutil>=2.8",
         "fastapi>=0.110",
         "uvicorn>=0.27",
+        "cryptography>=42.0",
     ],
     extras_require={
         "dev": [
             "pytest>=8.0",
+            "httpx>=0.27",
             "ruff>=0.1",
             "black>=23.0",
             "mypy>=1.0",

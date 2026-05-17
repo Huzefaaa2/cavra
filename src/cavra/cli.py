@@ -11,9 +11,12 @@ from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
 from cavra.evidence import (
+    EvidenceMetadataStore,
     create_evidence_bundle,
     export_immutable_storage_plan,
+    export_retention_policy,
     export_siem_payloads,
+    generate_ed25519_keypair,
     verify_evidence_bundle,
 )
 from cavra.integrations import CommandInterceptor
@@ -351,21 +354,61 @@ def bundle_evidence(
     policy_pack: Annotated[str, typer.Option(help="Policy pack ID for sample decisions.")] = "cavra-ai-agent-baseline",
     signer: Annotated[str, typer.Option(help="Signer identity recorded in manifest.")] = "local",
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
+    private_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 private key PEM for manifest signature.")] = None,
+    retention_days: Annotated[int, typer.Option(help="Evidence retention period.")] = 2555,
+    classification: Annotated[str, typer.Option(help="Evidence classification recorded in retention policy.")] = "regulated-sdlc",
+    legal_hold: Annotated[bool, typer.Option(help="Mark generated evidence as under legal hold.")] = False,
 ) -> None:
     """Generate a CAVRA evidence bundle from the flagship decision sequence."""
     decisions = _before_agent_acts_decisions(policy_pack=policy_pack)
-    result = create_evidence_bundle(decisions, output, session_id="demo-session", signer=signer, key=key)
+    try:
+        result = create_evidence_bundle(
+            decisions,
+            output,
+            session_id="demo-session",
+            signer=signer,
+            key=key,
+            private_key=private_key,
+            retention_days=retention_days,
+            classification=classification,
+            legal_hold=legal_hold,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
     console.print(f"[green]evidence bundle created[/green] {result.bundle_dir}")
     console.print(f"[dim]manifest: {result.manifest_path}[/dim]")
+
+
+@evidence_app.command("generate-keypair")
+def evidence_keypair(
+    private_key: Annotated[Path, typer.Option(help="Private key PEM output path.")] = Path(".cavra/keys/evidence-ed25519-private.pem"),
+    public_key: Annotated[Path, typer.Option(help="Public key PEM output path.")] = Path(".cavra/keys/evidence-ed25519-public.pem"),
+) -> None:
+    """Generate an Ed25519 keypair for evidence manifest signatures."""
+    try:
+        private_path, public_path = generate_ed25519_keypair(private_key, public_key)
+    except RuntimeError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]evidence keypair created[/green] {public_path}")
+    console.print(f"[dim]private key: {private_path}[/dim]")
 
 
 @evidence_app.command("verify")
 def verify_evidence(
     bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
+    public_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 public key PEM for manifest verification.")] = None,
+    minimum_retention_days: Annotated[Optional[int], typer.Option(help="Minimum acceptable retention period.")] = None,
 ) -> None:
     """Verify evidence bundle manifest, checksums, and optional signature."""
-    ok, errors = verify_evidence_bundle(bundle_dir, key=key)
+    ok, errors = verify_evidence_bundle(
+        bundle_dir,
+        key=key,
+        public_key=public_key,
+        minimum_retention_days=minimum_retention_days,
+    )
     if not ok:
         console.print("[red]evidence verification failed[/red]")
         for error in errors:
@@ -384,6 +427,31 @@ def print_siem_event(
         console.print(f"[red]SIEM event not found:[/red] {path}")
         raise typer.Exit(code=1)
     console.print(JSON(path.read_text(encoding="utf-8")))
+
+
+@evidence_app.command("retention-policy")
+def retention_policy(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for retention policy.")] = Path(".cavra/evidence/retention"),
+    retention_days: Annotated[int, typer.Option(help="Evidence retention period.")] = 2555,
+    classification: Annotated[str, typer.Option(help="Evidence classification.")] = "regulated-sdlc",
+    legal_hold: Annotated[bool, typer.Option(help="Mark evidence as under legal hold.")] = False,
+) -> None:
+    """Export evidence retention controls for an existing bundle."""
+    try:
+        result = export_retention_policy(
+            bundle_dir,
+            output,
+            retention_days=retention_days,
+            classification=classification,
+            legal_hold=legal_hold,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]retention policy exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"[dim]{path}[/dim]")
 
 
 @evidence_app.command("export-siem")
@@ -438,6 +506,20 @@ def storage_plan(
     console.print(f"[green]immutable storage plan exported[/green] {result.output_dir}")
     for path in result.files:
         console.print(f"[dim]{path}[/dim]")
+
+
+@evidence_app.command("index")
+def index_evidence(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    store: Annotated[Path, typer.Option(help="Evidence metadata store JSON path.")] = Path(".cavra/evidence/metadata.json"),
+) -> None:
+    """Persist searchable evidence metadata from a bundle."""
+    try:
+        metadata = EvidenceMetadataStore(store).index_bundle(bundle_dir)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(metadata, indent=2)))
 
 
 @demo_app.command("before-the-agent-acts")

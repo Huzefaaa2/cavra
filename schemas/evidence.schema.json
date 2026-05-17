@@ -1,1 +1,14 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"CAVRA Evidence","type":"object","required":["product","decisions"],"properties":{"product":{"const":"CAVRA"},"decisions":{"type":"array"}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA Evidence",
+  "type": "object",
+  "required": ["product", "session_id", "decisions"],
+  "additionalProperties": true,
+  "properties": {
+    "product": {"const": "CAVRA"},
+    "tagline": {"type": "string"},
+    "session_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "minLength": 1},
+    "decisions": {"type": "array", "items": {"type": "object"}}
+  }
+}

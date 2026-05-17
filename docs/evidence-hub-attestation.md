@@ -7,13 +7,16 @@ Phase 3 begins the production Evidence Hub. CAVRA now creates verifier-ready evi
 - Evidence bundle directory with `manifest.json`.
 - SHA-256 checksums for bundle files.
 - Optional HMAC manifest signature.
+- Ed25519 public/private key manifest signatures.
 - `evidence.json` with full CAVRA decisions.
 - `pr-attestation.md` for pull request review.
 - `compliance-mapping.md` for audit and control review.
 - `siem-event.json` for SIEM ingestion.
 - Bundle verification with checksum and optional signature validation.
 - Splunk HEC, Microsoft Sentinel, Datadog, and generic webhook SIEM export payloads.
+- Retention policy artifacts with minimum-retention verification.
 - S3 Object Lock and Azure immutable blob reference storage plans.
+- Evidence metadata indexing for CLI and API workflows.
 
 ## CLI Usage
 
@@ -29,10 +32,18 @@ Create and sign with a local HMAC key:
 cavra evidence bundle --output .cavra/evidence/latest --key "$CAVRA_EVIDENCE_SIGNING_KEY"
 ```
 
+Create and sign with an Ed25519 key:
+
+```bash
+cavra evidence generate-keypair --private-key .cavra/keys/evidence-private.pem --public-key .cavra/keys/evidence-public.pem
+cavra evidence bundle --output .cavra/evidence/latest --private-key .cavra/keys/evidence-private.pem
+```
+
 Verify:
 
 ```bash
 cavra evidence verify .cavra/evidence/latest --key "$CAVRA_EVIDENCE_SIGNING_KEY"
+cavra evidence verify .cavra/evidence/latest --public-key .cavra/keys/evidence-public.pem --minimum-retention-days 2555
 ```
 
 Print the SIEM event:
@@ -55,6 +66,13 @@ Create immutable storage reference plans:
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
 ```
 
+Export retention and metadata:
+
+```bash
+cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention --retention-days 2555
+cavra evidence index .cavra/evidence/latest --store .cavra/evidence/metadata.json
+```
+
 ## Bundle Files
 
 - `manifest.json`: schema version, file list, checksums, signer, created timestamp, and signature metadata.
@@ -63,6 +81,7 @@ cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/stor
 - `compliance-mapping.md`: control-objective mapping.
 - `siem-event.json`: machine-readable event for SOC workflows.
 - `sandbox-run-summary.json`: compact demo/session summary.
+- `retention-policy.json`: classification, retain-until timestamp, delete protection, and legal-hold state.
 
 ## SIEM Export Files
 
@@ -82,6 +101,17 @@ cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/stor
 
 These files intentionally describe storage requirements and object targets. They do not upload evidence or require cloud credentials.
 
+## API Metadata Persistence
+
+The API now supports evidence metadata persistence through:
+
+- `GET /evidence`
+- `POST /evidence`
+- `GET /evidence/{session_id}`
+- `POST /evidence/index-bundle`
+
+By default, metadata is stored in `.cavra/api/evidence-metadata.json`. Operators can set `CAVRA_EVIDENCE_METADATA_STORE` to move the metadata file.
+
 ## Enterprise Value
 
 Evidence bundles help enterprises prove what happened before an AI-agent action reached code, shell, Git, MCP, cloud, or infrastructure. Reviewers get PR attestation, auditors get compliance mapping, and SOC teams get SIEM-ready events.
@@ -89,12 +119,14 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 ## User Stories
 
 - As an auditor, I can verify evidence bundle checksums.
+- As an auditor, I can verify Ed25519-signed evidence bundles with a public key.
 - As a reviewer, I can attach CAVRA PR attestation to AI-assisted changes.
 - As a SOC analyst, I can ingest CAVRA decisions into Splunk, Sentinel, Datadog, or webhook workflows.
 - As a platform engineer, I can create immutable storage plans without granting CAVRA cloud credentials.
+- As a platform engineer, I can persist evidence metadata for API search and review workflows.
 
 ## Next Work
 
-- Add public/private key evidence signatures.
-- Add evidence retention policy controls.
-- Persist evidence metadata in the API.
+- Harden key trust roots, key IDs, and rotation guidance.
+- Add database-backed evidence metadata persistence with pagination and filters.
+- Add PR attestation verifier output.

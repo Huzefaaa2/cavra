@@ -5,7 +5,7 @@ import hashlib
 import hmac
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -32,8 +32,35 @@ def sha256_file(path: Path) -> str:
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
+
+
+def generate_ed25519_keypair(private_key_path: Path, public_key_path: Path) -> tuple[Path, Path]:
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to use Ed25519 evidence signatures.") from exc
+
+    private_key = Ed25519PrivateKey.generate()
+    private_key_path.parent.mkdir(parents=True, exist_ok=True)
+    public_key_path.parent.mkdir(parents=True, exist_ok=True)
+    private_key_path.write_bytes(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    public_key_path.write_bytes(
+        private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
+    return private_key_path, public_key_path
 
 
 def render_pr_attestation(session_id: str, decisions: list[dict[str, Any]]) -> str:
@@ -317,6 +344,78 @@ def export_immutable_storage_plan(
     return ExportResult(output_dir, [json_path, markdown_path])
 
 
+def build_retention_policy(
+    session_id: str,
+    *,
+    created_at: str,
+    retention_days: int = 2555,
+    classification: str = "regulated-sdlc",
+    legal_hold: bool = False,
+) -> dict[str, Any]:
+    if retention_days < 1:
+        raise ValueError("retention_days must be greater than zero")
+    created = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+    expires_at = created + timedelta(days=retention_days)
+    return {
+        "schema_version": "cavra.evidence.retention.v1",
+        "product": "CAVRA",
+        "session_id": session_id,
+        "classification": classification,
+        "created_at": created_at,
+        "retention_days": retention_days,
+        "retain_until": expires_at.isoformat(),
+        "legal_hold": legal_hold,
+        "delete_protection": True,
+        "disposition": "retain" if legal_hold else "eligible_for_review_after_retain_until",
+    }
+
+
+def render_retention_policy(policy: dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            "# CAVRA Evidence Retention Policy",
+            "",
+            f"Session: `{policy['session_id']}`",
+            f"Classification: `{policy['classification']}`",
+            f"Retention days: `{policy['retention_days']}`",
+            f"Retain until: `{policy['retain_until']}`",
+            f"Legal hold: `{policy['legal_hold']}`",
+            f"Disposition: `{policy['disposition']}`",
+            "",
+        ]
+    )
+
+
+def export_retention_policy(
+    bundle_dir: Path,
+    output_dir: Path,
+    *,
+    retention_days: int = 2555,
+    classification: str = "regulated-sdlc",
+    legal_hold: bool = False,
+) -> ExportResult:
+    evidence_path = bundle_dir / "evidence.json"
+    manifest_path = bundle_dir / "manifest.json"
+    if not evidence_path.exists():
+        raise FileNotFoundError(f"evidence not found: {evidence_path}")
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"manifest not found: {manifest_path}")
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    policy = build_retention_policy(
+        evidence.get("session_id", "unknown"),
+        created_at=manifest.get("created_at", datetime.now(timezone.utc).isoformat()),
+        retention_days=retention_days,
+        classification=classification,
+        legal_hold=legal_hold,
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = write_json(output_dir / "retention-policy.json", policy)
+    markdown_path = output_dir / "retention-policy.md"
+    markdown_path.write_text(render_retention_policy(policy), encoding="utf-8")
+    return ExportResult(output_dir, [json_path, markdown_path])
+
+
 def create_evidence_bundle(
     decisions: list[dict[str, Any]],
     destination: Path,
@@ -324,14 +423,20 @@ def create_evidence_bundle(
     session_id: str = "local",
     signer: str = "local",
     key: str | None = None,
+    private_key: Path | None = None,
+    retention_days: int = 2555,
+    classification: str = "regulated-sdlc",
+    legal_hold: bool = False,
 ) -> EvidenceBundleResult:
     destination.mkdir(parents=True, exist_ok=True)
+    created_at = datetime.now(timezone.utc).isoformat()
     evidence_path = write_json(
         destination / "evidence.json",
         {
             "product": "CAVRA",
             "tagline": "Before the agent acts, CAVRA decides.",
             "session_id": session_id,
+            "created_at": created_at,
             "decisions": decisions,
         },
     )
@@ -344,18 +449,38 @@ def create_evidence_bundle(
         destination / "sandbox-run-summary.json",
         {
             "session_id": session_id,
+            "created_at": created_at,
             "events": len(decisions),
             "blocked": sum(1 for item in decisions if item.get("decision") == "block"),
             "approval_required": sum(1 for item in decisions if item.get("decision") == "require_approval"),
         },
     )
-    files = [evidence_path, attestation_path, compliance_path, siem_path, summary_path]
-    manifest = build_manifest(files, signer=signer, key=key)
+    retention_path = write_json(
+        destination / "retention-policy.json",
+        build_retention_policy(
+            session_id,
+            created_at=created_at,
+            retention_days=retention_days,
+            classification=classification,
+            legal_hold=legal_hold,
+        ),
+    )
+    files = [evidence_path, attestation_path, compliance_path, siem_path, summary_path, retention_path]
+    manifest = build_manifest(files, signer=signer, key=key, private_key=private_key, created_at=created_at)
     manifest_path = write_json(destination / "manifest.json", manifest)
     return EvidenceBundleResult(destination, manifest_path, [*files, manifest_path])
 
 
-def build_manifest(files: list[Path], *, signer: str = "local", key: str | None = None) -> dict[str, Any]:
+def build_manifest(
+    files: list[Path],
+    *,
+    signer: str = "local",
+    key: str | None = None,
+    private_key: Path | None = None,
+    created_at: str | None = None,
+) -> dict[str, Any]:
+    if key and private_key:
+        raise ValueError("Use either HMAC key or private key, not both.")
     file_entries = [
         {
             "path": path.name,
@@ -367,12 +492,14 @@ def build_manifest(files: list[Path], *, signer: str = "local", key: str | None 
     manifest_payload = {
         "schema_version": "cavra.evidence.bundle.v1",
         "product": "CAVRA",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": created_at or datetime.now(timezone.utc).isoformat(),
         "signer": signer,
         "files": file_entries,
     }
     canonical = json.dumps(manifest_payload, sort_keys=True).encode("utf-8")
-    if key:
+    if private_key:
+        manifest_payload["signature"] = _sign_manifest_ed25519(canonical, private_key)
+    elif key:
         signature = hmac.new(key.encode("utf-8"), canonical, hashlib.sha256).digest()
         manifest_payload["signature"] = {
             "algorithm": "HS256",
@@ -386,7 +513,13 @@ def build_manifest(files: list[Path], *, signer: str = "local", key: str | None 
     return manifest_payload
 
 
-def verify_evidence_bundle(bundle_dir: Path, *, key: str | None = None) -> tuple[bool, list[str]]:
+def verify_evidence_bundle(
+    bundle_dir: Path,
+    *,
+    key: str | None = None,
+    public_key: Path | None = None,
+    minimum_retention_days: int | None = None,
+) -> tuple[bool, list[str]]:
     manifest_path = bundle_dir / "manifest.json"
     if not manifest_path.exists():
         return False, [f"missing manifest: {manifest_path}"]
@@ -407,11 +540,80 @@ def verify_evidence_bundle(bundle_dir: Path, *, key: str | None = None) -> tuple
         expected = base64.b64encode(hmac.new(key.encode("utf-8"), canonical, hashlib.sha256).digest()).decode("ascii")
         if signature.get("value") != expected:
             errors.append("manifest signature mismatch")
+    elif public_key:
+        try:
+            _verify_manifest_ed25519(canonical, signature, public_key)
+        except ValueError as exc:
+            errors.append(str(exc))
     elif signature.get("algorithm") == "SHA256":
         expected = hashlib.sha256(canonical).hexdigest()
         if signature.get("value") != expected:
             errors.append("manifest digest mismatch")
+    if minimum_retention_days is not None:
+        retention_path = bundle_dir / "retention-policy.json"
+        if not retention_path.exists():
+            errors.append("missing retention policy")
+        else:
+            retention = json.loads(retention_path.read_text(encoding="utf-8"))
+            if retention.get("retention_days", 0) < minimum_retention_days:
+                errors.append("retention policy below minimum")
     return not errors, errors
+
+
+def build_evidence_metadata(bundle_dir: Path) -> dict[str, Any]:
+    evidence_path = bundle_dir / "evidence.json"
+    manifest_path = bundle_dir / "manifest.json"
+    retention_path = bundle_dir / "retention-policy.json"
+    if not evidence_path.exists():
+        raise FileNotFoundError(f"evidence not found: {evidence_path}")
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"manifest not found: {manifest_path}")
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    retention = json.loads(retention_path.read_text(encoding="utf-8")) if retention_path.exists() else {}
+    decisions = evidence.get("decisions", [])
+    return {
+        "schema_version": "cavra.evidence.metadata.v1",
+        "product": "CAVRA",
+        "session_id": evidence.get("session_id"),
+        "bundle_dir": str(bundle_dir),
+        "created_at": evidence.get("created_at") or manifest.get("created_at"),
+        "decision_count": len(decisions),
+        "blocked_count": sum(1 for item in decisions if item.get("decision") == "block"),
+        "approval_required_count": sum(1 for item in decisions if item.get("decision") == "require_approval"),
+        "manifest_signature": manifest.get("signature"),
+        "retention": retention,
+    }
+
+
+class EvidenceMetadataStore:
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    def list(self) -> list[dict[str, Any]]:
+        if not self.path.exists():
+            return []
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        return payload.get("items", [])
+
+    def get(self, session_id: str) -> dict[str, Any] | None:
+        for item in self.list():
+            if item.get("session_id") == session_id:
+                return item
+        return None
+
+    def upsert(self, metadata: dict[str, Any]) -> dict[str, Any]:
+        session_id = metadata.get("session_id")
+        if not session_id:
+            raise ValueError("metadata must include session_id")
+        items = [item for item in self.list() if item.get("session_id") != session_id]
+        item = {"schema_version": "cavra.evidence.metadata.v1", "product": "CAVRA", **metadata}
+        items.append(item)
+        write_json(self.path, {"items": sorted(items, key=lambda value: str(value.get("session_id")))})
+        return item
+
+    def index_bundle(self, bundle_dir: Path) -> dict[str, Any]:
+        return self.upsert(build_evidence_metadata(bundle_dir))
 
 
 def _event_epoch(event: dict[str, Any]) -> float:
@@ -439,3 +641,46 @@ def _provider_severity(severity: str, *, provider: str) -> str:
             "low": "info",
         }.get(normalized, "info")
     return normalized
+
+
+def _sign_manifest_ed25519(canonical: bytes, private_key_path: Path) -> dict[str, Any]:
+    try:
+        from cryptography.hazmat.primitives import hashes, serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to use Ed25519 evidence signatures.") from exc
+
+    private_key = serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
+    signature = private_key.sign(canonical)
+    public_key = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    digest = hashes.Hash(hashes.SHA256())
+    digest.update(public_key)
+    return {
+        "algorithm": "Ed25519",
+        "value": base64.b64encode(signature).decode("ascii"),
+        "public_key_sha256": digest.finalize().hex(),
+    }
+
+
+def _verify_manifest_ed25519(canonical: bytes, signature: dict[str, Any], public_key_path: Path) -> None:
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives import hashes, serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to use Ed25519 evidence signatures.") from exc
+
+    if signature.get("algorithm") != "Ed25519":
+        raise ValueError("manifest signature algorithm is not Ed25519")
+    public_key_bytes = public_key_path.read_bytes()
+    digest = hashes.Hash(hashes.SHA256())
+    digest.update(public_key_bytes)
+    expected_fingerprint = digest.finalize().hex()
+    if signature.get("public_key_sha256") != expected_fingerprint:
+        raise ValueError("manifest public key fingerprint mismatch")
+    public_key = serialization.load_pem_public_key(public_key_bytes)
+    try:
+        public_key.verify(base64.b64decode(signature.get("value", "")), canonical)
+    except InvalidSignature as exc:
+        raise ValueError("manifest signature mismatch") from exc

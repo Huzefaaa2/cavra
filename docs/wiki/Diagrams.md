@@ -25,6 +25,7 @@ See `docs/diagrams/evidence-lifecycle.md`.
 Repository diagram images:
 
 - `docs/diagrams/architecture-context.svg`
+- `docs/diagrams/c4-container.svg`
 - `docs/diagrams/runtime-flow.svg`
 - `docs/diagrams/evidence-hub.svg`
 - `docs/diagrams/policy-lifecycle.svg`
