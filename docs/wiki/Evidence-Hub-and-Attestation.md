@@ -65,8 +65,12 @@ For security, the API does not read arbitrary server-side bundle paths. Use `cav
 
 Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata search with filters and pagination.
 
+## Console Views
+
+The hosted console surface includes evidence metadata search, PR attestation verification, and operational readiness indicators.
+
 ## Next Work
 
-- Hosted console views for evidence search and attestation verification.
-- Production database migration path for evidence metadata.
+- Console API wiring for persisted evidence search and attestation verification artifacts.
+- Production database migration automation beyond the initial SQLite migration.
 - Automated trust-root distribution guidance for enterprise deployments.

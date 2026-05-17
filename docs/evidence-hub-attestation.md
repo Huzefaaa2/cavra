@@ -124,6 +124,14 @@ For searchable metadata with filters and pagination, set `CAVRA_EVIDENCE_METADAT
 
 For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata through `POST /evidence`.
 
+## Console Views
+
+The hosted console surface in `apps/sandbox-ui` now includes:
+
+- Evidence metadata search.
+- PR attestation verification summary.
+- Operational readiness indicators for trust roots, SQLite search, attestation verification, and migrations.
+
 ## Enterprise Value
 
 Evidence bundles help enterprises prove what happened before an AI-agent action reached code, shell, Git, MCP, cloud, or infrastructure. Reviewers get PR attestation, auditors get compliance mapping, and SOC teams get SIEM-ready events.

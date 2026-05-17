@@ -82,10 +82,12 @@ Delivered:
 - Evidence key IDs, trust-root verification, and key rotation guidance.
 - SQLite-backed evidence metadata search with filters and pagination.
 - PR attestation verifier output.
+- Hosted console views for evidence search and attestation verification.
+- Initial SQLite migration for evidence metadata.
 
 Remaining:
-- Hosted console views for evidence search and attestation verification.
-- Production database migration path for evidence metadata.
+- Console API wiring for persisted evidence search and attestation verification artifacts.
+- Production database migration automation beyond the initial SQLite migration.
 - Automated trust-root distribution guidance for enterprise deployments.
 
 User stories:
@@ -281,10 +283,9 @@ Exit criteria:
 
 Next recommended implementation phase: finish Phase 3, Evidence Hub and Attestation.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, SQLite evidence search, PR attestation verification, and API metadata persistence. The remaining Phase 3 risk is productizing those evidence workflows into hosted console and production database operations.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, SQLite evidence search, PR attestation verification, hosted console views, initial migration SQL, and API metadata persistence. The remaining Phase 3 risk is wiring the console to persisted API data in deployment topologies and automating production database/trust-root operations.
 
 Immediate next tasks:
-- Add hosted console views for evidence search.
-- Add hosted console views for attestation verification.
-- Add production database migration path.
+- Add console API wiring for deployed same-origin and cross-origin topologies.
+- Add production migration automation.
 - Add automated trust-root distribution guidance.

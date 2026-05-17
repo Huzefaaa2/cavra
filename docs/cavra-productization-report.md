@@ -38,7 +38,7 @@ Added high-quality user-facing diagram images for architecture, runtime flow, ev
 
 Added transparent CAVRA engineering-agent methodology: declarative agent manifests, agent task issue template, label catalog, conservative GitHub Actions orchestrator scaffold, `cavra-agentic-delivery` policy pack, architecture documentation, wiki pages, and the user-facing agent orchestration diagram. The methodology explicitly requires bot identities and prohibits fake human developer identities.
 
-Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, evidence key management page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, `66cd075`, `4683941`, and `c26f7af`.
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, evidence key management page, evidence metadata migrations page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, `66cd075`, `4683941`, `c26f7af`, and `235c30c`.
 
 ## Claude Code and MCP status
 
@@ -48,7 +48,7 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 
 ## Interactive sandbox status
 
-`apps/sandbox-ui/` implements the Before the Agent Acts sandbox with a security-console layout, persona and policy-mode controls, action stream, decision stream, evidence viewer, and Claude Code install CTA. It uses the same CAVRA decision outcomes as the runtime and is runnable locally with Python static serving or Docker Compose.
+`apps/sandbox-ui/` implements the Before the Agent Acts sandbox and first evidence console slice with a security-console layout, persona and policy-mode controls, action stream, decision stream, evidence viewer, evidence metadata search, PR attestation verification, operational readiness status, and Claude Code install CTA. It uses the same CAVRA decision outcomes as the runtime and is runnable locally with Python static serving or Docker Compose.
 
 ## Validation commands run
 
@@ -87,6 +87,10 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 - `PYTHONPATH=src python3 -m cavra.cli evidence verify /tmp/cavra-phase3-signed --public-key ... --minimum-retention-days 365` -> passed.
 - `PYTHONPATH=src python3 -m cavra.cli evidence retention-policy /tmp/cavra-phase3-signed --output /tmp/cavra-phase3-retention --retention-days 365` -> passed.
 - `PYTHONPATH=src python3 -m cavra.cli evidence index /tmp/cavra-phase3-signed --store /tmp/cavra-evidence-metadata.json` -> passed.
+- `node --check apps/sandbox-ui/sandbox.js` -> passed.
+- `python3 -m pytest -q` -> 36 passed.
+- HTML parser smoke check for `apps/sandbox-ui/index.html` -> passed.
+- `curl -I -fsS http://127.0.0.1:5173` for the hosted evidence console -> passed.
 - `docker run --rm cavra:local evidence bundle --output /tmp/cavra-evidence --key secret` -> passed.
 - `docker run --rm -v cavra-evidence-check:/tmp/evidence cavra:local evidence verify /tmp/evidence --key secret` -> passed.
 
@@ -106,9 +110,9 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 Phase 2, Policy Engine Hardening, is now implemented. Added strict JSON Schema policy validation, policy inheritance resolver, normalized compile output, semantic policy diff, policy signature metadata, signature verification, and tests for bundled policy validation, inheritance, diff, and tamper detection.
 
-Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, Ed25519 manifest signatures, key IDs, trust-root verification, rotation guidance, retention policy artifacts, PR attestation output and verification reports, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, evidence metadata indexing, SQLite search with filters and pagination, API metadata persistence, CLI evidence commands, and evidence tests.
+Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, Ed25519 manifest signatures, key IDs, trust-root verification, rotation guidance, retention policy artifacts, PR attestation output and verification reports, compliance mapping output, SIEM event output, provider-specific SIEM export payloads, immutable storage reference plans, evidence metadata indexing, SQLite search with filters and pagination, hosted console views, initial SQLite migration, API metadata persistence, CLI evidence commands, and evidence tests.
 
-Next recommended implementation work: finish Phase 3 with hosted console views for evidence search and attestation verification, production database migration path, and automated trust-root distribution guidance. Then continue to Phase 4, Approval Router.
+Next recommended implementation work: finish Phase 3 with console API wiring for deployed topologies, production migration automation, and automated trust-root distribution guidance. Then continue to Phase 4, Approval Router.
 
 Later roadmap backlog: persistent API storage, real approval providers, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, and signed releases.
 

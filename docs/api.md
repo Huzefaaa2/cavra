@@ -24,3 +24,7 @@ Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata persistence. In S
 - `offset`
 
 For security, the API does not accept arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata with `POST /evidence`.
+
+## Console
+
+The static console under `apps/sandbox-ui` includes evidence search and PR attestation verification views. It can run as a standalone static demo or query the API evidence metadata endpoint when hosted on the same origin.

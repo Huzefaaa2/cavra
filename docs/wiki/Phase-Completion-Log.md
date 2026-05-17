@@ -62,8 +62,10 @@ Completed:
 - Evidence key IDs, trust-root verification, and rotation guidance.
 - SQLite-backed evidence metadata search with filters and pagination.
 - PR attestation verification reports.
+- Hosted evidence console views for search and PR attestation verification.
+- Initial SQLite migration for evidence metadata.
 
-Recommended next issue: hosted console views for evidence search and attestation verification, production database migration path, and automated trust-root distribution guidance.
+Recommended next issue: console API wiring for persisted evidence search and attestation artifacts, production migration automation, and automated trust-root distribution guidance.
 
 ## Transparent Agent Methodology Enablement
 

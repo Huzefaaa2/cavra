@@ -169,13 +169,13 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox lets a prospect run a simulated AI-agent scenario using real CAVRA policy decisions:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, evidence metadata search, PR attestation verification, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173` and click `Run Agent Scenario`.
+Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, and verify PR attestation coverage.
 
 ## Demo scenarios
 
@@ -202,7 +202,8 @@ Next recommended implementation work:
 
 - Add API pagination/filtering parity for non-SQLite stores.
 - Add production database migration path for evidence metadata.
-- Add hosted console views for evidence search and attestation verification.
+- Add console API wiring for persisted evidence search and attestation verification artifacts.
+- Add production database migration automation beyond the initial SQLite migration.
 
 ## User stories and enterprise value
 
