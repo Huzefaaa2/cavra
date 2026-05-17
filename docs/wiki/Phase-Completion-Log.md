@@ -53,8 +53,10 @@ Completed:
 - Compliance mapping output.
 - SIEM event output.
 - Evidence verification command.
+- Splunk HEC, Microsoft Sentinel, Datadog, and generic webhook SIEM export payloads.
+- S3 Object Lock and Azure immutable blob immutable storage reference plans.
 
-Recommended next issue: provider-specific SIEM exporters and immutable evidence storage references.
+Recommended next issue: evidence retention policy controls and API persistence for evidence metadata.
 
 ## Transparent Agent Methodology Enablement
 

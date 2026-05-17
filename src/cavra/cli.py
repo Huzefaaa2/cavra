@@ -10,7 +10,12 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
-from cavra.evidence import create_evidence_bundle, verify_evidence_bundle
+from cavra.evidence import (
+    create_evidence_bundle,
+    export_immutable_storage_plan,
+    export_siem_payloads,
+    verify_evidence_bundle,
+)
 from cavra.integrations import CommandInterceptor
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
@@ -379,6 +384,60 @@ def print_siem_event(
         console.print(f"[red]SIEM event not found:[/red] {path}")
         raise typer.Exit(code=1)
     console.print(JSON(path.read_text(encoding="utf-8")))
+
+
+@evidence_app.command("export-siem")
+def export_siem(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for provider payloads.")] = Path(".cavra/evidence/export"),
+    provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, or webhook.")] = "all",
+    splunk_index: Annotated[str, typer.Option(help="Splunk HEC index name.")] = "cavra",
+    datadog_service: Annotated[str, typer.Option(help="Datadog service name.")] = "cavra",
+) -> None:
+    """Export provider-specific SIEM payloads from an evidence bundle."""
+    try:
+        result = export_siem_payloads(
+            bundle_dir,
+            output,
+            provider=provider,
+            splunk_index=splunk_index,
+            datadog_service=datadog_service,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]SIEM payloads exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"[dim]{path}[/dim]")
+
+
+@evidence_app.command("storage-plan")
+def storage_plan(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for immutable storage plan.")] = Path(".cavra/evidence/storage"),
+    retention_days: Annotated[int, typer.Option(help="Retention period for immutable storage.")] = 2555,
+    s3_bucket: Annotated[str, typer.Option(help="Reference S3 Object Lock bucket.")] = "cavra-evidence",
+    s3_prefix: Annotated[str, typer.Option(help="Reference S3 prefix.")] = "evidence/",
+    azure_account: Annotated[str, typer.Option(help="Reference Azure Storage account.")] = "cavraevidence",
+    azure_container: Annotated[str, typer.Option(help="Reference Azure blob container.")] = "evidence",
+) -> None:
+    """Create S3 Object Lock and Azure immutable blob reference plans."""
+    try:
+        result = export_immutable_storage_plan(
+            bundle_dir,
+            output,
+            retention_days=retention_days,
+            s3_bucket=s3_bucket,
+            s3_prefix=s3_prefix,
+            azure_account=azure_account,
+            azure_container=azure_container,
+        )
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]immutable storage plan exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"[dim]{path}[/dim]")
 
 
 @demo_app.command("before-the-agent-acts")

@@ -74,12 +74,13 @@ Delivered:
 - PR attestation markdown and JSON export with risk summary.
 - SIEM event format for Splunk, Sentinel, Datadog, and generic webhooks.
 - Compliance mapping report per policy pack.
+- Provider-specific SIEM export payloads for Splunk HEC, Microsoft Sentinel, Datadog, and generic webhooks.
+- Immutable evidence storage reference plans for S3 Object Lock and Azure immutable blob.
 
 Remaining:
 - Evidence retention policy controls.
-- Immutable storage reference exporters for S3 Object Lock and Azure immutable blob.
 - Public/private key evidence signatures.
-- Provider-specific SIEM exporter commands.
+- API persistence for evidence metadata.
 
 User stories:
 - As an auditor, I can download a complete evidence bundle for an AI-agent session.
