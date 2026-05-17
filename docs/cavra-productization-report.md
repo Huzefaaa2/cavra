@@ -48,8 +48,15 @@ Created or updated README, architecture, dual-plane architecture, threat model, 
 - `PYTHONPATH=/Users/huzefahusain/Projects/cavra/src python3 -m cavra.cli init claude-code` from `/tmp` -> passed.
 - FastAPI dependency was installed locally with `python3 -m pip install --user 'fastapi>=0.110' 'uvicorn>=0.27'`.
 - `PYTHONPATH=src python3 - <<'PY' ... create_app()` -> passed after dependency install.
-
-Docker build was attempted with `docker build -t cavra:local .` and blocked because the Docker daemon was not running: `Cannot connect to the Docker daemon at unix:///Users/huzefahusain/.docker/run/docker.sock`. Docker Compose startup was not run because Docker daemon access was unavailable.
+- `docker build -t cavra:local .` -> passed.
+- `docker run --rm cavra:local --help` -> passed.
+- `docker run --rm --entrypoint cavra-mcp-server cavra:local --list-tools` -> passed.
+- `docker run --rm cavra:local policy test` -> passed after fixing installed-package policy discovery.
+- `docker compose up -d --build` -> passed.
+- `curl -fsS http://127.0.0.1:8000/health` -> passed.
+- `curl -fsS http://127.0.0.1:8000/version` -> passed.
+- `curl -I -fsS http://127.0.0.1:5173` -> passed.
+- `docker compose down` -> passed.
 
 ## Brand validation
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -35,7 +36,22 @@ class PolicyPack:
 
 class PolicyRegistry:
     def __init__(self, root: Path | None = None) -> None:
-        self.root = (root or POLICY_DIR).resolve()
+        self.root = (root or self._default_policy_dir()).resolve()
+
+    @staticmethod
+    def _default_policy_dir() -> Path:
+        candidates = [
+            os.environ.get("CAVRA_POLICY_DIR"),
+            Path.cwd() / "policies",
+            POLICY_DIR,
+        ]
+        for candidate in candidates:
+            if not candidate:
+                continue
+            path = Path(candidate)
+            if path.exists():
+                return path
+        return POLICY_DIR
 
     def list_policy_packs(self) -> list[dict[str, Any]]:
         packs = []
