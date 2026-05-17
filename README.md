@@ -135,7 +135,7 @@ Evidence key management and rotation guidance is documented in [docs/evidence-ke
 
 Risky actions can return `require_approval` with approver groups such as Platform Security, Cloud Security, IAM, AppSec, Change Advisory Board, AI Governance, Data Protection, PCI Compliance, Healthcare Compliance, or Repository Owners.
 
-Phase 4 Approval Router is now in progress. CAVRA can create a persisted approval request from a decision, list pending approvals, approve, deny, expire, record break-glass overrides with mandatory reasons, and attach approval outcomes back to evidence:
+Phase 4 Approval Router is now in progress. CAVRA can create a persisted approval request from a decision, route it with default or repository-specific rules, enforce optional claims-based approval authorization, list pending approvals, approve, deny, expire, record break-glass overrides with mandatory reasons, and attach approval outcomes back to evidence:
 
 ```bash
 cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
@@ -143,10 +143,13 @@ cavra approval migrate --sqlite .cavra/approvals.db
 cavra approval create /tmp/cavra-decision.json --requested-by developer
 cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --requested-by developer
 cavra approval route /tmp/cavra-decision.json
+cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-routing.json
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
+cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
+cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
 ```
 
 Approval workflows are documented in [docs/approval-workflows.md](docs/approval-workflows.md).
@@ -193,7 +196,7 @@ The `Before the Agent Acts` sandbox now includes the first hosted console slice:
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, and verify PR attestation coverage.
+Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, verify PR attestation coverage, and approve, deny, or expire pending approval requests from the console queue.
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
 
@@ -209,8 +212,8 @@ Current phase status:
 
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
-- Phase 3: Evidence Hub and Attestation - in progress in PR #1.
-- Phase 4: Approval Router - next recommended implementation phase after public/private key signature hardening is completed.
+- Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
+- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, claims-based authorization, provider request specs, and console actions.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -220,8 +223,9 @@ Current phase status:
 
 Next recommended implementation work:
 
+- Add live approval provider delivery for Slack, Teams, Jira, ServiceNow, and generic webhooks with secret-backed configuration.
+- Add signed OIDC token validation and repository RBAC policy management for approval decisions.
 - Add hosted attestation artifact download APIs backed by governed object storage.
-- Expand Phase 4 Approval Router with repository-specific routing configuration, live provider adapters, approval RBAC/OIDC actor mapping, and console approval actions.
 
 ## User stories and enterprise value
 

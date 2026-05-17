@@ -44,9 +44,13 @@ Set `CAVRA_APPROVAL_STORE` to override the approval store path for local or self
 
 Set `CAVRA_APPROVAL_DB` to use SQLite-backed approval persistence. `GET /approvals` supports the same `state`, `approver_group`, `limit`, and `offset` filters in JSON and SQLite modes. `GET /console/config` includes `approval_mode`.
 
+Set `CAVRA_APPROVAL_ROUTING_FILE` to load repository-specific JSON or YAML approval routing rules at API startup. `POST /approvals` uses those rules unless the request payload supplies an explicit `approver_group`.
+
+Approval decision endpoints accept an optional `actor_claims` object with OIDC-style fields such as `email`, `preferred_username`, `sub`, `groups`, `roles`, and `iss`. When claims are present, the actor must belong to the approval request's approver group before the API accepts approve or deny decisions.
+
 ## Console
 
-The static console under `apps/sandbox-ui` includes evidence search and PR attestation verification views. It can run as a standalone static demo or query the API evidence metadata endpoint when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes evidence search, PR attestation verification, and approval queue views. It can run as a standalone static demo or query the API evidence metadata and approval endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, and endpoint paths. Configure cross-origin deployments with:
 

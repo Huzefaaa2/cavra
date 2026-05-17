@@ -227,6 +227,11 @@ function renderApprovalRows(items) {
   rows.innerHTML = "";
   for (const item of items) {
     const stateClass = item.state === "break_glass" ? "warn" : item.state === "denied" ? "block" : "allow";
+    const actions = item.state === "pending"
+      ? `<button class="approvalAction" data-action="approve" data-id="${escapeHtml(item.approval_id)}">Approve</button>
+         <button class="approvalAction secondary" data-action="deny" data-id="${escapeHtml(item.approval_id)}">Deny</button>
+         <button class="approvalAction secondary" data-action="expire" data-id="${escapeHtml(item.approval_id)}">Expire</button>`
+      : "";
     rows.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${escapeHtml(item.approval_id || "unknown")}</td>
@@ -235,6 +240,7 @@ function renderApprovalRows(items) {
         <td>${escapeHtml(item.requested_by || "ai-agent")}</td>
         <td>${escapeHtml(item.decision?.target || item.decision_id || "unknown")}</td>
         <td>${escapeHtml(item.external_ref || "n/a")}</td>
+        <td class="row-actions">${actions}</td>
       </tr>
     `);
   }
@@ -248,6 +254,27 @@ async function refreshEvidence() {
 async function refreshApprovals() {
   const items = filterApprovals(await loadApprovals());
   renderApprovalRows(items);
+}
+
+async function submitApprovalAction(approvalId, action) {
+  const reason = action === "expire" ? "approval expired from console" : window.prompt(`${action} reason`);
+  if (!reason) return;
+  try {
+    const response = await fetch(apiUrl(`/approvals/${approvalId}/${action}`), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ actor: "console-user", reason })
+    });
+    if (!response.ok) throw new Error("Approval API unavailable");
+  } catch {
+    const item = approvalCatalog.find((approval) => approval.approval_id === approvalId);
+    if (item) {
+      item.state = action === "approve" ? "approved" : action === "deny" ? "denied" : "expired";
+      item.decided_by = "console-user";
+      item.decision_reason = reason;
+    }
+  }
+  await refreshApprovals();
 }
 
 async function verifyAttestation() {
@@ -268,6 +295,12 @@ async function verifyAttestation() {
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
+document.querySelector("#approvalRows").addEventListener("click", async (event) => {
+  if (!(event.target instanceof Element)) return;
+  const button = event.target.closest(".approvalAction");
+  if (!button) return;
+  await submitApprovalAction(button.dataset.id, button.dataset.action);
+});
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
 document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");

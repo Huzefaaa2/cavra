@@ -22,7 +22,7 @@ System_Boundary(cavra, "CAVRA") {
   Container_Boundary(authority, "Runtime Authority") {
     Container(runtime, "Runtime Guard", "Python", "Pre-action decisions for file, command, Git, MCP, and PR-attestation requests.")
     Container(policy, "Policy Registry", "YAML + JSON Schema", "Policy packs, schema validation, inheritance, semantic diff, and signature metadata.")
-    Container(approval, "Approval Router", "Python + JSON/SQLite", "Routes high-risk actions to human approvers, records approval outcomes, exports provider payloads, and supports break-glass evidence.")
+    Container(approval, "Approval Router", "Python + JSON/SQLite", "Routes high-risk actions with default or repository rules, validates local actor claims against approver groups, exports provider payloads/request specs, records approval outcomes, and supports break-glass evidence.")
     Container(registry, "Agent and MCP Trust Registry", "Planned service", "Tracks governed agents, MCP servers, trust tiers, owners, and capabilities.")
   }
 
@@ -68,7 +68,8 @@ Rel(evidence, bundleStore, "Writes verifier-ready bundles")
 Rel(evidence, git, "Publishes PR attestation")
 Rel(evidence, siem, "Exports SIEM payloads")
 Rel(evidence, immutable, "Produces immutable storage plans")
-Rel(approval, itsm, "Routes approval requests")
+Rel(approval, itsm, "Exports payloads and request specs")
+Rel(approval, identity, "Maps local OIDC-style claims to approval groups")
 Rel(api, identity, "Uses enterprise identity boundary")
 Rel(mcpServer, mcpTools, "Allows, blocks, or audits tool calls")
 Rel(runtime, git, "Allows or blocks Git operations")
@@ -80,4 +81,4 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
 - Evidence and Audit Plane converts decisions into verifier-ready artifacts, SIEM payloads, metadata, retention controls, and immutable storage plans.
-- Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has an initial JSON/SQLite-backed implementation.
+- Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, claims-aware approval checks, console queue actions, and credential-free provider request specs.

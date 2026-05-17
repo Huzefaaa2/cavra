@@ -108,6 +108,51 @@ def test_api_approval_sqlite_store(monkeypatch, tmp_path) -> None:
     assert config["approval_mode"] == "sqlite"
 
 
+def test_api_approval_uses_repository_routing_file(monkeypatch, tmp_path) -> None:
+    routing = tmp_path / "routing.json"
+    routing.write_text(
+        '{"approval_routing":[{"rule_id_prefix":"filesystem.write","target_contains":"iam/","approver_group":"Cloud IAM Owners"}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_ROUTING_FILE", str(routing))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+
+    created = client.post("/approvals", json={"decision": decision, "requested_by": "developer"})
+
+    assert created.status_code == 200
+    assert created.json()["approver_group"] == "Cloud IAM Owners"
+
+
+def test_api_approval_actor_claims_enforce_group(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    rejected = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "dev@example.com", "reason": "Not authorized.", "actor_claims": {"email": "dev@example.com", "groups": ["Developers"]}},
+    )
+    accepted = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "iam@example.com", "reason": "Authorized.", "actor_claims": {"email": "iam@example.com", "groups": ["IAM"]}},
+    )
+
+    assert rejected.status_code == 400
+    assert accepted.status_code == 200
+    assert accepted.json()["state"] == "approved"
+
+
 def test_api_approval_accepts_raw_decision_payload(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())

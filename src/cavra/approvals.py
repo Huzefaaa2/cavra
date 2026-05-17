@@ -75,6 +75,33 @@ def default_routing_rules() -> list[dict[str, Any]]:
     ]
 
 
+def load_routing_rules(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return default_routing_rules()
+    if not path.exists():
+        raise FileNotFoundError(f"approval routing file not found: {path}")
+    if path.suffix.lower() in {".yaml", ".yml"}:
+        try:
+            import yaml
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("Install PyYAML to load YAML approval routing files.") from exc
+        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    else:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, list):
+        rules = payload
+    elif isinstance(payload, dict):
+        rules = payload.get("approval_routing", payload.get("routing_rules", payload))
+    else:
+        raise ValueError("approval routing file must contain a list of rules")
+    if not isinstance(rules, list):
+        raise ValueError("approval routing file must contain a list of rules")
+    for rule in rules:
+        if not isinstance(rule, dict) or not rule.get("approver_group"):
+            raise ValueError("each approval routing rule must include approver_group")
+    return rules
+
+
 def route_approver_group(decision: dict[str, Any], routing_rules: list[dict[str, Any]] | None = None) -> str | None:
     rules = routing_rules if routing_rules is not None else default_routing_rules()
     for rule in rules:
@@ -94,6 +121,32 @@ def _route_rule_matches(decision: dict[str, Any], rule: dict[str, Any]) -> bool:
     return True
 
 
+def actor_context_from_claims(claims: dict[str, Any], *, rbac_rules: dict[str, Any] | None = None) -> dict[str, Any]:
+    groups = claims.get("groups") or claims.get("roles") or []
+    if isinstance(groups, str):
+        groups = [groups]
+    email = claims.get("email") or claims.get("preferred_username") or claims.get("sub") or "unknown"
+    configured = rbac_rules or {}
+    mapped_groups = set(groups)
+    for source, target in configured.get("group_mappings", {}).items():
+        if source in groups:
+            mapped_groups.add(target)
+    return {
+        "actor": email,
+        "subject": claims.get("sub"),
+        "groups": sorted(str(item) for item in mapped_groups),
+        "issuer": claims.get("iss"),
+    }
+
+
+def actor_can_decide(actor_context: dict[str, Any], approval: dict[str, Any], *, action: str = "approve") -> bool:
+    if action == "expire" and "system" in actor_context.get("groups", []):
+        return True
+    if approval.get("break_glass") and "Change Advisory Board" not in actor_context.get("groups", []):
+        return False
+    return approval.get("approver_group") in actor_context.get("groups", [])
+
+
 def apply_approval_decision(
     approval: dict[str, Any],
     *,
@@ -101,6 +154,7 @@ def apply_approval_decision(
     actor: str,
     reason: str,
     external_ref: str | None = None,
+    actor_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if state not in {"approved", "denied", "expired"}:
         raise ValueError("state must be approved, denied, or expired")
@@ -110,6 +164,8 @@ def apply_approval_decision(
         raise ValueError("actor is required")
     if not reason:
         raise ValueError("reason is required")
+    if actor_context and not actor_can_decide(actor_context, approval, action=state):
+        raise ValueError("actor is not authorized for approval group")
     updated = {**approval}
     updated["state"] = state
     updated["decided_by"] = actor
@@ -261,6 +317,43 @@ def build_approval_notification_payloads(approval: dict[str, Any]) -> dict[str, 
     }
 
 
+def build_provider_request_specs(approval: dict[str, Any], *, endpoints: dict[str, str] | None = None) -> dict[str, Any]:
+    payloads = build_approval_notification_payloads(approval)
+    endpoints = endpoints or {}
+    return {
+        "slack": {
+            "method": "POST",
+            "url": endpoints.get("slack", "https://hooks.slack.com/services/REPLACE_ME"),
+            "headers": {"content-type": "application/json"},
+            "body": payloads["slack"],
+        },
+        "teams": {
+            "method": "POST",
+            "url": endpoints.get("teams", "https://outlook.office.com/webhook/REPLACE_ME"),
+            "headers": {"content-type": "application/json"},
+            "body": payloads["teams"],
+        },
+        "jira": {
+            "method": "POST",
+            "url": endpoints.get("jira", "https://jira.example/rest/api/3/issue"),
+            "headers": {"content-type": "application/json", "authorization": "Bearer ${JIRA_TOKEN}"},
+            "body": payloads["jira"],
+        },
+        "servicenow": {
+            "method": "POST",
+            "url": endpoints.get("servicenow", "https://instance.service-now.com/api/now/table/change_request"),
+            "headers": {"content-type": "application/json", "authorization": "Bearer ${SERVICENOW_TOKEN}"},
+            "body": payloads["servicenow"],
+        },
+        "webhook": {
+            "method": "POST",
+            "url": endpoints.get("webhook", "https://approval-webhook.example/cavra"),
+            "headers": {"content-type": "application/json"},
+            "body": payloads["webhook"],
+        },
+    }
+
+
 def export_approval_notification_payloads(
     approval: dict[str, Any],
     output_dir: Path,
@@ -277,6 +370,27 @@ def export_approval_notification_payloads(
     for item in sorted(providers):
         path = output_dir / f"{item}-approval-payload.json"
         path.write_text(json.dumps(payloads[item], indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        files.append(path)
+    return ExportResult(output_dir=output_dir, files=files)
+
+
+def export_provider_request_specs(
+    approval: dict[str, Any],
+    output_dir: Path,
+    *,
+    provider: str = "all",
+    endpoints: dict[str, str] | None = None,
+) -> ExportResult:
+    specs = build_provider_request_specs(approval, endpoints=endpoints)
+    providers = set(specs) if provider == "all" else {provider}
+    unknown = providers - set(specs)
+    if unknown:
+        raise ValueError(f"unknown approval provider: {', '.join(sorted(unknown))}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    files: list[Path] = []
+    for item in sorted(providers):
+        path = output_dir / f"{item}-approval-request.json"
+        path.write_text(json.dumps(specs[item], indent=2, sort_keys=True) + "\n", encoding="utf-8")
         files.append(path)
     return ExportResult(output_dir=output_dir, files=files)
 
@@ -345,7 +459,16 @@ class ApprovalStore:
             )
         )
 
-    def decide(self, approval_id: str, *, state: str, actor: str, reason: str, external_ref: str | None = None) -> dict[str, Any]:
+    def decide(
+        self,
+        approval_id: str,
+        *,
+        state: str,
+        actor: str,
+        reason: str,
+        external_ref: str | None = None,
+        actor_context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         approval = self.get(approval_id)
         if approval is None:
             raise KeyError(approval_id)
@@ -356,6 +479,7 @@ class ApprovalStore:
                 actor=actor,
                 reason=reason,
                 external_ref=external_ref,
+                actor_context=actor_context,
             )
         )
 
@@ -537,7 +661,16 @@ class SQLiteApprovalStore:
             )
         )
 
-    def decide(self, approval_id: str, *, state: str, actor: str, reason: str, external_ref: str | None = None) -> dict[str, Any]:
+    def decide(
+        self,
+        approval_id: str,
+        *,
+        state: str,
+        actor: str,
+        reason: str,
+        external_ref: str | None = None,
+        actor_context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         approval = self.get(approval_id)
         if approval is None:
             raise KeyError(approval_id)
@@ -548,6 +681,7 @@ class SQLiteApprovalStore:
                 actor=actor,
                 reason=reason,
                 external_ref=external_ref,
+                actor_context=actor_context,
             )
         )
 

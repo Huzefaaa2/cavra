@@ -9,10 +9,13 @@ Phase 4 introduces a local approval router for self-hosted pilots:
 - Approval requests are created from CAVRA decisions that return `require_approval`.
 - Requests persist in a JSON store or SQLite database.
 - Default routing policies map IAM paths, GitHub workflow paths, default command approvals, Terraform operations, and MCP decisions to approver groups.
+- Repository-specific JSON or YAML routing files can override default approver groups for local policy overlays.
+- Optional OIDC-style actor claims can be mapped to approval groups before approve or deny decisions are accepted.
 - Approvers can approve, deny, or expire pending requests.
 - Break-glass overrides require an actor, reason, expiry, approver group, and optional incident or change reference.
 - Approval outcomes can be attached back to decisions so evidence bundles and PR attestations include approval state.
 - Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported without live provider credentials.
+- Credential-free HTTP request specs can be exported for approval-provider integration testing.
 
 Default approval store:
 
@@ -45,14 +48,40 @@ Create, approve, deny, expire, or break glass:
 
 ```bash
 cavra approval create /tmp/cavra-decision.json --requested-by developer
-cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --requested-by developer
+cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --routing-file .cavra/approval-routing.json --requested-by developer
 cavra approval route /tmp/cavra-decision.json
+cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-routing.json
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
+cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
 cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
 cavra approval expire apr_123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
+cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
+```
+
+Repository routing files can use `approval_routing` or `routing_rules` as the top-level key:
+
+```json
+{
+  "approval_routing": [
+    {
+      "rule_id_prefix": "filesystem.write",
+      "target_contains": "iam/",
+      "approver_group": "Cloud IAM Owners"
+    }
+  ]
+}
+```
+
+Claims-based authorization accepts a local claims JSON file for CLI decisions or an `actor_claims` object for API decisions:
+
+```json
+{
+  "email": "iam@example.com",
+  "groups": ["IAM"]
+}
 ```
 
 ## API Endpoints
@@ -70,6 +99,8 @@ cavra approval export-notifications apr_123 --output .cavra/approvals/notificati
 
 The sandbox console now includes an approval queue table. It loads `GET /approvals` when the API is reachable and falls back to sample approvals for static demos.
 
+Pending rows expose approve, deny, and expire actions. When the API is reachable the console posts to the approval lifecycle endpoint; static demos update local sample state.
+
 ## Provider Payloads
 
 `cavra approval export-notifications` writes:
@@ -80,10 +111,14 @@ The sandbox console now includes an approval queue table. It loads `GET /approva
 - `servicenow-approval-payload.json`
 - `webhook-approval-payload.json`
 
+`cavra approval provider-requests` writes credential-free HTTP request specs for Slack, Teams, Jira, ServiceNow, and webhook providers. These specs intentionally use placeholder URLs or environment-token references so they can be reviewed without exposing secrets.
+
 ## User Stories
 
 - As an IAM owner, I can approve a scoped privilege change with an external change ticket.
+- As a repository owner, I can override default approval routing for repo-specific risk boundaries.
 - As a change manager, I can deny risky agent actions with a recorded reason.
+- As an identity administrator, I can require approvers to carry matching OIDC groups before a decision is accepted.
 - As an incident commander, I can use break glass only when a mandatory justification is captured.
 - As an auditor, I can see approval state in CAVRA evidence and PR attestations.
 

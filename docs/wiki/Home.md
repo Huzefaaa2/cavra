@@ -14,7 +14,9 @@ Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA i
 
 Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
 
-Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, SQLite and JSON evidence metadata search, console API wiring, and migration automation. Phase 4, Approval Router, is the next recommended implementation phase.
+Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, SQLite and JSON evidence metadata search, console API wiring, and migration automation.
+
+Phase 4, Approval Router, is in progress. It now includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, provider payload and request-spec exports, console approval queue actions, and approval evidence linkage.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 

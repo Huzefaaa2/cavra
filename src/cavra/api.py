@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from cavra.approvals import ApprovalStore, SQLiteApprovalStore, attach_approval_to_decision
+from cavra.approvals import ApprovalStore, SQLiteApprovalStore, actor_context_from_claims, attach_approval_to_decision, load_routing_rules
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
@@ -48,6 +48,7 @@ def create_app():
         if os.environ.get("CAVRA_APPROVAL_DB")
         else ApprovalStore(Path(os.environ.get("CAVRA_APPROVAL_STORE", ".cavra/api/approvals.json")))
     )
+    routing_rules = load_routing_rules(Path(os.environ["CAVRA_APPROVAL_ROUTING_FILE"])) if os.environ.get("CAVRA_APPROVAL_ROUTING_FILE") else None
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -124,6 +125,7 @@ def create_app():
                 approver_group=payload.get("approver_group"),
                 requested_by=payload.get("requested_by", "ai-agent"),
                 ttl_hours=int(payload.get("ttl_hours", 24)),
+                routing_rules=routing_rules,
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -296,6 +298,7 @@ def _filter_json_evidence(
 
 
 def _decide_approval(approval_store: ApprovalStore, approval_id: str, *, state: str, payload: dict) -> dict:
+    actor_context = actor_context_from_claims(payload["actor_claims"]) if isinstance(payload.get("actor_claims"), dict) else None
     try:
         return approval_store.decide(
             approval_id,
@@ -303,6 +306,7 @@ def _decide_approval(approval_store: ApprovalStore, approval_id: str, *, state: 
             actor=payload.get("actor", ""),
             reason=payload.get("reason", ""),
             external_ref=payload.get("external_ref"),
+            actor_context=actor_context,
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="approval not found") from exc

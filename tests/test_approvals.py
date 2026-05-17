@@ -3,9 +3,12 @@ from pathlib import Path
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
+    actor_context_from_claims,
+    build_provider_request_specs,
     attach_approval_to_decision,
     create_approval_request,
     export_approval_notification_payloads,
+    load_routing_rules,
     route_approver_group,
 )
 from cavra.evidence import build_evidence_metadata, create_evidence_bundle
@@ -96,6 +99,82 @@ def test_routing_rules_select_approver_group() -> None:
     assert route_approver_group(decision) == "IAM"
 
 
+def test_repository_routing_file_overrides_default(tmp_path: Path) -> None:
+    routing = tmp_path / "routing.json"
+    routing.write_text(
+        """
+        {
+          "approval_routing": [
+            {
+              "rule_id_prefix": "filesystem.write",
+              "target_contains": "iam/",
+              "approver_group": "Cloud IAM Owners"
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+    decision = _approval_decision()
+    decision.pop("approver_group", None)
+
+    assert route_approver_group(decision, load_routing_rules(routing)) == "Cloud IAM Owners"
+
+
+def test_routing_file_accepts_raw_rule_list(tmp_path: Path) -> None:
+    routing = tmp_path / "routing.json"
+    routing.write_text(
+        '[{"rule_id_prefix":"filesystem.write","target_contains":"iam/","approver_group":"Cloud IAM Owners"}]',
+        encoding="utf-8",
+    )
+
+    assert load_routing_rules(routing)[0]["approver_group"] == "Cloud IAM Owners"
+
+
+def test_actor_claims_authorize_matching_approval_group(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+    actor_context = actor_context_from_claims({"email": "iam@example.com", "groups": ["IAM"]})
+
+    decided = store.decide(
+        approval["approval_id"],
+        state="approved",
+        actor="iam@example.com",
+        reason="Reviewed IAM change.",
+        actor_context=actor_context,
+    )
+
+    assert decided["state"] == "approved"
+
+
+def test_actor_claims_can_map_external_groups() -> None:
+    context = actor_context_from_claims(
+        {"email": "owner@example.com", "groups": ["github-team:iam-admins"]},
+        rbac_rules={"group_mappings": {"github-team:iam-admins": "IAM"}},
+    )
+
+    assert "IAM" in context["groups"]
+
+
+def test_actor_claims_reject_wrong_approval_group(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+    actor_context = actor_context_from_claims({"email": "dev@example.com", "groups": ["Developers"]})
+
+    try:
+        store.decide(
+            approval["approval_id"],
+            state="approved",
+            actor="dev@example.com",
+            reason="Trying to approve.",
+            actor_context=actor_context,
+        )
+    except ValueError as exc:
+        assert "not authorized" in str(exc)
+    else:
+        raise AssertionError("expected unauthorized actor to fail")
+
+
 def test_sqlite_approval_store_searches_and_updates(tmp_path: Path) -> None:
     store = SQLiteApprovalStore(tmp_path / "approvals.db")
     approval = store.create_request(_approval_decision(), requested_by="developer")
@@ -119,3 +198,14 @@ def test_export_approval_notification_payloads(tmp_path: Path) -> None:
     assert (tmp_path / "notifications" / "servicenow-approval-payload.json").exists()
     assert (tmp_path / "notifications" / "webhook-approval-payload.json").exists()
     assert len(result.files) == 5
+
+
+def test_provider_request_specs_do_not_require_live_credentials(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+
+    specs = build_provider_request_specs(approval)
+
+    assert specs["jira"]["method"] == "POST"
+    assert "${JIRA_TOKEN}" in specs["jira"]["headers"]["authorization"]
+    assert specs["slack"]["body"]["text"].startswith("CAVRA approval")

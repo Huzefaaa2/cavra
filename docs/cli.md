@@ -1,6 +1,6 @@
 # CLI
 
-Primary commands: `cavra version`, `cavra evaluate`, `cavra agent start`, `cavra agent exec`, `cavra agent attest`, `cavra policy list`, `cavra policy validate`, `cavra policy test`, `cavra policy explain`, `cavra policy sign`, `cavra policy verify`, `cavra approval create`, `cavra approval list`, `cavra approval approve`, `cavra approval deny`, `cavra approval expire`, `cavra approval break-glass`, `cavra approval route`, `cavra approval migrate`, `cavra approval export-notifications`, `cavra evidence generate-keypair`, `cavra evidence trust-root`, `cavra evidence trust-bundle`, `cavra evidence bundle`, `cavra evidence verify`, `cavra evidence siem-event`, `cavra evidence export-siem`, `cavra evidence retention-policy`, `cavra evidence storage-plan`, `cavra evidence verify-attestation`, `cavra evidence migrate`, `cavra evidence index`, `cavra evidence search`, `cavra init claude-code`, and `cavra demo before-the-agent-acts`.
+Primary commands: `cavra version`, `cavra evaluate`, `cavra agent start`, `cavra agent exec`, `cavra agent attest`, `cavra policy list`, `cavra policy validate`, `cavra policy test`, `cavra policy explain`, `cavra policy sign`, `cavra policy verify`, `cavra approval create`, `cavra approval list`, `cavra approval approve`, `cavra approval deny`, `cavra approval expire`, `cavra approval break-glass`, `cavra approval route`, `cavra approval migrate`, `cavra approval export-notifications`, `cavra approval provider-requests`, `cavra evidence generate-keypair`, `cavra evidence trust-root`, `cavra evidence trust-bundle`, `cavra evidence bundle`, `cavra evidence verify`, `cavra evidence siem-event`, `cavra evidence export-siem`, `cavra evidence retention-policy`, `cavra evidence storage-plan`, `cavra evidence verify-attestation`, `cavra evidence migrate`, `cavra evidence index`, `cavra evidence search`, `cavra init claude-code`, and `cavra demo before-the-agent-acts`.
 
 Approval examples:
 
@@ -8,14 +8,17 @@ Approval examples:
 cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
 cavra approval migrate --sqlite .cavra/approvals.db
 cavra approval create /tmp/cavra-decision.json --requested-by developer
-cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --requested-by developer
+cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --routing-file .cavra/approval-routing.json --requested-by developer
 cavra approval route /tmp/cavra-decision.json
+cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-routing.json
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
+cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
 cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
 cavra approval expire apr_123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
+cavra approval provider-requests apr_123 --provider jira --output .cavra/approvals/provider-requests
 ```
 
 Evidence integration examples:
