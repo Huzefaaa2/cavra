@@ -6,9 +6,11 @@ The repository has been transformed into CAVRA, Controlled Agentic Verification 
 
 New repository URL: `https://github.com/Huzefaaa2/cavra`
 
-Branch name: `productize-cavra`
+Branch name: `productize-cavra-pr`
 
-PR URL: not opened from this local pass.
+PR URL: `https://github.com/Huzefaaa2/cavra/pull/1`
+
+History-preserving migration branch also exists at `productize-cavra`, but GitHub could not open a PR from it because the target repository `main` branch has unrelated history. The reviewable PR branch was created from `origin/main` with the same CAVRA final tree.
 
 ## Product identity
 
