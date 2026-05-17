@@ -150,8 +150,11 @@ Completed:
 - `GET /console/session` for signed bearer-token validation.
 - RBAC-enforced approval and break-glass console mutations when OIDC or RBAC is configured.
 - Console Session panel for actor, group, permission, and repository-scope visibility.
+- `GET /policy-pack-catalog` and `POST /policy-packs/draft` for read-only policy authoring previews.
+- `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
+- `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add policy-pack authoring workflows and validate the production deployment guide for authenticated console/API topologies.
+Recommended next issue: add GitHub required-check integration templates, CI/CD enforcement examples, and policy-pack approval/signature write-back workflow.
 
 ## Transparent Agent Methodology Enablement
 

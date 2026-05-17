@@ -164,5 +164,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add policy-pack authoring and rollout change workflows.
-- Validate production deployment guide for authenticated console/API topologies.
+- Add GitHub required-check integration templates and CI/CD enforcement examples.
+- Add policy-pack approval and signature workflow before write-back publishing.

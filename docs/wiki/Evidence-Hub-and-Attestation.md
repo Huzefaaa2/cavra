@@ -81,5 +81,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Policy-pack authoring and rollout change workflows.
-- Production deployment guide validation for authenticated console/API topologies.
+- GitHub required-check integration templates.
+- CI/CD enforcement examples.

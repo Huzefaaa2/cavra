@@ -60,4 +60,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next Phase 6 step is policy-pack authoring workflows and production deployment guide validation.
+The next recommended work is GitHub required-check integration templates, CI/CD enforcement examples, and policy-pack approval/signature write-back workflow.

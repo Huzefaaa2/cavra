@@ -29,6 +29,8 @@ Policy rollout endpoints:
 
 - `GET /policy-rollouts`: list policy rollout records with optional `repository`, `policy_pack`, `state`, `mode`, and `owner` filters.
 - `POST /policy-rollouts`: create or update a policy rollout record.
+- `POST /policy-rollouts/change-plan`: preview a rollout create/update operation with before/after state, risk, approval requirement, and field-level changes.
+- `POST /policy-rollouts/apply-change`: persist a rollout change plan. When OIDC or RBAC is configured, verified actor context is required.
 - `GET /policy-rollouts/{rollout_id}`: fetch one policy rollout record.
 - `GET /policy-rollout-details/{rollout_id}`: fetch one policy rollout with repository context, policy pack metadata, activity summary, integration summary, and readiness checks.
 
@@ -37,6 +39,15 @@ Default inventory path: `.cavra/api/inventory.json`.
 Set `CAVRA_INVENTORY_STORE` to override the JSON path. Set `CAVRA_INVENTORY_DB` to use SQLite-backed repository inventory and policy rollout persistence. `GET /console/config` includes `inventory_mode`.
 
 Inventory records track repository ID, provider, owner, business unit, environment, active policy pack, risk tier, status, protected branches, required checks, and evidence references. Rollout records track repository, policy pack, policy version, rollout mode, rollout state, owner, coverage percentage, last evaluation time, and evidence references.
+
+## Policy Pack Authoring
+
+Policy authoring endpoints:
+
+- `GET /policy-pack-catalog`: list installed policy packs with rule-count summaries.
+- `POST /policy-packs/draft`: build and validate a policy pack draft without writing to the policy directory.
+
+Policy drafts return schema validation errors, generated policy data, rule-count summaries, and operator notes. Policy publishing remains a repository change-control workflow.
 
 ## Console Security Boundary
 
@@ -67,6 +78,7 @@ Read-only operations endpoints:
 
 - `GET /operations/stores`: list active persistent API store paths, modes, configuration sources, existence, and size.
 - `GET /operations/retention-plan`: return a retention, backup, and restore-test plan for persistent API stores. Optional query parameters are `retention_days`, `classification`, and `legal_hold`.
+- `GET /deployment/production-readiness`: validate production controls for OIDC, RBAC, CORS, evidence artifact retrieval, policy catalog availability, and persistent store presence.
 
 Backup and restore are intentionally CLI-only through `cavra ops backup` and `cavra ops restore` so the unauthenticated demo API does not gain file-system restore authority.
 

@@ -152,6 +152,37 @@
         </div>
         <div id="rolloutDetail" class="detail-panel">Select Details from a policy rollout row.</div>
       </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Policy Authoring and Rollout Changes</h2>
+            <p>Create safe policy drafts, review rollout change plans, and apply rollout transitions.</p>
+          </div>
+          <button id="refreshPolicyCatalog">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Policy ID <input id="draftPolicyId" value="cavra-platform-baseline" /></label>
+          <label>Title <input id="draftPolicyTitle" value="Platform Baseline" /></label>
+          <label>Version <input id="draftPolicyVersion" value="2026.05" /></label>
+          <label>Inherits <input id="draftPolicyInherits" value="cavra-ai-agent-baseline" /></label>
+          <button id="previewPolicyDraft">Preview draft</button>
+        </div>
+        <div class="search-controls">
+          <label>Rollout <input id="changeRolloutId" value="payments-api-banking" /></label>
+          <label>Repository <input id="changeRepository" value="payments/api" /></label>
+          <label>Policy <input id="changePolicyPack" value="cavra-platform-baseline" /></label>
+          <label>Mode <select id="changeMode"><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict" selected>Strict</option><option value="break_glass">Break glass</option></select></label>
+          <label>State <select id="changeState"><option value="planned">Planned</option><option value="active" selected>Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
+          <label>Coverage <input id="changeCoverage" type="number" min="0" max="100" value="95" /></label>
+          <button id="planRolloutChange">Plan</button>
+          <button id="applyRolloutChange" class="secondary">Apply</button>
+        </div>
+        <div class="inventory-grid">
+          <div id="policyCatalog" class="detail-panel">Policy catalog is loading.</div>
+          <div id="policyDraft" class="detail-panel">Preview a policy draft.</div>
+        </div>
+        <div id="rolloutChangePlan" class="detail-panel">Plan a rollout change.</div>
+      </section>
       <section class="console integration-console">
         <div class="console-header">
           <div>
@@ -249,6 +280,16 @@
           <button id="refreshSecurityBoundary">Refresh</button>
         </div>
         <div id="securityBoundary" class="detail-panel">Security boundary status is loading.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Production Readiness</h2>
+            <p>Validate deployment controls for authenticated console/API topologies.</p>
+          </div>
+          <button id="refreshDeploymentReadiness">Refresh</button>
+        </div>
+        <div id="deploymentReadiness" class="detail-panel">Production readiness status is loading.</div>
       </section>
       <section class="console">
         <div class="console-header">

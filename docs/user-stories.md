@@ -22,6 +22,10 @@ As a platform engineer, I want Docker, API, CLI, and future Go enforcement modes
 
 As a platform engineer, I want the console to validate signed OIDC bearer tokens and show repository-scoped permissions, so browser-visible actions use the same identity boundary as approval workflows.
 
+As a platform engineer, I want to preview policy drafts and rollout changes before applying them, so policy adoption is controlled and reviewable.
+
+As a platform engineer, I want a production readiness report, so missing identity, RBAC, CORS, evidence, policy, or persistence controls are visible before rollout.
+
 ## DevSecOps
 
 As a DevSecOps engineer, I want GitHub required checks and SIEM exports, so CAVRA decisions become part of existing SDLC controls.

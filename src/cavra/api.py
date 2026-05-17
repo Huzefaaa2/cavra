@@ -31,6 +31,7 @@ from cavra.evidence import (
 from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
+from cavra.policy_authoring import build_policy_pack_draft, build_rollout_change_plan, production_readiness_report, summarize_policy
 from cavra.policy_registry import PolicyRegistry, PolicyRegistryError
 from cavra.registry import (
     RegistryStore,
@@ -145,11 +146,16 @@ def create_app():
                 "evidence_artifact": "/evidence/{session_id}/artifacts/{artifact_name}",
                 "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
                 "console_session": "/console/session",
+                "deployment_readiness": "/deployment/production-readiness",
+                "policy_pack_catalog": "/policy-pack-catalog",
+                "policy_pack_draft": "/policy-packs/draft",
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
+                "policy_rollout_change_plan": "/policy-rollouts/change-plan",
+                "policy_rollout_apply_change": "/policy-rollouts/apply-change",
                 "policy_rollout_detail": "/policy-rollouts/{rollout_id}/detail",
                 "console_security_boundary": "/console/security-boundary",
                 "operations_stores": "/operations/stores",
@@ -166,6 +172,32 @@ def create_app():
     @app.get("/policy-packs")
     def policies() -> list[dict]:
         return PolicyRegistry().list_policy_packs()
+
+    @app.get("/policy-pack-catalog")
+    def policy_pack_catalog() -> dict[str, object]:
+        packs = PolicyRegistry().list_policy_packs()
+        return {
+            "schema_version": "cavra.policy_pack.catalog.v1",
+            "product": "CAVRA",
+            "total": len(packs),
+            "items": [
+                {
+                    "id": item.get("id"),
+                    "title": item.get("title"),
+                    "description": item.get("description"),
+                    "version": item.get("version"),
+                    "summary": summarize_policy(item.get("policy", {})),
+                }
+                for item in packs
+            ],
+        }
+
+    @app.post("/policy-packs/draft")
+    def policy_pack_draft(payload: dict) -> dict:
+        try:
+            return build_policy_pack_draft(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/decisions")
     def decision_index(
@@ -290,6 +322,17 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="invalid retention plan request") from exc
 
+    @app.get("/deployment/production-readiness")
+    def deployment_production_readiness() -> dict[str, object]:
+        return production_readiness_report(
+            oidc_configured=bool(oidc_config),
+            rbac_configured=bool(rbac_rules),
+            cors_origins=cors_origins,
+            evidence_artifact_root_configured=bool(evidence_artifact_root),
+            policy_pack_count=len(PolicyRegistry().list_policy_packs()),
+            store_status=persistent_api_store_status(),
+        )
+
     @app.get("/repositories")
     def repository_index(
         provider: Optional[str] = None,
@@ -342,6 +385,38 @@ def create_app():
             return inventory_store.upsert_policy_rollout(payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="invalid policy rollout record") from exc
+
+    @app.post("/policy-rollouts/change-plan")
+    def policy_rollout_change_plan(payload: dict) -> dict:
+        current = inventory_store.get_policy_rollout(str(payload.get("rollout_id", ""))) if payload.get("rollout_id") else None
+        requested = payload.get("changes") if isinstance(payload.get("changes"), dict) else payload
+        try:
+            return build_rollout_change_plan(current, requested)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/policy-rollouts/apply-change")
+    def policy_rollout_apply_change(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        current = inventory_store.get_policy_rollout(str(payload.get("rollout_id", ""))) if payload.get("rollout_id") else None
+        requested = payload.get("changes") if isinstance(payload.get("changes"), dict) else payload
+        try:
+            plan = build_rollout_change_plan(current, requested)
+            rollout = inventory_store.upsert_policy_rollout(plan["after"])
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "schema_version": "cavra.policy_rollout.change_result.v1",
+            "product": "CAVRA",
+            "actor": _public_actor_context(actor_context) if actor_context else None,
+            "plan": plan,
+            "rollout": rollout,
+        }
 
     @app.get("/policy-rollout-details/{rollout_id:path}")
     @app.get("/policy-rollouts/{rollout_id}/detail")

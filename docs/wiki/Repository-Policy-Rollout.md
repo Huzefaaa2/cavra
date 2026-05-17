@@ -8,6 +8,7 @@ Phase 6 now includes durable repository scope and policy rollout visibility.
 - JSON and SQLite persistence for policy rollout records.
 - API filters for owner, policy pack, status, risk tier, rollout state, rollout mode, and repository.
 - Console views for repository inventory, rollout progress, and rollout detail.
+- Rollout change planning and apply workflows.
 - Evidence references so rollout records can point back to CAVRA decisions, bundles, or attestations.
 
 ## How To Use
@@ -41,6 +42,14 @@ curl -X POST http://127.0.0.1:8000/policy-rollouts \
   -d '{"repository":"payments/api","policy_pack":"cavra-banking-baseline","mode":"strict","state":"active","coverage_percent":100}'
 ```
 
+Preview and apply rollout changes:
+
+```bash
+curl -X POST http://127.0.0.1:8000/policy-rollouts/change-plan \
+  -H 'content-type: application/json' \
+  -d '{"rollout_id":"payments-api-banking","repository":"payments/api","policy_pack":"cavra-banking-baseline","mode":"strict","state":"active","coverage_percent":100}'
+```
+
 ## User Stories
 
 - As a CISO, I can see which repositories are protected by which policy pack.
@@ -53,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is policy-pack rollout change workflows and production deployment guide validation.
+The next recommended work is GitHub required-check integration templates and CI/CD enforcement examples.

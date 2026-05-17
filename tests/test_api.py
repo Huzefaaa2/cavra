@@ -292,6 +292,72 @@ def test_api_policy_rollout_detail_includes_context(monkeypatch, tmp_path) -> No
     assert payload["integration_summary"]["by_category"]["source_control"] == 1
 
 
+def test_api_policy_pack_draft_catalog_and_rollout_change(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INVENTORY_DB", raising=False)
+    monkeypatch.setenv("CAVRA_INVENTORY_STORE", str(tmp_path / "inventory.json"))
+    client = TestClient(create_app())
+
+    catalog = client.get("/policy-pack-catalog")
+    draft = client.post(
+        "/policy-packs/draft",
+        json={
+            "id": "cavra-platform-baseline",
+            "title": "Platform Baseline",
+            "description": "Platform engineering controls.",
+            "version": "2026.05",
+            "inherits": "cavra-ai-agent-baseline",
+            "commands": {"block": ["terraform apply -auto-approve"]},
+        },
+    )
+    plan = client.post(
+        "/policy-rollouts/change-plan",
+        json={
+            "rollout_id": "payments-platform",
+            "repository": "payments/api",
+            "policy_pack": "cavra-platform-baseline",
+            "mode": "strict",
+            "state": "active",
+            "coverage_percent": 95,
+        },
+    )
+    applied = client.post(
+        "/policy-rollouts/apply-change",
+        json={
+            "rollout_id": "payments-platform",
+            "repository": "payments/api",
+            "policy_pack": "cavra-platform-baseline",
+            "mode": "strict",
+            "state": "active",
+            "coverage_percent": 95,
+        },
+    )
+
+    assert catalog.status_code == 200
+    assert catalog.json()["total"] > 0
+    assert draft.status_code == 200
+    assert draft.json()["valid"] is True
+    assert plan.status_code == 200
+    assert plan.json()["approval_required"] is True
+    assert applied.status_code == 200
+    assert applied.json()["rollout"]["rollout_id"] == "payments-platform"
+    assert client.get("/policy-rollouts/payments-platform").json()["mode"] == "strict"
+    assert client.get("/console/config").json()["endpoints"]["policy_pack_draft"] == "/policy-packs/draft"
+
+
+def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_CORS_ORIGINS", "https://console.example")
+    monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(tmp_path / "artifacts"))
+    client = TestClient(create_app())
+
+    response = client.get("/deployment/production-readiness")
+    config = client.get("/console/config").json()
+
+    assert response.status_code == 200
+    assert response.json()["schema_version"] == "cavra.deployment.production_readiness.v1"
+    assert any(item["id"] == "cors_restricted" for item in response.json()["checks"])
+    assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
+
+
 def test_api_sqlite_inventory_store(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_INVENTORY_STORE", raising=False)
     monkeypatch.setenv("CAVRA_INVENTORY_DB", str(tmp_path / "inventory.db"))

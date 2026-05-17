@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add policy-pack authoring and rollout change workflows.
-- Validate production deployment guide for authenticated console/API topologies.
+- Add GitHub required-check integration templates and CI/CD enforcement examples.
+- Add policy-pack approval and signature workflow before write-back publishing.

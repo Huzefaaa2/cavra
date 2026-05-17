@@ -44,4 +44,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is policy-pack authoring workflows and production deployment guide validation.
+The next recommended work is GitHub required-check integration templates and CI/CD enforcement examples.

@@ -54,6 +54,8 @@ The sandbox console now includes repository and rollout views. It can run with b
 
 Operators can filter repositories by owner, policy pack, and risk tier. They can filter rollout records by state and mode to find active enforcement, planned rollouts, paused policy deployments, or break-glass exceptions. The rollout detail view joins rollout state with repository ownership, policy pack metadata, matching decision activity, integration readiness, and rollout readiness checks.
 
+Rollout changes can now be previewed through `POST /policy-rollouts/change-plan` and applied through `POST /policy-rollouts/apply-change`. Plans show before/after state, changed fields, risk level, approval requirement, and operator notes. The console includes a Policy Authoring and Rollout Changes section for draft policy preview and rollout transition workflows.
+
 ## User Stories
 
 - As a CISO, I can see which repositories are governed and which policy pack protects each one.
@@ -66,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next Phase 6 step is policy-pack rollout change workflows and production deployment guide validation.
+The next recommended step is GitHub required-check integration templates and CI/CD enforcement examples.

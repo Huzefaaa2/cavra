@@ -173,6 +173,23 @@ const rolloutCatalog = [
   }
 ];
 
+const policyCatalog = [
+  {
+    id: "cavra-ai-agent-baseline",
+    title: "AI Agent Baseline",
+    description: "Default CAVRA controls for AI coding agents.",
+    version: "latest",
+    summary: { rule_counts: { filesystem: 8, commands: 6, git: 4, mcp: 5, approvals: 2, evidence: 3, compliance: 1 } }
+  },
+  {
+    id: "cavra-banking",
+    title: "Banking Baseline",
+    description: "Regulated banking SDLC policy overlay.",
+    version: "2026.05",
+    summary: { rule_counts: { filesystem: 12, commands: 8, git: 5, mcp: 6, approvals: 4, evidence: 5, compliance: 6 } }
+  }
+];
+
 const integrationCatalog = [
   {
     integration_id: "github-enterprise",
@@ -565,6 +582,146 @@ async function loadPolicyRolloutDetail(rolloutId) {
   }
 }
 
+async function loadPolicyCatalog() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/policy-pack-catalog"));
+    if (!response.ok) throw new Error("Policy catalog API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return policyCatalog;
+  }
+}
+
+function draftPolicyPayload() {
+  return {
+    id: document.querySelector("#draftPolicyId").value.trim(),
+    title: document.querySelector("#draftPolicyTitle").value.trim(),
+    description: "Platform-authored policy draft from the CAVRA console.",
+    version: document.querySelector("#draftPolicyVersion").value.trim(),
+    inherits: document.querySelector("#draftPolicyInherits").value.trim(),
+    commands: { block: ["terraform apply -auto-approve", "kubectl delete namespace"] },
+    filesystem: { block_read: [".env", "secrets/"], require_approval_write: ["iam/"] },
+    git: { require_ai_attestation: true, require_pull_request: true }
+  };
+}
+
+function rolloutChangePayload() {
+  return {
+    rollout_id: document.querySelector("#changeRolloutId").value.trim(),
+    repository: document.querySelector("#changeRepository").value.trim(),
+    policy_pack: document.querySelector("#changePolicyPack").value.trim(),
+    mode: document.querySelector("#changeMode").value,
+    state: document.querySelector("#changeState").value,
+    coverage_percent: Number(document.querySelector("#changeCoverage").value || 0)
+  };
+}
+
+async function previewPolicyDraft() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/policy-packs/draft"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify(draftPolicyPayload())
+    });
+    if (!response.ok) throw new Error("Policy draft API unavailable");
+    renderPolicyDraft(await response.json());
+  } catch {
+    const payload = draftPolicyPayload();
+    renderPolicyDraft({
+      schema_version: "cavra.policy_pack.draft.v1",
+      product: "CAVRA",
+      valid: payload.id.startsWith("cavra-"),
+      errors: payload.id.startsWith("cavra-") ? [] : ["metadata.id must start with cavra-"],
+      policy_pack: { metadata: { id: payload.id, title: payload.title, version: payload.version, inherits: payload.inherits } },
+      summary: { policy_id: payload.id, title: payload.title, version: payload.version, inherits: payload.inherits, rule_counts: { filesystem: 3, commands: 2, git: 2 } },
+      operator_notes: ["Sample draft preview; connect the API for schema validation."]
+    });
+  }
+}
+
+async function planRolloutChange() {
+  await loadConsoleConfig();
+  const payload = rolloutChangePayload();
+  try {
+    const response = await fetch(apiUrl("/policy-rollouts/change-plan"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error("Rollout plan API unavailable");
+    renderRolloutChangePlan(await response.json(), false);
+  } catch {
+    const before = rolloutCatalog.find((item) => item.rollout_id === payload.rollout_id);
+    renderRolloutChangePlan({
+      schema_version: "cavra.policy_rollout.change_plan.v1",
+      product: "CAVRA",
+      operation: before ? "update" : "create",
+      risk: payload.mode === "strict" ? "high" : "medium",
+      approval_required: payload.mode === "strict" || payload.mode === "break_glass",
+      before,
+      after: { ...(before || {}), ...payload },
+      changes: Object.entries(payload).map(([field, value]) => ({ field, before: before?.[field], after: value })),
+      operator_notes: ["Sample rollout plan; connect the API to persist changes."]
+    }, false);
+  }
+}
+
+async function applyRolloutChange() {
+  await loadConsoleConfig();
+  const payload = rolloutChangePayload();
+  try {
+    const response = await fetch(apiUrl("/policy-rollouts/apply-change"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error("Rollout apply API unavailable");
+    const result = await response.json();
+    renderRolloutChangePlan(result.plan, true);
+    await refreshInventory();
+  } catch {
+    const index = rolloutCatalog.findIndex((item) => item.rollout_id === payload.rollout_id);
+    if (index >= 0) rolloutCatalog[index] = { ...rolloutCatalog[index], ...payload };
+    else rolloutCatalog.push({ owner: "platform-security", policy_version: "latest", evidence_refs: [], ...payload });
+    renderRolloutChangePlan({
+      schema_version: "cavra.policy_rollout.change_plan.v1",
+      product: "CAVRA",
+      operation: index >= 0 ? "update" : "create",
+      risk: payload.mode === "strict" ? "high" : "medium",
+      approval_required: payload.mode === "strict",
+      before: null,
+      after: payload,
+      changes: Object.entries(payload).map(([field, value]) => ({ field, before: null, after: value })),
+      operator_notes: ["Applied locally because the API was unavailable."]
+    }, true);
+    await refreshInventory();
+  }
+}
+
+async function loadDeploymentReadiness() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/deployment/production-readiness"));
+    if (!response.ok) throw new Error("Deployment readiness API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      schema_version: "cavra.deployment.production_readiness.v1",
+      product: "CAVRA",
+      status: "needs_attention",
+      checks: [
+        { id: "oidc_configured", status: consoleConfig?.approval_oidc === "configured" ? "pass" : "warn", message: "Console and approval actions validate signed OIDC tokens." },
+        { id: "rbac_configured", status: consoleConfig?.approval_rbac === "configured" ? "pass" : "warn", message: "Repository-scoped RBAC policy is configured." },
+        { id: "cors_restricted", status: (consoleConfig?.cors_origins || []).length ? "pass" : "warn", message: "Allowed console origins are explicit." }
+      ],
+      operator_notes: ["Connect to the API for full persistent-store and evidence-artifact readiness checks."]
+    };
+  }
+}
+
 async function loadSecurityBoundary() {
   await loadConsoleConfig();
   try {
@@ -939,6 +1096,52 @@ function renderPolicyRolloutDetail(detail) {
   `;
 }
 
+function renderPolicyCatalog(items) {
+  const panel = document.querySelector("#policyCatalog");
+  panel.innerHTML = `
+    <h3>Policy Catalog</h3>
+    <ul>${items.map((item) => `<li><strong>${escapeHtml(item.id)}</strong> ${escapeHtml(item.version || "latest")}<br><small>${escapeHtml(item.title || item.description || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
+function renderPolicyDraft(draft) {
+  const panel = document.querySelector("#policyDraft");
+  const counts = draft.summary?.rule_counts || {};
+  const errors = Array.isArray(draft.errors) ? draft.errors : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Status</dt><dd class="${draft.valid ? "allow" : "block"}">${draft.valid ? "valid" : "invalid"}</dd>
+      <dt>Policy</dt><dd>${escapeHtml(draft.summary?.policy_id || draft.policy_pack?.metadata?.id || "unknown")}</dd>
+      <dt>Version</dt><dd>${escapeHtml(draft.summary?.version || "n/a")}</dd>
+      <dt>Inherits</dt><dd>${escapeHtml(draft.summary?.inherits || "none")}</dd>
+    </dl>
+    <h3>Rule Counts</h3>
+    <ul>${Object.entries(counts).map(([key, value]) => `<li>${escapeHtml(key)}: ${Number(value || 0)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Validation</h3>
+    <ul>${errors.map((item) => `<li class="block">${escapeHtml(item)}</li>`).join("") || "<li class=\"allow\">No schema errors</li>"}</ul>
+  `;
+}
+
+function renderRolloutChangePlan(plan, applied) {
+  const panel = document.querySelector("#rolloutChangePlan");
+  const changes = Array.isArray(plan.changes) ? plan.changes : [];
+  const notes = Array.isArray(plan.operator_notes) ? plan.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Status</dt><dd class="${applied ? "allow" : "require_approval"}">${applied ? "applied" : "planned"}</dd>
+      <dt>Operation</dt><dd>${escapeHtml(plan.operation || "update")}</dd>
+      <dt>Risk</dt><dd class="${riskClass(plan.risk)}">${escapeHtml(plan.risk || "medium")}</dd>
+      <dt>Approval</dt><dd class="${plan.approval_required ? "require_approval" : "allow"}">${plan.approval_required ? "required" : "not required"}</dd>
+      <dt>Repository</dt><dd>${escapeHtml(plan.after?.repository || "unknown")}</dd>
+      <dt>Policy</dt><dd>${escapeHtml(plan.after?.policy_pack || "unknown")}</dd>
+    </dl>
+    <h3>Changes</h3>
+    <ul>${changes.map((item) => `<li>${escapeHtml(item.field)}: ${escapeHtml(item.before ?? "n/a")} -> ${escapeHtml(item.after ?? "n/a")}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
 function renderIntegrationRows(integrations) {
   const integrationRows = document.querySelector("#integrationRows");
   integrationRows.innerHTML = "";
@@ -1066,6 +1269,23 @@ function renderConsoleSession(session) {
   `;
 }
 
+function renderDeploymentReadiness(report) {
+  const panel = document.querySelector("#deploymentReadiness");
+  const checks = Array.isArray(report.checks) ? report.checks : [];
+  const notes = Array.isArray(report.operator_notes) ? report.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Status</dt><dd class="${report.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(report.status || "needs_attention")}</dd>
+      <dt>Stores</dt><dd>${Number(report.store_summary?.total || 0)} checked</dd>
+      <dt>Missing stores</dt><dd>${escapeHtml((report.store_summary?.missing || []).join(", ") || "none")}</dd>
+    </dl>
+    <h3>Checks</h3>
+    <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.id)}<br><small>${escapeHtml(item.message || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
 function renderApprovalRows(items) {
   const rows = document.querySelector("#approvalRows");
   rows.innerHTML = "";
@@ -1138,6 +1358,10 @@ async function refreshInventory() {
   renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
 }
 
+async function refreshPolicyCatalog() {
+  renderPolicyCatalog(await loadPolicyCatalog());
+}
+
 async function showPolicyRolloutDetail(rolloutId) {
   renderPolicyRolloutDetail(await loadPolicyRolloutDetail(rolloutId));
 }
@@ -1149,6 +1373,10 @@ async function refreshIntegrations() {
 
 async function refreshSecurityBoundary() {
   renderSecurityBoundary(await loadSecurityBoundary());
+}
+
+async function refreshDeploymentReadiness() {
+  renderDeploymentReadiness(await loadDeploymentReadiness());
 }
 
 async function refreshConsoleSession() {
@@ -1295,8 +1523,13 @@ document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
+document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
+document.querySelector("#previewPolicyDraft").addEventListener("click", previewPolicyDraft);
+document.querySelector("#planRolloutChange").addEventListener("click", planRolloutChange);
+document.querySelector("#applyRolloutChange").addEventListener("click", applyRolloutChange);
 document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);
 document.querySelector("#refreshSecurityBoundary").addEventListener("click", refreshSecurityBoundary);
+document.querySelector("#refreshDeploymentReadiness").addEventListener("click", refreshDeploymentReadiness);
 document.querySelector("#refreshConsoleSession").addEventListener("click", refreshConsoleSession);
 document.querySelector("#saveConsoleToken").addEventListener("click", async () => {
   consoleAuthToken = document.querySelector("#consoleToken").value.trim();
@@ -1342,8 +1575,10 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 refreshEvidence();
 refreshActivity();
 refreshInventory();
+refreshPolicyCatalog();
 refreshIntegrations();
 refreshSecurityBoundary();
+refreshDeploymentReadiness();
 document.querySelector("#consoleToken").value = consoleAuthToken;
 refreshConsoleSession();
 refreshApprovals();

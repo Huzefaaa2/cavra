@@ -15,7 +15,7 @@ System_Boundary(cavra, "CAVRA") {
   Container_Boundary(entry, "Interaction and Management Surfaces") {
     Container(cli, "CAVRA CLI", "Python Typer", "Local evaluation, policy authoring, evidence export, retention, signing, and Claude Code init.")
     Container(mcpServer, "CAVRA MCP Server", "Python stdio MCP", "Tool interface for Claude Code and MCP-aware agents.")
-    Container(api, "CAVRA API", "FastAPI", "Management API for policies, persisted decisions, sessions, repositories, rollout drill-downs, integrations, evidence metadata and artifacts, console session context, security boundary, operations status, approvals, registry, and sandbox.")
+    Container(api, "CAVRA API", "FastAPI", "Management API for policies, authoring drafts, rollout changes, deployment readiness, persisted decisions, sessions, repositories, rollout drill-downs, integrations, evidence metadata and artifacts, console session context, security boundary, operations status, approvals, registry, and sandbox.")
     Container(sandbox, "Before the Agent Acts Sandbox", "HTML/CSS/JS", "Interactive demo and console for buyers, developers, platform teams, and auditors.")
   }
 
@@ -81,5 +81,5 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
-- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, repository inventory, policy rollout state and drill-downs, integration inventory, security boundary and console session metadata, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
+- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, policy draft and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
 - Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has JSON/SQLite persistence, predefined agent profiles, MCP tool classifications, console registry views, and registry-backed trust decisions.
