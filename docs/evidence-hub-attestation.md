@@ -23,6 +23,7 @@ Phase 3 begins the production Evidence Hub. CAVRA now creates verifier-ready evi
 - PR attestation verifier reports.
 - Console API wiring for same-origin and cross-origin deployments.
 - Idempotent SQLite metadata migrations.
+- Hosted evidence artifact retrieval for indexed sessions through a governed artifact root.
 
 ## CLI Usage
 
@@ -122,6 +123,9 @@ The API now supports evidence metadata persistence through:
 - `GET /evidence`
 - `POST /evidence`
 - `GET /evidence/{session_id}`
+- `GET /evidence/{session_id}/artifacts`
+- `GET /evidence/{session_id}/artifacts/{artifact_name}`
+- `GET /evidence/{session_id}/artifact-bundle`
 
 By default, metadata is stored in `.cavra/api/evidence-metadata.json`. Operators can set `CAVRA_EVIDENCE_METADATA_STORE` to move the metadata file. JSON mode supports the same response shape and filters as SQLite mode for local deployments.
 
@@ -129,11 +133,14 @@ For searchable metadata with filters and pagination, set `CAVRA_EVIDENCE_METADAT
 
 For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata through `POST /evidence`.
 
+Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to enable artifact retrieval. The API only serves allowlisted bundle files from `CAVRA_EVIDENCE_ARTIFACT_ROOT/<session_id>/`, requires a matching evidence metadata record, rejects traversal, and returns a checksum header on artifact downloads.
+
 ## Console Views
 
 The hosted console surface in `apps/sandbox-ui` now includes:
 
 - Evidence metadata search.
+- Evidence artifact listing and downloads.
 - PR attestation verification summary.
 - Operational readiness indicators for trust roots, SQLite search, attestation verification, and migrations.
 
@@ -157,5 +164,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add hosted attestation artifact download APIs backed by governed object storage.
-- Start Phase 4 Approval Router with approval lifecycle state, reviewer group routing, and break-glass evidence.
+- Add deeper OIDC-authenticated console sessions and RBAC enforcement.
+- Add policy-pack authoring and rollout change workflows.

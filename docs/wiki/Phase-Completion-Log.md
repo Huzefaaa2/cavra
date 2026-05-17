@@ -69,7 +69,7 @@ Completed:
 - Idempotent SQLite migration automation with `cavra evidence migrate`.
 - Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: continue Phase 5 with SQLite registry migrations, console registry views, predefined agent capability profiles, and MCP tool classification. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+Recommended next issue: continue Phase 5 with SQLite registry migrations, console registry views, predefined agent capability profiles, and MCP tool classification. Evidence artifact retrieval is now delivered in Phase 6.
 
 ## Phase 4: Approval Router
 
@@ -95,7 +95,7 @@ Completed:
 - Console break-glass creation.
 - Approval audit detail views for lifecycle history, evidence references, decision context, and external references.
 
-Recommended next issue: start Phase 5 with agent registry models/API, MCP server trust tiers, capability metadata, approval state, last-seen metadata, and registry-backed runtime decisions. Keep hosted attestation artifact retrieval as a narrow Phase 3 follow-up.
+Recommended next issue: start Phase 5 with agent registry models/API, MCP server trust tiers, capability metadata, approval state, last-seen metadata, and registry-backed runtime decisions. Evidence artifact retrieval is now delivered in Phase 6.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
@@ -114,7 +114,7 @@ Completed:
 - MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities.
 - Console registry views for agent identities, MCP trust records, profiles, and classifications.
 
-Recommended next issue: start Phase 6 with durable session and decision persistence, console session/decision views, API filters, and hosted attestation artifact retrieval.
+Recommended next issue: start Phase 6 with durable session and decision persistence, console session/decision views, API filters, and governed evidence artifact retrieval.
 
 ## Phase 6: Console and Persistent API
 
@@ -145,8 +145,10 @@ Completed:
 - Policy rollout detail API and console drill-downs.
 - Read-only `/console/security-boundary` endpoint.
 - Console security boundary panel for OIDC, RBAC, CORS, permissions, and operator notes.
+- Governed evidence artifact retrieval APIs for indexed sessions.
+- Console evidence artifact panel with individual artifact and bundle download links.
 
-Recommended next issue: add hosted attestation artifact retrieval, deeper OIDC-authenticated console sessions, RBAC enforcement for console actions, and policy-pack authoring workflows.
+Recommended next issue: add deeper OIDC-authenticated console sessions, RBAC enforcement for console actions, and policy-pack authoring workflows.
 
 ## Transparent Agent Methodology Enablement
 

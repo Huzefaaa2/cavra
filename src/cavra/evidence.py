@@ -3,8 +3,10 @@ from __future__ import annotations
 import base64
 import hashlib
 import hmac
+import io
 import json
 import sqlite3
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -22,6 +24,49 @@ class EvidenceBundleResult:
 class ExportResult:
     output_dir: Path
     files: list[Path]
+
+
+EVIDENCE_ARTIFACTS: dict[str, dict[str, str]] = {
+    "manifest.json": {
+        "kind": "manifest",
+        "media_type": "application/json",
+        "description": "Evidence bundle manifest with checksums and signature metadata.",
+    },
+    "evidence.json": {
+        "kind": "evidence",
+        "media_type": "application/json",
+        "description": "Complete CAVRA decision evidence for the session.",
+    },
+    "pr-attestation.md": {
+        "kind": "attestation",
+        "media_type": "text/markdown",
+        "description": "Reviewer-ready PR attestation for AI-assisted changes.",
+    },
+    "compliance-mapping.md": {
+        "kind": "compliance",
+        "media_type": "text/markdown",
+        "description": "Control-objective mapping for audit review.",
+    },
+    "siem-event.json": {
+        "kind": "siem",
+        "media_type": "application/json",
+        "description": "SIEM-ready session event payload.",
+    },
+    "sandbox-run-summary.json": {
+        "kind": "summary",
+        "media_type": "application/json",
+        "description": "Compact session summary for console and demo workflows.",
+    },
+    "retention-policy.json": {
+        "kind": "retention",
+        "media_type": "application/json",
+        "description": "Evidence retention, legal hold, and disposition policy.",
+    },
+}
+
+
+class EvidenceArtifactError(ValueError):
+    pass
 
 
 def sha256_file(path: Path) -> str:
@@ -693,6 +738,100 @@ def build_evidence_metadata(bundle_dir: Path) -> dict[str, Any]:
         "denied_count": sum(1 for item in approval_outcomes if item.get("state") == "denied"),
         "break_glass_count": sum(1 for item in approval_outcomes if item.get("break_glass")),
     }
+
+
+def list_evidence_artifacts(
+    artifact_root: Path,
+    session_id: str,
+    *,
+    base_path: str = "",
+    bundle_path: str = "",
+) -> dict[str, Any]:
+    session_dir = _session_artifact_dir(artifact_root, session_id)
+    artifacts = []
+    for artifact_name, descriptor in EVIDENCE_ARTIFACTS.items():
+        path = session_dir / artifact_name
+        if not path.exists() or not path.is_file():
+            continue
+        item = {
+            "artifact": artifact_name,
+            "kind": descriptor["kind"],
+            "description": descriptor["description"],
+            "media_type": descriptor["media_type"],
+            "bytes": path.stat().st_size,
+            "sha256": sha256_file(path),
+        }
+        if base_path:
+            item["download_url"] = f"{base_path.rstrip('/')}/{artifact_name}"
+        artifacts.append(item)
+    return {
+        "schema_version": "cavra.evidence.artifacts.v1",
+        "product": "CAVRA",
+        "session_id": session_id,
+        "artifact_root_configured": True,
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts,
+        "bundle_download_url": bundle_path,
+    }
+
+
+def load_evidence_artifact(artifact_root: Path, session_id: str, artifact_name: str) -> tuple[dict[str, Any], bytes]:
+    if artifact_name not in EVIDENCE_ARTIFACTS:
+        raise EvidenceArtifactError("unsupported evidence artifact")
+    session_dir = _session_artifact_dir(artifact_root, session_id)
+    path = _resolve_session_artifact(session_dir, artifact_name)
+    if not path.exists() or not path.is_file():
+        raise FileNotFoundError(f"evidence artifact not found: {artifact_name}")
+    descriptor = EVIDENCE_ARTIFACTS[artifact_name]
+    metadata = {
+        "artifact": artifact_name,
+        "kind": descriptor["kind"],
+        "description": descriptor["description"],
+        "media_type": descriptor["media_type"],
+        "bytes": path.stat().st_size,
+        "sha256": sha256_file(path),
+    }
+    return metadata, path.read_bytes()
+
+
+def build_evidence_artifact_archive(artifact_root: Path, session_id: str) -> tuple[dict[str, Any], bytes]:
+    listing = list_evidence_artifacts(artifact_root, session_id)
+    if not listing["artifacts"]:
+        raise FileNotFoundError(f"no evidence artifacts found for session: {session_id}")
+    session_dir = _session_artifact_dir(artifact_root, session_id)
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for item in listing["artifacts"]:
+            artifact_name = item["artifact"]
+            archive.write(_resolve_session_artifact(session_dir, artifact_name), arcname=artifact_name)
+    payload = buffer.getvalue()
+    metadata = {
+        "artifact": f"{session_id}-evidence-bundle.zip",
+        "kind": "bundle",
+        "description": "Complete downloadable CAVRA evidence artifact bundle.",
+        "media_type": "application/zip",
+        "bytes": len(payload),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "artifact_count": listing["artifact_count"],
+    }
+    return metadata, payload
+
+
+def _session_artifact_dir(artifact_root: Path, session_id: str) -> Path:
+    if not session_id or session_id in {".", ".."} or "/" in session_id or "\\" in session_id:
+        raise EvidenceArtifactError("invalid evidence session ID")
+    root = artifact_root.resolve()
+    session_dir = (root / session_id).resolve()
+    if not session_dir.is_relative_to(root):
+        raise EvidenceArtifactError("evidence session escapes artifact root")
+    return session_dir
+
+
+def _resolve_session_artifact(session_dir: Path, artifact_name: str) -> Path:
+    path = (session_dir / artifact_name).resolve()
+    if path.name != artifact_name or not path.is_relative_to(session_dir):
+        raise EvidenceArtifactError("evidence artifact escapes session directory")
+    return path
 
 
 class EvidenceMetadataStore:

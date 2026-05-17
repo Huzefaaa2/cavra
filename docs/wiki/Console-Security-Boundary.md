@@ -31,4 +31,4 @@ This endpoint does not authenticate users by itself. It reports whether the cons
 
 ## Next
 
-The next recommended work is hosted attestation artifact retrieval and deeper OIDC-authenticated console sessions.
+The next recommended work is deeper OIDC-authenticated console sessions, repository RBAC enforcement for console actions, and policy-pack authoring workflows.

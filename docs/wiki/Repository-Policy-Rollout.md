@@ -53,4 +53,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is hosted attestation artifact retrieval and deeper OIDC-authenticated console sessions.
+The next recommended work is deeper OIDC-authenticated console sessions and policy-pack rollout change workflows.

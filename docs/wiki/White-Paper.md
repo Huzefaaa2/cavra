@@ -101,10 +101,10 @@ The path to production readiness is:
 
 1. Productization foundation.
 2. Policy engine hardening. This phase is complete and adds schema validation, inheritance, semantic diff, compile output, and policy signature metadata.
-3. Evidence hub and attestation. This phase is near complete and includes signed evidence, SIEM exports, retention, trust roots, metadata search, and console evidence views.
+3. Evidence hub and attestation. This phase is near complete and includes signed evidence, SIEM exports, retention, trust roots, metadata search, governed artifact retrieval, and console evidence views.
 4. Approval router. This phase is complete for the current production-readiness slice and includes approval routing, OIDC/JWKS, repository RBAC, provider delivery, break-glass, and audit views.
 5. Agent Registry and MCP Trust Registry. This phase is complete for the current production-readiness slice and includes JSON/SQLite registry persistence, agent profiles, MCP capability classification, console views, and registry-backed runtime decisions.
-6. Console and persistent API. This phase has started with durable sessions, decisions, repository inventory, policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, console Activity Explorer views, and repository/rollout/integration console views. Hosted attestation retrieval, deeper OIDC-authenticated console sessions, and policy-pack authoring workflows are next.
+6. Console and persistent API. This phase has started with durable sessions, decisions, repository inventory, policy rollout persistence, integration inventory persistence, evidence artifact retrieval, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, console Activity Explorer views, and repository/rollout/integration console views. Deeper OIDC-authenticated console sessions and policy-pack authoring workflows are next.
 7. Go enforcement plane.
 8. Enterprise integrations.
 9. Public sandbox and growth loop.

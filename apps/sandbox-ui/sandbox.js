@@ -17,7 +17,8 @@ const evidenceCatalog = [
     approval_required_count: 1,
     retention: { retention_days: 2555, retain_until: "2033-05-15T00:00:00Z" },
     decisions: scenario.map(eventPayload),
-    attestation_targets: scenario.map((row) => row[1])
+    attestation_targets: scenario.map((row) => row[1]),
+    artifact_count: 7
   },
   {
     session_id: "docs-agent-run",
@@ -27,7 +28,8 @@ const evidenceCatalog = [
     approval_required_count: 0,
     retention: { retention_days: 365, retain_until: "2027-05-17T00:00:00Z" },
     decisions: scenario.slice(2, 6).map(eventPayload),
-    attestation_targets: scenario.slice(2, 6).map((row) => row[1])
+    attestation_targets: scenario.slice(2, 6).map((row) => row[1]),
+    artifact_count: 7
   },
   {
     session_id: "security-review",
@@ -37,9 +39,22 @@ const evidenceCatalog = [
     approval_required_count: 1,
     retention: { retention_days: 2555, retain_until: "2033-05-15T00:00:00Z" },
     decisions: scenario.slice(0, 5).map(eventPayload),
-    attestation_targets: scenario.slice(0, 5).map((row) => row[1])
+    attestation_targets: scenario.slice(0, 5).map((row) => row[1]),
+    artifact_count: 7
   }
 ];
+
+const evidenceArtifactCatalog = [
+  ["manifest.json", "manifest", "application/json", "Manifest with checksums and signature metadata."],
+  ["evidence.json", "evidence", "application/json", "Complete decision evidence for the session."],
+  ["pr-attestation.md", "attestation", "text/markdown", "Reviewer-ready PR attestation."],
+  ["compliance-mapping.md", "compliance", "text/markdown", "Audit control-objective mapping."],
+  ["siem-event.json", "siem", "application/json", "SIEM-ready session event payload."],
+  ["sandbox-run-summary.json", "summary", "application/json", "Compact session summary."],
+  ["retention-policy.json", "retention", "application/json", "Retention, legal hold, and disposition policy."]
+].map(([artifact, kind, media_type, description]) => ({
+  artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
+}));
 
 const activitySessions = evidenceCatalog.map((item) => ({
   schema_version: "cavra.session.v1",
@@ -407,6 +422,25 @@ async function loadEvidenceMetadata() {
   }
 }
 
+async function loadEvidenceArtifacts(sessionId) {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(`/evidence/${encodeURIComponent(sessionId)}/artifacts`));
+    if (!response.ok) throw new Error("Evidence artifact API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      schema_version: "cavra.evidence.artifacts.v1",
+      product: "CAVRA",
+      session_id: sessionId,
+      artifact_root_configured: false,
+      artifact_count: evidenceArtifactCatalog.length,
+      artifacts: evidenceArtifactCatalog.map((item) => ({ ...item, download_url: "" })),
+      bundle_download_url: ""
+    };
+  }
+}
+
 async function loadSessions() {
   await loadConsoleConfig();
   try {
@@ -740,10 +774,32 @@ function renderEvidenceRows(items) {
         <td class="${Number(item.blocked_count || 0) > 0 ? "block" : "allow"}">${item.blocked_count || 0}</td>
         <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>
         <td>${item.retention?.retention_days || "n/a"} days</td>
+        <td><button class="evidenceArtifactAction secondary" data-session="${escapeHtml(item.session_id || "")}">Artifacts</button></td>
       </tr>
     `);
     sessionSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(item.session_id)}">${escapeHtml(item.session_id)}</option>`);
   }
+}
+
+function renderEvidenceArtifacts(payload) {
+  const panel = document.querySelector("#evidenceArtifacts");
+  const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
+  const bundleHref = payload.bundle_download_url ? apiUrl(payload.bundle_download_url) : "";
+  panel.innerHTML = `
+    <dl>
+      <dt>Session</dt><dd>${escapeHtml(payload.session_id || "unknown")}</dd>
+      <dt>Artifact root</dt><dd class="${payload.artifact_root_configured ? "allow" : "require_approval"}">${payload.artifact_root_configured ? "configured" : "sample or disabled"}</dd>
+      <dt>Artifacts</dt><dd>${Number(payload.artifact_count || artifacts.length || 0)}</dd>
+      <dt>Bundle</dt><dd>${bundleHref ? `<a href="${escapeHtml(bundleHref)}">Download bundle</a>` : "not available from sample data"}</dd>
+    </dl>
+    <h3>Bundle Files</h3>
+    <ul>${artifacts.map((item) => {
+      const href = item.download_url ? apiUrl(item.download_url) : "";
+      const label = `${item.artifact} (${item.kind || item.media_type || "artifact"})`;
+      const suffix = item.bytes ? ` - ${Number(item.bytes)} bytes` : "";
+      return `<li>${href ? `<a href="${escapeHtml(href)}">${escapeHtml(label)}</a>` : escapeHtml(label)}${escapeHtml(suffix)}<br><small>${escapeHtml(item.description || "")}</small></li>`;
+    }).join("") || "<li>n/a</li>"}</ul>
+  `;
 }
 
 function renderActivityRows(sessions, decisions) {
@@ -1009,6 +1065,10 @@ async function refreshEvidence() {
   renderEvidenceRows(items);
 }
 
+async function showEvidenceArtifacts(sessionId) {
+  renderEvidenceArtifacts(await loadEvidenceArtifacts(sessionId));
+}
+
 async function refreshActivity() {
   const [sessions, decisions] = await Promise.all([loadSessions(), loadDecisions()]);
   renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
@@ -1177,6 +1237,12 @@ document.querySelector("#refreshSecurityBoundary").addEventListener("click", ref
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
+document.querySelector("#evidenceRows").addEventListener("click", async (event) => {
+  if (!(event.target instanceof Element)) return;
+  const artifactButton = event.target.closest(".evidenceArtifactAction");
+  if (!artifactButton) return;
+  await showEvidenceArtifacts(artifactButton.dataset.session);
+});
 document.querySelector("#rolloutRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
   const detailButton = event.target.closest(".rolloutDetailAction");

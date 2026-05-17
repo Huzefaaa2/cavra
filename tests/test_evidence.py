@@ -1,9 +1,11 @@
 from pathlib import Path
 
 from cavra.evidence import (
+    EvidenceArtifactError,
     EvidenceMetadataStore,
     SQLiteEvidenceMetadataStore,
     apply_sqlite_migrations,
+    build_evidence_artifact_archive,
     build_trust_root_bundle,
     create_evidence_bundle,
     export_attestation_verification,
@@ -13,6 +15,8 @@ from cavra.evidence import (
     export_siem_payloads,
     export_trust_root_bundle,
     generate_ed25519_keypair,
+    list_evidence_artifacts,
+    load_evidence_artifact,
     verify_evidence_bundle,
 )
 from cavra.runtime import RuntimeGuard
@@ -213,6 +217,42 @@ def test_evidence_metadata_store_indexes_bundle(tmp_path: Path) -> None:
     assert metadata["session_id"] == "pytest"
     assert metadata["decision_count"] == 3
     assert store.get("pytest")["blocked_count"] == 2
+
+
+def test_evidence_artifact_root_lists_and_loads_allowed_files(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    bundle_dir = root / "pytest"
+    create_evidence_bundle(_decisions(), bundle_dir, session_id="pytest")
+
+    listing = list_evidence_artifacts(
+        root,
+        "pytest",
+        base_path="/evidence/pytest/artifacts",
+        bundle_path="/evidence/pytest/artifact-bundle",
+    )
+    metadata, payload = load_evidence_artifact(root, "pytest", "pr-attestation.md")
+    archive_metadata, archive_payload = build_evidence_artifact_archive(root, "pytest")
+
+    assert listing["artifact_count"] == 7
+    assert listing["bundle_download_url"] == "/evidence/pytest/artifact-bundle"
+    assert any(item["artifact"] == "pr-attestation.md" for item in listing["artifacts"])
+    assert metadata["media_type"] == "text/markdown"
+    assert b"CAVRA PR Attestation" in payload
+    assert archive_metadata["media_type"] == "application/zip"
+    assert archive_payload.startswith(b"PK")
+
+
+def test_evidence_artifact_root_rejects_unsafe_paths(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    create_evidence_bundle(_decisions(), root / "pytest", session_id="pytest")
+
+    for session_id, artifact_name in [("../outside", "manifest.json"), ("pytest", "../manifest.json")]:
+        try:
+            load_evidence_artifact(root, session_id, artifact_name)
+        except EvidenceArtifactError:
+            pass
+        else:
+            raise AssertionError("expected unsafe artifact path to fail")
 
 
 def test_sqlite_evidence_metadata_store_searches_with_pagination(tmp_path: Path) -> None:

@@ -5,6 +5,8 @@ from base64 import urlsafe_b64encode
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
+from cavra.evidence import create_evidence_bundle
+from cavra.runtime import RuntimeGuard
 
 
 def _b64url(data: bytes) -> str:
@@ -73,6 +75,54 @@ def test_api_searches_sqlite_evidence_metadata(monkeypatch, tmp_path) -> None:
     assert response.status_code == 200
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["session_id"] == "blocked-session"
+
+
+def test_api_serves_configured_evidence_artifacts(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(tmp_path / "artifacts"))
+    guard = RuntimeGuard(policy_pack="cavra-ai-agent-baseline")
+    create_evidence_bundle(
+        [guard.evaluate_command("terraform plan").to_dict()],
+        tmp_path / "artifacts" / "api-session",
+        session_id="api-session",
+        signer="platform-security",
+    )
+    client = TestClient(create_app())
+    client.post("/evidence", json={"session_id": "api-session", "decision_count": 1, "signer": "platform-security"})
+
+    listing = client.get("/evidence/api-session/artifacts")
+    attestation = client.get("/evidence/api-session/artifacts/pr-attestation.md")
+    bundle = client.get("/evidence/api-session/artifact-bundle")
+    rejected = client.get("/evidence/api-session/artifacts/../../etc/passwd")
+    config = client.get("/console/config").json()
+
+    assert listing.status_code == 200
+    assert listing.json()["artifact_count"] == 7
+    assert any(item["artifact"] == "pr-attestation.md" for item in listing.json()["artifacts"])
+    assert attestation.status_code == 200
+    assert attestation.headers["content-type"].startswith("text/markdown")
+    assert "CAVRA PR Attestation" in attestation.text
+    assert bundle.status_code == 200
+    assert bundle.content.startswith(b"PK")
+    assert rejected.status_code in {400, 404}
+    assert config["evidence_artifacts"] == "configured"
+    assert config["endpoints"]["evidence_artifact_bundle"] == "/evidence/{session_id}/artifact-bundle"
+
+
+def test_api_evidence_artifacts_require_configured_root(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.delenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+    client.post("/evidence", json={"session_id": "api-session", "decision_count": 1})
+
+    response = client.get("/evidence/api-session/artifacts")
+    config = client.get("/console/config").json()
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "evidence artifact root is not configured"
+    assert config["evidence_artifacts"] == "disabled"
 
 
 def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:

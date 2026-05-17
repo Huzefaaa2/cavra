@@ -14,13 +14,13 @@ Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA i
 
 Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
 
-Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, SQLite and JSON evidence metadata search, console API wiring, and migration automation.
+Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, SQLite and JSON evidence metadata search, governed artifact retrieval APIs, console API wiring, and migration automation.
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. It includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC, provider payload and request-spec exports, secret-backed live provider delivery, console approval queue actions, console break-glass creation, approval audit detail views, and approval evidence linkage.
 
 Phase 5, Agent Registry and MCP Trust Registry, is complete for the current production-readiness slice. It includes JSON and SQLite governed agent identities, MCP server trust records, predefined agent capability profiles, MCP capability classification, API and CLI access, console registry views, and registry-backed MCP runtime decisions.
 
-Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
+Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
@@ -49,6 +49,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Persistent API Operations: `Persistent-API-Operations.md`
 - Integration Inventory: `Integration-Inventory.md`
 - Console Security Boundary: `Console-Security-Boundary.md`
+- Evidence Artifact Retrieval: `Evidence-Artifact-Retrieval.md`
 
 ## Quick Start
 

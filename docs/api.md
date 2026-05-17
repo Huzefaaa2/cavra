@@ -96,6 +96,9 @@ Evidence metadata endpoints:
 - `GET /evidence`: list persisted evidence metadata.
 - `POST /evidence`: upsert metadata by `session_id`.
 - `GET /evidence/{session_id}`: fetch one metadata record.
+- `GET /evidence/{session_id}/artifacts`: list downloadable evidence bundle artifacts for an indexed session.
+- `GET /evidence/{session_id}/artifacts/{artifact_name}`: download one allowlisted evidence artifact.
+- `GET /evidence/{session_id}/artifact-bundle`: download an allowlisted ZIP bundle for the session.
 
 Default metadata path: `.cavra/api/evidence-metadata.json`.
 
@@ -111,6 +114,8 @@ Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata persistence. `GET
 - `offset`
 
 For security, the API does not accept arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata with `POST /evidence`.
+
+Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to enable hosted artifact retrieval. The artifact root is expected to contain one directory per indexed session, for example `.cavra/evidence/artifacts/api-session/manifest.json`. Retrieval endpoints require the session to exist in evidence metadata, only serve known bundle filenames, reject path traversal, and include `x-cavra-artifact-sha256` on downloads.
 
 ## Approvals
 
@@ -144,7 +149,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, evidence artifact downloads, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, evidence artifact, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including rollout detail, security boundary, operations status, and retention-plan endpoints. Configure cross-origin deployments with:
 

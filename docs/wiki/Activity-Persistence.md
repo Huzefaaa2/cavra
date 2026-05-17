@@ -31,6 +31,6 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Repository inventory and policy rollout views.
-- Hosted attestation artifact retrieval backed by governed object storage.
-- Backup, restore, and retention documentation for persistent API stores.
+- Deeper OIDC-authenticated console sessions.
+- Repository RBAC enforcement for console actions.
+- Policy-pack authoring and rollout change workflows.

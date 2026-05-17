@@ -20,6 +20,7 @@ CAVRA now creates verifier-ready evidence bundles:
 - Evidence metadata indexing through CLI and API workflows.
 - SQLite-backed evidence search with filters and pagination.
 - PR attestation verifier reports.
+- Governed artifact retrieval APIs for indexed sessions.
 
 ## Commands
 
@@ -62,18 +63,23 @@ Evidence bundles turn pre-action runtime decisions into artifacts that reviewers
 - `GET /evidence`
 - `POST /evidence`
 - `GET /evidence/{session_id}`
+- `GET /evidence/{session_id}/artifacts`
+- `GET /evidence/{session_id}/artifacts/{artifact_name}`
+- `GET /evidence/{session_id}/artifact-bundle`
 
 For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist it with `POST /evidence`.
 
 Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata search with filters and pagination. JSON metadata mode now supports the same API filter and pagination shape for local deployments.
 
+Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to enable read-only artifact retrieval from a governed root. The API requires a metadata record, only serves known bundle filenames, rejects traversal, and returns checksum headers on downloads.
+
 ## Console Views
 
-The hosted console surface includes evidence metadata search, PR attestation verification, and operational readiness indicators.
+The hosted console surface includes evidence metadata search, evidence artifact downloads, PR attestation verification, and operational readiness indicators.
 
 Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAVRA_CORS_ORIGINS`, and `GET /console/config`.
 
 ## Next Work
 
-- Hosted attestation artifact download APIs backed by governed object storage.
-- Phase 4 Approval Router with approval lifecycle state and break-glass evidence.
+- Deeper OIDC-authenticated console sessions and RBAC enforcement.
+- Policy-pack authoring and rollout change workflows.

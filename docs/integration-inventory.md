@@ -60,4 +60,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next Phase 6 step is policy rollout drill-downs and OIDC-ready console auth/RBAC boundaries, followed by hosted attestation artifact retrieval.
+The next Phase 6 step is deeper OIDC-authenticated console sessions, repository RBAC enforcement for console actions, and policy-pack authoring workflows.

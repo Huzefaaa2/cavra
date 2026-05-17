@@ -94,6 +94,8 @@ curl http://127.0.0.1:8000/health
 
 The API is published as `CAVRA API` and exposes policies, decisions, sessions, agents, approvals, evidence, integrations, MCP trust, risk events, compliance mappings, and sandbox endpoints.
 
+Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to expose read-only evidence artifact retrieval for indexed sessions through `/evidence/{session_id}/artifacts`, `/evidence/{session_id}/artifacts/{artifact_name}`, and `/evidence/{session_id}/artifact-bundle`. The API only serves allowlisted bundle files under the configured root and requires the session to exist in evidence metadata.
+
 ## Policy packs
 
 Policy packs live under `policies/`. Current packs cover AI-agent baseline, banking, PCI DSS, HIPAA, SOX change control, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic risks, MCP enterprise governance, Kubernetes production safety, Terraform/OpenTofu production safety, cloud IAM, GitHub Enterprise, and GitLab Enterprise.
@@ -112,7 +114,7 @@ cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
 
 CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, sandbox evidence bundles, and persistent API operational metadata. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
 
-Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, and verifier commands.
+Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, governed artifact retrieval APIs, and verifier commands.
 
 ```bash
 cavra evidence bundle --output .cavra/evidence/latest --signer platform-security
@@ -205,13 +207,13 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout drill-downs, enterprise integration inventory, evidence metadata search, PR attestation verification, console security boundary status, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout drill-downs, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisions, inspect repository policy rollout detail, review enterprise integration health, inspect OIDC/RBAC boundary status, filter evidence metadata, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
+Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisions, inspect repository policy rollout detail, review enterprise integration health, inspect OIDC/RBAC boundary status, filter evidence metadata, review downloadable evidence artifacts, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
 
@@ -227,7 +229,7 @@ Current phase status:
 
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
-- Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
+- Phase 3: Evidence Hub and Attestation - near complete in PR #1 with governed hosted artifact retrieval now available; remaining follow-up is production deployment guide validation.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only OIDC/RBAC console security boundary reporting, API filters, console Activity Explorer views, and console repository/rollout/integration views.
@@ -238,8 +240,8 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Continue Phase 6 with hosted attestation artifact retrieval and deeper OIDC-authenticated console sessions/RBAC enforcement.
-- Add hosted attestation artifact download APIs backed by governed object storage.
+- Continue Phase 6 with deeper OIDC-authenticated console sessions/RBAC enforcement.
+- Add policy-pack authoring and rollout change workflows.
 
 ## User stories and enterprise value
 
@@ -272,6 +274,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Persistent API Operations](docs/wiki/Persistent-API-Operations.md)
 - [Integration Inventory](docs/wiki/Integration-Inventory.md)
 - [Console Security Boundary](docs/wiki/Console-Security-Boundary.md)
+- [Evidence Artifact Retrieval](docs/wiki/Evidence-Artifact-Retrieval.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

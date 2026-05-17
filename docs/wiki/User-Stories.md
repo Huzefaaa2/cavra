@@ -20,6 +20,8 @@ I can make CAVRA evidence part of PR review, CI, SIEM, and change-management wor
 
 I can inspect evidence that proves which agent acted, what it attempted, what policy decided, and why.
 
+I can download allowlisted evidence artifacts and bundles for indexed sessions when the API is configured with a governed artifact root.
+
 ## AI Governance Lead
 
 I can manage agent identities and MCP tool trust so AI capability expansion is visible and controlled.

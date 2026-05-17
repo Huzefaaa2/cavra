@@ -88,9 +88,10 @@ Delivered:
 - JSON and SQLite evidence search pagination/filter parity.
 - Idempotent SQLite migration automation through `cavra evidence migrate`.
 - Automated trust-root bundle generation and distribution guidance.
+- Hosted evidence artifact retrieval APIs for indexed sessions through a governed artifact root.
+- Console evidence artifact panel and bundle download links.
 
 Remaining:
-- Hosted attestation artifact download APIs backed by governed object storage.
 - Production deployment guide validation.
 
 User stories:
@@ -209,6 +210,7 @@ Enterprise challenge solved:
 Exit criteria:
 - API has persistent storage.
 - Console can browse sessions, decisions, and evidence.
+- Console can list and download allowlisted evidence artifacts for indexed sessions.
 - RBAC model is documented and covered by tests.
 
 ## Phase 7: Go Enforcement Plane
@@ -315,11 +317,10 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: continue Phase 6, Console and Persistent API. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
+Next recommended implementation phase: continue Phase 6, Console and Persistent API, focused on authenticated console sessions and repository-scoped RBAC.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, and read-only console security boundary reporting.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, and read-only console security boundary reporting.
 
 Immediate next tasks:
-- Add hosted attestation artifact download APIs backed by governed object storage.
 - Add deeper OIDC-authenticated console sessions and RBAC enforcement.
 - Add policy-pack catalog authoring and rollout change workflows.

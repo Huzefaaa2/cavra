@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Optional
+from urllib.parse import quote
 
 from cavra.activity import ActivityStore, SQLiteActivityStore
 from cavra.approvals import (
@@ -17,7 +18,14 @@ from cavra.approvals import (
     load_rbac_rules,
     load_routing_rules,
 )
-from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
+from cavra.evidence import (
+    EvidenceArtifactError,
+    EvidenceMetadataStore,
+    SQLiteEvidenceMetadataStore,
+    build_evidence_artifact_archive,
+    list_evidence_artifacts,
+    load_evidence_artifact,
+)
 from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
@@ -65,6 +73,7 @@ def create_app():
         if os.environ.get("CAVRA_EVIDENCE_METADATA_DB")
         else EvidenceMetadataStore(Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json")))
     )
+    evidence_artifact_root = Path(os.environ["CAVRA_EVIDENCE_ARTIFACT_ROOT"]) if os.environ.get("CAVRA_EVIDENCE_ARTIFACT_ROOT") else None
     approval_store = (
         SQLiteApprovalStore(Path(os.environ["CAVRA_APPROVAL_DB"]))
         if os.environ.get("CAVRA_APPROVAL_DB")
@@ -123,11 +132,15 @@ def create_app():
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
+            "evidence_artifacts": "configured" if evidence_artifact_root else "disabled",
             "registry_store": str(registry_store.path),
             "cors_origins": cors_origins,
             "endpoints": {
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
+                "evidence_artifacts": "/evidence/{session_id}/artifacts",
+                "evidence_artifact": "/evidence/{session_id}/artifacts/{artifact_name}",
+                "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
@@ -554,6 +567,59 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    @app.get("/evidence/{session_id}/artifacts")
+    def evidence_artifact_index(session_id: str) -> dict:
+        _get_evidence_metadata_or_404(evidence_store, session_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        encoded_session_id = quote(session_id, safe="")
+        try:
+            return list_evidence_artifacts(
+                root,
+                session_id,
+                base_path=f"/evidence/{encoded_session_id}/artifacts",
+                bundle_path=f"/evidence/{encoded_session_id}/artifact-bundle",
+            )
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/evidence/{session_id}/artifact-bundle")
+    def evidence_artifact_bundle(session_id: str):
+        _get_evidence_metadata_or_404(evidence_store, session_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        try:
+            metadata, payload = build_evidence_artifact_archive(root, session_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="evidence artifacts not found") from exc
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return Response(
+            payload,
+            media_type=metadata["media_type"],
+            headers={
+                "content-disposition": f'attachment; filename="{metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(metadata["sha256"]),
+            },
+        )
+
+    @app.get("/evidence/{session_id}/artifacts/{artifact_name}")
+    def evidence_artifact(session_id: str, artifact_name: str):
+        _get_evidence_metadata_or_404(evidence_store, session_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        try:
+            metadata, payload = load_evidence_artifact(root, session_id, artifact_name)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="evidence artifact not found") from exc
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return Response(
+            payload,
+            media_type=metadata["media_type"],
+            headers={
+                "content-disposition": f'attachment; filename="{metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(metadata["sha256"]),
+            },
+        )
+
     @app.get("/evidence/{session_id}")
     def evidence_metadata(session_id: str) -> dict:
         item = evidence_store.get(session_id)
@@ -636,6 +702,22 @@ def _filter_json_evidence(
         "limit": limit,
         "offset": offset,
     }
+
+
+def _configured_artifact_root(root: Path | None) -> Path:
+    if root is None:
+        raise HTTPException(status_code=400, detail="evidence artifact root is not configured")
+    return root
+
+
+def _get_evidence_metadata_or_404(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+    session_id: str,
+) -> dict:
+    item = evidence_store.get(session_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="evidence metadata not found")
+    return item
 
 
 def _policy_rollout_detail(

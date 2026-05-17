@@ -32,6 +32,8 @@ As an auditor, I want session evidence that includes agent identity, action, dec
 
 As an auditor, I want downloadable PR attestation and compliance mapping, so AI-assisted changes can be reviewed against regulated control objectives.
 
+As an auditor, I want to download the full allowlisted evidence artifact bundle for an indexed session, so I can attach verifiable CAVRA evidence to audit requests and change records.
+
 ## AI Governance Lead
 
 As an AI governance lead, I want an Agent Registry and MCP Trust Registry, so AI agents and tools are known, approved, scoped, and monitored.

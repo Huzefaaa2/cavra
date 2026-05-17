@@ -66,4 +66,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next Phase 6 step is hosted attestation artifact retrieval and deeper OIDC/RBAC enforcement for the console/API boundary.
+The next Phase 6 step is deeper OIDC/RBAC enforcement for the console/API boundary and policy-pack rollout change workflows.

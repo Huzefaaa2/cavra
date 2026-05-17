@@ -58,6 +58,6 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Persistent session and decision stores for Phase 6.
-- Console session and decision views with repository and policy filters.
-- Hosted attestation artifact retrieval backed by governed object storage.
+- Deeper OIDC-authenticated console sessions.
+- Repository RBAC enforcement for console actions.
+- Policy-pack authoring and rollout change workflows.
