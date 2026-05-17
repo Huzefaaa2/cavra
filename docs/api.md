@@ -30,12 +30,21 @@ Policy rollout endpoints:
 - `GET /policy-rollouts`: list policy rollout records with optional `repository`, `policy_pack`, `state`, `mode`, and `owner` filters.
 - `POST /policy-rollouts`: create or update a policy rollout record.
 - `GET /policy-rollouts/{rollout_id}`: fetch one policy rollout record.
+- `GET /policy-rollout-details/{rollout_id}`: fetch one policy rollout with repository context, policy pack metadata, activity summary, integration summary, and readiness checks.
 
 Default inventory path: `.cavra/api/inventory.json`.
 
 Set `CAVRA_INVENTORY_STORE` to override the JSON path. Set `CAVRA_INVENTORY_DB` to use SQLite-backed repository inventory and policy rollout persistence. `GET /console/config` includes `inventory_mode`.
 
 Inventory records track repository ID, provider, owner, business unit, environment, active policy pack, risk tier, status, protected branches, required checks, and evidence references. Rollout records track repository, policy pack, policy version, rollout mode, rollout state, owner, coverage percentage, last evaluation time, and evidence references.
+
+## Console Security Boundary
+
+Security boundary endpoint:
+
+- `GET /console/security-boundary`: return console/API deployment boundary status for OIDC, repository RBAC, CORS, browser-visible permissions, and operator notes.
+
+The endpoint is read-only and reports whether `CAVRA_APPROVAL_OIDC_CONFIG`, `CAVRA_APPROVAL_RBAC_FILE`, and `CAVRA_CORS_ORIGINS` are configured. It does not authenticate users by itself; production deployments should host the console behind enterprise identity and use signed approval actor tokens or claims for approval actions.
 
 ## Integrations Inventory
 
@@ -137,7 +146,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
-`GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including operations status and retention-plan endpoints. Configure cross-origin deployments with:
+`GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including rollout detail, security boundary, operations status, and retention-plan endpoints. Configure cross-origin deployments with:
 
 - `CAVRA_PUBLIC_API_BASE_URL`
 - `CAVRA_CORS_ORIGINS`

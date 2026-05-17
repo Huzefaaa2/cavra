@@ -21,7 +21,7 @@ from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
-from cavra.policy_registry import PolicyRegistry
+from cavra.policy_registry import PolicyRegistry, PolicyRegistryError
 from cavra.registry import (
     RegistryStore,
     SQLiteRegistryStore,
@@ -133,6 +133,8 @@ def create_app():
                 "decisions": "/decisions",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
+                "policy_rollout_detail": "/policy-rollouts/{rollout_id}/detail",
+                "console_security_boundary": "/console/security-boundary",
                 "operations_stores": "/operations/stores",
                 "operations_retention_plan": "/operations/retention-plan",
                 "integrations": "/integrations",
@@ -240,6 +242,14 @@ def create_app():
     def operations_store_index() -> dict:
         return persistent_api_store_status()
 
+    @app.get("/console/security-boundary")
+    def console_security_boundary() -> dict[str, object]:
+        return _console_security_boundary(
+            oidc_configured=bool(oidc_config),
+            rbac_configured=bool(rbac_rules),
+            cors_origins=cors_origins,
+        )
+
     @app.get("/operations/retention-plan")
     def operations_retention_plan(
         retention_days: int = 2555,
@@ -308,7 +318,15 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="invalid policy rollout record") from exc
 
-    @app.get("/policy-rollouts/{rollout_id}")
+    @app.get("/policy-rollout-details/{rollout_id:path}")
+    @app.get("/policy-rollouts/{rollout_id}/detail")
+    def policy_rollout_detail(rollout_id: str) -> dict:
+        rollout = inventory_store.get_policy_rollout(rollout_id)
+        if rollout is None:
+            raise HTTPException(status_code=404, detail="policy rollout not found")
+        return _policy_rollout_detail(rollout, inventory_store, activity_store, integration_store)
+
+    @app.get("/policy-rollouts/{rollout_id:path}")
     def policy_rollout_item(rollout_id: str) -> dict:
         item = inventory_store.get_policy_rollout(rollout_id)
         if item is None:
@@ -617,6 +635,181 @@ def _filter_json_evidence(
         "total": len(filtered),
         "limit": limit,
         "offset": offset,
+    }
+
+
+def _policy_rollout_detail(
+    rollout: dict,
+    inventory_store: InventoryStore | SQLiteInventoryStore,
+    activity_store: ActivityStore | SQLiteActivityStore,
+    integration_store: IntegrationStore | SQLiteIntegrationStore,
+) -> dict[str, object]:
+    repository = inventory_store.get_repository(str(rollout.get("repository", "")))
+    policy_pack_id = str(rollout.get("policy_pack", ""))
+    try:
+        policy_pack = PolicyRegistry().get_policy_pack(policy_pack_id)
+    except PolicyRegistryError:
+        policy_pack = {
+            "id": policy_pack_id,
+            "title": policy_pack_id or "unknown",
+            "description": "Policy pack metadata is not available in this deployment.",
+            "version": rollout.get("policy_version", "unknown"),
+            "policy": {},
+        }
+    decisions = activity_store.list_decisions(
+        repository=rollout.get("repository"),
+        policy_pack=policy_pack_id,
+        limit=100,
+        offset=0,
+    )
+    integrations = integration_store.list_integrations()
+    return {
+        "schema_version": "cavra.policy_rollout.detail.v1",
+        "product": "CAVRA",
+        "rollout": rollout,
+        "repository": repository,
+        "policy_pack": {
+            "id": policy_pack.get("id"),
+            "title": policy_pack.get("title"),
+            "description": policy_pack.get("description"),
+            "version": policy_pack.get("version"),
+            "rule_summary": _policy_rule_summary(policy_pack.get("policy", {})),
+        },
+        "activity_summary": _decision_summary(decisions.get("items", []), int(decisions.get("total", 0))),
+        "integration_summary": _integration_summary(integrations.get("items", [])),
+        "readiness": _rollout_readiness(rollout, repository, integrations.get("items", [])),
+    }
+
+
+def _decision_summary(decisions: list[dict], total: int) -> dict[str, object]:
+    outcomes: dict[str, int] = {}
+    severities: dict[str, int] = {}
+    for item in decisions:
+        outcome = str(item.get("decision", "unknown"))
+        severity = str(item.get("severity", "unknown"))
+        outcomes[outcome] = outcomes.get(outcome, 0) + 1
+        severities[severity] = severities.get(severity, 0) + 1
+    return {
+        "total": total,
+        "sample_size": len(decisions),
+        "outcomes": outcomes,
+        "severities": severities,
+        "recent_decisions": decisions[:10],
+    }
+
+
+def _policy_rule_summary(policy: dict[str, object]) -> dict[str, int]:
+    sections = {
+        "filesystem": policy.get("filesystem", {}),
+        "commands": policy.get("commands", {}),
+        "git": policy.get("git", {}),
+        "mcp": policy.get("mcp", {}),
+        "approvals": policy.get("approvals", {}),
+        "evidence": policy.get("evidence", {}),
+    }
+    return {name: _count_rule_entries(value) for name, value in sections.items()}
+
+
+def _count_rule_entries(value: object) -> int:
+    if isinstance(value, list):
+        return len(value)
+    if isinstance(value, dict):
+        return sum(_count_rule_entries(item) for item in value.values())
+    return 1 if value else 0
+
+
+def _integration_summary(integrations: list[dict]) -> dict[str, object]:
+    by_category: dict[str, int] = {}
+    by_health: dict[str, int] = {}
+    for item in integrations:
+        category = str(item.get("category", "unknown"))
+        health = str(item.get("health_status", "unknown"))
+        by_category[category] = by_category.get(category, 0) + 1
+        by_health[health] = by_health.get(health, 0) + 1
+    return {
+        "total": len(integrations),
+        "by_category": by_category,
+        "by_health": by_health,
+        "active_or_configured": [
+            item
+            for item in integrations
+            if item.get("status") in {"active", "configured"}
+        ][:10],
+    }
+
+
+def _rollout_readiness(rollout: dict, repository: dict | None, integrations: list[dict]) -> dict[str, object]:
+    checks = [
+        {
+            "id": "repository_registered",
+            "status": "pass" if repository else "warn",
+            "message": "Repository inventory record is present." if repository else "Repository inventory record is missing.",
+        },
+        {
+            "id": "policy_coverage",
+            "status": "pass" if int(rollout.get("coverage_percent", 0)) >= 80 else "warn",
+            "message": f"Coverage is {int(rollout.get('coverage_percent', 0))}%.",
+        },
+        {
+            "id": "source_control_integration",
+            "status": "pass" if any(item.get("category") == "source_control" for item in integrations) else "warn",
+            "message": "Source-control integration is inventoried."
+            if any(item.get("category") == "source_control" for item in integrations)
+            else "Source-control integration is not inventoried.",
+        },
+        {
+            "id": "siem_or_storage_integration",
+            "status": "pass"
+            if any(item.get("category") in {"siem", "storage"} for item in integrations)
+            else "warn",
+            "message": "Evidence export or storage integration is inventoried."
+            if any(item.get("category") in {"siem", "storage"} for item in integrations)
+            else "Evidence export or storage integration is not inventoried.",
+        },
+    ]
+    return {
+        "status": "ready" if all(item["status"] == "pass" for item in checks) else "needs_attention",
+        "checks": checks,
+    }
+
+
+def _console_security_boundary(
+    *,
+    oidc_configured: bool,
+    rbac_configured: bool,
+    cors_origins: list[str],
+) -> dict[str, object]:
+    return {
+        "schema_version": "cavra.console.security_boundary.v1",
+        "product": "CAVRA",
+        "mode": "oidc_rbac_ready" if oidc_configured and rbac_configured else "local_or_demo",
+        "oidc": {
+            "configured": oidc_configured,
+            "config_env": "CAVRA_APPROVAL_OIDC_CONFIG",
+            "supported_algorithms": ["RS256"],
+            "validated_claims": ["iss", "aud", "exp", "nbf", "groups", "roles", "email", "sub"],
+        },
+        "rbac": {
+            "configured": rbac_configured,
+            "config_env": "CAVRA_APPROVAL_RBAC_FILE",
+            "boundaries": ["approval_group", "repository_permissions", "group_mappings"],
+        },
+        "cors": {
+            "configured": bool(cors_origins),
+            "origins": cors_origins,
+        },
+        "console_permissions": [
+            "read_activity",
+            "read_inventory",
+            "read_integrations",
+            "read_evidence_metadata",
+            "approval_decision_requires_actor_claims_or_token_when_configured",
+        ],
+        "operator_notes": [
+            "Host the console behind enterprise identity before production use.",
+            "Keep backup and restore operations in the CLI or platform runbook, not browser actions.",
+            "Use repository RBAC for approval decisions that affect scoped repositories.",
+        ],
     }
 
 

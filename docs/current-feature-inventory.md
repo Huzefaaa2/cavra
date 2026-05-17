@@ -16,9 +16,13 @@ Activity persistence: `POST /decisions` evaluates and persists decisions, `GET /
 
 Repository inventory and policy rollout persistence: `POST /repositories` upserts repository scope, ownership, status, protected branch, required check, risk tier, and active policy metadata; `GET /repositories` searches by provider, owner, policy pack, status, and risk tier; `POST /policy-rollouts` upserts rollout mode, state, owner, version, coverage, and evidence references; and `GET /policy-rollouts` searches by repository, policy pack, state, mode, and owner. JSON and SQLite stores are supported through `CAVRA_INVENTORY_STORE` and `CAVRA_INVENTORY_DB`.
 
+Policy rollout drill-downs: `GET /policy-rollout-details/{rollout_id}` joins rollout state with repository inventory, policy pack metadata, matching decision activity, integration inventory, and readiness checks. The console shows rollout detail from each policy rollout row.
+
 Integration inventory persistence: `POST /integrations` upserts provider, category, owner, environment, auth mode, endpoint reference, status, health status, capability, repository scope, and evidence metadata; `GET /integrations` searches by provider, category, status, owner, environment, and health status. JSON and SQLite stores are supported through `CAVRA_INTEGRATION_STORE` and `CAVRA_INTEGRATION_DB`.
 
 Persistent API operations: `ops stores` reports active JSON/SQLite persistence paths, `ops backup` writes checksum-backed JSON and SQLite backups, `ops restore` validates backup checksums before copying stores to a test or live path, and `ops retention-plan` exports JSON and Markdown retention controls. The API exposes read-only `/operations/stores` and `/operations/retention-plan`, and operations now include integration inventory stores.
+
+Console security boundary: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies.
 
 Agent and MCP registry: `registry agent-register`, `registry agent-list`, `registry profiles`, `registry mcp-register`, `registry mcp-list`, `registry mcp-check`, `registry mcp-classifications`, and `registry migrate` support JSON/SQLite governed agent identities, MCP trust tiers, approved tools, capabilities, owner, approval state, last-seen metadata, predefined agent capability profiles, MCP tool classifications, console registry views, and registry-backed MCP runtime decisions.
 
@@ -26,6 +30,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: packaged Go backend, hosted sandbox deployment, hosted attestation artifact retrieval, policy rollout drill-downs, OIDC-ready console auth/RBAC boundaries, and vendor-specific hooks beyond the MCP/CLI path.
+Known gaps: packaged Go backend, hosted sandbox deployment, hosted attestation artifact retrieval, deeper OIDC/RBAC enforcement for console sessions, and vendor-specific hooks beyond the MCP/CLI path.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.

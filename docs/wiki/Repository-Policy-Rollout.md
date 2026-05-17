@@ -7,7 +7,7 @@ Phase 6 now includes durable repository scope and policy rollout visibility.
 - JSON and SQLite persistence for governed repositories.
 - JSON and SQLite persistence for policy rollout records.
 - API filters for owner, policy pack, status, risk tier, rollout state, rollout mode, and repository.
-- Console views for repository inventory and rollout progress.
+- Console views for repository inventory, rollout progress, and rollout detail.
 - Evidence references so rollout records can point back to CAVRA decisions, bundles, or attestations.
 
 ## How To Use
@@ -53,4 +53,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended Phase 6 step is integrations inventory persistence and console views.
+The next recommended work is hosted attestation artifact retrieval and deeper OIDC-authenticated console sessions.

@@ -19,6 +19,7 @@ Policy rollout:
 - `GET /policy-rollouts`
 - `POST /policy-rollouts`
 - `GET /policy-rollouts/{rollout_id}`
+- `GET /policy-rollout-details/{rollout_id}`
 
 Supported repository filters are `provider`, `owner`, `policy_pack`, `status`, and `risk_tier`.
 
@@ -51,7 +52,7 @@ The migration `005_repository_policy_rollout.sql` creates `inventory_repositorie
 
 The sandbox console now includes repository and rollout views. It can run with bundled sample data or use the API when `/console/config` exposes the `repositories` and `policy_rollouts` endpoints.
 
-Operators can filter repositories by owner, policy pack, and risk tier. They can filter rollout records by state and mode to find active enforcement, planned rollouts, paused policy deployments, or break-glass exceptions.
+Operators can filter repositories by owner, policy pack, and risk tier. They can filter rollout records by state and mode to find active enforcement, planned rollouts, paused policy deployments, or break-glass exceptions. The rollout detail view joins rollout state with repository ownership, policy pack metadata, matching decision activity, integration readiness, and rollout readiness checks.
 
 ## User Stories
 
@@ -65,4 +66,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next Phase 6 step is integrations inventory persistence, policy rollout drill-downs, and OIDC-ready console auth/RBAC boundaries, followed by hosted attestation artifact retrieval.
+The next Phase 6 step is hosted attestation artifact retrieval and deeper OIDC/RBAC enforcement for the console/API boundary.

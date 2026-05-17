@@ -201,6 +201,47 @@ def test_api_repository_inventory_and_policy_rollouts(monkeypatch, tmp_path) -> 
     assert client.get("/policy-rollouts/payments-api-banking").json()["mode"] == "strict"
 
 
+def test_api_policy_rollout_detail_includes_context(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INVENTORY_DB", raising=False)
+    monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)
+    monkeypatch.delenv("CAVRA_INTEGRATION_DB", raising=False)
+    monkeypatch.setenv("CAVRA_INVENTORY_STORE", str(tmp_path / "inventory.json"))
+    monkeypatch.setenv("CAVRA_ACTIVITY_STORE", str(tmp_path / "activity.json"))
+    monkeypatch.setenv("CAVRA_INTEGRATION_STORE", str(tmp_path / "integrations.json"))
+    client = TestClient(create_app())
+
+    client.post("/repositories", json={"repository": "payments/api", "policy_pack": "cavra-ai-agent-baseline"})
+    client.post(
+        "/policy-rollouts",
+        json={
+            "rollout_id": "payments-api-baseline",
+            "repository": "payments/api",
+            "policy_pack": "cavra-ai-agent-baseline",
+            "state": "active",
+            "mode": "enforce",
+            "coverage_percent": 90,
+        },
+    )
+    client.post(
+        "/integrations",
+        json={"integration_id": "github", "provider": "github", "category": "source_control", "status": "active"},
+    )
+    client.post(
+        "/decisions",
+        json={"session_id": "rollout-session", "repository": "payments/api", "policy_pack": "cavra-ai-agent-baseline", "action_type": "execute_command", "target": "terraform plan"},
+    )
+
+    detail = client.get("/policy-rollout-details/payments-api-baseline")
+
+    assert detail.status_code == 200
+    payload = detail.json()
+    assert payload["rollout"]["rollout_id"] == "payments-api-baseline"
+    assert payload["repository"]["repository"] == "payments/api"
+    assert payload["policy_pack"]["id"] == "cavra-ai-agent-baseline"
+    assert payload["activity_summary"]["total"] == 1
+    assert payload["integration_summary"]["by_category"]["source_control"] == 1
+
+
 def test_api_sqlite_inventory_store(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_INVENTORY_STORE", raising=False)
     monkeypatch.setenv("CAVRA_INVENTORY_DB", str(tmp_path / "inventory.db"))
@@ -269,6 +310,26 @@ def test_api_sqlite_integrations_inventory(monkeypatch, tmp_path) -> None:
     assert created.status_code == 200
     assert client.get("/integrations", params={"owner": "SOC"}).json()["total"] == 1
     assert config["integration_mode"] == "sqlite"
+
+
+def test_api_console_security_boundary_reports_oidc_rbac(monkeypatch, tmp_path) -> None:
+    oidc = tmp_path / "oidc.json"
+    rbac = tmp_path / "rbac.json"
+    oidc.write_text('{"issuer":"https://issuer.example","audience":"cavra","jwks":{"keys":[]}}', encoding="utf-8")
+    rbac.write_text('{"approval_rbac":{"group_mappings":{"platform":"Platform Security"}}}', encoding="utf-8")
+    monkeypatch.setenv("CAVRA_APPROVAL_OIDC_CONFIG", str(oidc))
+    monkeypatch.setenv("CAVRA_APPROVAL_RBAC_FILE", str(rbac))
+    monkeypatch.setenv("CAVRA_CORS_ORIGINS", "https://console.example")
+    client = TestClient(create_app())
+
+    boundary = client.get("/console/security-boundary").json()
+    config = client.get("/console/config").json()
+
+    assert boundary["mode"] == "oidc_rbac_ready"
+    assert boundary["oidc"]["configured"] is True
+    assert boundary["rbac"]["configured"] is True
+    assert boundary["cors"]["origins"] == ["https://console.example"]
+    assert config["endpoints"]["console_security_boundary"] == "/console/security-boundary"
 
 
 def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:

@@ -131,7 +131,8 @@ const rolloutCatalog = [
     mode: "strict",
     state: "active",
     owner: "Platform Security",
-    coverage_percent: 95
+    coverage_percent: 95,
+    evidence_refs: ["evidence://demo-session", "attestation://payments/api"]
   },
   {
     rollout_id: "platform-security-baseline",
@@ -141,7 +142,8 @@ const rolloutCatalog = [
     mode: "enforce",
     state: "active",
     owner: "Platform Security",
-    coverage_percent: 88
+    coverage_percent: 88,
+    evidence_refs: ["evidence://security-review"]
   },
   {
     rollout_id: "docs-site-baseline",
@@ -151,7 +153,8 @@ const rolloutCatalog = [
     mode: "audit_only",
     state: "planned",
     owner: "Documentation",
-    coverage_percent: 20
+    coverage_percent: 20,
+    evidence_refs: []
   }
 ];
 
@@ -476,6 +479,70 @@ async function loadPolicyRollouts() {
   }
 }
 
+async function loadPolicyRolloutDetail(rolloutId) {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(`/policy-rollout-details/${encodeURIComponent(rolloutId)}`));
+    if (!response.ok) throw new Error("Policy rollout detail API unavailable");
+    return await response.json();
+  } catch {
+    const rollout = rolloutCatalog.find((item) => item.rollout_id === rolloutId);
+    if (!rollout) return null;
+    const repository = repositoryCatalog.find((item) => item.repository === rollout.repository);
+    const decisions = activityDecisions.filter((item) => item.repository === rollout.repository && item.policy_pack === rollout.policy_pack);
+    return {
+      schema_version: "cavra.policy_rollout.detail.v1",
+      product: "CAVRA",
+      rollout,
+      repository,
+      policy_pack: {
+        id: rollout.policy_pack,
+        title: rollout.policy_pack,
+        version: rollout.policy_version,
+        rule_summary: { filesystem: 8, commands: 6, git: 2, mcp: 3, approvals: 2, evidence: 3 }
+      },
+      activity_summary: {
+        total: decisions.length,
+        outcomes: decisions.reduce((acc, item) => ({ ...acc, [item.decision]: (acc[item.decision] || 0) + 1 }), {}),
+        severities: decisions.reduce((acc, item) => ({ ...acc, [item.severity]: (acc[item.severity] || 0) + 1 }), {}),
+        recent_decisions: decisions.slice(0, 5)
+      },
+      integration_summary: {
+        total: integrationCatalog.length,
+        by_category: integrationCatalog.reduce((acc, item) => ({ ...acc, [item.category]: (acc[item.category] || 0) + 1 }), {}),
+        by_health: integrationCatalog.reduce((acc, item) => ({ ...acc, [item.health_status]: (acc[item.health_status] || 0) + 1 }), {})
+      },
+      readiness: {
+        status: Number(rollout.coverage_percent || 0) >= 80 ? "ready" : "needs_attention",
+        checks: [
+          { id: "repository_registered", status: repository ? "pass" : "warn", message: repository ? "Repository inventory record is present." : "Repository inventory record is missing." },
+          { id: "policy_coverage", status: Number(rollout.coverage_percent || 0) >= 80 ? "pass" : "warn", message: `Coverage is ${Number(rollout.coverage_percent || 0)}%.` }
+        ]
+      }
+    };
+  }
+}
+
+async function loadSecurityBoundary() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/console/security-boundary"));
+    if (!response.ok) throw new Error("Security boundary API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      schema_version: "cavra.console.security_boundary.v1",
+      product: "CAVRA",
+      mode: "local_or_demo",
+      oidc: { configured: false, config_env: "CAVRA_APPROVAL_OIDC_CONFIG", supported_algorithms: ["RS256"], validated_claims: ["iss", "aud", "exp", "nbf", "groups", "roles"] },
+      rbac: { configured: false, config_env: "CAVRA_APPROVAL_RBAC_FILE", boundaries: ["approval_group", "repository_permissions", "group_mappings"] },
+      cors: { configured: Array.isArray(consoleConfig?.cors_origins) && consoleConfig.cors_origins.length > 0, origins: consoleConfig?.cors_origins || [] },
+      console_permissions: ["read_activity", "read_inventory", "read_integrations", "read_evidence_metadata", "approval_decision_requires_actor_claims_or_token_when_configured"],
+      operator_notes: ["Host the console behind enterprise identity before production use."]
+    };
+  }
+}
+
 async function loadIntegrations() {
   await loadConsoleConfig();
   try {
@@ -738,9 +805,46 @@ function renderInventoryRows(repositories, rollouts) {
         <td class="${riskClass(item.state)}">${escapeHtml(item.state || "planned")}</td>
         <td>${Number(item.coverage_percent || 0)}%</td>
         <td>${escapeHtml(item.owner || "platform-security")}</td>
+        <td><button class="rolloutDetailAction secondary" data-id="${escapeHtml(item.rollout_id || "")}">Details</button></td>
       </tr>
     `);
   }
+}
+
+function renderPolicyRolloutDetail(detail) {
+  const panel = document.querySelector("#rolloutDetail");
+  if (!detail) {
+    panel.textContent = "Policy rollout detail is not available.";
+    return;
+  }
+  const rollout = detail.rollout || {};
+  const repository = detail.repository || {};
+  const policy = detail.policy_pack || {};
+  const activity = detail.activity_summary || {};
+  const integrations = detail.integration_summary || {};
+  const readiness = detail.readiness || {};
+  const checks = Array.isArray(readiness.checks) ? readiness.checks : [];
+  const recent = Array.isArray(activity.recent_decisions) ? activity.recent_decisions : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Rollout</dt><dd>${escapeHtml(rollout.rollout_id || "unknown")}</dd>
+      <dt>Repository</dt><dd>${escapeHtml(rollout.repository || repository.repository || "unknown")}</dd>
+      <dt>Policy</dt><dd>${escapeHtml(policy.title || rollout.policy_pack || "unknown")} ${escapeHtml(policy.version || rollout.policy_version || "")}</dd>
+      <dt>Mode</dt><dd class="${riskClass(rollout.mode)}">${escapeHtml(rollout.mode || "enforce")}</dd>
+      <dt>State</dt><dd class="${riskClass(rollout.state)}">${escapeHtml(rollout.state || "planned")}</dd>
+      <dt>Coverage</dt><dd>${Number(rollout.coverage_percent || 0)}%</dd>
+      <dt>Repository owner</dt><dd>${escapeHtml(repository.owner || rollout.owner || "unassigned")}</dd>
+      <dt>Activity</dt><dd>${Number(activity.total || 0)} matching decisions</dd>
+      <dt>Integrations</dt><dd>${Number(integrations.total || 0)} inventoried</dd>
+      <dt>Readiness</dt><dd class="${readiness.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(readiness.status || "needs_attention")}</dd>
+    </dl>
+    <h3>Rule Summary</h3>
+    <ul>${Object.entries(policy.rule_summary || {}).map(([key, value]) => `<li>${escapeHtml(key)}: ${Number(value || 0)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Readiness Checks</h3>
+    <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.message || item.id)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Recent Decisions</h3>
+    <ul>${recent.map((item) => `<li><strong class="${riskClass(item.decision)}">${escapeHtml(item.decision)}</strong> ${escapeHtml(item.target || item.decision_id || "unknown")}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
 }
 
 function renderIntegrationRows(integrations) {
@@ -824,6 +928,29 @@ function renderRegistryRows(agents, mcpServers, profiles, classifications) {
   }
 }
 
+function renderSecurityBoundary(boundary) {
+  const panel = document.querySelector("#securityBoundary");
+  const oidc = boundary.oidc || {};
+  const rbac = boundary.rbac || {};
+  const cors = boundary.cors || {};
+  const permissions = Array.isArray(boundary.console_permissions) ? boundary.console_permissions : [];
+  const notes = Array.isArray(boundary.operator_notes) ? boundary.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Mode</dt><dd class="${boundary.mode === "oidc_rbac_ready" ? "allow" : "require_approval"}">${escapeHtml(boundary.mode || "local_or_demo")}</dd>
+      <dt>OIDC</dt><dd class="${oidc.configured ? "allow" : "require_approval"}">${oidc.configured ? "configured" : "disabled"}</dd>
+      <dt>RBAC</dt><dd class="${rbac.configured ? "allow" : "require_approval"}">${rbac.configured ? "configured" : "disabled"}</dd>
+      <dt>CORS</dt><dd>${cors.configured ? escapeHtml((cors.origins || []).join(", ")) : "same-origin or local demo"}</dd>
+      <dt>OIDC env</dt><dd>${escapeHtml(oidc.config_env || "CAVRA_APPROVAL_OIDC_CONFIG")}</dd>
+      <dt>RBAC env</dt><dd>${escapeHtml(rbac.config_env || "CAVRA_APPROVAL_RBAC_FILE")}</dd>
+    </dl>
+    <h3>Console Permissions</h3>
+    <ul>${permissions.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
 function renderApprovalRows(items) {
   const rows = document.querySelector("#approvalRows");
   rows.innerHTML = "";
@@ -892,9 +1019,17 @@ async function refreshInventory() {
   renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
 }
 
+async function showPolicyRolloutDetail(rolloutId) {
+  renderPolicyRolloutDetail(await loadPolicyRolloutDetail(rolloutId));
+}
+
 async function refreshIntegrations() {
   const items = filterIntegrations(await loadIntegrations());
   renderIntegrationRows(items);
+}
+
+async function refreshSecurityBoundary() {
+  renderSecurityBoundary(await loadSecurityBoundary());
 }
 
 async function refreshApprovals() {
@@ -1038,9 +1173,16 @@ document.querySelector("#refreshEvidence").addEventListener("click", refreshEvid
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);
+document.querySelector("#refreshSecurityBoundary").addEventListener("click", refreshSecurityBoundary);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
+document.querySelector("#rolloutRows").addEventListener("click", async (event) => {
+  if (!(event.target instanceof Element)) return;
+  const detailButton = event.target.closest(".rolloutDetailAction");
+  if (!detailButton) return;
+  await showPolicyRolloutDetail(detailButton.dataset.id);
+});
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
   const detailButton = event.target.closest(".approvalDetailAction");
@@ -1060,5 +1202,6 @@ refreshEvidence();
 refreshActivity();
 refreshInventory();
 refreshIntegrations();
+refreshSecurityBoundary();
 refreshApprovals();
 refreshRegistry();

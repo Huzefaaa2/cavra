@@ -142,6 +142,7 @@
                     <th>State</th>
                     <th>Coverage</th>
                     <th>Owner</th>
+                    <th>Details</th>
                   </tr>
                 </thead>
                 <tbody id="rolloutRows"></tbody>
@@ -149,6 +150,7 @@
             </div>
           </div>
         </div>
+        <div id="rolloutDetail" class="detail-panel">Select Details from a policy rollout row.</div>
       </section>
       <section class="console integration-console">
         <div class="console-header">
@@ -235,6 +237,16 @@
             <li>Production migration SQL is maintained under migrations.</li>
           </ul>
         </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Console Security Boundary</h2>
+            <p>Review OIDC, RBAC, CORS, and operator boundaries for deployed console/API topologies.</p>
+          </div>
+          <button id="refreshSecurityBoundary">Refresh</button>
+        </div>
+        <div id="securityBoundary" class="detail-panel">Security boundary status is loading.</div>
       </section>
       <section class="console">
         <div class="console-header">

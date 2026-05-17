@@ -20,7 +20,7 @@ Phase 4, Approval Router, is complete for the current production-readiness slice
 
 Phase 5, Agent Registry and MCP Trust Registry, is complete for the current production-readiness slice. It includes JSON and SQLite governed agent identities, MCP server trust records, predefined agent capability profiles, MCP capability classification, API and CLI access, console registry views, and registry-backed MCP runtime decisions.
 
-Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
+Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
@@ -48,6 +48,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Repository Inventory and Policy Rollout: `Repository-Policy-Rollout.md`
 - Persistent API Operations: `Persistent-API-Operations.md`
 - Integration Inventory: `Integration-Inventory.md`
+- Console Security Boundary: `Console-Security-Boundary.md`
 
 ## Quick Start
 

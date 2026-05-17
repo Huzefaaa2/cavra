@@ -142,8 +142,11 @@ Completed:
 - SQLite migration `006_integrations_inventory.sql`.
 - `GET` and `POST` integration inventory API endpoints with provider, category, status, owner, environment, and health filters.
 - Console Enterprise Integrations inventory view.
+- Policy rollout detail API and console drill-downs.
+- Read-only `/console/security-boundary` endpoint.
+- Console security boundary panel for OIDC, RBAC, CORS, permissions, and operator notes.
 
-Recommended next issue: add policy-pack catalog drill-downs, OIDC-ready console auth/RBAC boundaries, and hosted attestation artifact retrieval.
+Recommended next issue: add hosted attestation artifact retrieval, deeper OIDC-authenticated console sessions, RBAC enforcement for console actions, and policy-pack authoring workflows.
 
 ## Transparent Agent Methodology Enablement
 

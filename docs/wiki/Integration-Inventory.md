@@ -44,4 +44,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended Phase 6 step is policy rollout drill-downs and OIDC-ready console auth/RBAC boundaries.
+The next recommended work is hosted attestation artifact retrieval and deeper OIDC-authenticated console sessions.
