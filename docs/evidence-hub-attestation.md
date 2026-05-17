@@ -108,9 +108,10 @@ The API now supports evidence metadata persistence through:
 - `GET /evidence`
 - `POST /evidence`
 - `GET /evidence/{session_id}`
-- `POST /evidence/index-bundle`
 
 By default, metadata is stored in `.cavra/api/evidence-metadata.json`. Operators can set `CAVRA_EVIDENCE_METADATA_STORE` to move the metadata file.
+
+For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata through `POST /evidence`.
 
 ## Enterprise Value
 

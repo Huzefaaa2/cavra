@@ -38,7 +38,7 @@ Added high-quality user-facing diagram images for architecture, runtime flow, ev
 
 Added transparent CAVRA engineering-agent methodology: declarative agent manifests, agent task issue template, label catalog, conservative GitHub Actions orchestrator scaffold, `cavra-agentic-delivery` policy pack, architecture documentation, wiki pages, and the user-facing agent orchestration diagram. The methodology explicitly requires bot identities and prohibits fake human developer identities.
 
-Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, and `66cd075`.
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, `66cd075`, and `4683941`.
 
 ## Claude Code and MCP status
 

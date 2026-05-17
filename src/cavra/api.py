@@ -81,15 +81,6 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @app.post("/evidence/index-bundle")
-    def index_evidence_bundle(payload: dict) -> dict:
-        try:
-            return evidence_store.index_bundle(Path(payload["bundle_dir"]))
-        except KeyError as exc:
-            raise HTTPException(status_code=400, detail="bundle_dir is required") from exc
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-
     @app.get("/evidence/{session_id}")
     def evidence_metadata(session_id: str) -> dict:
         item = evidence_store.get(session_id)

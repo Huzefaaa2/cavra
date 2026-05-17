@@ -52,7 +52,8 @@ Evidence bundles turn pre-action runtime decisions into artifacts that reviewers
 - `GET /evidence`
 - `POST /evidence`
 - `GET /evidence/{session_id}`
-- `POST /evidence/index-bundle`
+
+For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist it with `POST /evidence`.
 
 ## Next Work
 
