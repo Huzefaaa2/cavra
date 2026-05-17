@@ -14,11 +14,14 @@ from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
     actor_context_from_claims,
+    actor_context_from_oidc_token,
     deliver_provider_requests,
     export_approval_notification_payloads,
     export_provider_delivery_result,
     export_provider_request_specs,
+    load_oidc_config,
     load_provider_config,
+    load_rbac_rules,
     load_routing_rules,
     route_approver_group,
 )
@@ -678,11 +681,26 @@ def approve_request(
     sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
     actor_claims: Annotated[Optional[Path], typer.Option(help="Optional OIDC claims JSON for approval RBAC.")] = None,
+    actor_token: Annotated[Optional[Path], typer.Option(help="Optional signed OIDC JWT file for approval RBAC.")] = None,
+    oidc_config: Annotated[Optional[Path], typer.Option(help="OIDC config JSON/YAML with issuer, audience, and JWKS.")] = None,
+    rbac_file: Annotated[Optional[Path], typer.Option(help="Repository RBAC JSON/YAML policy file.")] = None,
     reason: Annotated[str, typer.Option(help="Approval reason.")] = "",
     external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
 ) -> None:
     """Approve a pending request."""
-    _decide_cli_approval(store, sqlite, approval_id, state="approved", actor=actor, reason=reason, external_ref=external_ref, actor_claims=actor_claims)
+    _decide_cli_approval(
+        store,
+        sqlite,
+        approval_id,
+        state="approved",
+        actor=actor,
+        reason=reason,
+        external_ref=external_ref,
+        actor_claims=actor_claims,
+        actor_token=actor_token,
+        oidc_config=oidc_config,
+        rbac_file=rbac_file,
+    )
 
 
 @approval_app.command("deny")
@@ -692,11 +710,26 @@ def deny_request(
     sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
     actor_claims: Annotated[Optional[Path], typer.Option(help="Optional OIDC claims JSON for approval RBAC.")] = None,
+    actor_token: Annotated[Optional[Path], typer.Option(help="Optional signed OIDC JWT file for approval RBAC.")] = None,
+    oidc_config: Annotated[Optional[Path], typer.Option(help="OIDC config JSON/YAML with issuer, audience, and JWKS.")] = None,
+    rbac_file: Annotated[Optional[Path], typer.Option(help="Repository RBAC JSON/YAML policy file.")] = None,
     reason: Annotated[str, typer.Option(help="Denial reason.")] = "",
     external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
 ) -> None:
     """Deny a pending request."""
-    _decide_cli_approval(store, sqlite, approval_id, state="denied", actor=actor, reason=reason, external_ref=external_ref, actor_claims=actor_claims)
+    _decide_cli_approval(
+        store,
+        sqlite,
+        approval_id,
+        state="denied",
+        actor=actor,
+        reason=reason,
+        external_ref=external_ref,
+        actor_claims=actor_claims,
+        actor_token=actor_token,
+        oidc_config=oidc_config,
+        rbac_file=rbac_file,
+    )
 
 
 @approval_app.command("expire")
@@ -864,9 +897,13 @@ def _decide_cli_approval(
     reason: str,
     external_ref: str | None = None,
     actor_claims: Path | None = None,
+    actor_token: Path | None = None,
+    oidc_config: Path | None = None,
+    rbac_file: Path | None = None,
 ) -> None:
     try:
-        actor_context = _actor_context(actor_claims)
+        rbac_rules = load_rbac_rules(rbac_file)
+        actor_context = _actor_context(actor_claims, actor_token, oidc_config, rbac_rules=rbac_rules)
         approval = _approval_store(store, sqlite).decide(
             approval_id,
             state=state,
@@ -874,6 +911,7 @@ def _decide_cli_approval(
             reason=reason,
             external_ref=external_ref,
             actor_context=actor_context,
+            rbac_rules=rbac_rules,
         )
     except KeyError as exc:
         console.print(f"[red]approval not found:[/red] {approval_id}")
@@ -888,10 +926,22 @@ def _approval_store(store: Path, sqlite: Path | None = None) -> ApprovalStore | 
     return SQLiteApprovalStore(sqlite) if sqlite else ApprovalStore(store)
 
 
-def _actor_context(actor_claims: Path | None) -> dict[str, object] | None:
-    if actor_claims is None:
-        return None
-    return actor_context_from_claims(json.loads(actor_claims.read_text(encoding="utf-8")))
+def _actor_context(
+    actor_claims: Path | None,
+    actor_token: Path | None,
+    oidc_config: Path | None,
+    *,
+    rbac_rules: dict[str, object],
+) -> dict[str, object] | None:
+    if actor_claims and actor_token:
+        raise ValueError("use either --actor-claims or --actor-token, not both")
+    if actor_token:
+        if oidc_config is None:
+            raise ValueError("--oidc-config is required with --actor-token")
+        return actor_context_from_oidc_token(actor_token.read_text(encoding="utf-8").strip(), load_oidc_config(oidc_config), rbac_rules=rbac_rules)
+    if actor_claims:
+        return actor_context_from_claims(json.loads(actor_claims.read_text(encoding="utf-8")), rbac_rules=rbac_rules)
+    return None
 
 
 @demo_app.command("before-the-agent-acts")

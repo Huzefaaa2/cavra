@@ -11,6 +11,8 @@ Phase 4 introduces a local approval router for self-hosted pilots:
 - Default routing policies map IAM paths, GitHub workflow paths, default command approvals, Terraform operations, and MCP decisions to approver groups.
 - Repository-specific JSON or YAML routing files can override default approver groups for local policy overlays.
 - Optional OIDC-style actor claims can be mapped to approval groups before approve or deny decisions are accepted.
+- Signed OIDC JWTs can be verified against JWKS with issuer, audience, expiry, and not-before checks before approve or deny decisions are accepted.
+- Repository RBAC policy files can map enterprise groups to approval groups and grant repository-specific approval permissions.
 - Approvers can approve, deny, or expire pending requests.
 - Break-glass overrides require an actor, reason, expiry, approver group, and optional incident or change reference.
 - Approval outcomes can be attached back to decisions so evidence bundles and PR attestations include approval state.
@@ -55,6 +57,7 @@ cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-rou
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
 cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
+cavra approval approve apr_123 --actor iam@example.com --actor-token /tmp/oidc.jwt --oidc-config .cavra/approval-oidc.json --rbac-file .cavra/approval-rbac.yaml --reason "Signed identity verified"
 cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
 cavra approval expire apr_123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
@@ -84,6 +87,35 @@ Claims-based authorization accepts a local claims JSON file for CLI decisions or
   "email": "iam@example.com",
   "groups": ["IAM"]
 }
+```
+
+Signed OIDC authorization accepts a compact RS256 JWT. CLI approval decisions use `--actor-token`, `--oidc-config`, and optional `--rbac-file`. API approval decisions accept `actor_token` when `CAVRA_APPROVAL_OIDC_CONFIG` is configured.
+
+OIDC config example:
+
+```json
+{
+  "issuer": "https://login.example",
+  "audience": "cavra-approvals",
+  "jwks_path": ".cavra/approval-jwks.json",
+  "leeway_seconds": 60
+}
+```
+
+Repository RBAC policy example:
+
+```yaml
+approval_rbac:
+  group_mappings:
+    github-team:payments-owners: Payments Owners
+  repository_permissions:
+    - repository: payments/api
+      approver_group: IAM
+      groups:
+        - Payments Owners
+      actions:
+        - approved
+        - denied
 ```
 
 ## API Endpoints
@@ -144,6 +176,8 @@ Delivery evidence is written to `.cavra/approvals/deliveries` by default. Author
 - As a repository owner, I can override default approval routing for repo-specific risk boundaries.
 - As a change manager, I can deny risky agent actions with a recorded reason.
 - As an identity administrator, I can require approvers to carry matching OIDC groups before a decision is accepted.
+- As an identity administrator, I can require signed OIDC tokens from trusted issuers before a human approval is accepted.
+- As a repository owner, I can delegate approval rights to ownership groups for a specific repository without granting global approval authority.
 - As a change manager, I can deliver approval requests to existing ITSM or ChatOps systems and retain delivery evidence.
 - As an incident commander, I can use break glass only when a mandatory justification is captured.
 - As an auditor, I can see approval state in CAVRA evidence and PR attestations.

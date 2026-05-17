@@ -1,18 +1,25 @@
+import json
+import time
+from base64 import urlsafe_b64encode
 from pathlib import Path
 
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
     actor_context_from_claims,
+    actor_context_from_oidc_token,
     attach_approval_to_decision,
     build_provider_request_specs,
     create_approval_request,
     deliver_provider_requests,
     export_approval_notification_payloads,
     export_provider_delivery_result,
+    load_oidc_config,
     load_provider_config,
+    load_rbac_rules,
     load_routing_rules,
     route_approver_group,
+    validate_oidc_token,
 )
 from cavra.evidence import build_evidence_metadata, create_evidence_bundle
 from cavra.runtime import RuntimeGuard
@@ -23,6 +30,39 @@ def _approval_decision() -> dict[str, object]:
         Path("iam/admin-role.tf"),
         "write",
     ).to_dict()
+
+
+def _b64url(data: bytes) -> str:
+    return urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def _signed_rs256_token(claims: dict[str, object], *, kid: str = "test-key"):
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding, rsa
+
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_numbers = private_key.public_key().public_numbers()
+    jwk = {
+        "kty": "RSA",
+        "kid": kid,
+        "alg": "RS256",
+        "use": "sig",
+        "n": _b64url(public_numbers.n.to_bytes((public_numbers.n.bit_length() + 7) // 8, "big")),
+        "e": _b64url(public_numbers.e.to_bytes((public_numbers.e.bit_length() + 7) // 8, "big")),
+    }
+    header = {"alg": "RS256", "kid": kid, "typ": "JWT"}
+    signing_input = ".".join(
+        [
+            _b64url(json.dumps(header, separators=(",", ":")).encode("utf-8")),
+            _b64url(json.dumps(claims, separators=(",", ":")).encode("utf-8")),
+        ]
+    ).encode("ascii")
+    signature = private_key.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+    return f"{signing_input.decode('ascii')}.{_b64url(signature)}", {"keys": [jwk]}, private_key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
 
 
 def test_create_and_approve_request(tmp_path: Path) -> None:
@@ -157,6 +197,121 @@ def test_actor_claims_can_map_external_groups() -> None:
     )
 
     assert "IAM" in context["groups"]
+
+
+def test_signed_oidc_token_validates_issuer_audience_and_signature() -> None:
+    token, jwks, _private_key = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-approvals",
+            "sub": "user-123",
+            "email": "iam@example.com",
+            "groups": ["IAM"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+
+    claims = validate_oidc_token(
+        token,
+        {"issuer": "https://issuer.example", "audience": "cavra-approvals", "jwks": jwks},
+    )
+
+    assert claims["email"] == "iam@example.com"
+
+
+def test_signed_oidc_token_rejects_wrong_audience() -> None:
+    token, jwks, _private_key = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "other-audience",
+            "sub": "user-123",
+            "groups": ["IAM"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+
+    try:
+        validate_oidc_token(token, {"issuer": "https://issuer.example", "audience": "cavra-approvals", "jwks": jwks})
+    except ValueError as exc:
+        assert "audience" in str(exc)
+    else:
+        raise AssertionError("expected wrong audience to fail")
+
+
+def test_signed_oidc_token_supports_repository_rbac_policy(tmp_path: Path) -> None:
+    token, jwks, _private_key = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-approvals",
+            "sub": "user-123",
+            "email": "owner@example.com",
+            "groups": ["github-team:payments-owners"],
+            "repository": "payments/api",
+            "exp": int(time.time()) + 300,
+        }
+    )
+    rbac_path = tmp_path / "approval-rbac.json"
+    rbac_path.write_text(
+        json.dumps(
+            {
+                "approval_rbac": {
+                    "group_mappings": {"github-team:payments-owners": "Payments Owners"},
+                    "repository_permissions": [
+                        {
+                            "repository": "payments/api",
+                            "approver_group": "IAM",
+                            "groups": ["Payments Owners"],
+                            "actions": ["approved", "denied"],
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    decision = _approval_decision()
+    decision["repository"] = "payments/api"
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(decision, requested_by="developer")
+    rbac_rules = load_rbac_rules(rbac_path)
+    actor_context = actor_context_from_oidc_token(
+        token,
+        {"issuer": "https://issuer.example", "audience": "cavra-approvals", "jwks": jwks},
+        rbac_rules=rbac_rules,
+    )
+
+    decided = store.decide(
+        approval["approval_id"],
+        state="approved",
+        actor="owner@example.com",
+        reason="Repository owner approved.",
+        actor_context=actor_context,
+        rbac_rules=rbac_rules,
+    )
+
+    assert decided["state"] == "approved"
+
+
+def test_oidc_config_loader_reads_jwks_path(tmp_path: Path) -> None:
+    _token, jwks, _private_key = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-approvals",
+            "sub": "user-123",
+            "exp": int(time.time()) + 300,
+        }
+    )
+    jwks_path = tmp_path / "jwks.json"
+    config_path = tmp_path / "oidc.json"
+    jwks_path.write_text(json.dumps(jwks), encoding="utf-8")
+    config_path.write_text(
+        json.dumps({"issuer": "https://issuer.example", "audience": "cavra-approvals", "jwks_path": jwks_path.name}),
+        encoding="utf-8",
+    )
+
+    config = load_oidc_config(config_path)
+
+    assert config["jwks"]["keys"][0]["kid"] == "test-key"
 
 
 def test_actor_claims_reject_wrong_approval_group(tmp_path: Path) -> None:

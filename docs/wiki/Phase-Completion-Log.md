@@ -69,7 +69,7 @@ Completed:
 - Idempotent SQLite migration automation with `cavra evidence migrate`.
 - Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: continue Phase 4 Approval Router with signed OIDC token validation, repository RBAC policy management, console break-glass creation, and approval audit detail views. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+Recommended next issue: continue Phase 4 Approval Router with console break-glass creation and approval audit detail views. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
 
 ## Phase 4: Approval Router
 
@@ -87,11 +87,13 @@ Completed:
 - Console approval queue view.
 - Repository-specific JSON/YAML routing configuration.
 - Claims-based approval authorization for local OIDC-style actor claims.
+- Signed OIDC/JWKS token validation with issuer, audience, expiry, and not-before checks.
+- Repository RBAC policy files with group mappings and repository-scoped approval permissions.
 - Credential-free Slack, Teams, Jira, ServiceNow, and webhook request specs.
 - Secret-backed live provider delivery with retry, timeout, and redacted delivery evidence.
 - Console approval actions for approve, deny, and expire.
 
-Recommended next issue: add signed OIDC token validation, repository RBAC policy management, console break-glass creation, approval audit detail views, and hosted attestation artifact retrieval.
+Recommended next issue: add console break-glass creation, approval audit detail views, and hosted attestation artifact retrieval.
 
 ## Transparent Agent Methodology Enablement
 

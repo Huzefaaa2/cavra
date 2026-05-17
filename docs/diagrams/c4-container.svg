@@ -71,7 +71,7 @@
   <text x="728" y="311" class="node-text">Validation, inheritance, diff</text>
   <rect x="712" y="334" width="250" height="46" rx="7" class="authority"/>
   <text x="728" y="353" class="node-title">Approval Router</text>
-  <text x="728" y="369" class="node-text">Routing, claims, live providers</text>
+  <text x="728" y="369" class="node-text">OIDC, RBAC, live providers</text>
 
   <rect x="1042" y="164" width="280" height="246" rx="10" class="boundary"/>
   <text x="1064" y="192" class="boundary-title">Evidence and Audit Plane</text>

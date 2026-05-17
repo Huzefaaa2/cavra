@@ -8,9 +8,12 @@ from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
     actor_context_from_claims,
+    actor_context_from_oidc_token,
     attach_approval_to_decision,
     deliver_provider_requests,
+    load_oidc_config,
     load_provider_config,
+    load_rbac_rules,
     load_routing_rules,
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
@@ -58,6 +61,8 @@ def create_app():
     )
     routing_rules = load_routing_rules(Path(os.environ["CAVRA_APPROVAL_ROUTING_FILE"])) if os.environ.get("CAVRA_APPROVAL_ROUTING_FILE") else None
     provider_config = load_provider_config(Path(os.environ["CAVRA_APPROVAL_PROVIDER_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_PROVIDER_CONFIG") else None
+    rbac_rules = load_rbac_rules(Path(os.environ["CAVRA_APPROVAL_RBAC_FILE"])) if os.environ.get("CAVRA_APPROVAL_RBAC_FILE") else {}
+    oidc_config = load_oidc_config(Path(os.environ["CAVRA_APPROVAL_OIDC_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_OIDC_CONFIG") else {}
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -77,6 +82,8 @@ def create_app():
             "metadata_mode": metadata_mode,
             "approval_mode": approval_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
+            "approval_oidc": "configured" if oidc_config else "disabled",
+            "approval_rbac": "configured" if rbac_rules else "disabled",
             "cors_origins": cors_origins,
             "endpoints": {
                 "evidence": "/evidence",
@@ -163,11 +170,11 @@ def create_app():
 
     @app.post("/approvals/{approval_id}/approve")
     def approve(approval_id: str, payload: dict) -> dict:
-        return _decide_approval(approval_store, approval_id, state="approved", payload=payload)
+        return _decide_approval(approval_store, approval_id, state="approved", payload=payload, rbac_rules=rbac_rules, oidc_config=oidc_config)
 
     @app.post("/approvals/{approval_id}/deny")
     def deny(approval_id: str, payload: dict) -> dict:
-        return _decide_approval(approval_store, approval_id, state="denied", payload=payload)
+        return _decide_approval(approval_store, approval_id, state="denied", payload=payload, rbac_rules=rbac_rules, oidc_config=oidc_config)
 
     @app.post("/approvals/{approval_id}/expire")
     def expire(approval_id: str, payload: Optional[dict] = None) -> dict:
@@ -176,6 +183,8 @@ def create_app():
             approval_id,
             state="expired",
             payload=payload or {"actor": "system", "reason": "approval expired"},
+            rbac_rules=rbac_rules,
+            oidc_config=oidc_config,
         )
 
     @app.post("/approvals/{approval_id}/deliver")
@@ -326,8 +335,25 @@ def _filter_json_evidence(
     }
 
 
-def _decide_approval(approval_store: ApprovalStore, approval_id: str, *, state: str, payload: dict) -> dict:
-    actor_context = actor_context_from_claims(payload["actor_claims"]) if isinstance(payload.get("actor_claims"), dict) else None
+def _decide_approval(
+    approval_store: ApprovalStore,
+    approval_id: str,
+    *,
+    state: str,
+    payload: dict,
+    rbac_rules: dict[str, object] | None = None,
+    oidc_config: dict[str, object] | None = None,
+) -> dict:
+    actor_context = None
+    if isinstance(payload.get("actor_claims"), dict):
+        actor_context = actor_context_from_claims(payload["actor_claims"], rbac_rules=rbac_rules)
+    elif isinstance(payload.get("actor_token"), str):
+        if not oidc_config:
+            raise HTTPException(status_code=400, detail="approval OIDC config is not configured")
+        try:
+            actor_context = actor_context_from_oidc_token(payload["actor_token"], oidc_config, rbac_rules=rbac_rules)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
     try:
         return approval_store.decide(
             approval_id,
@@ -336,6 +362,7 @@ def _decide_approval(approval_store: ApprovalStore, approval_id: str, *, state: 
             reason=payload.get("reason", ""),
             external_ref=payload.get("external_ref"),
             actor_context=actor_context,
+            rbac_rules=rbac_rules,
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="approval not found") from exc

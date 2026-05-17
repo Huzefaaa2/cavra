@@ -37,6 +37,8 @@ CAVRA_PUBLIC_API_BASE_URL=https://api.cavra.example \
 CAVRA_CORS_ORIGINS=https://console.cavra.example \
 CAVRA_EVIDENCE_METADATA_DB=.cavra/evidence/metadata.db \
 CAVRA_APPROVAL_PROVIDER_CONFIG=.cavra/approval-providers.yaml \
+CAVRA_APPROVAL_OIDC_CONFIG=.cavra/approval-oidc.json \
+CAVRA_APPROVAL_RBAC_FILE=.cavra/approval-rbac.yaml \
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 

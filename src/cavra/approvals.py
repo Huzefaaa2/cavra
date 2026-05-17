@@ -5,6 +5,7 @@ import os
 import sqlite3
 import time
 import uuid
+from base64 import urlsafe_b64decode
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -105,6 +106,27 @@ def load_routing_rules(path: Path | None) -> list[dict[str, Any]]:
     return rules
 
 
+def load_rbac_rules(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    return _load_object_file(path, "approval RBAC policy")
+
+
+def load_oidc_config(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    config = _load_object_file(path, "approval OIDC config")
+    jwks_path = config.get("jwks_path")
+    if jwks_path and "jwks" not in config:
+        resolved_jwks_path = Path(jwks_path)
+        if not resolved_jwks_path.is_absolute():
+            resolved_jwks_path = path.parent / resolved_jwks_path
+        config["jwks"] = _load_object_file(resolved_jwks_path, "approval OIDC JWKS")
+    if not config.get("issuer") or not config.get("audience") or not config.get("jwks"):
+        raise ValueError("approval OIDC config must include issuer, audience, and jwks or jwks_path")
+    return config
+
+
 def route_approver_group(decision: dict[str, Any], routing_rules: list[dict[str, Any]] | None = None) -> str | None:
     rules = routing_rules if routing_rules is not None else default_routing_rules()
     for rule in rules:
@@ -124,12 +146,28 @@ def _route_rule_matches(decision: dict[str, Any], rule: dict[str, Any]) -> bool:
     return True
 
 
+def _load_object_file(path: Path, description: str) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"{description} file not found: {path}")
+    if path.suffix.lower() in {".yaml", ".yml"}:
+        try:
+            import yaml
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError(f"Install PyYAML to load YAML {description} files.") from exc
+        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    else:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"{description} file must contain an object")
+    return payload
+
+
 def actor_context_from_claims(claims: dict[str, Any], *, rbac_rules: dict[str, Any] | None = None) -> dict[str, Any]:
     groups = claims.get("groups") or claims.get("roles") or []
     if isinstance(groups, str):
         groups = [groups]
     email = claims.get("email") or claims.get("preferred_username") or claims.get("sub") or "unknown"
-    configured = rbac_rules or {}
+    configured = _rbac_policy(rbac_rules or {})
     mapped_groups = set(groups)
     for source, target in configured.get("group_mappings", {}).items():
         if source in groups:
@@ -139,14 +177,139 @@ def actor_context_from_claims(claims: dict[str, Any], *, rbac_rules: dict[str, A
         "subject": claims.get("sub"),
         "groups": sorted(str(item) for item in mapped_groups),
         "issuer": claims.get("iss"),
+        "repository": claims.get("repository") or claims.get("repo"),
     }
 
 
-def actor_can_decide(actor_context: dict[str, Any], approval: dict[str, Any], *, action: str = "approve") -> bool:
+def actor_context_from_oidc_token(token: str, oidc_config: dict[str, Any], *, rbac_rules: dict[str, Any] | None = None) -> dict[str, Any]:
+    claims = validate_oidc_token(token, oidc_config)
+    return actor_context_from_claims(claims, rbac_rules=rbac_rules)
+
+
+def validate_oidc_token(token: str, oidc_config: dict[str, Any]) -> dict[str, Any]:
+    try:
+        header_b64, payload_b64, signature_b64 = token.split(".")
+    except ValueError as exc:
+        raise ValueError("OIDC token must be a compact JWT") from exc
+    header = json.loads(_b64url_decode(header_b64))
+    claims = json.loads(_b64url_decode(payload_b64))
+    if header.get("alg") != "RS256":
+        raise ValueError("OIDC token must use RS256")
+    if claims.get("iss") != oidc_config.get("issuer"):
+        raise ValueError("OIDC token issuer is not trusted")
+    audience = claims.get("aud")
+    expected_audience = oidc_config.get("audience")
+    audiences = audience if isinstance(audience, list) else [audience]
+    if expected_audience not in audiences:
+        raise ValueError("OIDC token audience is not trusted")
+    now = int(time.time())
+    leeway = int(oidc_config.get("leeway_seconds", 60))
+    if claims.get("exp") is None or int(claims["exp"]) < now - leeway:
+        raise ValueError("OIDC token is expired")
+    if claims.get("nbf") is not None and int(claims["nbf"]) > now + leeway:
+        raise ValueError("OIDC token is not yet valid")
+    signing_input = f"{header_b64}.{payload_b64}".encode("ascii")
+    public_key = _public_key_from_jwks(oidc_config["jwks"], header.get("kid"))
+    _verify_rs256(public_key, signing_input, _b64url_decode(signature_b64))
+    return claims
+
+
+def _b64url_decode(value: str) -> bytes:
+    padding = "=" * (-len(value) % 4)
+    return urlsafe_b64decode((value + padding).encode("ascii"))
+
+
+def _public_key_from_jwks(jwks: dict[str, Any], kid: str | None):
+    keys = jwks.get("keys", [])
+    if not isinstance(keys, list):
+        raise ValueError("OIDC JWKS must include keys")
+    for key in keys:
+        if kid and key.get("kid") != kid:
+            continue
+        if key.get("kty") != "RSA":
+            continue
+        try:
+            from cryptography.hazmat.primitives.asymmetric import rsa
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("Install cryptography to validate OIDC JWT signatures.") from exc
+        n = int.from_bytes(_b64url_decode(str(key["n"])), "big")
+        e = int.from_bytes(_b64url_decode(str(key["e"])), "big")
+        return rsa.RSAPublicNumbers(e, n).public_key()
+    raise ValueError("OIDC token signing key was not found in JWKS")
+
+
+def _verify_rs256(public_key: Any, signing_input: bytes, signature: bytes) -> None:
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import padding
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to validate OIDC JWT signatures.") from exc
+    try:
+        public_key.verify(signature, signing_input, padding.PKCS1v15(), hashes.SHA256())
+    except InvalidSignature as exc:
+        raise ValueError("OIDC token signature is invalid") from exc
+
+
+def _repository_rbac_allows(
+    actor_context: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    action: str,
+    rbac_rules: dict[str, Any],
+) -> bool:
+    policy = _rbac_policy(rbac_rules)
+    rules = policy.get("repository_permissions", policy.get("repositories", []))
+    if not isinstance(rules, list):
+        return False
+    actor_groups = set(actor_context.get("groups", []))
+    repository = _approval_repository(approval)
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        if rule.get("repository") and rule.get("repository") != repository:
+            continue
+        if rule.get("approver_group") and rule.get("approver_group") != approval.get("approver_group"):
+            continue
+        actions = {_decision_action_alias(str(item)) for item in rule.get("actions", ["approved", "denied"])}
+        if _decision_action_alias(action) not in actions:
+            continue
+        allowed_groups = set(str(item) for item in rule.get("groups", []))
+        if actor_groups & allowed_groups:
+            return True
+    return False
+
+
+def _approval_repository(approval: dict[str, Any]) -> str | None:
+    decision = approval.get("decision", {})
+    if not isinstance(decision, dict):
+        return approval.get("repository")
+    return approval.get("repository") or decision.get("repository") or decision.get("repo")
+
+
+def _rbac_policy(rbac_rules: dict[str, Any]) -> dict[str, Any]:
+    policy = rbac_rules.get("approval_rbac", rbac_rules)
+    return policy if isinstance(policy, dict) else {}
+
+
+def _decision_action_alias(action: str) -> str:
+    aliases = {"approve": "approved", "deny": "denied", "expire": "expired"}
+    return aliases.get(action, action)
+
+
+def actor_can_decide(
+    actor_context: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    action: str = "approve",
+    rbac_rules: dict[str, Any] | None = None,
+) -> bool:
     if action == "expire" and "system" in actor_context.get("groups", []):
         return True
     if approval.get("break_glass") and "Change Advisory Board" not in actor_context.get("groups", []):
         return False
+    if _repository_rbac_allows(actor_context, approval, action=action, rbac_rules=rbac_rules or {}):
+        return True
     return approval.get("approver_group") in actor_context.get("groups", [])
 
 
@@ -158,6 +321,7 @@ def apply_approval_decision(
     reason: str,
     external_ref: str | None = None,
     actor_context: dict[str, Any] | None = None,
+    rbac_rules: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if state not in {"approved", "denied", "expired"}:
         raise ValueError("state must be approved, denied, or expired")
@@ -167,7 +331,7 @@ def apply_approval_decision(
         raise ValueError("actor is required")
     if not reason:
         raise ValueError("reason is required")
-    if actor_context and not actor_can_decide(actor_context, approval, action=state):
+    if actor_context and not actor_can_decide(actor_context, approval, action=state, rbac_rules=rbac_rules):
         raise ValueError("actor is not authorized for approval group")
     updated = {**approval}
     updated["state"] = state
@@ -676,6 +840,7 @@ class ApprovalStore:
         reason: str,
         external_ref: str | None = None,
         actor_context: dict[str, Any] | None = None,
+        rbac_rules: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         approval = self.get(approval_id)
         if approval is None:
@@ -688,6 +853,7 @@ class ApprovalStore:
                 reason=reason,
                 external_ref=external_ref,
                 actor_context=actor_context,
+                rbac_rules=rbac_rules,
             )
         )
 
@@ -878,6 +1044,7 @@ class SQLiteApprovalStore:
         reason: str,
         external_ref: str | None = None,
         actor_context: dict[str, Any] | None = None,
+        rbac_rules: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         approval = self.get(approval_id)
         if approval is None:
@@ -890,6 +1057,7 @@ class SQLiteApprovalStore:
                 reason=reason,
                 external_ref=external_ref,
                 actor_context=actor_context,
+                rbac_rules=rbac_rules,
             )
         )
 

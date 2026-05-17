@@ -24,9 +24,9 @@ Implemented evidence bundle manifests, checksums, HMAC and Ed25519 signatures, t
 
 Status: in progress.
 
-Implemented approval request JSON and SQLite persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, default routing policies, repository-specific routing files, local claims-based approval authorization, reference notification payloads, credential-free provider request specs, secret-backed live provider delivery with redacted evidence, console approval queue actions, and approval outcome linkage into evidence and PR attestations.
+Implemented approval request JSON and SQLite persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, default routing policies, repository-specific routing files, local claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC policy files, reference notification payloads, credential-free provider request specs, secret-backed live provider delivery with redacted evidence, console approval queue actions, and approval outcome linkage into evidence and PR attestations.
 
-Next: signed OIDC token validation, repository RBAC policy management, console break-glass creation, approval audit detail views, and hosted attestation artifact retrieval.
+Next: console break-glass creation, approval audit detail views, and hosted attestation artifact retrieval.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 

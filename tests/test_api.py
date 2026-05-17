@@ -1,6 +1,38 @@
+import json
+import time
+from base64 import urlsafe_b64encode
+
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
+
+
+def _b64url(data: bytes) -> str:
+    return urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def _signed_rs256_token(claims: dict[str, object], *, kid: str = "api-test-key") -> tuple[str, dict[str, object]]:
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding, rsa
+
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_numbers = private_key.public_key().public_numbers()
+    jwk = {
+        "kty": "RSA",
+        "kid": kid,
+        "alg": "RS256",
+        "use": "sig",
+        "n": _b64url(public_numbers.n.to_bytes((public_numbers.n.bit_length() + 7) // 8, "big")),
+        "e": _b64url(public_numbers.e.to_bytes((public_numbers.e.bit_length() + 7) // 8, "big")),
+    }
+    signing_input = ".".join(
+        [
+            _b64url(json.dumps({"alg": "RS256", "kid": kid, "typ": "JWT"}, separators=(",", ":")).encode("utf-8")),
+            _b64url(json.dumps(claims, separators=(",", ":")).encode("utf-8")),
+        ]
+    ).encode("ascii")
+    signature = private_key.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+    return f"{signing_input.decode('ascii')}.{_b64url(signature)}", {"keys": [jwk]}
 
 
 def test_api_persists_evidence_metadata(monkeypatch, tmp_path) -> None:
@@ -151,6 +183,93 @@ def test_api_approval_actor_claims_enforce_group(monkeypatch, tmp_path) -> None:
     assert rejected.status_code == 400
     assert accepted.status_code == 200
     assert accepted.json()["state"] == "approved"
+
+
+def test_api_approval_actor_token_enforces_oidc_and_repository_rbac(monkeypatch, tmp_path) -> None:
+    token, jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-approvals",
+            "sub": "user-123",
+            "email": "owner@example.com",
+            "groups": ["github-team:payments-owners"],
+            "repository": "payments/api",
+            "exp": int(time.time()) + 300,
+        }
+    )
+    oidc_config = tmp_path / "oidc.json"
+    rbac_file = tmp_path / "rbac.json"
+    oidc_config.write_text(
+        json.dumps({"issuer": "https://issuer.example", "audience": "cavra-approvals", "jwks": jwks}),
+        encoding="utf-8",
+    )
+    rbac_file.write_text(
+        json.dumps(
+            {
+                "approval_rbac": {
+                    "group_mappings": {"github-team:payments-owners": "Payments Owners"},
+                    "repository_permissions": [
+                        {
+                            "repository": "payments/api",
+                            "approver_group": "IAM",
+                            "groups": ["Payments Owners"],
+                            "actions": ["approved"],
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_OIDC_CONFIG", str(oidc_config))
+    monkeypatch.setenv("CAVRA_APPROVAL_RBAC_FILE", str(rbac_file))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    decision["repository"] = "payments/api"
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    accepted = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "owner@example.com", "reason": "OIDC repository owner.", "actor_token": token},
+    )
+    config = client.get("/console/config").json()
+
+    assert accepted.status_code == 200
+    assert accepted.json()["state"] == "approved"
+    assert config["approval_oidc"] == "configured"
+    assert config["approval_rbac"] == "configured"
+
+
+def test_api_approval_actor_token_rejects_without_oidc_config(monkeypatch, tmp_path) -> None:
+    token, _jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-approvals",
+            "sub": "user-123",
+            "groups": ["IAM"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+    monkeypatch.delenv("CAVRA_APPROVAL_OIDC_CONFIG", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    rejected = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "owner@example.com", "reason": "Needs OIDC config.", "actor_token": token},
+    )
+
+    assert rejected.status_code == 400
 
 
 def test_api_approval_delivers_with_configured_provider(monkeypatch, tmp_path) -> None:

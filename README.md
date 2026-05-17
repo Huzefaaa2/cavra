@@ -147,6 +147,7 @@ cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-rou
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
 cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
+cavra approval approve apr_123 --actor iam@example.com --actor-token /tmp/oidc.jwt --oidc-config .cavra/approval-oidc.json --rbac-file .cavra/approval-rbac.yaml --reason "Signed identity verified"
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
@@ -214,7 +215,7 @@ Current phase status:
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
-- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, claims-based authorization, provider request specs, live provider delivery, and console actions.
+- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, and console actions.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -224,7 +225,6 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add signed OIDC token validation and repository RBAC policy management for approval decisions.
 - Add console break-glass creation and approval audit detail views.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 

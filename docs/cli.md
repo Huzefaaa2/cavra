@@ -14,6 +14,7 @@ cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-rou
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
 cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
+cavra approval approve apr_123 --actor iam@example.com --actor-token /tmp/oidc.jwt --oidc-config .cavra/approval-oidc.json --rbac-file .cavra/approval-rbac.yaml --reason "Signed identity verified"
 cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
 cavra approval expire apr_123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
