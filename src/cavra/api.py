@@ -18,6 +18,7 @@ from cavra.approvals import (
     load_routing_rules,
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
+from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.registry import (
     RegistryStore,
@@ -81,6 +82,11 @@ def create_app():
         if os.environ.get("CAVRA_ACTIVITY_DB")
         else ActivityStore(Path(os.environ.get("CAVRA_ACTIVITY_STORE", ".cavra/api/activity.json")))
     )
+    inventory_store = (
+        SQLiteInventoryStore(Path(os.environ["CAVRA_INVENTORY_DB"]))
+        if os.environ.get("CAVRA_INVENTORY_DB")
+        else InventoryStore(Path(os.environ.get("CAVRA_INVENTORY_STORE", ".cavra/api/inventory.json")))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -96,6 +102,7 @@ def create_app():
         approval_mode = "sqlite" if isinstance(approval_store, SQLiteApprovalStore) else "json"
         registry_mode = "sqlite" if isinstance(registry_store, SQLiteRegistryStore) else "json"
         activity_mode = "sqlite" if isinstance(activity_store, SQLiteActivityStore) else "json"
+        inventory_mode = "sqlite" if isinstance(inventory_store, SQLiteInventoryStore) else "json"
         return {
             "product": "CAVRA",
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
@@ -103,6 +110,7 @@ def create_app():
             "approval_mode": approval_mode,
             "registry_mode": registry_mode,
             "activity_mode": activity_mode,
+            "inventory_mode": inventory_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
@@ -114,6 +122,8 @@ def create_app():
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
+                "repositories": "/repositories",
+                "policy_rollouts": "/policy-rollouts",
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
@@ -214,6 +224,66 @@ def create_app():
             raise HTTPException(status_code=404, detail="session not found")
         return item
 
+    @app.get("/repositories")
+    def repository_index(
+        provider: Optional[str] = None,
+        owner: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        status: Optional[str] = None,
+        risk_tier: Optional[str] = None,
+    ) -> dict:
+        return inventory_store.list_repositories(
+            provider=provider,
+            owner=owner,
+            policy_pack=policy_pack,
+            status=status,
+            risk_tier=risk_tier,
+        )
+
+    @app.post("/repositories")
+    def upsert_repository(payload: dict) -> dict:
+        try:
+            return inventory_store.upsert_repository(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="invalid repository record") from exc
+
+    @app.get("/repositories/{repository_id:path}")
+    def repository_item(repository_id: str) -> dict:
+        item = inventory_store.get_repository(repository_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="repository not found")
+        return item
+
+    @app.get("/policy-rollouts")
+    def policy_rollout_index(
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        state: Optional[str] = None,
+        mode: Optional[str] = None,
+        owner: Optional[str] = None,
+    ) -> dict:
+        return inventory_store.list_policy_rollouts(
+            repository=repository,
+            policy_pack=policy_pack,
+            state=state,
+            mode=mode,
+            owner=owner,
+        )
+
+    @app.post("/policy-rollouts")
+    def upsert_policy_rollout(payload: dict) -> dict:
+        try:
+            return inventory_store.upsert_policy_rollout(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="invalid policy rollout record") from exc
+
+    @app.get("/policy-rollouts/{rollout_id}")
+    def policy_rollout_item(rollout_id: str) -> dict:
+        item = inventory_store.get_policy_rollout(rollout_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="policy rollout not found")
+        return item
+
     @app.get("/agents")
     def agents(status: Optional[str] = None, owner: Optional[str] = None) -> dict:
         return registry_store.list_agents(status=status, owner=owner)
@@ -227,7 +297,7 @@ def create_app():
         try:
             return registry_store.upsert_agent(payload)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail="approval provider delivery request is invalid") from exc
+            raise HTTPException(status_code=400, detail="invalid agent record") from exc
 
     @app.get("/agents/{agent_id}")
     def agent(agent_id: str) -> dict:
@@ -258,7 +328,7 @@ def create_app():
         try:
             return registry_store.upsert_mcp_server(payload)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+            raise HTTPException(status_code=400, detail="invalid MCP server record") from exc
 
     @app.get("/mcp/servers/{server_id}")
     def mcp_server(server_id: str) -> dict:
@@ -271,7 +341,6 @@ def create_app():
     def mcp_trust(server: str, tool: str = "unknown", capability: Optional[str] = None) -> dict:
         return registry_store.evaluate_mcp(server, tool, capability)
 
-    @app.get("/repositories")
     @app.get("/integrations")
     @app.get("/risk/events")
     @app.get("/compliance/mappings")

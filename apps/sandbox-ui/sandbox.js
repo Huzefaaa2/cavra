@@ -80,6 +80,81 @@ const activityDecisions = evidenceCatalog.flatMap((item) =>
   }))
 );
 
+const repositoryCatalog = [
+  {
+    repository_id: "payments/api",
+    repository: "payments/api",
+    provider: "github",
+    owner: "Payments Platform",
+    business_unit: "payments",
+    environment: "production",
+    policy_pack: "cavra-banking",
+    risk_tier: "high",
+    status: "active",
+    protected_branches: ["main", "release/*"],
+    required_checks: ["cavra", "CodeQL"]
+  },
+  {
+    repository_id: "platform/security",
+    repository: "platform/security",
+    provider: "github",
+    owner: "Platform Security",
+    business_unit: "platform",
+    environment: "production",
+    policy_pack: "cavra-ai-agent-baseline",
+    risk_tier: "medium",
+    status: "active",
+    protected_branches: ["main"],
+    required_checks: ["cavra"]
+  },
+  {
+    repository_id: "docs/site",
+    repository: "docs/site",
+    provider: "github",
+    owner: "Documentation",
+    business_unit: "engineering",
+    environment: "development",
+    policy_pack: "cavra-ai-agent-baseline",
+    risk_tier: "low",
+    status: "active",
+    protected_branches: ["main"],
+    required_checks: []
+  }
+];
+
+const rolloutCatalog = [
+  {
+    rollout_id: "payments-api-banking",
+    repository: "payments/api",
+    policy_pack: "cavra-banking",
+    policy_version: "2026.05",
+    mode: "strict",
+    state: "active",
+    owner: "Platform Security",
+    coverage_percent: 95
+  },
+  {
+    rollout_id: "platform-security-baseline",
+    repository: "platform/security",
+    policy_pack: "cavra-ai-agent-baseline",
+    policy_version: "latest",
+    mode: "enforce",
+    state: "active",
+    owner: "Platform Security",
+    coverage_percent: 88
+  },
+  {
+    rollout_id: "docs-site-baseline",
+    repository: "docs/site",
+    policy_pack: "cavra-ai-agent-baseline",
+    policy_version: "latest",
+    mode: "audit_only",
+    state: "planned",
+    owner: "Documentation",
+    coverage_percent: 20
+  }
+];
+
 const approvalCatalog = [
   {
     approval_id: "apr_demo_iam",
@@ -328,6 +403,40 @@ async function loadDecisions() {
   }
 }
 
+async function loadRepositories() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      owner: document.querySelector("#filterRepositoryOwner")?.value.trim(),
+      policy_pack: document.querySelector("#filterRepositoryPolicy")?.value.trim(),
+      risk_tier: document.querySelector("#filterRepositoryRisk")?.value
+    };
+    const response = await fetch(apiUrl("/repositories", params));
+    if (!response.ok) throw new Error("Repository API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return repositoryCatalog;
+  }
+}
+
+async function loadPolicyRollouts() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      policy_pack: document.querySelector("#filterRepositoryPolicy")?.value.trim(),
+      state: document.querySelector("#filterRolloutState")?.value,
+      mode: document.querySelector("#filterRolloutMode")?.value
+    };
+    const response = await fetch(apiUrl("/policy-rollouts", params));
+    if (!response.ok) throw new Error("Policy rollout API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return rolloutCatalog;
+  }
+}
+
 async function loadApprovals() {
   await loadConsoleConfig();
   try {
@@ -437,6 +546,26 @@ function filterDecisions(items) {
     .filter((item) => !severity || item.severity === severity);
 }
 
+function filterRepositories(items) {
+  const owner = document.querySelector("#filterRepositoryOwner").value.trim().toLowerCase();
+  const policy = document.querySelector("#filterRepositoryPolicy").value.trim().toLowerCase();
+  const risk = document.querySelector("#filterRepositoryRisk").value;
+  return items
+    .filter((item) => !owner || String(item.owner || "").toLowerCase().includes(owner))
+    .filter((item) => !policy || String(item.policy_pack || "").toLowerCase().includes(policy))
+    .filter((item) => !risk || item.risk_tier === risk);
+}
+
+function filterPolicyRollouts(items) {
+  const policy = document.querySelector("#filterRepositoryPolicy").value.trim().toLowerCase();
+  const state = document.querySelector("#filterRolloutState").value;
+  const mode = document.querySelector("#filterRolloutMode").value;
+  return items
+    .filter((item) => !policy || String(item.policy_pack || "").toLowerCase().includes(policy))
+    .filter((item) => !state || item.state === state)
+    .filter((item) => !mode || item.mode === mode);
+}
+
 function filterApprovals(items) {
   const state = document.querySelector("#filterApprovalState").value;
   const group = document.querySelector("#filterApprovalGroup").value.trim().toLowerCase();
@@ -513,9 +642,41 @@ function renderActivityRows(sessions, decisions) {
   }
 }
 
+function renderInventoryRows(repositories, rollouts) {
+  const repositoryRows = document.querySelector("#repositoryRows");
+  const rolloutRows = document.querySelector("#rolloutRows");
+  repositoryRows.innerHTML = "";
+  rolloutRows.innerHTML = "";
+  for (const item of repositories) {
+    const checks = Array.isArray(item.required_checks) && item.required_checks.length ? item.required_checks.join(", ") : "not configured";
+    repositoryRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.repository || item.repository_id || "unknown")}</td>
+        <td>${escapeHtml(item.owner || "unassigned")}</td>
+        <td>${escapeHtml(item.policy_pack || "cavra-ai-agent-baseline")}</td>
+        <td class="${riskClass(item.risk_tier)}">${escapeHtml(item.risk_tier || "medium")}</td>
+        <td class="${riskClass(item.status)}">${escapeHtml(item.status || "active")}</td>
+        <td>${escapeHtml(checks)}</td>
+      </tr>
+    `);
+  }
+  for (const item of rollouts) {
+    rolloutRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.repository || "unknown")}</td>
+        <td>${escapeHtml(item.policy_pack || "n/a")}</td>
+        <td class="${riskClass(item.mode)}">${escapeHtml(item.mode || "enforce")}</td>
+        <td class="${riskClass(item.state)}">${escapeHtml(item.state || "planned")}</td>
+        <td>${Number(item.coverage_percent || 0)}%</td>
+        <td>${escapeHtml(item.owner || "platform-security")}</td>
+      </tr>
+    `);
+  }
+}
+
 function riskClass(value) {
-  if (value === "critical" || value === "high" || value === "blocked" || value === "denied") return "block";
-  if (value === "medium" || value === "experimental" || value === "pending") return "require_approval";
+  if (value === "critical" || value === "high" || value === "blocked" || value === "denied" || value === "strict") return "block";
+  if (value === "medium" || value === "experimental" || value === "pending" || value === "planned" || value === "audit_only") return "require_approval";
   return "allow";
 }
 
@@ -636,6 +797,11 @@ async function refreshEvidence() {
 async function refreshActivity() {
   const [sessions, decisions] = await Promise.all([loadSessions(), loadDecisions()]);
   renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
+}
+
+async function refreshInventory() {
+  const [repositories, rollouts] = await Promise.all([loadRepositories(), loadPolicyRollouts()]);
+  renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
 }
 
 async function refreshApprovals() {
@@ -777,6 +943,7 @@ async function verifyAttestation() {
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
+document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
@@ -797,5 +964,6 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 });
 refreshEvidence();
 refreshActivity();
+refreshInventory();
 refreshApprovals();
 refreshRegistry();

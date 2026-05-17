@@ -34,15 +34,15 @@ Status: complete for the current production-readiness slice.
 
 Implemented JSON/SQLite governed agent identities, MCP server trust tiers, owner/capability/approval-state metadata, API and CLI access, default-deny unknown server mode, predefined profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer, MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities, console registry views, and registry-backed MCP runtime decisions.
 
-Next: repository inventory, policy rollout persistence, backup/restore documentation, and hosted attestation artifact retrieval.
+Next: backup/restore documentation, persistent API retention controls, integrations inventory persistence, and hosted attestation artifact retrieval.
 
 ## Phase 6: Console and Persistent API
 
 Status: started.
 
-Implemented JSON and SQLite activity persistence for sessions and decisions, API filters for session, agent, repository, policy pack, outcome, severity, and action type, and console Activity Explorer views.
+Implemented JSON and SQLite activity persistence for sessions and decisions, API filters for session, agent, repository, policy pack, outcome, severity, and action type, repository inventory and policy rollout JSON/SQLite persistence, repository and rollout API filters, console Activity Explorer views, and console repository/rollout views.
 
-Next: repository inventory, policy rollout persistence, backup/restore documentation, retention controls, and hosted attestation artifact retrieval.
+Next: backup/restore documentation, persistent API retention controls, integrations inventory persistence, policy-pack catalog drill-downs, and hosted attestation artifact retrieval.
 
 ## Phase 7: Go Enforcement Plane
 

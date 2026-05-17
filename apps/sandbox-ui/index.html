@@ -96,6 +96,60 @@
           </div>
         </div>
       </section>
+      <section class="console inventory-console">
+        <div class="console-header">
+          <div>
+            <h2>Repository and Policy Rollout</h2>
+            <p>Track repository ownership, risk tier, required checks, policy pack rollout state, and enforcement mode.</p>
+          </div>
+          <button id="refreshInventory">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Owner <input id="filterRepositoryOwner" placeholder="Payments Platform" /></label>
+          <label>Policy <input id="filterRepositoryPolicy" placeholder="cavra-banking" /></label>
+          <label>Risk <select id="filterRepositoryRisk"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+          <label>Rollout state <select id="filterRolloutState"><option value="">Any</option><option value="planned">Planned</option><option value="active">Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
+          <label>Mode <select id="filterRolloutMode"><option value="">Any</option><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict">Strict</option><option value="break_glass">Break glass</option></select></label>
+        </div>
+        <div class="inventory-grid">
+          <div>
+            <h3>Repositories</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Repository</th>
+                    <th>Owner</th>
+                    <th>Policy</th>
+                    <th>Risk</th>
+                    <th>Status</th>
+                    <th>Required Checks</th>
+                  </tr>
+                </thead>
+                <tbody id="repositoryRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Policy Rollouts</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Repository</th>
+                    <th>Policy</th>
+                    <th>Mode</th>
+                    <th>State</th>
+                    <th>Coverage</th>
+                    <th>Owner</th>
+                  </tr>
+                </thead>
+                <tbody id="rolloutRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
       <section class="console">
         <div class="console-header">
           <div>

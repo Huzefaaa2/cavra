@@ -186,7 +186,10 @@ Implement:
 - JSON and SQLite activity persistence for sessions and decisions. Delivered.
 - Activity session and decision API filters. Delivered.
 - Console Activity Explorer for sessions and decisions. Delivered.
-- Repositories, policy rollout, integrations, and inventory persistence. Next.
+- Repository inventory and policy rollout JSON/SQLite persistence. Delivered.
+- Repository and rollout API filters for owner, policy pack, status, risk tier, state, and mode. Delivered.
+- Console repository inventory and policy rollout views. Delivered.
+- Integrations inventory persistence. Next.
 - Minimal console UI for dashboards, repositories, policies, evidence, integrations, MCP trust, and agent registry. In progress.
 - OIDC-ready auth boundary and RBAC model.
 
@@ -307,13 +310,12 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: Phase 6, Console and Persistent API. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
+Next recommended implementation phase: continue Phase 6, Console and Persistent API. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, and JSON/SQLite registry-backed agent and MCP trust governance.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, and policy rollout persistence.
 
 Immediate next tasks:
-- Add repository inventory and policy rollout stores with SQLite migrations.
-- Add console views for policy packs and repository scope.
-- Add API filters for agent, repository, policy pack, decision, severity, and time range.
-- Add documentation for backup, restore, and data retention for the persistent API.
+- Add backup, restore, retention, and operational data lifecycle documentation for persistent API stores.
+- Add integrations inventory persistence and console views.
+- Add policy-pack catalog views and rollout drill-downs.
 - Add hosted attestation artifact download APIs backed by governed object storage.

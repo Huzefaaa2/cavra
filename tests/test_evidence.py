@@ -259,6 +259,7 @@ def test_apply_sqlite_migrations_is_idempotent(tmp_path: Path) -> None:
         "002_approval_router.sql",
         "003_agent_mcp_registry.sql",
         "004_activity_sessions_decisions.sql",
+        "005_repository_policy_rollout.sql",
     ]
     assert second["applied"] == []
     assert second["skipped"] == [
@@ -266,4 +267,5 @@ def test_apply_sqlite_migrations_is_idempotent(tmp_path: Path) -> None:
         "002_approval_router.sql",
         "003_agent_mcp_registry.sql",
         "004_activity_sessions_decisions.sql",
+        "005_repository_policy_rollout.sql",
     ]

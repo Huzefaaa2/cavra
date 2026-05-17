@@ -127,8 +127,14 @@ Completed:
 - `GET /decisions` filters for session, agent, repository, policy pack, outcome, severity, and action type.
 - `GET /sessions` filters for agent, repository, policy pack, and state.
 - Console Activity Explorer for persisted sessions and decisions.
+- JSON and SQLite repository inventory stores.
+- JSON and SQLite policy rollout stores.
+- SQLite migration `005_repository_policy_rollout.sql`.
+- `GET` and `POST` repository inventory API endpoints with provider, owner, policy pack, status, and risk-tier filters.
+- `GET` and `POST` policy rollout API endpoints with repository, policy pack, state, mode, and owner filters.
+- Console repository inventory and policy rollout views.
 
-Recommended next issue: add repository inventory and policy rollout persistence, console repository/policy views, persistent API retention controls, backup/restore documentation, and hosted attestation artifact retrieval.
+Recommended next issue: add backup/restore documentation, persistent API retention controls, integrations inventory persistence, policy-pack catalog drill-downs, and hosted attestation artifact retrieval.
 
 ## Transparent Agent Methodology Enablement
 

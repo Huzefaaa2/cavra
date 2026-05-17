@@ -153,6 +153,63 @@ def test_api_sqlite_activity_store(monkeypatch, tmp_path) -> None:
     assert config["activity_mode"] == "sqlite"
 
 
+def test_api_repository_inventory_and_policy_rollouts(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INVENTORY_DB", raising=False)
+    monkeypatch.setenv("CAVRA_INVENTORY_STORE", str(tmp_path / "inventory.json"))
+    client = TestClient(create_app())
+
+    repository = client.post(
+        "/repositories",
+        json={
+            "repository": "payments/api",
+            "owner": "Payments Platform",
+            "policy_pack": "cavra-banking",
+            "risk_tier": "high",
+            "required_checks": ["cavra", "CodeQL"],
+        },
+    )
+    rollout = client.post(
+        "/policy-rollouts",
+        json={
+            "rollout_id": "payments-api-banking",
+            "repository": "payments/api",
+            "policy_pack": "cavra-banking",
+            "state": "active",
+            "mode": "strict",
+            "coverage_percent": 90,
+        },
+    )
+
+    assert repository.status_code == 200
+    assert rollout.status_code == 200
+    assert client.get("/repositories", params={"risk_tier": "high"}).json()["total"] == 1
+    assert client.get("/repositories/payments%2Fapi").json()["policy_pack"] == "cavra-banking"
+    assert client.get("/policy-rollouts", params={"repository": "payments/api"}).json()["total"] == 1
+    assert client.get("/policy-rollouts/payments-api-banking").json()["mode"] == "strict"
+
+
+def test_api_sqlite_inventory_store(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INVENTORY_STORE", raising=False)
+    monkeypatch.setenv("CAVRA_INVENTORY_DB", str(tmp_path / "inventory.db"))
+    client = TestClient(create_app())
+
+    created = client.post(
+        "/repositories",
+        json={"repository": "platform/repo", "owner": "Platform", "policy_pack": "cavra-ai-agent-baseline"},
+    )
+    rollout = client.post(
+        "/policy-rollouts",
+        json={"repository": "platform/repo", "policy_pack": "cavra-ai-agent-baseline", "state": "planned", "mode": "enforce"},
+    )
+    config = client.get("/console/config").json()
+
+    assert created.status_code == 200
+    assert rollout.status_code == 200
+    assert client.get("/repositories", params={"owner": "Platform"}).json()["total"] == 1
+    assert client.get("/policy-rollouts", params={"state": "planned"}).json()["total"] == 1
+    assert config["inventory_mode"] == "sqlite"
+
+
 def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_REGISTRY_DB", raising=False)
     monkeypatch.setenv("CAVRA_REGISTRY_STORE", str(tmp_path / "registry.json"))
