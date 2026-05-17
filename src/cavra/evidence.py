@@ -4,6 +4,7 @@ import base64
 import hashlib
 import hmac
 import json
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -61,6 +62,61 @@ def generate_ed25519_keypair(private_key_path: Path, public_key_path: Path) -> t
         )
     )
     return private_key_path, public_key_path
+
+
+def public_key_fingerprint(public_key_path: Path) -> str:
+    return hashlib.sha256(public_key_path.read_bytes()).hexdigest()
+
+
+def default_key_id(public_key_path: Path) -> str:
+    return public_key_fingerprint(public_key_path)[:16]
+
+
+def build_key_trust_root(
+    public_key_path: Path,
+    *,
+    key_id: str | None = None,
+    owner: str = "platform-security",
+    status: str = "active",
+    valid_from: str | None = None,
+    valid_until: str | None = None,
+) -> dict[str, Any]:
+    fingerprint = public_key_fingerprint(public_key_path)
+    return {
+        "schema_version": "cavra.evidence.trust-root.v1",
+        "product": "CAVRA",
+        "key_id": key_id or fingerprint[:16],
+        "owner": owner,
+        "status": status,
+        "algorithm": "Ed25519",
+        "public_key_sha256": fingerprint,
+        "public_key_pem": public_key_path.read_text(encoding="utf-8"),
+        "valid_from": valid_from or datetime.now(timezone.utc).isoformat(),
+        "valid_until": valid_until,
+    }
+
+
+def export_key_trust_root(
+    public_key_path: Path,
+    output_path: Path,
+    *,
+    key_id: str | None = None,
+    owner: str = "platform-security",
+    status: str = "active",
+    valid_from: str | None = None,
+    valid_until: str | None = None,
+) -> Path:
+    return write_json(
+        output_path,
+        build_key_trust_root(
+            public_key_path,
+            key_id=key_id,
+            owner=owner,
+            status=status,
+            valid_from=valid_from,
+            valid_until=valid_until,
+        ),
+    )
 
 
 def render_pr_attestation(session_id: str, decisions: list[dict[str, Any]]) -> str:
@@ -424,6 +480,7 @@ def create_evidence_bundle(
     signer: str = "local",
     key: str | None = None,
     private_key: Path | None = None,
+    key_id: str | None = None,
     retention_days: int = 2555,
     classification: str = "regulated-sdlc",
     legal_hold: bool = False,
@@ -466,7 +523,7 @@ def create_evidence_bundle(
         ),
     )
     files = [evidence_path, attestation_path, compliance_path, siem_path, summary_path, retention_path]
-    manifest = build_manifest(files, signer=signer, key=key, private_key=private_key, created_at=created_at)
+    manifest = build_manifest(files, signer=signer, key=key, private_key=private_key, key_id=key_id, created_at=created_at)
     manifest_path = write_json(destination / "manifest.json", manifest)
     return EvidenceBundleResult(destination, manifest_path, [*files, manifest_path])
 
@@ -477,6 +534,7 @@ def build_manifest(
     signer: str = "local",
     key: str | None = None,
     private_key: Path | None = None,
+    key_id: str | None = None,
     created_at: str | None = None,
 ) -> dict[str, Any]:
     if key and private_key:
@@ -498,7 +556,7 @@ def build_manifest(
     }
     canonical = json.dumps(manifest_payload, sort_keys=True).encode("utf-8")
     if private_key:
-        manifest_payload["signature"] = _sign_manifest_ed25519(canonical, private_key)
+        manifest_payload["signature"] = _sign_manifest_ed25519(canonical, private_key, key_id=key_id)
     elif key:
         signature = hmac.new(key.encode("utf-8"), canonical, hashlib.sha256).digest()
         manifest_payload["signature"] = {
@@ -518,6 +576,8 @@ def verify_evidence_bundle(
     *,
     key: str | None = None,
     public_key: Path | None = None,
+    trust_root: Path | None = None,
+    key_id: str | None = None,
     minimum_retention_days: int | None = None,
 ) -> tuple[bool, list[str]]:
     manifest_path = bundle_dir / "manifest.json"
@@ -542,7 +602,12 @@ def verify_evidence_bundle(
             errors.append("manifest signature mismatch")
     elif public_key:
         try:
-            _verify_manifest_ed25519(canonical, signature, public_key)
+            _verify_manifest_ed25519(canonical, signature, public_key, key_id=key_id)
+        except ValueError as exc:
+            errors.append(str(exc))
+    elif trust_root:
+        try:
+            _verify_manifest_trust_root(canonical, signature, trust_root, key_id=key_id)
         except ValueError as exc:
             errors.append(str(exc))
     elif signature.get("algorithm") == "SHA256":
@@ -582,6 +647,7 @@ def build_evidence_metadata(bundle_dir: Path) -> dict[str, Any]:
         "blocked_count": sum(1 for item in decisions if item.get("decision") == "block"),
         "approval_required_count": sum(1 for item in decisions if item.get("decision") == "require_approval"),
         "manifest_signature": manifest.get("signature"),
+        "signer": manifest.get("signer"),
         "retention": retention,
     }
 
@@ -616,6 +682,123 @@ class EvidenceMetadataStore:
         return self.upsert(build_evidence_metadata(bundle_dir))
 
 
+class SQLiteEvidenceMetadataStore:
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._initialize()
+
+    def _connect(self) -> sqlite3.Connection:
+        connection = sqlite3.connect(self.path)
+        connection.row_factory = sqlite3.Row
+        return connection
+
+    def _initialize(self) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS evidence_metadata (
+                    session_id TEXT PRIMARY KEY,
+                    created_at TEXT,
+                    signer TEXT,
+                    decision_count INTEGER NOT NULL,
+                    blocked_count INTEGER NOT NULL,
+                    approval_required_count INTEGER NOT NULL,
+                    payload TEXT NOT NULL
+                )
+                """
+            )
+
+    def upsert(self, metadata: dict[str, Any]) -> dict[str, Any]:
+        session_id = metadata.get("session_id")
+        if not session_id:
+            raise ValueError("metadata must include session_id")
+        item = {"schema_version": "cavra.evidence.metadata.v1", "product": "CAVRA", **metadata}
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO evidence_metadata (
+                    session_id, created_at, signer, decision_count, blocked_count, approval_required_count, payload
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(session_id) DO UPDATE SET
+                    created_at=excluded.created_at,
+                    signer=excluded.signer,
+                    decision_count=excluded.decision_count,
+                    blocked_count=excluded.blocked_count,
+                    approval_required_count=excluded.approval_required_count,
+                    payload=excluded.payload
+                """,
+                (
+                    session_id,
+                    item.get("created_at"),
+                    item.get("signer"),
+                    int(item.get("decision_count", 0)),
+                    int(item.get("blocked_count", 0)),
+                    int(item.get("approval_required_count", 0)),
+                    json.dumps(item, sort_keys=True),
+                ),
+            )
+        return item
+
+    def index_bundle(self, bundle_dir: Path) -> dict[str, Any]:
+        return self.upsert(build_evidence_metadata(bundle_dir))
+
+    def get(self, session_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT payload FROM evidence_metadata WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()
+        return json.loads(row["payload"]) if row else None
+
+    def search(
+        self,
+        *,
+        session_id: str | None = None,
+        signer: str | None = None,
+        min_blocked: int | None = None,
+        has_approvals: bool | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
+        clauses: list[str] = []
+        params: list[Any] = []
+        if session_id:
+            clauses.append("session_id LIKE ?")
+            params.append(f"%{session_id}%")
+        if signer:
+            clauses.append("signer = ?")
+            params.append(signer)
+        if min_blocked is not None:
+            clauses.append("blocked_count >= ?")
+            params.append(min_blocked)
+        if has_approvals is not None:
+            clauses.append("approval_required_count > 0" if has_approvals else "approval_required_count = 0")
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        with self._connect() as connection:
+            total = connection.execute(
+                f"SELECT COUNT(*) AS count FROM evidence_metadata {where}",
+                params,
+            ).fetchone()["count"]
+            rows = connection.execute(
+                f"""
+                SELECT payload FROM evidence_metadata
+                {where}
+                ORDER BY created_at DESC, session_id ASC
+                LIMIT ? OFFSET ?
+                """,
+                [*params, limit, offset],
+            ).fetchall()
+        return {
+            "items": [json.loads(row["payload"]) for row in rows],
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }
+
+
 def _event_epoch(event: dict[str, Any]) -> float:
     timestamp = event.get("timestamp")
     if not timestamp:
@@ -643,7 +826,7 @@ def _provider_severity(severity: str, *, provider: str) -> str:
     return normalized
 
 
-def _sign_manifest_ed25519(canonical: bytes, private_key_path: Path) -> dict[str, Any]:
+def _sign_manifest_ed25519(canonical: bytes, private_key_path: Path, *, key_id: str | None = None) -> dict[str, Any]:
     try:
         from cryptography.hazmat.primitives import hashes, serialization
     except ImportError as exc:  # pragma: no cover
@@ -657,17 +840,24 @@ def _sign_manifest_ed25519(canonical: bytes, private_key_path: Path) -> dict[str
     )
     digest = hashes.Hash(hashes.SHA256())
     digest.update(public_key)
+    fingerprint = digest.finalize().hex()
     return {
         "algorithm": "Ed25519",
+        "key_id": key_id or fingerprint[:16],
         "value": base64.b64encode(signature).decode("ascii"),
-        "public_key_sha256": digest.finalize().hex(),
+        "public_key_sha256": fingerprint,
     }
 
 
-def _verify_manifest_ed25519(canonical: bytes, signature: dict[str, Any], public_key_path: Path) -> None:
+def _verify_manifest_ed25519(
+    canonical: bytes,
+    signature: dict[str, Any],
+    public_key_path: Path,
+    *,
+    key_id: str | None = None,
+) -> None:
     try:
-        from cryptography.exceptions import InvalidSignature
-        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives import hashes
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError("Install cryptography to use Ed25519 evidence signatures.") from exc
 
@@ -679,8 +869,97 @@ def _verify_manifest_ed25519(canonical: bytes, signature: dict[str, Any], public
     expected_fingerprint = digest.finalize().hex()
     if signature.get("public_key_sha256") != expected_fingerprint:
         raise ValueError("manifest public key fingerprint mismatch")
+    if key_id and signature.get("key_id") != key_id:
+        raise ValueError("manifest key ID mismatch")
+    _verify_ed25519_signature(canonical, signature, public_key_bytes)
+
+
+def _verify_manifest_trust_root(
+    canonical: bytes,
+    signature: dict[str, Any],
+    trust_root_path: Path,
+    *,
+    key_id: str | None = None,
+) -> None:
+    trust_root = json.loads(trust_root_path.read_text(encoding="utf-8"))
+    if trust_root.get("status") != "active":
+        raise ValueError("trust root is not active")
+    expected_key_id = key_id or trust_root.get("key_id")
+    if expected_key_id and signature.get("key_id") != expected_key_id:
+        raise ValueError("manifest key ID mismatch")
+    if signature.get("public_key_sha256") != trust_root.get("public_key_sha256"):
+        raise ValueError("manifest public key fingerprint mismatch")
+    _verify_ed25519_signature(canonical, signature, trust_root["public_key_pem"].encode("utf-8"))
+
+
+def _verify_ed25519_signature(canonical: bytes, signature: dict[str, Any], public_key_bytes: bytes) -> None:
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives import serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to use Ed25519 evidence signatures.") from exc
+
     public_key = serialization.load_pem_public_key(public_key_bytes)
     try:
         public_key.verify(base64.b64decode(signature.get("value", "")), canonical)
     except InvalidSignature as exc:
         raise ValueError("manifest signature mismatch") from exc
+
+
+def build_attestation_verification(bundle_dir: Path) -> dict[str, Any]:
+    evidence = json.loads((bundle_dir / "evidence.json").read_text(encoding="utf-8"))
+    attestation_path = bundle_dir / "pr-attestation.md"
+    if not attestation_path.exists():
+        return {
+            "schema_version": "cavra.pr-attestation.verification.v1",
+            "product": "CAVRA",
+            "session_id": evidence.get("session_id"),
+            "valid": False,
+            "errors": ["missing pr-attestation.md"],
+        }
+    attestation = attestation_path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    session_id = evidence.get("session_id")
+    decisions = evidence.get("decisions", [])
+    if "CAVRA PR Attestation" not in attestation:
+        errors.append("missing attestation title")
+    if session_id and f"Session: `{session_id}`" not in attestation:
+        errors.append("session ID mismatch")
+    for decision in decisions:
+        target = str(decision.get("target"))
+        if target and target not in attestation:
+            errors.append(f"missing decision target: {target}")
+    return {
+        "schema_version": "cavra.pr-attestation.verification.v1",
+        "product": "CAVRA",
+        "session_id": session_id,
+        "valid": not errors,
+        "errors": errors,
+        "decision_count": len(decisions),
+        "attestation_path": str(attestation_path),
+    }
+
+
+def render_attestation_verification(report: dict[str, Any]) -> str:
+    lines = [
+        "# CAVRA PR Attestation Verification",
+        "",
+        f"Session: `{report.get('session_id')}`",
+        f"Valid: `{report.get('valid')}`",
+        f"Decision count: `{report.get('decision_count', 0)}`",
+        "",
+    ]
+    if report.get("errors"):
+        lines.extend(["## Errors", ""])
+        lines.extend(f"- {error}" for error in report["errors"])
+        lines.append("")
+    return "\n".join(lines)
+
+
+def export_attestation_verification(bundle_dir: Path, output_dir: Path) -> ExportResult:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    report = build_attestation_verification(bundle_dir)
+    json_path = write_json(output_dir / "pr-attestation-verification.json", report)
+    markdown_path = output_dir / "pr-attestation-verification.md"
+    markdown_path.write_text(render_attestation_verification(report), encoding="utf-8")
+    return ExportResult(output_dir, [json_path, markdown_path])

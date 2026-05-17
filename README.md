@@ -121,8 +121,13 @@ cavra evidence siem-event .cavra/evidence/latest
 cavra evidence export-siem .cavra/evidence/latest --output .cavra/evidence/siem
 cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
-cavra evidence index .cavra/evidence/latest --store .cavra/evidence/metadata.json
+cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
+cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
+cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
+cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
+
+Evidence key management and rotation guidance is documented in [docs/evidence-key-management.md](docs/evidence-key-management.md).
 
 ## Human approvals
 
@@ -195,9 +200,9 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Harden public/private key evidence signatures with key IDs, trust roots, and rotation guidance.
-- Add evidence API pagination, filtering, and database-backed persistence.
-- Add PR attestation verifier output.
+- Add API pagination/filtering parity for non-SQLite stores.
+- Add production database migration path for evidence metadata.
+- Add hosted console views for evidence search and attestation verification.
 
 ## User stories and enterprise value
 
@@ -219,6 +224,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Phase Completion Log](docs/wiki/Phase-Completion-Log.md)
 - [Policy Engine Hardening](docs/wiki/Policy-Engine-Hardening.md)
 - [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
+- [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
 - [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from cavra.evidence import EvidenceMetadataStore
+from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
@@ -26,8 +26,10 @@ def create_app():
         version="0.1.0",
     )
     runs: dict[str, dict] = {}
-    evidence_store = EvidenceMetadataStore(
-        Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json"))
+    evidence_store = (
+        SQLiteEvidenceMetadataStore(Path(os.environ["CAVRA_EVIDENCE_METADATA_DB"]))
+        if os.environ.get("CAVRA_EVIDENCE_METADATA_DB")
+        else EvidenceMetadataStore(Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json")))
     )
 
     @app.get("/health")
@@ -71,7 +73,23 @@ def create_app():
         return []
 
     @app.get("/evidence")
-    def evidence_index() -> list[dict]:
+    def evidence_index(
+        session_id: Optional[str] = None,
+        signer: Optional[str] = None,
+        min_blocked: Optional[int] = None,
+        has_approvals: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ):
+        if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+            return evidence_store.search(
+                session_id=session_id,
+                signer=signer,
+                min_blocked=min_blocked,
+                has_approvals=has_approvals,
+                limit=limit,
+                offset=offset,
+            )
         return evidence_store.list()
 
     @app.post("/evidence")

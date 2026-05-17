@@ -79,11 +79,14 @@ Delivered:
 - Ed25519 manifest signatures and evidence keypair generation.
 - Evidence retention policy artifacts and minimum-retention verification.
 - Evidence metadata indexing through CLI and API endpoints.
+- Evidence key IDs, trust-root verification, and key rotation guidance.
+- SQLite-backed evidence metadata search with filters and pagination.
+- PR attestation verifier output.
 
 Remaining:
-- Key trust roots, key IDs, and rotation guidance.
-- Database-backed evidence metadata persistence with pagination and filters.
-- PR attestation verifier output.
+- Hosted console views for evidence search and attestation verification.
+- Production database migration path for evidence metadata.
+- Automated trust-root distribution guidance for enterprise deployments.
 
 User stories:
 - As an auditor, I can download a complete evidence bundle for an AI-agent session.
@@ -278,10 +281,10 @@ Exit criteria:
 
 Next recommended implementation phase: finish Phase 3, Evidence Hub and Attestation.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, and API metadata persistence. The remaining Phase 3 risk is operational trust management and searchable evidence at enterprise scale.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, SQLite evidence search, PR attestation verification, and API metadata persistence. The remaining Phase 3 risk is productizing those evidence workflows into hosted console and production database operations.
 
 Immediate next tasks:
-- Add PR attestation verifier output.
-- Add key trust roots, key IDs, and key rotation guidance.
-- Add database-backed evidence metadata storage.
-- Add evidence search filters and pagination.
+- Add hosted console views for evidence search.
+- Add hosted console views for attestation verification.
+- Add production database migration path.
+- Add automated trust-root distribution guidance.

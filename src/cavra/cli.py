@@ -12,8 +12,11 @@ from rich.json import JSON
 from cavra.agent import AgentSessionManager
 from cavra.evidence import (
     EvidenceMetadataStore,
+    SQLiteEvidenceMetadataStore,
     create_evidence_bundle,
+    export_attestation_verification,
     export_immutable_storage_plan,
+    export_key_trust_root,
     export_retention_policy,
     export_siem_payloads,
     generate_ed25519_keypair,
@@ -355,6 +358,7 @@ def bundle_evidence(
     signer: Annotated[str, typer.Option(help="Signer identity recorded in manifest.")] = "local",
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
     private_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 private key PEM for manifest signature.")] = None,
+    key_id: Annotated[Optional[str], typer.Option(help="Optional evidence signing key ID.")] = None,
     retention_days: Annotated[int, typer.Option(help="Evidence retention period.")] = 2555,
     classification: Annotated[str, typer.Option(help="Evidence classification recorded in retention policy.")] = "regulated-sdlc",
     legal_hold: Annotated[bool, typer.Option(help="Mark generated evidence as under legal hold.")] = False,
@@ -369,6 +373,7 @@ def bundle_evidence(
             signer=signer,
             key=key,
             private_key=private_key,
+            key_id=key_id,
             retention_days=retention_days,
             classification=classification,
             legal_hold=legal_hold,
@@ -395,11 +400,26 @@ def evidence_keypair(
     console.print(f"[dim]private key: {private_path}[/dim]")
 
 
+@evidence_app.command("trust-root")
+def evidence_trust_root(
+    public_key: Annotated[Path, typer.Argument(help="Ed25519 public key PEM.")],
+    output: Annotated[Path, typer.Option(help="Trust root JSON output path.")] = Path(".cavra/keys/evidence-trust-root.json"),
+    key_id: Annotated[Optional[str], typer.Option(help="Explicit key ID. Defaults to public key fingerprint prefix.")] = None,
+    owner: Annotated[str, typer.Option(help="Owner of the trusted signing key.")] = "platform-security",
+    status: Annotated[str, typer.Option(help="active, retired, or revoked.")] = "active",
+) -> None:
+    """Create a CAVRA evidence signing trust-root document."""
+    path = export_key_trust_root(public_key, output, key_id=key_id, owner=owner, status=status)
+    console.print(f"[green]trust root exported[/green] {path}")
+
+
 @evidence_app.command("verify")
 def verify_evidence(
     bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
     public_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 public key PEM for manifest verification.")] = None,
+    trust_root: Annotated[Optional[Path], typer.Option(help="Optional CAVRA evidence trust-root JSON.")] = None,
+    key_id: Annotated[Optional[str], typer.Option(help="Expected evidence signing key ID.")] = None,
     minimum_retention_days: Annotated[Optional[int], typer.Option(help="Minimum acceptable retention period.")] = None,
 ) -> None:
     """Verify evidence bundle manifest, checksums, and optional signature."""
@@ -407,6 +427,8 @@ def verify_evidence(
         bundle_dir,
         key=key,
         public_key=public_key,
+        trust_root=trust_root,
+        key_id=key_id,
         minimum_retention_days=minimum_retention_days,
     )
     if not ok:
@@ -508,18 +530,61 @@ def storage_plan(
         console.print(f"[dim]{path}[/dim]")
 
 
+@evidence_app.command("verify-attestation")
+def verify_attestation(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for attestation verification.")] = Path(".cavra/evidence/attestation"),
+) -> None:
+    """Verify PR attestation content against bundle evidence."""
+    try:
+        result = export_attestation_verification(bundle_dir, output)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]PR attestation verification exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"[dim]{path}[/dim]")
+
+
 @evidence_app.command("index")
 def index_evidence(
     bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
     store: Annotated[Path, typer.Option(help="Evidence metadata store JSON path.")] = Path(".cavra/evidence/metadata.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite metadata database path.")] = None,
 ) -> None:
     """Persist searchable evidence metadata from a bundle."""
     try:
-        metadata = EvidenceMetadataStore(store).index_bundle(bundle_dir)
+        metadata = (
+            SQLiteEvidenceMetadataStore(sqlite).index_bundle(bundle_dir)
+            if sqlite
+            else EvidenceMetadataStore(store).index_bundle(bundle_dir)
+        )
     except (FileNotFoundError, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     console.print(JSON(json.dumps(metadata, indent=2)))
+
+
+@evidence_app.command("search")
+def search_evidence(
+    sqlite: Annotated[Path, typer.Option(help="SQLite metadata database path.")] = Path(".cavra/evidence/metadata.db"),
+    session_id: Annotated[Optional[str], typer.Option(help="Filter by session ID substring.")] = None,
+    signer: Annotated[Optional[str], typer.Option(help="Filter by signer.")] = None,
+    min_blocked: Annotated[Optional[int], typer.Option(help="Minimum blocked decision count.")] = None,
+    has_approvals: Annotated[Optional[bool], typer.Option(help="Filter sessions with approval-required decisions.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Search SQLite-backed evidence metadata with filters and pagination."""
+    result = SQLiteEvidenceMetadataStore(sqlite).search(
+        session_id=session_id,
+        signer=signer,
+        min_blocked=min_blocked,
+        has_approvals=has_approvals,
+        limit=limit,
+        offset=offset,
+    )
+    console.print(JSON(json.dumps(result, indent=2)))
 
 
 @demo_app.command("before-the-agent-acts")

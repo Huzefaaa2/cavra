@@ -30,6 +30,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Phase Completion Log: `Phase-Completion-Log.md`
 - Policy Engine Hardening: `Policy-Engine-Hardening.md`
 - Evidence Hub and Attestation: `Evidence-Hub-and-Attestation.md`
+- Evidence Key Management: `Evidence-Key-Management.md`
 - GitHub Repository Readiness: `GitHub-Repository-Readiness.md`
 - Release Documentation Policy: `Release-Documentation-Policy.md`
 - Transparent Agent Methodology: `Transparent-Agent-Methodology.md`

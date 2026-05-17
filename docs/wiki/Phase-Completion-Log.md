@@ -59,8 +59,11 @@ Completed:
 - Evidence retention policy artifacts and minimum-retention verification.
 - Evidence metadata indexing and API persistence.
 - More elaborate C4 container diagram for enterprise architecture review.
+- Evidence key IDs, trust-root verification, and rotation guidance.
+- SQLite-backed evidence metadata search with filters and pagination.
+- PR attestation verification reports.
 
-Recommended next issue: key trust roots, key IDs, rotation guidance, database-backed evidence search, and PR attestation verifier output.
+Recommended next issue: hosted console views for evidence search and attestation verification, production database migration path, and automated trust-root distribution guidance.
 
 ## Transparent Agent Methodology Enablement
 

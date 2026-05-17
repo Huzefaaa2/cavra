@@ -2,8 +2,11 @@ from pathlib import Path
 
 from cavra.evidence import (
     EvidenceMetadataStore,
+    SQLiteEvidenceMetadataStore,
     create_evidence_bundle,
+    export_attestation_verification,
     export_immutable_storage_plan,
+    export_key_trust_root,
     export_retention_policy,
     export_siem_payloads,
     generate_ed25519_keypair,
@@ -106,6 +109,26 @@ def test_ed25519_signed_evidence_bundle_verifies(tmp_path: Path) -> None:
     assert ok, errors
 
 
+def test_trust_root_verifies_key_id(tmp_path: Path) -> None:
+    private_key = tmp_path / "private.pem"
+    public_key = tmp_path / "public.pem"
+    trust_root = tmp_path / "trust-root.json"
+    generate_ed25519_keypair(private_key, public_key)
+    export_key_trust_root(public_key, trust_root, key_id="prod-signing", owner="security")
+    create_evidence_bundle(
+        _decisions(),
+        tmp_path / "bundle",
+        session_id="pytest",
+        signer="security",
+        private_key=private_key,
+        key_id="prod-signing",
+    )
+
+    ok, errors = verify_evidence_bundle(tmp_path / "bundle", trust_root=trust_root, key_id="prod-signing")
+
+    assert ok, errors
+
+
 def test_retention_policy_minimum_is_enforced(tmp_path: Path) -> None:
     create_evidence_bundle(_decisions(), tmp_path, session_id="pytest", retention_days=30)
 
@@ -145,3 +168,35 @@ def test_evidence_metadata_store_indexes_bundle(tmp_path: Path) -> None:
     assert metadata["session_id"] == "pytest"
     assert metadata["decision_count"] == 3
     assert store.get("pytest")["blocked_count"] == 2
+
+
+def test_sqlite_evidence_metadata_store_searches_with_pagination(tmp_path: Path) -> None:
+    first_bundle = tmp_path / "first"
+    second_bundle = tmp_path / "second"
+    create_evidence_bundle(_decisions(), first_bundle, session_id="first", signer="security")
+    create_evidence_bundle(_decisions()[:1], second_bundle, session_id="second", signer="docs")
+    store = SQLiteEvidenceMetadataStore(tmp_path / "metadata.db")
+    store.index_bundle(first_bundle)
+    store.index_bundle(second_bundle)
+
+    blocked = store.search(min_blocked=2, limit=10, offset=0)
+    signed_by_docs = store.search(signer="docs", limit=10, offset=0)
+    first_page = store.search(limit=1, offset=0)
+
+    assert blocked["total"] == 1
+    assert blocked["items"][0]["session_id"] == "first"
+    assert signed_by_docs["items"][0]["session_id"] == "second"
+    assert first_page["limit"] == 1
+    assert len(first_page["items"]) == 1
+
+
+def test_export_attestation_verification(tmp_path: Path) -> None:
+    bundle_dir = tmp_path / "bundle"
+    output_dir = tmp_path / "attestation"
+    create_evidence_bundle(_decisions(), bundle_dir, session_id="pytest")
+
+    result = export_attestation_verification(bundle_dir, output_dir)
+
+    assert (output_dir / "pr-attestation-verification.json").exists()
+    assert (output_dir / "pr-attestation-verification.md").exists()
+    assert result.output_dir == output_dir
