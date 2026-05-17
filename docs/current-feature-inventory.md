@@ -22,7 +22,7 @@ Integration inventory persistence: `POST /integrations` upserts provider, catego
 
 Persistent API operations: `ops stores` reports active JSON/SQLite persistence paths, `ops backup` writes checksum-backed JSON and SQLite backups, `ops restore` validates backup checksums before copying stores to a test or live path, and `ops retention-plan` exports JSON and Markdown retention controls. The API exposes read-only `/operations/stores` and `/operations/retention-plan`, and operations now include integration inventory stores.
 
-Console security boundary: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies.
+Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. The console shows artifact lists and bundle download links from evidence rows.
 
@@ -32,6 +32,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: packaged Go backend, hosted sandbox deployment, deeper OIDC/RBAC enforcement for console sessions, policy-pack authoring workflows, and vendor-specific hooks beyond the MCP/CLI path.
+Known gaps: packaged Go backend, hosted sandbox deployment, policy-pack authoring workflows, production deployment guide validation, and vendor-specific hooks beyond the MCP/CLI path.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.

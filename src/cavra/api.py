@@ -11,12 +11,14 @@ from cavra.approvals import (
     SQLiteApprovalStore,
     actor_context_from_claims,
     actor_context_from_oidc_token,
+    actor_can_decide,
     attach_approval_to_decision,
     deliver_provider_requests,
     load_oidc_config,
     load_provider_config,
     load_rbac_rules,
     load_routing_rules,
+    repository_permissions_for_actor,
 )
 from cavra.evidence import (
     EvidenceArtifactError,
@@ -41,10 +43,11 @@ from cavra.runtime import RuntimeGuard
 from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
 
 try:
-    from fastapi import FastAPI, HTTPException, Response
+    from fastapi import FastAPI, Header, HTTPException, Response
     from fastapi.middleware.cors import CORSMiddleware
 except ImportError:  # pragma: no cover
     FastAPI = None
+    Header = None
     HTTPException = None
     Response = None
     CORSMiddleware = None
@@ -141,6 +144,7 @@ def create_app():
                 "evidence_artifacts": "/evidence/{session_id}/artifacts",
                 "evidence_artifact": "/evidence/{session_id}/artifacts/{artifact_name}",
                 "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
+                "console_session": "/console/session",
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
@@ -261,6 +265,14 @@ def create_app():
             oidc_configured=bool(oidc_config),
             rbac_configured=bool(rbac_rules),
             cors_origins=cors_origins,
+        )
+
+    @app.get("/console/session")
+    def console_session(authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        return _console_session_context(
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
         )
 
     @app.get("/operations/retention-plan")
@@ -464,11 +476,27 @@ def create_app():
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/approvals/break-glass")
-    def break_glass(payload: dict) -> dict:
+    def break_glass(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        decision = payload["decision"] if isinstance(payload.get("decision"), dict) else payload
+        if actor_context:
+            synthetic_approval = {
+                "state": "pending",
+                "break_glass": True,
+                "approver_group": payload.get("approver_group", "Change Advisory Board"),
+                "decision": decision,
+            }
+            if not actor_can_decide(actor_context, synthetic_approval, action="approved", rbac_rules=rbac_rules):
+                raise HTTPException(status_code=403, detail="actor is not authorized for break-glass")
         try:
             return approval_store.break_glass(
-                decision=payload["decision"] if isinstance(payload.get("decision"), dict) else payload,
-                actor=payload.get("actor", ""),
+                decision=decision,
+                actor=actor_context.get("actor") if actor_context else payload.get("actor", ""),
                 reason=payload.get("reason", ""),
                 approver_group=payload.get("approver_group", "Change Advisory Board"),
                 external_ref=payload.get("external_ref"),
@@ -485,15 +513,31 @@ def create_app():
         return item
 
     @app.post("/approvals/{approval_id}/approve")
-    def approve(approval_id: str, payload: dict) -> dict:
-        return _decide_approval(approval_store, approval_id, state="approved", payload=payload, rbac_rules=rbac_rules, oidc_config=oidc_config)
+    def approve(approval_id: str, payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        return _decide_approval(
+            approval_store,
+            approval_id,
+            state="approved",
+            payload=payload,
+            rbac_rules=rbac_rules,
+            oidc_config=oidc_config,
+            authorization=authorization,
+        )
 
     @app.post("/approvals/{approval_id}/deny")
-    def deny(approval_id: str, payload: dict) -> dict:
-        return _decide_approval(approval_store, approval_id, state="denied", payload=payload, rbac_rules=rbac_rules, oidc_config=oidc_config)
+    def deny(approval_id: str, payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        return _decide_approval(
+            approval_store,
+            approval_id,
+            state="denied",
+            payload=payload,
+            rbac_rules=rbac_rules,
+            oidc_config=oidc_config,
+            authorization=authorization,
+        )
 
     @app.post("/approvals/{approval_id}/expire")
-    def expire(approval_id: str, payload: Optional[dict] = None) -> dict:
+    def expire(approval_id: str, payload: Optional[dict] = None, authorization: Optional[str] = Header(default=None)) -> dict:
         return _decide_approval(
             approval_store,
             approval_id,
@@ -501,6 +545,7 @@ def create_app():
             payload=payload or {"actor": "system", "reason": "approval expired"},
             rbac_rules=rbac_rules,
             oidc_config=oidc_config,
+            authorization=authorization,
         )
 
     @app.post("/approvals/{approval_id}/deliver")
@@ -885,7 +930,9 @@ def _console_security_boundary(
             "read_inventory",
             "read_integrations",
             "read_evidence_metadata",
-            "approval_decision_requires_actor_claims_or_token_when_configured",
+            "read_console_session",
+            "approval_decision_requires_oidc_context_when_configured",
+            "break_glass_requires_oidc_context_when_configured",
         ],
         "operator_notes": [
             "Host the console behind enterprise identity before production use.",
@@ -903,22 +950,19 @@ def _decide_approval(
     payload: dict,
     rbac_rules: dict[str, object] | None = None,
     oidc_config: dict[str, object] | None = None,
+    authorization: str | None = None,
 ) -> dict:
-    actor_context = None
-    if isinstance(payload.get("actor_claims"), dict):
-        actor_context = actor_context_from_claims(payload["actor_claims"], rbac_rules=rbac_rules)
-    elif isinstance(payload.get("actor_token"), str):
-        if not oidc_config:
-            raise HTTPException(status_code=400, detail="approval OIDC config is not configured")
-        try:
-            actor_context = actor_context_from_oidc_token(payload["actor_token"], oidc_config, rbac_rules=rbac_rules)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+    actor_context = _console_mutation_actor_context(
+        payload,
+        authorization=authorization,
+        oidc_config=oidc_config,
+        rbac_rules=rbac_rules,
+    )
     try:
         return approval_store.decide(
             approval_id,
             state=state,
-            actor=payload.get("actor", ""),
+            actor=actor_context.get("actor") if actor_context else payload.get("actor", ""),
             reason=payload.get("reason", ""),
             external_ref=payload.get("external_ref"),
             actor_context=actor_context,
@@ -928,6 +972,105 @@ def _decide_approval(
         raise HTTPException(status_code=404, detail="approval not found") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def _console_session_context(
+    *,
+    authorization: str | None,
+    oidc_config: dict[str, object] | None,
+    rbac_rules: dict[str, object] | None,
+) -> dict[str, object]:
+    actor_context = _actor_context_from_authorization(authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+    repository_permissions = repository_permissions_for_actor(actor_context, rbac_rules or {}) if actor_context else []
+    return {
+        "schema_version": "cavra.console.session.v1",
+        "product": "CAVRA",
+        "mode": "authenticated" if actor_context else "auth_required" if oidc_config else "local_or_demo",
+        "authenticated": actor_context is not None,
+        "auth_required": bool(oidc_config),
+        "actor": _public_actor_context(actor_context) if actor_context else None,
+        "repository_permissions": repository_permissions,
+        "permissions": _console_permissions(actor_context, repository_permissions),
+        "operator_notes": [
+            "Console mutation endpoints require a verified OIDC actor when OIDC or RBAC is configured.",
+            "Repository-scoped permissions are evaluated from CAVRA_APPROVAL_RBAC_FILE.",
+        ],
+    }
+
+
+def _console_permissions(
+    actor_context: dict[str, object] | None,
+    repository_permissions: list[dict[str, object]],
+) -> dict[str, bool]:
+    can_decide = bool(actor_context and (repository_permissions or actor_context.get("groups")))
+    return {
+        "read_activity": True,
+        "read_inventory": True,
+        "read_integrations": True,
+        "read_evidence_metadata": True,
+        "decide_approvals": can_decide,
+        "create_break_glass": bool(actor_context and "Change Advisory Board" in actor_context.get("groups", [])),
+    }
+
+
+def _public_actor_context(actor_context: dict[str, object]) -> dict[str, object]:
+    return {
+        "actor": actor_context.get("actor"),
+        "subject": actor_context.get("subject"),
+        "issuer": actor_context.get("issuer"),
+        "groups": actor_context.get("groups", []),
+        "repository": actor_context.get("repository"),
+    }
+
+
+def _console_mutation_actor_context(
+    payload: dict,
+    *,
+    authorization: str | None,
+    oidc_config: dict[str, object] | None,
+    rbac_rules: dict[str, object] | None,
+) -> dict[str, object] | None:
+    actor_context = None
+    if isinstance(payload.get("actor_claims"), dict):
+        actor_context = actor_context_from_claims(payload["actor_claims"], rbac_rules=rbac_rules)
+    elif isinstance(payload.get("actor_token"), str):
+        if not oidc_config:
+            raise HTTPException(status_code=400, detail="approval OIDC config is not configured")
+        try:
+            actor_context = actor_context_from_oidc_token(payload["actor_token"], oidc_config, rbac_rules=rbac_rules)
+        except ValueError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+    else:
+        actor_context = _actor_context_from_authorization(authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+    if (oidc_config or rbac_rules) and actor_context is None:
+        raise HTTPException(status_code=401, detail="console action requires verified actor context")
+    return actor_context
+
+
+def _actor_context_from_authorization(
+    authorization: str | None,
+    *,
+    oidc_config: dict[str, object] | None,
+    rbac_rules: dict[str, object] | None,
+) -> dict[str, object] | None:
+    token = _bearer_token(authorization)
+    if not token:
+        return None
+    if not oidc_config:
+        raise HTTPException(status_code=400, detail="console OIDC config is not configured")
+    try:
+        return actor_context_from_oidc_token(token, oidc_config, rbac_rules=rbac_rules)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+def _bearer_token(authorization: str | None) -> str | None:
+    if not authorization:
+        return None
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token.strip():
+        raise HTTPException(status_code=401, detail="authorization header must use Bearer token")
+    return token.strip()
 
 
 app = create_app() if FastAPI is not None else None

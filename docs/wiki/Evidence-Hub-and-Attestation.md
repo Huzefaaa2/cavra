@@ -81,5 +81,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Deeper OIDC-authenticated console sessions and RBAC enforcement.
 - Policy-pack authoring and rollout change workflows.
+- Production deployment guide validation for authenticated console/API topologies.

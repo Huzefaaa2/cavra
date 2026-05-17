@@ -164,5 +164,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add deeper OIDC-authenticated console sessions and RBAC enforcement.
 - Add policy-pack authoring and rollout change workflows.
+- Validate production deployment guide for authenticated console/API topologies.

@@ -253,6 +253,21 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Console Session</h2>
+            <p>Validate signed OIDC context and repository-scoped console permissions.</p>
+          </div>
+          <button id="refreshConsoleSession">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Bearer token <input id="consoleToken" type="password" placeholder="OIDC JWT" /></label>
+          <button id="saveConsoleToken" class="secondary">Use token</button>
+          <button id="clearConsoleToken" class="secondary">Clear</button>
+        </div>
+        <div id="consoleSession" class="detail-panel">Console session status is loading.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Approval Queue</h2>
             <p>Review pending, approved, denied, expired, and break-glass approval records.</p>
           </div>

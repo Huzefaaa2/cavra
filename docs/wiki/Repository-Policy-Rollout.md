@@ -53,4 +53,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is deeper OIDC-authenticated console sessions and policy-pack rollout change workflows.
+The next recommended work is policy-pack rollout change workflows and production deployment guide validation.

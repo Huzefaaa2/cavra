@@ -58,6 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Deeper OIDC-authenticated console sessions.
-- Repository RBAC enforcement for console actions.
 - Policy-pack authoring and rollout change workflows.
+- Production deployment guide validation for authenticated console/API topologies.

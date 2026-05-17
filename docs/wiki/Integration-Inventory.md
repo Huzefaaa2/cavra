@@ -44,4 +44,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is deeper OIDC-authenticated console sessions and policy-pack authoring workflows.
+The next recommended work is policy-pack authoring workflows and production deployment guide validation.

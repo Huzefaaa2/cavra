@@ -327,6 +327,7 @@ const mcpClassifications = [
 }));
 
 let consoleConfig = null;
+let consoleAuthToken = window.sessionStorage?.getItem("cavraConsoleToken") || "";
 
 function eventPayload(row, index) {
   const [action_type, target, decision, rule_id, reason] = row;
@@ -364,6 +365,13 @@ function apiUrl(path, params = {}) {
     }
   }
   return url.toString();
+}
+
+function apiHeaders(json = false) {
+  const headers = {};
+  if (json) headers["content-type"] = "application/json";
+  if (consoleAuthToken) headers.authorization = `Bearer ${consoleAuthToken}`;
+  return headers;
 }
 
 async function loadConsoleConfig() {
@@ -573,6 +581,34 @@ async function loadSecurityBoundary() {
       cors: { configured: Array.isArray(consoleConfig?.cors_origins) && consoleConfig.cors_origins.length > 0, origins: consoleConfig?.cors_origins || [] },
       console_permissions: ["read_activity", "read_inventory", "read_integrations", "read_evidence_metadata", "approval_decision_requires_actor_claims_or_token_when_configured"],
       operator_notes: ["Host the console behind enterprise identity before production use."]
+    };
+  }
+}
+
+async function loadConsoleSession() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/console/session"), { headers: apiHeaders() });
+    if (!response.ok) throw new Error("Console session API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      schema_version: "cavra.console.session.v1",
+      product: "CAVRA",
+      mode: consoleAuthToken ? "token_not_verified" : "local_or_demo",
+      authenticated: false,
+      auth_required: consoleConfig?.approval_oidc === "configured",
+      actor: null,
+      repository_permissions: [],
+      permissions: {
+        read_activity: true,
+        read_inventory: true,
+        read_integrations: true,
+        read_evidence_metadata: true,
+        decide_approvals: false,
+        create_break_glass: false
+      },
+      operator_notes: ["Connect to the API to validate signed console tokens."]
     };
   }
 }
@@ -1007,6 +1043,29 @@ function renderSecurityBoundary(boundary) {
   `;
 }
 
+function renderConsoleSession(session) {
+  const panel = document.querySelector("#consoleSession");
+  const actor = session.actor || {};
+  const permissions = session.permissions || {};
+  const repositoryPermissions = Array.isArray(session.repository_permissions) ? session.repository_permissions : [];
+  const notes = Array.isArray(session.operator_notes) ? session.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Mode</dt><dd class="${session.authenticated ? "allow" : "require_approval"}">${escapeHtml(session.mode || "local_or_demo")}</dd>
+      <dt>Authenticated</dt><dd class="${session.authenticated ? "allow" : "require_approval"}">${session.authenticated ? "yes" : "no"}</dd>
+      <dt>Actor</dt><dd>${escapeHtml(actor.actor || "not verified")}</dd>
+      <dt>Issuer</dt><dd>${escapeHtml(actor.issuer || "n/a")}</dd>
+      <dt>Groups</dt><dd>${escapeHtml((actor.groups || []).join(", ") || "n/a")}</dd>
+    </dl>
+    <h3>Permissions</h3>
+    <ul>${Object.entries(permissions).map(([key, value]) => `<li><strong class="${value ? "allow" : "require_approval"}">${escapeHtml(value ? "allow" : "not allowed")}</strong> ${escapeHtml(key)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Repository Scope</h3>
+    <ul>${repositoryPermissions.map((item) => `<li>${escapeHtml(item.repository || "*")} / ${escapeHtml(item.approver_group || "*")} / ${escapeHtml((item.actions || []).join(", "))}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
 function renderApprovalRows(items) {
   const rows = document.querySelector("#approvalRows");
   rows.innerHTML = "";
@@ -1092,6 +1151,10 @@ async function refreshSecurityBoundary() {
   renderSecurityBoundary(await loadSecurityBoundary());
 }
 
+async function refreshConsoleSession() {
+  renderConsoleSession(await loadConsoleSession());
+}
+
 async function refreshApprovals() {
   const items = filterApprovals(await loadApprovals());
   renderApprovalRows(items);
@@ -1113,7 +1176,7 @@ async function submitApprovalAction(approvalId, action) {
   try {
     const response = await fetch(apiUrl(`/approvals/${approvalId}/${action}`), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: apiHeaders(true),
       body: JSON.stringify({ actor: "console-user", reason })
     });
     if (!response.ok) throw new Error("Approval API unavailable");
@@ -1178,7 +1241,7 @@ async function createBreakGlassApproval() {
   try {
     const response = await fetch(apiUrl("/approvals/break-glass"), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: apiHeaders(true),
       body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error("Approval API unavailable");
@@ -1234,6 +1297,18 @@ document.querySelector("#refreshActivity").addEventListener("click", refreshActi
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);
 document.querySelector("#refreshSecurityBoundary").addEventListener("click", refreshSecurityBoundary);
+document.querySelector("#refreshConsoleSession").addEventListener("click", refreshConsoleSession);
+document.querySelector("#saveConsoleToken").addEventListener("click", async () => {
+  consoleAuthToken = document.querySelector("#consoleToken").value.trim();
+  window.sessionStorage?.setItem("cavraConsoleToken", consoleAuthToken);
+  await refreshConsoleSession();
+});
+document.querySelector("#clearConsoleToken").addEventListener("click", async () => {
+  consoleAuthToken = "";
+  document.querySelector("#consoleToken").value = "";
+  window.sessionStorage?.removeItem("cavraConsoleToken");
+  await refreshConsoleSession();
+});
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
@@ -1269,5 +1344,7 @@ refreshActivity();
 refreshInventory();
 refreshIntegrations();
 refreshSecurityBoundary();
+document.querySelector("#consoleToken").value = consoleAuthToken;
+refreshConsoleSession();
 refreshApprovals();
 refreshRegistry();

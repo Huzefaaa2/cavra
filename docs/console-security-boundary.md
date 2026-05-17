@@ -18,7 +18,7 @@ The response reports:
 
 ## Boundary Model
 
-The endpoint is intentionally read-only. It does not authenticate users by itself and does not expose secrets. It tells operators whether the console/API topology is ready to rely on signed OIDC actor tokens and repository RBAC for approval decisions.
+The boundary endpoint is intentionally read-only and does not expose secrets. It tells operators whether the console/API topology is ready to rely on signed OIDC actor tokens and repository RBAC for approval decisions. `GET /console/session` validates signed bearer-token context and reports the active console actor and repository permissions.
 
 Production deployments should:
 
@@ -30,11 +30,12 @@ Production deployments should:
 
 ## Console
 
-The sandbox console includes a Console Security Boundary panel that displays mode, OIDC status, RBAC status, CORS origins, allowed console permission categories, and operator notes.
+The sandbox console includes a Console Security Boundary panel that displays mode, OIDC status, RBAC status, CORS origins, allowed console permission categories, and operator notes. It also includes a Console Session panel for bearer-token validation.
 
 ## User Stories
 
 - As a platform engineer, I can see whether the deployed console is wired for OIDC and repository RBAC.
+- As a platform engineer, I can validate the signed actor context used for console actions.
 - As a security architect, I can confirm that browser-visible console actions are bounded and that backup/restore remains outside the browser.
 - As an auditor, I can inspect the control boundary for approval decisions that use signed identity claims.
 

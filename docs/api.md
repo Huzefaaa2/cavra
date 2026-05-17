@@ -43,8 +43,9 @@ Inventory records track repository ID, provider, owner, business unit, environme
 Security boundary endpoint:
 
 - `GET /console/security-boundary`: return console/API deployment boundary status for OIDC, repository RBAC, CORS, browser-visible permissions, and operator notes.
+- `GET /console/session`: validate an optional `Authorization: Bearer` OIDC token and return actor context, repository-scoped permissions, and console permission flags.
 
-The endpoint is read-only and reports whether `CAVRA_APPROVAL_OIDC_CONFIG`, `CAVRA_APPROVAL_RBAC_FILE`, and `CAVRA_CORS_ORIGINS` are configured. It does not authenticate users by itself; production deployments should host the console behind enterprise identity and use signed approval actor tokens or claims for approval actions.
+The security boundary endpoint is read-only and reports whether `CAVRA_APPROVAL_OIDC_CONFIG`, `CAVRA_APPROVAL_RBAC_FILE`, and `CAVRA_CORS_ORIGINS` are configured. `GET /console/session` validates signed OIDC context when a bearer token is supplied. When OIDC or RBAC is configured, approval decisions and break-glass console mutations require verified actor context from a bearer token, `actor_token`, or `actor_claims`.
 
 ## Integrations Inventory
 
@@ -139,17 +140,17 @@ Set `CAVRA_APPROVAL_DB` to use SQLite-backed approval persistence. `GET /approva
 
 Set `CAVRA_APPROVAL_ROUTING_FILE` to load repository-specific JSON or YAML approval routing rules at API startup. `POST /approvals` uses those rules unless the request payload supplies an explicit `approver_group`.
 
-Approval decision endpoints accept an optional `actor_claims` object with OIDC-style fields such as `email`, `preferred_username`, `sub`, `groups`, `roles`, and `iss`. When claims are present, the actor must belong to the approval request's approver group before the API accepts approve or deny decisions.
+Approval decision endpoints accept an optional `actor_claims` object with OIDC-style fields such as `email`, `preferred_username`, `sub`, `groups`, `roles`, and `iss`. They also accept `Authorization: Bearer <token>` for console sessions. When claims or a token are present, the actor must belong to the approval request's approver group or match repository-scoped RBAC before the API accepts approve or deny decisions.
 
 Set `CAVRA_APPROVAL_OIDC_CONFIG` to enable signed OIDC JWT validation for approval decision payloads that include `actor_token`. The config must include `issuer`, `audience`, and `jwks` or `jwks_path`. RS256 signatures, issuer, audience, expiry, and not-before claims are validated before group authorization.
 
-Set `CAVRA_APPROVAL_RBAC_FILE` to enable repository RBAC rules. The policy supports `group_mappings` and `repository_permissions` so repository owner groups can approve specific approver groups without receiving global approval authority.
+Set `CAVRA_APPROVAL_RBAC_FILE` to enable repository RBAC rules. The policy supports `group_mappings` and `repository_permissions` so repository owner groups can approve specific approver groups without receiving global approval authority. Break-glass console actions require a verified actor in the `Change Advisory Board` group when OIDC or RBAC is configured.
 
 Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to enable `POST /approvals/{approval_id}/deliver`. Delivery requests accept `provider`, `retries`, and `timeout_seconds`; responses include redacted request metadata, status, attempt count, and error state for evidence.
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, evidence artifact downloads, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, evidence artifact, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, evidence artifact downloads, PR attestation verification, console session validation, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, evidence artifact, approval, agent, MCP, and console session endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including rollout detail, security boundary, operations status, and retention-plan endpoints. Configure cross-origin deployments with:
 

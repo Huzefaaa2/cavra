@@ -280,6 +280,30 @@ def _repository_rbac_allows(
     return False
 
 
+def repository_permissions_for_actor(actor_context: dict[str, Any], rbac_rules: dict[str, Any]) -> list[dict[str, Any]]:
+    policy = _rbac_policy(rbac_rules)
+    rules = policy.get("repository_permissions", policy.get("repositories", []))
+    if not isinstance(rules, list):
+        return []
+    actor_groups = set(actor_context.get("groups", []))
+    permissions = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        allowed_groups = set(str(item) for item in rule.get("groups", []))
+        if not actor_groups & allowed_groups:
+            continue
+        permissions.append(
+            {
+                "repository": rule.get("repository", "*"),
+                "approver_group": rule.get("approver_group", "*"),
+                "actions": sorted(_decision_action_alias(str(item)) for item in rule.get("actions", ["approved", "denied"])),
+                "groups": sorted(allowed_groups),
+            }
+        )
+    return permissions
+
+
 def _approval_repository(approval: dict[str, Any]) -> str | None:
     decision = approval.get("decision", {})
     if not isinstance(decision, dict):

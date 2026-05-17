@@ -147,8 +147,11 @@ Completed:
 - Console security boundary panel for OIDC, RBAC, CORS, permissions, and operator notes.
 - Governed evidence artifact retrieval APIs for indexed sessions.
 - Console evidence artifact panel with individual artifact and bundle download links.
+- `GET /console/session` for signed bearer-token validation.
+- RBAC-enforced approval and break-glass console mutations when OIDC or RBAC is configured.
+- Console Session panel for actor, group, permission, and repository-scope visibility.
 
-Recommended next issue: add deeper OIDC-authenticated console sessions, RBAC enforcement for console actions, and policy-pack authoring workflows.
+Recommended next issue: add policy-pack authoring workflows and validate the production deployment guide for authenticated console/API topologies.
 
 ## Transparent Agent Methodology Enablement
 

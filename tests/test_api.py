@@ -598,6 +598,130 @@ def test_api_approval_actor_token_enforces_oidc_and_repository_rbac(monkeypatch,
     assert config["approval_rbac"] == "configured"
 
 
+def test_api_console_session_and_authorization_header_enforce_rbac(monkeypatch, tmp_path) -> None:
+    token, jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-console",
+            "sub": "user-123",
+            "email": "owner@example.com",
+            "groups": ["github-team:payments-owners"],
+            "repository": "payments/api",
+            "exp": int(time.time()) + 300,
+        }
+    )
+    oidc_config = tmp_path / "oidc.json"
+    rbac_file = tmp_path / "rbac.json"
+    oidc_config.write_text(
+        json.dumps({"issuer": "https://issuer.example", "audience": "cavra-console", "jwks": jwks}),
+        encoding="utf-8",
+    )
+    rbac_file.write_text(
+        json.dumps(
+            {
+                "approval_rbac": {
+                    "group_mappings": {"github-team:payments-owners": "Payments Owners"},
+                    "repository_permissions": [
+                        {
+                            "repository": "payments/api",
+                            "approver_group": "IAM",
+                            "groups": ["Payments Owners"],
+                            "actions": ["approved", "denied"],
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_OIDC_CONFIG", str(oidc_config))
+    monkeypatch.setenv("CAVRA_APPROVAL_RBAC_FILE", str(rbac_file))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    decision["repository"] = "payments/api"
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    unauthenticated = client.get("/console/session")
+    authenticated = client.get("/console/session", headers={"authorization": f"Bearer {token}"})
+    rejected = client.post(f"/approvals/{approval_id}/approve", json={"reason": "Missing actor context."})
+    accepted = client.post(
+        f"/approvals/{approval_id}/approve",
+        headers={"authorization": f"Bearer {token}"},
+        json={"reason": "Repository owner via console session."},
+    )
+
+    assert unauthenticated.status_code == 200
+    assert unauthenticated.json()["mode"] == "auth_required"
+    assert authenticated.status_code == 200
+    assert authenticated.json()["authenticated"] is True
+    assert authenticated.json()["actor"]["actor"] == "owner@example.com"
+    assert authenticated.json()["repository_permissions"][0]["repository"] == "payments/api"
+    assert rejected.status_code == 401
+    assert accepted.status_code == 200
+    assert accepted.json()["decided_by"] == "owner@example.com"
+
+
+def test_api_console_break_glass_requires_authorized_oidc_actor(monkeypatch, tmp_path) -> None:
+    cab_token, jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-console",
+            "sub": "cab-user",
+            "email": "cab@example.com",
+            "groups": ["Change Advisory Board"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+    dev_token, _unused_jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-console",
+            "sub": "dev-user",
+            "email": "dev@example.com",
+            "groups": ["Developers"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+    oidc_config = tmp_path / "oidc.json"
+    rbac_file = tmp_path / "rbac.json"
+    oidc_config.write_text(
+        json.dumps({"issuer": "https://issuer.example", "audience": "cavra-console", "jwks": jwks}),
+        encoding="utf-8",
+    )
+    rbac_file.write_text('{"approval_rbac":{"group_mappings":{}}}', encoding="utf-8")
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_OIDC_CONFIG", str(oidc_config))
+    monkeypatch.setenv("CAVRA_APPROVAL_RBAC_FILE", str(rbac_file))
+    client = TestClient(create_app())
+    payload = {
+        "decision": {
+            "decision_id": "dec_break_glass",
+            "session_id": "console-session",
+            "action_type": "execute_command",
+            "target": "terraform apply",
+            "rule_id": "commands.block",
+            "decision": "block",
+            "severity": "critical",
+        },
+        "reason": "Emergency production recovery.",
+    }
+
+    missing = client.post("/approvals/break-glass", json=payload)
+    forbidden = client.post("/approvals/break-glass", headers={"authorization": f"Bearer {dev_token}"}, json=payload)
+    accepted = client.post("/approvals/break-glass", headers={"authorization": f"Bearer {cab_token}"}, json=payload)
+
+    assert missing.status_code == 401
+    assert forbidden.status_code == 401
+    assert accepted.status_code == 200
+    assert accepted.json()["requested_by"] == "cab@example.com"
+    assert accepted.json()["state"] == "break_glass"
+
+
 def test_api_approval_actor_token_rejects_without_oidc_config(monkeypatch, tmp_path) -> None:
     token, _jwks = _signed_rs256_token(
         {

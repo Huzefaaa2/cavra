@@ -5,6 +5,7 @@ Phase 6 now reports the deployed console/API security boundary.
 ## What It Provides
 
 - Read-only `GET /console/security-boundary`.
+- Read-only `GET /console/session` for signed bearer-token actor context.
 - OIDC readiness from `CAVRA_APPROVAL_OIDC_CONFIG`.
 - Repository RBAC readiness from `CAVRA_APPROVAL_RBAC_FILE`.
 - CORS origin visibility from `CAVRA_CORS_ORIGINS`.
@@ -21,7 +22,7 @@ The sandbox console displays the same information in the Console Security Bounda
 
 ## Boundary
 
-This endpoint does not authenticate users by itself. It reports whether the console/API topology is ready for signed OIDC actor tokens and repository RBAC on approval decisions. Production deployments should host the console behind enterprise identity and restrict CORS.
+The boundary endpoint reports whether the console/API topology is ready for signed OIDC actor tokens and repository RBAC on approval decisions. `GET /console/session` validates a bearer token and reports actor context. Production deployments should host the console behind enterprise identity and restrict CORS.
 
 ## User Stories
 
@@ -31,4 +32,4 @@ This endpoint does not authenticate users by itself. It reports whether the cons
 
 ## Next
 
-The next recommended work is deeper OIDC-authenticated console sessions, repository RBAC enforcement for console actions, and policy-pack authoring workflows.
+The next recommended work is policy-pack authoring workflows and production deployment guide validation.

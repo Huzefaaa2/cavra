@@ -29,7 +29,7 @@
 
   <rect class="bg" width="1440" height="980"/>
   <text x="54" y="54" class="title">CAVRA C4 Container View</text>
-  <text x="54" y="80" class="subtitle">Runtime authority, evidence artifact retrieval, rollout drill-downs, integration inventory, and security boundary controls.</text>
+  <text x="54" y="80" class="subtitle">Runtime authority, evidence retrieval, console sessions, rollout drill-downs, integrations, and security boundary controls.</text>
 
   <rect x="54" y="108" width="210" height="72" rx="8" class="actor"/>
   <text x="78" y="136" class="node-title">Developer</text>

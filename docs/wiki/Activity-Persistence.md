@@ -31,6 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Deeper OIDC-authenticated console sessions.
-- Repository RBAC enforcement for console actions.
 - Policy-pack authoring and rollout change workflows.
+- Production deployment guide validation for authenticated console/API topologies.

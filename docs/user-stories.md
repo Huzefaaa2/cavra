@@ -20,6 +20,8 @@ As a platform engineer, I want reusable policy packs and repository overrides, s
 
 As a platform engineer, I want Docker, API, CLI, and future Go enforcement modes, so CAVRA can run locally, in CI, self-hosted, or air-gapped.
 
+As a platform engineer, I want the console to validate signed OIDC bearer tokens and show repository-scoped permissions, so browser-visible actions use the same identity boundary as approval workflows.
+
 ## DevSecOps
 
 As a DevSecOps engineer, I want GitHub required checks and SIEM exports, so CAVRA decisions become part of existing SDLC controls.

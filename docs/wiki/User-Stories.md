@@ -8,6 +8,8 @@ I can use Claude Code with CAVRA so secret files, destructive commands, unknown 
 
 I can define reusable policy packs so teams get a consistent safety floor without rebuilding controls for every repository.
 
+I can validate signed OIDC console session context and repository-scoped permissions before browser-visible approval actions are accepted.
+
 ## CISO
 
 I can govern AI-agent engineering actions before they touch code, cloud, Git, MCP, or production workflows.
