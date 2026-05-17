@@ -38,3 +38,32 @@ def test_sqlite_approval_router_migration(tmp_path: Path) -> None:
         row = connection.execute("SELECT approver_group FROM approvals WHERE approval_id = ?", ("apr_1",)).fetchone()
 
     assert row[0] == "IAM"
+
+
+def test_sqlite_integrations_inventory_migration(tmp_path: Path) -> None:
+    migration = Path("migrations/sqlite/006_integrations_inventory.sql")
+    database = tmp_path / "integrations.db"
+
+    with sqlite3.connect(database) as connection:
+        connection.executescript(migration.read_text(encoding="utf-8"))
+        connection.execute(
+            """
+            INSERT INTO integrations (
+                integration_id, provider, category, status, owner, environment, health_status, updated_at, payload
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "github",
+                "github",
+                "source_control",
+                "active",
+                "Platform",
+                "production",
+                "healthy",
+                "2026-05-18T00:00:00Z",
+                "{}",
+            ),
+        )
+        row = connection.execute("SELECT health_status FROM integrations WHERE integration_id = ?", ("github",)).fetchone()
+
+    assert row[0] == "healthy"

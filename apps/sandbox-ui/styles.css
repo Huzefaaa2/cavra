@@ -39,6 +39,7 @@ tr:last-child td { border-bottom: 0; }
 .activity-console h3 { margin: 0 0 10px; }
 .activity-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; }
 .inventory-console h3 { margin: 0 0 10px; }
+.integration-console h3 { margin: 0 0 10px; }
 .inventory-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; }
 .approval-workbench { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 520px); gap: 18px; }
 .registry-console h3 { margin: 0 0 10px; }

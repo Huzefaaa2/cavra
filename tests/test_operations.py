@@ -15,6 +15,7 @@ def _env(tmp_path: Path) -> dict[str, str]:
     return {
         "CAVRA_ACTIVITY_STORE": str(tmp_path / "activity.json"),
         "CAVRA_INVENTORY_DB": str(tmp_path / "inventory.db"),
+        "CAVRA_INTEGRATION_STORE": str(tmp_path / "integrations.json"),
         "CAVRA_EVIDENCE_METADATA_STORE": str(tmp_path / "evidence.json"),
         "CAVRA_APPROVAL_STORE": str(tmp_path / "approvals.json"),
         "CAVRA_REGISTRY_STORE": str(tmp_path / "registry.json"),
@@ -27,7 +28,7 @@ def test_persistent_api_store_status_reports_active_modes(tmp_path: Path) -> Non
 
     status = persistent_api_store_status(env)
 
-    assert status["total"] == 5
+    assert status["total"] == 6
     activity = next(item for item in status["items"] if item["name"] == "activity")
     inventory = next(item for item in status["items"] if item["name"] == "inventory")
     assert activity["kind"] == "json"
@@ -45,7 +46,7 @@ def test_backup_and_restore_persistent_api_stores(tmp_path: Path) -> None:
     backup = backup_persistent_api_stores(tmp_path / "backup", env=env)
     restored = restore_persistent_api_backup(tmp_path / "backup" / "manifest.json", env=env, target_dir=tmp_path / "restore")
 
-    assert len(backup["stores"]) == 5
+    assert len(backup["stores"]) == 6
     assert restored["restored_count"] == 2
     assert json.loads((tmp_path / "restore" / "activity.json").read_text(encoding="utf-8"))["sessions"][0]["session_id"] == "s1"
     with sqlite3.connect(tmp_path / "restore" / "inventory.db") as connection:

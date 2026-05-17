@@ -138,8 +138,12 @@ Completed:
 - `cavra ops restore` for checksum-validated restore to test or live paths.
 - `cavra ops retention-plan` for JSON and Markdown retention-control artifacts.
 - Read-only `/operations/stores` and `/operations/retention-plan` API endpoints.
+- JSON and SQLite integration inventory stores.
+- SQLite migration `006_integrations_inventory.sql`.
+- `GET` and `POST` integration inventory API endpoints with provider, category, status, owner, environment, and health filters.
+- Console Enterprise Integrations inventory view.
 
-Recommended next issue: add integrations inventory persistence, policy-pack catalog drill-downs, OIDC-ready console auth/RBAC boundaries, and hosted attestation artifact retrieval.
+Recommended next issue: add policy-pack catalog drill-downs, OIDC-ready console auth/RBAC boundaries, and hosted attestation artifact retrieval.
 
 ## Transparent Agent Methodology Enablement
 

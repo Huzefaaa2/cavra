@@ -11,6 +11,7 @@ The operational commands inspect the active API persistence mode for:
 - Agent and MCP registry records.
 - Activity sessions and decisions.
 - Repository inventory and policy rollouts.
+- Enterprise integration inventory.
 
 The CLI resolves the same environment variables used by the API. If a SQLite environment variable is set, SQLite is treated as the active store. Otherwise the JSON store path or API default is used.
 

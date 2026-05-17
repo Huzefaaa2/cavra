@@ -197,7 +197,7 @@ CAVRA allows read-only planning workflows such as `terraform plan`, while blocki
 
 ## Enterprise integrations
 
-The repository includes reference paths for GitHub, GitLab, Azure DevOps, pre-commit, Docker, Kubernetes, Microsoft Sentinel, Splunk, Datadog, ServiceNow, Jira, Slack, Microsoft Teams, immutable evidence stores, Entra ID, Okta, SAML, and RBAC. Planned integrations are labeled as reference architecture until implemented.
+The repository includes reference paths for GitHub, GitLab, Azure DevOps, pre-commit, Docker, Kubernetes, Microsoft Sentinel, Splunk, Datadog, ServiceNow, Jira, Slack, Microsoft Teams, immutable evidence stores, Entra ID, Okta, SAML, and RBAC. CAVRA now persists integration inventory records through JSON or SQLite so owners, status, health, capabilities, and evidence references are visible through the API and console. Planned live integrations remain labeled as reference architecture until implemented.
 
 ## Compliance packs
 
@@ -205,13 +205,13 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout status, evidence metadata search, PR attestation verification, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout status, enterprise integration inventory, evidence metadata search, PR attestation verification, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisions, inspect repository policy rollout status, filter evidence metadata, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
+Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisions, inspect repository policy rollout status, review enterprise integration health, filter evidence metadata, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
 
@@ -230,7 +230,7 @@ Current phase status:
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
-- Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, persistent API backup/restore/retention operations, API filters, console Activity Explorer views, and console repository/rollout views.
+- Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane.
 - Phase 8: Enterprise Integrations.
 - Phase 9: Public Sandbox and Growth Loop.
@@ -238,7 +238,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Continue Phase 6 with integrations inventory persistence, policy rollout drill-downs, and OIDC-ready console auth/RBAC boundaries.
+- Continue Phase 6 with policy rollout drill-downs and OIDC-ready console auth/RBAC boundaries.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value
@@ -270,6 +270,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Agent Orchestration Architecture](docs/wiki/Agent-Orchestration-Architecture.md)
 - [Repository Inventory and Policy Rollout](docs/wiki/Repository-Policy-Rollout.md)
 - [Persistent API Operations](docs/wiki/Persistent-API-Operations.md)
+- [Integration Inventory](docs/wiki/Integration-Inventory.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

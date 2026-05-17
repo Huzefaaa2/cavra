@@ -4,7 +4,7 @@ Phase 6 now includes backup, restore, and retention controls for CAVRA's persist
 
 ## What It Provides
 
-- Store status reporting for evidence metadata, approvals, registry, activity, and repository inventory.
+- Store status reporting for evidence metadata, approvals, registry, activity, repository inventory, and integration inventory.
 - Checksum-backed backups for active JSON and SQLite stores.
 - Restore with checksum validation and non-overwrite default behavior.
 - Retention-plan artifacts in JSON and Markdown.
@@ -40,4 +40,4 @@ CAVRA governance records become enterprise evidence only if they survive outages
 
 ## Next
 
-The next recommended Phase 6 step is integrations inventory persistence and console views.
+The next recommended Phase 6 step is policy rollout drill-downs and OIDC-ready console auth/RBAC boundaries.

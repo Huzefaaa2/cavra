@@ -18,6 +18,7 @@ from cavra.approvals import (
     load_routing_rules,
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
+from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
 from cavra.policy_registry import PolicyRegistry
@@ -88,6 +89,11 @@ def create_app():
         if os.environ.get("CAVRA_INVENTORY_DB")
         else InventoryStore(Path(os.environ.get("CAVRA_INVENTORY_STORE", ".cavra/api/inventory.json")))
     )
+    integration_store = (
+        SQLiteIntegrationStore(Path(os.environ["CAVRA_INTEGRATION_DB"]))
+        if os.environ.get("CAVRA_INTEGRATION_DB")
+        else IntegrationStore(Path(os.environ.get("CAVRA_INTEGRATION_STORE", ".cavra/api/integrations.json")))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -104,6 +110,7 @@ def create_app():
         registry_mode = "sqlite" if isinstance(registry_store, SQLiteRegistryStore) else "json"
         activity_mode = "sqlite" if isinstance(activity_store, SQLiteActivityStore) else "json"
         inventory_mode = "sqlite" if isinstance(inventory_store, SQLiteInventoryStore) else "json"
+        integration_mode = "sqlite" if isinstance(integration_store, SQLiteIntegrationStore) else "json"
         return {
             "product": "CAVRA",
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
@@ -112,6 +119,7 @@ def create_app():
             "registry_mode": registry_mode,
             "activity_mode": activity_mode,
             "inventory_mode": inventory_mode,
+            "integration_mode": integration_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
@@ -127,6 +135,7 @@ def create_app():
                 "policy_rollouts": "/policy-rollouts",
                 "operations_stores": "/operations/stores",
                 "operations_retention_plan": "/operations/retention-plan",
+                "integrations": "/integrations",
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
@@ -364,6 +373,37 @@ def create_app():
         return registry_store.evaluate_mcp(server, tool, capability)
 
     @app.get("/integrations")
+    def integration_index(
+        provider: Optional[str] = None,
+        category: Optional[str] = None,
+        status: Optional[str] = None,
+        owner: Optional[str] = None,
+        environment: Optional[str] = None,
+        health_status: Optional[str] = None,
+    ) -> dict:
+        return integration_store.list_integrations(
+            provider=provider,
+            category=category,
+            status=status,
+            owner=owner,
+            environment=environment,
+            health_status=health_status,
+        )
+
+    @app.post("/integrations")
+    def upsert_integration(payload: dict) -> dict:
+        try:
+            return integration_store.upsert_integration(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="invalid integration record") from exc
+
+    @app.get("/integrations/{integration_id}")
+    def integration_item(integration_id: str) -> dict:
+        item = integration_store.get_integration(integration_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="integration not found")
+        return item
+
     @app.get("/risk/events")
     @app.get("/compliance/mappings")
     def empty_collection() -> list[dict]:

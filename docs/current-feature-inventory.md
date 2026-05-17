@@ -1,6 +1,6 @@
 # Current Feature Inventory
 
-Implemented modules: policy registry, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, approval router, evidence hub, activity persistence, repository inventory, policy rollout persistence, persistent API operations, Typer CLI, MCP server, FastAPI app, sandbox decision model.
+Implemented modules: policy registry, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, approval router, evidence hub, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, Typer CLI, MCP server, FastAPI app, sandbox decision model.
 
 Existing CLI commands: `version`, `evaluate`, `agent start`, `agent exec`, `agent attest`, `policy list`, `policy describe`, `policy validate`, `policy test`, `policy explain`, `policy compile`, `policy diff`, `policy sign`, `policy verify`, `policy simulate`, `policy dry-run`, `policy init`, `ops stores`, `ops backup`, `ops restore`, `ops retention-plan`, `init claude-code`, `demo before-the-agent-acts`.
 
@@ -16,7 +16,9 @@ Activity persistence: `POST /decisions` evaluates and persists decisions, `GET /
 
 Repository inventory and policy rollout persistence: `POST /repositories` upserts repository scope, ownership, status, protected branch, required check, risk tier, and active policy metadata; `GET /repositories` searches by provider, owner, policy pack, status, and risk tier; `POST /policy-rollouts` upserts rollout mode, state, owner, version, coverage, and evidence references; and `GET /policy-rollouts` searches by repository, policy pack, state, mode, and owner. JSON and SQLite stores are supported through `CAVRA_INVENTORY_STORE` and `CAVRA_INVENTORY_DB`.
 
-Persistent API operations: `ops stores` reports active JSON/SQLite persistence paths, `ops backup` writes checksum-backed JSON and SQLite backups, `ops restore` validates backup checksums before copying stores to a test or live path, and `ops retention-plan` exports JSON and Markdown retention controls. The API exposes read-only `/operations/stores` and `/operations/retention-plan`.
+Integration inventory persistence: `POST /integrations` upserts provider, category, owner, environment, auth mode, endpoint reference, status, health status, capability, repository scope, and evidence metadata; `GET /integrations` searches by provider, category, status, owner, environment, and health status. JSON and SQLite stores are supported through `CAVRA_INTEGRATION_STORE` and `CAVRA_INTEGRATION_DB`.
+
+Persistent API operations: `ops stores` reports active JSON/SQLite persistence paths, `ops backup` writes checksum-backed JSON and SQLite backups, `ops restore` validates backup checksums before copying stores to a test or live path, and `ops retention-plan` exports JSON and Markdown retention controls. The API exposes read-only `/operations/stores` and `/operations/retention-plan`, and operations now include integration inventory stores.
 
 Agent and MCP registry: `registry agent-register`, `registry agent-list`, `registry profiles`, `registry mcp-register`, `registry mcp-list`, `registry mcp-check`, `registry mcp-classifications`, and `registry migrate` support JSON/SQLite governed agent identities, MCP trust tiers, approved tools, capabilities, owner, approval state, last-seen metadata, predefined agent capability profiles, MCP tool classifications, console registry views, and registry-backed MCP runtime decisions.
 
@@ -24,6 +26,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: packaged Go backend, hosted sandbox deployment, hosted attestation artifact retrieval, integrations inventory persistence, policy rollout drill-downs, OIDC-ready console auth/RBAC boundaries, and vendor-specific hooks beyond the MCP/CLI path.
+Known gaps: packaged Go backend, hosted sandbox deployment, hosted attestation artifact retrieval, policy rollout drill-downs, OIDC-ready console auth/RBAC boundaries, and vendor-specific hooks beyond the MCP/CLI path.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.

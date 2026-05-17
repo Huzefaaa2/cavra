@@ -51,6 +51,7 @@ Management plane:
 - Agent Registry and MCP Trust Registry with JSON/SQLite persistence.
 - Activity persistence for sessions and decisions.
 - Repository inventory and policy rollout persistence.
+- Integration inventory persistence.
 - Persistent API backup, restore, and retention operations.
 - FastAPI backend.
 - Claude Code and MCP adapters.
@@ -102,7 +103,7 @@ The path to production readiness is:
 3. Evidence hub and attestation. This phase is near complete and includes signed evidence, SIEM exports, retention, trust roots, metadata search, and console evidence views.
 4. Approval router. This phase is complete for the current production-readiness slice and includes approval routing, OIDC/JWKS, repository RBAC, provider delivery, break-glass, and audit views.
 5. Agent Registry and MCP Trust Registry. This phase is complete for the current production-readiness slice and includes JSON/SQLite registry persistence, agent profiles, MCP capability classification, console views, and registry-backed runtime decisions.
-6. Console and persistent API. This phase has started with durable sessions, decisions, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, console Activity Explorer views, and repository/rollout console views. Integrations inventory, policy-pack drill-downs, OIDC-ready console boundaries, and hosted attestation retrieval are next.
+6. Console and persistent API. This phase has started with durable sessions, decisions, repository inventory, policy rollout persistence, integration inventory persistence, persistent API backup/restore/retention operations, console Activity Explorer views, and repository/rollout/integration console views. Policy-pack drill-downs, OIDC-ready console boundaries, and hosted attestation retrieval are next.
 7. Go enforcement plane.
 8. Enterprise integrations.
 9. Public sandbox and growth loop.

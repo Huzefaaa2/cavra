@@ -50,6 +50,12 @@ PERSISTENT_API_STORES = [
         "json_default": ".cavra/api/inventory.json",
         "sqlite_env": "CAVRA_INVENTORY_DB",
     },
+    {
+        "name": "integrations",
+        "json_env": "CAVRA_INTEGRATION_STORE",
+        "json_default": ".cavra/api/integrations.json",
+        "sqlite_env": "CAVRA_INTEGRATION_DB",
+    },
 ]
 
 

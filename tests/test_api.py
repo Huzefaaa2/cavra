@@ -160,7 +160,7 @@ def test_api_operations_store_status_and_retention_plan(monkeypatch, tmp_path) -
     stores = client.get("/operations/stores").json()
     retention = client.get("/operations/retention-plan", params={"retention_days": 365, "legal_hold": True}).json()
 
-    assert stores["total"] == 5
+    assert stores["total"] == 6
     assert any(item["name"] == "activity" for item in stores["items"])
     assert retention["retention_days"] == 365
     assert retention["legal_hold"] is True
@@ -221,6 +221,54 @@ def test_api_sqlite_inventory_store(monkeypatch, tmp_path) -> None:
     assert client.get("/repositories", params={"owner": "Platform"}).json()["total"] == 1
     assert client.get("/policy-rollouts", params={"state": "planned"}).json()["total"] == 1
     assert config["inventory_mode"] == "sqlite"
+
+
+def test_api_integrations_inventory(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INTEGRATION_DB", raising=False)
+    monkeypatch.setenv("CAVRA_INTEGRATION_STORE", str(tmp_path / "integrations.json"))
+    client = TestClient(create_app())
+
+    created = client.post(
+        "/integrations",
+        json={
+            "integration_id": "github-enterprise",
+            "provider": "github",
+            "name": "GitHub Enterprise",
+            "category": "source_control",
+            "status": "active",
+            "health_status": "healthy",
+            "owner": "Developer Platform",
+            "environment": "production",
+            "capabilities": ["required_check", "pull_request"],
+        },
+    )
+
+    assert created.status_code == 200
+    assert client.get("/integrations", params={"category": "source_control"}).json()["total"] == 1
+    assert client.get("/integrations/github-enterprise").json()["provider"] == "github"
+
+
+def test_api_sqlite_integrations_inventory(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INTEGRATION_STORE", raising=False)
+    monkeypatch.setenv("CAVRA_INTEGRATION_DB", str(tmp_path / "integrations.db"))
+    client = TestClient(create_app())
+
+    created = client.post(
+        "/integrations",
+        json={
+            "integration_id": "splunk-soc",
+            "provider": "splunk",
+            "category": "siem",
+            "status": "configured",
+            "health_status": "not_checked",
+            "owner": "SOC",
+        },
+    )
+    config = client.get("/console/config").json()
+
+    assert created.status_code == 200
+    assert client.get("/integrations", params={"owner": "SOC"}).json()["total"] == 1
+    assert config["integration_mode"] == "sqlite"
 
 
 def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:

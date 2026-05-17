@@ -37,6 +37,20 @@ Set `CAVRA_INVENTORY_STORE` to override the JSON path. Set `CAVRA_INVENTORY_DB` 
 
 Inventory records track repository ID, provider, owner, business unit, environment, active policy pack, risk tier, status, protected branches, required checks, and evidence references. Rollout records track repository, policy pack, policy version, rollout mode, rollout state, owner, coverage percentage, last evaluation time, and evidence references.
 
+## Integrations Inventory
+
+Integration endpoints:
+
+- `GET /integrations`: list enterprise integration records with optional `provider`, `category`, `status`, `owner`, `environment`, and `health_status` filters.
+- `POST /integrations`: create or update an integration record.
+- `GET /integrations/{integration_id}`: fetch one integration record.
+
+Default integration path: `.cavra/api/integrations.json`.
+
+Set `CAVRA_INTEGRATION_STORE` to override the JSON path. Set `CAVRA_INTEGRATION_DB` to use SQLite-backed integration inventory persistence. `GET /console/config` includes `integration_mode`.
+
+Integration records track provider, category, owner, environment, auth mode, endpoint reference, status, health status, capabilities, scoped repositories, last check time, and evidence references.
+
 ## Persistent API Operations
 
 Read-only operations endpoints:
@@ -121,7 +135,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including operations status and retention-plan endpoints. Configure cross-origin deployments with:
 

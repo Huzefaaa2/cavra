@@ -155,6 +155,45 @@ const rolloutCatalog = [
   }
 ];
 
+const integrationCatalog = [
+  {
+    integration_id: "github-enterprise",
+    provider: "github",
+    name: "GitHub Enterprise",
+    category: "source_control",
+    status: "active",
+    health_status: "healthy",
+    owner: "Developer Platform",
+    environment: "production",
+    auth_mode: "github_app",
+    capabilities: ["required_check", "pull_request", "branch_protection"]
+  },
+  {
+    integration_id: "splunk-soc",
+    provider: "splunk",
+    name: "Splunk SOC",
+    category: "siem",
+    status: "configured",
+    health_status: "not_checked",
+    owner: "SOC",
+    environment: "production",
+    auth_mode: "hec_token",
+    capabilities: ["decision_events", "blocked_action_alerts"]
+  },
+  {
+    integration_id: "jira-change",
+    provider: "jira",
+    name: "Jira Change",
+    category: "itsm",
+    status: "planned",
+    health_status: "unknown",
+    owner: "Change Management",
+    environment: "production",
+    auth_mode: "oauth",
+    capabilities: ["approval_ticket", "change_reference"]
+  }
+];
+
 const approvalCatalog = [
   {
     approval_id: "apr_demo_iam",
@@ -437,6 +476,24 @@ async function loadPolicyRollouts() {
   }
 }
 
+async function loadIntegrations() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      category: document.querySelector("#filterIntegrationCategory")?.value,
+      status: document.querySelector("#filterIntegrationStatus")?.value,
+      health_status: document.querySelector("#filterIntegrationHealth")?.value,
+      owner: document.querySelector("#filterIntegrationOwner")?.value.trim()
+    };
+    const response = await fetch(apiUrl("/integrations", params));
+    if (!response.ok) throw new Error("Integration API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return integrationCatalog;
+  }
+}
+
 async function loadApprovals() {
   await loadConsoleConfig();
   try {
@@ -566,6 +623,18 @@ function filterPolicyRollouts(items) {
     .filter((item) => !mode || item.mode === mode);
 }
 
+function filterIntegrations(items) {
+  const category = document.querySelector("#filterIntegrationCategory").value;
+  const status = document.querySelector("#filterIntegrationStatus").value;
+  const health = document.querySelector("#filterIntegrationHealth").value;
+  const owner = document.querySelector("#filterIntegrationOwner").value.trim().toLowerCase();
+  return items
+    .filter((item) => !category || item.category === category)
+    .filter((item) => !status || item.status === status)
+    .filter((item) => !health || item.health_status === health)
+    .filter((item) => !owner || String(item.owner || "").toLowerCase().includes(owner));
+}
+
 function filterApprovals(items) {
   const state = document.querySelector("#filterApprovalState").value;
   const group = document.querySelector("#filterApprovalGroup").value.trim().toLowerCase();
@@ -674,9 +743,28 @@ function renderInventoryRows(repositories, rollouts) {
   }
 }
 
+function renderIntegrationRows(integrations) {
+  const integrationRows = document.querySelector("#integrationRows");
+  integrationRows.innerHTML = "";
+  for (const item of integrations) {
+    const capabilities = Array.isArray(item.capabilities) && item.capabilities.length ? item.capabilities.join(", ") : "not configured";
+    integrationRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.name || item.integration_id || item.provider || "unknown")}</td>
+        <td>${escapeHtml(item.category || "security")}</td>
+        <td class="${riskClass(item.status)}">${escapeHtml(item.status || "planned")}</td>
+        <td class="${riskClass(item.health_status)}">${escapeHtml(item.health_status || "not_checked")}</td>
+        <td>${escapeHtml(item.owner || "platform-security")}</td>
+        <td>${escapeHtml(item.environment || "global")}</td>
+        <td>${escapeHtml(capabilities)}</td>
+      </tr>
+    `);
+  }
+}
+
 function riskClass(value) {
-  if (value === "critical" || value === "high" || value === "blocked" || value === "denied" || value === "strict") return "block";
-  if (value === "medium" || value === "experimental" || value === "pending" || value === "planned" || value === "audit_only") return "require_approval";
+  if (value === "critical" || value === "high" || value === "blocked" || value === "denied" || value === "strict" || value === "failed" || value === "disabled") return "block";
+  if (value === "medium" || value === "experimental" || value === "pending" || value === "planned" || value === "audit_only" || value === "degraded" || value === "not_checked" || value === "configured") return "require_approval";
   return "allow";
 }
 
@@ -802,6 +890,11 @@ async function refreshActivity() {
 async function refreshInventory() {
   const [repositories, rollouts] = await Promise.all([loadRepositories(), loadPolicyRollouts()]);
   renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
+}
+
+async function refreshIntegrations() {
+  const items = filterIntegrations(await loadIntegrations());
+  renderIntegrationRows(items);
 }
 
 async function refreshApprovals() {
@@ -944,6 +1037,7 @@ document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
+document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
@@ -965,5 +1059,6 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 refreshEvidence();
 refreshActivity();
 refreshInventory();
+refreshIntegrations();
 refreshApprovals();
 refreshRegistry();

@@ -29,7 +29,7 @@
 
   <rect class="bg" width="1440" height="980"/>
   <text x="54" y="54" class="title">CAVRA C4 Container View</text>
-  <text x="54" y="80" class="subtitle">Runtime authority, evidence, repository inventory, rollout metadata, operations controls, and enterprise integrations.</text>
+  <text x="54" y="80" class="subtitle">Runtime authority, evidence, repository, rollout, integration inventory, and operations controls.</text>
 
   <rect x="54" y="108" width="210" height="72" rx="8" class="actor"/>
   <text x="78" y="136" class="node-title">Developer</text>
@@ -81,7 +81,7 @@
   <rect x="1064" y="276" width="230" height="62" rx="7" class="store"/>
   <text x="1080" y="295" class="node-title">Metadata and Activity</text>
   <text x="1080" y="311" class="node-text">Sessions, decisions, approvals</text>
-  <text x="1080" y="326" class="node-text">Repos, rollouts, ops plans</text>
+  <text x="1080" y="326" class="node-text">Repos, rollouts, integrations</text>
   <rect x="1064" y="350" width="230" height="46" rx="7" class="store"/>
   <text x="1080" y="369" class="node-title">Bundle Store</text>
   <text x="1080" y="385" class="node-text">Filesystem and immutable plans</text>

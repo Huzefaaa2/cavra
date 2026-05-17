@@ -150,6 +150,37 @@
           </div>
         </div>
       </section>
+      <section class="console integration-console">
+        <div class="console-header">
+          <div>
+            <h2>Enterprise Integrations</h2>
+            <p>Track source control, SIEM, ITSM, identity, storage, and ChatOps connectors by owner, status, health, and capability.</p>
+          </div>
+          <button id="refreshIntegrations">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Category <select id="filterIntegrationCategory"><option value="">Any</option><option value="source_control">Source control</option><option value="ci_cd">CI/CD</option><option value="siem">SIEM</option><option value="itsm">ITSM</option><option value="chatops">ChatOps</option><option value="identity">Identity</option><option value="storage">Storage</option><option value="security">Security</option><option value="observability">Observability</option></select></label>
+          <label>Status <select id="filterIntegrationStatus"><option value="">Any</option><option value="planned">Planned</option><option value="configured">Configured</option><option value="active">Active</option><option value="paused">Paused</option><option value="disabled">Disabled</option></select></label>
+          <label>Health <select id="filterIntegrationHealth"><option value="">Any</option><option value="healthy">Healthy</option><option value="degraded">Degraded</option><option value="failed">Failed</option><option value="not_checked">Not checked</option><option value="unknown">Unknown</option></select></label>
+          <label>Owner <input id="filterIntegrationOwner" placeholder="Developer Platform" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Health</th>
+                <th>Owner</th>
+                <th>Environment</th>
+                <th>Capabilities</th>
+              </tr>
+            </thead>
+            <tbody id="integrationRows"></tbody>
+          </table>
+        </div>
+      </section>
       <section class="console">
         <div class="console-header">
           <div>
