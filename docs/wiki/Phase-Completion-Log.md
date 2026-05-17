@@ -69,7 +69,7 @@ Completed:
 - Idempotent SQLite migration automation with `cavra evidence migrate`.
 - Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: start Phase 5 Agent Registry and MCP Trust Registry. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+Recommended next issue: continue Phase 5 with SQLite registry migrations, console registry views, predefined agent capability profiles, and MCP tool classification. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
 
 ## Phase 4: Approval Router
 
@@ -96,6 +96,21 @@ Completed:
 - Approval audit detail views for lifecycle history, evidence references, decision context, and external references.
 
 Recommended next issue: start Phase 5 with agent registry models/API, MCP server trust tiers, capability metadata, approval state, last-seen metadata, and registry-backed runtime decisions. Keep hosted attestation artifact retrieval as a narrow Phase 3 follow-up.
+
+## Phase 5: Agent Registry and MCP Trust Registry
+
+Status: in progress.
+
+Completed:
+- JSON-backed registry store for governed AI-agent identities.
+- Agent records with ID, type, vendor, version, capabilities, scopes, allowed repositories, allowed tools, risk tier, owner, status, last seen, and evidence references.
+- MCP server trust records with server ID, trust tier, capabilities, owner, approval state, approved tools, last seen, and evidence references.
+- CLI commands for registering and listing agents and MCP servers.
+- API endpoints for `/agents`, `/agents/{agent_id}`, `/mcp/servers`, `/mcp/servers/{server_id}`, and `/mcp/trust`.
+- Registry-backed MCP runtime decisions for approved, unknown, blocked, pending, and out-of-scope MCP tool calls.
+- Unknown MCP server default-deny behavior covered by tests.
+
+Recommended next issue: add SQLite registry persistence and migrations, console registry views, predefined agent capability profiles, and MCP tool classification.
 
 ## Transparent Agent Methodology Enablement
 

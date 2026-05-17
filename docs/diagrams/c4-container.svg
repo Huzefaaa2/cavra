@@ -93,9 +93,9 @@
   <text x="772" y="502" class="node-title">Go Enforcement Plane</text>
   <text x="772" y="520" class="node-text">Planned local and CI enforcement</text>
 
-  <rect x="1042" y="480" width="250" height="54" rx="8" class="planned"/>
+  <rect x="1042" y="480" width="250" height="54" rx="8" class="authority"/>
   <text x="1064" y="502" class="node-title">Agent and MCP Trust Registry</text>
-  <text x="1064" y="520" class="node-text">Planned identities and trust tiers</text>
+  <text x="1064" y="520" class="node-text">JSON-backed trust decisions</text>
 
   <path class="arrow" d="M610 241 L712 241"/>
   <path class="arrow" d="M610 299 L712 241"/>

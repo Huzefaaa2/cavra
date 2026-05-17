@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from cavra.policy_registry import PolicyRegistry
+from cavra.registry import RegistryStore
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,7 @@ class RuntimeGuard:
         session_id: str = "local",
         agent_id: str = "unknown-agent",
         actor: str = "ai-agent",
+        registry_store: RegistryStore | None = None,
     ) -> None:
         self.registry = PolicyRegistry()
         self.policy_pack = policy_pack or "cavra-ai-agent-baseline"
@@ -67,6 +69,7 @@ class RuntimeGuard:
         self.session_id = session_id
         self.agent_id = agent_id
         self.actor = actor
+        self.registry_store = registry_store
         self.sensitive_read = self._patterns("filesystem", "block_read")
         self.sensitive_write = self._patterns("filesystem", "block_write")
         self.approval_write = self._patterns("filesystem", "require_approval_write")
@@ -171,6 +174,18 @@ class RuntimeGuard:
         )
 
     def evaluate_mcp_tool_call(self, server: str, tool: str, capability: str | None = None) -> ActionDecision:
+        if self.registry_store is not None:
+            registry_decision = self.registry_store.evaluate_mcp(server, tool, capability)
+            return self._decision(
+                registry_decision["decision"],
+                registry_decision["reason"],
+                action_type="mcp_tool_call",
+                target=f"{server}:{tool}",
+                requested_operation=capability or tool,
+                rule_id=registry_decision["rule_id"],
+                severity=registry_decision["severity"],
+                approver_group=registry_decision.get("approver_group"),
+            )
         mcp = self.policy.get("mcp", {})
         allowed = set(mcp.get("allowed_servers", []) or [])
         blocked = set(mcp.get("blocked_servers", []) or [])

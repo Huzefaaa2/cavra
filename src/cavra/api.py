@@ -18,6 +18,7 @@ from cavra.approvals import (
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
+from cavra.registry import RegistryStore
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
 
@@ -63,6 +64,7 @@ def create_app():
     provider_config = load_provider_config(Path(os.environ["CAVRA_APPROVAL_PROVIDER_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_PROVIDER_CONFIG") else None
     rbac_rules = load_rbac_rules(Path(os.environ["CAVRA_APPROVAL_RBAC_FILE"])) if os.environ.get("CAVRA_APPROVAL_RBAC_FILE") else {}
     oidc_config = load_oidc_config(Path(os.environ["CAVRA_APPROVAL_OIDC_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_OIDC_CONFIG") else {}
+    registry_store = RegistryStore(Path(os.environ.get("CAVRA_REGISTRY_STORE", ".cavra/api/registry.json")))
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -84,6 +86,7 @@ def create_app():
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
+            "registry_store": str(registry_store.path),
             "cors_origins": cors_origins,
             "endpoints": {
                 "evidence": "/evidence",
@@ -100,7 +103,7 @@ def create_app():
 
     @app.post("/decisions")
     def decisions(payload: dict) -> dict:
-        guard = RuntimeGuard(policy_pack=payload.get("policy_pack") or "cavra-ai-agent-baseline")
+        guard = RuntimeGuard(policy_pack=payload.get("policy_pack") or "cavra-ai-agent-baseline", registry_store=registry_store)
         action_type = payload.get("action_type")
         target = payload.get("target", "")
         if action_type == "read_file":
@@ -113,12 +116,53 @@ def create_app():
             return guard.evaluate_git_action(payload.get("operation", "push"), target).to_dict()
         return guard.evaluate_mcp_tool_call(payload.get("server", "unknown"), payload.get("tool", "unknown"), payload.get("capability")).to_dict()
 
-    @app.get("/sessions")
     @app.get("/agents")
+    def agents(status: Optional[str] = None, owner: Optional[str] = None) -> dict:
+        return registry_store.list_agents(status=status, owner=owner)
+
+    @app.post("/agents")
+    def upsert_agent(payload: dict) -> dict:
+        try:
+            return registry_store.upsert_agent(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/agents/{agent_id}")
+    def agent(agent_id: str) -> dict:
+        item = registry_store.get_agent(agent_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="agent not found")
+        return item
+
+    @app.get("/mcp/servers")
+    def mcp_servers(
+        trust_tier: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        capability: Optional[str] = None,
+    ) -> dict:
+        return registry_store.list_mcp_servers(trust_tier=trust_tier, approval_state=approval_state, capability=capability)
+
+    @app.post("/mcp/servers")
+    def upsert_mcp_server(payload: dict) -> dict:
+        try:
+            return registry_store.upsert_mcp_server(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/mcp/servers/{server_id}")
+    def mcp_server(server_id: str) -> dict:
+        item = registry_store.get_mcp_server(server_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="MCP server not found")
+        return item
+
+    @app.get("/mcp/trust")
+    def mcp_trust(server: str, tool: str = "unknown", capability: Optional[str] = None) -> dict:
+        return registry_store.evaluate_mcp(server, tool, capability)
+
+    @app.get("/sessions")
     @app.get("/repositories")
     @app.get("/integrations")
-    @app.get("/mcp/servers")
-    @app.get("/mcp/trust")
     @app.get("/risk/events")
     @app.get("/compliance/mappings")
     def empty_collection() -> list[dict]:

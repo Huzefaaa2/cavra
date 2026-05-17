@@ -146,14 +146,21 @@ Exit criteria:
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
+Status: in progress.
+
 Goal: make agents and tools governed identities, not anonymous processes.
 
 Implement:
-- Agent registry models and API.
-- Agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
-- MCP server registry with trust tier, capabilities, owner, approval state, and last seen.
-- MCP tool classification for filesystem, shell, network, database, SaaS, and cloud.
-- Unknown MCP server default-deny mode.
+- Agent registry models and API. Delivered.
+- Agent registry CLI commands. Delivered.
+- MCP server registry with trust tier, capabilities, owner, approval state, and last seen. Delivered.
+- MCP trust CLI commands. Delivered.
+- Registry-backed runtime decisions for MCP tool calls. Delivered.
+- Unknown MCP server default-deny mode. Delivered.
+- Agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer. Next.
+- MCP tool classification for filesystem, shell, network, database, SaaS, and cloud. Next.
+- SQLite registry persistence and migrations. Next.
+- Console registry views. Next.
 
 User stories:
 - As an AI governance lead, I can see which agents are active and what they are allowed to do.
@@ -300,7 +307,8 @@ Next recommended implementation phase: Phase 5, Agent Registry and MCP Trust Reg
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Add agent registry models and API for governed AI-agent identities.
-- Add MCP server registry with trust tier, owner, capabilities, approval state, and last-seen metadata.
-- Add registry-backed runtime decisions for known and unknown MCP servers.
+- Add SQLite registry persistence and migrations.
+- Add console views for agent identities and MCP trust records.
+- Add predefined agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
+- Add MCP tool classification for filesystem, shell, network, database, SaaS, and cloud.
 - Add hosted attestation artifact download APIs backed by governed object storage.

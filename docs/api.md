@@ -2,6 +2,22 @@
 
 CAVRA API exposes health, version, policy packs, decisions, sessions, agents, repositories, approvals, evidence, integrations, MCP trust, risk events, compliance mappings, and sandbox endpoints. OpenAPI title: CAVRA API.
 
+## Agent and MCP Registry
+
+Registry endpoints:
+
+- `GET /agents`: list governed AI-agent identities with optional `status` and `owner` filters.
+- `POST /agents`: create or update an agent identity.
+- `GET /agents/{agent_id}`: fetch one agent identity.
+- `GET /mcp/servers`: list MCP server trust records with optional `trust_tier`, `approval_state`, and `capability` filters.
+- `POST /mcp/servers`: create or update an MCP server trust record.
+- `GET /mcp/servers/{server_id}`: fetch one MCP server trust record.
+- `GET /mcp/trust`: evaluate a server, tool, and capability against the MCP Trust Registry.
+
+Default registry path: `.cavra/api/registry.json`.
+
+Set `CAVRA_REGISTRY_STORE` to override the registry store path. When the registry is configured, `/decisions` uses registry-backed MCP trust decisions for `mcp_tool_call` actions.
+
 ## Evidence Metadata
 
 Evidence metadata endpoints:

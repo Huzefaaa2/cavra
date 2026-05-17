@@ -96,6 +96,40 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
 
 
+def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_REGISTRY_STORE", str(tmp_path / "registry.json"))
+    client = TestClient(create_app())
+
+    agent = client.post(
+        "/agents",
+        json={"agent_id": "codex-agent", "vendor": "OpenAI", "capabilities": ["code_edit"], "owner": "Platform AI"},
+    )
+    mcp = client.post(
+        "/mcp/servers",
+        json={
+            "server_id": "github-mcp",
+            "trust_tier": "approved",
+            "approval_state": "approved",
+            "capabilities": ["repository"],
+            "allowed_tools": ["create_pull_request"],
+        },
+    )
+    trust = client.get("/mcp/trust", params={"server": "github-mcp", "tool": "create_pull_request", "capability": "repository"})
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "mcp_tool_call", "server": "github-mcp", "tool": "create_pull_request", "capability": "repository"},
+    )
+    config = client.get("/console/config").json()
+
+    assert agent.status_code == 200
+    assert client.get("/agents").json()["total"] == 1
+    assert mcp.status_code == 200
+    assert client.get("/mcp/servers").json()["total"] == 1
+    assert trust.json()["decision"] == "allow"
+    assert decision.json()["rule_id"] == "mcp.registry.allow"
+    assert config["registry_store"].endswith("registry.json")
+
+
 def test_api_approval_lifecycle(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())

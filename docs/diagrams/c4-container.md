@@ -23,7 +23,7 @@ System_Boundary(cavra, "CAVRA") {
     Container(runtime, "Runtime Guard", "Python", "Pre-action decisions for file, command, Git, MCP, and PR-attestation requests.")
     Container(policy, "Policy Registry", "YAML + JSON Schema", "Policy packs, schema validation, inheritance, semantic diff, and signature metadata.")
     Container(approval, "Approval Router", "Python + JSON/SQLite", "Routes high-risk actions with default or repository rules, validates signed OIDC/JWKS identity and repository RBAC, exports and delivers provider requests, records approval outcomes, and supports console break-glass and audit details.")
-    Container(registry, "Agent and MCP Trust Registry", "Planned service", "Tracks governed agents, MCP servers, trust tiers, owners, and capabilities.")
+    Container(registry, "Agent and MCP Trust Registry", "Python + JSON", "Tracks governed agents, MCP servers, trust tiers, owners, capabilities, approval state, and runtime trust decisions.")
   }
 
   Container_Boundary(evidencePlane, "Evidence and Audit Plane") {
@@ -81,4 +81,4 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
 - Evidence and Audit Plane converts decisions into verifier-ready artifacts, SIEM payloads, metadata, retention controls, and immutable storage plans.
-- Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence.
+- Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has a JSON-backed implementation for governed agent identities and MCP trust decisions.

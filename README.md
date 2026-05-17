@@ -216,7 +216,7 @@ Current phase status:
 - Phase 2: Policy Engine Hardening - complete in PR #1.
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
-- Phase 5: Agent Registry and MCP Trust Registry.
+- Phase 5: Agent Registry and MCP Trust Registry - in progress in PR #1 with JSON-backed agent and MCP trust records, API and CLI access, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
 - Phase 8: Enterprise Integrations.
@@ -225,7 +225,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Start Phase 5 Agent Registry and MCP Trust Registry with governed agent identities and MCP trust tiers.
+- Expand Phase 5 with SQLite migrations, console registry views, and richer agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value
