@@ -41,6 +41,61 @@
           <pre id="evidence">Simulated AI-agent scenario using real CAVRA policy decisions.</pre>
         </div>
       </section>
+      <section class="console activity-console">
+        <div class="console-header">
+          <div>
+            <h2>Activity Explorer</h2>
+            <p>Browse persisted sessions and decisions by repository, agent, policy, outcome, and severity.</p>
+          </div>
+          <button id="refreshActivity">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Repository <input id="filterActivityRepository" placeholder="payments/api" /></label>
+          <label>Agent <input id="filterActivityAgent" placeholder="codex-agent" /></label>
+          <label>Policy <input id="filterActivityPolicy" placeholder="cavra-ai-agent-baseline" /></label>
+          <label>Decision <select id="filterDecisionState"><option value="">Any</option><option value="allow">Allow</option><option value="block">Block</option><option value="require_approval">Require approval</option><option value="warn">Warn</option><option value="allow_with_attestation">Allow with attestation</option></select></label>
+          <label>Severity <select id="filterDecisionSeverity"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+        </div>
+        <div class="activity-grid">
+          <div>
+            <h3>Sessions</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Session</th>
+                    <th>Repository</th>
+                    <th>Agent</th>
+                    <th>Decisions</th>
+                    <th>Blocked</th>
+                    <th>Approvals</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Decisions</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Decision</th>
+                    <th>Outcome</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Rule</th>
+                    <th>Severity</th>
+                  </tr>
+                </thead>
+                <tbody id="decisionRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
       <section class="console">
         <div class="console-header">
           <div>

@@ -20,6 +20,8 @@ Phase 4, Approval Router, is complete for the current production-readiness slice
 
 Phase 5, Agent Registry and MCP Trust Registry, is complete for the current production-readiness slice. It includes JSON and SQLite governed agent identities, MCP server trust records, predefined agent capability profiles, MCP capability classification, API and CLI access, console registry views, and registry-backed MCP runtime decisions.
 
+Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, decision search filters, session summaries, and console Activity Explorer views.
+
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
 ## Primary Pages
@@ -42,6 +44,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Transparent Agent Methodology: `Transparent-Agent-Methodology.md`
 - Agent Orchestration Architecture: `Agent-Orchestration-Architecture.md`
 - Agent Registry and MCP Trust Registry: `Agent-Registry-and-MCP-Trust.md`
+- Activity Persistence: `Activity-Persistence.md`
 
 ## Quick Start
 

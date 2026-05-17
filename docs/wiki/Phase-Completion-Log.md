@@ -116,6 +116,20 @@ Completed:
 
 Recommended next issue: start Phase 6 with durable session and decision persistence, console session/decision views, API filters, and hosted attestation artifact retrieval.
 
+## Phase 6: Console and Persistent API
+
+Status: started.
+
+Completed:
+- JSON activity store for runtime sessions and decisions.
+- SQLite activity store and migration.
+- `POST /decisions` persistence with automatic session summary updates.
+- `GET /decisions` filters for session, agent, repository, policy pack, outcome, severity, and action type.
+- `GET /sessions` filters for agent, repository, policy pack, and state.
+- Console Activity Explorer for persisted sessions and decisions.
+
+Recommended next issue: add repository inventory and policy rollout persistence, console repository/policy views, persistent API retention controls, backup/restore documentation, and hosted attestation artifact retrieval.
+
 ## Transparent Agent Methodology Enablement
 
 Status: complete.

@@ -2,6 +2,21 @@
 
 CAVRA API exposes health, version, policy packs, decisions, sessions, agents, repositories, approvals, evidence, integrations, MCP trust, risk events, compliance mappings, and sandbox endpoints. OpenAPI title: CAVRA API.
 
+## Activity Persistence
+
+Activity endpoints:
+
+- `GET /sessions`: list persisted runtime sessions with optional `agent_id`, `repository`, `policy_pack`, `state`, `limit`, and `offset` filters.
+- `POST /sessions`: create or update a session summary.
+- `GET /sessions/{session_id}`: fetch one session summary.
+- `GET /decisions`: list persisted decisions with optional `session_id`, `agent_id`, `repository`, `policy_pack`, `decision`, `severity`, `action_type`, `limit`, and `offset` filters.
+- `POST /decisions`: evaluate an action and persist the resulting decision.
+- `GET /decisions/{decision_id}`: fetch one decision.
+
+Default activity path: `.cavra/api/activity.json`.
+
+Set `CAVRA_ACTIVITY_STORE` to override the JSON path. Set `CAVRA_ACTIVITY_DB` to use SQLite-backed activity persistence. `GET /console/config` includes `activity_mode`.
+
 ## Agent and MCP Registry
 
 Registry endpoints:
@@ -77,7 +92,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes activity session and decision browsing, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, and endpoint paths. Configure cross-origin deployments with:
 

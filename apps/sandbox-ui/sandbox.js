@@ -41,6 +41,45 @@ const evidenceCatalog = [
   }
 ];
 
+const activitySessions = evidenceCatalog.map((item) => ({
+  schema_version: "cavra.session.v1",
+  session_id: item.session_id,
+  agent_id: item.session_id === "docs-agent-run" ? "docs-agent" : "codex-agent",
+  actor: item.signer,
+  repository: item.session_id === "security-review" ? "platform/security" : "payments/api",
+  policy_pack: "cavra-ai-agent-baseline",
+  state: "active",
+  started_at: "2026-05-18T00:00:00+00:00",
+  updated_at: "2026-05-18T00:10:00+00:00",
+  decision_count: item.decision_count,
+  blocked_count: item.blocked_count,
+  approval_required_count: item.approval_required_count,
+  evidence_refs: [`evidence://${item.session_id}`]
+}));
+
+const activityDecisions = evidenceCatalog.flatMap((item) =>
+  item.decisions.map((decision, index) => ({
+    schema_version: "cavra.decision.v1",
+    decision_id: `dec_${item.session_id}_${index + 1}`,
+    session_id: item.session_id,
+    agent_id: item.session_id === "docs-agent-run" ? "docs-agent" : "codex-agent",
+    actor: item.signer,
+    repository: item.session_id === "security-review" ? "platform/security" : "payments/api",
+    policy_pack: decision.policy_pack,
+    policy_id: decision.policy_id,
+    action_type: decision.action_type,
+    target: decision.target,
+    requested_operation: decision.action_type,
+    rule_id: decision.rule_id,
+    decision: decision.decision,
+    severity: decision.severity,
+    reason: decision.reason,
+    timestamp: decision.timestamp,
+    correlation_id: `corr_${item.session_id}_${index + 1}`,
+    evidence_refs: decision.evidence_generated || []
+  }))
+);
+
 const approvalCatalog = [
   {
     approval_id: "apr_demo_iam",
@@ -251,6 +290,44 @@ async function loadEvidenceMetadata() {
   }
 }
 
+async function loadSessions() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      repository: document.querySelector("#filterActivityRepository")?.value.trim(),
+      agent_id: document.querySelector("#filterActivityAgent")?.value.trim(),
+      policy_pack: document.querySelector("#filterActivityPolicy")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/sessions", params));
+    if (!response.ok) throw new Error("Session API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return activitySessions;
+  }
+}
+
+async function loadDecisions() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      repository: document.querySelector("#filterActivityRepository")?.value.trim(),
+      agent_id: document.querySelector("#filterActivityAgent")?.value.trim(),
+      policy_pack: document.querySelector("#filterActivityPolicy")?.value.trim(),
+      decision: document.querySelector("#filterDecisionState")?.value,
+      severity: document.querySelector("#filterDecisionSeverity")?.value,
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/decisions", params));
+    if (!response.ok) throw new Error("Decision API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return activityDecisions;
+  }
+}
+
 async function loadApprovals() {
   await loadConsoleConfig();
   try {
@@ -336,6 +413,30 @@ function filterEvidence(items) {
     .slice(0, limit);
 }
 
+function filterSessions(items) {
+  const repository = document.querySelector("#filterActivityRepository").value.trim().toLowerCase();
+  const agent = document.querySelector("#filterActivityAgent").value.trim().toLowerCase();
+  const policy = document.querySelector("#filterActivityPolicy").value.trim().toLowerCase();
+  return items
+    .filter((item) => !repository || String(item.repository || "").toLowerCase().includes(repository))
+    .filter((item) => !agent || String(item.agent_id || "").toLowerCase().includes(agent))
+    .filter((item) => !policy || String(item.policy_pack || "").toLowerCase().includes(policy));
+}
+
+function filterDecisions(items) {
+  const repository = document.querySelector("#filterActivityRepository").value.trim().toLowerCase();
+  const agent = document.querySelector("#filterActivityAgent").value.trim().toLowerCase();
+  const policy = document.querySelector("#filterActivityPolicy").value.trim().toLowerCase();
+  const decision = document.querySelector("#filterDecisionState").value;
+  const severity = document.querySelector("#filterDecisionSeverity").value;
+  return items
+    .filter((item) => !repository || String(item.repository || "").toLowerCase().includes(repository))
+    .filter((item) => !agent || String(item.agent_id || "").toLowerCase().includes(agent))
+    .filter((item) => !policy || String(item.policy_pack || "").toLowerCase().includes(policy))
+    .filter((item) => !decision || item.decision === decision)
+    .filter((item) => !severity || item.severity === severity);
+}
+
 function filterApprovals(items) {
   const state = document.querySelector("#filterApprovalState").value;
   const group = document.querySelector("#filterApprovalGroup").value.trim().toLowerCase();
@@ -377,6 +478,38 @@ function renderEvidenceRows(items) {
       </tr>
     `);
     sessionSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(item.session_id)}">${escapeHtml(item.session_id)}</option>`);
+  }
+}
+
+function renderActivityRows(sessions, decisions) {
+  const sessionRows = document.querySelector("#sessionRows");
+  const decisionRows = document.querySelector("#decisionRows");
+  sessionRows.innerHTML = "";
+  decisionRows.innerHTML = "";
+  for (const item of sessions) {
+    sessionRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.session_id || "unknown")}</td>
+        <td>${escapeHtml(item.repository || "local")}</td>
+        <td>${escapeHtml(item.agent_id || "unknown-agent")}</td>
+        <td>${item.decision_count || 0}</td>
+        <td class="${Number(item.blocked_count || 0) > 0 ? "block" : "allow"}">${item.blocked_count || 0}</td>
+        <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>
+        <td>${escapeHtml(String(item.updated_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+  for (const item of decisions) {
+    decisionRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.decision_id || "unknown")}</td>
+        <td class="${riskClass(item.decision)}">${escapeHtml(item.decision || "audit_only")}</td>
+        <td>${escapeHtml(item.action_type || "unknown")}</td>
+        <td>${escapeHtml(item.target || "n/a")}</td>
+        <td>${escapeHtml(item.rule_id || "runtime.default")}</td>
+        <td class="${riskClass(item.severity)}">${escapeHtml(item.severity || "low")}</td>
+      </tr>
+    `);
   }
 }
 
@@ -498,6 +631,11 @@ function renderApprovalDetail(item) {
 async function refreshEvidence() {
   const items = filterEvidence(await loadEvidenceMetadata());
   renderEvidenceRows(items);
+}
+
+async function refreshActivity() {
+  const [sessions, decisions] = await Promise.all([loadSessions(), loadDecisions()]);
+  renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
 }
 
 async function refreshApprovals() {
@@ -638,6 +776,7 @@ async function verifyAttestation() {
 
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
+document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
@@ -657,5 +796,6 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+refreshActivity();
 refreshApprovals();
 refreshRegistry();

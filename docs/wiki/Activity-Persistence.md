@@ -1,0 +1,36 @@
+# Activity Persistence
+
+Phase 6 starts durable operational visibility for CAVRA sessions and decisions.
+
+## Current Implementation
+
+- JSON and SQLite stores for runtime sessions and decisions.
+- `POST /decisions` evaluates and persists decisions and updates the session summary.
+- `GET /decisions` filters by session, agent, repository, policy pack, decision outcome, severity, action type, limit, and offset.
+- `GET /sessions` filters by agent, repository, policy pack, state, limit, and offset.
+- Console Activity Explorer shows sessions and decisions with enterprise filters.
+- SQLite migration `004_activity_sessions_decisions.sql` creates indexed activity tables.
+
+## Configuration
+
+```bash
+export CAVRA_ACTIVITY_STORE=.cavra/api/activity.json
+export CAVRA_ACTIVITY_DB=.cavra/activity.db
+cavra evidence migrate --sqlite .cavra/activity.db
+```
+
+## User Stories
+
+- As a CISO, I can review blocked and approved AI-agent actions across repositories.
+- As a platform engineer, I can filter decisions by policy pack, repository, severity, and agent.
+- As an auditor, I can reconstruct a session from durable decision records.
+
+## Enterprise Challenge Solved
+
+Activity persistence turns local pre-action decisions into searchable operational records. Security, audit, and platform teams can inspect what agents attempted, which controls fired, and which sessions generated risk.
+
+## Next
+
+- Repository inventory and policy rollout views.
+- Hosted attestation artifact retrieval backed by governed object storage.
+- Backup, restore, and retention documentation for persistent API stores.

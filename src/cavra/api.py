@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from cavra.activity import ActivityStore, SQLiteActivityStore
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -75,6 +76,11 @@ def create_app():
         if os.environ.get("CAVRA_REGISTRY_DB")
         else RegistryStore(Path(os.environ.get("CAVRA_REGISTRY_STORE", ".cavra/api/registry.json")))
     )
+    activity_store = (
+        SQLiteActivityStore(Path(os.environ["CAVRA_ACTIVITY_DB"]))
+        if os.environ.get("CAVRA_ACTIVITY_DB")
+        else ActivityStore(Path(os.environ.get("CAVRA_ACTIVITY_STORE", ".cavra/api/activity.json")))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -89,12 +95,14 @@ def create_app():
         metadata_mode = "sqlite" if isinstance(evidence_store, SQLiteEvidenceMetadataStore) else "json"
         approval_mode = "sqlite" if isinstance(approval_store, SQLiteApprovalStore) else "json"
         registry_mode = "sqlite" if isinstance(registry_store, SQLiteRegistryStore) else "json"
+        activity_mode = "sqlite" if isinstance(activity_store, SQLiteActivityStore) else "json"
         return {
             "product": "CAVRA",
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
             "metadata_mode": metadata_mode,
             "approval_mode": approval_mode,
             "registry_mode": registry_mode,
+            "activity_mode": activity_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
@@ -104,6 +112,8 @@ def create_app():
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
                 "approvals": "/approvals",
+                "sessions": "/sessions",
+                "decisions": "/decisions",
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
@@ -116,20 +126,93 @@ def create_app():
     def policies() -> list[dict]:
         return PolicyRegistry().list_policy_packs()
 
+    @app.get("/decisions")
+    def decision_index(
+        session_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        decision: Optional[str] = None,
+        severity: Optional[str] = None,
+        action_type: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return activity_store.list_decisions(
+            session_id=session_id,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            decision=decision,
+            severity=severity,
+            action_type=action_type,
+            limit=limit,
+            offset=offset,
+        )
+
     @app.post("/decisions")
     def decisions(payload: dict) -> dict:
-        guard = RuntimeGuard(policy_pack=payload.get("policy_pack") or "cavra-ai-agent-baseline", registry_store=registry_store)
+        guard = RuntimeGuard(
+            policy_pack=payload.get("policy_pack") or "cavra-ai-agent-baseline",
+            session_id=payload.get("session_id", "local"),
+            agent_id=payload.get("agent_id", "unknown-agent"),
+            actor=payload.get("actor", "ai-agent"),
+            registry_store=registry_store,
+        )
         action_type = payload.get("action_type")
         target = payload.get("target", "")
         if action_type == "read_file":
-            return guard.evaluate_file_access(target, "read").to_dict()
-        if action_type == "write_file":
-            return guard.evaluate_file_access(target, "write").to_dict()
-        if action_type == "execute_command":
-            return guard.evaluate_command(target).to_dict()
-        if action_type == "git_operation":
-            return guard.evaluate_git_action(payload.get("operation", "push"), target).to_dict()
-        return guard.evaluate_mcp_tool_call(payload.get("server", "unknown"), payload.get("tool", "unknown"), payload.get("capability")).to_dict()
+            result = guard.evaluate_file_access(Path(target), "read").to_dict()
+        elif action_type == "write_file":
+            result = guard.evaluate_file_access(Path(target), "write").to_dict()
+        elif action_type == "execute_command":
+            result = guard.evaluate_command(target).to_dict()
+        elif action_type == "git_operation":
+            result = guard.evaluate_git_action(payload.get("operation", "push"), target).to_dict()
+        else:
+            result = guard.evaluate_mcp_tool_call(payload.get("server", "unknown"), payload.get("tool", "unknown"), payload.get("capability")).to_dict()
+        if payload.get("repository"):
+            result["repository"] = payload["repository"]
+        return activity_store.upsert_decision(result)
+
+    @app.get("/decisions/{decision_id}")
+    def decision_item(decision_id: str) -> dict:
+        item = activity_store.get_decision(decision_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="decision not found")
+        return item
+
+    @app.get("/sessions")
+    def session_index(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        state: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return activity_store.list_sessions(
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            state=state,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.post("/sessions")
+    def upsert_session(payload: dict) -> dict:
+        try:
+            return activity_store.upsert_session(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/sessions/{session_id}")
+    def session_item(session_id: str) -> dict:
+        item = activity_store.get_session(session_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="session not found")
+        return item
 
     @app.get("/agents")
     def agents(status: Optional[str] = None, owner: Optional[str] = None) -> dict:
@@ -188,7 +271,6 @@ def create_app():
     def mcp_trust(server: str, tool: str = "unknown", capability: Optional[str] = None) -> dict:
         return registry_store.evaluate_mcp(server, tool, capability)
 
-    @app.get("/sessions")
     @app.get("/repositories")
     @app.get("/integrations")
     @app.get("/risk/events")

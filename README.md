@@ -217,7 +217,7 @@ Current phase status:
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
-- Phase 6: Console and Persistent API.
+- Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions plus console Activity Explorer views.
 - Phase 7: Go Enforcement Plane.
 - Phase 8: Enterprise Integrations.
 - Phase 9: Public Sandbox and Growth Loop.
@@ -225,7 +225,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Start Phase 6 by adding durable session and decision persistence behind the API and console.
+- Continue Phase 6 with repository inventory, policy rollout views, backup/restore documentation, and persistent API retention controls.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value

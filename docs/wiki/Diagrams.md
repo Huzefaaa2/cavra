@@ -6,7 +6,7 @@ See `docs/diagrams/c4-context.md`.
 
 ## C4 Container
 
-See `docs/diagrams/c4-container.md`. The current container diagram marks the Approval Router as an implemented JSON/SQLite-backed lifecycle service with repository routing, signed OIDC/JWKS validation, repository RBAC, console actions, console break-glass creation, approval audit details, provider request specs, and live provider delivery evidence. It also marks the Agent and MCP Trust Registry as a JSON/SQLite implementation for governed agent identities, MCP trust decisions, predefined agent profiles, MCP capability classifications, and console registry views. The Go enforcement plane remains planned.
+See `docs/diagrams/c4-container.md`. The current container diagram marks the Approval Router as an implemented JSON/SQLite-backed lifecycle service with repository routing, signed OIDC/JWKS validation, repository RBAC, console actions, console break-glass creation, approval audit details, provider request specs, and live provider delivery evidence. It also marks the Agent and MCP Trust Registry as a JSON/SQLite implementation for governed agent identities, MCP trust decisions, predefined agent profiles, MCP capability classifications, and console registry views. The metadata store now includes JSON/SQLite evidence, session, decision, approval, and registry metadata. The Go enforcement plane remains planned.
 
 ## Agent and MCP Registry
 

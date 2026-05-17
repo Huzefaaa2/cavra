@@ -178,12 +178,16 @@ Exit criteria:
 
 ## Phase 6: Console and Persistent API
 
+Status: started.
+
 Goal: provide the first enterprise console backed by durable data.
 
 Implement:
-- Database-backed FastAPI service.
-- Repositories, sessions, decisions, agents, approvals, evidence, policy packs, integrations, and MCP trust endpoints.
-- Minimal console UI for dashboards, sessions, decisions, approvals, policies, evidence, integrations, MCP trust, and agent registry.
+- JSON and SQLite activity persistence for sessions and decisions. Delivered.
+- Activity session and decision API filters. Delivered.
+- Console Activity Explorer for sessions and decisions. Delivered.
+- Repositories, policy rollout, integrations, and inventory persistence. Next.
+- Minimal console UI for dashboards, repositories, policies, evidence, integrations, MCP trust, and agent registry. In progress.
 - OIDC-ready auth boundary and RBAC model.
 
 User stories:
@@ -196,7 +200,7 @@ Enterprise challenge solved:
 
 Exit criteria:
 - API has persistent storage.
-- Console can browse decisions and evidence.
+- Console can browse sessions, decisions, and evidence.
 - RBAC model is documented and covered by tests.
 
 ## Phase 7: Go Enforcement Plane
@@ -308,8 +312,8 @@ Next recommended implementation phase: Phase 6, Console and Persistent API. Keep
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, and JSON/SQLite registry-backed agent and MCP trust governance.
 
 Immediate next tasks:
-- Add persistent session and decision stores with SQLite migrations.
-- Add console views for sessions, decisions, policy packs, and repository scope.
+- Add repository inventory and policy rollout stores with SQLite migrations.
+- Add console views for policy packs and repository scope.
 - Add API filters for agent, repository, policy pack, decision, severity, and time range.
 - Add documentation for backup, restore, and data retention for the persistent API.
 - Add hosted attestation artifact download APIs backed by governed object storage.

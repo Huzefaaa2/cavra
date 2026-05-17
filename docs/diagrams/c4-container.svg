@@ -79,8 +79,8 @@
   <text x="1080" y="237" class="node-title">Evidence Hub</text>
   <text x="1080" y="253" class="node-text">Bundles, signatures, exports</text>
   <rect x="1064" y="276" width="230" height="46" rx="7" class="store"/>
-  <text x="1080" y="295" class="node-title">Metadata Store</text>
-  <text x="1080" y="311" class="node-text">JSON and SQLite search</text>
+  <text x="1080" y="295" class="node-title">Metadata and Activity</text>
+  <text x="1080" y="311" class="node-text">Evidence, sessions, decisions</text>
   <rect x="1064" y="334" width="230" height="46" rx="7" class="store"/>
   <text x="1080" y="353" class="node-title">Bundle Store</text>
   <text x="1080" y="369" class="node-text">Filesystem and immutable plans</text>
