@@ -69,7 +69,20 @@ Completed:
 - Idempotent SQLite migration automation with `cavra evidence migrate`.
 - Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: start Phase 4 Approval Router, including approval lifecycle state, reviewer group routing, expiry, denial, and break-glass evidence. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+Recommended next issue: continue Phase 4 Approval Router with routing policies, SQLite approval persistence, console approval views, and notification/provider reference payloads. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
+
+## Phase 4: Approval Router
+
+Status: in progress.
+
+Completed:
+- Approval request model and JSON persistence.
+- API approval queue with list, create, fetch, approve, deny, expire, attach-decision, and break-glass endpoints.
+- CLI approval queue with create, list, approve, deny, expire, and break-glass commands.
+- Mandatory reason, actor, approver group, expiry, and optional external reference for break-glass overrides.
+- Approval outcome linkage into evidence metadata and PR attestations.
+
+Recommended next issue: add routing policies, SQLite approval persistence and migration, console approval views, and Slack/Teams/Jira/ServiceNow reference payloads.
 
 ## Transparent Agent Methodology Enablement
 

@@ -22,7 +22,11 @@ Implemented evidence bundle manifests, checksums, HMAC and Ed25519 signatures, t
 
 ## Phase 4: Approval Router
 
-Implement approval queue, approval persistence, approver routing, Jira/ServiceNow references, Slack/Teams notifications, and break-glass workflows.
+Status: in progress.
+
+Implemented approval request JSON persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, and approval outcome linkage into evidence and PR attestations.
+
+Next: routing policies, SQLite approval persistence, console approval views, Jira/ServiceNow references, and Slack/Teams notification payloads.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 

@@ -135,6 +135,18 @@ Evidence key management and rotation guidance is documented in [docs/evidence-ke
 
 Risky actions can return `require_approval` with approver groups such as Platform Security, Cloud Security, IAM, AppSec, Change Advisory Board, AI Governance, Data Protection, PCI Compliance, Healthcare Compliance, or Repository Owners.
 
+Phase 4 Approval Router is now in progress. CAVRA can create a persisted approval request from a decision, list pending approvals, approve, deny, expire, record break-glass overrides with mandatory reasons, and attach approval outcomes back to evidence:
+
+```bash
+cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra approval list --state pending
+cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
+cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
+```
+
+Approval workflows are documented in [docs/approval-workflows.md](docs/approval-workflows.md).
+
 ## MCP governance
 
 Run the MCP server:
@@ -205,7 +217,7 @@ Current phase status:
 Next recommended implementation work:
 
 - Add hosted attestation artifact download APIs backed by governed object storage.
-- Start Phase 4 Approval Router with reviewer group routing, approval lifecycle state, and break-glass evidence.
+- Expand Phase 4 Approval Router with routing policies, SQLite approval persistence, notification/provider adapters, and console approval views.
 
 ## User stories and enterprise value
 
@@ -225,6 +237,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Enterprise Challenges](docs/wiki/Enterprise-Challenges.md)
 - [Diagrams](docs/wiki/Diagrams.md)
 - [Phase Completion Log](docs/wiki/Phase-Completion-Log.md)
+- [Approval Workflows](docs/wiki/Approval-Workflows.md)
 - [Policy Engine Hardening](docs/wiki/Policy-Engine-Hardening.md)
 - [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
 - [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)

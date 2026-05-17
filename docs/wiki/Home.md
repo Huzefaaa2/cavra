@@ -27,6 +27,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Enterprise Challenges: `Enterprise-Challenges.md`
 - Diagrams: `Diagrams.md`
 - Phase Completion Log: `Phase-Completion-Log.md`
+- Approval Workflows: `Approval-Workflows.md`
 - Policy Engine Hardening: `Policy-Engine-Hardening.md`
 - Evidence Hub and Attestation: `Evidence-Hub-and-Attestation.md`
 - Evidence Key Management: `Evidence-Key-Management.md`

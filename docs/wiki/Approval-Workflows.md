@@ -1,0 +1,41 @@
+# Approval Workflows
+
+CAVRA routes risky AI-agent actions to human approvers while safe actions continue.
+
+## Current Implementation
+
+- Approval requests are created from CAVRA decisions.
+- Requests persist in a JSON approval store.
+- Approvers can approve, deny, or expire pending requests.
+- Break-glass overrides require actor, reason, approver group, expiry, and optional external reference.
+- Approval outcomes can be attached to decisions so evidence bundles and PR attestations include approval state.
+
+## API
+
+- `GET /approvals`
+- `POST /approvals`
+- `GET /approvals/{approval_id}`
+- `POST /approvals/{approval_id}/approve`
+- `POST /approvals/{approval_id}/deny`
+- `POST /approvals/{approval_id}/expire`
+- `POST /approvals/{approval_id}/attach-decision`
+- `POST /approvals/break-glass`
+
+## CLI
+
+```bash
+cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra approval list --state pending
+cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
+cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
+```
+
+## User Stories
+
+- As an IAM owner, I can approve a scoped privilege change.
+- As a change manager, I can deny risky agent actions with a reason.
+- As an incident commander, I can use break glass only with mandatory evidence.
+- As an auditor, I can see approval outcomes in evidence and PR attestations.
+
+See repository source page: `docs/approval-workflows.md`.

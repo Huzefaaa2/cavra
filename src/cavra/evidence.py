@@ -173,6 +173,15 @@ def render_pr_attestation(session_id: str, decisions: list[dict[str, Any]]) -> s
             f"- `{decision.get('action_type')}` `{decision.get('target')}` -> "
             f"**{decision.get('decision')}** via `{decision.get('rule_id')}`"
         )
+    approvals = [item for item in decisions if item.get("approval")]
+    if approvals:
+        lines.extend(["", "## Approval Outcomes", ""])
+        for decision in approvals:
+            approval = decision.get("approval", {})
+            lines.append(
+                f"- `{approval.get('approval_id')}` `{decision.get('target')}` -> "
+                f"**{approval.get('state')}** by `{approval.get('decided_by') or approval.get('approver_group')}`"
+            )
     lines.extend(
         [
             "",
@@ -666,6 +675,7 @@ def build_evidence_metadata(bundle_dir: Path) -> dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     retention = json.loads(retention_path.read_text(encoding="utf-8")) if retention_path.exists() else {}
     decisions = evidence.get("decisions", [])
+    approval_outcomes = [item["approval"] for item in decisions if item.get("approval")]
     return {
         "schema_version": "cavra.evidence.metadata.v1",
         "product": "CAVRA",
@@ -678,6 +688,10 @@ def build_evidence_metadata(bundle_dir: Path) -> dict[str, Any]:
         "manifest_signature": manifest.get("signature"),
         "signer": manifest.get("signer"),
         "retention": retention,
+        "approval_outcomes": approval_outcomes,
+        "approved_count": sum(1 for item in approval_outcomes if item.get("state") in {"approved", "break_glass"}),
+        "denied_count": sum(1 for item in approval_outcomes if item.get("state") == "denied"),
+        "break_glass_count": sum(1 for item in approval_outcomes if item.get("break_glass")),
     }
 
 

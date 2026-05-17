@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from cavra.approvals import ApprovalStore, attach_approval_to_decision
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
@@ -42,6 +43,7 @@ def create_app():
         if os.environ.get("CAVRA_EVIDENCE_METADATA_DB")
         else EvidenceMetadataStore(Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json")))
     )
+    approval_store = ApprovalStore(Path(os.environ.get("CAVRA_APPROVAL_STORE", ".cavra/api/approvals.json")))
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -62,6 +64,7 @@ def create_app():
             "endpoints": {
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
+                "approvals": "/approvals",
                 "sandbox_run": "/api/sandbox/run",
             },
         }
@@ -89,7 +92,6 @@ def create_app():
     @app.get("/sessions")
     @app.get("/agents")
     @app.get("/repositories")
-    @app.get("/approvals")
     @app.get("/integrations")
     @app.get("/mcp/servers")
     @app.get("/mcp/trust")
@@ -97,6 +99,76 @@ def create_app():
     @app.get("/compliance/mappings")
     def empty_collection() -> list[dict]:
         return []
+
+    @app.get("/approvals")
+    def approvals(
+        state: Optional[str] = None,
+        approver_group: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return approval_store.list(state=state, approver_group=approver_group, limit=limit, offset=offset)
+
+    @app.post("/approvals")
+    def create_approval(payload: dict) -> dict:
+        decision = payload["decision"] if isinstance(payload.get("decision"), dict) else payload
+        try:
+            return approval_store.create_request(
+                decision,
+                approver_group=payload.get("approver_group"),
+                requested_by=payload.get("requested_by", "ai-agent"),
+                ttl_hours=int(payload.get("ttl_hours", 24)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/approvals/break-glass")
+    def break_glass(payload: dict) -> dict:
+        try:
+            return approval_store.break_glass(
+                decision=payload["decision"] if isinstance(payload.get("decision"), dict) else payload,
+                actor=payload.get("actor", ""),
+                reason=payload.get("reason", ""),
+                approver_group=payload.get("approver_group", "Change Advisory Board"),
+                external_ref=payload.get("external_ref"),
+                ttl_hours=int(payload.get("ttl_hours", 4)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/approvals/{approval_id}")
+    def approval(approval_id: str) -> dict:
+        item = approval_store.get(approval_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        return item
+
+    @app.post("/approvals/{approval_id}/approve")
+    def approve(approval_id: str, payload: dict) -> dict:
+        return _decide_approval(approval_store, approval_id, state="approved", payload=payload)
+
+    @app.post("/approvals/{approval_id}/deny")
+    def deny(approval_id: str, payload: dict) -> dict:
+        return _decide_approval(approval_store, approval_id, state="denied", payload=payload)
+
+    @app.post("/approvals/{approval_id}/expire")
+    def expire(approval_id: str, payload: Optional[dict] = None) -> dict:
+        return _decide_approval(
+            approval_store,
+            approval_id,
+            state="expired",
+            payload=payload or {"actor": "system", "reason": "approval expired"},
+        )
+
+    @app.post("/approvals/{approval_id}/attach-decision")
+    def attach_decision_approval(approval_id: str, payload: dict) -> dict:
+        item = approval_store.get(approval_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        try:
+            return attach_approval_to_decision(payload, item)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/evidence")
     def evidence_index(
@@ -215,6 +287,21 @@ def _filter_json_evidence(
         "limit": limit,
         "offset": offset,
     }
+
+
+def _decide_approval(approval_store: ApprovalStore, approval_id: str, *, state: str, payload: dict) -> dict:
+    try:
+        return approval_store.decide(
+            approval_id,
+            state=state,
+            actor=payload.get("actor", ""),
+            reason=payload.get("reason", ""),
+            external_ref=payload.get("external_ref"),
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="approval not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 app = create_app() if FastAPI is not None else None

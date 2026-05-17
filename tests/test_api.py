@@ -62,3 +62,68 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     assert config["api_base_url"] == "https://cavra.example"
     assert config["metadata_mode"] == "json"
     assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+
+
+def test_api_approval_lifecycle(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+
+    created = client.post(
+        "/approvals",
+        json={"decision": decision, "requested_by": "developer"},
+    )
+    approval_id = created.json()["approval_id"]
+    approved = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "platform-security", "reason": "Scoped IAM change reviewed.", "external_ref": "CHG-22"},
+    )
+    listed = client.get("/approvals", params={"state": "approved"})
+
+    assert created.status_code == 200
+    assert created.json()["state"] == "pending"
+    assert approved.status_code == 200
+    assert approved.json()["state"] == "approved"
+    assert listed.json()["total"] == 1
+
+
+def test_api_approval_accepts_raw_decision_payload(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+
+    created = client.post("/approvals", json=decision)
+
+    assert created.status_code == 200
+    assert created.json()["decision_id"] == decision["decision_id"]
+
+
+def test_api_break_glass_requires_reason(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+
+    rejected = client.post("/approvals/break-glass", json={"decision": decision, "actor": "incident-commander"})
+    accepted = client.post(
+        "/approvals/break-glass",
+        json={
+            "decision": decision,
+            "actor": "incident-commander",
+            "reason": "Production recovery for active incident.",
+            "external_ref": "INC-9",
+        },
+    )
+
+    assert rejected.status_code == 400
+    assert accepted.status_code == 200
+    assert accepted.json()["state"] == "break_glass"
+    assert accepted.json()["external_ref"] == "INC-9"

@@ -108,17 +108,20 @@ Exit criteria:
 
 ## Phase 4: Approval Router
 
-Status: next recommended phase after evidence exporters are expanded.
+Status: in progress.
 
 Goal: route risky actions to the right human approvers without blocking safe work.
 
 Implement:
-- Approval request model and persistence.
-- CLI and API approval queue.
-- Approver groups and routing policies.
-- Jira and ServiceNow reference connectors.
-- Slack and Teams notification reference connectors.
-- Emergency override and break-glass flow with mandatory evidence.
+- Approval request model and JSON persistence. Delivered.
+- CLI and API approval queue. Delivered.
+- Approve, deny, expire, and break-glass lifecycle states. Delivered.
+- Approval outcomes reflected in evidence metadata and PR attestations. Delivered.
+- Approver groups and routing policies. Next.
+- SQLite approval persistence. Next.
+- Jira and ServiceNow reference connectors. Next.
+- Slack and Teams notification reference connectors. Next.
+- Console approval views. Next.
 
 User stories:
 - As an IAM owner, I receive approval requests for privilege expansion.
@@ -289,7 +292,7 @@ Next recommended implementation phase: Phase 4, Approval Router, with a narrow P
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Implement approval request, approval decision, expiry, and denial models.
-- Add approval routes to the FastAPI app and CLI.
-- Record approval outcomes in evidence metadata and PR attestations.
-- Add break-glass override flow with mandatory reason, approver identity, and evidence.
+- Add routing policies that map rule IDs, targets, severities, and policy packs to approver groups.
+- Add SQLite approval persistence and migration automation.
+- Add console approval queue views and action buttons.
+- Add reference notification payloads for Slack, Teams, Jira, and ServiceNow.

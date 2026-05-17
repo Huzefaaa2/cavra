@@ -1,1 +1,28 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"CAVRA Approval","type":"object","required":["decision_id","approver_group","state"],"properties":{"state":{"enum":["pending","approved","denied","expired"]}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA Approval",
+  "type": "object",
+  "required": ["approval_id", "decision_id", "approver_group", "state", "requested_at", "expires_at"],
+  "properties": {
+    "schema_version": {"const": "cavra.approval.v1"},
+    "approval_id": {"type": "string"},
+    "decision_id": {"type": "string"},
+    "session_id": {"type": "string"},
+    "correlation_id": {"type": ["string", "null"]},
+    "state": {"enum": ["pending", "approved", "denied", "expired", "break_glass"]},
+    "approver_group": {"type": "string"},
+    "requested_by": {"type": "string"},
+    "requested_at": {"type": "string"},
+    "expires_at": {"type": "string"},
+    "decided_by": {"type": "string"},
+    "decided_at": {"type": "string"},
+    "decision_reason": {"type": "string"},
+    "external_ref": {"type": "string"},
+    "break_glass": {"type": "boolean"},
+    "break_glass_reason": {"type": "string"},
+    "decision": {"type": "object"},
+    "history": {"type": "array", "items": {"type": "object"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

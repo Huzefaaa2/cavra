@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
+from cavra.approvals import ApprovalStore
 from cavra.evidence import (
     EvidenceMetadataStore,
     SQLiteEvidenceMetadataStore,
@@ -43,11 +44,13 @@ policy_app = typer.Typer(help="Policy registry commands.")
 demo_app = typer.Typer(help="Runnable CAVRA demos.")
 init_app = typer.Typer(help="Initialize CAVRA integrations.")
 evidence_app = typer.Typer(help="Evidence bundle commands.")
+approval_app = typer.Typer(help="Human approval router commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
 app.add_typer(init_app, name="init")
 app.add_typer(evidence_app, name="evidence")
+app.add_typer(approval_app, name="approval")
 
 
 @app.command()
@@ -615,6 +618,130 @@ def migrate_evidence_metadata(
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     console.print(JSON(json.dumps(result, indent=2)))
+
+
+@approval_app.command("create")
+def create_approval(
+    decision_file: Annotated[Path, typer.Argument(help="Decision JSON file produced by CAVRA.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    approver_group: Annotated[Optional[str], typer.Option(help="Override approver group.")] = None,
+    requested_by: Annotated[str, typer.Option(help="Requester identity.")] = "ai-agent",
+    ttl_hours: Annotated[int, typer.Option(help="Approval request time to live.")] = 24,
+) -> None:
+    """Create a pending approval request from a CAVRA decision."""
+    try:
+        decision = json.loads(decision_file.read_text(encoding="utf-8"))
+        approval = ApprovalStore(store).create_request(
+            decision,
+            approver_group=approver_group,
+            requested_by=requested_by,
+            ttl_hours=ttl_hours,
+        )
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(approval, indent=2)))
+
+
+@approval_app.command("list")
+def list_approvals(
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    state: Annotated[Optional[str], typer.Option(help="Filter by state.")] = None,
+    approver_group: Annotated[Optional[str], typer.Option(help="Filter by approver group.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """List approval queue entries."""
+    result = ApprovalStore(store).list(state=state, approver_group=approver_group, limit=limit, offset=offset)
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@approval_app.command("approve")
+def approve_request(
+    approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
+    reason: Annotated[str, typer.Option(help="Approval reason.")] = "",
+    external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
+) -> None:
+    """Approve a pending request."""
+    _decide_cli_approval(store, approval_id, state="approved", actor=actor, reason=reason, external_ref=external_ref)
+
+
+@approval_app.command("deny")
+def deny_request(
+    approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
+    reason: Annotated[str, typer.Option(help="Denial reason.")] = "",
+    external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
+) -> None:
+    """Deny a pending request."""
+    _decide_cli_approval(store, approval_id, state="denied", actor=actor, reason=reason, external_ref=external_ref)
+
+
+@approval_app.command("expire")
+def expire_request(
+    approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    actor: Annotated[str, typer.Option(help="Actor identity.")] = "system",
+    reason: Annotated[str, typer.Option(help="Expiry reason.")] = "approval expired",
+) -> None:
+    """Expire a pending request."""
+    _decide_cli_approval(store, approval_id, state="expired", actor=actor, reason=reason)
+
+
+@approval_app.command("break-glass")
+def break_glass_approval(
+    decision_file: Annotated[Path, typer.Argument(help="Decision JSON file produced by CAVRA.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    actor: Annotated[str, typer.Option(help="Emergency approver identity.")] = "",
+    reason: Annotated[str, typer.Option(help="Mandatory emergency reason.")] = "",
+    approver_group: Annotated[str, typer.Option(help="Approver group.")] = "Change Advisory Board",
+    external_ref: Annotated[Optional[str], typer.Option(help="Optional incident, ITSM, PR, or ticket reference.")] = None,
+    ttl_hours: Annotated[int, typer.Option(help="Emergency approval time to live.")] = 4,
+) -> None:
+    """Record a break-glass override with mandatory evidence."""
+    try:
+        decision = json.loads(decision_file.read_text(encoding="utf-8"))
+        approval = ApprovalStore(store).break_glass(
+            decision=decision,
+            actor=actor,
+            reason=reason,
+            approver_group=approver_group,
+            external_ref=external_ref,
+            ttl_hours=ttl_hours,
+        )
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(approval, indent=2)))
+
+
+def _decide_cli_approval(
+    store: Path,
+    approval_id: str,
+    *,
+    state: str,
+    actor: str,
+    reason: str,
+    external_ref: str | None = None,
+) -> None:
+    try:
+        approval = ApprovalStore(store).decide(
+            approval_id,
+            state=state,
+            actor=actor,
+            reason=reason,
+            external_ref=external_ref,
+        )
+    except KeyError as exc:
+        console.print(f"[red]approval not found:[/red] {approval_id}")
+        raise typer.Exit(code=1) from exc
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(approval, indent=2)))
 
 
 @demo_app.command("before-the-agent-acts")
