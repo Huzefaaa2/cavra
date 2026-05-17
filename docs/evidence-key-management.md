@@ -23,19 +23,24 @@ cavra evidence trust-root .cavra/keys/prod-evidence-public.pem \
   --key-id prod-evidence-2026-q2 \
   --owner platform-security
 
+cavra evidence trust-bundle .cavra/keys/prod-evidence-trust-root.json \
+  --output .cavra/keys/evidence-trust-roots.json
+
 cavra evidence bundle \
   --output .cavra/evidence/latest \
   --private-key .cavra/keys/prod-evidence-private.pem \
   --key-id prod-evidence-2026-q2
 
 cavra evidence verify .cavra/evidence/latest \
-  --trust-root .cavra/keys/prod-evidence-trust-root.json \
+  --trust-root .cavra/keys/evidence-trust-roots.json \
   --key-id prod-evidence-2026-q2
 ```
 
 ## Trust Roots
 
 A trust root is a JSON document that records the trusted public key, key ID, owner, status, fingerprint, and validity window. Store trust roots in source control or a governed configuration repository. Do not store private keys in the repository.
+
+A trust-root bundle is a distributable JSON document containing one or more trust roots. Use it when production services, CI checks, reviewer workstations, and audit tooling need the same set of active, retired, and historical verification keys. CAVRA rejects duplicate key IDs in a bundle.
 
 Supported trust-root statuses:
 
@@ -49,11 +54,12 @@ Recommended production rotation:
 
 1. Generate a new Ed25519 keypair.
 2. Create a new trust-root document with a new `key_id`.
-3. Distribute the public trust root before the new key signs release evidence.
-4. Sign new evidence with the new key ID.
-5. Keep old trust roots for historical bundle verification.
-6. Mark compromised keys as `revoked`.
-7. Rotate keys at least quarterly for regulated release evidence or immediately after suspected exposure.
+3. Add the trust root to the trust-root bundle.
+4. Distribute the public trust-root bundle before the new key signs release evidence.
+5. Sign new evidence with the new key ID.
+6. Keep old trust roots for historical bundle verification.
+7. Mark compromised keys as `revoked`.
+8. Rotate keys at least quarterly for regulated release evidence or immediately after suspected exposure.
 
 ## Verification Guidance
 

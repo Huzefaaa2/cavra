@@ -16,9 +16,9 @@ Implemented strict policy schema validation, policy inheritance, signature metad
 
 ## Phase 3: Evidence Hub and Attestation
 
-Status: in progress.
+Status: near complete; remaining follow-up is hosted attestation artifact retrieval.
 
-Implemented evidence bundle manifests, checksums, optional HMAC manifest signatures, PR attestation output, SIEM event output, compliance reports, and verification commands. Remaining work: provider-specific exporters, retention controls, public/private key signatures, immutable storage reference exporters, and API persistence.
+Implemented evidence bundle manifests, checksums, HMAC and Ed25519 signatures, trust-root bundles, PR attestation output and verification, SIEM export payloads, compliance reports, retention controls, immutable storage reference exporters, SQLite and JSON evidence metadata search, API persistence, console API wiring, and idempotent migration automation.
 
 ## Phase 4: Approval Router
 

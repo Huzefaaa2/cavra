@@ -119,6 +119,35 @@ def export_key_trust_root(
     )
 
 
+def build_trust_root_bundle(trust_roots: list[Path]) -> dict[str, Any]:
+    roots = [json.loads(path.read_text(encoding="utf-8")) for path in trust_roots]
+    key_ids = [root.get("key_id") for root in roots]
+    duplicates = sorted({key_id for key_id in key_ids if key_id and key_ids.count(key_id) > 1})
+    if duplicates:
+        raise ValueError(f"duplicate trust-root key IDs: {', '.join(duplicates)}")
+    for root in roots:
+        if root.get("schema_version") != "cavra.evidence.trust-root.v1":
+            raise ValueError(f"invalid trust-root schema for key_id={root.get('key_id', 'unknown')}")
+        if root.get("algorithm") != "Ed25519":
+            raise ValueError(f"unsupported trust-root algorithm for key_id={root.get('key_id', 'unknown')}")
+        if not root.get("key_id"):
+            raise ValueError("trust root is missing key_id")
+        if not root.get("public_key_pem") or not root.get("public_key_sha256"):
+            raise ValueError(f"trust root {root['key_id']} is missing public key material")
+    return {
+        "schema_version": "cavra.evidence.trust-root-bundle.v1",
+        "product": "CAVRA",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "trust_roots": sorted(roots, key=lambda root: str(root.get("key_id"))),
+    }
+
+
+def export_trust_root_bundle(trust_roots: list[Path], output_path: Path) -> Path:
+    if not trust_roots:
+        raise ValueError("at least one trust root is required")
+    return write_json(output_path, build_trust_root_bundle(trust_roots))
+
+
 def render_pr_attestation(session_id: str, decisions: list[dict[str, Any]]) -> str:
     blocked = [item for item in decisions if item.get("decision") == "block"]
     approvals = [item for item in decisions if item.get("decision") == "require_approval"]
@@ -799,6 +828,45 @@ class SQLiteEvidenceMetadataStore:
         }
 
 
+def apply_sqlite_migrations(database_path: Path, migrations_dir: Path) -> dict[str, Any]:
+    migration_files = sorted(migrations_dir.glob("*.sql"))
+    if not migration_files:
+        raise FileNotFoundError(f"no SQLite migrations found in {migrations_dir}")
+    database_path.parent.mkdir(parents=True, exist_ok=True)
+    applied: list[str] = []
+    skipped: list[str] = []
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS schema_migrations (
+                id TEXT PRIMARY KEY,
+                applied_at TEXT NOT NULL
+            )
+            """
+        )
+        existing = {
+            row[0]
+            for row in connection.execute("SELECT id FROM schema_migrations").fetchall()
+        }
+        for migration in migration_files:
+            migration_id = migration.name
+            if migration_id in existing:
+                skipped.append(migration_id)
+                continue
+            connection.executescript(migration.read_text(encoding="utf-8"))
+            connection.execute(
+                "INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)",
+                (migration_id, datetime.now(timezone.utc).isoformat()),
+            )
+            applied.append(migration_id)
+    return {
+        "database": str(database_path),
+        "migrations_dir": str(migrations_dir),
+        "applied": applied,
+        "skipped": skipped,
+    }
+
+
 def _event_epoch(event: dict[str, Any]) -> float:
     timestamp = event.get("timestamp")
     if not timestamp:
@@ -882,6 +950,8 @@ def _verify_manifest_trust_root(
     key_id: str | None = None,
 ) -> None:
     trust_root = json.loads(trust_root_path.read_text(encoding="utf-8"))
+    if trust_root.get("schema_version") == "cavra.evidence.trust-root-bundle.v1":
+        trust_root = _select_trust_root(trust_root, signature, key_id=key_id)
     if trust_root.get("status") != "active":
         raise ValueError("trust root is not active")
     expected_key_id = key_id or trust_root.get("key_id")
@@ -890,6 +960,16 @@ def _verify_manifest_trust_root(
     if signature.get("public_key_sha256") != trust_root.get("public_key_sha256"):
         raise ValueError("manifest public key fingerprint mismatch")
     _verify_ed25519_signature(canonical, signature, trust_root["public_key_pem"].encode("utf-8"))
+
+
+def _select_trust_root(bundle: dict[str, Any], signature: dict[str, Any], *, key_id: str | None = None) -> dict[str, Any]:
+    expected_key_id = key_id or signature.get("key_id")
+    for trust_root in bundle.get("trust_roots", []):
+        if expected_key_id and trust_root.get("key_id") != expected_key_id:
+            continue
+        if signature.get("public_key_sha256") == trust_root.get("public_key_sha256"):
+            return trust_root
+    raise ValueError("matching trust root not found")
 
 
 def _verify_ed25519_signature(canonical: bytes, signature: dict[str, Any], public_key_bytes: bytes) -> None:

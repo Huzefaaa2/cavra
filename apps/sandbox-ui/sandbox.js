@@ -41,6 +41,8 @@ const evidenceCatalog = [
   }
 ];
 
+let consoleConfig = null;
+
 function eventPayload(row, index) {
   const [action_type, target, decision, rule_id, reason] = row;
   return {
@@ -55,6 +57,50 @@ function eventPayload(row, index) {
     evidence_generated: [`evidence://sandbox/evt_${index + 1}`],
     remediation: decision === "block" ? "Use an approved workflow or request a policy exception." : "Continue with recorded evidence."
   };
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function apiUrl(path, params = {}) {
+  const configuredBase = window.CAVRA_API_BASE || consoleConfig?.api_base_url || "";
+  const base = configuredBase || window.location.origin;
+  const url = new URL(path, base);
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  }
+  return url.toString();
+}
+
+async function loadConsoleConfig() {
+  if (consoleConfig) return consoleConfig;
+  try {
+    const response = await fetch(apiUrl("/console/config"));
+    if (!response.ok) throw new Error("config unavailable");
+    consoleConfig = await response.json();
+  } catch {
+    consoleConfig = {
+      product: "CAVRA",
+      api_base_url: window.CAVRA_API_BASE || "",
+      metadata_mode: "sample",
+      cors_origins: []
+    };
+  }
+  const status = document.querySelector("#apiStatus");
+  if (status) {
+    const mode = consoleConfig.metadata_mode || "sample";
+    status.textContent = `API: ${mode}`;
+  }
+  return consoleConfig;
 }
 
 async function runScenario() {
@@ -74,8 +120,15 @@ async function runScenario() {
 }
 
 async function loadEvidenceMetadata() {
+  await loadConsoleConfig();
   try {
-    const response = await fetch("/evidence?limit=50");
+    const params = {
+      signer: document.querySelector("#filterSigner")?.value.trim(),
+      min_blocked: document.querySelector("#filterBlocked")?.value || 0,
+      has_approvals: document.querySelector("#filterApprovals")?.value,
+      limit: document.querySelector("#filterLimit")?.value || 10
+    };
+    const response = await fetch(apiUrl("/evidence", params));
     if (!response.ok) throw new Error("API unavailable");
     const payload = await response.json();
     return Array.isArray(payload) ? payload : payload.items || [];
@@ -104,15 +157,15 @@ function renderEvidenceRows(items) {
   for (const item of items) {
     rows.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${item.session_id || "unknown"}</td>
-        <td>${item.signer || "local"}</td>
+        <td>${escapeHtml(item.session_id || "unknown")}</td>
+        <td>${escapeHtml(item.signer || "local")}</td>
         <td>${item.decision_count || 0}</td>
         <td class="${Number(item.blocked_count || 0) > 0 ? "block" : "allow"}">${item.blocked_count || 0}</td>
         <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>
         <td>${item.retention?.retention_days || "n/a"} days</td>
       </tr>
     `);
-    sessionSelect.insertAdjacentHTML("beforeend", `<option value="${item.session_id}">${item.session_id}</option>`);
+    sessionSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(item.session_id)}">${escapeHtml(item.session_id)}</option>`);
   }
 }
 

@@ -122,7 +122,9 @@ cavra evidence export-siem .cavra/evidence/latest --output .cavra/evidence/siem
 cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
 cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
+cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json --output .cavra/keys/evidence-trust-roots.json
 cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
+cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
@@ -177,6 +179,8 @@ python -m http.server 5173 --directory apps/sandbox-ui
 
 Open `http://127.0.0.1:5173`, run the agent scenario, filter evidence metadata, and verify PR attestation coverage.
 
+For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
+
 ## Demo scenarios
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
@@ -200,10 +204,8 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add API pagination/filtering parity for non-SQLite stores.
-- Add production database migration path for evidence metadata.
-- Add console API wiring for persisted evidence search and attestation verification artifacts.
-- Add production database migration automation beyond the initial SQLite migration.
+- Add hosted attestation artifact download APIs backed by governed object storage.
+- Start Phase 4 Approval Router with reviewer group routing, approval lifecycle state, and break-glass evidence.
 
 ## User stories and enterprise value
 
@@ -226,6 +228,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Policy Engine Hardening](docs/wiki/Policy-Engine-Hardening.md)
 - [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
 - [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)
+- [Evidence Trust-Root Distribution](docs/wiki/Evidence-Trust-Root-Distribution.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
 - [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)

@@ -23,6 +23,8 @@ pre { white-space: pre-wrap; font-size: 13px; color: #cbd5db; }
 .console-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
 .console-header h2 { margin: 0; }
 .console-header p { margin: 6px 0 0; color: #aebbc3; }
+.console-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#apiStatus { color: #aebbc3; font-size: 13px; }
 .compact { align-items: flex-start; }
 .search-controls { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
 .table-wrap { overflow-x: auto; border: 1px solid #2d3a40; border-radius: 8px; }

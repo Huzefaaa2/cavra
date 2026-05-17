@@ -11,8 +11,10 @@ migrations/sqlite/001_evidence_metadata.sql
 Apply:
 
 ```bash
-sqlite3 .cavra/evidence/metadata.db < migrations/sqlite/001_evidence_metadata.sql
+cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 ```
+
+The CLI records applied migration filenames in `schema_migrations`, so deployment automation can run the command repeatedly.
 
 Run API:
 

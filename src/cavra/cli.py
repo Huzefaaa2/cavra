@@ -13,12 +13,14 @@ from cavra.agent import AgentSessionManager
 from cavra.evidence import (
     EvidenceMetadataStore,
     SQLiteEvidenceMetadataStore,
+    apply_sqlite_migrations,
     create_evidence_bundle,
     export_attestation_verification,
     export_immutable_storage_plan,
     export_key_trust_root,
     export_retention_policy,
     export_siem_payloads,
+    export_trust_root_bundle,
     generate_ed25519_keypair,
     verify_evidence_bundle,
 )
@@ -413,6 +415,20 @@ def evidence_trust_root(
     console.print(f"[green]trust root exported[/green] {path}")
 
 
+@evidence_app.command("trust-bundle")
+def evidence_trust_bundle(
+    trust_roots: Annotated[list[Path], typer.Argument(help="One or more trust-root JSON documents.")],
+    output: Annotated[Path, typer.Option(help="Trust-root bundle output path.")] = Path(".cavra/keys/evidence-trust-roots.json"),
+) -> None:
+    """Create a distributable bundle of CAVRA evidence trust roots."""
+    try:
+        path = export_trust_root_bundle(trust_roots, output)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]trust-root bundle exported[/green] {path}")
+
+
 @evidence_app.command("verify")
 def verify_evidence(
     bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
@@ -584,6 +600,20 @@ def search_evidence(
         limit=limit,
         offset=offset,
     )
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@evidence_app.command("migrate")
+def migrate_evidence_metadata(
+    sqlite: Annotated[Path, typer.Option(help="SQLite metadata database path.")] = Path(".cavra/evidence/metadata.db"),
+    migrations_dir: Annotated[Path, typer.Option(help="Directory containing SQLite migration SQL files.")] = Path("migrations/sqlite"),
+) -> None:
+    """Apply SQLite migrations for evidence metadata search."""
+    try:
+        result = apply_sqlite_migrations(sqlite, migrations_dir)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
     console.print(JSON(json.dumps(result, indent=2)))
 
 

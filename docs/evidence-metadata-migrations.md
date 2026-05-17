@@ -13,6 +13,12 @@ migrations/sqlite/001_evidence_metadata.sql
 Apply it with:
 
 ```bash
+cavra evidence migrate --sqlite .cavra/evidence/metadata.db
+```
+
+The migration command records applied SQL files in `schema_migrations`, so repeated runs are idempotent. Operators can still apply the SQL manually for inspection-only environments:
+
+```bash
 sqlite3 .cavra/evidence/metadata.db < migrations/sqlite/001_evidence_metadata.sql
 ```
 

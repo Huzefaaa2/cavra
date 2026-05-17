@@ -11,10 +11,12 @@ from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json,
 
 try:
     from fastapi import FastAPI, HTTPException, Response
+    from fastapi.middleware.cors import CORSMiddleware
 except ImportError:  # pragma: no cover
     FastAPI = None
     HTTPException = None
     Response = None
+    CORSMiddleware = None
 
 
 def create_app():
@@ -25,6 +27,15 @@ def create_app():
         description="Controlled Agentic Verification & Runtime Authority API for AI-agent runtime governance.",
         version="0.1.0",
     )
+    cors_origins = _csv_env("CAVRA_CORS_ORIGINS")
+    if cors_origins and CORSMiddleware is not None:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=False,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["*"],
+        )
     runs: dict[str, dict] = {}
     evidence_store = (
         SQLiteEvidenceMetadataStore(Path(os.environ["CAVRA_EVIDENCE_METADATA_DB"]))
@@ -39,6 +50,21 @@ def create_app():
     @app.get("/version")
     def version() -> dict[str, str]:
         return {"version": "0.1.0", "name": "CAVRA Runtime Server"}
+
+    @app.get("/console/config")
+    def console_config() -> dict[str, object]:
+        metadata_mode = "sqlite" if isinstance(evidence_store, SQLiteEvidenceMetadataStore) else "json"
+        return {
+            "product": "CAVRA",
+            "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
+            "metadata_mode": metadata_mode,
+            "cors_origins": cors_origins,
+            "endpoints": {
+                "evidence": "/evidence",
+                "evidence_item": "/evidence/{session_id}",
+                "sandbox_run": "/api/sandbox/run",
+            },
+        }
 
     @app.get("/policies")
     @app.get("/policy-packs")
@@ -90,7 +116,15 @@ def create_app():
                 limit=limit,
                 offset=offset,
             )
-        return evidence_store.list()
+        return _filter_json_evidence(
+            evidence_store.list(),
+            session_id=session_id,
+            signer=signer,
+            min_blocked=min_blocked,
+            has_approvals=has_approvals,
+            limit=limit,
+            offset=offset,
+        )
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:
@@ -144,6 +178,43 @@ def create_app():
         return run
 
     return app
+
+
+def _csv_env(name: str) -> list[str]:
+    return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
+
+
+def _filter_json_evidence(
+    items: list[dict],
+    *,
+    session_id: Optional[str] = None,
+    signer: Optional[str] = None,
+    min_blocked: Optional[int] = None,
+    has_approvals: Optional[bool] = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, object]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = items
+    if session_id:
+        filtered = [item for item in filtered if session_id in str(item.get("session_id", ""))]
+    if signer:
+        filtered = [item for item in filtered if item.get("signer") == signer]
+    if min_blocked is not None:
+        filtered = [item for item in filtered if int(item.get("blocked_count", 0)) >= min_blocked]
+    if has_approvals is not None:
+        filtered = [
+            item
+            for item in filtered
+            if (int(item.get("approval_required_count", 0)) > 0) is has_approvals
+        ]
+    return {
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
 
 
 app = create_app() if FastAPI is not None else None

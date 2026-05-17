@@ -84,11 +84,14 @@ Delivered:
 - PR attestation verifier output.
 - Hosted console views for evidence search and attestation verification.
 - Initial SQLite migration for evidence metadata.
+- Console API wiring for same-origin and cross-origin deployments.
+- JSON and SQLite evidence search pagination/filter parity.
+- Idempotent SQLite migration automation through `cavra evidence migrate`.
+- Automated trust-root bundle generation and distribution guidance.
 
 Remaining:
-- Console API wiring for persisted evidence search and attestation verification artifacts.
-- Production database migration automation beyond the initial SQLite migration.
-- Automated trust-root distribution guidance for enterprise deployments.
+- Hosted attestation artifact download APIs backed by governed object storage.
+- Production deployment guide validation.
 
 User stories:
 - As an auditor, I can download a complete evidence bundle for an AI-agent session.
@@ -281,11 +284,12 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: finish Phase 3, Evidence Hub and Attestation.
+Next recommended implementation phase: Phase 4, Approval Router, with a narrow Phase 3 follow-up for hosted attestation artifact downloads.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, SQLite evidence search, PR attestation verification, hosted console views, initial migration SQL, and API metadata persistence. The remaining Phase 3 risk is wiring the console to persisted API data in deployment topologies and automating production database/trust-root operations.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Add console API wiring for deployed same-origin and cross-origin topologies.
-- Add production migration automation.
-- Add automated trust-root distribution guidance.
+- Implement approval request, approval decision, expiry, and denial models.
+- Add approval routes to the FastAPI app and CLI.
+- Record approval outcomes in evidence metadata and PR attestations.
+- Add break-glass override flow with mandatory reason, approver identity, and evidence.

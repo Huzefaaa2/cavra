@@ -47,7 +47,10 @@
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, and page size.</p>
           </div>
-          <button id="refreshEvidence">Refresh</button>
+          <div class="console-actions">
+            <span id="apiStatus">API: loading</span>
+            <button id="refreshEvidence">Refresh</button>
+          </div>
         </div>
         <div class="search-controls">
           <label>Signer <input id="filterSigner" placeholder="security" /></label>

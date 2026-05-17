@@ -64,8 +64,12 @@ Completed:
 - PR attestation verification reports.
 - Hosted evidence console views for search and PR attestation verification.
 - Initial SQLite migration for evidence metadata.
+- Console API wiring for same-origin and cross-origin deployments.
+- JSON and SQLite evidence search filter/pagination parity.
+- Idempotent SQLite migration automation with `cavra evidence migrate`.
+- Trust-root bundle generation and enterprise distribution guidance.
 
-Recommended next issue: console API wiring for persisted evidence search and attestation artifacts, production migration automation, and automated trust-root distribution guidance.
+Recommended next issue: start Phase 4 Approval Router, including approval lifecycle state, reviewer group routing, expiry, denial, and break-glass evidence. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads backed by governed object storage.
 
 ## Transparent Agent Methodology Enablement
 

@@ -14,7 +14,7 @@ Default metadata path: `.cavra/api/evidence-metadata.json`.
 
 Set `CAVRA_EVIDENCE_METADATA_STORE` to override the metadata store path for local or self-hosted deployments.
 
-Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata persistence. In SQLite mode, `GET /evidence` supports query parameters:
+Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata persistence. `GET /evidence` supports query parameters in both JSON and SQLite modes:
 
 - `session_id`
 - `signer`
@@ -27,4 +27,9 @@ For security, the API does not accept arbitrary server-side bundle paths. Use `c
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes evidence search and PR attestation verification views. It can run as a standalone static demo or query the API evidence metadata endpoint when hosted on the same origin.
+The static console under `apps/sandbox-ui` includes evidence search and PR attestation verification views. It can run as a standalone static demo or query the API evidence metadata endpoint when hosted on the same origin or an allowed cross origin.
+
+`GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, and endpoint paths. Configure cross-origin deployments with:
+
+- `CAVRA_PUBLIC_API_BASE_URL`
+- `CAVRA_CORS_ORIGINS`

@@ -9,6 +9,7 @@ Phase 3 begins the production Evidence Hub. CAVRA now creates verifier-ready evi
 - Optional HMAC manifest signature.
 - Ed25519 public/private key manifest signatures.
 - Key IDs and trust-root verification.
+- Trust-root bundle generation for enterprise distribution.
 - `evidence.json` with full CAVRA decisions.
 - `pr-attestation.md` for pull request review.
 - `compliance-mapping.md` for audit and control review.
@@ -20,6 +21,8 @@ Phase 3 begins the production Evidence Hub. CAVRA now creates verifier-ready evi
 - Evidence metadata indexing for CLI and API workflows.
 - SQLite-backed evidence search with filters and pagination.
 - PR attestation verifier reports.
+- Console API wiring for same-origin and cross-origin deployments.
+- Idempotent SQLite metadata migrations.
 
 ## CLI Usage
 
@@ -40,6 +43,7 @@ Create and sign with an Ed25519 key:
 ```bash
 cavra evidence generate-keypair --private-key .cavra/keys/evidence-private.pem --public-key .cavra/keys/evidence-public.pem
 cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
+cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json --output .cavra/keys/evidence-trust-roots.json
 cavra evidence bundle --output .cavra/evidence/latest --private-key .cavra/keys/evidence-private.pem
 ```
 
@@ -48,7 +52,7 @@ Verify:
 ```bash
 cavra evidence verify .cavra/evidence/latest --key "$CAVRA_EVIDENCE_SIGNING_KEY"
 cavra evidence verify .cavra/evidence/latest --public-key .cavra/keys/evidence-public.pem --minimum-retention-days 2555
-cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-root.json --key-id prod-evidence
+cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-roots.json --key-id prod-evidence
 ```
 
 Print the SIEM event:
@@ -76,6 +80,7 @@ Export retention and metadata:
 ```bash
 cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention --retention-days 2555
 cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
+cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
@@ -118,7 +123,7 @@ The API now supports evidence metadata persistence through:
 - `POST /evidence`
 - `GET /evidence/{session_id}`
 
-By default, metadata is stored in `.cavra/api/evidence-metadata.json`. Operators can set `CAVRA_EVIDENCE_METADATA_STORE` to move the metadata file.
+By default, metadata is stored in `.cavra/api/evidence-metadata.json`. Operators can set `CAVRA_EVIDENCE_METADATA_STORE` to move the metadata file. JSON mode supports the same response shape and filters as SQLite mode for local deployments.
 
 For searchable metadata with filters and pagination, set `CAVRA_EVIDENCE_METADATA_DB` to a SQLite database path. The API then returns a paginated object from `GET /evidence` with filters such as `session_id`, `signer`, `min_blocked`, `has_approvals`, `limit`, and `offset`.
 
@@ -131,6 +136,8 @@ The hosted console surface in `apps/sandbox-ui` now includes:
 - Evidence metadata search.
 - PR attestation verification summary.
 - Operational readiness indicators for trust roots, SQLite search, attestation verification, and migrations.
+
+The console reads `GET /console/config` when available. Set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` for cross-origin deployments, or set `window.CAVRA_API_BASE` before `sandbox.js` loads.
 
 ## Enterprise Value
 
@@ -146,9 +153,9 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 - As a SOC analyst, I can ingest CAVRA decisions into Splunk, Sentinel, Datadog, or webhook workflows.
 - As a platform engineer, I can create immutable storage plans without granting CAVRA cloud credentials.
 - As a platform engineer, I can persist evidence metadata for API search and review workflows.
+- As a platform engineer, I can distribute one approved trust-root bundle to CI, reviewers, API services, and auditors.
 
 ## Next Work
 
-- Add hosted console views for evidence search and attestation verification.
-- Add production database migration path for evidence metadata.
-- Add automated trust-root distribution guidance for enterprise deployments.
+- Add hosted attestation artifact download APIs backed by governed object storage.
+- Start Phase 4 Approval Router with approval lifecycle state, reviewer group routing, and break-glass evidence.

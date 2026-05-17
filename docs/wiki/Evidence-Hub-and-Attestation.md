@@ -29,11 +29,13 @@ cavra evidence verify .cavra/evidence/latest
 cavra evidence siem-event .cavra/evidence/latest
 cavra evidence generate-keypair --private-key .cavra/keys/evidence-private.pem --public-key .cavra/keys/evidence-public.pem
 cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
-cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-root.json --key-id prod-evidence --minimum-retention-days 2555
+cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json --output .cavra/keys/evidence-trust-roots.json
+cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-roots.json --key-id prod-evidence --minimum-retention-days 2555
 cavra evidence export-siem .cavra/evidence/latest --output .cavra/evidence/siem
 cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention --retention-days 2555
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
 cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
+cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
@@ -63,14 +65,15 @@ Evidence bundles turn pre-action runtime decisions into artifacts that reviewers
 
 For security, the API does not read arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist it with `POST /evidence`.
 
-Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata search with filters and pagination.
+Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata search with filters and pagination. JSON metadata mode now supports the same API filter and pagination shape for local deployments.
 
 ## Console Views
 
 The hosted console surface includes evidence metadata search, PR attestation verification, and operational readiness indicators.
 
+Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAVRA_CORS_ORIGINS`, and `GET /console/config`.
+
 ## Next Work
 
-- Console API wiring for persisted evidence search and attestation verification artifacts.
-- Production database migration automation beyond the initial SQLite migration.
-- Automated trust-root distribution guidance for enterprise deployments.
+- Hosted attestation artifact download APIs backed by governed object storage.
+- Phase 4 Approval Router with approval lifecycle state and break-glass evidence.
