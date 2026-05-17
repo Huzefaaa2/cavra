@@ -29,3 +29,4 @@ Repository diagram images:
 - `docs/diagrams/evidence-hub.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
+- `docs/diagrams/agent-orchestration.svg`

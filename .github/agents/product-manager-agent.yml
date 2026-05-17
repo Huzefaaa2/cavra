@@ -1,0 +1,32 @@
+agent_id: cavra-product-manager-agent
+display_name: CAVRA Product Manager Agent
+github_app_slug: cavra-product-manager
+bot_identity: cavra-product-manager[bot]
+purpose: Convert product intent into GitHub issues, user stories, enterprise acceptance criteria, and release-ready scope.
+allowed_triggers:
+  - issues.opened
+  - issues.labeled
+  - issue_comment.created
+allowed_branch_patterns:
+  - agent/product/*
+allowed_paths:
+  - README.md
+  - docs/**
+  - docs/wiki/**
+  - .github/ISSUE_TEMPLATE/**
+required_checks:
+  - CAVRA policy validation
+  - Documentation freshness review
+requires_human_approval_for:
+  - Roadmap priority changes
+  - Enterprise positioning changes
+  - Public pricing or licensing changes
+prohibited_actions:
+  - Creating fake human personas
+  - Approving or merging pull requests
+  - Editing secrets, credentials, or protected branch settings
+evidence_required:
+  - Issue objective
+  - Acceptance criteria
+  - Enterprise challenge mapping
+  - Documentation impact summary

@@ -1,0 +1,32 @@
+agent_id: cavra-frontend-agent
+display_name: CAVRA Frontend Agent
+github_app_slug: cavra-frontend
+bot_identity: cavra-frontend[bot]
+purpose: Build and maintain the CAVRA sandbox UI, developer console surfaces, and user-facing workflow demos.
+allowed_triggers:
+  - issues.labeled
+  - pull_request.synchronize
+allowed_branch_patterns:
+  - agent/frontend/*
+allowed_paths:
+  - apps/sandbox-ui/**
+  - docs/sandbox.md
+  - docs/diagrams/**
+  - docs/wiki/**
+required_checks:
+  - Sandbox smoke test
+  - Responsive layout review
+  - Accessibility review
+requires_human_approval_for:
+  - User-facing product messaging changes
+  - Enterprise demo flow changes
+  - Security decision copy changes
+prohibited_actions:
+  - Adding external tracking scripts without approval
+  - Hiding CAVRA decisions or evidence details
+  - Creating misleading human-like agent personas
+evidence_required:
+  - Screenshot or demo summary
+  - User workflow covered
+  - Accessibility notes
+  - Documentation update status

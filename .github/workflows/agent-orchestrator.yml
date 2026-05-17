@@ -1,0 +1,91 @@
+name: Transparent Agent Orchestrator
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  manifest-summary:
+    name: Validate transparent agent manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Summarize CAVRA agent governance
+        shell: python
+        run: |
+          from pathlib import Path
+          import os
+          import re
+
+          required_fields = {
+              "agent_id",
+              "display_name",
+              "github_app_slug",
+              "bot_identity",
+              "purpose",
+              "allowed_triggers",
+              "allowed_branch_patterns",
+              "allowed_paths",
+              "required_checks",
+              "requires_human_approval_for",
+              "prohibited_actions",
+              "evidence_required",
+          }
+
+          manifests = sorted(Path(".github/agents").glob("*.yml"))
+          if not manifests:
+              raise SystemExit("No CAVRA agent manifests found.")
+
+          rows = []
+          errors = []
+          for manifest in manifests:
+              text = manifest.read_text(encoding="utf-8")
+              found = {match.group(1) for match in re.finditer(r"^([a-zA-Z_][a-zA-Z0-9_]*):", text, re.MULTILINE)}
+              missing = sorted(required_fields - found)
+              if missing:
+                  errors.append(f"{manifest}: missing {', '.join(missing)}")
+              display = re.search(r"^display_name:\s*(.+)$", text, re.MULTILINE)
+              identity = re.search(r"^bot_identity:\s*(.+)$", text, re.MULTILINE)
+              rows.append((manifest.name, display.group(1) if display else "", identity.group(1) if identity else ""))
+
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary.open("a", encoding="utf-8") as output:
+              output.write("# CAVRA Transparent Agent Governance\n\n")
+              output.write("This workflow validates declarative agent manifests only. Actual autonomous GitHub App execution must remain transparent, auditable, and human-gated for protected actions.\n\n")
+              output.write("| Manifest | Role | Bot identity |\n")
+              output.write("| --- | --- | --- |\n")
+              for name, display, identity in rows:
+                  output.write(f"| `{name}` | {display} | `{identity}` |\n")
+
+          if errors:
+              raise SystemExit("\n".join(errors))
+
+      - name: Comment on labeled agent issues
+        if: github.event_name == 'issues' && github.event.action == 'labeled' && startsWith(github.event.label.name, 'agent:')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = context.payload.label.name;
+            const body = [
+              `CAVRA transparent agent routing noted for \`${label}\`.`,
+              '',
+              'This repository uses declared bot identities and CAVRA evidence gates. Agent work must use `agent/{role}/{issue-slug}` branches, bot-authored commits, tests, documentation updates, and human approval for protected actions.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body
+            });

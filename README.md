@@ -48,6 +48,7 @@ Architecture references:
 - [Evidence Hub SVG](docs/diagrams/evidence-hub.svg)
 - [Policy Lifecycle SVG](docs/diagrams/policy-lifecycle.svg)
 - [Developer Journey SVG](docs/diagrams/developer-journey.svg)
+- [Transparent Agent Orchestration SVG](docs/diagrams/agent-orchestration.svg)
 
 ## Quick start
 
@@ -136,6 +137,14 @@ The server exposes CAVRA tools for evaluating actions, checking files, commands,
 
 CAVRA blocks direct push to protected branches, can require PR attestation, records AI-agent metadata, and creates reviewer-ready evidence for risky diffs.
 
+## Transparent CAVRA engineering agents
+
+CAVRA uses a transparent AI engineering-team methodology for its own repository and for customer reference architecture. Specialized bots such as `cavra-backend[bot]`, `cavra-security[bot]`, `cavra-docs[bot]`, and `cavra-release[bot]` are declared as automation, not fake human contributors.
+
+Agent manifests live under [.github/agents](.github/agents). They define each role's identity, allowed triggers, allowed paths, approval gates, prohibited actions, and required evidence. The [Transparent Agent Methodology](docs/transparent-agent-methodology.md) and [Agent Orchestration Architecture](docs/agent-orchestration-architecture.md) explain the operating model.
+
+The policy pack [policies/cavra-agentic-delivery](policies/cavra-agentic-delivery/policy.yaml) governs agent-driven delivery with protected branch requirements, bot identity requirements, PR attestation, documentation freshness, and human approval for protected actions.
+
 ## Terraform/OpenTofu, Kubernetes, and cloud CLI governance
 
 CAVRA allows read-only planning workflows such as `terraform plan`, while blocking or routing autonomous production-impacting operations such as `terraform apply -auto-approve`, `kubectl delete`, cloud IAM expansion, and direct protected-branch pushes.
@@ -209,6 +218,8 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
+- [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)
+- [Agent Orchestration Architecture](docs/wiki/Agent-Orchestration-Architecture.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

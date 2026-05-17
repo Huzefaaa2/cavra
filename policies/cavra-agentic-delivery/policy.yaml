@@ -1,0 +1,107 @@
+metadata:
+  id: cavra-agentic-delivery
+  title: CAVRA Transparent Agentic Delivery Governance
+  description: Controls for transparent GitHub bots and AI engineering agents building CAVRA without misleading human identities.
+  version: 0.1.0
+  inherits:
+    - cavra-ai-agent-baseline
+    - cavra-github-enterprise
+  mode: enforce
+filesystem:
+  block_read:
+    - ".env"
+    - ".env.*"
+    - "**/secrets.*"
+    - "**/*credential*"
+    - "**/*token*"
+  require_approval_write:
+    - ".github/workflows/**"
+    - ".github/CODEOWNERS"
+    - ".github/dependabot.yml"
+    - ".github/agents/**"
+    - "src/cavra/runtime.py"
+    - "src/cavra/policy_engine.py"
+    - "src/cavra/evidence.py"
+    - "policies/**"
+    - "schemas/**"
+    - "proto/**"
+commands:
+  block:
+    - "git push origin main"
+    - "git push --force*"
+    - "gh pr merge*"
+    - "gh repo edit*"
+    - "gh api repos/*/branches/main/protection*"
+    - "gh api repos/* --method PATCH*"
+    - "rm -rf .git"
+    - "security find-generic-password*"
+  allow:
+    - "git status*"
+    - "git diff*"
+    - "git branch*"
+    - "git checkout -b agent/*"
+    - "git switch -c agent/*"
+    - "gh pr create*"
+    - "gh pr view*"
+    - "python3 -m pytest*"
+    - "pytest*"
+    - "ruff*"
+    - "cavra policy validate*"
+    - "cavra evidence verify*"
+  require_approval:
+    - "git tag*"
+    - "python3 -m build*"
+    - "twine upload*"
+    - "gh release create*"
+git:
+  require_pull_request: true
+  block_direct_push_to_protected_branch: true
+  require_human_reviewer: true
+  require_ai_attestation: true
+mcp:
+  allowlist_enabled: true
+  block_unknown_servers: true
+  allowed_servers:
+    - github
+    - filesystem
+  risk_scoring:
+    shell: critical
+    github-write: high
+    filesystem-write: medium
+approvals:
+  protected_actions:
+    approvers:
+      - Repository Owners
+      - Platform Security
+      - AI Governance
+  security_settings:
+    approvers:
+      - Repository Owners
+      - Platform Security
+  release_publication:
+    approvers:
+      - Repository Owners
+evidence:
+  require_agent_manifest: true
+  require_issue_link: true
+  require_branch_pattern: "agent/{role}/{issue-slug}"
+  require_bot_identity: true
+  require_pr_attestation: true
+  require_docs_update_for_user_facing_changes: true
+  required_fields:
+    - agent_id
+    - bot_identity
+    - issue
+    - branch
+    - changed_files
+    - policy_impact
+    - tests
+    - docs_updated
+    - human_approvals
+compliance:
+  maps_to:
+    - NIST SSDF PO.3.2
+    - NIST SSDF RV.1.3
+    - SOC 2 Change Management
+    - ISO 27001 A.8.25
+    - EU AI Act Technical Documentation

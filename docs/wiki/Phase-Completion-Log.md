@@ -55,3 +55,16 @@ Completed:
 - Evidence verification command.
 
 Recommended next issue: provider-specific SIEM exporters and immutable evidence storage references.
+
+## Transparent Agent Methodology Enablement
+
+Status: complete.
+
+Completed:
+- Declarative CAVRA agent manifests for product, architect, backend, frontend, test, security, docs, reviewer, and release roles.
+- Agent task issue template and agent label catalog.
+- Conservative GitHub Actions orchestrator scaffold that validates transparent agent manifests.
+- `cavra-agentic-delivery` policy pack for bot identity, branch naming, PR attestation, approvals, and documentation requirements.
+- Transparent agent methodology docs, orchestration architecture docs, wiki pages, and SVG diagram.
+
+Recommended next issue: implement the real GitHub App orchestrator backend only after protected branch checks, evidence verification, and human approval requirements are enforced.

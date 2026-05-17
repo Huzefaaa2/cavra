@@ -2,6 +2,8 @@
 
 This roadmap turns the CAVRA product thesis into implementation phases. It is priority-based, not calendar-based. Each phase must finish with README updates, wiki updates, diagrams, user stories, validation evidence, and a clear next-phase recommendation.
 
+Transparent CAVRA engineering agents may execute implementation work for these phases only when their bot identities, branch names, approval gates, and evidence are explicit. Fake human identities are prohibited. The agent operating model is documented in `docs/transparent-agent-methodology.md`.
+
 ## Product North Star
 
 CAVRA becomes the enterprise runtime authority layer for AI coding agents. Enterprises can safely adopt Claude Code, GitHub Copilot, OpenAI Codex, Cursor, Gemini CLI, AWS Q Developer, MCP tools, Terraform, Kubernetes, cloud CLI, and AI-assisted CI/CD because CAVRA governs sensitive agent actions before execution and produces audit-ready evidence after every decision.
@@ -196,6 +198,7 @@ Exit criteria:
 Goal: make CAVRA fit enterprise SDLC, security, identity, and audit workflows.
 
 Implement:
+- GitHub App orchestrator for transparent CAVRA agent roles.
 - GitHub App and required status check.
 - GitLab CI and Azure DevOps templates.
 - Splunk, Sentinel, Datadog, Jira, ServiceNow, Slack, Teams, and webhook exporters.

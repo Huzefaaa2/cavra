@@ -13,3 +13,18 @@ Product boundaries: CAVRA is not a prompt filter, chatbot guardrail, Terraform-o
 Product-growth objective: Make CAVRA the default governance layer for Claude Code users. If thousands of developers install CAVRA through the Claude Code MCP flow, Anthropic and enterprise buyers will notice.
 
 Adoption metrics: GitHub stars, downloads, CLI installs, MCP server installs, sandbox runs, Docker pulls, GitHub Action usage, and inbound enterprise issues or discussions.
+
+## Transparent agent delivery strategy
+
+CAVRA should be built using the same governed agentic delivery model it sells. The repository will use transparent role-based bot identities, not fake human identities:
+
+- Product Manager Agent for issues, acceptance criteria, and enterprise challenge mapping.
+- Architect Agent for design review and runtime authority boundaries.
+- Backend and Frontend Agents for implementation branches.
+- Test Agent for validation coverage.
+- Security Agent for secrets, workflow permissions, dependency, and bypass review.
+- Documentation Agent for README, docs, diagrams, wiki, user stories, and white paper updates.
+- Reviewer Agent for PR review comments and residual-risk summaries.
+- Release Agent for changelog, release notes, versioning, and release evidence.
+
+The commercial framing is: CAVRA is a transparent AI engineering team for modern repositories, governed by pre-action policy, evidence, approval, and audit. GitHub is the first integration surface; the model should remain portable to GitLab, Bitbucket, Azure DevOps, Jira, ServiceNow, Terraform Cloud, and CI/CD platforms.

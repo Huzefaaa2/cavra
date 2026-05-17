@@ -17,6 +17,8 @@ Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema va
 Phase 3, Evidence Hub and Attestation, is the next recommended implementation phase.
 Initial Phase 3 evidence bundle support is now in progress.
 
+Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
+
 ## Primary Pages
 
 - White Paper: `White-Paper.md`
@@ -30,6 +32,8 @@ Initial Phase 3 evidence bundle support is now in progress.
 - Evidence Hub and Attestation: `Evidence-Hub-and-Attestation.md`
 - GitHub Repository Readiness: `GitHub-Repository-Readiness.md`
 - Release Documentation Policy: `Release-Documentation-Policy.md`
+- Transparent Agent Methodology: `Transparent-Agent-Methodology.md`
+- Agent Orchestration Architecture: `Agent-Orchestration-Architecture.md`
 
 ## Quick Start
 

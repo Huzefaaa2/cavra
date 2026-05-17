@@ -2,6 +2,8 @@
 
 CAVRA documentation is part of the product, not a follow-up task. Every release must leave the repository and wiki in a state that a developer, platform engineer, CISO, and auditor can understand.
 
+Transparent agent-driven releases must follow the same rule. The `docs-agent` and `release-agent` roles may prepare documentation and release artifacts, but a human maintainer must approve protected branch merges, public release publication, package publishing, and any legal, licensing, pricing, or compliance claim.
+
 ## Required Updates Per Release
 
 - README feature summary and usage.
@@ -14,6 +16,7 @@ CAVRA documentation is part of the product, not a follow-up task. Every release 
 - Evidence format docs for evidence changes.
 - Wiki pages for buyer-facing and operator-facing changes.
 - Diagrams when architecture, user journey, evidence lifecycle, or deployment changes.
+- Transparent agent manifests and methodology docs when agent responsibilities, GitHub App permissions, branch naming, approval gates, or evidence requirements change.
 
 ## Diagram Quality Standard
 
@@ -36,4 +39,5 @@ Before merging a release PR:
 - [ ] GitHub Wiki pushed when relevant.
 - [ ] Diagrams updated when relevant.
 - [ ] Productization report updated.
+- [ ] Transparent agent manifests, methodology, and orchestration docs updated when relevant.
 - [ ] Next recommended phase documented.

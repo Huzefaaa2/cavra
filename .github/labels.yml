@@ -1,0 +1,37 @@
+labels:
+  - name: agent:product
+    color: "0E8A16"
+    description: Work scoped for the CAVRA Product Manager Agent.
+  - name: agent:architect
+    color: "1D76DB"
+    description: Work scoped for the CAVRA Architect Agent.
+  - name: agent:backend
+    color: "5319E7"
+    description: Work scoped for the CAVRA Backend Agent.
+  - name: agent:frontend
+    color: "FBCA04"
+    description: Work scoped for the CAVRA Frontend Agent.
+  - name: agent:test
+    color: "006B75"
+    description: Work scoped for the CAVRA Test Agent.
+  - name: agent:security
+    color: "B60205"
+    description: Work scoped for the CAVRA Security Agent.
+  - name: agent:docs
+    color: "C5DEF5"
+    description: Work scoped for the CAVRA Documentation Agent.
+  - name: agent:release
+    color: "D93F0B"
+    description: Work scoped for the CAVRA Release Agent.
+  - name: agent:reviewer
+    color: "7057FF"
+    description: Work scoped for the CAVRA Reviewer Agent.
+  - name: cavra:requires-approval
+    color: "BFDADC"
+    description: CAVRA requires a human approval gate before completion.
+  - name: cavra:evidence-required
+    color: "F9D0C4"
+    description: The work must include CAVRA evidence, attestation, and documentation impact.
+  - name: cavra:policy-impact
+    color: "D4C5F9"
+    description: The work changes policy, enforcement, approvals, or evidence behavior.

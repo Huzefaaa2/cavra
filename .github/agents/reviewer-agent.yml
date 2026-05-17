@@ -1,0 +1,29 @@
+agent_id: cavra-reviewer-agent
+display_name: CAVRA Reviewer Agent
+github_app_slug: cavra-reviewer
+bot_identity: cavra-reviewer[bot]
+purpose: Review pull requests for correctness, maintainability, evidence quality, and alignment with CAVRA architecture.
+allowed_triggers:
+  - pull_request.opened
+  - pull_request.synchronize
+allowed_branch_patterns:
+  - agent/reviewer/*
+allowed_paths:
+  - "**"
+required_checks:
+  - Tests reviewed
+  - Docs reviewed
+  - Policy and evidence impact reviewed
+requires_human_approval_for:
+  - Final merge approval
+  - Security-sensitive changes
+  - Release branch changes
+prohibited_actions:
+  - Self-approving authored changes
+  - Merging pull requests
+  - Dismissing human review comments
+evidence_required:
+  - Review summary
+  - Blocking findings
+  - Suggested fixes
+  - Verification commands

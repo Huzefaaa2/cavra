@@ -1,0 +1,38 @@
+agent_id: cavra-security-agent
+display_name: CAVRA Security Agent
+github_app_slug: cavra-security
+bot_identity: cavra-security[bot]
+purpose: Review vulnerabilities, secrets exposure, supply-chain risk, CI permissions, policy bypasses, and regulated-data controls.
+allowed_triggers:
+  - pull_request.opened
+  - pull_request.synchronize
+  - issues.labeled
+allowed_branch_patterns:
+  - agent/security/*
+allowed_paths:
+  - SECURITY.md
+  - THREAT_MODEL.md
+  - policies/**
+  - .github/workflows/**
+  - .github/dependabot.yml
+  - docs/security-model.md
+  - docs/threat-model.md
+required_checks:
+  - CodeQL status reviewed
+  - Secret scanning posture reviewed
+  - Dependency risk reviewed
+  - CAVRA security policy validation
+requires_human_approval_for:
+  - Workflow token permission changes
+  - Security policy relaxations
+  - Any repository security settings change
+  - Public disclosure text
+prohibited_actions:
+  - Reading or exposing secrets
+  - Disabling security scans
+  - Approving own security changes
+evidence_required:
+  - Security findings
+  - Risk rating
+  - Mitigation status
+  - Human approval references
