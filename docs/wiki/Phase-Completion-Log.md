@@ -43,4 +43,15 @@ Completed:
 
 Phase 3: Evidence Hub and Attestation.
 
-Recommended first issue: signed evidence bundle manifest and verifier.
+Status: in progress.
+
+Completed:
+- Evidence bundle manifest generation.
+- Bundle checksums.
+- Optional HMAC manifest signature.
+- PR attestation output.
+- Compliance mapping output.
+- SIEM event output.
+- Evidence verification command.
+
+Recommended next issue: provider-specific SIEM exporters and immutable evidence storage references.

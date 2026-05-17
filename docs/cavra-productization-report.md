@@ -32,7 +32,11 @@ Added wiki-ready pages under `docs/wiki/`, including Home, White Paper, Producti
 
 Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram sources and SVG image assets.
 
-Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, and Phase 2 policy engine hardening page. Wiki commits: `784a847` and `9b24196`.
+Added GitHub repository readiness controls and documentation: protected `main`, Dependabot, CodeQL, PR template, CODEOWNERS, issue templates, VS Code recommendations, release documentation policy, and repository readiness guide.
+
+Added high-quality user-facing diagram images for architecture, runtime flow, evidence hub, policy lifecycle, and developer journey.
+
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, GitHub repository readiness page, and release documentation policy. Wiki commits: `784a847`, `9b24196`, and `e584f14`.
 
 ## Claude Code and MCP status
 
@@ -72,6 +76,19 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 - `docker build -t cavra:local .` with packaged schemas -> passed.
 - `docker run --rm cavra:local policy validate policies/cavra-ai-agent-baseline` -> passed.
 - `docker run --rm cavra:local policy test` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence bundle --output /tmp/cavra-evidence --key secret` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence verify /tmp/cavra-evidence --key secret` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli evidence siem-event /tmp/cavra-evidence` -> passed.
+- `docker run --rm cavra:local evidence bundle --output /tmp/cavra-evidence --key secret` -> passed.
+- `docker run --rm -v cavra-evidence-check:/tmp/evidence cavra:local evidence verify /tmp/evidence --key secret` -> passed.
+
+## GitHub repository readiness
+
+Repository `Huzefaaa2/cavra` is accessible from Codex through GitHub CLI with admin permission and from local developer tools through `https://github.com/Huzefaaa2/cavra.git`.
+
+`main` is protected with one required approving review, stale review dismissal, required conversation resolution, force-push protection, and branch deletion protection.
+
+Enabled repository security and quality features include secret scanning, secret scanning push protection, Dependabot alerts, Dependabot security updates, Issues, Wiki, auto-merge, update branch, and delete branch on merge. Repository config files now include Dependabot, CodeQL, PR template, CODEOWNERS, issue templates, and VS Code recommendations.
 
 ## Brand validation
 
@@ -81,7 +98,9 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 Phase 2, Policy Engine Hardening, is now implemented. Added strict JSON Schema policy validation, policy inheritance resolver, normalized compile output, semantic policy diff, policy signature metadata, signature verification, and tests for bundled policy validation, inheritance, diff, and tamper detection.
 
-Next recommended implementation phase: Phase 3, Evidence Hub and Attestation. Add signed evidence bundle manifests, checksum verification, PR attestation verifier output, SIEM event exports, evidence retention controls, and immutable evidence storage reference exporters.
+Phase 3, Evidence Hub and Attestation, is now in progress. Added evidence bundle manifest generation, checksum verification, optional HMAC manifest signature, PR attestation output, compliance mapping output, SIEM event output, CLI evidence commands, and evidence tests.
+
+Next recommended implementation work: finish Phase 3 with public/private key evidence signatures, provider-specific SIEM exporters, evidence retention controls, immutable storage reference exporters, and API persistence for evidence metadata. Then continue to Phase 4, Approval Router.
 
 Later roadmap backlog: persistent API storage, real approval providers, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, and signed releases.
 

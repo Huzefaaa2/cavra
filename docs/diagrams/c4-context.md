@@ -24,3 +24,5 @@ Rel(cavra, siem, "Exports evidence, approvals, and audit events")
 Rel(ciso, cavra, "Manages policy and reviews risk")
 Rel(auditor, cavra, "Downloads evidence and attestations")
 ```
+
+User-friendly SVG: `docs/diagrams/architecture-context.svg`.

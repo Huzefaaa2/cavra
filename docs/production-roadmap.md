@@ -63,17 +63,21 @@ Exit criteria:
 
 ## Phase 3: Evidence Hub and Attestation
 
-Status: next recommended phase.
+Status: in progress in PR #1.
 
 Goal: make evidence tamper-resistant, portable, and review-ready.
 
-Implement:
+Delivered:
 - Evidence bundle builder with manifest, checksums, and optional signatures.
 - PR attestation markdown and JSON export with risk summary.
 - SIEM event format for Splunk, Sentinel, Datadog, and generic webhooks.
 - Compliance mapping report per policy pack.
+
+Remaining:
 - Evidence retention policy controls.
 - Immutable storage reference exporters for S3 Object Lock and Azure immutable blob.
+- Public/private key evidence signatures.
+- Provider-specific SIEM exporter commands.
 
 User stories:
 - As an auditor, I can download a complete evidence bundle for an AI-agent session.
@@ -89,6 +93,8 @@ Exit criteria:
 - PR attestation and SIEM sample exports are covered by tests.
 
 ## Phase 4: Approval Router
+
+Status: next recommended phase after evidence exporters are expanded.
 
 Goal: route risky actions to the right human approvers without blocking safe work.
 

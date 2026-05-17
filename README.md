@@ -45,6 +45,9 @@ Architecture references:
 - [Evidence lifecycle](docs/diagrams/evidence-lifecycle.md)
 - [Architecture SVG](docs/diagrams/architecture-context.svg)
 - [Runtime flow SVG](docs/diagrams/runtime-flow.svg)
+- [Evidence Hub SVG](docs/diagrams/evidence-hub.svg)
+- [Policy Lifecycle SVG](docs/diagrams/policy-lifecycle.svg)
+- [Developer Journey SVG](docs/diagrams/developer-journey.svg)
 
 ## Quick start
 
@@ -107,6 +110,14 @@ cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
 
 CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, and sandbox evidence bundles. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
 
+Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, PR attestation, compliance mapping, SIEM event output, and verifier commands.
+
+```bash
+cavra evidence bundle --output .cavra/evidence/latest --signer platform-security
+cavra evidence verify .cavra/evidence/latest
+cavra evidence siem-event .cavra/evidence/latest
+```
+
 ## Human approvals
 
 Risky actions can return `require_approval` with approver groups such as Platform Security, Cloud Security, IAM, AppSec, Change Advisory Board, AI Governance, Data Protection, PCI Compliance, Healthcare Compliance, or Repository Owners.
@@ -159,8 +170,8 @@ Current phase status:
 
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
-- Phase 3: Evidence Hub and Attestation - next recommended implementation phase.
-- Phase 4: Approval Router.
+- Phase 3: Evidence Hub and Attestation - in progress in PR #1.
+- Phase 4: Approval Router - next recommended implementation phase after evidence exporters are expanded.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -170,11 +181,11 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add signed evidence bundle manifests with checksums.
-- Generate verifier-ready PR attestation and compliance mapping.
-- Add SIEM event export tests for Splunk, Sentinel, Datadog, and generic webhooks.
-- Add evidence retention controls.
+- Expand evidence signing to public/private key signatures.
+- Add Splunk, Sentinel, Datadog, and generic webhook exporter commands.
 - Add immutable evidence storage reference exporters.
+- Add evidence retention controls.
+- Persist evidence metadata in the API.
 
 ## User stories and enterprise value
 
@@ -195,6 +206,9 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Diagrams](docs/wiki/Diagrams.md)
 - [Phase Completion Log](docs/wiki/Phase-Completion-Log.md)
 - [Policy Engine Hardening](docs/wiki/Policy-Engine-Hardening.md)
+- [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
+- [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
+- [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

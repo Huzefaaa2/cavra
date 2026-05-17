@@ -7,5 +7,6 @@ recursive-include docs *.svg
 recursive-include policies *.yaml
 recursive-include schemas *.json
 recursive-include src/cavra/schemas *.json
+recursive-include .github *.md *.yml *.yaml
 recursive-include tests *.py
 recursive-include src *.py

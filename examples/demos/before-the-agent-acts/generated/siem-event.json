@@ -1,4 +1,7 @@
 {
+  "approval_required_count": 1,
+  "blocked_count": 4,
+  "decision_count": 7,
   "decisions": [
     {
       "action_type": "read_file",
@@ -148,7 +151,9 @@
       "timestamp": "2026-05-17T14:25:27.862542+00:00"
     }
   ],
+  "event_type": "cavra.evidence_bundle",
+  "max_severity": "medium",
   "product": "CAVRA",
   "session_id": "demo-session",
-  "tagline": "Before the agent acts, CAVRA decides."
+  "timestamp": "2026-05-17T14:25:27.863532+00:00"
 }

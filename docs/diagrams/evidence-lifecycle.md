@@ -14,3 +14,5 @@ flowchart LR
   siem --> soc[SOC Analysts]
   compliance --> auditors[Auditors]
 ```
+
+User-friendly SVG: `docs/diagrams/evidence-hub.svg`.

@@ -26,3 +26,5 @@ sequenceDiagram
     CAVRA-->>Agent: require_approval
   end
 ```
+
+User-friendly SVG: `docs/diagrams/runtime-flow.svg`.

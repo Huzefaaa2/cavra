@@ -15,6 +15,7 @@ Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA i
 Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
 
 Phase 3, Evidence Hub and Attestation, is the next recommended implementation phase.
+Initial Phase 3 evidence bundle support is now in progress.
 
 ## Primary Pages
 
@@ -26,6 +27,9 @@ Phase 3, Evidence Hub and Attestation, is the next recommended implementation ph
 - Diagrams: `Diagrams.md`
 - Phase Completion Log: `Phase-Completion-Log.md`
 - Policy Engine Hardening: `Policy-Engine-Hardening.md`
+- Evidence Hub and Attestation: `Evidence-Hub-and-Attestation.md`
+- GitHub Repository Readiness: `GitHub-Repository-Readiness.md`
+- Release Documentation Policy: `Release-Documentation-Policy.md`
 
 ## Quick Start
 

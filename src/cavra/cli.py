@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
+from cavra.evidence import create_evidence_bundle, verify_evidence_bundle
 from cavra.integrations import (
     CommandInterceptor,
     GitHubPRAttestationExporter,
@@ -31,10 +32,12 @@ agent_app = typer.Typer(help="AI agent runtime commands.")
 policy_app = typer.Typer(help="Policy registry commands.")
 demo_app = typer.Typer(help="Runnable CAVRA demos.")
 init_app = typer.Typer(help="Initialize CAVRA integrations.")
+evidence_app = typer.Typer(help="Evidence bundle commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
 app.add_typer(init_app, name="init")
+app.add_typer(evidence_app, name="evidence")
 
 
 @app.command()
@@ -340,6 +343,47 @@ def init_claude_code() -> None:
     console.print("Next: claude mcp add cavra -- cavra-mcp-server")
 
 
+@evidence_app.command("bundle")
+def bundle_evidence(
+    output: Annotated[Path, typer.Option(help="Evidence bundle directory.")] = Path(".cavra/evidence/latest"),
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID for sample decisions.")] = "cavra-ai-agent-baseline",
+    signer: Annotated[str, typer.Option(help="Signer identity recorded in manifest.")] = "local",
+    key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
+) -> None:
+    """Generate a CAVRA evidence bundle from the flagship decision sequence."""
+    decisions = _before_agent_acts_decisions(policy_pack=policy_pack)
+    result = create_evidence_bundle(decisions, output, session_id="demo-session", signer=signer, key=key)
+    console.print(f"[green]evidence bundle created[/green] {result.bundle_dir}")
+    console.print(f"[dim]manifest: {result.manifest_path}[/dim]")
+
+
+@evidence_app.command("verify")
+def verify_evidence(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")],
+    key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for manifest signature.")] = None,
+) -> None:
+    """Verify evidence bundle manifest, checksums, and optional signature."""
+    ok, errors = verify_evidence_bundle(bundle_dir, key=key)
+    if not ok:
+        console.print("[red]evidence verification failed[/red]")
+        for error in errors:
+            console.print(f"  - {error}")
+        raise typer.Exit(code=1)
+    console.print("[green]evidence verified[/green]")
+
+
+@evidence_app.command("siem-event")
+def print_siem_event(
+    bundle_dir: Annotated[Path, typer.Argument(help="Evidence bundle directory.")]
+) -> None:
+    """Print the SIEM event from an evidence bundle."""
+    path = bundle_dir / "siem-event.json"
+    if not path.exists():
+        console.print(f"[red]SIEM event not found:[/red] {path}")
+        raise typer.Exit(code=1)
+    console.print(JSON(path.read_text(encoding="utf-8")))
+
+
 @demo_app.command("before-the-agent-acts")
 def demo_before_the_agent_acts(
     output: Annotated[Path, typer.Option(help="Directory for generated evidence.")] = Path("examples/demos/before-the-agent-acts/generated"),
@@ -353,6 +397,14 @@ def _run_before_agent_acts(
     output: Path = Path("examples/demos/before-the-agent-acts/generated"),
     policy_pack: str = "cavra-ai-agent-baseline",
 ) -> None:
+    decisions = _before_agent_acts_decisions(policy_pack=policy_pack)
+    result = create_evidence_bundle(decisions, output, session_id="demo-session")
+    for decision in decisions:
+        console.print(f"{decision['action_type']} {decision['target']}: [bold]{decision['decision']}[/bold] - {decision['reason']}")
+    console.print(f"[green]evidence generated[/green] {result.bundle_dir}")
+
+
+def _before_agent_acts_decisions(policy_pack: str = "cavra-ai-agent-baseline") -> list[dict[str, object]]:
     guard = RuntimeGuard(policy_pack=policy_pack, agent_id="demo-agent", actor="simulated-ai-agent")
     decisions = [
         guard.evaluate_file_access(Path(".env"), "read"),
@@ -363,15 +415,7 @@ def _run_before_agent_acts(
         guard.evaluate_git_action("push", "origin/main"),
         guard.generate_pr_attestation_decision("create PR"),
     ]
-    output.mkdir(parents=True, exist_ok=True)
-    evidence = {"product": "CAVRA", "tagline": "Before the agent acts, CAVRA decides.", "decisions": [d.to_dict() for d in decisions]}
-    (output / "evidence.json").write_text(json.dumps(evidence, indent=2), encoding="utf-8")
-    (output / "sandbox-run-summary.json").write_text(json.dumps({"events": len(decisions), "blocked": sum(1 for d in decisions if d.decision == "block")}, indent=2), encoding="utf-8")
-    (output / "pr-attestation.md").write_text("# CAVRA PR Attestation\n\nBefore the agent acts, CAVRA decides.\n\nGenerated for the Before the Agent Acts demo.\n", encoding="utf-8")
-    (output / "compliance-mapping.md").write_text("# CAVRA Compliance Mapping\n\nMaps demo decisions to change control, least privilege, audit logging, and human oversight.\n", encoding="utf-8")
-    for decision in decisions:
-        console.print(f"{decision.action_type} {decision.target}: [bold]{decision.decision}[/bold] - {decision.reason}")
-    console.print(f"[green]evidence generated[/green] {output}")
+    return [decision.to_dict() for decision in decisions]
 
 
 def main() -> None:

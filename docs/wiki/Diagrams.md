@@ -26,3 +26,6 @@ Repository diagram images:
 
 - `docs/diagrams/architecture-context.svg`
 - `docs/diagrams/runtime-flow.svg`
+- `docs/diagrams/evidence-hub.svg`
+- `docs/diagrams/policy-lifecycle.svg`
+- `docs/diagrams/developer-journey.svg`
