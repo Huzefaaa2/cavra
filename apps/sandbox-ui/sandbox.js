@@ -78,6 +78,83 @@ const approvalCatalog = [
   }
 ];
 
+const agentCatalog = [
+  {
+    agent_id: "claude-code",
+    vendor: "Anthropic",
+    owner: "AI Platform",
+    status: "active",
+    capabilities: ["code_edit", "test", "mcp_tool_call"],
+    risk_tier: "high"
+  },
+  {
+    agent_id: "codex-agent",
+    vendor: "OpenAI",
+    owner: "Developer Platform",
+    status: "active",
+    capabilities: ["code_edit", "test", "git_operation"],
+    risk_tier: "high"
+  },
+  {
+    agent_id: "docs-agent",
+    vendor: "CAVRA",
+    owner: "Documentation",
+    status: "active",
+    capabilities: ["documentation", "diagram_update"],
+    risk_tier: "low"
+  }
+];
+
+const mcpCatalog = [
+  {
+    server_id: "github-mcp",
+    name: "GitHub MCP",
+    trust_tier: "approved",
+    approval_state: "approved",
+    capabilities: ["repository", "saas"],
+    allowed_tools: ["create_pull_request", "create_issue"]
+  },
+  {
+    server_id: "filesystem-mcp",
+    name: "Filesystem MCP",
+    trust_tier: "experimental",
+    approval_state: "pending",
+    capabilities: ["filesystem"],
+    allowed_tools: ["read_file"]
+  },
+  {
+    server_id: "unknown-filesystem",
+    name: "Unknown Filesystem",
+    trust_tier: "blocked",
+    approval_state: "denied",
+    capabilities: ["filesystem"],
+    allowed_tools: []
+  }
+];
+
+const agentProfiles = [
+  ["claude-code", "Claude Code", "Anthropic", "high", ["code_edit", "test", "shell", "mcp_tool_call"]],
+  ["codex", "OpenAI Codex", "OpenAI", "high", ["code_edit", "test", "shell", "git_operation"]],
+  ["github-copilot", "GitHub Copilot Agent", "GitHub", "medium", ["code_edit", "test", "pull_request"]],
+  ["cursor", "Cursor Agent", "Cursor", "medium", ["code_edit", "test", "repository_search"]],
+  ["gemini-cli", "Gemini CLI", "Google", "high", ["code_edit", "test", "cloud_assistance"]],
+  ["aws-q-developer", "AWS Q Developer", "AWS", "high", ["code_edit", "iam_review", "cloud_assistance"]]
+].map(([profile_id, display_name, vendor, risk_tier, default_capabilities]) => ({
+  profile_id, display_name, vendor, risk_tier, default_capabilities
+}));
+
+const mcpClassifications = [
+  ["filesystem", "local_resource", "high", "Prevent unapproved file and secret access."],
+  ["shell", "execution", "critical", "Route command execution through policy and approval gates."],
+  ["network", "egress", "medium", "Control data egress and supply-chain downloads."],
+  ["database", "data_access", "high", "Protect regulated data stores from autonomous reads and writes."],
+  ["saas", "enterprise_workflow", "medium", "Keep workflow automation scoped to approved tools."],
+  ["cloud", "infrastructure", "critical", "Prevent unapproved IAM and production changes."],
+  ["repository", "source_control", "medium", "Govern source-control automation and workflow changes."]
+].map(([capability, category, risk_tier, control_objective]) => ({
+  capability, category, risk_tier, control_objective
+}));
+
 let consoleConfig = null;
 
 function eventPayload(row, index) {
@@ -191,6 +268,62 @@ async function loadApprovals() {
   }
 }
 
+async function loadAgents() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      status: document.querySelector("#filterAgentStatus")?.value,
+      owner: document.querySelector("#filterAgentOwner")?.value.trim()
+    };
+    const response = await fetch(apiUrl("/agents", params));
+    if (!response.ok) throw new Error("Agent registry API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return agentCatalog;
+  }
+}
+
+async function loadMcpServers() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      trust_tier: document.querySelector("#filterMcpTrust")?.value,
+      capability: document.querySelector("#filterMcpCapability")?.value
+    };
+    const response = await fetch(apiUrl("/mcp/servers", params));
+    if (!response.ok) throw new Error("MCP registry API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return mcpCatalog;
+  }
+}
+
+async function loadAgentProfiles() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/agents/profiles"));
+    if (!response.ok) throw new Error("Agent profile API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return agentProfiles;
+  }
+}
+
+async function loadMcpClassifications() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/mcp/tool-classifications"));
+    if (!response.ok) throw new Error("MCP classification API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return mcpClassifications;
+  }
+}
+
 function filterEvidence(items) {
   const signer = document.querySelector("#filterSigner").value.trim().toLowerCase();
   const minBlocked = Number(document.querySelector("#filterBlocked").value || 0);
@@ -211,6 +344,22 @@ function filterApprovals(items) {
     .filter((item) => !group || String(item.approver_group || "").toLowerCase().includes(group));
 }
 
+function filterAgents(items) {
+  const status = document.querySelector("#filterAgentStatus").value;
+  const owner = document.querySelector("#filterAgentOwner").value.trim().toLowerCase();
+  return items
+    .filter((item) => !status || item.status === status)
+    .filter((item) => !owner || String(item.owner || "").toLowerCase().includes(owner));
+}
+
+function filterMcpServers(items) {
+  const trust = document.querySelector("#filterMcpTrust").value;
+  const capability = document.querySelector("#filterMcpCapability").value;
+  return items
+    .filter((item) => !trust || item.trust_tier === trust)
+    .filter((item) => !capability || (item.capabilities || []).includes(capability));
+}
+
 function renderEvidenceRows(items) {
   const rows = document.querySelector("#evidenceRows");
   const sessionSelect = document.querySelector("#attestationSession");
@@ -228,6 +377,68 @@ function renderEvidenceRows(items) {
       </tr>
     `);
     sessionSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(item.session_id)}">${escapeHtml(item.session_id)}</option>`);
+  }
+}
+
+function riskClass(value) {
+  if (value === "critical" || value === "high" || value === "blocked" || value === "denied") return "block";
+  if (value === "medium" || value === "experimental" || value === "pending") return "require_approval";
+  return "allow";
+}
+
+function renderRegistryRows(agents, mcpServers, profiles, classifications) {
+  const agentRows = document.querySelector("#agentRows");
+  const mcpRows = document.querySelector("#mcpRows");
+  const profileRows = document.querySelector("#agentProfileRows");
+  const classificationRows = document.querySelector("#mcpClassificationRows");
+  agentRows.innerHTML = "";
+  mcpRows.innerHTML = "";
+  profileRows.innerHTML = "";
+  classificationRows.innerHTML = "";
+  for (const item of agents) {
+    const capabilities = Array.isArray(item.capabilities) ? item.capabilities.join(", ") : "";
+    agentRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.agent_id || "unknown")}</td>
+        <td>${escapeHtml(item.vendor || "unknown")}</td>
+        <td>${escapeHtml(item.owner || "unassigned")}</td>
+        <td class="${riskClass(item.status)}">${escapeHtml(item.status || "active")}</td>
+        <td>${escapeHtml(capabilities || "n/a")}</td>
+        <td class="${riskClass(item.risk_tier)}">${escapeHtml(item.risk_tier || "medium")}</td>
+      </tr>
+    `);
+  }
+  for (const item of mcpServers) {
+    const capabilities = Array.isArray(item.capabilities) ? item.capabilities.join(", ") : "";
+    const tools = Array.isArray(item.allowed_tools) && item.allowed_tools.length ? item.allowed_tools.join(", ") : "approval required";
+    mcpRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.name || item.server_id || "unknown")}</td>
+        <td class="${riskClass(item.trust_tier)}">${escapeHtml(item.trust_tier || "unknown")}</td>
+        <td class="${riskClass(item.approval_state)}">${escapeHtml(item.approval_state || "pending")}</td>
+        <td>${escapeHtml(capabilities || "n/a")}</td>
+        <td>${escapeHtml(tools)}</td>
+      </tr>
+    `);
+  }
+  for (const item of profiles.slice(0, 6)) {
+    const capabilities = item.default_capabilities || [];
+    profileRows.insertAdjacentHTML("beforeend", `
+      <article class="profile-item">
+        <strong>${escapeHtml(item.display_name || item.profile_id)}</strong>
+        <span>${escapeHtml(item.vendor || "unknown")} · <span class="${riskClass(item.risk_tier)}">${escapeHtml(item.risk_tier || "medium")}</span></span>
+        <small>${escapeHtml(capabilities.slice(0, 4).join(", "))}</small>
+      </article>
+    `);
+  }
+  for (const item of classifications) {
+    classificationRows.insertAdjacentHTML("beforeend", `
+      <article class="profile-item">
+        <strong>${escapeHtml(item.capability)}</strong>
+        <span>${escapeHtml(item.category || "tool")} · <span class="${riskClass(item.risk_tier)}">${escapeHtml(item.risk_tier)}</span></span>
+        <small>${escapeHtml(item.control_objective || "")}</small>
+      </article>
+    `);
   }
 }
 
@@ -292,6 +503,16 @@ async function refreshEvidence() {
 async function refreshApprovals() {
   const items = filterApprovals(await loadApprovals());
   renderApprovalRows(items);
+}
+
+async function refreshRegistry() {
+  const [agents, mcpServers, profiles, classifications] = await Promise.all([
+    loadAgents(),
+    loadMcpServers(),
+    loadAgentProfiles(),
+    loadMcpClassifications()
+  ]);
+  renderRegistryRows(filterAgents(agents), filterMcpServers(mcpServers), profiles, classifications);
 }
 
 async function submitApprovalAction(approvalId, action) {
@@ -418,6 +639,7 @@ async function verifyAttestation() {
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
+document.querySelector("#refreshRegistry").addEventListener("click", refreshRegistry);
 document.querySelector("#createBreakGlass").addEventListener("click", createBreakGlassApproval);
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
@@ -436,3 +658,4 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 });
 refreshEvidence();
 refreshApprovals();
+refreshRegistry();

@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from cavra.registry import RegistryStore, evaluate_mcp_registry_trust
+from cavra.registry import (
+    SQLiteRegistryStore,
+    RegistryStore,
+    classify_mcp_capability,
+    default_agent_profiles,
+    default_mcp_tool_classifications,
+    evaluate_mcp_registry_trust,
+)
 from cavra.runtime import RuntimeGuard
 
 
@@ -31,6 +38,35 @@ def test_registry_store_upserts_agent_and_mcp_server(tmp_path: Path) -> None:
     assert store.list_agents(owner="Platform AI")["total"] == 1
     assert server["trust_tier"] == "approved"
     assert store.list_mcp_servers(capability="repository")["total"] == 1
+
+
+def test_sqlite_registry_store_upserts_and_filters(tmp_path: Path) -> None:
+    store = SQLiteRegistryStore(tmp_path / "registry.db")
+
+    store.upsert_agent(
+        {
+            "agent_id": "claude-code",
+            "vendor": "Anthropic",
+            "capabilities": ["code_edit", "mcp_tool_call"],
+            "owner": "AI Platform",
+            "status": "active",
+        }
+    )
+    store.upsert_mcp_server(
+        {
+            "server_id": "filesystem-mcp",
+            "trust_tier": "approved",
+            "approval_state": "approved",
+            "capabilities": ["filesystem"],
+            "allowed_tools": ["read_file"],
+            "owner": "Platform Security",
+        }
+    )
+
+    assert store.list_agents(status="active")["total"] == 1
+    assert store.get_agent("claude-code")["vendor"] == "Anthropic"
+    assert store.list_mcp_servers(capability="filesystem")["total"] == 1
+    assert store.evaluate_mcp("filesystem-mcp", "read_file", "filesystem")["decision"] == "allow"
 
 
 def test_mcp_registry_trust_allows_approved_server_scope(tmp_path: Path) -> None:
@@ -104,3 +140,12 @@ def test_runtime_guard_uses_registry_for_mcp_decisions(tmp_path: Path) -> None:
     assert allowed.rule_id == "mcp.registry.allow"
     assert blocked.decision == "block"
     assert blocked.rule_id == "mcp.registry.unknown"
+
+
+def test_default_profiles_and_mcp_classifications() -> None:
+    profiles = default_agent_profiles()
+    classifications = default_mcp_tool_classifications()
+
+    assert {item["profile_id"] for item in profiles["items"]} >= {"claude-code", "codex", "github-copilot"}
+    assert classify_mcp_capability("cloud")["risk_tier"] == "critical"
+    assert {item["capability"] for item in classifications["items"]} >= {"filesystem", "shell", "network", "database", "saas", "cloud"}

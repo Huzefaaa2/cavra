@@ -18,7 +18,13 @@ from cavra.approvals import (
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
-from cavra.registry import RegistryStore
+from cavra.registry import (
+    RegistryStore,
+    SQLiteRegistryStore,
+    classify_mcp_capability,
+    default_agent_profiles,
+    default_mcp_tool_classifications,
+)
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
 
@@ -64,7 +70,11 @@ def create_app():
     provider_config = load_provider_config(Path(os.environ["CAVRA_APPROVAL_PROVIDER_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_PROVIDER_CONFIG") else None
     rbac_rules = load_rbac_rules(Path(os.environ["CAVRA_APPROVAL_RBAC_FILE"])) if os.environ.get("CAVRA_APPROVAL_RBAC_FILE") else {}
     oidc_config = load_oidc_config(Path(os.environ["CAVRA_APPROVAL_OIDC_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_OIDC_CONFIG") else {}
-    registry_store = RegistryStore(Path(os.environ.get("CAVRA_REGISTRY_STORE", ".cavra/api/registry.json")))
+    registry_store = (
+        SQLiteRegistryStore(Path(os.environ["CAVRA_REGISTRY_DB"]))
+        if os.environ.get("CAVRA_REGISTRY_DB")
+        else RegistryStore(Path(os.environ.get("CAVRA_REGISTRY_STORE", ".cavra/api/registry.json")))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -78,11 +88,13 @@ def create_app():
     def console_config() -> dict[str, object]:
         metadata_mode = "sqlite" if isinstance(evidence_store, SQLiteEvidenceMetadataStore) else "json"
         approval_mode = "sqlite" if isinstance(approval_store, SQLiteApprovalStore) else "json"
+        registry_mode = "sqlite" if isinstance(registry_store, SQLiteRegistryStore) else "json"
         return {
             "product": "CAVRA",
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
             "metadata_mode": metadata_mode,
             "approval_mode": approval_mode,
+            "registry_mode": registry_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
@@ -92,6 +104,9 @@ def create_app():
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
                 "approvals": "/approvals",
+                "agents": "/agents",
+                "mcp_servers": "/mcp/servers",
+                "mcp_trust": "/mcp/trust",
                 "sandbox_run": "/api/sandbox/run",
             },
         }
@@ -120,6 +135,10 @@ def create_app():
     def agents(status: Optional[str] = None, owner: Optional[str] = None) -> dict:
         return registry_store.list_agents(status=status, owner=owner)
 
+    @app.get("/agents/profiles")
+    def agent_profiles() -> dict:
+        return default_agent_profiles()
+
     @app.post("/agents")
     def upsert_agent(payload: dict) -> dict:
         try:
@@ -141,6 +160,15 @@ def create_app():
         capability: Optional[str] = None,
     ) -> dict:
         return registry_store.list_mcp_servers(trust_tier=trust_tier, approval_state=approval_state, capability=capability)
+
+    @app.get("/mcp/tool-classifications")
+    def mcp_tool_classifications(capability: Optional[str] = None) -> dict:
+        if capability:
+            item = classify_mcp_capability(capability)
+            if item is None:
+                raise HTTPException(status_code=404, detail="MCP capability classification not found")
+            return item
+        return default_mcp_tool_classifications()
 
     @app.post("/mcp/servers")
     def upsert_mcp_server(payload: dict) -> dict:

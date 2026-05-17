@@ -12,12 +12,12 @@ Approval router: `approval create`, `list`, `approve`, `deny`, `expire`, `break-
 
 Existing API endpoints: `/health`, `/version`, `/policies`, `/policy-packs`, `/decisions`, `/sessions`, `/agents`, `/repositories`, `/approvals`, `/evidence`, `/integrations`, `/mcp/servers`, `/mcp/trust`, `/risk/events`, `/compliance/mappings`, and sandbox endpoints under `/api/sandbox`.
 
-Agent and MCP registry: `registry agent-register`, `registry agent-list`, `registry mcp-register`, `registry mcp-list`, and `registry mcp-check` support JSON-backed governed agent identities, MCP trust tiers, approved tools, capabilities, owner, approval state, last-seen metadata, and registry-backed MCP runtime decisions.
+Agent and MCP registry: `registry agent-register`, `registry agent-list`, `registry profiles`, `registry mcp-register`, `registry mcp-list`, `registry mcp-check`, `registry mcp-classifications`, and `registry migrate` support JSON/SQLite governed agent identities, MCP trust tiers, approved tools, capabilities, owner, approval state, last-seen metadata, predefined agent capability profiles, MCP tool classifications, console registry views, and registry-backed MCP runtime decisions.
 
 Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic, MCP enterprise, Kubernetes prod, Terraform/OpenTofu prod, cloud IAM, GitHub Enterprise, GitLab Enterprise.
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: SQLite registry migrations, console registry views, full persistent API storage for every domain, packaged Go backend, hosted sandbox deployment, and vendor-specific hooks beyond the MCP/CLI path.
+Known gaps: full persistent API storage for sessions and decisions, packaged Go backend, hosted sandbox deployment, hosted attestation artifact retrieval, and vendor-specific hooks beyond the MCP/CLI path.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.

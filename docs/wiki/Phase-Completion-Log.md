@@ -99,7 +99,7 @@ Recommended next issue: start Phase 5 with agent registry models/API, MCP server
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
-Status: in progress.
+Status: complete for the current production-readiness slice.
 
 Completed:
 - JSON-backed registry store for governed AI-agent identities.
@@ -109,8 +109,12 @@ Completed:
 - API endpoints for `/agents`, `/agents/{agent_id}`, `/mcp/servers`, `/mcp/servers/{server_id}`, and `/mcp/trust`.
 - Registry-backed MCP runtime decisions for approved, unknown, blocked, pending, and out-of-scope MCP tool calls.
 - Unknown MCP server default-deny behavior covered by tests.
+- SQLite registry persistence and migration.
+- Predefined agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
+- MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities.
+- Console registry views for agent identities, MCP trust records, profiles, and classifications.
 
-Recommended next issue: add SQLite registry persistence and migrations, console registry views, predefined agent capability profiles, and MCP tool classification.
+Recommended next issue: start Phase 6 with durable session and decision persistence, console session/decision views, API filters, and hosted attestation artifact retrieval.
 
 ## Transparent Agent Methodology Enablement
 

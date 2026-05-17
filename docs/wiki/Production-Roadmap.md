@@ -26,15 +26,15 @@ Status: complete for the current production-readiness slice.
 
 Implemented approval request JSON and SQLite persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, default routing policies, repository-specific routing files, local claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC policy files, reference notification payloads, credential-free provider request specs, secret-backed live provider delivery with redacted evidence, console approval queue actions, console break-glass creation, approval audit detail views, and approval outcome linkage into evidence and PR attestations.
 
-Next: continue Phase 5 with SQLite registry migrations, console registry views, predefined agent capability profiles, MCP tool classification, and hosted attestation artifact retrieval.
+Next: start Phase 6 with durable session and decision persistence. Keep hosted attestation artifact retrieval as a narrow Phase 3 follow-up.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
-Status: in progress.
+Status: complete for the current production-readiness slice.
 
-Implemented JSON-backed governed agent identities, MCP server trust tiers, owner/capability/approval-state metadata, API and CLI access, default-deny unknown server mode, and registry-backed MCP runtime decisions.
+Implemented JSON/SQLite governed agent identities, MCP server trust tiers, owner/capability/approval-state metadata, API and CLI access, default-deny unknown server mode, predefined profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer, MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities, console registry views, and registry-backed MCP runtime decisions.
 
-Next: SQLite registry migrations, console registry views, predefined agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer, and MCP tool classification for filesystem, shell, network, database, SaaS, and cloud.
+Next: persistent session and decision stores, console session/decision views, policy and repository filters, and hosted attestation artifact retrieval.
 
 ## Phase 6: Console and Persistent API
 

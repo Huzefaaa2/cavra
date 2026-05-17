@@ -254,6 +254,6 @@ def test_apply_sqlite_migrations_is_idempotent(tmp_path: Path) -> None:
     first = apply_sqlite_migrations(database, migrations_dir)
     second = apply_sqlite_migrations(database, migrations_dir)
 
-    assert first["applied"] == ["001_evidence_metadata.sql", "002_approval_router.sql"]
+    assert first["applied"] == ["001_evidence_metadata.sql", "002_approval_router.sql", "003_agent_mcp_registry.sql"]
     assert second["applied"] == []
-    assert second["skipped"] == ["001_evidence_metadata.sql", "002_approval_router.sql"]
+    assert second["skipped"] == ["001_evidence_metadata.sql", "002_approval_router.sql", "003_agent_mcp_registry.sql"]

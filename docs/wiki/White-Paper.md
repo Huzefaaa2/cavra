@@ -48,6 +48,7 @@ Management plane:
 - Policy registry.
 - Evidence hub.
 - Approval router.
+- Agent Registry and MCP Trust Registry with JSON/SQLite persistence.
 - FastAPI backend.
 - Claude Code and MCP adapters.
 - Compliance packs.
@@ -95,10 +96,10 @@ The path to production readiness is:
 
 1. Productization foundation.
 2. Policy engine hardening. This phase is complete and adds schema validation, inheritance, semantic diff, compile output, and policy signature metadata.
-3. Evidence hub and attestation. This is the next recommended phase.
-4. Approval router.
-5. Agent Registry and MCP Trust Registry.
-6. Console and persistent API.
+3. Evidence hub and attestation. This phase is near complete and includes signed evidence, SIEM exports, retention, trust roots, metadata search, and console evidence views.
+4. Approval router. This phase is complete for the current production-readiness slice and includes approval routing, OIDC/JWKS, repository RBAC, provider delivery, break-glass, and audit views.
+5. Agent Registry and MCP Trust Registry. This phase is complete for the current production-readiness slice and includes JSON/SQLite registry persistence, agent profiles, MCP capability classification, console views, and registry-backed runtime decisions.
+6. Console and persistent API. This is the next recommended phase for durable sessions, decisions, repository scope, and policy views.
 7. Go enforcement plane.
 8. Enterprise integrations.
 9. Public sandbox and growth loop.

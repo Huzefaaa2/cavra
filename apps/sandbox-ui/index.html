@@ -155,6 +155,68 @@
           <div id="approvalDetail" class="detail-panel">Select Details from an approval row.</div>
         </div>
       </section>
+      <section class="console registry-console">
+        <div class="console-header">
+          <div>
+            <h2>Agent and MCP Registry</h2>
+            <p>Inspect governed agent profiles, active agent identities, approved MCP servers, and tool capability risk.</p>
+          </div>
+          <button id="refreshRegistry">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Agent status <select id="filterAgentStatus"><option value="">Any</option><option value="active">Active</option><option value="disabled">Disabled</option><option value="retired">Retired</option></select></label>
+          <label>Agent owner <input id="filterAgentOwner" placeholder="AI Platform" /></label>
+          <label>MCP trust <select id="filterMcpTrust"><option value="">Any</option><option value="trusted">Trusted</option><option value="approved">Approved</option><option value="experimental">Experimental</option><option value="blocked">Blocked</option><option value="unknown">Unknown</option></select></label>
+          <label>Capability <select id="filterMcpCapability"><option value="">Any</option><option value="filesystem">Filesystem</option><option value="shell">Shell</option><option value="network">Network</option><option value="database">Database</option><option value="saas">SaaS</option><option value="cloud">Cloud</option><option value="repository">Repository</option></select></label>
+        </div>
+        <div class="registry-grid">
+          <div>
+            <h3>Agents</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Vendor</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Capabilities</th>
+                    <th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="agentRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>MCP Trust</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Server</th>
+                    <th>Trust</th>
+                    <th>Approval</th>
+                    <th>Capabilities</th>
+                    <th>Tools</th>
+                  </tr>
+                </thead>
+                <tbody id="mcpRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="registry-grid secondary-grid">
+          <div>
+            <h3>Capability Profiles</h3>
+            <div id="agentProfileRows" class="profile-list"></div>
+          </div>
+          <div>
+            <h3>MCP Tool Classification</h3>
+            <div id="mcpClassificationRows" class="profile-list"></div>
+          </div>
+        </div>
+      </section>
     </main>
     <script src="./sandbox.js"></script>
   </body>

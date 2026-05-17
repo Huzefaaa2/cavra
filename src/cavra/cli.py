@@ -49,7 +49,13 @@ from cavra.policy_engine import (
     write_policy_signature,
 )
 from cavra.policy_registry import PolicyRegistry
-from cavra.registry import RegistryStore
+from cavra.registry import (
+    RegistryStore,
+    SQLiteRegistryStore,
+    classify_mcp_capability,
+    default_agent_profiles,
+    default_mcp_tool_classifications,
+)
 from cavra.runtime import RuntimeGuard
 
 console = Console()
@@ -951,6 +957,7 @@ def _actor_context(
 def register_agent(
     agent_id: Annotated[str, typer.Argument(help="Agent ID.")],
     store: Annotated[Path, typer.Option(help="Registry store JSON path.")] = Path(".cavra/registry.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="SQLite registry database path.")] = None,
     agent_type: Annotated[str, typer.Option(help="Agent type.")] = "coding-agent",
     vendor: Annotated[str, typer.Option(help="Agent vendor.")] = "unknown",
     version: Annotated[str, typer.Option(help="Agent version.")] = "unknown",
@@ -964,7 +971,7 @@ def register_agent(
 ) -> None:
     """Register or update a governed AI-agent identity."""
     try:
-        record = RegistryStore(store).upsert_agent(
+        record = _registry_store(store, sqlite).upsert_agent(
             {
                 "agent_id": agent_id,
                 "type": agent_type,
@@ -982,23 +989,31 @@ def register_agent(
     except ValueError as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    console.print(JSON(json.dumps(record, indent=2)))
+    _print_json(record)
 
 
 @registry_app.command("agent-list")
 def list_agents(
     store: Annotated[Path, typer.Option(help="Registry store JSON path.")] = Path(".cavra/registry.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="SQLite registry database path.")] = None,
     status: Annotated[Optional[str], typer.Option(help="Filter by status.")] = None,
     owner: Annotated[Optional[str], typer.Option(help="Filter by owner.")] = None,
 ) -> None:
     """List governed AI-agent identities."""
-    console.print(JSON(json.dumps(RegistryStore(store).list_agents(status=status, owner=owner), indent=2)))
+    _print_json(_registry_store(store, sqlite).list_agents(status=status, owner=owner))
+
+
+@registry_app.command("profiles")
+def list_agent_profiles() -> None:
+    """List predefined AI-agent capability profiles."""
+    _print_json(default_agent_profiles())
 
 
 @registry_app.command("mcp-register")
 def register_mcp_server(
     server_id: Annotated[str, typer.Argument(help="MCP server ID.")],
     store: Annotated[Path, typer.Option(help="Registry store JSON path.")] = Path(".cavra/registry.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="SQLite registry database path.")] = None,
     name: Annotated[Optional[str], typer.Option(help="Display name.")] = None,
     trust_tier: Annotated[str, typer.Option(help="trusted, approved, experimental, blocked, or unknown.")] = "unknown",
     capability: Annotated[list[str], typer.Option("--capability", help="Approved capability.")] = [],
@@ -1008,7 +1023,7 @@ def register_mcp_server(
 ) -> None:
     """Register or update an MCP server trust record."""
     try:
-        record = RegistryStore(store).upsert_mcp_server(
+        record = _registry_store(store, sqlite).upsert_mcp_server(
             {
                 "server_id": server_id,
                 "name": name or server_id,
@@ -1022,19 +1037,20 @@ def register_mcp_server(
     except ValueError as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    console.print(JSON(json.dumps(record, indent=2)))
+    _print_json(record)
 
 
 @registry_app.command("mcp-list")
 def list_mcp_servers(
     store: Annotated[Path, typer.Option(help="Registry store JSON path.")] = Path(".cavra/registry.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="SQLite registry database path.")] = None,
     trust_tier: Annotated[Optional[str], typer.Option(help="Filter by trust tier.")] = None,
     approval_state: Annotated[Optional[str], typer.Option(help="Filter by approval state.")] = None,
     capability: Annotated[Optional[str], typer.Option(help="Filter by capability.")] = None,
 ) -> None:
     """List MCP server trust records."""
-    result = RegistryStore(store).list_mcp_servers(trust_tier=trust_tier, approval_state=approval_state, capability=capability)
-    console.print(JSON(json.dumps(result, indent=2)))
+    result = _registry_store(store, sqlite).list_mcp_servers(trust_tier=trust_tier, approval_state=approval_state, capability=capability)
+    _print_json(result)
 
 
 @registry_app.command("mcp-check")
@@ -1042,10 +1058,46 @@ def check_mcp_server(
     server_id: Annotated[str, typer.Argument(help="MCP server ID.")],
     tool: Annotated[str, typer.Argument(help="Requested MCP tool.")],
     store: Annotated[Path, typer.Option(help="Registry store JSON path.")] = Path(".cavra/registry.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="SQLite registry database path.")] = None,
     capability: Annotated[Optional[str], typer.Option(help="Requested capability.")] = None,
 ) -> None:
     """Evaluate an MCP tool call against the trust registry."""
-    console.print(JSON(json.dumps(RegistryStore(store).evaluate_mcp(server_id, tool, capability), indent=2)))
+    _print_json(_registry_store(store, sqlite).evaluate_mcp(server_id, tool, capability))
+
+
+@registry_app.command("mcp-classifications")
+def list_mcp_classifications(
+    capability: Annotated[Optional[str], typer.Option(help="Filter by capability.")] = None,
+) -> None:
+    """List MCP tool capability classifications."""
+    if capability:
+        item = classify_mcp_capability(capability)
+        if item is None:
+            console.print(f"[red]unknown MCP capability:[/red] {capability}")
+            raise typer.Exit(code=1)
+        _print_json(item)
+    else:
+        _print_json(default_mcp_tool_classifications())
+
+
+@registry_app.command("migrate")
+def migrate_registry(
+    sqlite: Annotated[Path, typer.Option(help="SQLite registry database path.")] = Path(".cavra/registry.db"),
+    migrations: Annotated[Path, typer.Option(help="SQLite migrations directory.")] = Path("migrations/sqlite"),
+) -> None:
+    """Apply SQLite migrations for the registry and other CAVRA metadata tables."""
+    result = apply_sqlite_migrations(sqlite, migrations)
+    _print_json(result)
+
+
+def _registry_store(store: Path, sqlite: Path | None) -> RegistryStore | SQLiteRegistryStore:
+    if sqlite is not None:
+        return SQLiteRegistryStore(sqlite)
+    return RegistryStore(store)
+
+
+def _print_json(payload: object) -> None:
+    typer.echo(json.dumps(payload, indent=2))
 
 
 @demo_app.command("before-the-agent-acts")

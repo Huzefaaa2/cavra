@@ -97,6 +97,7 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
 
 
 def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_REGISTRY_DB", raising=False)
     monkeypatch.setenv("CAVRA_REGISTRY_STORE", str(tmp_path / "registry.json"))
     client = TestClient(create_app())
 
@@ -128,6 +129,38 @@ def test_api_registry_agents_and_mcp_trust(monkeypatch, tmp_path) -> None:
     assert trust.json()["decision"] == "allow"
     assert decision.json()["rule_id"] == "mcp.registry.allow"
     assert config["registry_store"].endswith("registry.json")
+
+
+def test_api_sqlite_registry_and_catalogs(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_REGISTRY_STORE", raising=False)
+    monkeypatch.setenv("CAVRA_REGISTRY_DB", str(tmp_path / "registry.db"))
+    client = TestClient(create_app())
+
+    agent = client.post(
+        "/agents",
+        json={"agent_id": "claude-code", "vendor": "Anthropic", "capabilities": ["mcp_tool_call"], "owner": "AI Platform"},
+    )
+    mcp = client.post(
+        "/mcp/servers",
+        json={
+            "server_id": "filesystem-mcp",
+            "trust_tier": "approved",
+            "approval_state": "approved",
+            "capabilities": ["filesystem"],
+            "allowed_tools": ["read_file"],
+        },
+    )
+    profiles = client.get("/agents/profiles")
+    classification = client.get("/mcp/tool-classifications", params={"capability": "filesystem"})
+    config = client.get("/console/config").json()
+
+    assert agent.status_code == 200
+    assert mcp.status_code == 200
+    assert client.get("/agents", params={"owner": "AI Platform"}).json()["total"] == 1
+    assert client.get("/mcp/servers", params={"capability": "filesystem"}).json()["total"] == 1
+    assert {item["profile_id"] for item in profiles.json()["items"]} >= {"claude-code", "codex"}
+    assert classification.json()["risk_tier"] == "high"
+    assert config["registry_mode"] == "sqlite"
 
 
 def test_api_approval_lifecycle(monkeypatch, tmp_path) -> None:

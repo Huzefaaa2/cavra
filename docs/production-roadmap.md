@@ -146,7 +146,7 @@ Exit criteria:
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
-Status: in progress.
+Status: complete for the current production-readiness slice.
 
 Goal: make agents and tools governed identities, not anonymous processes.
 
@@ -157,10 +157,10 @@ Implement:
 - MCP trust CLI commands. Delivered.
 - Registry-backed runtime decisions for MCP tool calls. Delivered.
 - Unknown MCP server default-deny mode. Delivered.
-- Agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer. Next.
-- MCP tool classification for filesystem, shell, network, database, SaaS, and cloud. Next.
-- SQLite registry persistence and migrations. Next.
-- Console registry views. Next.
+- Agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer. Delivered.
+- MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities. Delivered.
+- SQLite registry persistence and migrations. Delivered.
+- Console registry views. Delivered.
 
 User stories:
 - As an AI governance lead, I can see which agents are active and what they are allowed to do.
@@ -174,6 +174,7 @@ Exit criteria:
 - Registry CRUD works through API and CLI.
 - MCP decisions use registry trust state.
 - Unknown filesystem MCP server remains blocked in tests.
+- Console can browse agent identities, MCP trust records, profiles, and capability classifications.
 
 ## Phase 6: Console and Persistent API
 
@@ -302,13 +303,13 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: Phase 5, Agent Registry and MCP Trust Registry. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
+Next recommended implementation phase: Phase 6, Console and Persistent API. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, and JSON/SQLite registry-backed agent and MCP trust governance.
 
 Immediate next tasks:
-- Add SQLite registry persistence and migrations.
-- Add console views for agent identities and MCP trust records.
-- Add predefined agent capability profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
-- Add MCP tool classification for filesystem, shell, network, database, SaaS, and cloud.
+- Add persistent session and decision stores with SQLite migrations.
+- Add console views for sessions, decisions, policy packs, and repository scope.
+- Add API filters for agent, repository, policy pack, decision, severity, and time range.
+- Add documentation for backup, restore, and data retention for the persistent API.
 - Add hosted attestation artifact download APIs backed by governed object storage.

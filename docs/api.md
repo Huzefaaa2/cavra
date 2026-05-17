@@ -7,16 +7,20 @@ CAVRA API exposes health, version, policy packs, decisions, sessions, agents, re
 Registry endpoints:
 
 - `GET /agents`: list governed AI-agent identities with optional `status` and `owner` filters.
+- `GET /agents/profiles`: list predefined profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer.
 - `POST /agents`: create or update an agent identity.
 - `GET /agents/{agent_id}`: fetch one agent identity.
 - `GET /mcp/servers`: list MCP server trust records with optional `trust_tier`, `approval_state`, and `capability` filters.
 - `POST /mcp/servers`: create or update an MCP server trust record.
 - `GET /mcp/servers/{server_id}`: fetch one MCP server trust record.
+- `GET /mcp/tool-classifications`: list MCP capability classifications for filesystem, shell, network, database, SaaS, cloud, and repository tools.
 - `GET /mcp/trust`: evaluate a server, tool, and capability against the MCP Trust Registry.
 
 Default registry path: `.cavra/api/registry.json`.
 
-Set `CAVRA_REGISTRY_STORE` to override the registry store path. When the registry is configured, `/decisions` uses registry-backed MCP trust decisions for `mcp_tool_call` actions.
+Set `CAVRA_REGISTRY_STORE` to override the registry JSON path.
+
+Set `CAVRA_REGISTRY_DB` to use SQLite-backed registry persistence. `GET /console/config` includes `registry_mode`. When the registry is configured, `/decisions` uses registry-backed MCP trust decisions for `mcp_tool_call` actions.
 
 ## Evidence Metadata
 
@@ -73,7 +77,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes evidence search, PR attestation verification, and approval queue views. It can run as a standalone static demo or query the API evidence metadata and approval endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, and endpoint paths. Configure cross-origin deployments with:
 
