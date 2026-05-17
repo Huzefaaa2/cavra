@@ -6,7 +6,7 @@ See `docs/diagrams/c4-context.md`.
 
 ## C4 Container
 
-See `docs/diagrams/c4-container.md`. The current container diagram marks the Approval Router as an implemented JSON/SQLite-backed lifecycle service with repository routing, claims-aware authorization, console actions, and provider request specs. It keeps the Go enforcement plane plus Agent/MCP registry as planned containers.
+See `docs/diagrams/c4-container.md`. The current container diagram marks the Approval Router as an implemented JSON/SQLite-backed lifecycle service with repository routing, claims-aware authorization, console actions, provider request specs, and live provider delivery evidence. It keeps the Go enforcement plane plus Agent/MCP registry as planned containers.
 
 ## Runtime Components
 

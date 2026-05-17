@@ -36,6 +36,7 @@ Cross-origin deployment:
 CAVRA_PUBLIC_API_BASE_URL=https://api.cavra.example \
 CAVRA_CORS_ORIGINS=https://console.cavra.example \
 CAVRA_EVIDENCE_METADATA_DB=.cavra/evidence/metadata.db \
+CAVRA_APPROVAL_PROVIDER_CONFIG=.cavra/approval-providers.yaml \
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 

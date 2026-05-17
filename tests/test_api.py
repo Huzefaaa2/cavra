@@ -153,6 +153,57 @@ def test_api_approval_actor_claims_enforce_group(monkeypatch, tmp_path) -> None:
     assert accepted.json()["state"] == "approved"
 
 
+def test_api_approval_delivers_with_configured_provider(monkeypatch, tmp_path) -> None:
+    provider_config = tmp_path / "providers.json"
+    provider_config.write_text(
+        '{"approval_providers":{"webhook":{"url":"https://approval.example/hook"}}}',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_PROVIDER_CONFIG", str(provider_config))
+    calls = []
+
+    def fake_deliver(approval, config, *, provider, retries, timeout_seconds):
+        calls.append((approval, config, provider, retries, timeout_seconds))
+        return {
+            "schema_version": "cavra.approval.delivery.v1",
+            "approval_id": approval["approval_id"],
+            "success": True,
+            "deliveries": [{"provider": provider, "success": True}],
+        }
+
+    monkeypatch.setattr("cavra.api.deliver_provider_requests", fake_deliver)
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    delivered = client.post(f"/approvals/{approval_id}/deliver", json={"provider": "webhook", "retries": 1, "timeout_seconds": 3})
+    config = client.get("/console/config").json()
+
+    assert delivered.status_code == 200
+    assert delivered.json()["success"] is True
+    assert calls[0][2:] == ("webhook", 1, 3.0)
+    assert config["approval_provider_delivery"] == "configured"
+
+
+def test_api_approval_delivery_requires_provider_config(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_APPROVAL_PROVIDER_CONFIG", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+    approval_id = client.post("/approvals", json={"decision": decision, "requested_by": "developer"}).json()["approval_id"]
+
+    delivered = client.post(f"/approvals/{approval_id}/deliver", json={"provider": "webhook"})
+
+    assert delivered.status_code == 400
+
+
 def test_api_approval_accepts_raw_decision_payload(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())

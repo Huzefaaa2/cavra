@@ -16,6 +16,7 @@ Phase 4 introduces a local approval router for self-hosted pilots:
 - Approval outcomes can be attached back to decisions so evidence bundles and PR attestations include approval state.
 - Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported without live provider credentials.
 - Credential-free HTTP request specs can be exported for approval-provider integration testing.
+- Live approval provider delivery can send Slack, Teams, Jira, ServiceNow, or generic webhook requests with secret-backed URLs and tokens.
 
 Default approval store:
 
@@ -59,6 +60,7 @@ cavra approval expire apr_123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
+cavra approval deliver apr_123 --config .cavra/approval-providers.yaml --provider jira --output .cavra/approvals/deliveries
 ```
 
 Repository routing files can use `approval_routing` or `routing_rules` as the top-level key:
@@ -92,6 +94,7 @@ Claims-based authorization accepts a local claims JSON file for CLI decisions or
 - `POST /approvals/{approval_id}/approve`
 - `POST /approvals/{approval_id}/deny`
 - `POST /approvals/{approval_id}/expire`
+- `POST /approvals/{approval_id}/deliver`
 - `POST /approvals/{approval_id}/attach-decision`
 - `POST /approvals/break-glass`
 
@@ -113,12 +116,35 @@ Pending rows expose approve, deny, and expire actions. When the API is reachable
 
 `cavra approval provider-requests` writes credential-free HTTP request specs for Slack, Teams, Jira, ServiceNow, and webhook providers. These specs intentionally use placeholder URLs or environment-token references so they can be reviewed without exposing secrets.
 
+`cavra approval deliver` sends live HTTP requests and writes redacted delivery evidence:
+
+```yaml
+approval_providers:
+  slack:
+    enabled: true
+    url_env: CAVRA_SLACK_WEBHOOK_URL
+  jira:
+    enabled: true
+    url: https://jira.example/rest/api/3/issue
+    token_env: JIRA_TOKEN
+  servicenow:
+    enabled: true
+    url: https://instance.service-now.com/api/now/table/change_request
+    token_env: SERVICENOW_TOKEN
+  webhook:
+    enabled: true
+    url_env: CAVRA_APPROVAL_WEBHOOK_URL
+```
+
+Delivery evidence is written to `.cavra/approvals/deliveries` by default. Authorization headers and known webhook secret query strings are redacted in the evidence output.
+
 ## User Stories
 
 - As an IAM owner, I can approve a scoped privilege change with an external change ticket.
 - As a repository owner, I can override default approval routing for repo-specific risk boundaries.
 - As a change manager, I can deny risky agent actions with a recorded reason.
 - As an identity administrator, I can require approvers to carry matching OIDC groups before a decision is accepted.
+- As a change manager, I can deliver approval requests to existing ITSM or ChatOps systems and retain delivery evidence.
 - As an incident commander, I can use break glass only when a mandatory justification is captured.
 - As an auditor, I can see approval state in CAVRA evidence and PR attestations.
 

@@ -35,6 +35,7 @@ Approval endpoints:
 - `POST /approvals/{approval_id}/approve`: approve a pending request with actor, reason, and optional external reference.
 - `POST /approvals/{approval_id}/deny`: deny a pending request with actor, reason, and optional external reference.
 - `POST /approvals/{approval_id}/expire`: expire a pending request.
+- `POST /approvals/{approval_id}/deliver`: send configured approval provider requests and return redacted delivery evidence.
 - `POST /approvals/{approval_id}/attach-decision`: attach approval summary and evidence refs to a decision payload.
 - `POST /approvals/break-glass`: create a mandatory-reason emergency override.
 
@@ -47,6 +48,8 @@ Set `CAVRA_APPROVAL_DB` to use SQLite-backed approval persistence. `GET /approva
 Set `CAVRA_APPROVAL_ROUTING_FILE` to load repository-specific JSON or YAML approval routing rules at API startup. `POST /approvals` uses those rules unless the request payload supplies an explicit `approver_group`.
 
 Approval decision endpoints accept an optional `actor_claims` object with OIDC-style fields such as `email`, `preferred_username`, `sub`, `groups`, `roles`, and `iss`. When claims are present, the actor must belong to the approval request's approver group before the API accepts approve or deny decisions.
+
+Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to enable `POST /approvals/{approval_id}/deliver`. Delivery requests accept `provider`, `retries`, and `timeout_seconds`; responses include redacted request metadata, status, attempt count, and error state for evidence.
 
 ## Console
 

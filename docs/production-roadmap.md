@@ -123,9 +123,9 @@ Implement:
 - Console approval queue view. Delivered.
 - Repository-specific routing policy configuration. Delivered.
 - Credential-free provider request specs for Slack, Teams, Jira, ServiceNow, and webhooks. Delivered.
+- Secret-backed live provider delivery with retry, timeout, and redacted delivery evidence. Delivered.
 - Approval RBAC and OIDC-style actor mapping. Delivered for local claims objects.
 - Console approval actions for approve, deny, and expire. Delivered.
-- Live Jira, ServiceNow, Slack, and Teams provider calls. Next.
 - Signed OIDC token validation and repository RBAC policy management. Next.
 
 User stories:
@@ -292,12 +292,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: continue Phase 4, Approval Router, with production provider delivery and signed identity validation. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
+Next recommended implementation phase: continue Phase 4, Approval Router, with signed identity validation and richer console approval operations. Keep a narrow Phase 3 follow-up for hosted attestation artifact downloads.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Add live provider adapters for Slack, Teams, Jira, ServiceNow, and generic webhooks with retry, timeout, and failure evidence.
 - Add signed OIDC token validation, JWKS configuration, issuer and audience checks, and repository RBAC policy management.
 - Add console break-glass creation and approval audit detail views.
 - Add hosted attestation artifact download APIs backed by governed object storage.

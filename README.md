@@ -150,6 +150,7 @@ cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
+cavra approval deliver apr_123 --config .cavra/approval-providers.yaml --provider jira --output .cavra/approvals/deliveries
 ```
 
 Approval workflows are documented in [docs/approval-workflows.md](docs/approval-workflows.md).
@@ -213,7 +214,7 @@ Current phase status:
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
-- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, claims-based authorization, provider request specs, and console actions.
+- Phase 4: Approval Router - in progress in PR #1 with JSON/SQLite persistence, routing files, claims-based authorization, provider request specs, live provider delivery, and console actions.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
 - Phase 7: Go Enforcement Plane.
@@ -223,8 +224,8 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add live approval provider delivery for Slack, Teams, Jira, ServiceNow, and generic webhooks with secret-backed configuration.
 - Add signed OIDC token validation and repository RBAC policy management for approval decisions.
+- Add console break-glass creation and approval audit detail views.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value

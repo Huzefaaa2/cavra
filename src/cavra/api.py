@@ -4,7 +4,15 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from cavra.approvals import ApprovalStore, SQLiteApprovalStore, actor_context_from_claims, attach_approval_to_decision, load_routing_rules
+from cavra.approvals import (
+    ApprovalStore,
+    SQLiteApprovalStore,
+    actor_context_from_claims,
+    attach_approval_to_decision,
+    deliver_provider_requests,
+    load_provider_config,
+    load_routing_rules,
+)
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
@@ -49,6 +57,7 @@ def create_app():
         else ApprovalStore(Path(os.environ.get("CAVRA_APPROVAL_STORE", ".cavra/api/approvals.json")))
     )
     routing_rules = load_routing_rules(Path(os.environ["CAVRA_APPROVAL_ROUTING_FILE"])) if os.environ.get("CAVRA_APPROVAL_ROUTING_FILE") else None
+    provider_config = load_provider_config(Path(os.environ["CAVRA_APPROVAL_PROVIDER_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_PROVIDER_CONFIG") else None
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -67,6 +76,7 @@ def create_app():
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
             "metadata_mode": metadata_mode,
             "approval_mode": approval_mode,
+            "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "cors_origins": cors_origins,
             "endpoints": {
                 "evidence": "/evidence",
@@ -167,6 +177,25 @@ def create_app():
             state="expired",
             payload=payload or {"actor": "system", "reason": "approval expired"},
         )
+
+    @app.post("/approvals/{approval_id}/deliver")
+    def deliver_approval(approval_id: str, payload: Optional[dict] = None) -> dict:
+        item = approval_store.get(approval_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        if provider_config is None:
+            raise HTTPException(status_code=400, detail="approval provider config is not configured")
+        payload = payload or {}
+        try:
+            return deliver_provider_requests(
+                item,
+                provider_config,
+                provider=payload.get("provider", "all"),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/approvals/{approval_id}/attach-decision")
     def attach_decision_approval(approval_id: str, payload: dict) -> dict:

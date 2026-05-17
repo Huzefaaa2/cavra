@@ -14,6 +14,7 @@ CAVRA routes risky AI-agent actions to human approvers while safe actions contin
 - Approval outcomes can be attached to decisions so evidence bundles and PR attestations include approval state.
 - Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported.
 - Credential-free provider request specs can be exported for integration testing without secrets.
+- Live provider delivery can send approval requests to Slack, Teams, Jira, ServiceNow, or generic webhooks with secret-backed URLs and tokens.
 
 ## API
 
@@ -23,6 +24,7 @@ CAVRA routes risky AI-agent actions to human approvers while safe actions contin
 - `POST /approvals/{approval_id}/approve`
 - `POST /approvals/{approval_id}/deny`
 - `POST /approvals/{approval_id}/expire`
+- `POST /approvals/{approval_id}/deliver`
 - `POST /approvals/{approval_id}/attach-decision`
 - `POST /approvals/break-glass`
 
@@ -41,6 +43,20 @@ cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
 cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requests
+cavra approval deliver apr_123 --config .cavra/approval-providers.yaml --provider jira --output .cavra/approvals/deliveries
+```
+
+Provider delivery config example:
+
+```yaml
+approval_providers:
+  slack:
+    enabled: true
+    url_env: CAVRA_SLACK_WEBHOOK_URL
+  jira:
+    enabled: true
+    url: https://jira.example/rest/api/3/issue
+    token_env: JIRA_TOKEN
 ```
 
 ## User Stories
@@ -49,6 +65,7 @@ cavra approval provider-requests apr_123 --output .cavra/approvals/provider-requ
 - As a repository owner, I can route approvals to repo-specific ownership groups.
 - As a change manager, I can deny risky agent actions with a reason.
 - As an identity administrator, I can require approvers to carry matching identity groups.
+- As a change manager, I can deliver approval requests to ITSM or ChatOps systems and retain redacted delivery evidence.
 - As an incident commander, I can use break glass only with mandatory evidence.
 - As an auditor, I can see approval outcomes in evidence and PR attestations.
 

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from urllib import error, request
 
 
 APPROVAL_STATES = {"pending", "approved", "denied", "expired", "break_glass"}
@@ -354,6 +357,204 @@ def build_provider_request_specs(approval: dict[str, Any], *, endpoints: dict[st
     }
 
 
+def load_provider_config(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"approval provider config not found: {path}")
+    if path.suffix.lower() in {".yaml", ".yml"}:
+        try:
+            import yaml
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("Install PyYAML to load YAML approval provider config files.") from exc
+        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    else:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("approval provider config must be an object")
+    return payload
+
+
+def build_configured_provider_request_specs(approval: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
+    providers = _provider_config(config)
+    endpoints = {
+        provider: _configured_value(provider_config, "url")
+        for provider, provider_config in providers.items()
+        if provider_config.get("enabled", True) and _configured_value(provider_config, "url")
+    }
+    specs = build_provider_request_specs(approval, endpoints=endpoints)
+    configured: dict[str, Any] = {}
+    for provider, provider_config in providers.items():
+        if provider not in specs or not provider_config.get("enabled", True):
+            continue
+        spec = {**specs[provider], "headers": {**specs[provider].get("headers", {})}}
+        if str(spec["headers"].get("authorization", "")).startswith("Bearer ${"):
+            spec["headers"].pop("authorization")
+        if not _configured_value(provider_config, "url"):
+            raise ValueError(f"approval provider {provider} must configure url or url_env")
+        spec["url"] = _configured_value(provider_config, "url")
+        spec["headers"].update(_configured_headers(provider_config))
+        if provider in {"jira", "servicenow"} and "authorization" not in spec["headers"]:
+            raise ValueError(f"approval provider {provider} must configure token_env, authorization_env, or authorization header")
+        configured[provider] = spec
+    return configured
+
+
+def deliver_provider_requests(
+    approval: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    provider: str = "all",
+    retries: int = 2,
+    timeout_seconds: float = 10.0,
+    sender: Any | None = None,
+) -> dict[str, Any]:
+    specs = build_configured_provider_request_specs(approval, config)
+    providers = set(specs) if provider == "all" else {provider}
+    unknown = providers - set(specs)
+    if unknown:
+        raise ValueError(f"approval provider is not configured: {', '.join(sorted(unknown))}")
+    delivery_sender = sender or _send_http_json_request
+    deliveries = [
+        _deliver_one_provider(
+            item,
+            specs[item],
+            retries=max(0, retries),
+            timeout_seconds=max(0.1, timeout_seconds),
+            sender=delivery_sender,
+        )
+        for item in sorted(providers)
+    ]
+    return {
+        "schema_version": "cavra.approval.delivery.v1",
+        "product": "CAVRA",
+        "approval_id": approval.get("approval_id"),
+        "decision_id": approval.get("decision_id"),
+        "generated_at": utc_now(),
+        "success": all(item["success"] for item in deliveries),
+        "deliveries": deliveries,
+    }
+
+
+def _provider_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    providers = config.get("approval_providers", config.get("providers", config))
+    if not isinstance(providers, dict):
+        raise ValueError("approval provider config must contain provider objects")
+    normalized: dict[str, dict[str, Any]] = {}
+    for provider, provider_config in providers.items():
+        if not isinstance(provider_config, dict):
+            raise ValueError(f"approval provider {provider} config must be an object")
+        normalized[str(provider)] = provider_config
+    return normalized
+
+
+def _configured_value(provider_config: dict[str, Any], key: str) -> str | None:
+    env_value = provider_config.get(f"{key}_env")
+    if env_value:
+        configured = os.environ.get(str(env_value))
+        if not configured:
+            raise ValueError(f"environment variable {env_value} is required for approval provider {key}")
+        return configured
+    value = provider_config.get(key)
+    return str(value) if value else None
+
+
+def _configured_headers(provider_config: dict[str, Any]) -> dict[str, str]:
+    headers = {str(key).lower(): str(value) for key, value in provider_config.get("headers", {}).items()}
+    token = _configured_value(provider_config, "token")
+    authorization = _configured_value(provider_config, "authorization")
+    if authorization:
+        headers["authorization"] = authorization
+    elif token:
+        scheme = str(provider_config.get("authorization_scheme", "Bearer"))
+        headers["authorization"] = f"{scheme} {token}"
+    return headers
+
+
+def _deliver_one_provider(
+    provider: str,
+    spec: dict[str, Any],
+    *,
+    retries: int,
+    timeout_seconds: float,
+    sender: Any,
+) -> dict[str, Any]:
+    attempts = retries + 1
+    last_result: dict[str, Any] | None = None
+    for attempt in range(1, attempts + 1):
+        started_at = utc_now()
+        try:
+            response = sender(spec, timeout_seconds=timeout_seconds)
+            status_code = int(response.get("status_code", 0))
+            success = 200 <= status_code < 300
+            last_result = {
+                "provider": provider,
+                "success": success,
+                "status_code": status_code,
+                "attempt_count": attempt,
+                "started_at": started_at,
+                "completed_at": utc_now(),
+                "error": None if success else response.get("error") or f"HTTP {status_code}",
+                "request": _redacted_request_spec(spec),
+            }
+            if success:
+                return last_result
+        except Exception as exc:  # pragma: no cover - exercised through sender tests
+            last_result = {
+                "provider": provider,
+                "success": False,
+                "status_code": None,
+                "attempt_count": attempt,
+                "started_at": started_at,
+                "completed_at": utc_now(),
+                "error": str(exc),
+                "request": _redacted_request_spec(spec),
+            }
+        if attempt < attempts:
+            time.sleep(min(0.25 * attempt, 1.0))
+    return last_result or {
+        "provider": provider,
+        "success": False,
+        "status_code": None,
+        "attempt_count": 0,
+        "started_at": utc_now(),
+        "completed_at": utc_now(),
+        "error": "delivery was not attempted",
+        "request": _redacted_request_spec(spec),
+    }
+
+
+def _send_http_json_request(spec: dict[str, Any], *, timeout_seconds: float) -> dict[str, Any]:
+    body = json.dumps(spec.get("body", {})).encode("utf-8")
+    headers = {str(key): str(value) for key, value in spec.get("headers", {}).items()}
+    req = request.Request(str(spec["url"]), data=body, headers=headers, method=str(spec.get("method", "POST")))
+    try:
+        with request.urlopen(req, timeout=timeout_seconds) as response:
+            return {"status_code": response.getcode(), "body": response.read(4096).decode("utf-8", errors="replace")}
+    except error.HTTPError as exc:
+        return {"status_code": exc.code, "body": exc.read(4096).decode("utf-8", errors="replace"), "error": str(exc)}
+    except error.URLError as exc:
+        return {"status_code": 0, "error": str(exc.reason)}
+
+
+def _redacted_request_spec(spec: dict[str, Any]) -> dict[str, Any]:
+    headers = {}
+    for key, value in spec.get("headers", {}).items():
+        lowered = str(key).lower()
+        headers[lowered] = "REDACTED" if lowered in {"authorization", "x-api-key", "api-key"} else value
+    return {
+        "method": spec.get("method", "POST"),
+        "url": _redact_url(str(spec.get("url", ""))),
+        "headers": headers,
+    }
+
+
+def _redact_url(url: str) -> str:
+    if "hooks.slack.com/services/" in url:
+        return "https://hooks.slack.com/services/REDACTED"
+    if "?" in url:
+        return f"{url.split('?', 1)[0]}?REDACTED"
+    return url
+
+
 def export_approval_notification_payloads(
     approval: dict[str, Any],
     output_dir: Path,
@@ -393,6 +594,13 @@ def export_provider_request_specs(
         path.write_text(json.dumps(specs[item], indent=2, sort_keys=True) + "\n", encoding="utf-8")
         files.append(path)
     return ExportResult(output_dir=output_dir, files=files)
+
+
+def export_provider_delivery_result(result: dict[str, Any], output_dir: Path) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"{result.get('approval_id', 'approval')}-provider-delivery.json"
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
 
 
 class ApprovalStore:

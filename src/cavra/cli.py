@@ -14,8 +14,11 @@ from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
     actor_context_from_claims,
+    deliver_provider_requests,
     export_approval_notification_payloads,
+    export_provider_delivery_result,
     export_provider_request_specs,
+    load_provider_config,
     load_routing_rules,
     route_approver_group,
 )
@@ -800,6 +803,41 @@ def export_approval_provider_requests(
     console.print(f"[green]approval provider request specs exported[/green] {result.output_dir}")
     for path in result.files:
         console.print(f"[dim]{path}[/dim]")
+
+
+@approval_app.command("deliver")
+def deliver_approval_provider_requests(
+    approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
+    config: Annotated[Optional[Path], typer.Option(help="Approval provider config JSON/YAML path.")] = None,
+    output: Annotated[Path, typer.Option(help="Output directory for delivery evidence.")] = Path(".cavra/approvals/deliveries"),
+    provider: Annotated[str, typer.Option(help="all, slack, teams, jira, servicenow, or webhook.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+) -> None:
+    """Send live approval provider requests and write redacted delivery evidence."""
+    approval = _approval_store(store, sqlite).get(approval_id)
+    if approval is None:
+        console.print(f"[red]approval not found:[/red] {approval_id}")
+        raise typer.Exit(code=1)
+    if config is None:
+        console.print("[red]--config is required for live approval provider delivery[/red]")
+        raise typer.Exit(code=1)
+    try:
+        result = deliver_provider_requests(
+            approval,
+            load_provider_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_provider_delivery_result(result, output)
+    except (FileNotFoundError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(result, indent=2)))
+    console.print(f"[green]approval provider delivery evidence exported[/green] {path}")
 
 
 @approval_app.command("migrate")

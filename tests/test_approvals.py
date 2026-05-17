@@ -4,10 +4,13 @@ from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
     actor_context_from_claims,
-    build_provider_request_specs,
     attach_approval_to_decision,
+    build_provider_request_specs,
     create_approval_request,
+    deliver_provider_requests,
     export_approval_notification_payloads,
+    export_provider_delivery_result,
+    load_provider_config,
     load_routing_rules,
     route_approver_group,
 )
@@ -209,3 +212,88 @@ def test_provider_request_specs_do_not_require_live_credentials(tmp_path: Path) 
     assert specs["jira"]["method"] == "POST"
     assert "${JIRA_TOKEN}" in specs["jira"]["headers"]["authorization"]
     assert specs["slack"]["body"]["text"].startswith("CAVRA approval")
+
+
+def test_deliver_provider_requests_uses_secret_backed_config(tmp_path: Path, monkeypatch) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+    config = {
+        "approval_providers": {
+            "jira": {
+                "enabled": True,
+                "url": "https://jira.example/rest/api/3/issue",
+                "token_env": "JIRA_TOKEN",
+            }
+        }
+    }
+    monkeypatch.setenv("JIRA_TOKEN", "secret-token")
+    calls = []
+
+    def sender(spec: dict[str, object], *, timeout_seconds: float) -> dict[str, object]:
+        calls.append((spec, timeout_seconds))
+        return {"status_code": 201}
+
+    result = deliver_provider_requests(approval, config, provider="jira", sender=sender, timeout_seconds=2.5)
+
+    assert result["success"] is True
+    assert result["deliveries"][0]["status_code"] == 201
+    assert result["deliveries"][0]["request"]["headers"]["authorization"] == "REDACTED"
+    assert calls[0][0]["headers"]["authorization"] == "Bearer secret-token"
+    assert calls[0][1] == 2.5
+
+
+def test_deliver_provider_requests_retries_and_records_failure(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+    attempts = {"count": 0}
+
+    def sender(spec: dict[str, object], *, timeout_seconds: float) -> dict[str, object]:
+        attempts["count"] += 1
+        return {"status_code": 503, "error": "service unavailable"}
+
+    result = deliver_provider_requests(
+        approval,
+        {"approval_providers": {"webhook": {"url": "https://approval.example/hook"}}},
+        provider="webhook",
+        retries=1,
+        sender=sender,
+    )
+
+    assert result["success"] is False
+    assert result["deliveries"][0]["attempt_count"] == 2
+    assert result["deliveries"][0]["error"] == "service unavailable"
+    assert attempts["count"] == 2
+
+
+def test_deliver_provider_requests_requires_configured_secret(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+
+    try:
+        deliver_provider_requests(
+            approval,
+            {"approval_providers": {"jira": {"url": "https://jira.example/rest/api/3/issue"}}},
+            provider="jira",
+        )
+    except ValueError as exc:
+        assert "must configure token_env" in str(exc)
+    else:
+        raise AssertionError("expected live Jira delivery without credentials to fail")
+
+
+def test_provider_config_loader_and_delivery_export(tmp_path: Path) -> None:
+    config_path = tmp_path / "providers.json"
+    config_path.write_text('{"approval_providers":{"webhook":{"url":"https://approval.example/hook"}}}', encoding="utf-8")
+    config = load_provider_config(config_path)
+    output = export_provider_delivery_result(
+        {
+            "schema_version": "cavra.approval.delivery.v1",
+            "approval_id": "apr_test",
+            "success": True,
+            "deliveries": [],
+        },
+        tmp_path / "delivery",
+    )
+
+    assert config["approval_providers"]["webhook"]["url"] == "https://approval.example/hook"
+    assert output.exists()
