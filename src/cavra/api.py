@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from cavra.approvals import ApprovalStore, attach_approval_to_decision
+from cavra.approvals import ApprovalStore, SQLiteApprovalStore, attach_approval_to_decision
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
@@ -43,7 +43,11 @@ def create_app():
         if os.environ.get("CAVRA_EVIDENCE_METADATA_DB")
         else EvidenceMetadataStore(Path(os.environ.get("CAVRA_EVIDENCE_METADATA_STORE", ".cavra/api/evidence-metadata.json")))
     )
-    approval_store = ApprovalStore(Path(os.environ.get("CAVRA_APPROVAL_STORE", ".cavra/api/approvals.json")))
+    approval_store = (
+        SQLiteApprovalStore(Path(os.environ["CAVRA_APPROVAL_DB"]))
+        if os.environ.get("CAVRA_APPROVAL_DB")
+        else ApprovalStore(Path(os.environ.get("CAVRA_APPROVAL_STORE", ".cavra/api/approvals.json")))
+    )
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -56,10 +60,12 @@ def create_app():
     @app.get("/console/config")
     def console_config() -> dict[str, object]:
         metadata_mode = "sqlite" if isinstance(evidence_store, SQLiteEvidenceMetadataStore) else "json"
+        approval_mode = "sqlite" if isinstance(approval_store, SQLiteApprovalStore) else "json"
         return {
             "product": "CAVRA",
             "api_base_url": os.environ.get("CAVRA_PUBLIC_API_BASE_URL", ""),
             "metadata_mode": metadata_mode,
+            "approval_mode": approval_mode,
             "cors_origins": cors_origins,
             "endpoints": {
                 "evidence": "/evidence",

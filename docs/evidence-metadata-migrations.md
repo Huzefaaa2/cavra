@@ -10,6 +10,12 @@ The initial migration is:
 migrations/sqlite/001_evidence_metadata.sql
 ```
 
+The approval router migration is:
+
+```text
+migrations/sqlite/002_approval_router.sql
+```
+
 Apply it with:
 
 ```bash

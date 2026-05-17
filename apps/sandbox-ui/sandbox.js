@@ -41,6 +41,34 @@ const evidenceCatalog = [
   }
 ];
 
+const approvalCatalog = [
+  {
+    approval_id: "apr_demo_iam",
+    decision_id: "dec_demo_iam",
+    session_id: "demo-session",
+    state: "pending",
+    approver_group: "IAM",
+    requested_by: "developer",
+    requested_at: new Date().toISOString(),
+    expires_at: "2026-05-18T00:00:00Z",
+    external_ref: "CHG-100",
+    decision: { target: "iam/admin-role.tf", rule_id: "filesystem.write.require_approval" }
+  },
+  {
+    approval_id: "apr_break_glass",
+    decision_id: "dec_incident",
+    session_id: "incident-session",
+    state: "break_glass",
+    approver_group: "Change Advisory Board",
+    requested_by: "incident-commander",
+    requested_at: new Date().toISOString(),
+    expires_at: "2026-05-17T20:00:00Z",
+    external_ref: "INC-777",
+    break_glass: true,
+    decision: { target: "terraform apply", rule_id: "commands.block" }
+  }
+];
+
 let consoleConfig = null;
 
 function eventPayload(row, index) {
@@ -137,6 +165,23 @@ async function loadEvidenceMetadata() {
   }
 }
 
+async function loadApprovals() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      state: document.querySelector("#filterApprovalState")?.value,
+      approver_group: document.querySelector("#filterApprovalGroup")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/approvals", params));
+    if (!response.ok) throw new Error("Approval API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return approvalCatalog;
+  }
+}
+
 function filterEvidence(items) {
   const signer = document.querySelector("#filterSigner").value.trim().toLowerCase();
   const minBlocked = Number(document.querySelector("#filterBlocked").value || 0);
@@ -147,6 +192,14 @@ function filterEvidence(items) {
     .filter((item) => Number(item.blocked_count || 0) >= minBlocked)
     .filter((item) => approvalValue === "" || (Number(item.approval_required_count || 0) > 0) === (approvalValue === "true"))
     .slice(0, limit);
+}
+
+function filterApprovals(items) {
+  const state = document.querySelector("#filterApprovalState").value;
+  const group = document.querySelector("#filterApprovalGroup").value.trim().toLowerCase();
+  return items
+    .filter((item) => !state || item.state === state)
+    .filter((item) => !group || String(item.approver_group || "").toLowerCase().includes(group));
 }
 
 function renderEvidenceRows(items) {
@@ -169,9 +222,32 @@ function renderEvidenceRows(items) {
   }
 }
 
+function renderApprovalRows(items) {
+  const rows = document.querySelector("#approvalRows");
+  rows.innerHTML = "";
+  for (const item of items) {
+    const stateClass = item.state === "break_glass" ? "warn" : item.state === "denied" ? "block" : "allow";
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.approval_id || "unknown")}</td>
+        <td class="${stateClass}">${escapeHtml(item.state || "pending")}</td>
+        <td>${escapeHtml(item.approver_group || "Repository Owners")}</td>
+        <td>${escapeHtml(item.requested_by || "ai-agent")}</td>
+        <td>${escapeHtml(item.decision?.target || item.decision_id || "unknown")}</td>
+        <td>${escapeHtml(item.external_ref || "n/a")}</td>
+      </tr>
+    `);
+  }
+}
+
 async function refreshEvidence() {
   const items = filterEvidence(await loadEvidenceMetadata());
   renderEvidenceRows(items);
+}
+
+async function refreshApprovals() {
+  const items = filterApprovals(await loadApprovals());
+  renderApprovalRows(items);
 }
 
 async function verifyAttestation() {
@@ -191,8 +267,10 @@ async function verifyAttestation() {
 
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
+document.querySelector("#refreshApprovals").addEventListener("click", refreshApprovals);
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
 document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+refreshApprovals();

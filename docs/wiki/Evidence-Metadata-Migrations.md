@@ -6,6 +6,7 @@ Migration:
 
 ```text
 migrations/sqlite/001_evidence_metadata.sql
+migrations/sqlite/002_approval_router.sql
 ```
 
 Apply:

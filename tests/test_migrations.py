@@ -19,3 +19,22 @@ def test_sqlite_evidence_metadata_migration(tmp_path: Path) -> None:
         row = connection.execute("SELECT blocked_count FROM evidence_metadata WHERE session_id = ?", ("session",)).fetchone()
 
     assert row[0] == 1
+
+
+def test_sqlite_approval_router_migration(tmp_path: Path) -> None:
+    migration = Path("migrations/sqlite/002_approval_router.sql")
+    database = tmp_path / "approvals.db"
+
+    with sqlite3.connect(database) as connection:
+        connection.executescript(migration.read_text(encoding="utf-8"))
+        connection.execute(
+            """
+            INSERT INTO approvals (
+                approval_id, decision_id, session_id, state, approver_group, requested_at, expires_at, payload
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("apr_1", "dec_1", "session", "pending", "IAM", "2026-05-17T00:00:00Z", "2026-05-18T00:00:00Z", "{}"),
+        )
+        row = connection.execute("SELECT approver_group FROM approvals WHERE approval_id = ?", ("apr_1",)).fetchone()
+
+    assert row[0] == "IAM"

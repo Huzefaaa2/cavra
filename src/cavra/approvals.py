@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 
 APPROVAL_STATES = {"pending", "approved", "denied", "expired", "break_glass"}
+
+
+@dataclass(frozen=True)
+class ExportResult:
+    output_dir: Path
+    files: list[Path]
 
 
 def utc_now() -> str:
@@ -20,11 +28,13 @@ def create_approval_request(
     approver_group: str | None = None,
     requested_by: str = "ai-agent",
     ttl_hours: int = 24,
+    routing_rules: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     decision_id = decision.get("decision_id")
     if not decision_id:
         raise ValueError("decision must include decision_id")
-    group = approver_group or decision.get("approver_group")
+    rules = routing_rules if routing_rules is not None else default_routing_rules()
+    group = approver_group or route_approver_group(decision, rules) or decision.get("approver_group")
     if not group:
         raise ValueError("approval request must include approver_group")
     created_at = utc_now()
@@ -53,6 +63,35 @@ def create_approval_request(
         ],
         "evidence_refs": [f"approval://{approval_id}", *decision.get("evidence_refs", [])],
     }
+
+
+def default_routing_rules() -> list[dict[str, Any]]:
+    return [
+        {"rule_id_prefix": "filesystem.write", "target_contains": "iam/", "approver_group": "IAM"},
+        {"rule_id_prefix": "filesystem.write", "target_contains": ".github/workflows", "approver_group": "Platform Security"},
+        {"rule_id_prefix": "commands.default", "severity": "medium", "approver_group": "Repository Owners"},
+        {"rule_id_prefix": "commands.block", "target_contains": "terraform", "approver_group": "Cloud Security"},
+        {"rule_id_prefix": "mcp.", "approver_group": "AI Governance"},
+    ]
+
+
+def route_approver_group(decision: dict[str, Any], routing_rules: list[dict[str, Any]] | None = None) -> str | None:
+    rules = routing_rules if routing_rules is not None else default_routing_rules()
+    for rule in rules:
+        if _route_rule_matches(decision, rule):
+            return str(rule["approver_group"])
+    return None
+
+
+def _route_rule_matches(decision: dict[str, Any], rule: dict[str, Any]) -> bool:
+    for key in ("rule_id", "action_type", "severity", "policy_pack"):
+        if rule.get(key) and decision.get(key) != rule[key]:
+            return False
+    if rule.get("rule_id_prefix") and not str(decision.get("rule_id", "")).startswith(str(rule["rule_id_prefix"])):
+        return False
+    if rule.get("target_contains") and str(rule["target_contains"]) not in str(decision.get("target", "")):
+        return False
+    return True
 
 
 def apply_approval_decision(
@@ -163,6 +202,85 @@ def attach_approval_to_decision(decision: dict[str, Any], approval: dict[str, An
     return updated
 
 
+def build_approval_notification_payloads(approval: dict[str, Any]) -> dict[str, Any]:
+    summary = approval_summary(approval)
+    title = f"CAVRA approval {approval.get('state')} for {approval.get('decision_id')}"
+    reason = approval.get("decision_reason") or approval.get("break_glass_reason") or approval.get("decision", {}).get("reason")
+    return {
+        "slack": {
+            "text": title,
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": title}},
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": f"*Approver group:* {approval.get('approver_group')}"},
+                        {"type": "mrkdwn", "text": f"*State:* {approval.get('state')}"},
+                        {"type": "mrkdwn", "text": f"*Requested by:* {approval.get('requested_by')}"},
+                        {"type": "mrkdwn", "text": f"*External ref:* {approval.get('external_ref', 'n/a')}"},
+                    ],
+                },
+            ],
+        },
+        "teams": {
+            "@type": "MessageCard",
+            "@context": "https://schema.org/extensions",
+            "summary": title,
+            "themeColor": "E0A800" if approval.get("state") == "pending" else "2E7D32",
+            "sections": [
+                {
+                    "activityTitle": title,
+                    "facts": [
+                        {"name": "Approver group", "value": str(approval.get("approver_group"))},
+                        {"name": "State", "value": str(approval.get("state"))},
+                        {"name": "Reason", "value": str(reason or "n/a")},
+                    ],
+                }
+            ],
+        },
+        "jira": {
+            "fields": {
+                "summary": title,
+                "description": json.dumps(summary, indent=2, sort_keys=True),
+                "labels": ["cavra", "ai-agent-approval", str(approval.get("state"))],
+            }
+        },
+        "servicenow": {
+            "short_description": title,
+            "description": json.dumps(summary, indent=2, sort_keys=True),
+            "assignment_group": approval.get("approver_group"),
+            "correlation_id": approval.get("correlation_id"),
+        },
+        "webhook": {
+            "schema_version": "cavra.approval.notification.v1",
+            "product": "CAVRA",
+            "event_type": f"cavra.approval.{approval.get('state')}",
+            "timestamp": utc_now(),
+            "payload": approval,
+        },
+    }
+
+
+def export_approval_notification_payloads(
+    approval: dict[str, Any],
+    output_dir: Path,
+    *,
+    provider: str = "all",
+) -> ExportResult:
+    payloads = build_approval_notification_payloads(approval)
+    providers = set(payloads) if provider == "all" else {provider}
+    unknown = providers - set(payloads)
+    if unknown:
+        raise ValueError(f"unknown approval notification provider: {', '.join(sorted(unknown))}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    files: list[Path] = []
+    for item in sorted(providers):
+        path = output_dir / f"{item}-approval-payload.json"
+        path.write_text(json.dumps(payloads[item], indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        files.append(path)
+    return ExportResult(output_dir=output_dir, files=files)
+
+
 class ApprovalStore:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -215,6 +333,7 @@ class ApprovalStore:
         approver_group: str | None = None,
         requested_by: str = "ai-agent",
         ttl_hours: int = 24,
+        routing_rules: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         return self.upsert(
             create_approval_request(
@@ -222,6 +341,7 @@ class ApprovalStore:
                 approver_group=approver_group,
                 requested_by=requested_by,
                 ttl_hours=ttl_hours,
+                routing_rules=routing_rules,
             )
         )
 
@@ -271,4 +391,183 @@ class ApprovalStore:
         self.path.write_text(
             json.dumps({"items": items}, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
+        )
+
+
+class SQLiteApprovalStore:
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._initialize()
+
+    def _connect(self) -> sqlite3.Connection:
+        connection = sqlite3.connect(self.path)
+        connection.row_factory = sqlite3.Row
+        return connection
+
+    def _initialize(self) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS approvals (
+                    approval_id TEXT PRIMARY KEY,
+                    decision_id TEXT NOT NULL,
+                    session_id TEXT,
+                    state TEXT NOT NULL,
+                    approver_group TEXT NOT NULL,
+                    requested_by TEXT,
+                    requested_at TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    decided_by TEXT,
+                    decided_at TEXT,
+                    external_ref TEXT,
+                    break_glass INTEGER NOT NULL DEFAULT 0,
+                    payload TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_state ON approvals (state)")
+            connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_group ON approvals (approver_group)")
+            connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_requested_at ON approvals (requested_at)")
+
+    def list(
+        self,
+        *,
+        state: str | None = None,
+        approver_group: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
+        clauses: list[str] = []
+        params: list[Any] = []
+        if state:
+            clauses.append("state = ?")
+            params.append(state)
+        if approver_group:
+            clauses.append("approver_group = ?")
+            params.append(approver_group)
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        with self._connect() as connection:
+            total = connection.execute(f"SELECT COUNT(*) AS count FROM approvals {where}", params).fetchone()["count"]
+            rows = connection.execute(
+                f"""
+                SELECT payload FROM approvals
+                {where}
+                ORDER BY requested_at DESC, approval_id ASC
+                LIMIT ? OFFSET ?
+                """,
+                [*params, limit, offset],
+            ).fetchall()
+        return {
+            "items": [json.loads(row["payload"]) for row in rows],
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }
+
+    def get(self, approval_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            row = connection.execute("SELECT payload FROM approvals WHERE approval_id = ?", (approval_id,)).fetchone()
+        return json.loads(row["payload"]) if row else None
+
+    def upsert(self, approval: dict[str, Any]) -> dict[str, Any]:
+        approval_id = approval.get("approval_id")
+        if not approval_id:
+            raise ValueError("approval must include approval_id")
+        state = approval.get("state")
+        if state not in APPROVAL_STATES:
+            raise ValueError(f"unsupported approval state: {state}")
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO approvals (
+                    approval_id, decision_id, session_id, state, approver_group, requested_by, requested_at,
+                    expires_at, decided_by, decided_at, external_ref, break_glass, payload
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(approval_id) DO UPDATE SET
+                    decision_id=excluded.decision_id,
+                    session_id=excluded.session_id,
+                    state=excluded.state,
+                    approver_group=excluded.approver_group,
+                    requested_by=excluded.requested_by,
+                    requested_at=excluded.requested_at,
+                    expires_at=excluded.expires_at,
+                    decided_by=excluded.decided_by,
+                    decided_at=excluded.decided_at,
+                    external_ref=excluded.external_ref,
+                    break_glass=excluded.break_glass,
+                    payload=excluded.payload
+                """,
+                (
+                    approval_id,
+                    approval.get("decision_id"),
+                    approval.get("session_id"),
+                    approval.get("state"),
+                    approval.get("approver_group"),
+                    approval.get("requested_by"),
+                    approval.get("requested_at"),
+                    approval.get("expires_at"),
+                    approval.get("decided_by"),
+                    approval.get("decided_at"),
+                    approval.get("external_ref"),
+                    1 if approval.get("break_glass") else 0,
+                    json.dumps(approval, sort_keys=True),
+                ),
+            )
+        return approval
+
+    def create_request(
+        self,
+        decision: dict[str, Any],
+        *,
+        approver_group: str | None = None,
+        requested_by: str = "ai-agent",
+        ttl_hours: int = 24,
+        routing_rules: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        return self.upsert(
+            create_approval_request(
+                decision,
+                approver_group=approver_group,
+                requested_by=requested_by,
+                ttl_hours=ttl_hours,
+                routing_rules=routing_rules,
+            )
+        )
+
+    def decide(self, approval_id: str, *, state: str, actor: str, reason: str, external_ref: str | None = None) -> dict[str, Any]:
+        approval = self.get(approval_id)
+        if approval is None:
+            raise KeyError(approval_id)
+        return self.upsert(
+            apply_approval_decision(
+                approval,
+                state=state,
+                actor=actor,
+                reason=reason,
+                external_ref=external_ref,
+            )
+        )
+
+    def break_glass(
+        self,
+        *,
+        decision: dict[str, Any],
+        actor: str,
+        reason: str,
+        approver_group: str = "Change Advisory Board",
+        external_ref: str | None = None,
+        ttl_hours: int = 4,
+    ) -> dict[str, Any]:
+        return self.upsert(
+            create_break_glass_approval(
+                decision=decision,
+                actor=actor,
+                reason=reason,
+                approver_group=approver_group,
+                external_ref=external_ref,
+                ttl_hours=ttl_hours,
+            )
         )

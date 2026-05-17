@@ -96,6 +96,34 @@
           </ul>
         </div>
       </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Approval Queue</h2>
+            <p>Review pending, approved, denied, expired, and break-glass approval records.</p>
+          </div>
+          <button id="refreshApprovals">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>State <select id="filterApprovalState"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="denied">Denied</option><option value="expired">Expired</option><option value="break_glass">Break glass</option></select></label>
+          <label>Approver group <input id="filterApprovalGroup" placeholder="Platform Security" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Approval</th>
+                <th>State</th>
+                <th>Group</th>
+                <th>Requester</th>
+                <th>Decision</th>
+                <th>External Ref</th>
+              </tr>
+            </thead>
+            <tbody id="approvalRows"></tbody>
+          </table>
+        </div>
+      </section>
     </main>
     <script src="./sandbox.js"></script>
   </body>

@@ -24,9 +24,9 @@ Implemented evidence bundle manifests, checksums, HMAC and Ed25519 signatures, t
 
 Status: in progress.
 
-Implemented approval request JSON persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, and approval outcome linkage into evidence and PR attestations.
+Implemented approval request JSON and SQLite persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, default routing policies, reference notification payloads, console approval queue view, and approval outcome linkage into evidence and PR attestations.
 
-Next: routing policies, SQLite approval persistence, console approval views, Jira/ServiceNow references, and Slack/Teams notification payloads.
+Next: repository-specific routing configuration, live Jira/ServiceNow/Slack/Teams provider adapters, approval RBAC/OIDC actor mapping, and console approval actions.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 

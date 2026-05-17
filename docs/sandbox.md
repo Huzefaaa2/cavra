@@ -12,6 +12,7 @@ The same surface now includes the first hosted evidence console views:
 
 - Evidence metadata search with signer, blocked-action, approval-state, and limit filters.
 - PR attestation verification for selected sessions.
+- Approval queue view with state and approver group filters.
 - Operational readiness summary for trust roots, SQLite search, attestation verification, and database migrations.
 
 When the API is available at the same origin, the console attempts to load `GET /evidence?limit=50`. If the API is not available, it uses built-in sample evidence metadata so the console remains usable as a static demo.
@@ -26,7 +27,7 @@ Same-origin deployment:
 CAVRA_EVIDENCE_METADATA_DB=.cavra/evidence/metadata.db uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 
-Host the console behind the same reverse proxy as the API and route `/evidence` plus `/console/config` to the FastAPI service.
+Host the console behind the same reverse proxy as the API and route `/evidence`, `/approvals`, and `/console/config` to the FastAPI service.
 
 Cross-origin deployment:
 
@@ -37,6 +38,6 @@ CAVRA_EVIDENCE_METADATA_DB=.cavra/evidence/metadata.db \
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 
-If the page is hosted separately, set `window.CAVRA_API_BASE = "https://api.cavra.example"` before loading `sandbox.js`. The console first reads `/console/config`, then queries `/evidence` with signer, blocked-count, approval-state, and limit filters.
+If the page is hosted separately, set `window.CAVRA_API_BASE = "https://api.cavra.example"` before loading `sandbox.js`. The console first reads `/console/config`, then queries `/evidence` with signer, blocked-count, approval-state, and limit filters and `/approvals` with state and approver-group filters.
 
 For security, the API does not index server-side bundle paths. Index evidence locally with `cavra evidence index` or `cavra evidence index --sqlite`, then persist metadata through the API or SQLite store.

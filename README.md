@@ -139,10 +139,14 @@ Phase 4 Approval Router is now in progress. CAVRA can create a persisted approva
 
 ```bash
 cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval migrate --sqlite .cavra/approvals.db
 cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --requested-by developer
+cavra approval route /tmp/cavra-decision.json
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
+cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 ```
 
 Approval workflows are documented in [docs/approval-workflows.md](docs/approval-workflows.md).
@@ -217,7 +221,7 @@ Current phase status:
 Next recommended implementation work:
 
 - Add hosted attestation artifact download APIs backed by governed object storage.
-- Expand Phase 4 Approval Router with routing policies, SQLite approval persistence, notification/provider adapters, and console approval views.
+- Expand Phase 4 Approval Router with repository-specific routing configuration, live provider adapters, approval RBAC/OIDC actor mapping, and console approval actions.
 
 ## User stories and enterprise value
 

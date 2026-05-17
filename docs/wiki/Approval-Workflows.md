@@ -5,10 +5,12 @@ CAVRA routes risky AI-agent actions to human approvers while safe actions contin
 ## Current Implementation
 
 - Approval requests are created from CAVRA decisions.
-- Requests persist in a JSON approval store.
+- Requests persist in a JSON approval store or SQLite database.
+- Default routing policies map IAM paths, GitHub workflow paths, command approvals, Terraform operations, and MCP decisions to approver groups.
 - Approvers can approve, deny, or expire pending requests.
 - Break-glass overrides require actor, reason, approver group, expiry, and optional external reference.
 - Approval outcomes can be attached to decisions so evidence bundles and PR attestations include approval state.
+- Slack, Teams, Jira, ServiceNow, and webhook reference payloads can be exported.
 
 ## API
 
@@ -25,10 +27,14 @@ CAVRA routes risky AI-agent actions to human approvers while safe actions contin
 
 ```bash
 cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval migrate --sqlite .cavra/approvals.db
 cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --requested-by developer
+cavra approval route /tmp/cavra-decision.json
 cavra approval list --state pending
 cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
 cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
+cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
 ```
 
 ## User Stories

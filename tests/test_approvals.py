@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from cavra.approvals import ApprovalStore, attach_approval_to_decision, create_approval_request
+from cavra.approvals import (
+    ApprovalStore,
+    SQLiteApprovalStore,
+    attach_approval_to_decision,
+    create_approval_request,
+    export_approval_notification_payloads,
+    route_approver_group,
+)
 from cavra.evidence import build_evidence_metadata, create_evidence_bundle
 from cavra.runtime import RuntimeGuard
 
@@ -80,3 +87,35 @@ def test_approval_outcome_is_recorded_in_evidence(tmp_path: Path) -> None:
     assert metadata["approval_outcomes"][0]["approval_id"] == approval["approval_id"]
     assert "Approval Outcomes" in attestation
     assert approval["approval_id"] in attestation
+
+
+def test_routing_rules_select_approver_group() -> None:
+    decision = _approval_decision()
+    decision.pop("approver_group", None)
+
+    assert route_approver_group(decision) == "IAM"
+
+
+def test_sqlite_approval_store_searches_and_updates(tmp_path: Path) -> None:
+    store = SQLiteApprovalStore(tmp_path / "approvals.db")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+
+    store.decide(approval["approval_id"], state="approved", actor="iam-owner", reason="Reviewed.")
+    result = store.list(state="approved", approver_group="IAM")
+
+    assert result["total"] == 1
+    assert result["items"][0]["state"] == "approved"
+
+
+def test_export_approval_notification_payloads(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+    approval = store.create_request(_approval_decision(), requested_by="developer")
+
+    result = export_approval_notification_payloads(approval, tmp_path / "notifications")
+
+    assert (tmp_path / "notifications" / "slack-approval-payload.json").exists()
+    assert (tmp_path / "notifications" / "teams-approval-payload.json").exists()
+    assert (tmp_path / "notifications" / "jira-approval-payload.json").exists()
+    assert (tmp_path / "notifications" / "servicenow-approval-payload.json").exists()
+    assert (tmp_path / "notifications" / "webhook-approval-payload.json").exists()
+    assert len(result.files) == 5

@@ -90,6 +90,24 @@ def test_api_approval_lifecycle(monkeypatch, tmp_path) -> None:
     assert listed.json()["total"] == 1
 
 
+def test_api_approval_sqlite_store(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_APPROVAL_STORE", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_DB", str(tmp_path / "approvals.db"))
+    client = TestClient(create_app())
+    decision = client.post(
+        "/decisions",
+        json={"action_type": "write_file", "target": "iam/admin-role.tf"},
+    ).json()
+
+    created = client.post("/approvals", json={"decision": decision, "requested_by": "developer"})
+    config = client.get("/console/config").json()
+
+    assert created.status_code == 200
+    assert created.json()["state"] == "pending"
+    assert client.get("/approvals", params={"state": "pending"}).json()["total"] == 1
+    assert config["approval_mode"] == "sqlite"
+
+
 def test_api_approval_accepts_raw_decision_payload(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())

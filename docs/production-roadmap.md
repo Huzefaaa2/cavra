@@ -117,11 +117,13 @@ Implement:
 - CLI and API approval queue. Delivered.
 - Approve, deny, expire, and break-glass lifecycle states. Delivered.
 - Approval outcomes reflected in evidence metadata and PR attestations. Delivered.
-- Approver groups and routing policies. Next.
-- SQLite approval persistence. Next.
-- Jira and ServiceNow reference connectors. Next.
-- Slack and Teams notification reference connectors. Next.
-- Console approval views. Next.
+- Default approver group routing policies. Delivered.
+- SQLite approval persistence and migration. Delivered.
+- Slack, Teams, Jira, ServiceNow, and webhook reference payloads. Delivered.
+- Console approval queue view. Delivered.
+- Repository-specific routing policy configuration. Next.
+- Live Jira, ServiceNow, Slack, and Teams provider calls. Next.
+- Approval RBAC and OIDC actor mapping. Next.
 
 User stories:
 - As an IAM owner, I receive approval requests for privilege expansion.
@@ -292,7 +294,7 @@ Next recommended implementation phase: Phase 4, Approval Router, with a narrow P
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, hosted console views, idempotent SQLite migration automation, console API wiring, and API metadata persistence.
 
 Immediate next tasks:
-- Add routing policies that map rule IDs, targets, severities, and policy packs to approver groups.
-- Add SQLite approval persistence and migration automation.
-- Add console approval queue views and action buttons.
-- Add reference notification payloads for Slack, Teams, Jira, and ServiceNow.
+- Add repository-specific routing policy configuration.
+- Add live provider adapters for Slack, Teams, Jira, and ServiceNow.
+- Add approval RBAC and OIDC actor mapping.
+- Add console approval actions for approve, deny, expire, and break glass.

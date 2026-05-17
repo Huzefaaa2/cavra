@@ -10,7 +10,13 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
-from cavra.approvals import ApprovalStore
+from cavra.approvals import (
+    ApprovalStore,
+    SQLiteApprovalStore,
+    default_routing_rules,
+    export_approval_notification_payloads,
+    route_approver_group,
+)
 from cavra.evidence import (
     EvidenceMetadataStore,
     SQLiteEvidenceMetadataStore,
@@ -624,6 +630,7 @@ def migrate_evidence_metadata(
 def create_approval(
     decision_file: Annotated[Path, typer.Argument(help="Decision JSON file produced by CAVRA.")],
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     approver_group: Annotated[Optional[str], typer.Option(help="Override approver group.")] = None,
     requested_by: Annotated[str, typer.Option(help="Requester identity.")] = "ai-agent",
     ttl_hours: Annotated[int, typer.Option(help="Approval request time to live.")] = 24,
@@ -631,7 +638,7 @@ def create_approval(
     """Create a pending approval request from a CAVRA decision."""
     try:
         decision = json.loads(decision_file.read_text(encoding="utf-8"))
-        approval = ApprovalStore(store).create_request(
+        approval = _approval_store(store, sqlite).create_request(
             decision,
             approver_group=approver_group,
             requested_by=requested_by,
@@ -646,13 +653,14 @@ def create_approval(
 @approval_app.command("list")
 def list_approvals(
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     state: Annotated[Optional[str], typer.Option(help="Filter by state.")] = None,
     approver_group: Annotated[Optional[str], typer.Option(help="Filter by approver group.")] = None,
     limit: Annotated[int, typer.Option(help="Page size.")] = 50,
     offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
 ) -> None:
     """List approval queue entries."""
-    result = ApprovalStore(store).list(state=state, approver_group=approver_group, limit=limit, offset=offset)
+    result = _approval_store(store, sqlite).list(state=state, approver_group=approver_group, limit=limit, offset=offset)
     console.print(JSON(json.dumps(result, indent=2)))
 
 
@@ -660,41 +668,45 @@ def list_approvals(
 def approve_request(
     approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
     reason: Annotated[str, typer.Option(help="Approval reason.")] = "",
     external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
 ) -> None:
     """Approve a pending request."""
-    _decide_cli_approval(store, approval_id, state="approved", actor=actor, reason=reason, external_ref=external_ref)
+    _decide_cli_approval(store, sqlite, approval_id, state="approved", actor=actor, reason=reason, external_ref=external_ref)
 
 
 @approval_app.command("deny")
 def deny_request(
     approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Approver identity.")] = "",
     reason: Annotated[str, typer.Option(help="Denial reason.")] = "",
     external_ref: Annotated[Optional[str], typer.Option(help="Optional ITSM, PR, or ticket reference.")] = None,
 ) -> None:
     """Deny a pending request."""
-    _decide_cli_approval(store, approval_id, state="denied", actor=actor, reason=reason, external_ref=external_ref)
+    _decide_cli_approval(store, sqlite, approval_id, state="denied", actor=actor, reason=reason, external_ref=external_ref)
 
 
 @approval_app.command("expire")
 def expire_request(
     approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Actor identity.")] = "system",
     reason: Annotated[str, typer.Option(help="Expiry reason.")] = "approval expired",
 ) -> None:
     """Expire a pending request."""
-    _decide_cli_approval(store, approval_id, state="expired", actor=actor, reason=reason)
+    _decide_cli_approval(store, sqlite, approval_id, state="expired", actor=actor, reason=reason)
 
 
 @approval_app.command("break-glass")
 def break_glass_approval(
     decision_file: Annotated[Path, typer.Argument(help="Decision JSON file produced by CAVRA.")],
     store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
     actor: Annotated[str, typer.Option(help="Emergency approver identity.")] = "",
     reason: Annotated[str, typer.Option(help="Mandatory emergency reason.")] = "",
     approver_group: Annotated[str, typer.Option(help="Approver group.")] = "Change Advisory Board",
@@ -704,7 +716,7 @@ def break_glass_approval(
     """Record a break-glass override with mandatory evidence."""
     try:
         decision = json.loads(decision_file.read_text(encoding="utf-8"))
-        approval = ApprovalStore(store).break_glass(
+        approval = _approval_store(store, sqlite).break_glass(
             decision=decision,
             actor=actor,
             reason=reason,
@@ -718,8 +730,64 @@ def break_glass_approval(
     console.print(JSON(json.dumps(approval, indent=2)))
 
 
+@approval_app.command("route")
+def route_approval(
+    decision_file: Annotated[Path, typer.Argument(help="Decision JSON file produced by CAVRA.")],
+) -> None:
+    """Show the approver group selected by default routing policy."""
+    try:
+        decision = json.loads(decision_file.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    payload = {
+        "decision_id": decision.get("decision_id"),
+        "default_approver_group": route_approver_group(decision),
+        "routing_rules": default_routing_rules(),
+    }
+    console.print(JSON(json.dumps(payload, indent=2)))
+
+
+@approval_app.command("export-notifications")
+def export_approval_notifications(
+    approval_id: Annotated[str, typer.Argument(help="Approval ID.")],
+    store: Annotated[Path, typer.Option(help="Approval store JSON path.")] = Path(".cavra/approvals.json"),
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval database path.")] = None,
+    output: Annotated[Path, typer.Option(help="Output directory for notification payloads.")] = Path(".cavra/approvals/notifications"),
+    provider: Annotated[str, typer.Option(help="all, slack, teams, jira, servicenow, or webhook.")] = "all",
+) -> None:
+    """Export reference notification payloads for approval providers."""
+    approval = _approval_store(store, sqlite).get(approval_id)
+    if approval is None:
+        console.print(f"[red]approval not found:[/red] {approval_id}")
+        raise typer.Exit(code=1)
+    try:
+        result = export_approval_notification_payloads(approval, output, provider=provider)
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]approval notification payloads exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"[dim]{path}[/dim]")
+
+
+@approval_app.command("migrate")
+def migrate_approval_store(
+    sqlite: Annotated[Path, typer.Option(help="SQLite approval database path.")] = Path(".cavra/approvals.db"),
+    migrations_dir: Annotated[Path, typer.Option(help="Directory containing SQLite migration SQL files.")] = Path("migrations/sqlite"),
+) -> None:
+    """Apply SQLite migrations for approval persistence."""
+    try:
+        result = apply_sqlite_migrations(sqlite, migrations_dir)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
 def _decide_cli_approval(
     store: Path,
+    sqlite: Path | None,
     approval_id: str,
     *,
     state: str,
@@ -728,7 +796,7 @@ def _decide_cli_approval(
     external_ref: str | None = None,
 ) -> None:
     try:
-        approval = ApprovalStore(store).decide(
+        approval = _approval_store(store, sqlite).decide(
             approval_id,
             state=state,
             actor=actor,
@@ -742,6 +810,10 @@ def _decide_cli_approval(
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     console.print(JSON(json.dumps(approval, indent=2)))
+
+
+def _approval_store(store: Path, sqlite: Path | None = None) -> ApprovalStore | SQLiteApprovalStore:
+    return SQLiteApprovalStore(sqlite) if sqlite else ApprovalStore(store)
 
 
 @demo_app.command("before-the-agent-acts")

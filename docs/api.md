@@ -42,6 +42,8 @@ Default approval path: `.cavra/api/approvals.json`.
 
 Set `CAVRA_APPROVAL_STORE` to override the approval store path for local or self-hosted deployments.
 
+Set `CAVRA_APPROVAL_DB` to use SQLite-backed approval persistence. `GET /approvals` supports the same `state`, `approver_group`, `limit`, and `offset` filters in JSON and SQLite modes. `GET /console/config` includes `approval_mode`.
+
 ## Console
 
 The static console under `apps/sandbox-ui` includes evidence search and PR attestation verification views. It can run as a standalone static demo or query the API evidence metadata endpoint when hosted on the same origin or an allowed cross origin.
