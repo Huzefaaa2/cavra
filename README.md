@@ -36,6 +36,16 @@ AI coding agents now inspect repositories, modify code, invoke tools, run shell 
 
 CAVRA keeps the current Python management plane and introduces a Go enforcement-plane roadmap. Python owns policy authoring, evidence, integrations, FastAPI, Claude Code adapters, risk classification, and compliance mapping. Go is planned for low-latency local enforcement, CI runner enforcement, streaming audit events, and air-gapped single-binary deployment.
 
+Architecture references:
+
+- [C4 context diagram](docs/diagrams/c4-context.md)
+- [C4 container diagram](docs/diagrams/c4-container.md)
+- [Runtime component diagram](docs/diagrams/c4-component-runtime.md)
+- [Runtime decision flow](docs/diagrams/runtime-decision-flow.md)
+- [Evidence lifecycle](docs/diagrams/evidence-lifecycle.md)
+- [Architecture SVG](docs/diagrams/architecture-context.svg)
+- [Runtime flow SVG](docs/diagrams/runtime-flow.svg)
+
 ## Quick start
 
 ```bash
@@ -133,7 +143,49 @@ The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA
 
 ## Roadmap
 
-Near-term work focuses on parity tests, signed evidence bundles, schema-hardening, Go enforcement-plane contracts, richer FastAPI persistence, sandbox deployment, SIEM exporters, and approval workflow integrations.
+The production roadmap is priority-based, not calendar-based. See [docs/production-roadmap.md](docs/production-roadmap.md) and [docs/implementation-plan.md](docs/implementation-plan.md).
+
+Current phase status:
+
+- Phase 1: Productization Foundation - complete in PR #1.
+- Phase 2: Policy Engine Hardening - next recommended implementation phase.
+- Phase 3: Evidence Hub and Attestation.
+- Phase 4: Approval Router.
+- Phase 5: Agent Registry and MCP Trust Registry.
+- Phase 6: Console and Persistent API.
+- Phase 7: Go Enforcement Plane.
+- Phase 8: Enterprise Integrations.
+- Phase 9: Public Sandbox and Growth Loop.
+- Phase 10: Production Readiness and Release.
+
+Next recommended implementation work:
+
+- Enforce JSON Schema validation for all policy packs.
+- Implement policy inheritance and repository overrides.
+- Replace placeholder policy diff with semantic diff output.
+- Upgrade policy signing and verification.
+- Add signed evidence bundles and verifier tests.
+
+## User stories and enterprise value
+
+CAVRA is built around enterprise user stories for developers, CISOs, platform engineers, DevSecOps, auditors, and AI governance leads. See [docs/user-stories.md](docs/user-stories.md).
+
+CAVRA directly addresses secret exposure, unsafe infrastructure changes, direct Git push, dangerous shell commands, MCP tool sprawl, audit gaps, identity ambiguity, approval bypass, and regulated SDLC evidence gaps. See [docs/enterprise-challenges.md](docs/enterprise-challenges.md).
+
+## Wiki and white paper
+
+Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
+
+- [Home](docs/wiki/Home.md)
+- [White Paper](docs/wiki/White-Paper.md)
+- [Production Roadmap](docs/wiki/Production-Roadmap.md)
+- [Implementation Plan](docs/wiki/Implementation-Plan.md)
+- [User Stories](docs/wiki/User-Stories.md)
+- [Enterprise Challenges](docs/wiki/Enterprise-Challenges.md)
+- [Diagrams](docs/wiki/Diagrams.md)
+- [Phase Completion Log](docs/wiki/Phase-Completion-Log.md)
+
+The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 
 ## Contributing
 

@@ -26,6 +26,14 @@ Added: CAVRA package path, `cavra` CLI, `cavra-mcp-server`, Claude Code initiali
 
 Created or updated README, architecture, dual-plane architecture, threat model, product strategy, market positioning, competitive landscape, enterprise adoption, roadmap, partner strategy, monetization, demos, compliance mapping, control catalog, deployment, quickstart, CLI, API, integrations, policy docs, evidence format, approval workflows, MCP governance, agent identity, security model, air-gapped deployment, procurement readiness, Claude Code integration, sandbox docs, and enterprise readiness files.
 
+Added production implementation governance docs: `docs/production-roadmap.md`, `docs/implementation-plan.md`, `docs/user-stories.md`, and `docs/enterprise-challenges.md`.
+
+Added wiki-ready pages under `docs/wiki/`, including Home, White Paper, Production Roadmap, Implementation Plan, User Stories, Enterprise Challenges, Diagrams, and Phase Completion Log.
+
+Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram sources and SVG image assets.
+
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the same white paper, roadmap, user stories, challenge mapping, C4 diagram pages, and SVG diagram assets. Wiki commit: `784a847`.
+
 ## Claude Code and MCP status
 
 `cavra init claude-code` creates `.mcp.json`, `.cavra/policy.yaml`, and `.cavra/session/`. Documented one-line install path: `claude mcp add cavra -- cavra-mcp-server`.
@@ -64,7 +72,9 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 ## Roadmap backlog
 
-Add persistent API storage, real approval providers, cryptographic signing, policy inheritance resolver, JSON Schema enforcement in CLI, Go enforcement implementation, parity tests, SIEM exporters, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, signed releases, and wiki migration/push.
+Next recommended implementation phase: Phase 2, Policy Engine Hardening. Add strict JSON Schema policy validation, policy inheritance resolver, semantic policy diff, signed policy verification, policy test fixtures, audit-only/enforce/break-glass modes, and stable compiled policy output.
+
+Later roadmap backlog: persistent API storage, real approval providers, signed evidence bundles, Go enforcement implementation, parity tests, SIEM exporters, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, signed releases, and wiki migration/push.
 
 ## Market, partner, and commercialization summary
 
