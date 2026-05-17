@@ -1,0 +1,14 @@
+metadata:
+  id: cavra-claude-code-sample
+  title: CAVRA Claude Code Sample
+  description: Sample Claude Code runtime governance policy.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*"]
+  require_approval_write: ["iam/**"]
+commands:
+  block: ["terraform apply*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*"]
+mcp:
+  block_unknown_servers: true
+  allowed_servers: ["github-enterprise", "jira-enterprise"]

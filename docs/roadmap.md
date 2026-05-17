@@ -1,4 +1,4 @@
-# TerraGuard AgentShield Roadmap
+# CAVRA Roadmap
 
 ## Vision
 
@@ -36,7 +36,7 @@ Build the industry-standard runtime governance platform for AI coding agents in 
 - [ ] Development guide and examples
 
 **Deliverables**:
-- PyPI package release (`terraguard-agentshield`)
+- PyPI package release (`cavra`)
 - Homebrew formula
 - Docker image
 - Quick-start documentation
@@ -129,7 +129,7 @@ Decision: "This Terraform plan creates public S3 bucket → BLOCK + notify CISO"
 
 **Timeline**: 2028 and beyond
 
-**Vision**: TerraGuard becomes a control plane for all AI-assisted engineering, not just governance.
+**Vision**: CAVRA becomes a control plane for all AI-assisted engineering, not just governance.
 
 **Features**:
 - [ ] Agent orchestration for complex tasks
@@ -140,7 +140,7 @@ Decision: "This Terraform plan creates public S3 bucket → BLOCK + notify CISO"
 - [ ] Agent marketplace with governed tool access
 
 **Strategic focus**:
-Position TerraGuard as the runtime foundation for safe, autonomous AI engineering in enterprises.
+Position CAVRA as the runtime foundation for safe, autonomous AI engineering in enterprises.
 
 ---
 
@@ -170,7 +170,7 @@ Ongoing (every phase):
 
 ## Competitive positioning
 
-| Competitor | Advantage | TerraGuard differentiation |
+| Competitor | Advantage | CAVRA differentiation |
 | --- | --- | --- |
 | GitHub Code Security | GitHub native | Enterprise control + multi-tool support |
 | Snyk | Code scanning | Runtime governance before commit |

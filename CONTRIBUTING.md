@@ -1,6 +1,6 @@
-# Contributing to TerraGuard AgentShield
+# Contributing to CAVRA
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to the TerraGuard AgentShield project.
+Thank you for your interest in contributing! This document provides guidelines for contributing to the CAVRA project.
 
 ## Code of Conduct
 
@@ -52,7 +52,7 @@ Be respectful, inclusive, and professional. We follow the Contributor Covenant.
 
 - Add new policy packs to `policies/`
 - Include metadata (id, title, description, version)
-- Test policies with `terraguard agent exec`
+- Test policies with `cavra agent exec`
 - Document use cases and threat coverage
 
 ## Reporting issues

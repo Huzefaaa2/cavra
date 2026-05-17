@@ -43,8 +43,8 @@ venv.bak/
 .coverage
 htmlcov/
 
-# TerraGuard
-.terraguard/
+# CAVRA
+.cavra/
 *.log
 
 # OS

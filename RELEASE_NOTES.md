@@ -4,7 +4,7 @@
 
 ### Initial MVP Release
 
-**TerraGuard AgentShield** is a runtime governance platform for AI coding agents in regulated engineering environments.
+**CAVRA** is a runtime governance platform for AI coding agents in regulated engineering environments.
 
 #### Features
 
@@ -16,10 +16,10 @@
 - ✓ Session-based audit trails
 
 **Policy Packs**
-- ✓ `ai-agent-baseline`: Security for any AI agent
-- ✓ `banking-regulated-ai`: Banking/regulated compliance
-- ✓ `terraform-ai-guardrails`: Infrastructure-as-code safety
-- ✓ `mcp-server-governance`: Tool access control
+- ✓ `cavra-ai-agent-baseline`: Security for any AI agent
+- ✓ `cavra-banking-baseline`: Banking/regulated compliance
+- ✓ `cavra-terraform-prod`: Infrastructure-as-code safety
+- ✓ `cavra-mcp-enterprise`: Tool access control
 
 **Integrations**
 - ✓ GitHub PR attestation comments
@@ -28,11 +28,11 @@
 - ✓ Markdown evidence export
 
 **CLI**
-- ✓ `terraguard-agentshield agent start` — Initialize session
-- ✓ `terraguard-agentshield agent exec` — Execute under governance
-- ✓ `terraguard-agentshield agent attest` — Generate attestation
-- ✓ `terraguard-agentshield policy list` — Show available policies
-- ✓ `terraguard-agentshield policy describe` — Policy details
+- ✓ `cavra agent start` — Initialize session
+- ✓ `cavra agent exec` — Execute under governance
+- ✓ `cavra agent attest` — Generate attestation
+- ✓ `cavra policy list` — Show available policies
+- ✓ `cavra policy describe` — Policy details
 
 **Quality**
 - ✓ Comprehensive test suite (8/8 passing)
@@ -53,26 +53,26 @@
 #### Installation
 
 ```bash
-pip install terraguard-agentshield
+pip install cavra
 ```
 
 #### Quick Start
 
 ```bash
 # Start a governed session
-terraguard-agentshield agent start \
+cavra agent start \
   --tool claude-code \
   --repo . \
-  --policy-pack banking-regulated-ai
+  --policy-pack cavra-banking-baseline
 
 # Execute command with governance
-terraguard-agentshield agent exec "terraform plan"
+cavra agent exec "terraform plan"
 
 # List available policies
-terraguard-agentshield policy list
+cavra policy list
 
 # Generate PR attestation
-terraguard-agentshield agent attest <session-id> --format markdown
+cavra agent attest <session-id> --format markdown
 ```
 
 #### Known Limitations
@@ -93,9 +93,9 @@ See [docs/roadmap.md](docs/roadmap.md) for 5-year product vision:
 
 #### Support
 
-- 📖 Documentation: https://github.com/Huzefaaa2/terraguard-agentshield
-- 🐛 Issue tracker: https://github.com/Huzefaaa2/terraguard-agentshield/issues
-- 💬 Discussions: https://github.com/Huzefaaa2/terraguard-agentshield/discussions
+- 📖 Documentation: https://github.com/Huzefaaa2/cavra
+- 🐛 Issue tracker: https://github.com/Huzefaaa2/cavra/issues
+- 💬 Discussions: https://github.com/Huzefaaa2/cavra/discussions
 - 📧 Contact: huzefa@example.com
 
 #### License
@@ -135,6 +135,6 @@ BUSL-1.1 (Business Source License 1.1)
 ## Credits
 
 **Author**: Huzefa Husain
-**Inspired by**: TerraGuard V3 vision for AI agent governance in regulated environments
+**Inspired by**: CAVRA V3 vision for AI agent governance in regulated environments
 
 **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)

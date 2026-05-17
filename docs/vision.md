@@ -1,6 +1,6 @@
-# TerraGuard AgentShield Vision
+# CAVRA Vision
 
-TerraGuard AgentShield protects regulated engineering environments by governing AI coding agents before their actions reach Git.
+CAVRA protects regulated engineering environments by governing AI coding agents before their actions reach Git.
 
 ## Thesis
 

@@ -1,18 +1,18 @@
 from pathlib import Path
 
-from terraguard_agentshield.audit import AuditAction, SessionAudit, create_attestation_markdown
-from terraguard_agentshield.integrations import (
+from cavra.audit import AuditAction, SessionAudit, create_attestation_markdown
+from cavra.integrations import (
     CommandInterceptor,
     GitHubPRAttestationExporter,
 )
-from terraguard_agentshield.policy_registry import PolicyRegistry
-from terraguard_agentshield.runtime import RuntimeGuard
+from cavra.policy_registry import PolicyRegistry
+from cavra.runtime import RuntimeGuard
 
 
 def test_command_interceptor_blocks_terraform_apply() -> None:
     root = Path(__file__).resolve().parents[1] / "policies"
     registry = PolicyRegistry(root=root)
-    guard = RuntimeGuard(policy_pack="ai-agent-baseline")
+    guard = RuntimeGuard(policy_pack="cavra-ai-agent-baseline")
 
     session = SessionAudit(session_id="test-001", tool="claude-code", repo=Path("."))
     interceptor = CommandInterceptor(guard, session)
@@ -34,7 +34,7 @@ def test_github_attestation_export() -> None:
     )
 
     markdown = GitHubPRAttestationExporter.export_comment(session)
-    assert "TerraGuard AgentShield Governance Report" in markdown
+    assert "CAVRA PR Attestation" in markdown
     assert "Blocked Actions" in markdown
     assert "terraform apply" in markdown
     assert ".env" in markdown
@@ -48,7 +48,7 @@ def test_attestation_artifact_export(tmp_path: Path) -> None:
 
     artifact_path = GitHubPRAttestationExporter.save_artifact(session, tmp_path)
     assert artifact_path.exists()
-    assert artifact_path.name.startswith("agentshield-attestation-")
+    assert artifact_path.name.startswith("cavra-attestation-")
 
     import json
 

@@ -1,6 +1,6 @@
 # Webhook Integration
 
-TerraGuard AgentShield can export audit evidence and attestations to webhook endpoints for integration with SOC, GRC, and change management systems.
+CAVRA can export audit evidence and attestations to webhook endpoints for integration with SOC, GRC, and change management systems.
 
 ## Overview
 
@@ -21,7 +21,7 @@ export TERRAGUARD_WEBHOOK_URL=https://your-webhook-endpoint/events
 Or pass it directly to the CLI:
 
 ```bash
-terraguard agent exec "terraform plan" \
+cavra agent exec "terraform plan" \
   --webhook-url https://your-webhook-endpoint/events
 ```
 
@@ -64,8 +64,8 @@ def splunk_webhook(request):
     # Send to Splunk HEC
     hec_client.send(
         event=event,
-        source="terraguard-agentshield",
-        sourcetype="terraguard:audit"
+        source="cavra",
+        sourcetype="cavra:audit"
     )
     return {"status": "ok"}, 200
 ```
@@ -75,7 +75,7 @@ def splunk_webhook(request):
 ```python
 def datadog_webhook(request):
     event = request.json
-    statsd.increment("terraguard.agent.actions", tags=[
+    statsd.increment("cavra.agent.actions", tags=[
         f"tool:{event['tool']}",
         f"session:{event['session_id']}"
     ])
@@ -85,6 +85,6 @@ def datadog_webhook(request):
 ## Error handling
 
 If a webhook request fails:
-- TerraGuard logs the failure but does not block the agent session
-- The local audit JSON is always persisted to `.terraguard/`
+- CAVRA logs the failure but does not block the agent session
+- The local audit JSON is always persisted to `.cavra/`
 - Consider implementing retry logic in your webhook handler

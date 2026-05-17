@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAVRA | Before the Agent Acts</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav>
+        <strong>CAVRA</strong>
+        <button id="copyInstall">claude mcp add cavra</button>
+      </nav>
+      <section>
+        <p class="eyebrow">Controlled Agentic Verification & Runtime Authority</p>
+        <h1>Before the Agent Acts</h1>
+        <p>Watch an AI coding agent try risky engineering actions. See CAVRA decide before anything happens.</p>
+        <div class="actions">
+          <button id="runScenario">Run Agent Scenario</button>
+          <a href="../../examples/demos/before-the-agent-acts/generated/evidence.json" download>Download Evidence</a>
+        </div>
+      </section>
+    </header>
+    <main>
+      <section class="controls">
+        <label>Persona <select id="persona"><option>Developer</option><option>CISO</option><option>Platform Engineer</option><option>Auditor</option></select></label>
+        <label>Policy Mode <select id="policyMode"><option>Enforce</option><option>Audit-only</option><option>Strict regulated repository</option></select></label>
+      </section>
+      <section class="grid">
+        <div>
+          <h2>Agent Actions</h2>
+          <ol id="actions"></ol>
+        </div>
+        <div>
+          <h2>CAVRA Decisions</h2>
+          <ol id="decisions"></ol>
+        </div>
+        <div>
+          <h2>Evidence</h2>
+          <pre id="evidence">Simulated AI-agent scenario using real CAVRA policy decisions.</pre>
+        </div>
+      </section>
+    </main>
+    <script src="./sandbox.js"></script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Policy Authoring Guide
 
-TerraGuard AgentShield policies are YAML-based rule sets that govern AI agent behavior at runtime. This guide explains how to author, test, and deploy custom policies.
+CAVRA policies are YAML-based rule sets that govern AI agent behavior at runtime. This guide explains how to author, test, and deploy custom policies.
 
 ## Policy structure
 
@@ -69,9 +69,9 @@ commands:
 You can combine multiple policy packs. Load them in order:
 
 ```bash
-terraguard agent start \
-  --policy-pack ai-agent-baseline \
-  --policy-pack banking-regulated-ai \
+cavra agent start \
+  --policy-pack cavra-ai-agent-baseline \
+  --policy-pack cavra-banking-baseline \
   --policy-pack my-org-custom
 ```
 
@@ -80,7 +80,7 @@ Policies are evaluated in order; first match wins.
 ## Best practices
 
 1. **Start permissive, tighten over time**
-   - Begin with `ai-agent-baseline`
+   - Begin with `cavra-ai-agent-baseline`
    - Add stricter rules incrementally
    - Monitor blocked actions and iterate
 
@@ -102,7 +102,7 @@ Policies are evaluated in order; first match wins.
 4. **Test policies locally**
    ```bash
    # Test that a command is blocked
-   terraguard agent exec "terraform apply" \
+   cavra agent exec "terraform apply" \
      --policy-pack my-custom-policy
    ```
 
@@ -174,8 +174,8 @@ Validate your policy YAML:
 
 ```bash
 # Parse and list rules
-terraguard policy describe my-custom-policy
+cavra policy describe my-custom-policy
 
 # Test against a command
-terraguard agent exec "my-test-command" --policy-pack my-custom-policy
+cavra agent exec "my-test-command" --policy-pack my-custom-policy
 ```

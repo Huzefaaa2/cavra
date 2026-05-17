@@ -3,11 +3,11 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "terraguard-agentshield"
+name = "cavra"
 version = "0.1.0"
 description = "AI agent runtime governance for regulated engineering."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 authors = [{ name = "Huzefa Husain" }]
 license = { text = "BUSL-1.1" }
 keywords = ["ai", "governance", "runtime", "policy", "agent", "security"]
@@ -21,6 +21,8 @@ dependencies = [
   "rich>=13.7",
   "python-dateutil>=2.8",
   "PyYAML>=6.0",
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
 ]
 
 [project.optional-dependencies]
@@ -30,7 +32,8 @@ dev = [
 ]
 
 [project.scripts]
-terraguard-agentshield = "terraguard_agentshield.cli:main"
+cavra = "cavra.cli:main"
+cavra-mcp-server = "cavra.mcp_server:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

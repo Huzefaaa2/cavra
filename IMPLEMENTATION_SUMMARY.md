@@ -1,4 +1,4 @@
-# TerraGuard AgentShield — Complete Implementation Summary
+# CAVRA — Complete Implementation Summary
 
 ## What was built
 
@@ -7,8 +7,8 @@ A production-ready runtime governance platform for AI coding agents in regulated
 ## Repository structure
 
 ```
-terraguard-agentshield/
-├── src/terraguard_agentshield/          # Python package
+cavra/
+├── src/cavra/          # Python package
 │   ├── __init__.py                      # Package init
 │   ├── cli.py                           # CLI entrypoint (typer)
 │   ├── agent.py                         # AgentSessionManager
@@ -17,10 +17,10 @@ terraguard-agentshield/
 │   ├── policy_registry.py               # PolicyRegistry (YAML loading)
 │   └── integrations.py                  # GitHub, webhook, attestation
 ├── policies/                            # Baseline policy packs
-│   ├── ai-agent-baseline/
-│   ├── banking-regulated-ai/
-│   ├── terraform-ai-guardrails/
-│   └── mcp-server-governance/
+│   ├── cavra-ai-agent-baseline/
+│   ├── cavra-banking-baseline/
+│   ├── cavra-terraform-prod/
+│   └── cavra-mcp-enterprise/
 ├── docs/                                # Comprehensive documentation
 │   ├── vision.md                        # Product vision
 │   ├── architecture.md                  # Technical architecture
@@ -36,7 +36,7 @@ terraguard-agentshield/
 │   └── test_integrations.py
 ├── .github/workflows/                   # GitHub Actions
 │   ├── test.yml                         # CI/CD tests
-│   └── agentshield.yml                  # AI governance workflow
+│   └── cavra.yml                  # AI governance workflow
 ├── README.md                            # Main documentation
 ├── pyproject.toml                       # Python packaging
 ├── CONTRIBUTING.md                      # Contributor guide
@@ -78,20 +78,20 @@ terraguard-agentshield/
 - Artifact generation for compliance
 
 ### 6. CLI (`cli.py`)
-- `terraguard-agentshield agent start`
-- `terraguard-agentshield agent exec`
-- `terraguard-agentshield agent attest`
-- `terraguard-agentshield policy list`
-- `terraguard-agentshield policy describe`
+- `cavra agent start`
+- `cavra agent exec`
+- `cavra agent attest`
+- `cavra policy list`
+- `cavra policy describe`
 
 ## Policy packs included
 
 | Pack | Use case | Key rules |
 | --- | --- | --- |
-| `ai-agent-baseline` | Any AI agent | Block secrets, dangerous commands |
-| `banking-regulated-ai` | Banking/regulated | Approval for infrastructure, strict commands |
-| `terraform-ai-guardrails` | IaC safety | Block apply/destroy, require plan approval |
-| `mcp-server-governance` | Tool control | MCP allowlist, capability-based access |
+| `cavra-ai-agent-baseline` | Any AI agent | Block secrets, dangerous commands |
+| `cavra-banking-baseline` | Banking/regulated | Approval for infrastructure, strict commands |
+| `cavra-terraform-prod` | IaC safety | Block apply/destroy, require plan approval |
+| `cavra-mcp-enterprise` | Tool control | MCP allowlist, capability-based access |
 
 ## Test coverage
 
@@ -135,20 +135,20 @@ Result: 8/8 passed ✓
 pip install -e .
 
 # Start a session
-terraguard-agentshield agent start \
+cavra agent start \
   --tool claude-code \
   --repo . \
-  --policy-pack banking-regulated-ai
+  --policy-pack cavra-banking-baseline
 
 # Execute command under governance
-terraguard-agentshield agent exec "terraform plan" \
-  --policy-pack terraform-ai-guardrails
+cavra agent exec "terraform plan" \
+  --policy-pack cavra-terraform-prod
 
 # List available policies
-terraguard-agentshield policy list
+cavra policy list
 
 # Generate PR attestation
-terraguard-agentshield agent attest <session-id> \
+cavra agent attest <session-id> \
   --format markdown
 ```
 
@@ -198,8 +198,8 @@ terraguard-agentshield agent attest <session-id> \
 
 ## Resources
 
-- **GitHub**: https://github.com/Huzefaaa2/terraguard-agentshield
-- **PyPI**: `pip install terraguard-agentshield` (when released)
+- **GitHub**: https://github.com/Huzefaaa2/cavra
+- **PyPI**: `pip install cavra` (when released)
 - **Documentation**: All in `docs/`
 - **Contact**: huzefa@example.com
 

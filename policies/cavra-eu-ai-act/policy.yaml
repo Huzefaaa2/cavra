@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-eu-ai-act
+  title: CAVRA EU AI Act Governance
+  description: Logging, oversight, and risk controls for AI-assisted engineering.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/personal-data/**"]
+  require_approval_write: ["**/ai-system/**", "**/model/**", "**/risk/**"]
+commands:
+  block: ["terraform apply*", "kubectl delete*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+compliance:
+  maps_to: ["EU AI Act logging", "EU AI Act human oversight"]

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA Decision",
+  "type": "object",
+  "required": ["decision_id", "session_id", "agent_id", "actor", "action_type", "target", "requested_operation", "policy_pack", "policy_id", "rule_id", "decision", "severity", "reason", "evidence_refs", "timestamp", "correlation_id"],
+  "properties": {
+    "decision": {"enum": ["allow", "block", "require_approval", "warn", "audit_only", "allow_with_attestation"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}

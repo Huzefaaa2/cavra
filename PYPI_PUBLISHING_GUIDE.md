@@ -1,6 +1,6 @@
 # PyPI Distribution & GitHub Publishing Guide
 
-This guide walks through publishing TerraGuard AgentShield to PyPI and GitHub.
+This guide walks through publishing CAVRA to PyPI and GitHub.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ This guide walks through publishing TerraGuard AgentShield to PyPI and GitHub.
 ### 1a. Create GitHub repository
 
 1. Go to https://github.com/new
-2. Create repository: `terraguard-agentshield`
+2. Create repository: `cavra`
 3. Choose:
    - ✓ Public
    - ✓ Initialize with nothing (we have our own .git)
@@ -26,7 +26,7 @@ This guide walks through publishing TerraGuard AgentShield to PyPI and GitHub.
 
 ```bash
 # Add remote (replace with your GitHub URL)
-git remote add origin https://github.com/YOUR_USERNAME/terraguard-agentshield.git
+git remote add origin https://github.com/YOUR_USERNAME/cavra.git
 
 # Push to GitHub
 git push -u origin main
@@ -54,13 +54,13 @@ pip install --upgrade build twine
 ### 2b. Build package locally
 
 ```bash
-cd /Users/huzefahusain/Projects/terraguard-agentshield
+cd /Users/huzefahusain/Projects/cavra
 python -m build
 ```
 
 This creates:
-- `dist/terraguard_agentshield-0.1.0-py3-none-any.whl` (wheel)
-- `dist/terraguard_agentshield-0.1.0.tar.gz` (source)
+- `dist/cavra-0.1.0-py3-none-any.whl` (wheel)
+- `dist/cavra-0.1.0.tar.gz` (source)
 
 ### 2c. Validate with twine
 
@@ -70,8 +70,8 @@ twine check dist/*
 
 Should return:
 ```
-Checking distribution dist/terraguard_agentshield-0.1.0-py3-none-any.whl: Passed
-Checking distribution dist/terraguard_agentshield-0.1.0.tar.gz: Passed
+Checking distribution dist/cavra-0.1.0-py3-none-any.whl: Passed
+Checking distribution dist/cavra-0.1.0.tar.gz: Passed
 ```
 
 ---
@@ -90,14 +90,14 @@ Enter password: (your TestPyPI API token)
 ### 3b. Install from TestPyPI
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ terraguard-agentshield
+pip install --index-url https://test.pypi.org/simple/ cavra
 ```
 
 ### 3c. Test the installation
 
 ```bash
-terraguard-agentshield --version
-terraguard-agentshield policy list
+cavra --version
+cavra policy list
 ```
 
 ---
@@ -116,14 +116,14 @@ Enter password: (your PyPI API token from https://pypi.org/manage/account/tokens
 ### 4b. Install from PyPI
 
 ```bash
-pip install terraguard-agentshield
+pip install cavra
 ```
 
 ### 4c. Verify installation
 
 ```bash
-terraguard-agentshield --version
-# Output: terraguard-agentshield, version 0.1.0
+cavra --version
+# Output: cavra, version 0.1.0
 ```
 
 ---
@@ -133,7 +133,7 @@ terraguard-agentshield --version
 ### 5a. Create tag
 
 ```bash
-git tag -a v0.1.0 -m "TerraGuard AgentShield MVP v0.1.0 - Initial release
+git tag -a v0.1.0 -m "CAVRA MVP v0.1.0 - Initial release
 
 Features:
 - Core policy registry with YAML governance
@@ -150,13 +150,13 @@ git push origin v0.1.0
 
 ### 5b. Create release on GitHub
 
-1. Go to https://github.com/YOUR_USERNAME/terraguard-agentshield/releases
+1. Go to https://github.com/YOUR_USERNAME/cavra/releases
 2. Click "Draft a new release"
 3. Select tag: `v0.1.0`
-4. Title: `TerraGuard AgentShield v0.1.0 - MVP Release`
+4. Title: `CAVRA v0.1.0 - MVP Release`
 5. Description:
    ```markdown
-   # TerraGuard AgentShield v0.1.0
+   # CAVRA v0.1.0
 
    Initial MVP release of runtime governance for AI coding agents.
 
@@ -171,22 +171,22 @@ git push origin v0.1.0
 
    ## Installation
    ```bash
-   pip install terraguard-agentshield
+   pip install cavra
    ```
 
    ## Quick Start
    ```bash
    # Start a governed session
-   terraguard-agentshield agent start \
+   cavra agent start \
      --tool claude-code \
      --repo . \
-     --policy-pack banking-regulated-ai
+     --policy-pack cavra-banking-baseline
 
    # Execute command under governance
-   terraguard-agentshield agent exec "terraform plan"
+   cavra agent exec "terraform plan"
 
    # List policies
-   terraguard-agentshield policy list
+   cavra policy list
    ```
 
    ## Documentation
@@ -316,7 +316,7 @@ twine check dist/*
 
 3. **Create repository-scoped tokens** on PyPI:
    - Go to PyPI → Account → API tokens
-   - Create new token with `terraguard-agentshield` scope only
+   - Create new token with `cavra` scope only
 
 4. **Rotate tokens regularly** (quarterly)
 
@@ -331,8 +331,8 @@ twine check dist/*
 
 - [ ] GitHub repository created and pushed
 - [ ] PyPI package uploaded (TestPyPI first)
-- [ ] Installation verified: `pip install terraguard-agentshield`
-- [ ] CLI working: `terraguard-agentshield --version`
+- [ ] Installation verified: `pip install cavra`
+- [ ] CLI working: `cavra --version`
 - [ ] GitHub release created with proper description
 - [ ] Documentation linked in GitHub repo
 - [ ] Public announcement made

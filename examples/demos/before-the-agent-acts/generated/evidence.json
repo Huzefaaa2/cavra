@@ -1,0 +1,153 @@
+{
+  "product": "CAVRA",
+  "tagline": "Before the agent acts, CAVRA decides.",
+  "decisions": [
+    {
+      "decision_id": "dec_f5efd0f13bdf",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "read_file",
+      "target": ".env",
+      "requested_operation": "read",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "filesystem.read.block",
+      "decision": "block",
+      "severity": "high",
+      "reason": "Matched sensitive path policy: .env",
+      "evidence_refs": [
+        "evidence://local/dec_f5efd0f13bdf"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855155+00:00",
+      "correlation_id": "corr_f33781ed457c"
+    },
+    {
+      "decision_id": "dec_8527c9dee5f1",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "write_file",
+      "target": "iam/admin-role.tf",
+      "requested_operation": "write",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "filesystem.write.require_approval",
+      "decision": "require_approval",
+      "severity": "high",
+      "reason": "Matched approval-required path policy: iam/**",
+      "evidence_refs": [
+        "evidence://local/dec_8527c9dee5f1"
+      ],
+      "approver_group": "Platform Security",
+      "timestamp": "2026-05-17T13:34:51.855628+00:00",
+      "correlation_id": "corr_ebf56cf7d95d"
+    },
+    {
+      "decision_id": "dec_526bbd64bb75",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "execute_command",
+      "target": "terraform plan",
+      "requested_operation": "terraform plan",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "commands.allow",
+      "decision": "allow",
+      "severity": "low",
+      "reason": "Matched allowed command policy: terraform plan*",
+      "evidence_refs": [
+        "evidence://local/dec_526bbd64bb75"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855908+00:00",
+      "correlation_id": "corr_67d07207cbea"
+    },
+    {
+      "decision_id": "dec_b6630c7a918f",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "execute_command",
+      "target": "terraform apply -auto-approve",
+      "requested_operation": "terraform apply -auto-approve",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "commands.block",
+      "decision": "block",
+      "severity": "critical",
+      "reason": "Matched blocked command policy: terraform apply*",
+      "evidence_refs": [
+        "evidence://local/dec_b6630c7a918f"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855921+00:00",
+      "correlation_id": "corr_e099c3a32950"
+    },
+    {
+      "decision_id": "dec_840f84ff890a",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "mcp_tool_call",
+      "target": "unknown-filesystem:read_file",
+      "requested_operation": "filesystem",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "mcp.server.trust.block_unknown",
+      "decision": "block",
+      "severity": "high",
+      "reason": "Untrusted MCP server with filesystem/tool capability is not approved.",
+      "evidence_refs": [
+        "evidence://local/dec_840f84ff890a"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855931+00:00",
+      "correlation_id": "corr_418c743c045e"
+    },
+    {
+      "decision_id": "dec_3d0f1c2d744b",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "git_operation",
+      "target": "origin/main",
+      "requested_operation": "push",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "git.protected_branch.block_direct_push",
+      "decision": "block",
+      "severity": "high",
+      "reason": "Direct push to protected branch is prohibited.",
+      "evidence_refs": [
+        "evidence://local/dec_3d0f1c2d744b"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855941+00:00",
+      "correlation_id": "corr_1238c38d4d3f"
+    },
+    {
+      "decision_id": "dec_16cb6f741c09",
+      "session_id": "local",
+      "agent_id": "demo-agent",
+      "actor": "simulated-ai-agent",
+      "action_type": "pull_request",
+      "target": "create PR",
+      "requested_operation": "create",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "policy_id": "cavra-ai-agent-baseline",
+      "rule_id": "git.pull_request.allow_with_attestation",
+      "decision": "allow_with_attestation",
+      "severity": "medium",
+      "reason": "PR is allowed with CAVRA evidence and reviewer guidance.",
+      "evidence_refs": [
+        "evidence://local/dec_16cb6f741c09"
+      ],
+      "approver_group": null,
+      "timestamp": "2026-05-17T13:34:51.855950+00:00",
+      "correlation_id": "corr_259a9e0a44c4"
+    }
+  ]
+}

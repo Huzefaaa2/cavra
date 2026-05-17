@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"CAVRA MCP Server","type":"object","required":["server_id","trust_tier"],"properties":{"server_id":{"type":"string"},"trust_tier":{"type":"string"},"capabilities":{"type":"array","items":{"type":"string"}}}}

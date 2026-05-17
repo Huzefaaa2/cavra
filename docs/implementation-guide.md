@@ -1,6 +1,6 @@
 # Implementation Guide: AI Agent Governance for Enterprises
 
-This guide provides step-by-step instructions for implementing TerraGuard AgentShield in regulated enterprise environments.
+This guide provides step-by-step instructions for implementing CAVRA in regulated enterprise environments.
 
 ## 1. Local developer machine setup
 
@@ -13,14 +13,14 @@ This guide provides step-by-step instructions for implementing TerraGuard AgentS
 
 ```bash
 # Clone the repository
-git clone https://github.com/Huzefaaa2/terraguard-agentshield
-cd terraguard-agentshield
+git clone https://github.com/Huzefaaa2/cavra
+cd cavra
 
 # Create a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install TerraGuard AgentShield
+# Install CAVRA
 pip install -e .
 ```
 
@@ -28,40 +28,40 @@ pip install -e .
 
 ```bash
 # Start a governed session
-terraguard-agentshield agent start \
+cavra agent start \
   --tool claude-code \
   --repo . \
-  --policy-pack banking-regulated-ai \
-  --output .terraguard/audit
+  --policy-pack cavra-banking-baseline \
+  --output .cavra/audit
 ```
 
 ### Test the runtime guard
 
 ```bash
 # This should be blocked
-terraguard-agentshield agent exec "terraform apply" \
-  --policy-pack terraform-ai-guardrails
+cavra agent exec "terraform apply" \
+  --policy-pack cavra-terraform-prod
 
 # This should be allowed
-terraguard-agentshield agent exec "terraform plan" \
-  --policy-pack terraform-ai-guardrails
+cavra agent exec "terraform plan" \
+  --policy-pack cavra-terraform-prod
 ```
 
 ---
 
 ## 2. GitHub Actions integration
 
-### Add AgentShield to your CI/CD
+### Add CAVRA to your CI/CD
 
-Create `.github/workflows/agentshield.yml`:
+Create `.github/workflows/cavra.yml`:
 
 ```yaml
-name: TerraGuard AgentShield AI Governance
+name: CAVRA AI Governance
 
 on: [pull_request]
 
 jobs:
-  agentshield:
+  cavra:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -69,15 +69,15 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - name: Install TerraGuard AgentShield
-        run: pip install terraguard-agentshield
+      - name: Install CAVRA
+        run: pip install cavra
       
       - name: Load audit from PR
         run: |
-          # If .terraguard/audit/ exists in PR, load it
-          if [ -d ".terraguard/audit" ]; then
-            terraguard-agentshield agent attest \
-              $(ls -t .terraguard/audit/session-*.json | head -1 | sed 's/.*session-//;s/\.json//') \
+          # If .cavra/audit/ exists in PR, load it
+          if [ -d ".cavra/audit" ]; then
+            cavra agent attest \
+              $(ls -t .cavra/audit/session-*.json | head -1 | sed 's/.*session-//;s/\.json//') \
               --format markdown > /tmp/attestation.md
           fi
       
@@ -116,17 +116,17 @@ In Splunk, create an HTTP Event Collector input:
 
 ```
 Settings → Data Inputs → HTTP Event Collector
-Create New Token: terraguard-agentshield
-Source Type: terraguard:audit
+Create New Token: cavra
+Source Type: cavra:audit
 Index: security
 ```
 
 ### Send evidence
 
 ```bash
-terraguard-agentshield agent exec "terraform plan" \
+cavra agent exec "terraform plan" \
   --webhook-url "https://your-splunk-instance.com:8088/services/collector/event" \
-  --policy-pack banking-regulated-ai
+  --policy-pack cavra-banking-baseline
 ```
 
 Splunk will automatically ingest:
@@ -144,7 +144,7 @@ required_approvals=1
 
 ### Create Jira webhook
 
-In Jira, set up a webhook to receive AgentShield evidence:
+In Jira, set up a webhook to receive CAVRA evidence:
 
 ```
 Project Settings → Automation → Webhook
@@ -158,7 +158,7 @@ Create `jira_integration.py`:
 
 ```python
 import requests
-from terraguard_agentshield.audit import SessionAudit
+from cavra.audit import SessionAudit
 
 def link_to_jira(audit: SessionAudit, jira_url: str, api_token: str, project_key: str):
     """Link AI governance evidence to a Jira ticket."""
@@ -177,7 +177,7 @@ def link_to_jira(audit: SessionAudit, jira_url: str, api_token: str, project_key
             "summary": f"AI Agent Governance Review: {audit.tool}",
             "description": f"Session: {audit.session_id}\nSeverity: {severity}\n\n" +
                           "\n".join(f"- {a.type}: {a.target} ({a.decision})" for a in audit.actions),
-            "labels": ["ai-governance", "agentshield"],
+            "labels": ["ai-governance", "cavra"],
         }
     }
     
@@ -199,7 +199,7 @@ Create a ServiceNow flow that creates change requests from AI governance evidenc
 
 ```bash
 # Export as JSON for ServiceNow API
-terraguard-agentshield agent attest <session-id> \
+cavra agent attest <session-id> \
   --format json | \
   curl -X POST \
     -H "Content-Type: application/json" \
@@ -249,10 +249,10 @@ git:
 ### Load in CI/CD
 
 ```bash
-terraguard-agentshield agent start \
+cavra agent start \
   --tool claude-code \
   --repo . \
-  --policy-pack ai-agent-baseline \
+  --policy-pack cavra-ai-agent-baseline \
   --policy-pack org-custom-ai
 ```
 
@@ -265,8 +265,8 @@ terraguard-agentshield agent start \
 ```
 Developer Workstation
   └─ Claude Code / Copilot / Cursor
-     └─ TerraGuard AgentShield CLI
-        └─ Session Audit → .terraguard/
+     └─ CAVRA CLI
+        └─ Session Audit → .cavra/
            └─ GitHub (PR comment + artifact)
            └─ SIEM webhook (Splunk)
            └─ Jira (linked issues)
@@ -275,14 +275,14 @@ Developer Workstation
 
 ### Deployment checklist
 
-- [ ] Install TerraGuard AgentShield on dev workstations (via Homebrew or pip)
-- [ ] Configure organization policy pack in `.terraguard/policy.yaml`
+- [ ] Install CAVRA on dev workstations (via Homebrew or pip)
+- [ ] Configure organization policy pack in `.cavra/policy.yaml`
 - [ ] Set up GitHub Actions workflow for PR attestation
 - [ ] Configure SIEM webhook URL in CI/CD environment variables
 - [ ] Create Jira integration function in your automation engine
 - [ ] Set up ServiceNow change request sync
 - [ ] Publish policy pack documentation to internal wiki
-- [ ] Train developers on `terraguard agent` commands
+- [ ] Train developers on `cavra agent` commands
 - [ ] Monitor audit logs for policy violations
 - [ ] Iterate on policies based on blocked actions
 
@@ -293,23 +293,23 @@ Developer Workstation
 ### Key metrics to track
 
 ```
-terraguard.agent.sessions_started
-terraguard.agent.actions_total
-terraguard.agent.actions_allowed
-terraguard.agent.actions_blocked
-terraguard.agent.actions_requiring_approval
+cavra.agent.sessions_started
+cavra.agent.actions_total
+cavra.agent.actions_allowed
+cavra.agent.actions_blocked
+cavra.agent.actions_requiring_approval
 
 Breakdown by:
   - tool (claude-code, copilot, cursor, duo)
-  - policy_pack (ai-agent-baseline, banking-regulated-ai, terraform-ai-guardrails)
+  - policy_pack (cavra-ai-agent-baseline, cavra-banking-baseline, cavra-terraform-prod)
   - decision (allow, block, require_approval)
 ```
 
 ### Health check
 
 ```bash
-# Test that agentshield is running and policies are loaded
-terraguard-agentshield policy list
+# Test that cavra is running and policies are loaded
+cavra policy list
 # Should return all available policy packs
 ```
 
@@ -317,7 +317,7 @@ terraguard-agentshield policy list
 
 ## 9. Security considerations
 
-- Store `.terraguard/` audit logs in a secure location
+- Store `.cavra/` audit logs in a secure location
 - Rotate webhook URLs and API tokens regularly
 - Enforce HTTPS for all webhook connections
 - Use signed YAML policy bundles (future feature)
@@ -333,13 +333,13 @@ terraguard-agentshield policy list
 **Issue**: `Policy pack not found`
 ```bash
 # Solution: Verify the policy pack exists
-terraguard-agentshield policy list
+cavra policy list
 ```
 
 **Issue**: Command not intercepted as expected
 ```bash
 # Solution: Check the runtime pattern matching
-terraguard-agentshield policy describe <pack-id>
+cavra policy describe <pack-id>
 ```
 
 **Issue**: Webhook not sending evidence
@@ -350,5 +350,5 @@ curl -X POST <webhook-url> -d '{"test": "ok"}'
 
 ### Get help
 
-- GitHub Issues: https://github.com/Huzefaaa2/terraguard-agentshield/issues
+- GitHub Issues: https://github.com/Huzefaaa2/cavra/issues
 - LinkedIn: https://www.linkedin.com/in/huzefaaa

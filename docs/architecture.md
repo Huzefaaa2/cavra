@@ -1,4 +1,4 @@
-# TerraGuard AgentShield Architecture
+# CAVRA Architecture
 
 ## Layers
 
@@ -18,11 +18,11 @@
 
 ## Components
 
-- `terraguard_agentshield.cli`
-- `terraguard_agentshield.agent`
-- `terraguard_agentshield.runtime`
-- `terraguard_agentshield.audit`
-- `terraguard_agentshield.policy_registry`
+- `cavra.cli`
+- `cavra.agent`
+- `cavra.runtime`
+- `cavra.audit`
+- `cavra.policy_registry`
 
 ## Policy packs
 

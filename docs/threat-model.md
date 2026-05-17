@@ -1,6 +1,6 @@
-# TerraGuard AgentShield Threat Model
+# CAVRA Threat Model
 
-This document outlines the security threats TerraGuard AgentShield is designed to address, and the controls implemented to mitigate them.
+This document outlines the security threats CAVRA is designed to address, and the controls implemented to mitigate them.
 
 ## Scope
 
@@ -146,7 +146,7 @@ Examples:
 
 ## Defense-in-depth
 
-TerraGuard AgentShield implements a defense-in-depth strategy:
+CAVRA implements a defense-in-depth strategy:
 
 1. **Configuration layer**: Policy packs define what is allowed/blocked
 2. **Runtime layer**: Guards intercept file access, commands, Git actions
@@ -158,7 +158,7 @@ TerraGuard AgentShield implements a defense-in-depth strategy:
 
 ## Out-of-scope threats
 
-The following are NOT addressed by TerraGuard AgentShield:
+The following are NOT addressed by CAVRA:
 
 - **Network-level attacks**: Assume secure, authenticated connections
 - **Supply chain attacks**: Assume trusted AI model vendors

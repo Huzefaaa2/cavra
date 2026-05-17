@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-iso27001
+  title: CAVRA ISO 27001 Controls
+  description: AI-agent runtime evidence and approval controls aligned to ISO 27001.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/*.key"]
+  require_approval_write: ["**/iam/**", "**/security/**", "**/prod/**"]
+commands:
+  block: ["terraform apply*", "kubectl delete*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+compliance:
+  maps_to: ["ISO 27001 A.5", "ISO 27001 A.8"]
