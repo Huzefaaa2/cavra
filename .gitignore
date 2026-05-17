@@ -46,6 +46,7 @@ htmlcov/
 # CAVRA
 .cavra/
 *.log
+*.sig.json
 
 # OS
 .DS_Store

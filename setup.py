@@ -31,7 +31,7 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     package_data={
-        "cavra": ["py.typed"],
+        "cavra": ["py.typed", "schemas/*.json"],
     },
     include_package_data=True,
     python_requires=">=3.9",
@@ -39,6 +39,7 @@ setup(
         "typer[all]>=0.12",
         "rich>=13.7",
         "PyYAML>=6.0",
+        "jsonschema>=4.20",
         "python-dateutil>=2.8",
         "fastapi>=0.110",
         "uvicorn>=0.27",

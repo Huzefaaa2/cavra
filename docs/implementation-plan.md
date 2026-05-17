@@ -83,17 +83,18 @@ After each phase, update:
 ## Initial Production Backlog
 
 High priority:
-- Policy schema enforcement.
-- Policy inheritance.
-- Signed policies and signed evidence.
+- Signed evidence.
+- Evidence bundle verification.
 - Persistent API storage.
 - Approval queue.
 - GitHub required check.
 - MCP Trust Registry.
 - Agent Registry.
-- Evidence bundle verification.
+- PR attestation verifier output.
 
 Medium priority:
+- Public/private key policy signing.
+- Audit-only, enforce, strict regulated, and break-glass modes.
 - Console UI.
 - SIEM exporters.
 - ServiceNow/Jira reference connectors.

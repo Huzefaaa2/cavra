@@ -28,4 +28,19 @@ Validation:
 
 Phase 2: Policy Engine Hardening.
 
-Recommended first issue: strict JSON Schema validation for all CAVRA policy packs.
+Status: complete.
+
+Completed:
+- Strict JSON Schema validation for CAVRA policy packs.
+- Policy inheritance through `metadata.inherits`.
+- Normalized compiled policy output.
+- Semantic policy diff output.
+- Policy signature metadata.
+- Policy verification with tamper detection.
+- Tests for validation, inheritance, diff, and signatures.
+
+## Next Phase
+
+Phase 3: Evidence Hub and Attestation.
+
+Recommended first issue: signed evidence bundle manifest and verifier.

@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 from typing import Annotated, Optional
 
-import yaml
 import typer
 from rich.console import Console
 from rich.json import JSON
@@ -14,7 +13,14 @@ from cavra.agent import AgentSessionManager
 from cavra.integrations import (
     CommandInterceptor,
     GitHubPRAttestationExporter,
-    WebhookExporter,
+)
+from cavra.policy_engine import (
+    compile_policy as compile_policy_payload,
+    diff_policies,
+    load_policy_file,
+    validate_policy as validate_policy_payload,
+    verify_policy_signature,
+    write_policy_signature,
 )
 from cavra.policy_registry import PolicyRegistry
 from cavra.runtime import RuntimeGuard
@@ -162,17 +168,17 @@ def list_policies() -> None:
 def validate_policy(
     path: Annotated[Path, typer.Argument(help="Policy YAML path or policy pack directory.")]
 ) -> None:
-    """Validate a policy pack has required CAVRA metadata and rule sections."""
+    """Validate a policy pack against the CAVRA JSON Schema."""
     policy_path = path / "policy.yaml" if path.is_dir() else path
     if not policy_path.exists():
         console.print(f"[red]Policy not found:[/red] {policy_path}")
         raise typer.Exit(code=1)
-    payload = yaml.safe_load(policy_path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict) or not isinstance(payload.get("metadata"), dict):
-        console.print("[red]Invalid policy: missing metadata object.[/red]")
-        raise typer.Exit(code=1)
-    if not payload["metadata"].get("id"):
-        console.print("[red]Invalid policy: missing metadata.id.[/red]")
+    payload = load_policy_file(policy_path)
+    errors = validate_policy_payload(payload)
+    if errors:
+        console.print(f"[red]invalid[/red] {policy_path}")
+        for error in errors:
+            console.print(f"  - {error}")
         raise typer.Exit(code=1)
     console.print(f"[green]valid[/green] {payload['metadata']['id']}")
 
@@ -217,41 +223,55 @@ def explain_policy(
 
 
 @policy_app.command("compile")
-def compile_policy(policy_pack: str = "cavra-ai-agent-baseline") -> None:
-    """Compile a policy pack to normalized JSON."""
+def compile_policy(
+    policy_pack: Annotated[str, typer.Option(help="Base policy pack ID.")] = "cavra-ai-agent-baseline",
+    overlay: Annotated[Optional[list[Path]], typer.Option(help="Policy YAML or pack directory overlay.")] = None,
+) -> None:
+    """Compile a policy pack and optional overlays to normalized JSON."""
     registry = PolicyRegistry()
-    console.print(JSON(json.dumps(registry.load_policy(policy_pack), indent=2)))
+    overlays = [load_policy_file(item) for item in overlay or []]
+    compiled = compile_policy_payload(registry.load_policy(policy_pack), overlays)
+    errors = validate_policy_payload(compiled)
+    if errors:
+        console.print("[red]compiled policy is invalid[/red]")
+        for error in errors:
+            console.print(f"  - {error}")
+        raise typer.Exit(code=1)
+    console.print(JSON(json.dumps(compiled, indent=2)))
 
 
 @policy_app.command("diff")
 def diff_policy(left: Path, right: Path) -> None:
-    """Show the paths being compared for policy review workflows."""
-    console.print(f"CAVRA policy diff requested: {left} -> {right}")
+    """Show a semantic diff between two policies."""
+    diff = diff_policies(load_policy_file(left), load_policy_file(right))
+    console.print(JSON(json.dumps(diff.to_dict(), indent=2)))
 
 
 @policy_app.command("sign")
-def sign_policy(path: Path) -> None:
-    """Create a deterministic local signature placeholder for a policy file."""
-    import hashlib
-
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    sig_path = path.with_suffix(path.suffix + ".sig")
-    sig_path.write_text(f"sha256:{digest}\n", encoding="utf-8")
+def sign_policy(
+    path: Path,
+    signer: Annotated[str, typer.Option(help="Signer identity recorded in signature metadata.")] = "local",
+    key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for local tamper checks.")] = None,
+) -> None:
+    """Create CAVRA policy signature metadata."""
+    policy_path = path / "policy.yaml" if path.is_dir() else path
+    sig_path = write_policy_signature(policy_path, signer=signer, key=key)
     console.print(f"[green]signed[/green] {sig_path}")
 
 
 @policy_app.command("verify")
-def verify_policy(path: Path) -> None:
-    """Verify the local SHA-256 signature created by `cavra policy sign`."""
-    import hashlib
-
-    sig_path = path.with_suffix(path.suffix + ".sig")
-    expected = sig_path.read_text(encoding="utf-8").strip().removeprefix("sha256:")
-    actual = hashlib.sha256(path.read_bytes()).hexdigest()
-    if expected != actual:
-        console.print("[red]signature verification failed[/red]")
+def verify_policy(
+    path: Path,
+    signature: Annotated[Optional[Path], typer.Option(help="Signature metadata path.")] = None,
+    key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for local tamper checks.")] = None,
+) -> None:
+    """Verify CAVRA policy signature metadata."""
+    policy_path = path / "policy.yaml" if path.is_dir() else path
+    ok, message = verify_policy_signature(policy_path, signature_path=signature, key=key)
+    if not ok:
+        console.print(f"[red]signature verification failed[/red]: {message}")
         raise typer.Exit(code=1)
-    console.print("[green]signature verified[/green]")
+    console.print(f"[green]signature verified[/green]: {message}")
 
 
 @policy_app.command("simulate")

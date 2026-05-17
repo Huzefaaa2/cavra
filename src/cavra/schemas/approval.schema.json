@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"CAVRA Approval","type":"object","required":["decision_id","approver_group","state"],"properties":{"state":{"enum":["pending","approved","denied","expired"]}}}

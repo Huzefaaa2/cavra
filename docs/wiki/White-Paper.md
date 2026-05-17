@@ -94,8 +94,8 @@ The strategy is simple: make safe adoption easier than ungoverned adoption.
 The path to production readiness is:
 
 1. Productization foundation.
-2. Policy engine hardening.
-3. Evidence hub and attestation.
+2. Policy engine hardening. This phase is complete and adds schema validation, inheritance, semantic diff, compile output, and policy signature metadata.
+3. Evidence hub and attestation. This is the next recommended phase.
 4. Approval router.
 5. Agent Registry and MCP Trust Registry.
 6. Console and persistent API.

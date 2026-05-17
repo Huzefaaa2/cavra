@@ -8,6 +8,8 @@ from typing import Any
 
 import yaml
 
+from cavra.policy_engine import compile_policy
+
 ROOT = Path(__file__).resolve().parents[2]
 POLICY_DIR = ROOT / "policies"
 
@@ -96,7 +98,18 @@ class PolicyRegistry:
         policy = pack.get("policy")
         if not policy:
             raise PolicyRegistryError(f"Policy pack '{pack_id}' contains no policy data.")
-        return policy
+        inherits = policy.get("metadata", {}).get("inherits")
+        if not inherits:
+            return policy
+        parent_ids = [inherits] if isinstance(inherits, str) else list(inherits)
+        overlays = [policy]
+        parent_policy: dict[str, Any] | None = None
+        for parent_id in reversed(parent_ids):
+            parent_policy = self.load_policy(str(parent_id))
+            overlays.insert(0, parent_policy)
+        if parent_policy is None:
+            return policy
+        return compile_policy(overlays[0], overlays[1:])
 
     def save_policy(self, pack_id: str, content: dict[str, Any]) -> None:
         pack_dir = self.root / pack_id

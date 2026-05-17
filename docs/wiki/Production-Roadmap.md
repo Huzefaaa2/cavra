@@ -10,13 +10,15 @@ Delivered CAVRA identity, CLI, MCP server, Claude Code setup, policy packs, runt
 
 ## Phase 2: Policy Engine Hardening
 
-Next recommended phase.
+Status: complete.
 
-Implement strict policy schema validation, policy inheritance, signed policies, policy tests, semantic policy diff, and stable compiled policy output.
+Implemented strict policy schema validation, policy inheritance, signature metadata, policy tests, semantic policy diff, and stable compiled policy output.
 
 ## Phase 3: Evidence Hub and Attestation
 
-Implement signed evidence bundles, PR attestation, SIEM events, compliance reports, retention controls, and immutable storage reference exporters.
+Status: next recommended phase.
+
+Implement signed evidence bundles, PR attestation verification, SIEM events, compliance reports, retention controls, and immutable storage reference exporters.
 
 ## Phase 4: Approval Router
 

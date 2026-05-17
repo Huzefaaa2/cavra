@@ -93,6 +93,16 @@ The API is published as `CAVRA API` and exposes policies, decisions, sessions, a
 
 Policy packs live under `policies/`. Current packs cover AI-agent baseline, banking, PCI DSS, HIPAA, SOX change control, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic risks, MCP enterprise governance, Kubernetes production safety, Terraform/OpenTofu production safety, cloud IAM, GitHub Enterprise, and GitLab Enterprise.
 
+Policy engine hardening is documented in [docs/policy-engine-hardening.md](docs/policy-engine-hardening.md). CAVRA now supports JSON Schema validation, inherited policy packs, normalized policy compilation, semantic policy diffs, and policy signature metadata.
+
+```bash
+cavra policy validate policies/cavra-ai-agent-baseline
+cavra policy compile --policy-pack cavra-ai-agent-baseline
+cavra policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline
+cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security
+cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
+```
+
 ## Evidence and attestation
 
 CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, and sandbox evidence bundles. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
@@ -148,8 +158,8 @@ The production roadmap is priority-based, not calendar-based. See [docs/producti
 Current phase status:
 
 - Phase 1: Productization Foundation - complete in PR #1.
-- Phase 2: Policy Engine Hardening - next recommended implementation phase.
-- Phase 3: Evidence Hub and Attestation.
+- Phase 2: Policy Engine Hardening - complete in PR #1.
+- Phase 3: Evidence Hub and Attestation - next recommended implementation phase.
 - Phase 4: Approval Router.
 - Phase 5: Agent Registry and MCP Trust Registry.
 - Phase 6: Console and Persistent API.
@@ -160,11 +170,11 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Enforce JSON Schema validation for all policy packs.
-- Implement policy inheritance and repository overrides.
-- Replace placeholder policy diff with semantic diff output.
-- Upgrade policy signing and verification.
-- Add signed evidence bundles and verifier tests.
+- Add signed evidence bundle manifests with checksums.
+- Generate verifier-ready PR attestation and compliance mapping.
+- Add SIEM event export tests for Splunk, Sentinel, Datadog, and generic webhooks.
+- Add evidence retention controls.
+- Add immutable evidence storage reference exporters.
 
 ## User stories and enterprise value
 
@@ -184,6 +194,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Enterprise Challenges](docs/wiki/Enterprise-Challenges.md)
 - [Diagrams](docs/wiki/Diagrams.md)
 - [Phase Completion Log](docs/wiki/Phase-Completion-Log.md)
+- [Policy Engine Hardening](docs/wiki/Policy-Engine-Hardening.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

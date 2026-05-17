@@ -30,17 +30,23 @@ Exit criteria:
 
 ## Phase 2: Policy Engine Hardening
 
+Status: complete in PR #1.
+
 Goal: make policy behavior trustworthy enough for regulated pilots.
 
-Implement:
+Delivered:
 - Strict JSON Schema validation for all policy packs.
 - Policy inheritance and override resolution.
-- Policy test fixtures and golden decision snapshots.
+- Policy test fixtures for validation, inheritance, diff, and signature tamper detection.
 - `cavra policy diff` with semantic rule comparison.
 - Policy compile output with stable normalized JSON.
-- Policy signing with public/private key support.
-- Policy verification with signature metadata.
+- Policy signature metadata.
+- Policy verification with digest tamper detection.
+
+Remaining deeper hardening:
+- Public/private key signing support.
 - Audit-only, enforce, strict regulated, and break-glass modes.
+- Golden decision snapshot suite.
 
 User stories:
 - As a platform engineer, I can validate a policy pack before rollout.
@@ -56,6 +62,8 @@ Exit criteria:
 - Signed policy verification passes in CLI and Docker.
 
 ## Phase 3: Evidence Hub and Attestation
+
+Status: next recommended phase.
 
 Goal: make evidence tamper-resistant, portable, and review-ready.
 
@@ -255,14 +263,14 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: Phase 2, Policy Engine Hardening.
+Next recommended implementation phase: Phase 3, Evidence Hub and Attestation.
 
-Rationale: CAVRA already has a working CLI, MCP path, policy packs, Docker validation, and sandbox. The next production risk is policy correctness. Before adding more integrations, CAVRA needs strict schema validation, inheritance, signed policy workflows, policy tests, and stable compiled policy output.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, and policy signature metadata. The next production risk is evidence integrity. CAVRA needs signed evidence bundles, manifests, checksum verification, PR attestation verification, compliance reports, and SIEM-ready event exports.
 
 Immediate next tasks:
-- Add `jsonschema` dependency and enforce `schemas/policy.schema.json` in `cavra policy validate`.
-- Expand policy schema to cover filesystem, commands, git, mcp, compliance, approvals, and evidence fields.
-- Add policy inheritance resolver.
-- Add tests for enterprise baseline plus repo override behavior.
-- Replace placeholder `policy diff` with structured semantic diff output.
-- Upgrade `policy sign` and `policy verify` from local SHA-256 files to asymmetric signing.
+- Add evidence bundle manifest generation.
+- Add checksum verification for evidence bundles.
+- Add signed evidence bundle metadata.
+- Add PR attestation verifier output.
+- Add SIEM event export tests.
+- Add evidence retention controls.

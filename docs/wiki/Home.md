@@ -12,7 +12,9 @@ This wiki is the operating manual for CAVRA as an enterprise AI-agent runtime go
 
 Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA identity, CLI, MCP server, Claude Code setup, policy packs, runtime decisions, Docker validation, API contract, sandbox, and enterprise documentation.
 
-Phase 2, Policy Engine Hardening, is the next recommended implementation phase.
+Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
+
+Phase 3, Evidence Hub and Attestation, is the next recommended implementation phase.
 
 ## Primary Pages
 
@@ -23,6 +25,7 @@ Phase 2, Policy Engine Hardening, is the next recommended implementation phase.
 - Enterprise Challenges: `Enterprise-Challenges.md`
 - Diagrams: `Diagrams.md`
 - Phase Completion Log: `Phase-Completion-Log.md`
+- Policy Engine Hardening: `Policy-Engine-Hardening.md`
 
 ## Quick Start
 

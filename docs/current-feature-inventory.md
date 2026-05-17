@@ -4,6 +4,8 @@ Implemented modules: policy registry, runtime guard, session audit, command inte
 
 Existing CLI commands: `version`, `evaluate`, `agent start`, `agent exec`, `agent attest`, `policy list`, `policy describe`, `policy validate`, `policy test`, `policy explain`, `policy compile`, `policy diff`, `policy sign`, `policy verify`, `policy simulate`, `policy dry-run`, `policy init`, `init claude-code`, `demo before-the-agent-acts`.
 
+Policy engine hardening: `policy validate` uses JSON Schema, `policy compile` emits normalized output and accepts overlays, `policy diff` reports semantic added/removed/changed paths, `policy sign` emits signature metadata, `policy verify` detects digest tampering, and policy packs can inherit parent packs through `metadata.inherits`.
+
 Existing API endpoints: `/health`, `/version`, `/policies`, `/policy-packs`, `/decisions`, `/sessions`, `/agents`, `/repositories`, `/approvals`, `/evidence`, `/integrations`, `/mcp/servers`, `/mcp/trust`, `/risk/events`, `/compliance/mappings`, and sandbox endpoints under `/api/sandbox`.
 
 Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic, MCP enterprise, Kubernetes prod, Terraform/OpenTofu prod, cloud IAM, GitHub Enterprise, GitLab Enterprise.

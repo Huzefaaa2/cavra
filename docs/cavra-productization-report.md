@@ -32,7 +32,7 @@ Added wiki-ready pages under `docs/wiki/`, including Home, White Paper, Producti
 
 Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram sources and SVG image assets.
 
-Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the same white paper, roadmap, user stories, challenge mapping, C4 diagram pages, and SVG diagram assets. Wiki commit: `784a847`.
+Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, and Phase 2 policy engine hardening page. Wiki commits: `784a847` and `9b24196`.
 
 ## Claude Code and MCP status
 
@@ -65,6 +65,13 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 - `curl -fsS http://127.0.0.1:8000/version` -> passed.
 - `curl -I -fsS http://127.0.0.1:5173` -> passed.
 - `docker compose down` -> passed.
+- `for p in policies/*; do PYTHONPATH=src python3 -m cavra.cli policy validate "$p"; done` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli policy compile --policy-pack cavra-ai-agent-baseline` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline` -> passed.
+- `PYTHONPATH=src python3 -m cavra.cli policy sign ... --key secret` and `policy verify ... --key secret` -> passed.
+- `docker build -t cavra:local .` with packaged schemas -> passed.
+- `docker run --rm cavra:local policy validate policies/cavra-ai-agent-baseline` -> passed.
+- `docker run --rm cavra:local policy test` -> passed.
 
 ## Brand validation
 
@@ -72,9 +79,11 @@ Brand search for old visible product names returned no matches after cleanup. Re
 
 ## Roadmap backlog
 
-Next recommended implementation phase: Phase 2, Policy Engine Hardening. Add strict JSON Schema policy validation, policy inheritance resolver, semantic policy diff, signed policy verification, policy test fixtures, audit-only/enforce/break-glass modes, and stable compiled policy output.
+Phase 2, Policy Engine Hardening, is now implemented. Added strict JSON Schema policy validation, policy inheritance resolver, normalized compile output, semantic policy diff, policy signature metadata, signature verification, and tests for bundled policy validation, inheritance, diff, and tamper detection.
 
-Later roadmap backlog: persistent API storage, real approval providers, signed evidence bundles, Go enforcement implementation, parity tests, SIEM exporters, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, signed releases, and wiki migration/push.
+Next recommended implementation phase: Phase 3, Evidence Hub and Attestation. Add signed evidence bundle manifests, checksum verification, PR attestation verifier output, SIEM event exports, evidence retention controls, and immutable evidence storage reference exporters.
+
+Later roadmap backlog: persistent API storage, real approval providers, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, SSO/OIDC, RBAC, immutable evidence storage, SBOM automation, and signed releases.
 
 ## Market, partner, and commercialization summary
 

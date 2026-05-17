@@ -21,6 +21,7 @@ dependencies = [
   "rich>=13.7",
   "python-dateutil>=2.8",
   "PyYAML>=6.0",
+  "jsonschema>=4.20",
   "fastapi>=0.110",
   "uvicorn>=0.27",
 ]
@@ -38,3 +39,6 @@ cavra-mcp-server = "cavra.mcp_server:main"
 [tool.setuptools]
 package-dir = {"" = "src"}
 include-package-data = true
+
+[tool.setuptools.package-data]
+cavra = ["py.typed", "schemas/*.json"]
