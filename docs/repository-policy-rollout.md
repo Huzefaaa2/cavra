@@ -65,4 +65,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next Phase 6 step is backup, restore, retention, and operational data lifecycle documentation for persistent API stores, followed by hosted attestation artifact retrieval.
+The next Phase 6 step is integrations inventory persistence, policy rollout drill-downs, and OIDC-ready console auth/RBAC boundaries, followed by hosted attestation artifact retrieval.

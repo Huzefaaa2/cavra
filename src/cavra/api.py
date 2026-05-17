@@ -19,6 +19,7 @@ from cavra.approvals import (
 )
 from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
+from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
 from cavra.policy_registry import PolicyRegistry
 from cavra.registry import (
     RegistryStore,
@@ -124,6 +125,8 @@ def create_app():
                 "decisions": "/decisions",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
+                "operations_stores": "/operations/stores",
+                "operations_retention_plan": "/operations/retention-plan",
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
@@ -223,6 +226,25 @@ def create_app():
         if item is None:
             raise HTTPException(status_code=404, detail="session not found")
         return item
+
+    @app.get("/operations/stores")
+    def operations_store_index() -> dict:
+        return persistent_api_store_status()
+
+    @app.get("/operations/retention-plan")
+    def operations_retention_plan(
+        retention_days: int = 2555,
+        classification: str = "regulated-sdlc",
+        legal_hold: bool = False,
+    ) -> dict:
+        try:
+            return build_persistent_api_retention_plan(
+                retention_days=retention_days,
+                classification=classification,
+                legal_hold=legal_hold,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="invalid retention plan request") from exc
 
     @app.get("/repositories")
     def repository_index(

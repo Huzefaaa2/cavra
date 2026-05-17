@@ -40,6 +40,12 @@ from cavra.evidence import (
     verify_evidence_bundle,
 )
 from cavra.integrations import CommandInterceptor
+from cavra.operations import (
+    backup_persistent_api_stores,
+    export_persistent_api_retention_plan,
+    persistent_api_store_status,
+    restore_persistent_api_backup,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -67,6 +73,7 @@ init_app = typer.Typer(help="Initialize CAVRA integrations.")
 evidence_app = typer.Typer(help="Evidence bundle commands.")
 approval_app = typer.Typer(help="Human approval router commands.")
 registry_app = typer.Typer(help="Agent and MCP trust registry commands.")
+ops_app = typer.Typer(help="Persistent API operations commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -74,6 +81,7 @@ app.add_typer(init_app, name="init")
 app.add_typer(evidence_app, name="evidence")
 app.add_typer(approval_app, name="approval")
 app.add_typer(registry_app, name="registry")
+app.add_typer(ops_app, name="ops")
 
 
 @app.command()
@@ -1094,6 +1102,58 @@ def _registry_store(store: Path, sqlite: Path | None) -> RegistryStore | SQLiteR
     if sqlite is not None:
         return SQLiteRegistryStore(sqlite)
     return RegistryStore(store)
+
+
+@ops_app.command("stores")
+def list_persistent_api_stores() -> None:
+    """List configured persistent API stores and whether each path exists."""
+    _print_json(persistent_api_store_status())
+
+
+@ops_app.command("backup")
+def backup_persistent_api(
+    output: Annotated[Path, typer.Option(help="Backup output directory.")] = Path(".cavra/backups/latest"),
+    include_missing: Annotated[bool, typer.Option(help="Write placeholder files for missing stores.")] = False,
+) -> None:
+    """Back up configured JSON and SQLite persistent API stores."""
+    result = backup_persistent_api_stores(output, include_missing=include_missing)
+    _print_json(result)
+
+
+@ops_app.command("restore")
+def restore_persistent_api(
+    manifest: Annotated[Path, typer.Argument(help="Backup manifest JSON path.")],
+    target_dir: Annotated[Optional[Path], typer.Option(help="Optional restore directory instead of configured live paths.")] = None,
+    overwrite: Annotated[bool, typer.Option(help="Overwrite existing target files.")] = False,
+) -> None:
+    """Restore a persistent API backup after checksum validation."""
+    try:
+        result = restore_persistent_api_backup(manifest, target_dir=target_dir, overwrite=overwrite)
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _print_json(result)
+
+
+@ops_app.command("retention-plan")
+def persistent_api_retention_plan(
+    output: Annotated[Path, typer.Option(help="Output directory for retention plan artifacts.")] = Path(".cavra/operations/retention"),
+    retention_days: Annotated[int, typer.Option(help="Minimum persistent API retention period.")] = 2555,
+    classification: Annotated[str, typer.Option(help="Operational data classification.")] = "regulated-sdlc",
+    legal_hold: Annotated[bool, typer.Option(help="Mark persistent API data as under legal hold.")] = False,
+) -> None:
+    """Export backup, restore-test, and retention controls for persistent API stores."""
+    try:
+        result = export_persistent_api_retention_plan(
+            output,
+            retention_days=retention_days,
+            classification=classification,
+            legal_hold=legal_hold,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _print_json(result)
 
 
 def _print_json(payload: object) -> None:

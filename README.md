@@ -110,7 +110,7 @@ cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
 
 ## Evidence and attestation
 
-CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, and sandbox evidence bundles. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
+CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, sandbox evidence bundles, and persistent API operational metadata. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
 
 Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, and verifier commands.
 
@@ -130,6 +130,19 @@ cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --lim
 ```
 
 Evidence key management and rotation guidance is documented in [docs/evidence-key-management.md](docs/evidence-key-management.md).
+
+## Persistent API operations
+
+CAVRA can inspect, back up, restore, and document retention controls for the API's JSON and SQLite stores:
+
+```bash
+cavra ops stores
+cavra ops backup --output .cavra/backups/20260518
+cavra ops restore .cavra/backups/20260518/manifest.json --target-dir /tmp/cavra-restore-test
+cavra ops retention-plan --output .cavra/operations/retention --retention-days 2555 --legal-hold
+```
+
+Persistent API operations are documented in [docs/persistent-api-operations.md](docs/persistent-api-operations.md). The API exposes read-only `/operations/stores` and `/operations/retention-plan` endpoints; restore remains CLI-only.
 
 ## Human approvals
 
@@ -217,7 +230,7 @@ Current phase status:
 - Phase 3: Evidence Hub and Attestation - near complete in PR #1; remaining follow-up is hosted attestation artifact retrieval.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
-- Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, API filters, console Activity Explorer views, and console repository/rollout views.
+- Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, persistent API backup/restore/retention operations, API filters, console Activity Explorer views, and console repository/rollout views.
 - Phase 7: Go Enforcement Plane.
 - Phase 8: Enterprise Integrations.
 - Phase 9: Public Sandbox and Growth Loop.
@@ -225,7 +238,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Continue Phase 6 with backup/restore documentation, persistent API retention controls, integrations inventory persistence, and policy rollout drill-downs.
+- Continue Phase 6 with integrations inventory persistence, policy rollout drill-downs, and OIDC-ready console auth/RBAC boundaries.
 - Add hosted attestation artifact download APIs backed by governed object storage.
 
 ## User stories and enterprise value
@@ -256,6 +269,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)
 - [Agent Orchestration Architecture](docs/wiki/Agent-Orchestration-Architecture.md)
 - [Repository Inventory and Policy Rollout](docs/wiki/Repository-Policy-Rollout.md)
+- [Persistent API Operations](docs/wiki/Persistent-API-Operations.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

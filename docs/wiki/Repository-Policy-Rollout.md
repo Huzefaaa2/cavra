@@ -53,4 +53,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended Phase 6 step is backup, restore, retention, and data lifecycle documentation for persistent API stores.
+The next recommended Phase 6 step is integrations inventory persistence and console views.

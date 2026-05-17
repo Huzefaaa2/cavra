@@ -133,8 +133,13 @@ Completed:
 - `GET` and `POST` repository inventory API endpoints with provider, owner, policy pack, status, and risk-tier filters.
 - `GET` and `POST` policy rollout API endpoints with repository, policy pack, state, mode, and owner filters.
 - Console repository inventory and policy rollout views.
+- `cavra ops stores` for persistent API store status.
+- `cavra ops backup` for checksum-backed JSON and SQLite store backups.
+- `cavra ops restore` for checksum-validated restore to test or live paths.
+- `cavra ops retention-plan` for JSON and Markdown retention-control artifacts.
+- Read-only `/operations/stores` and `/operations/retention-plan` API endpoints.
 
-Recommended next issue: add backup/restore documentation, persistent API retention controls, integrations inventory persistence, policy-pack catalog drill-downs, and hosted attestation artifact retrieval.
+Recommended next issue: add integrations inventory persistence, policy-pack catalog drill-downs, OIDC-ready console auth/RBAC boundaries, and hosted attestation artifact retrieval.
 
 ## Transparent Agent Methodology Enablement
 

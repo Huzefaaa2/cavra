@@ -37,6 +37,15 @@ Set `CAVRA_INVENTORY_STORE` to override the JSON path. Set `CAVRA_INVENTORY_DB` 
 
 Inventory records track repository ID, provider, owner, business unit, environment, active policy pack, risk tier, status, protected branches, required checks, and evidence references. Rollout records track repository, policy pack, policy version, rollout mode, rollout state, owner, coverage percentage, last evaluation time, and evidence references.
 
+## Persistent API Operations
+
+Read-only operations endpoints:
+
+- `GET /operations/stores`: list active persistent API store paths, modes, configuration sources, existence, and size.
+- `GET /operations/retention-plan`: return a retention, backup, and restore-test plan for persistent API stores. Optional query parameters are `retention_days`, `classification`, and `legal_hold`.
+
+Backup and restore are intentionally CLI-only through `cavra ops backup` and `cavra ops restore` so the unauthenticated demo API does not gain file-system restore authority.
+
 ## Agent and MCP Registry
 
 Registry endpoints:
@@ -114,7 +123,7 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, evidence search, PR attestation verification, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, evidence metadata, approval, agent, and MCP endpoints when hosted on the same origin or an allowed cross origin.
 
-`GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, and endpoint paths. Configure cross-origin deployments with:
+`GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including operations status and retention-plan endpoints. Configure cross-origin deployments with:
 
 - `CAVRA_PUBLIC_API_BASE_URL`
 - `CAVRA_CORS_ORIGINS`

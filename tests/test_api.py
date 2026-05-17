@@ -153,6 +153,19 @@ def test_api_sqlite_activity_store(monkeypatch, tmp_path) -> None:
     assert config["activity_mode"] == "sqlite"
 
 
+def test_api_operations_store_status_and_retention_plan(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_ACTIVITY_STORE", str(tmp_path / "activity.json"))
+    client = TestClient(create_app())
+
+    stores = client.get("/operations/stores").json()
+    retention = client.get("/operations/retention-plan", params={"retention_days": 365, "legal_hold": True}).json()
+
+    assert stores["total"] == 5
+    assert any(item["name"] == "activity" for item in stores["items"])
+    assert retention["retention_days"] == 365
+    assert retention["legal_hold"] is True
+
+
 def test_api_repository_inventory_and_policy_rollouts(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_INVENTORY_DB", raising=False)
     monkeypatch.setenv("CAVRA_INVENTORY_STORE", str(tmp_path / "inventory.json"))
