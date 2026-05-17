@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-nist-ssdf
+  title: CAVRA NIST SSDF Mapping
+  description: Runtime governance mapped to secure software development practices.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/*.pem"]
+  require_approval_write: [".github/workflows/**", "**/auth/**", "**/iam/**"]
+commands:
+  block: ["terraform apply*", "kubectl delete*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+compliance:
+  maps_to: ["NIST SSDF PW", "NIST SSDF RV", "NIST SSDF PO"]

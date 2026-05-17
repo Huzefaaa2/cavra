@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-cloud-iam
+  title: CAVRA Cloud IAM Safety
+  description: Runtime controls for Azure, AWS, and GCP identity changes.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/*.pem"]
+  require_approval_write: ["**/iam/**", "**/roles/**", "**/policies/**"]
+commands:
+  block: ["az role assignment create*", "aws iam create-access-key*", "aws iam attach-role-policy*", "gcloud projects add-iam-policy-binding*", "terraform apply*"]
+  allow: ["terraform plan*", "aws iam get*", "az role assignment list*", "gcloud projects get-iam-policy*"]
+compliance:
+  maps_to: ["least privilege", "privileged access management"]

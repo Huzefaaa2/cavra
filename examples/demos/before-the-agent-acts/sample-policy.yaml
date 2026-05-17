@@ -1,0 +1,14 @@
+metadata:
+  id: cavra-demo-before-the-agent-acts
+  title: CAVRA Before the Agent Acts Demo
+  description: Demo policy for runtime governance of AI-agent engineering actions.
+  version: 0.1.0
+filesystem:
+  block_read: [".env"]
+  require_approval_write: ["iam/**"]
+commands:
+  block: ["terraform apply*", "git push origin main"]
+  allow: ["terraform plan*"]
+mcp:
+  block_unknown_servers: true
+  allowed_servers: ["github-enterprise", "jira-enterprise"]

@@ -1,0 +1,14 @@
+metadata:
+  id: cavra-github-enterprise
+  title: CAVRA GitHub Enterprise Governance
+  description: AI-agent GitHub workflow controls, required attestation, and protected-branch governance.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", ".github/dependabot.yml"]
+  require_approval_write: [".github/workflows/**", ".github/CODEOWNERS"]
+commands:
+  block: ["git push origin main", "git push --force*", "gh pr merge*--admin*"]
+  allow: ["git status*", "git diff*", "gh pr create*", "pytest*"]
+git:
+  require_pull_request: true
+  require_ai_attestation: true

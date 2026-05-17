@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cavra": {
+      "command": "cavra-mcp-server",
+      "args": []
+    }
+  }
+}

@@ -1,0 +1,16 @@
+metadata:
+  id: cavra-owasp-llm-agentic
+  title: CAVRA OWASP LLM Agentic Controls
+  description: Runtime controls for prompt-injection-induced tool misuse and excessive agency.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/*.pem"]
+  require_approval_write: ["**/plugins/**", "**/tools/**", "**/mcp/**"]
+mcp:
+  block_unknown_servers: true
+  allowed_servers: ["github-enterprise", "jira-enterprise"]
+commands:
+  block: ["curl *|*sh*", "wget *|*sh*", "terraform apply*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+compliance:
+  maps_to: ["OWASP LLM excessive agency", "OWASP LLM sensitive information disclosure"]

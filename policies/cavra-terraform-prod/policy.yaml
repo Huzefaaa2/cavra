@@ -1,0 +1,42 @@
+metadata:
+  id: cavra-terraform-prod
+  title: CAVRA Terraform/OpenTofu Production Safety
+  description: Runtime governance for AI agents working with Terraform and infrastructure-as-code.
+  version: 0.1.0
+filesystem:
+  block_read:
+    - ".env"
+    - "**/*.tfvars"
+    - "**/terraform.tfstate"
+    - "**/.terraform/providers/**"
+    - "**/secrets.*"
+  block_write:
+    - ".github/workflows/**"
+    - "**/.terraform/**"
+    - "**/modules/**"
+    - "**/backend.tf"
+  require_approval_write:
+    - "**/main.tf"
+    - "**/providers.tf"
+    - "**/variables.tf"
+    - "**/outputs.tf"
+commands:
+  block:
+    - "terraform apply*"
+    - "tofu apply*"
+    - "terraform destroy*"
+    - "tofu destroy*"
+    - "terraform login*"
+    - "terraform console*"
+  allow:
+    - "terraform fmt*"
+    - "terraform validate*"
+    - "terraform plan*"
+    - "terraform show*"
+    - "terraform state list*"
+    - "tofu fmt*"
+    - "tofu validate*"
+    - "tofu plan*"
+    - "git*"
+    - "grep*"
+    - "cat*"
