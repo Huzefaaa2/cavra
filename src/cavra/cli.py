@@ -62,7 +62,7 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
-from cavra.release import verify_go_release_package
+from cavra.release import verify_go_airgap_bundle, verify_go_release_package
 from cavra.runtime import RuntimeGuard
 
 console = Console()
@@ -1229,6 +1229,52 @@ def verify_go_package(
             console.print(f"  provenance: {subject}")
         for signature in result.verified_signatures:
             console.print(f"  signature: {signature}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("verify-airgap-bundle")
+def verify_airgap_bundle(
+    bundle_path: Annotated[Path, typer.Argument(help="Air-gapped Go runtime zip bundle.")],
+    extract_dir: Annotated[Optional[Path], typer.Option(help="Optional directory for extracted verification files.")] = None,
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for release artifacts.",
+    ),
+    require_bootstrap: bool = typer.Option(
+        True,
+        "--require-bootstrap/--allow-missing-bootstrap",
+        help="Require offline trust-root bootstrap metadata.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable verification output."),
+) -> None:
+    """Verify an air-gapped CAVRA Go runtime release zip."""
+    result = verify_go_airgap_bundle(
+        bundle_path,
+        extract_dir=extract_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+        require_bootstrap=require_bootstrap,
+    )
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status}[/] {result.bundle_path}")
+        for member in result.verified_members:
+            console.print(f"  bundle member: {member}")
+        for item in result.verified_bootstrap:
+            console.print(f"  offline bootstrap: {item}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

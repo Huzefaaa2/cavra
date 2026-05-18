@@ -368,4 +368,23 @@ Validation:
 - `python3 -m pytest tests/test_ci_templates.py::test_go_release_workflow_packages_signed_release_artifacts tests/test_release_security.py -q` passed locally.
 - `python3 scripts/validate_release_security.py` passed locally.
 
-Recommended next issue: add air-gapped installer bundle verification and offline trust-root bootstrap guidance.
+Recommended next issue: delivered below as air-gapped installer bundle verification.
+
+## Air-Gapped Installer Bundle Verification
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `offline-trust-root-bootstrap.json` to Go runtime release packages.
+- Added the bootstrap manifest to checksums, SLSA provenance subjects, release evidence, and detached signature coverage.
+- Added `cavra release verify-airgap-bundle` for offline verification of `cavra-go-runtime-<version>.zip`.
+- Added safe zip extraction checks that reject archive path traversal before verification.
+- Added offline bootstrap validation for required files and operator verification commands.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for signed air-gapped bundle verification, missing bootstrap detection, and unsafe archive rejection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py scripts/package_go_release.py tests/test_go_release_packaging.py` passed locally.
+
+Recommended next issue: add release-candidate upgrade validation and offline trust-root distribution automation.
