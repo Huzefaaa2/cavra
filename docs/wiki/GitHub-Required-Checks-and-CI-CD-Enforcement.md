@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+OIDC/RBAC deployment reference bundles.

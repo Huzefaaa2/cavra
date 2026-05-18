@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Immutable Evidence Storage Flow</title>
+  <desc id="desc">A flow diagram showing CAVRA evidence moving from runtime decisions to signed bundles, verification, storage planning, AWS S3 Object Lock, Azure Blob immutability, and audit records.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344955"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f9fb; }
+      .title { font: 700 30px Arial, sans-serif; fill: #14212b; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #4b5f6f; }
+      .node { fill: #ffffff; stroke: #c7d3dc; stroke-width: 1.5; }
+      .runtime { fill: #eef6ff; stroke: #3b6f8f; stroke-width: 1.5; }
+      .evidence { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.5; }
+      .store { fill: #f3fbef; stroke: #4d8b55; stroke-width: 1.5; }
+      .audit { fill: #f2f0fa; stroke: #7256b8; stroke-width: 1.5; }
+      .node-title { font: 700 15px Arial, sans-serif; fill: #17242d; }
+      .node-text { font: 400 12px Arial, sans-serif; fill: #435464; }
+      .arrow { stroke: #344955; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+      .label { font: 700 13px Arial, sans-serif; fill: #344955; }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="620"/>
+  <text x="56" y="58" class="title">CAVRA Immutable Evidence Storage</text>
+  <text x="56" y="84" class="subtitle">Signed runtime evidence is verified, planned, and archived in WORM-capable enterprise object stores.</text>
+
+  <rect x="56" y="170" width="180" height="86" rx="8" class="node"/>
+  <text x="78" y="202" class="node-title">AI Agent Action</text>
+  <text x="78" y="224" class="node-text">File, command, Git,</text>
+  <text x="78" y="242" class="node-text">MCP, or infra request</text>
+
+  <rect x="286" y="170" width="190" height="86" rx="8" class="runtime"/>
+  <text x="308" y="202" class="node-title">Runtime Decision</text>
+  <text x="308" y="224" class="node-text">Policy result, approval</text>
+  <text x="308" y="242" class="node-text">state, and correlation ID</text>
+
+  <rect x="526" y="170" width="190" height="86" rx="8" class="evidence"/>
+  <text x="548" y="202" class="node-title">Signed Bundle</text>
+  <text x="548" y="224" class="node-text">Manifest, checksums,</text>
+  <text x="548" y="242" class="node-text">retention, attestation</text>
+
+  <rect x="766" y="170" width="190" height="86" rx="8" class="evidence"/>
+  <text x="788" y="202" class="node-title">Verifier Gate</text>
+  <text x="788" y="224" class="node-text">Trust root, key ID,</text>
+  <text x="788" y="242" class="node-text">minimum retention</text>
+
+  <rect x="1006" y="170" width="190" height="86" rx="8" class="evidence"/>
+  <text x="1028" y="202" class="node-title">Storage Plan</text>
+  <text x="1028" y="224" class="node-text">S3 and Azure targets,</text>
+  <text x="1028" y="242" class="node-text">hashes, retention days</text>
+
+  <rect x="398" y="370" width="220" height="92" rx="8" class="store"/>
+  <text x="420" y="404" class="node-title">AWS S3 Object Lock</text>
+  <text x="420" y="426" class="node-text">Versioning, KMS, TLS-only,</text>
+  <text x="420" y="444" class="node-text">COMPLIANCE retention</text>
+
+  <rect x="668" y="370" width="220" height="92" rx="8" class="store"/>
+  <text x="690" y="404" class="node-title">Azure Blob Immutability</text>
+  <text x="690" y="426" class="node-text">Versioning, locked policy,</text>
+  <text x="690" y="444" class="node-text">optional legal hold tags</text>
+
+  <rect x="938" y="370" width="220" height="92" rx="8" class="audit"/>
+  <text x="960" y="404" class="node-title">Audit Consumers</text>
+  <text x="960" y="426" class="node-text">Release, incident, GRC,</text>
+  <text x="960" y="444" class="node-text">and audit evidence review</text>
+
+  <path class="arrow" d="M236 213 L286 213"/>
+  <path class="arrow" d="M476 213 L526 213"/>
+  <path class="arrow" d="M716 213 L766 213"/>
+  <path class="arrow" d="M956 213 L1006 213"/>
+  <path class="arrow" d="M1101 256 C1101 322 508 308 508 370"/>
+  <path class="arrow" d="M1101 256 C1101 322 778 308 778 370"/>
+  <path class="arrow" d="M618 416 L668 416"/>
+  <path class="arrow" d="M888 416 L938 416"/>
+
+  <text x="1008" y="302" class="label">operator-owned upload</text>
+  <text x="70" y="536" class="node-text">CAVRA never needs broad cloud administration rights: it creates signed evidence and storage plans; platform teams deploy and operate immutable storage.</text>
+</svg>

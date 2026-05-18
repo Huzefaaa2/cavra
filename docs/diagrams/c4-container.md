@@ -30,7 +30,7 @@ System_Boundary(cavra, "CAVRA") {
     Container(evidence, "Evidence Hub", "Python + JSON/Markdown", "Bundles manifests, checksums, Ed25519/HMAC signatures, PR attestations, required-check evidence, compliance mapping, SIEM payloads, and retention policies.")
     Container(connectorDelivery, "Connector Delivery Hooks", "Python + HTTP", "Executes configured SIEM, ITSM, ChatOps, and webhook deliveries with retry handling and credential-redacted evidence.")
     ContainerDb(metadata, "Metadata, Activity, and Inventory Stores", "JSON/SQLite", "Searchable evidence, session, decision, approval, registry, repository inventory, policy rollout, integration inventory, backup manifests, and retention plans.")
-    ContainerDb(bundleStore, "Evidence Bundle Store", "Filesystem now, immutable object store planned", "Verifier-ready bundle artifacts, governed retrieval root, ZIP bundle downloads, and storage plans.")
+    ContainerDb(bundleStore, "Evidence Bundle Store", "Filesystem + immutable storage references", "Verifier-ready bundle artifacts, governed retrieval root, ZIP bundle downloads, AWS S3 Object Lock references, Azure Blob immutability references, and storage plans.")
   }
 
   Container(goRuntime, "Go Enforcement Plane", "Go / gRPC", "Planned low-latency local and CI enforcement backend with parity tests.")
@@ -75,7 +75,7 @@ Rel(evidence, git, "Publishes PR attestation and required-check artifacts")
 Rel(evidence, siem, "Exports SIEM payloads")
 Rel(connectorDelivery, siem, "Sends SIEM events")
 Rel(connectorDelivery, itsm, "Sends ITSM and ChatOps events")
-Rel(evidence, immutable, "Produces immutable storage plans")
+Rel(evidence, immutable, "Produces storage plans and operator deployment references")
 Rel(approval, itsm, "Delivers approval requests")
 Rel(approval, identity, "Validates OIDC/JWKS identity and RBAC")
 Rel(api, identity, "Validates console bearer tokens and uses enterprise identity boundary")

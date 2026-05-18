@@ -40,5 +40,4 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles.

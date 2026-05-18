@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+The next recommended implementation step is OIDC/RBAC deployment reference bundles.

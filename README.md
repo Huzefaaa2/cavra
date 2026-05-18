@@ -135,6 +135,8 @@ cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
 
+Immutable evidence storage deployment references are documented in [docs/immutable-evidence-storage.md](docs/immutable-evidence-storage.md). Reference bundles are available for AWS S3 Object Lock and Azure Blob immutability under `examples/immutable-storage/`.
+
 Evidence key management and rotation guidance is documented in [docs/evidence-key-management.md](docs/evidence-key-management.md).
 
 ## Persistent API operations
@@ -244,7 +246,6 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles for Entra ID and Okta.
 
 ## User stories and enterprise value
@@ -270,6 +271,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Evidence Hub and Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
 - [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)
 - [Evidence Trust-Root Distribution](docs/wiki/Evidence-Trust-Root-Distribution.md)
+- [Immutable Evidence Storage](docs/wiki/Immutable-Evidence-Storage.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
 - [GitHub Required Checks and CI/CD Enforcement](docs/wiki/GitHub-Required-Checks-and-CI-CD-Enforcement.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)

@@ -414,6 +414,7 @@ def build_immutable_storage_plan(
             "default_retention_days": retention_days,
             "required_bucket_versioning": True,
             "required_kms_encryption": True,
+            "deployment_reference": "examples/immutable-storage/aws-s3-object-lock",
         },
         "azure_immutable_blob": {
             "account": azure_account,
@@ -422,6 +423,7 @@ def build_immutable_storage_plan(
             "allow_protected_append_writes": False,
             "required_versioning": True,
             "required_infrastructure_encryption": True,
+            "deployment_reference": "examples/immutable-storage/azure-blob-immutability",
         },
         "files": files,
     }
@@ -441,6 +443,7 @@ def render_immutable_storage_plan(plan: dict[str, Any]) -> str:
         "- Object Lock: enabled",
         "- Versioning: required",
         "- KMS encryption: required",
+        f"- Deployment reference: `{plan['s3_object_lock']['deployment_reference']}`",
         "",
         "## Azure Immutable Blob",
         "",
@@ -448,6 +451,7 @@ def render_immutable_storage_plan(plan: dict[str, Any]) -> str:
         f"- Container: `{plan['azure_immutable_blob']['container']}`",
         "- Blob versioning: required",
         "- Infrastructure encryption: required",
+        f"- Deployment reference: `{plan['azure_immutable_blob']['deployment_reference']}`",
         "",
         "## Files",
         "",

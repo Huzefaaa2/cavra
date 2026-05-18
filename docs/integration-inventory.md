@@ -68,4 +68,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+The next recommended work is OIDC/RBAC deployment reference bundles.

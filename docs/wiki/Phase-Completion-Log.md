@@ -55,6 +55,7 @@ Completed:
 - Evidence verification command.
 - Splunk HEC, Microsoft Sentinel, Datadog, and generic webhook SIEM export payloads.
 - S3 Object Lock and Azure immutable blob immutable storage reference plans.
+- AWS S3 Object Lock and Azure Blob immutability deployment references.
 - Ed25519 evidence manifest signatures and key generation.
 - Evidence retention policy artifacts and minimum-retention verification.
 - Evidence metadata indexing and API persistence.
@@ -155,7 +156,7 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+Recommended next issue: add OIDC/RBAC deployment reference bundles.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -169,7 +170,7 @@ Completed:
 - GitLab CI enforcement example.
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 
-Recommended next issue: add immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+Recommended next issue: add OIDC/RBAC deployment reference bundles.
 
 ## Transparent Agent Methodology Enablement
 

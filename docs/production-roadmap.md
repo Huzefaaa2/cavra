@@ -272,6 +272,7 @@ Delivered in the current slice:
 - Azure Pipelines required-check template for Azure Repos Build validation branch policies.
 - CI evidence artifact upload with evidence and PR attestation verification.
 - Approval-bound signed policy publishing before write-back.
+- AWS S3 Object Lock and Azure Blob immutability deployment references.
 
 Exit criteria:
 - GitHub required check demo works.
@@ -331,10 +332,9 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: continue Phase 8, Enterprise Integrations, focused on immutable evidence store deployment references and OIDC/RBAC deployment bundles.
+Next recommended implementation phase: continue Phase 8, Enterprise Integrations, focused on OIDC/RBAC deployment bundles.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles.

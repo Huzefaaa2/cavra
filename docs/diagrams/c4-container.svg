@@ -84,7 +84,7 @@
   <text x="1080" y="326" class="node-text">Repos, rollouts, integrations</text>
   <rect x="1064" y="350" width="230" height="46" rx="7" class="store"/>
   <text x="1080" y="369" class="node-title">Bundle Store</text>
-  <text x="1080" y="385" class="node-text">Filesystem and immutable plans</text>
+  <text x="1080" y="385" class="node-text">Filesystem and immutable refs</text>
 
   <rect x="420" y="480" width="250" height="54" rx="8" class="surface"/>
   <text x="442" y="502" class="node-title">Before the Agent Acts Sandbox</text>

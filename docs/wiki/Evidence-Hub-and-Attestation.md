@@ -45,7 +45,7 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra
 
 ## Enterprise Value
 
-Evidence bundles turn pre-action runtime decisions into artifacts that reviewers, auditors, and SOC teams can inspect. The manifest includes checksums and signature metadata so tampering can be detected. SIEM exports let teams route CAVRA decisions into existing SOC pipelines, and connector execution hooks let controlled deployments deliver those events with credential-redacted evidence.
+Evidence bundles turn pre-action runtime decisions into artifacts that reviewers, auditors, and SOC teams can inspect. The manifest includes checksums and signature metadata so tampering can be detected. SIEM exports let teams route CAVRA decisions into existing SOC pipelines, connector execution hooks let controlled deployments deliver those events with credential-redacted evidence, and immutable storage references let operators archive verified bundles in AWS S3 Object Lock or Azure Blob immutability.
 
 ## Export Files
 
@@ -57,6 +57,8 @@ Evidence bundles turn pre-action runtime decisions into artifacts that reviewers
 - `retention-policy.md`
 - `immutable-storage-plan.json`
 - `immutable-storage-plan.md`
+- `examples/immutable-storage/aws-s3-object-lock`
+- `examples/immutable-storage/azure-blob-immutability`
 - `pr-attestation-verification.json`
 - `pr-attestation-verification.md`
 

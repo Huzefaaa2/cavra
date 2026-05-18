@@ -114,7 +114,7 @@ cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --lim
 - `pr-attestation-verification.json`: machine-readable attestation verification report.
 - `pr-attestation-verification.md`: reviewer-friendly attestation verification report.
 
-These files intentionally describe storage requirements and object targets. They do not upload evidence or require cloud credentials.
+These files intentionally describe storage requirements and object targets. They do not upload evidence or require cloud credentials. Deployable operator-owned references now live in `examples/immutable-storage/aws-s3-object-lock` and `examples/immutable-storage/azure-blob-immutability`; see [immutable evidence storage](immutable-evidence-storage.md).
 
 ## API Metadata Persistence
 
@@ -165,5 +165,4 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles.

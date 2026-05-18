@@ -97,6 +97,8 @@ def test_export_immutable_storage_plan(tmp_path: Path) -> None:
     assert (output_dir / "immutable-storage-plan.md").exists()
     assert "enterprise-cavra-evidence" in plan_path.read_text(encoding="utf-8")
     assert "enterpriseevidence" in plan_path.read_text(encoding="utf-8")
+    assert "examples/immutable-storage/aws-s3-object-lock" in plan_path.read_text(encoding="utf-8")
+    assert "examples/immutable-storage/azure-blob-immutability" in plan_path.read_text(encoding="utf-8")
 
 
 def test_ed25519_signed_evidence_bundle_verifies(tmp_path: Path) -> None:

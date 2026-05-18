@@ -14,7 +14,7 @@ Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA i
 
 Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
 
-Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, SQLite and JSON evidence metadata search, governed artifact retrieval APIs, console API wiring, and migration automation.
+Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, AWS/Azure immutable evidence storage references, SQLite and JSON evidence metadata search, governed artifact retrieval APIs, console API wiring, and migration automation.
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. It includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC, provider payload and request-spec exports, secret-backed live provider delivery, console approval queue actions, console break-glass creation, approval audit detail views, and approval evidence linkage.
 
@@ -55,6 +55,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Console Security Boundary: `Console-Security-Boundary.md`
 - Console Authenticated Sessions: `Console-Authenticated-Sessions.md`
 - Evidence Artifact Retrieval: `Evidence-Artifact-Retrieval.md`
+- Immutable Evidence Storage: `Immutable-Evidence-Storage.md`
 - Policy Pack Authoring Workflows: `Policy-Pack-Authoring-Workflows.md`
 - Production Deployment Validation: `Production-Deployment-Validation.md`
 
