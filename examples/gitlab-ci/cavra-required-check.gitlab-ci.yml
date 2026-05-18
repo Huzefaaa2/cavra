@@ -1,0 +1,32 @@
+stages:
+  - governance
+
+cavra-required-check:
+  stage: governance
+  image: python:3.11-slim
+  variables:
+    CAVRA_POLICY_PACK: cavra-agentic-delivery
+    CAVRA_EVIDENCE_DIR: .cavra/evidence/latest
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install cavra
+  script:
+    - cavra policy validate "policies/${CAVRA_POLICY_PACK}/policy.yaml"
+    - |
+      set -euo pipefail
+      evidence_key="${CAVRA_EVIDENCE_SIGNING_KEY:-cavra-required-check-demo-key}"
+      if [ ! -d "$CAVRA_EVIDENCE_DIR" ]; then
+        cavra evidence bundle \
+          --output "$CAVRA_EVIDENCE_DIR" \
+          --policy-pack "$CAVRA_POLICY_PACK" \
+          --signer "gitlab-ci:${CI_PIPELINE_ID:-local}" \
+          --key "$evidence_key"
+      fi
+      cavra evidence verify "$CAVRA_EVIDENCE_DIR" --key "$evidence_key"
+      cavra evidence verify-attestation "$CAVRA_EVIDENCE_DIR" --output .cavra/evidence/attestation
+  artifacts:
+    when: always
+    expire_in: 90 days
+    paths:
+      - .cavra/evidence/latest/
+      - .cavra/evidence/attestation/

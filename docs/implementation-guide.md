@@ -53,51 +53,36 @@ cavra agent exec "terraform plan" \
 
 ### Add CAVRA to your CI/CD
 
-Create `.github/workflows/cavra.yml`:
+For a complete required-check template, copy `examples/github-actions/cavra-required-check.yml` into `.github/workflows/cavra-required-check.yml`. The template validates the selected policy pack, verifies the evidence bundle, verifies the PR attestation, and uploads CAVRA evidence as a workflow artifact.
+
+Minimal workflow:
 
 ```yaml
-name: CAVRA AI Governance
+name: CAVRA Required Check
 
-on: [pull_request]
+on:
+  pull_request:
 
 jobs:
   cavra:
+    name: cavra-required-check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Install CAVRA
         run: pip install cavra
-      
-      - name: Load audit from PR
+      - name: Verify CAVRA policy and evidence
         run: |
-          # If .cavra/audit/ exists in PR, load it
-          if [ -d ".cavra/audit" ]; then
-            cavra agent attest \
-              $(ls -t .cavra/audit/session-*.json | head -1 | sed 's/.*session-//;s/\.json//') \
-              --format markdown > /tmp/attestation.md
-          fi
-      
-      - name: Post attestation comment
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const attestation = fs.existsSync('/tmp/attestation.md')
-              ? fs.readFileSync('/tmp/attestation.md', 'utf8')
-              : 'No AI governance report available';
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: attestation
-            });
+          cavra policy validate policies/cavra-agentic-delivery/policy.yaml
+          cavra evidence verify .cavra/evidence/latest --key "$CAVRA_EVIDENCE_SIGNING_KEY"
+          cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
 ```
+
+Set the GitHub branch protection required status check to `cavra-required-check`. For stricter regulated repositories, use `examples/github-actions/cavra-enterprise-enforcement.yml` with trust-root verification, key IDs, and minimum retention thresholds. GitLab users can start from `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`.
 
 ---
 

@@ -154,7 +154,20 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add GitHub required-check integration templates, CI/CD enforcement examples, and policy-pack approval/signature write-back workflow.
+Recommended next issue: add policy-pack approval/signature write-back workflow.
+
+## GitHub Required Checks and CI/CD Enforcement
+
+Status: complete for the current production-readiness slice.
+
+Completed:
+- GitHub Actions workflow check named `cavra-required-check`.
+- Policy-pack validation, lint, tests, evidence verification, and PR attestation verification in CI.
+- Evidence artifact upload for reviewer and auditor inspection.
+- Reusable GitHub Actions required-check and enterprise enforcement templates.
+- GitLab CI enforcement example.
+
+Recommended next issue: add policy-pack approval/signature write-back workflow.
 
 ## Transparent Agent Methodology Enablement
 

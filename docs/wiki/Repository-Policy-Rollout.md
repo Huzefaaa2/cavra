@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is GitHub required-check integration templates and CI/CD enforcement examples.
+The next recommended work is policy-pack approval/signature workflow before write-back publishing.

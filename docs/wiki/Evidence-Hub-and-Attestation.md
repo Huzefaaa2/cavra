@@ -81,5 +81,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- GitHub required-check integration templates.
-- CI/CD enforcement examples.
+- Policy-pack approval and signature workflow before write-back publishing.
+- Vendor-specific connector execution hooks.

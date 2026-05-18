@@ -58,5 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- GitHub required-check integration templates.
-- CI/CD enforcement examples.
+- Policy-pack approval and signature workflow before write-back publishing.
+- Vendor-specific connector execution hooks.

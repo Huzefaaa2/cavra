@@ -1,10 +1,19 @@
 name: AI Agent Governance Check
 
-on: [pull_request]
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   cavra:
+    name: cavra-required-check
     runs-on: ubuntu-latest
+    env:
+      CAVRA_EVIDENCE_SIGNING_KEY: ${{ secrets.CAVRA_EVIDENCE_SIGNING_KEY }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -13,16 +22,52 @@ jobs:
           python-version: "3.11"
       - name: Install CAVRA
         run: |
-          pip install -e .
-      - name: Run AI governance checks
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Validate policy packs
+        run: |
+          for policy in policies/*/policy.yaml; do
+            cavra policy validate "$policy"
+          done
+      - name: Run required governance checks
         run: |
           cavra policy list
-      - name: Generate attestation artifact
+          ruff check src/ tests/
+          pytest -q
+      - name: Generate required-check evidence
+        env:
+          FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key
         run: |
-          mkdir -p .cavra/artifacts
-          echo "AI governance checks passed" > .cavra/artifacts/cavra-report.txt
-      - name: Upload attestation
+          set -euo pipefail
+          evidence_key="${CAVRA_EVIDENCE_SIGNING_KEY:-$FALLBACK_EVIDENCE_KEY}"
+          rm -rf .cavra/evidence/required-check .cavra/evidence/attestation
+          cavra evidence bundle \
+            --output .cavra/evidence/required-check \
+            --signer "github-actions:${GITHUB_WORKFLOW}" \
+            --key "$evidence_key"
+          cavra evidence verify .cavra/evidence/required-check --key "$evidence_key"
+          cavra evidence verify-attestation \
+            .cavra/evidence/required-check \
+            --output .cavra/evidence/attestation
+      - name: Publish governance summary
+        if: always()
+        run: |
+          {
+            echo "## CAVRA required check"
+            echo ""
+            echo "- Policy packs validated."
+            echo "- Runtime tests and lint completed."
+            echo "- Evidence bundle generated and verified."
+            echo "- PR attestation verified against evidence."
+            echo ""
+            echo "Required check name: \`cavra-required-check\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload required-check evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cavra-attestation
-          path: .cavra/artifacts/
+          name: cavra-required-check-evidence
+          path: |
+            .cavra/evidence/required-check/
+            .cavra/evidence/attestation/
+          if-no-files-found: warn

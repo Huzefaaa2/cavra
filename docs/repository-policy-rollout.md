@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is GitHub required-check integration templates and CI/CD enforcement examples.
+The next recommended step is policy-pack approval/signature workflow before write-back publishing.

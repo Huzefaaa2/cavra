@@ -118,7 +118,7 @@ cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
 
 CAVRA emits decision JSON, session audit files, PR attestation markdown, compliance mapping reports, sandbox evidence bundles, and persistent API operational metadata. Evidence includes agent identity, user or actor, repo, branch, action attempted, decision, policy version, rule ID, rationale, approval state, timestamp, evidence refs, and correlation ID.
 
-Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, governed artifact retrieval APIs, and verifier commands.
+Evidence Hub and Attestation is documented in [docs/evidence-hub-attestation.md](docs/evidence-hub-attestation.md). CAVRA now generates evidence bundles with manifests, checksums, HMAC or Ed25519 manifest signatures, PR attestation, compliance mapping, SIEM event output, provider-specific SIEM payloads, retention policies, immutable storage reference plans, metadata indexing, governed artifact retrieval APIs, verifier commands, and required-check CI/CD templates.
 
 ```bash
 cavra evidence bundle --output .cavra/evidence/latest --signer platform-security
@@ -238,14 +238,14 @@ Current phase status:
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane.
-- Phase 8: Enterprise Integrations.
+- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI enforcement example, and CI evidence artifact upload.
 - Phase 9: Public Sandbox and Growth Loop.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Add GitHub required-check integration templates and CI/CD enforcement examples.
 - Add policy-pack approval/signature workflow before write-back publishing.
+- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks beyond generated payload templates.
 
 ## User stories and enterprise value
 
@@ -271,6 +271,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)
 - [Evidence Trust-Root Distribution](docs/wiki/Evidence-Trust-Root-Distribution.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
+- [GitHub Required Checks and CI/CD Enforcement](docs/wiki/GitHub-Required-Checks-and-CI-CD-Enforcement.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
 - [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)
 - [Agent Orchestration Architecture](docs/wiki/Agent-Orchestration-Architecture.md)

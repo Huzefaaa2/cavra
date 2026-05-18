@@ -29,7 +29,7 @@
 
   <rect class="bg" width="1440" height="980"/>
   <text x="54" y="54" class="title">CAVRA C4 Container View</text>
-  <text x="54" y="80" class="subtitle">Runtime authority, policy authoring, deployment readiness, evidence retrieval, console sessions, and integrations.</text>
+  <text x="54" y="80" class="subtitle">Runtime authority, policy authoring, deployment readiness, evidence retrieval, required checks, and integrations.</text>
 
   <rect x="54" y="108" width="210" height="72" rx="8" class="actor"/>
   <text x="78" y="136" class="node-title">Developer</text>
@@ -77,7 +77,7 @@
   <text x="1064" y="192" class="boundary-title">Evidence and Audit Plane</text>
   <rect x="1064" y="218" width="230" height="46" rx="7" class="evidence"/>
   <text x="1080" y="237" class="node-title">Evidence Hub</text>
-  <text x="1080" y="253" class="node-text">Bundles, signatures, exports</text>
+  <text x="1080" y="253" class="node-text">Bundles, signatures, CI checks</text>
   <rect x="1064" y="276" width="230" height="62" rx="7" class="store"/>
   <text x="1080" y="295" class="node-title">Metadata and Activity</text>
   <text x="1080" y="311" class="node-text">Sessions, decisions, approvals</text>
@@ -116,8 +116,8 @@
   <text x="78" y="800" class="boundary-title">Enterprise Integrations</text>
 
   <rect x="86" y="828" width="180" height="46" rx="7" class="external"/>
-  <text x="102" y="847" class="node-title">Git / PR Platforms</text>
-  <text x="102" y="863" class="node-text">GitHub, GitLab, Azure DevOps</text>
+  <text x="102" y="847" class="node-title">Git / PR / CI Platforms</text>
+  <text x="102" y="863" class="node-text">Required checks and CI/CD</text>
   <rect x="302" y="828" width="180" height="46" rx="7" class="external"/>
   <text x="318" y="847" class="node-title">SIEM / SOC</text>
   <text x="318" y="863" class="node-text">Splunk, Sentinel, Datadog</text>
@@ -146,5 +146,5 @@
   <text x="1060" y="622" class="node-title">Reading guide</text>
   <text x="1060" y="642" class="small">Runtime Guard is the decision boundary.</text>
   <text x="1060" y="658" class="small">Stores expose sessions, repos, and rollouts.</text>
-  <text x="1060" y="674" class="small">Evidence Hub records what happened.</text>
+  <text x="1060" y="674" class="small">Evidence Hub feeds required checks.</text>
 </svg>

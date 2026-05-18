@@ -1,0 +1,59 @@
+name: CAVRA Enterprise Enforcement
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  cavra:
+    name: cavra-enterprise-required-check
+    runs-on: ubuntu-latest
+    env:
+      CAVRA_POLICY_PACK: cavra-agentic-delivery
+      CAVRA_EVIDENCE_DIR: .cavra/evidence/latest
+      CAVRA_TRUST_ROOT: .cavra/keys/evidence-trust-roots.json
+      CAVRA_EVIDENCE_KEY_ID: prod-evidence
+      CAVRA_MINIMUM_RETENTION_DAYS: "2555"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CAVRA
+        run: |
+          python -m pip install --upgrade pip
+          pip install cavra
+
+      - name: Validate policy pack and signature
+        run: |
+          cavra policy validate "policies/${CAVRA_POLICY_PACK}/policy.yaml"
+          cavra policy verify "policies/${CAVRA_POLICY_PACK}/policy.yaml"
+
+      - name: Verify signed evidence bundle
+        run: |
+          set -euo pipefail
+          test -d "$CAVRA_EVIDENCE_DIR"
+          cavra evidence verify "$CAVRA_EVIDENCE_DIR" \
+            --trust-root "$CAVRA_TRUST_ROOT" \
+            --key-id "$CAVRA_EVIDENCE_KEY_ID" \
+            --minimum-retention-days "$CAVRA_MINIMUM_RETENTION_DAYS"
+          cavra evidence verify-attestation "$CAVRA_EVIDENCE_DIR" --output .cavra/evidence/attestation
+
+      - name: Upload verified evidence report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-enterprise-evidence-report
+          path: |
+            .cavra/evidence/attestation/
+            .cavra/evidence/latest/manifest.json
+            .cavra/evidence/latest/pr-attestation.md
+          if-no-files-found: error

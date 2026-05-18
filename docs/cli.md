@@ -40,6 +40,8 @@ cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
 ```
 
+`cavra evidence verify-attestation` exits with a nonzero status when `pr-attestation.md` is missing or does not match the bundle evidence, so CI/CD systems can use it as a required merge check.
+
 Registry examples:
 
 ```bash

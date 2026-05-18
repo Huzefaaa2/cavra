@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add GitHub required-check integration templates and CI/CD enforcement examples.
 - Add policy-pack approval and signature workflow before write-back publishing.
+- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.

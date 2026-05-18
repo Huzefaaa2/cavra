@@ -1,0 +1,60 @@
+name: CAVRA Required Check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  cavra:
+    name: cavra-required-check
+    runs-on: ubuntu-latest
+    env:
+      CAVRA_EVIDENCE_SIGNING_KEY: ${{ secrets.CAVRA_EVIDENCE_SIGNING_KEY }}
+      CAVRA_POLICY_PACK: cavra-agentic-delivery
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CAVRA
+        run: |
+          python -m pip install --upgrade pip
+          pip install cavra
+
+      - name: Validate selected policy pack
+        run: |
+          cavra policy validate "policies/${CAVRA_POLICY_PACK}/policy.yaml"
+
+      - name: Verify evidence and PR attestation
+        env:
+          FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key
+        run: |
+          set -euo pipefail
+          evidence_key="${CAVRA_EVIDENCE_SIGNING_KEY:-$FALLBACK_EVIDENCE_KEY}"
+          evidence_dir="${CAVRA_EVIDENCE_DIR:-.cavra/evidence/latest}"
+          if [ ! -d "$evidence_dir" ]; then
+            cavra evidence bundle \
+              --output "$evidence_dir" \
+              --policy-pack "$CAVRA_POLICY_PACK" \
+              --signer "github-actions:${GITHUB_WORKFLOW}" \
+              --key "$evidence_key"
+          fi
+          cavra evidence verify "$evidence_dir" --key "$evidence_key"
+          cavra evidence verify-attestation "$evidence_dir" --output .cavra/evidence/attestation
+
+      - name: Upload CAVRA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-required-check-evidence
+          path: |
+            .cavra/evidence/latest/
+            .cavra/evidence/attestation/
+          if-no-files-found: warn

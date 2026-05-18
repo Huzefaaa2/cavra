@@ -60,4 +60,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is GitHub required-check integration templates, CI/CD enforcement examples, and policy-pack approval/signature write-back workflow.
+The next recommended work is policy-pack approval/signature write-back workflow and vendor-specific connector execution hooks beyond generated payloads.

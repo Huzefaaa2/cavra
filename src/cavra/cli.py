@@ -591,6 +591,13 @@ def verify_attestation(
     except FileNotFoundError as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
+    report_path = output / "pr-attestation-verification.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if not report.get("valid"):
+        console.print("[red]PR attestation verification failed[/red]")
+        for error in report.get("errors", []):
+            console.print(f"  - {error}")
+        raise typer.Exit(code=1)
     console.print(f"[green]PR attestation verification exported[/green] {result.output_dir}")
     for path in result.files:
         console.print(f"[dim]{path}[/dim]")

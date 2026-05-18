@@ -5,7 +5,7 @@ This container view separates the collaboration surfaces, runtime authority, evi
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"primaryColor": "#eef6ff", "primaryTextColor": "#17242d", "primaryBorderColor": "#3b6f8f", "lineColor": "#526777", "secondaryColor": "#f6fff0", "tertiaryColor": "#fff7eb"}}}%%
 C4Container
-title CAVRA Container View - Runtime Authority, Evidence, and Enterprise Integrations
+title CAVRA Container View - Runtime Authority, Evidence, CI/CD Enforcement, and Enterprise Integrations
 
 Person(developer, "Developer", "Uses AI coding tools under CAVRA governance.")
 Person(platform, "Platform / Security Engineer", "Authors policies, reviews approvals, and operates integrations.")
@@ -27,7 +27,7 @@ System_Boundary(cavra, "CAVRA") {
   }
 
   Container_Boundary(evidencePlane, "Evidence and Audit Plane") {
-    Container(evidence, "Evidence Hub", "Python + JSON/Markdown", "Bundles manifests, checksums, Ed25519/HMAC signatures, PR attestations, compliance mapping, SIEM payloads, and retention policies.")
+    Container(evidence, "Evidence Hub", "Python + JSON/Markdown", "Bundles manifests, checksums, Ed25519/HMAC signatures, PR attestations, required-check evidence, compliance mapping, SIEM payloads, and retention policies.")
     ContainerDb(metadata, "Metadata, Activity, and Inventory Stores", "JSON/SQLite", "Searchable evidence, session, decision, approval, registry, repository inventory, policy rollout, integration inventory, backup manifests, and retention plans.")
     ContainerDb(bundleStore, "Evidence Bundle Store", "Filesystem now, immutable object store planned", "Verifier-ready bundle artifacts, governed retrieval root, ZIP bundle downloads, and storage plans.")
   }
@@ -37,7 +37,7 @@ System_Boundary(cavra, "CAVRA") {
 
 System_Ext(agent, "AI Coding Agent")
 System_Ext(mcpTools, "MCP Servers and Tools")
-System_Ext(git, "Git / PR Platform", "GitHub, GitLab, Azure DevOps, Bitbucket.")
+System_Ext(git, "Git / PR and CI/CD Platforms", "GitHub required checks, GitHub Actions, GitLab CI, Azure DevOps, Bitbucket.")
 System_Ext(siem, "SIEM / SOC", "Splunk, Microsoft Sentinel, Datadog, or webhook collectors.")
 System_Ext(itsm, "ITSM / ChatOps", "ServiceNow, Jira, Slack, Teams.")
 System_Ext(immutable, "Immutable Evidence Storage", "S3 Object Lock, Azure immutable blob, or enterprise archive.")
@@ -66,7 +66,7 @@ Rel(goRuntime, runtime, "Parity target and policy contract")
 Rel(evidence, metadata, "Indexes searchable evidence metadata")
 Rel(api, metadata, "Persists sessions, decisions, repositories, rollout state, integrations, approvals, registry records, and operations status")
 Rel(evidence, bundleStore, "Writes and serves verifier-ready bundles through governed retrieval")
-Rel(evidence, git, "Publishes PR attestation")
+Rel(evidence, git, "Publishes PR attestation and required-check artifacts")
 Rel(evidence, siem, "Exports SIEM payloads")
 Rel(evidence, immutable, "Produces immutable storage plans")
 Rel(approval, itsm, "Delivers approval requests")
@@ -81,5 +81,5 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
-- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, policy draft and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
+- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, CI/CD required-check artifacts, policy draft and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
 - Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has JSON/SQLite persistence, predefined agent profiles, MCP tool classifications, console registry views, and registry-backed trust decisions.

@@ -164,5 +164,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add GitHub required-check integration templates and CI/CD enforcement examples.
 - Add policy-pack approval and signature workflow before write-back publishing.
+- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
