@@ -50,6 +50,7 @@ Architecture references:
 - [Policy Lifecycle SVG](docs/diagrams/policy-lifecycle.svg)
 - [Developer Journey SVG](docs/diagrams/developer-journey.svg)
 - [Transparent Agent Orchestration SVG](docs/diagrams/agent-orchestration.svg)
+- [Go parity and sandbox deployment SVG](docs/diagrams/go-parity-sandbox-deployment.svg)
 
 ## Quick start
 
@@ -101,6 +102,8 @@ Set `CAVRA_APPROVAL_OIDC_CONFIG` and `CAVRA_APPROVAL_RBAC_FILE` to enable authen
 OIDC/RBAC deployment references for Microsoft Entra ID and Okta are documented in [docs/oidc-rbac-deployment.md](docs/oidc-rbac-deployment.md). Reference bundles live under `examples/identity/`.
 
 Policy authoring and rollout workflows are exposed through `/policy-pack-catalog`, `/policy-packs/draft`, `/policy-rollouts/change-plan`, and `/policy-rollouts/apply-change`. Production deployment validation is exposed through `/deployment/production-readiness`.
+
+The Go enforcement-plane scaffold lives under `go/cavra-runtime/` and currently mirrors critical Python runtime decisions for file, command, Git, and MCP actions through a shared parity fixture. The hosted sandbox deployment workflow lives at `.github/workflows/deploy-sandbox.yml` and publishes the static evidence console from `main` through GitHub Pages after JavaScript validation.
 
 ## Policy packs
 
@@ -241,14 +244,15 @@ Current phase status:
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
-- Phase 7: Go Enforcement Plane.
-- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, and live SIEM/ITSM/ChatOps connector execution hooks.
-- Phase 9: Public Sandbox and Growth Loop.
+- Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
+- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
+- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+- Expand the Go enforcement plane from scaffold to compiled-policy loading and daemon transport.
+- After merge to `main`, deploy the sandbox workflow, verify the public URL, and record it in README/wiki.
 
 ## User stories and enterprise value
 
@@ -289,6 +293,8 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Evidence Artifact Retrieval](docs/wiki/Evidence-Artifact-Retrieval.md)
 - [Policy Pack Authoring Workflows](docs/wiki/Policy-Pack-Authoring-Workflows.md)
 - [Production Deployment Validation](docs/wiki/Production-Deployment-Validation.md)
+- [Go Enforcement Parity](docs/wiki/Go-Enforcement-Parity.md)
+- [Hosted Sandbox Deployment](docs/wiki/Hosted-Sandbox-Deployment.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

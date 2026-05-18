@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Go enforcement plane parity scaffold.
-- Hosted sandbox deployment workflow.
+- Compiled-policy loading for the Go enforcement plane.
+- Public sandbox URL validation after deployment from `main`.

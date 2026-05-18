@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+Compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.

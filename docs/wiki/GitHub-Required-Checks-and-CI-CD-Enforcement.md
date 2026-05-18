@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+Compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.

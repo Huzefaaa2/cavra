@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go/cavra-runtime/go.mod
       - name: Install CAVRA
         run: |
           python -m pip install --upgrade pip
@@ -33,6 +37,7 @@ jobs:
         run: |
           cavra policy list
           ruff check src/ tests/
+          (cd go/cavra-runtime && go test ./...)
           pytest -q
       - name: Generate required-check evidence
         env:
@@ -57,6 +62,7 @@ jobs:
             echo ""
             echo "- Policy packs validated."
             echo "- Runtime tests and lint completed."
+            echo "- Go enforcement-plane parity scaffold tested."
             echo "- Evidence bundle generated and verified."
             echo "- PR attestation verified against evidence."
             echo ""

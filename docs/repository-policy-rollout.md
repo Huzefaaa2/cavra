@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+The next recommended step is compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.

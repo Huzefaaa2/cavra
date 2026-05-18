@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Go enforcement plane parity scaffold.
-- Hosted sandbox deployment workflow.
+- Compiled-policy loading for the Go enforcement plane.
+- Public sandbox URL validation after deployment from `main`.

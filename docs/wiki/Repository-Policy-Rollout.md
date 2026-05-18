@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+The next recommended work is compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.

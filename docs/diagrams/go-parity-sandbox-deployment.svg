@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go Parity and Sandbox Deployment</title>
+  <desc id="desc">A diagram showing Python runtime authority, shared parity fixtures, Go runtime scaffold, CI required checks, and GitHub Pages sandbox deployment.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344955"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f9fb; }
+      .title { font: 700 30px Arial, sans-serif; fill: #14212b; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #4b5f6f; }
+      .python { fill: #eef6ff; stroke: #3b6f8f; stroke-width: 1.5; }
+      .go { fill: #f0f7f5; stroke: #40766a; stroke-width: 1.5; }
+      .ci { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.5; }
+      .deploy { fill: #f2f0fa; stroke: #7256b8; stroke-width: 1.5; }
+      .store { fill: #fff8d7; stroke: #9b7d0a; stroke-width: 1.5; }
+      .node-title { font: 700 15px Arial, sans-serif; fill: #17242d; }
+      .node-text { font: 400 12px Arial, sans-serif; fill: #435464; }
+      .small { font: 400 11px Arial, sans-serif; fill: #526777; }
+      .arrow { stroke: #344955; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+      .soft-arrow { stroke: #7a8d9a; stroke-width: 1.4; fill: none; marker-end: url(#arrow); stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="700"/>
+  <text x="56" y="58" class="title">Go Parity and Hosted Sandbox Deployment</text>
+  <text x="56" y="84" class="subtitle">Python remains authoritative while Go parity is tested in CI and the evidence console is deployed from main through GitHub Pages.</text>
+
+  <rect x="70" y="155" width="238" height="118" rx="8" class="python"/>
+  <text x="96" y="192" class="node-title">Python RuntimeGuard</text>
+  <text x="96" y="216" class="node-text">Authoritative policy behavior</text>
+  <text x="96" y="235" class="node-text">File, command, Git, MCP</text>
+  <text x="96" y="254" class="node-text">Evidence and approvals stay here</text>
+
+  <rect x="390" y="155" width="238" height="118" rx="8" class="store"/>
+  <text x="416" y="192" class="node-title">Shared Parity Fixture</text>
+  <text x="416" y="216" class="node-text">parity_cases.json</text>
+  <text x="416" y="235" class="node-text">Critical expected outcomes</text>
+  <text x="416" y="254" class="node-text">Rule, severity, approver group</text>
+
+  <rect x="710" y="155" width="238" height="118" rx="8" class="go"/>
+  <text x="736" y="192" class="node-title">Go Runtime Scaffold</text>
+  <text x="736" y="216" class="node-text">Evaluator and CLI entrypoint</text>
+  <text x="736" y="235" class="node-text">go test loads same fixture</text>
+  <text x="736" y="254" class="node-text">Compiled policies are next</text>
+
+  <rect x="390" y="355" width="238" height="118" rx="8" class="ci"/>
+  <text x="416" y="392" class="node-title">GitHub Required Check</text>
+  <text x="416" y="416" class="node-text">Policy validation, ruff, pytest</text>
+  <text x="416" y="435" class="node-text">Go parity suite</text>
+  <text x="416" y="454" class="node-text">Evidence bundle verification</text>
+
+  <rect x="710" y="355" width="238" height="118" rx="8" class="ci"/>
+  <text x="736" y="392" class="node-title">go-runtime-parity Job</text>
+  <text x="736" y="416" class="node-text">actions/setup-go</text>
+  <text x="736" y="435" class="node-text">go test ./...</text>
+  <text x="736" y="454" class="node-text">Runner-side confidence gate</text>
+
+  <rect x="70" y="515" width="238" height="118" rx="8" class="deploy"/>
+  <text x="96" y="552" class="node-title">Sandbox Source</text>
+  <text x="96" y="576" class="node-text">apps/sandbox-ui</text>
+  <text x="96" y="595" class="node-text">Static evidence console</text>
+  <text x="96" y="614" class="node-text">Built-in fallback demo data</text>
+
+  <rect x="390" y="515" width="238" height="118" rx="8" class="deploy"/>
+  <text x="416" y="552" class="node-title">Deploy Sandbox Workflow</text>
+  <text x="416" y="576" class="node-text">node --check sandbox.js</text>
+  <text x="416" y="595" class="node-text">Upload Pages artifact</text>
+  <text x="416" y="614" class="node-text">Deploy only from main</text>
+
+  <rect x="710" y="515" width="238" height="118" rx="8" class="deploy"/>
+  <text x="736" y="552" class="node-title">GitHub Pages Sandbox</text>
+  <text x="736" y="576" class="node-text">Public static demo URL</text>
+  <text x="736" y="595" class="node-text">README and wiki link after deploy</text>
+  <text x="736" y="614" class="node-text">Post-deploy smoke checks next</text>
+
+  <rect x="1032" y="275" width="178" height="150" rx="8" class="python"/>
+  <text x="1054" y="312" class="node-title">Promotion Gate</text>
+  <text x="1054" y="336" class="small">Load compiled policies</text>
+  <text x="1054" y="354" class="small">Generated contracts</text>
+  <text x="1054" y="372" class="small">Daemon transport</text>
+  <text x="1054" y="390" class="small">Signed binaries</text>
+  <text x="1054" y="408" class="small">Expanded golden tests</text>
+
+  <path class="arrow" d="M308 214 L390 214"/>
+  <path class="arrow" d="M628 214 L710 214"/>
+  <path class="arrow" d="M509 273 L509 355"/>
+  <path class="arrow" d="M829 273 L829 355"/>
+  <path class="soft-arrow" d="M948 414 C1000 414 1000 350 1032 350"/>
+  <path class="arrow" d="M308 574 L390 574"/>
+  <path class="arrow" d="M628 574 L710 574"/>
+  <path class="soft-arrow" d="M829 473 C829 500 829 500 829 515"/>
+</svg>

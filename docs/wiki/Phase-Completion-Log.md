@@ -156,7 +156,44 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+Recommended next issue: delivered below as the Phase 7 scaffold and Phase 9 deployment workflow.
+
+## Phase 7: Go Enforcement Plane
+
+Status: scaffold started.
+
+Completed:
+- Go module under `go/cavra-runtime/`.
+- Runtime evaluator for critical file, command, Git, and MCP decisions.
+- JSON request/decision CLI entrypoint.
+- Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
+- Go unit tests that load the shared parity fixture.
+- Python parity tests that validate the same fixture against authoritative `RuntimeGuard`.
+- Dedicated `go-runtime-parity` GitHub Actions job.
+- Required governance check execution of `go test ./...`.
+
+Validation:
+- `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
+- GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
+
+Recommended next issue: add compiled-policy loading to the Go runtime, generate Go contracts from the enforcement protobuf, and expose a local daemon interface.
+
+## Phase 9: Hosted Sandbox Deployment
+
+Status: deployment workflow started.
+
+Completed:
+- GitHub Pages workflow at `.github/workflows/deploy-sandbox.yml`.
+- Static artifact build from `apps/sandbox-ui`.
+- JavaScript syntax validation with `node --check`.
+- SVG diagram asset inclusion in the artifact.
+- Deployment gated to `main` through `actions/deploy-pages`.
+
+Validation:
+- Workflow YAML parses.
+- Sandbox JavaScript syntax check is covered by the workflow and local validation.
+
+Recommended next issue: after merge to `main`, run the workflow, verify the public Pages URL, add the URL to README/wiki, and add a post-deploy smoke check.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -171,7 +208,7 @@ Completed:
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 - Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+Recommended next issue: expand Go compiled-policy loading, validate the public sandbox URL after merge, and add post-deploy smoke checks.
 
 ## Transparent Agent Methodology Enablement
 

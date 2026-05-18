@@ -22,7 +22,11 @@ Phase 5, Agent Registry and MCP Trust Registry, is complete for the current prod
 
 Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
+Phase 7, Go Enforcement Plane, has started with a bounded parity scaffold. It includes a Go module, runtime evaluator, CLI entrypoint, shared critical decision fixture, Python and Go parity tests, a dedicated `go-runtime-parity` CI job, and Go test execution in the required governance check.
+
 Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, live SIEM/ITSM/ChatOps connector execution hooks, AWS/Azure immutable evidence storage references, and Entra/Okta OIDC-RBAC deployment references.
+
+Phase 9, Public Sandbox, has started with a GitHub Pages deployment workflow for the static Before the Agent Acts sandbox and evidence console. The public URL will be added after the workflow lands on `main` and the first deployment succeeds.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
@@ -59,6 +63,8 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Immutable Evidence Storage: `Immutable-Evidence-Storage.md`
 - Policy Pack Authoring Workflows: `Policy-Pack-Authoring-Workflows.md`
 - Production Deployment Validation: `Production-Deployment-Validation.md`
+- Go Enforcement Parity: `Go-Enforcement-Parity.md`
+- Hosted Sandbox Deployment: `Hosted-Sandbox-Deployment.md`
 
 ## Quick Start
 
@@ -79,3 +85,9 @@ docker compose up -d --build
 ```
 
 Open `http://127.0.0.1:5173`.
+
+After merge to `main`, deploy the hosted sandbox with:
+
+```bash
+gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
+```

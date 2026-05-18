@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980" role="img" aria-labelledby="title desc">
   <title id="title">CAVRA C4 Container View</title>
-  <desc id="desc">A C4 container diagram showing CAVRA interaction surfaces, runtime authority, evidence plane, planned enforcement plane, and enterprise integrations.</desc>
+  <desc id="desc">A C4 container diagram showing CAVRA interaction surfaces, runtime authority, evidence plane, scaffolded Go enforcement plane, sandbox deployment, and enterprise integrations.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#344955"/>
@@ -17,6 +17,7 @@
       .evidence { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.4; }
       .external { fill: #f2f0fa; stroke: #7256b8; stroke-width: 1.4; }
       .planned { fill: #f6f8fa; stroke: #7d8b95; stroke-width: 1.4; stroke-dasharray: 6 5; }
+      .scaffold { fill: #f0f7f5; stroke: #40766a; stroke-width: 1.4; stroke-dasharray: 4 3; }
       .store { fill: #fff8d7; stroke: #9b7d0a; stroke-width: 1.4; }
       .node-title { font: 700 13px Arial, sans-serif; fill: #17242d; }
       .node-text { font: 400 11px Arial, sans-serif; fill: #435464; }
@@ -88,11 +89,11 @@
 
   <rect x="420" y="480" width="250" height="54" rx="8" class="surface"/>
   <text x="442" y="502" class="node-title">Before the Agent Acts Sandbox</text>
-  <text x="442" y="520" class="node-text">Interactive demo and API consumer</text>
+  <text x="442" y="520" class="node-text">GitHub Pages workflow and API demo</text>
 
-  <rect x="750" y="480" width="250" height="54" rx="8" class="planned"/>
+  <rect x="750" y="480" width="250" height="54" rx="8" class="scaffold"/>
   <text x="772" y="502" class="node-title">Go Enforcement Plane</text>
-  <text x="772" y="520" class="node-text">Planned local and CI enforcement</text>
+  <text x="772" y="520" class="node-text">Scaffolded parity tests in CI</text>
 
   <rect x="1042" y="480" width="250" height="54" rx="8" class="authority"/>
   <text x="1064" y="502" class="node-title">Agent and MCP Trust Registry</text>

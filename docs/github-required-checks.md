@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
+The next recommended implementation step is compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.

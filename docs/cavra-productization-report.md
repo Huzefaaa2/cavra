@@ -34,7 +34,7 @@ Added C4 and runtime diagrams under `docs/diagrams/`, including Mermaid diagram 
 
 Added GitHub repository readiness controls and documentation: protected `main`, Dependabot, CodeQL, PR template, CODEOWNERS, issue templates, VS Code recommendations, release documentation policy, and repository readiness guide.
 
-Added high-quality user-facing diagram images for architecture, runtime flow, evidence hub, policy lifecycle, and developer journey.
+Added high-quality user-facing diagram images for architecture, runtime flow, evidence hub, policy lifecycle, developer journey, OIDC/RBAC deployment, immutable evidence storage, and Go parity plus sandbox deployment.
 
 Added transparent CAVRA engineering-agent methodology: declarative agent manifests, agent task issue template, label catalog, conservative GitHub Actions orchestrator scaffold, `cavra-agentic-delivery` policy pack, architecture documentation, wiki pages, and the user-facing agent orchestration diagram. The methodology explicitly requires bot identities and prohibits fake human developer identities.
 
@@ -48,7 +48,11 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 
 ## Interactive sandbox status
 
-`apps/sandbox-ui/` implements the Before the Agent Acts sandbox and first evidence console slice with a security-console layout, persona and policy-mode controls, action stream, decision stream, evidence viewer, evidence metadata search, PR attestation verification, operational readiness status, and Claude Code install CTA. It uses the same CAVRA decision outcomes as the runtime and is runnable locally with Python static serving or Docker Compose.
+`apps/sandbox-ui/` implements the Before the Agent Acts sandbox and first evidence console slice with a security-console layout, persona and policy-mode controls, action stream, decision stream, evidence viewer, evidence metadata search, PR attestation verification, operational readiness status, and Claude Code install CTA. It uses the same CAVRA decision outcomes as the runtime and is runnable locally with Python static serving or Docker Compose. `.github/workflows/deploy-sandbox.yml` now publishes the static sandbox to GitHub Pages from `main` after JavaScript validation.
+
+## Go enforcement-plane status
+
+`go/cavra-runtime/` now contains the first Go enforcement-plane parity scaffold. It includes a Go module, runtime evaluator, command-line entrypoint, shared parity cases, and Go unit tests for critical file, command, Git, and MCP decisions. Python remains authoritative; the scaffold is intentionally bounded until compiled-policy loading, generated contracts, daemon transport, and binary release packaging are implemented.
 
 ## Validation commands run
 
@@ -114,9 +118,9 @@ Phase 3, Evidence Hub and Attestation, is near complete. Added evidence bundle m
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. Added JSON and SQLite approval persistence, API and CLI approval lifecycle, break-glass evidence, repository-specific routing, signed OIDC/JWKS validation, repository RBAC policy files, live approval provider delivery, console approval actions, console break-glass creation, and approval audit detail views.
 
-Next recommended implementation work: start the Go enforcement plane parity scaffold and hosted sandbox deployment workflow. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, immutable evidence storage deployment references, and Entra/Okta OIDC-RBAC deployment references are now delivered.
+Next recommended implementation work: expand the Go enforcement plane from scaffold to compiled-policy loading and a local daemon interface, then validate the public sandbox URL after the deployment workflow lands on `main`. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, immutable evidence storage deployment references, Entra/Okta OIDC-RBAC deployment references, Go parity scaffold, and hosted sandbox deployment workflow are now delivered.
 
-Later roadmap backlog: full persistent API storage for every domain, Go enforcement implementation, parity tests, hosted sandbox deployment, SBOM automation, and signed releases.
+Later roadmap backlog: full persistent API storage for every domain, compiled-policy Go enforcement implementation, expanded parity tests, public sandbox URL smoke validation, SBOM automation, and signed releases.
 
 ## Market, partner, and commercialization summary
 

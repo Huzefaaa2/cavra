@@ -6,6 +6,8 @@ AI coding agents are moving from suggestion to execution. They can inspect repos
 
 CAVRA, Controlled Agentic Verification & Runtime Authority, is a runtime governance and authority layer for AI coding agents. Before the agent acts, CAVRA decides.
 
+The current implementation also establishes the controlled path to low-latency enforcement. Python remains authoritative, while a bounded Go scaffold verifies critical decision parity in CI before any future promotion to local daemon, CI runner, or air-gapped binary enforcement.
+
 ## Product Thesis
 
 Enterprises need a decision point between AI coding agents and meaningful engineering actions. CAVRA evaluates what an agent wants to read, write, execute, connect to, approve, merge, or change before execution. It returns a decision, records evidence, and routes risky actions to human approval when required.
@@ -61,10 +63,11 @@ Management plane:
 
 Enforcement plane:
 - Current Python runtime guard.
-- Future Go runtime backend.
-- Unix-socket or gRPC interface.
-- Local daemon and CI runner mode.
-- Air-gapped single-binary deployment.
+- Scaffolded Go runtime backend with shared parity fixtures.
+- Future compiled-policy loading.
+- Future Unix-socket or gRPC interface.
+- Future local daemon and CI runner mode.
+- Future air-gapped single-binary deployment.
 
 ## Enterprise Value
 

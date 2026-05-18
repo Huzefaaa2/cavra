@@ -1,6 +1,6 @@
 # Current Feature Inventory
 
-Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model.
+Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model, Go enforcement-plane parity scaffold, hosted sandbox deployment workflow.
 
 Existing CLI commands: `version`, `evaluate`, `agent start`, `agent exec`, `agent attest`, `policy list`, `policy describe`, `policy validate`, `policy test`, `policy explain`, `policy compile`, `policy diff`, `policy sign`, `policy verify`, `policy simulate`, `policy dry-run`, `policy init`, `integration deliver`, `ops stores`, `ops backup`, `ops restore`, `ops retention-plan`, `init claude-code`, `demo before-the-agent-acts`.
 
@@ -30,6 +30,10 @@ Production deployment validation: `GET /deployment/production-readiness` checks 
 
 CI/CD required-check templates: `.github/workflows/cavra-governance.yml` exposes `cavra-required-check` for branch protection, validates policy packs, runs lint/tests, generates and verifies evidence, verifies PR attestation, and uploads CI evidence artifacts. Reusable GitHub Actions, GitLab CI, and Azure Pipelines examples live under `examples/`.
 
+Go enforcement-plane parity scaffold: `go/cavra-runtime/` contains a Go module, runtime decision evaluator, CLI entrypoint, and shared parity fixture for critical file, command, Git, and MCP decisions. `tests/test_go_runtime_parity.py`, the `go-runtime-parity` CI job, and `cavra-required-check` exercise the parity contract.
+
+Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. The console shows artifact lists and bundle download links from evidence rows.
@@ -40,6 +44,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: packaged Go backend and hosted sandbox deployment.
+Known gaps: compiled-policy loading for the Go backend, Go local daemon or gRPC interface, signed Go binary release packaging, public sandbox URL verification after merge to `main`, SBOM automation, and signed releases.
 
-Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.
+Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, expanded golden parity suite, and generated enforcement contracts for the Go runtime.

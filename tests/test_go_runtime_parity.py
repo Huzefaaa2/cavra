@@ -1,0 +1,44 @@
+import json
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+
+from cavra.runtime import RuntimeGuard
+
+
+PARITY_CASES = Path("go/cavra-runtime/testdata/parity_cases.json")
+
+
+def _python_decision(request: dict[str, str]) -> dict[str, object]:
+    guard = RuntimeGuard(policy_pack=request.get("policy_pack") or "cavra-ai-agent-baseline")
+    action = request["action_type"]
+    if action == "read_file":
+        return guard.evaluate_file_access(Path(request["target"]), "read").to_dict()
+    if action == "write_file":
+        return guard.evaluate_file_access(Path(request["target"]), "write").to_dict()
+    if action == "execute_command":
+        return guard.evaluate_command(request["target"]).to_dict()
+    if action == "git_operation":
+        return guard.evaluate_git_action(request.get("operation", "push"), request.get("target")).to_dict()
+    if action == "mcp_tool_call":
+        return guard.evaluate_mcp_tool_call(request["server"], request["tool"], request.get("capability")).to_dict()
+    raise AssertionError(f"unsupported parity action: {action}")
+
+
+def test_go_parity_cases_match_python_runtime_expectations() -> None:
+    cases = json.loads(PARITY_CASES.read_text(encoding="utf-8"))
+    for item in cases:
+        decision = _python_decision(item["request"])
+        expected = item["expected"]
+        assert decision["decision"] == expected["decision"], item["name"]
+        assert decision["rule_id"] == expected["rule_id"], item["name"]
+        assert decision["severity"] == expected["severity"], item["name"]
+        if expected.get("approver_group"):
+            assert decision["approver_group"] == expected["approver_group"], item["name"]
+
+
+@pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain is not installed")
+def test_go_runtime_scaffold_tests_pass() -> None:
+    subprocess.run(["go", "test", "./..."], cwd=Path("go/cavra-runtime"), check=True)

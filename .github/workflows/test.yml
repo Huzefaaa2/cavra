@@ -22,3 +22,16 @@ jobs:
         run: ruff check src/ tests/
       - name: Test
         run: pytest tests -v --tb=short
+
+  go-runtime:
+    name: go-runtime-parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go/cavra-runtime/go.mod
+      - name: Test Go runtime scaffold
+        run: go test ./...
+        working-directory: go/cavra-runtime

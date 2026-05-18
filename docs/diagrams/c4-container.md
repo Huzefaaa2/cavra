@@ -16,7 +16,7 @@ System_Boundary(cavra, "CAVRA") {
     Container(cli, "CAVRA CLI", "Python Typer", "Local evaluation, policy authoring, evidence export, retention, signing, and Claude Code init.")
     Container(mcpServer, "CAVRA MCP Server", "Python stdio MCP", "Tool interface for Claude Code and MCP-aware agents.")
     Container(api, "CAVRA API", "FastAPI", "Management API for policies, authoring drafts, signed policy publishing, rollout changes, deployment readiness, persisted decisions, sessions, repositories, rollout drill-downs, integrations, evidence metadata and artifacts, console session context, security boundary, operations status, approvals, registry, and sandbox.")
-    Container(sandbox, "Before the Agent Acts Sandbox", "HTML/CSS/JS", "Interactive demo and console for buyers, developers, platform teams, and auditors.")
+    Container(sandbox, "Before the Agent Acts Sandbox", "HTML/CSS/JS + GitHub Pages", "Interactive demo and console for buyers, developers, platform teams, and auditors, with Pages deployment workflow.")
   }
 
   Container_Boundary(authority, "Runtime Authority") {
@@ -33,7 +33,7 @@ System_Boundary(cavra, "CAVRA") {
     ContainerDb(bundleStore, "Evidence Bundle Store", "Filesystem + immutable storage references", "Verifier-ready bundle artifacts, governed retrieval root, ZIP bundle downloads, AWS S3 Object Lock references, Azure Blob immutability references, and storage plans.")
   }
 
-  Container(goRuntime, "Go Enforcement Plane", "Go / gRPC", "Planned low-latency local and CI enforcement backend with parity tests.")
+  Container(goRuntime, "Go Enforcement Plane", "Go", "Scaffolded low-latency enforcement backend with shared Python/Go parity fixtures and CI checks; daemon and compiled-policy loading remain next.")
 }
 
 System_Ext(agent, "AI Coding Agent")
@@ -62,7 +62,7 @@ Rel(runtime, policy, "Loads compiled policy rules")
 Rel(runtime, approval, "Requires human approval for risky actions")
 Rel(runtime, registry, "Checks agent and MCP trust state")
 Rel(runtime, evidence, "Writes decision evidence")
-Rel(goRuntime, runtime, "Parity target and policy contract")
+Rel(goRuntime, runtime, "Critical decision parity fixture")
 
 Rel(evidence, metadata, "Indexes searchable evidence metadata")
 Rel(evidence, connectorDelivery, "Builds signed evidence events")
@@ -89,4 +89,4 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
 - Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, CI/CD required-check artifacts for GitHub, GitLab, and Azure DevOps, policy draft, signed publish, and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, connector delivery records, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
-- Planned containers are shown to clarify the production direction without implying that the full enterprise console and Go enforcement plane are complete today. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has JSON/SQLite persistence, predefined agent profiles, MCP tool classifications, console registry views, and registry-backed trust decisions.
+- Planned containers are shown to clarify the production direction without implying that the full enterprise console is complete today. The Go enforcement plane now has a scaffolded Go module, runtime evaluator, CLI entrypoint, shared parity fixture, Go unit tests, and CI execution, but compiled-policy loading, daemon transport, and signed binary packaging remain future work. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has JSON/SQLite persistence, predefined agent profiles, MCP tool classifications, console registry views, and registry-backed trust decisions.

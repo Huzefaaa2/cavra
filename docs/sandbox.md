@@ -6,6 +6,14 @@ Run locally:
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
+Deploy from GitHub Pages:
+
+```bash
+gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
+```
+
+The workflow at `.github/workflows/deploy-sandbox.yml` validates `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, includes the repository SVG diagrams, uploads the artifact with `actions/upload-pages-artifact`, and deploys with `actions/deploy-pages` only when the workflow runs on `main`.
+
 The sandbox is a simulated AI-agent scenario using real CAVRA policy decisions. It shows agent actions, CAVRA decisions, policy rules, risk, evidence, compliance mapping, and Claude Code install CTA.
 
 The same surface now includes the first hosted evidence console views:

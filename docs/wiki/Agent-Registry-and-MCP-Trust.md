@@ -58,5 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Go enforcement plane parity scaffold.
-- Hosted sandbox deployment workflow.
+- Compiled-policy loading for the Go enforcement plane.
+- Public sandbox URL validation after deployment from `main`.
