@@ -9,10 +9,13 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go/cavra-runtime/cmd/cavra-runtime/main.go` reads a JSON request and writes a JSON decision.
 - `go/cavra-runtime/testdata/parity_cases.json` captures shared critical decision cases.
 - `go/cavra-runtime/testdata/compiled_policy.json` captures a compiled-policy loading fixture.
+- `go/cavra-runtime/testdata/mcp_registry.json` captures registry-backed MCP trust decisions.
 - `go/cavra-runtime/runtime/decision_test.go` verifies the Go evaluator against the shared fixture.
-- `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard`.
+- `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard` and compiles every bundled policy pack before checking representative Go CLI decisions.
 - `go run ./cmd/cavra-runtime --policy compiled-policy.json` evaluates against normalized JSON from `cavra policy compile`.
+- `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
+- Go decisions now emit runtime evidence metadata: decision ID, correlation ID, timestamp, and `evidence://...` references.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 
@@ -46,6 +49,13 @@ echo '{"action_type":"read_file","target":".env"}' \
   | go run ./cmd/cavra-runtime --policy /tmp/cavra-compiled-policy.json
 ```
 
+Evaluate MCP trust through the registry fixture:
+
+```bash
+echo '{"session_id":"registry-demo","action_type":"mcp_tool_call","server":"github-mcp","tool":"delete_repository","capability":"repository","policy_pack":"cavra-mcp-enterprise"}' \
+  | go run ./cmd/cavra-runtime --registry testdata/mcp_registry.json
+```
+
 ## User Stories
 
 - As a CI owner, I can verify that a future low-latency runtime returns the same critical decisions as the authoritative Python runtime.
@@ -59,11 +69,11 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 ## Current Limits
 
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
-- It does not expose a Unix-socket, gRPC, or long-running daemon interface.
-- It does not yet expose a daemon transport using the generated request and response types.
+- Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
+- It exposes an initial Unix-socket daemon transport using the generated request and response types.
 - It does not yet ship signed binaries, SBOMs, or air-gapped release bundles.
 
 ## Next Recommended Work
 
-1. Expand parity cases for approvals, registry-backed MCP trust, policy inheritance, and evidence references.
-2. Package signed Go binaries with release evidence and SBOMs.
+1. Package signed Go binaries with release evidence and SBOMs.
+2. Continue broadening approval-route parity as new policy packs are added.

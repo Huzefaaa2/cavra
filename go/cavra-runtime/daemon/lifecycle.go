@@ -21,6 +21,7 @@ type LifecycleConfig struct {
 	SocketPath      string
 	PIDPath         string
 	PolicyPath      string
+	RegistryPath    string
 	EvidenceLogPath string
 	BinaryPath      string
 	StartupTimeout  time.Duration
@@ -62,6 +63,9 @@ func StartDaemon(config LifecycleConfig) (LifecycleStatus, error) {
 	args := []string{"--serve", "--socket", config.SocketPath}
 	if config.PolicyPath != "" {
 		args = append(args, "--policy", config.PolicyPath)
+	}
+	if config.RegistryPath != "" {
+		args = append(args, "--registry", config.RegistryPath)
 	}
 	if config.EvidenceLogPath != "" {
 		args = append(args, "--evidence-log", config.EvidenceLogPath)

@@ -50,6 +50,5 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Merge the smoke-check and static evidence packaging update to `main`.
-2. Rerun the Pages deployment and confirm the new smoke job passes.
-3. Add backend-driven scenario runs when the public demo is connected to a deployed API.
+1. Add backend-driven scenario runs when the public demo is connected to a deployed API.
+2. Add release-note links to the public sandbox for design-partner demos.

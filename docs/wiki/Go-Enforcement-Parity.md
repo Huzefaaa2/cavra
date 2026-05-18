@@ -9,6 +9,9 @@ Python remains the authoritative CAVRA runtime. The Go enforcement plane now has
 - Shared critical parity fixture.
 - Compiled-policy loader for normalized JSON from `cavra policy compile`.
 - CLI `--policy` flag for evaluating against compiled policy JSON.
+- Trust-registry loader and CLI `--registry` flag for registry-backed MCP decisions.
+- Runtime evidence metadata with decision IDs, correlation IDs, timestamps, and `evidence://...` references.
+- Compiled-policy parity across every bundled policy pack through Python-to-Go CLI validation.
 - Go unit tests for file, command, Git, and MCP decisions.
 - Python parity tests against the same fixture.
 - `go-runtime-parity` GitHub Actions job.
@@ -26,6 +29,8 @@ go test ./...
 PYTHONPATH=src python3 -m cavra.cli policy compile --policy-pack cavra-ai-agent-baseline > /tmp/cavra-compiled-policy.json
 echo '{"action_type":"read_file","target":".env"}' \
   | go run ./cmd/cavra-runtime --policy /tmp/cavra-compiled-policy.json
+echo '{"session_id":"registry-demo","action_type":"mcp_tool_call","server":"github-mcp","tool":"delete_repository","capability":"repository","policy_pack":"cavra-mcp-enterprise"}' \
+  | go run ./cmd/cavra-runtime --registry testdata/mcp_registry.json
 ```
 
 ## User Stories
@@ -40,4 +45,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Generate protobuf-backed contracts, add a local daemon interface, expand golden cases, and package signed binaries.
+Package signed Go binaries with SBOM and release evidence, then continue broadening approval-route parity as new policy packs are added.

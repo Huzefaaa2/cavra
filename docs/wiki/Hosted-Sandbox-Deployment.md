@@ -38,4 +38,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Merge the smoke-check update, rerun the deployment from `main`, confirm the smoke job passes, and connect the sandbox to backend-driven scenarios.
+Connect the public sandbox to backend-driven scenarios and add release-note links for design-partner demos.

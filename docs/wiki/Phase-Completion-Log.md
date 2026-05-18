@@ -175,7 +175,12 @@ Completed:
 - Daemon lifecycle `start/status/stop` with PID-file tracking and socket readiness probing.
 - Compiled-policy-backed daemon evaluator tests.
 - Lifecycle status tests for PID-file and socket health.
+- Runtime evidence references with decision IDs, correlation IDs, timestamps, and `evidence://...` refs.
+- Trust-registry JSON loading for Go runtime and CLI `--registry`.
+- Registry-backed MCP decisions for approved, pending, blocked, tool-scope, and capability-scope outcomes.
+- All-bundled-policy compiled parity through Python-to-Go CLI validation.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
+- MCP trust registry fixture at `go/cavra-runtime/testdata/mcp_registry.json`.
 - Go unit tests that load the shared parity fixture.
 - Python parity tests that validate the same fixture against authoritative `RuntimeGuard`.
 - Dedicated `go-runtime-parity` GitHub Actions job.
@@ -185,7 +190,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
+Recommended next issue: package signed Go binaries with SBOM and release evidence.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -202,6 +207,7 @@ Completed:
 - Public sandbox verified at `https://huzefaaa2.github.io/cavra/`.
 - Downloadable sample evidence packaged in the public artifact.
 - Post-deploy smoke validation for the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
+- Public post-deploy smoke run passed from `main`.
 
 ## Brand Asset System
 
@@ -220,7 +226,7 @@ Validation:
 - Workflow YAML parses.
 - Sandbox JavaScript syntax check is covered by the workflow and local validation.
 
-Recommended next issue: merge the smoke-check update to `main`, rerun the workflow, and confirm the smoke job passes against the public URL.
+Recommended next issue: connect the public sandbox to backend-driven scenario runs.
 
 ## GitHub Required Checks and CI/CD Enforcement
 

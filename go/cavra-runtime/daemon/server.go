@@ -12,11 +12,17 @@ import (
 type Evaluator func(enforcementv1.EvaluateRequest) enforcementv1.DecisionResponse
 
 func RuntimeEvaluator(policy *cavraruntime.Policy) Evaluator {
+	return RuntimeEvaluatorWithRegistry(policy, nil)
+}
+
+func RuntimeEvaluatorWithRegistry(policy *cavraruntime.Policy, registry *cavraruntime.TrustRegistry) Evaluator {
 	return func(request enforcementv1.EvaluateRequest) enforcementv1.DecisionResponse {
 		runtimeRequest := request.RuntimeRequest()
 		var decision cavraruntime.Decision
 		if policy != nil {
-			decision = cavraruntime.EvaluateWithPolicy(runtimeRequest, *policy)
+			decision = cavraruntime.EvaluateWithPolicyAndRegistry(runtimeRequest, *policy, registry)
+		} else if registry != nil {
+			decision = cavraruntime.EvaluateWithRegistry(runtimeRequest, *registry)
 		} else {
 			decision = cavraruntime.Evaluate(runtimeRequest)
 		}

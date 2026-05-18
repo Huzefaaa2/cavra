@@ -48,9 +48,9 @@ Next: expanded Go parity and public sandbox URL validation after deployment from
 
 Status: scaffold started.
 
-Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
+Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
 
-Next: expanded golden parity tests and signed binary packaging.
+Next: signed Go binary, SBOM, and release evidence packaging.
 
 ## Phase 8: Enterprise Integrations
 
@@ -64,7 +64,7 @@ Status: deployment workflow started.
 
 Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, and smoke-tests the public page and core assets after deployment. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
 
-Next: merge the smoke-check update to `main`, rerun the Pages workflow, and confirm the smoke job passes against the public URL.
+Next: connect the public sandbox to backend-driven scenario runs.
 
 ## Phase 10: Production Release
 

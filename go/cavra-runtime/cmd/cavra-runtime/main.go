@@ -20,6 +20,7 @@ import (
 func main() {
 	inputPath := flag.String("input", "-", "JSON request file, or - for stdin")
 	policyPath := flag.String("policy", "", "compiled policy JSON file from `cavra policy compile`; built-in scaffold policy is used when omitted")
+	registryPath := flag.String("registry", "", "CAVRA trust registry JSON file for registry-backed MCP decisions")
 	serve := flag.Bool("serve", false, "serve the generated enforcement contract over a local Unix socket")
 	clientMode := flag.Bool("daemon", false, "send an EvaluateRequest to a running local daemon and print the DecisionResponse")
 	lifecycle := flag.String("lifecycle", "", "manage daemon lifecycle: start, stop, or status")
@@ -34,6 +35,7 @@ func main() {
 			SocketPath:      *socketPath,
 			PIDPath:         *pidPath,
 			PolicyPath:      *policyPath,
+			RegistryPath:    *registryPath,
 			EvidenceLogPath: *evidenceLogPath,
 			StartupTimeout:  *lifecycleTimeout,
 		})
@@ -53,8 +55,16 @@ func main() {
 		}
 		policy = &loadedPolicy
 	}
+	var registry *cavraruntime.TrustRegistry
+	if *registryPath != "" {
+		loadedRegistry, err := cavraruntime.LoadTrustRegistry(*registryPath)
+		if err != nil {
+			fail(err)
+		}
+		registry = &loadedRegistry
+	}
 	if *serve {
-		serveUnixSocket(*socketPath, policy, *evidenceLogPath)
+		serveUnixSocket(*socketPath, policy, registry, *evidenceLogPath)
 		return
 	}
 
@@ -69,9 +79,12 @@ func main() {
 		fail(err)
 	}
 	var decision cavraruntime.Decision
-	if policy != nil {
-		decision = cavraruntime.EvaluateWithPolicy(request, *policy)
-	} else {
+	switch {
+	case policy != nil:
+		decision = cavraruntime.EvaluateWithPolicyAndRegistry(request, *policy, registry)
+	case registry != nil:
+		decision = cavraruntime.EvaluateWithRegistry(request, *registry)
+	default:
 		decision = cavraruntime.Evaluate(request)
 	}
 	encoder := json.NewEncoder(os.Stdout)
@@ -149,7 +162,7 @@ func runLifecycle(action string, config daemon.LifecycleConfig) {
 	fmt.Println(string(data))
 }
 
-func serveUnixSocket(socket string, policy *cavraruntime.Policy, evidenceLogPath string) {
+func serveUnixSocket(socket string, policy *cavraruntime.Policy, registry *cavraruntime.TrustRegistry, evidenceLogPath string) {
 	if err := os.MkdirAll(filepath.Dir(socket), 0o755); err != nil {
 		fail(err)
 	}
@@ -167,7 +180,7 @@ func serveUnixSocket(socket string, policy *cavraruntime.Policy, evidenceLogPath
 		<-signals
 		_ = listener.Close()
 	}()
-	if err := daemon.ServeWithEvidence(listener, daemon.RuntimeEvaluator(policy), daemon.NewEvidenceRecorder(evidenceLogPath)); err != nil {
+	if err := daemon.ServeWithEvidence(listener, daemon.RuntimeEvaluatorWithRegistry(policy, registry), daemon.NewEvidenceRecorder(evidenceLogPath)); err != nil {
 		fail(err)
 	}
 }

@@ -1,0 +1,28 @@
+{
+  "mcp_servers": [
+    {
+      "server_id": "github-mcp",
+      "name": "github-mcp",
+      "trust_tier": "approved",
+      "approval_state": "approved",
+      "capabilities": ["repository"],
+      "allowed_tools": ["create_pull_request"]
+    },
+    {
+      "server_id": "filesystem-lab",
+      "name": "filesystem-lab",
+      "trust_tier": "experimental",
+      "approval_state": "pending",
+      "capabilities": ["filesystem"],
+      "allowed_tools": ["read_file"]
+    },
+    {
+      "server_id": "personal-drive-mcp",
+      "name": "personal-drive-mcp",
+      "trust_tier": "blocked",
+      "approval_state": "denied",
+      "capabilities": ["filesystem"],
+      "allowed_tools": ["read_file"]
+    }
+  ]
+}
