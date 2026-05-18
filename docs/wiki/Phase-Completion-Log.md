@@ -205,7 +205,7 @@ Completed:
 - SVG runtime authority mark, favicon, horizontal logo, stacked logo, product thumbnail, and GitHub social preview.
 - PNG exports for compact icons, README/document surfaces, product thumbnails, and social previews.
 - README header logo.
-- Sandbox console favicon, compact navigation mark, and larger right-side hero mark below the install CTA.
+- Sandbox console favicon, compact navigation mark, and larger top-right hero mark below the install CTA.
 - Brand asset documentation and wiki page.
 
 Recommended next issue: use the assets in release notes and configure the repository social preview after merge.

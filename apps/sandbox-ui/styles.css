@@ -1,6 +1,6 @@
 :root { color-scheme: dark light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #101316; color: #eef3f6; }
 body { margin: 0; background: #101316; }
-.hero { min-height: 54vh; padding: 24px clamp(18px, 4vw, 56px); background: linear-gradient(rgba(10,12,14,.74), rgba(10,12,14,.68)), url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1800&q=80") center/cover; display: flex; flex-direction: column; justify-content: space-between; }
+.hero { position: relative; min-height: 54vh; padding: 24px clamp(18px, 4vw, 56px); background: linear-gradient(rgba(10,12,14,.74), rgba(10,12,14,.68)), url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1800&q=80") center/cover; display: flex; flex-direction: column; justify-content: flex-start; }
 nav { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 button, a { border: 1px solid #76d6b2; background: #76d6b2; color: #07110d; padding: 10px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; cursor: pointer; }
 button.secondary { border-color: #3d4c54; background: #0f1418; color: #eef3f6; }
@@ -8,8 +8,8 @@ nav button { background: rgba(16,19,22,.8); color: #eef3f6; }
 .brand { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 10px; min-width: 0; padding: 0; border: 0; background: transparent; color: #eef3f6; font-size: 18px; letter-spacing: 1px; }
 .brand img { display: block; inline-size: 34px; block-size: 34px; width: 34px; height: 34px; max-width: 34px; max-height: 34px; object-fit: contain; }
 .brand span { font-weight: 800; }
-.hero-side { display: flex; flex-direction: column; align-items: flex-end; gap: clamp(18px, 2.5vw, 32px); flex: 0 0 auto; }
-.hero-content { display: block; padding-top: clamp(42px, 7vw, 96px); }
+.hero-side { position: absolute; top: 24px; right: clamp(18px, 4vw, 56px); display: flex; flex-direction: column; align-items: flex-end; gap: clamp(14px, 2vw, 22px); flex: 0 0 auto; }
+.hero-content { display: block; padding-top: clamp(48px, 6vw, 82px); }
 .hero-copy { min-width: 0; }
 .hero-product-mark { display: block; width: clamp(150px, 14vw, 220px); height: auto; filter: drop-shadow(0 22px 48px rgba(0, 0, 0, .38)); opacity: .96; }
 .eyebrow { color: #76d6b2; font-weight: 700; }
@@ -71,4 +71,4 @@ tr:last-child td { border-bottom: 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }
-@media (max-width: 900px) { .grid, .split, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid { grid-template-columns: 1fr; } .hero-side { gap: 14px; } .hero-product-mark { width: 118px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 900px) { .grid, .split, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid { grid-template-columns: 1fr; } .hero-side { position: static; gap: 12px; } .hero-content { padding-top: 44px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }

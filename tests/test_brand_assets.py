@@ -40,6 +40,7 @@ def test_brand_svg_assets_are_valid_svg_documents() -> None:
 def test_readme_and_sandbox_reference_brand_assets() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
     html = Path("apps/sandbox-ui/index.html").read_text(encoding="utf-8")
+    css = Path("apps/sandbox-ui/styles.css").read_text(encoding="utf-8")
 
     _HTMLSmokeParser().feed(html)
     assert "assets/brand/cavra-logo-horizontal.svg" in readme
@@ -51,3 +52,4 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'class="hero-side"' in html
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
+    assert ".hero-side { position: absolute;" in css
