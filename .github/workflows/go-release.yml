@@ -1,0 +1,97 @@
+name: Go Runtime Release Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version or dry-run label"
+        required: true
+        default: "dry-run"
+      dry_run:
+        description: "Allow unsigned dry-run packaging"
+        type: boolean
+        required: true
+        default: true
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: package-go-runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go/cavra-runtime/go.mod
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install signing dependencies
+        run: python -m pip install cryptography
+      - name: Build Go runtime binaries
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
+          dist="dist/go-runtime-${version}"
+          mkdir -p "$dist/bin"
+          targets=(
+            "linux amd64"
+            "linux arm64"
+            "darwin amd64"
+            "darwin arm64"
+            "windows amd64"
+            "windows arm64"
+          )
+          for target in "${targets[@]}"; do
+            read -r goos goarch <<< "$target"
+            suffix=""
+            if [ "$goos" = "windows" ]; then
+              suffix=".exe"
+            fi
+            output="$dist/bin/cavra-runtime_${version}_${goos}_${goarch}${suffix}"
+            GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 \
+              go build -trimpath -ldflags="-s -w" -o "$output" ./cmd/cavra-runtime
+          done
+          go list -m -json all > "$dist/go-modules.json"
+        working-directory: go/cavra-runtime
+      - name: Generate SBOM, checksums, signatures, and release evidence
+        env:
+          CAVRA_GO_RELEASE_SIGNING_KEY: ${{ secrets.CAVRA_GO_RELEASE_SIGNING_KEY }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
+          dry_run="${INPUT_DRY_RUN:-false}"
+          signing_required=""
+          if [ "$GITHUB_EVENT_NAME" = "release" ] || [ "$dry_run" = "false" ]; then
+            signing_required="--signing-required"
+          fi
+          dry_run_arg=""
+          if [ "$dry_run" = "true" ]; then
+            dry_run_arg="--dry-run"
+          fi
+          python scripts/package_go_release.py \
+            --dist "go/cavra-runtime/dist/go-runtime-${version}" \
+            --version "$version" \
+            --commit "$GITHUB_SHA" \
+            --ref "$GITHUB_REF" \
+            --event "$GITHUB_EVENT_NAME" \
+            --signer "github-actions:${GITHUB_WORKFLOW}" \
+            --key-id "cavra-go-release-${version}" \
+            $dry_run_arg \
+            $signing_required
+      - name: Upload Go release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-go-runtime-release-package
+          path: go/cavra-runtime/dist/
+          if-no-files-found: error

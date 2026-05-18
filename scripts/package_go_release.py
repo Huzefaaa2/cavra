@@ -1,0 +1,307 @@
+from __future__ import annotations
+
+import argparse
+import base64
+import hashlib
+import json
+import os
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+
+SIGNING_ENV = "CAVRA_GO_RELEASE_SIGNING_KEY"
+
+
+@dataclass(frozen=True)
+class Artifact:
+    path: Path
+    relative_path: str
+    sha256: str
+    size_bytes: int
+    kind: str
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
+def load_go_modules(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    decoder = json.JSONDecoder()
+    text = path.read_text(encoding="utf-8")
+    index = 0
+    modules: list[dict[str, Any]] = []
+    while index < len(text):
+        while index < len(text) and text[index].isspace():
+            index += 1
+        if index >= len(text):
+            break
+        item, index = decoder.raw_decode(text, index)
+        if isinstance(item, dict):
+            modules.append(item)
+    return modules
+
+
+def collect_artifacts(dist: Path) -> list[Artifact]:
+    artifacts: list[Artifact] = []
+    for path in sorted((dist / "bin").glob("*")):
+        if path.is_file():
+            artifacts.append(_artifact(dist, path, "go-binary"))
+    for path in sorted(dist.glob("*.spdx.json")):
+        artifacts.append(_artifact(dist, path, "sbom"))
+    modules = dist / "go-modules.json"
+    if modules.exists():
+        artifacts.append(_artifact(dist, modules, "go-modules"))
+    return artifacts
+
+
+def _artifact(dist: Path, path: Path, kind: str) -> Artifact:
+    return Artifact(
+        path=path,
+        relative_path=path.relative_to(dist).as_posix(),
+        sha256=sha256_file(path),
+        size_bytes=path.stat().st_size,
+        kind=kind,
+    )
+
+
+def write_spdx_sbom(dist: Path, version: str, commit: str, modules: list[dict[str, Any]]) -> Path:
+    now = datetime.now(timezone.utc).isoformat()
+    packages = [
+        {
+            "SPDXID": "SPDXRef-Package-CAVRA-Go-Runtime",
+            "name": "cavra-runtime",
+            "versionInfo": version,
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": False,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "BUSL-1.1",
+            "copyrightText": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "OTHER",
+                    "referenceType": "commit",
+                    "referenceLocator": commit,
+                }
+            ],
+        }
+    ]
+    relationships = []
+    for index, module in enumerate(modules):
+        spdx_id = f"SPDXRef-GoModule-{index}"
+        packages.append(
+            {
+                "SPDXID": spdx_id,
+                "name": str(module.get("Path", "unknown")),
+                "versionInfo": str(module.get("Version", "main")),
+                "downloadLocation": "NOASSERTION",
+                "filesAnalyzed": False,
+                "licenseConcluded": "NOASSERTION",
+                "licenseDeclared": "NOASSERTION",
+                "copyrightText": "NOASSERTION",
+            }
+        )
+        relationships.append(
+            {
+                "spdxElementId": "SPDXRef-Package-CAVRA-Go-Runtime",
+                "relationshipType": "DEPENDS_ON",
+                "relatedSpdxElement": spdx_id,
+            }
+        )
+    return write_json(
+        dist / "cavra-runtime.sbom.spdx.json",
+        {
+            "spdxVersion": "SPDX-2.3",
+            "dataLicense": "CC0-1.0",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": f"CAVRA Go Runtime {version}",
+            "documentNamespace": f"https://github.com/Huzefaaa2/cavra/releases/{version}/go-runtime/{commit}",
+            "creationInfo": {"created": now, "creators": ["Tool: CAVRA Go release packaging"]},
+            "packages": packages,
+            "relationships": relationships,
+        },
+    )
+
+
+def write_checksums(dist: Path, artifacts: list[Artifact]) -> Path:
+    path = dist / "checksums.txt"
+    lines = [f"{artifact.sha256}  {artifact.relative_path}" for artifact in artifacts]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def sign_artifact(path: Path, dist: Path, private_key_pem: str, *, key_id: str, signer: str) -> dict[str, Any]:
+    try:
+        from cryptography.hazmat.primitives import serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to sign Go release artifacts.") from exc
+
+    pem = private_key_pem.replace("\\n", "\n").encode("utf-8")
+    private_key = serialization.load_pem_private_key(pem, password=None)
+    signature = private_key.sign(path.read_bytes())
+    public_key = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    payload = {
+        "schema_version": "cavra.go-release.signature.v1",
+        "subject": path.relative_to(dist).as_posix(),
+        "subject_sha256": sha256_file(path),
+        "algorithm": "Ed25519",
+        "key_id": key_id,
+        "signer": signer,
+        "public_key_sha256": hashlib.sha256(public_key).hexdigest(),
+        "public_key_pem": public_key.decode("utf-8"),
+        "value": base64.b64encode(signature).decode("ascii"),
+    }
+    signature_path = path.with_name(path.name + ".sig.json")
+    write_json(signature_path, payload)
+    return {
+        "subject": payload["subject"],
+        "signature": signature_path.relative_to(dist).as_posix(),
+        "algorithm": payload["algorithm"],
+        "key_id": key_id,
+        "public_key_sha256": payload["public_key_sha256"],
+    }
+
+
+def write_evidence(
+    dist: Path,
+    *,
+    version: str,
+    commit: str,
+    ref: str,
+    event: str,
+    signer: str,
+    dry_run: bool,
+    signing_required: bool,
+    artifacts: list[Artifact],
+    signatures: list[dict[str, Any]],
+) -> Path:
+    payload = {
+        "schema_version": "cavra.go-release.evidence.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "version": version,
+        "commit": commit,
+        "ref": ref,
+        "event": event,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "signer": signer,
+        "dry_run": dry_run,
+        "signing_required": signing_required,
+        "signature_count": len(signatures),
+        "artifacts": [artifact.__dict__ | {"path": artifact.relative_path} for artifact in artifacts],
+        "signatures": signatures,
+        "controls": [
+            "reproducible-go-build-flags",
+            "sha256-checksums",
+            "spdx-sbom",
+            "ed25519-detached-signatures",
+            "release-evidence-manifest",
+        ],
+    }
+    for item in payload["artifacts"]:
+        item.pop("path", None)
+    return write_json(dist / "release-evidence.json", payload)
+
+
+def write_markdown_summary(dist: Path, evidence_path: Path) -> Path:
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    lines = [
+        "# CAVRA Go Runtime Release Evidence",
+        "",
+        f"Version: `{evidence['version']}`",
+        f"Commit: `{evidence['commit']}`",
+        f"Ref: `{evidence['ref']}`",
+        f"Dry run: `{evidence['dry_run']}`",
+        f"Signature count: `{evidence['signature_count']}`",
+        "",
+        "## Artifacts",
+        "",
+    ]
+    for artifact in evidence["artifacts"]:
+        lines.append(f"- `{artifact['relative_path']}` `{artifact['sha256']}`")
+    lines.extend(["", "## Signatures", ""])
+    if evidence["signatures"]:
+        for signature in evidence["signatures"]:
+            lines.append(f"- `{signature['subject']}` -> `{signature['signature']}`")
+    else:
+        lines.append("- No signing key was provided for this dry-run package.")
+    path = dist / "release-evidence.md"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def package_release(args: argparse.Namespace) -> None:
+    dist = Path(args.dist).resolve()
+    dist.mkdir(parents=True, exist_ok=True)
+    modules = load_go_modules(dist / "go-modules.json")
+    write_spdx_sbom(dist, args.version, args.commit, modules)
+    artifacts = collect_artifacts(dist)
+    checksums = write_checksums(dist, artifacts)
+    artifacts.append(_artifact(dist, checksums, "checksums"))
+
+    signing_key = os.environ.get(SIGNING_ENV, "")
+    if args.signing_required and not signing_key:
+        raise SystemExit(f"{SIGNING_ENV} is required for a signed Go release package")
+    signatures: list[dict[str, Any]] = []
+    if signing_key:
+        for artifact in artifacts:
+            signatures.append(sign_artifact(artifact.path, dist, signing_key, key_id=args.key_id, signer=args.signer))
+    else:
+        write_json(
+            dist / "unsigned-dry-run-notice.json",
+            {
+                "schema_version": "cavra.go-release.unsigned-notice.v1",
+                "reason": f"{SIGNING_ENV} was not provided",
+                "dry_run": args.dry_run,
+            },
+        )
+
+    evidence_path = write_evidence(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        ref=args.ref,
+        event=args.event,
+        signer=args.signer,
+        dry_run=args.dry_run,
+        signing_required=args.signing_required,
+        artifacts=artifacts,
+        signatures=signatures,
+    )
+    if signing_key:
+        sign_artifact(evidence_path, dist, signing_key, key_id=args.key_id, signer=args.signer)
+    write_markdown_summary(dist, evidence_path)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Package CAVRA Go runtime release evidence.")
+    parser.add_argument("--dist", required=True)
+    parser.add_argument("--version", required=True)
+    parser.add_argument("--commit", required=True)
+    parser.add_argument("--ref", required=True)
+    parser.add_argument("--event", required=True)
+    parser.add_argument("--signer", default="github-actions")
+    parser.add_argument("--key-id", default="cavra-go-release")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--signing-required", action="store_true")
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    package_release(parse_args())
