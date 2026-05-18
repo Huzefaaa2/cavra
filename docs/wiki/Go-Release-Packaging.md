@@ -51,4 +51,4 @@ Signed Go release packaging gives regulated teams an auditable path from source 
 
 ## Next
 
-Add public telemetry-free run counters from persisted backend metadata and add keyless release attestations with GitHub OIDC.
+Add keyless release attestations with GitHub OIDC and air-gapped installer bundle verification.

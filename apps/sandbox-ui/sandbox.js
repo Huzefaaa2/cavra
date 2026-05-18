@@ -404,6 +404,17 @@ function escapeHtml(value) {
   })[char]);
 }
 
+function formatMetricNumber(value) {
+  return Number(value || 0).toLocaleString("en-US");
+}
+
+function formatMetricDate(value) {
+  if (!value) return "None yet";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value).slice(0, 16);
+  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 function apiUrl(path, params = {}) {
   const configuredBase = window.CAVRA_API_BASE || consoleConfig?.api_base_url || "";
   const base = configuredBase || window.location.origin;
@@ -472,7 +483,30 @@ async function runScenario() {
     status.className = `status-line ${run.source === "cavra-api" ? "ok" : "warn"}`;
   }
   if (run.source === "cavra-api") {
-    await Promise.all([refreshEvidence(), refreshActivity()]);
+    await Promise.all([refreshDemoMetrics(), refreshEvidence(), refreshActivity()]);
+  }
+}
+
+async function loadDemoMetrics() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(consoleConfig?.endpoints?.sandbox_metrics || "/api/sandbox/metrics"));
+    if (!response.ok) throw new Error("sandbox metrics unavailable");
+    return await response.json();
+  } catch {
+    return {
+      schema_version: "cavra.sandbox.metrics.v1",
+      product: "CAVRA",
+      source: "local-sample",
+      tracking: "none",
+      telemetry: "disabled",
+      scenario: "before-the-agent-acts",
+      total_runs: 0,
+      total_decisions: 0,
+      blocked_actions: 0,
+      approval_required_actions: 0,
+      latest_run_at: null
+    };
   }
 }
 
@@ -1195,6 +1229,34 @@ function renderReleaseNotes() {
   `).join("");
 }
 
+function renderDemoMetrics(metrics) {
+  const panel = document.querySelector("#demoMetrics");
+  if (!panel) return;
+  const items = [
+    ["Runs", metrics.total_runs],
+    ["Decisions", metrics.total_decisions],
+    ["Blocked", metrics.blocked_actions],
+    ["Approvals", metrics.approval_required_actions]
+  ];
+  const sourceLabel = metrics.source === "activity_store" ? "Persisted backend metadata" : "Local sample mode";
+  panel.innerHTML = `
+    <div class="metric-source">
+      <strong>${escapeHtml(sourceLabel)}</strong>
+      <span>${escapeHtml(metrics.telemetry === "disabled" ? "Telemetry-free" : "Telemetry status unknown")}</span>
+    </div>
+    ${items.map(([label, value]) => `
+      <div class="metric-card">
+        <span>${escapeHtml(label)}</span>
+        <strong>${formatMetricNumber(value)}</strong>
+      </div>
+    `).join("")}
+    <div class="metric-card metric-wide">
+      <span>Latest</span>
+      <strong>${escapeHtml(formatMetricDate(metrics.latest_run_at))}</strong>
+    </div>
+  `;
+}
+
 function renderActivityRows(sessions, decisions) {
   const sessionRows = document.querySelector("#sessionRows");
   const decisionRows = document.querySelector("#decisionRows");
@@ -1595,6 +1657,10 @@ async function refreshActivity() {
   renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
 }
 
+async function refreshDemoMetrics() {
+  renderDemoMetrics(await loadDemoMetrics());
+}
+
 async function refreshInventory() {
   const [repositories, rollouts] = await Promise.all([loadRepositories(), loadPolicyRollouts()]);
   renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
@@ -1819,6 +1885,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 });
 refreshEvidence();
 renderReleaseNotes();
+refreshDemoMetrics();
 refreshActivity();
 refreshInventory();
 refreshPolicyCatalog();

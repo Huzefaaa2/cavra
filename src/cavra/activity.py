@@ -140,6 +140,18 @@ class ActivityStore:
         items = sorted(items, key=lambda item: (str(item.get("updated_at", "")), str(item.get("session_id", ""))), reverse=True)
         return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
 
+    def summarize_sessions(
+        self,
+        *,
+        agent_id: str | None = None,
+        repository: str | None = None,
+        policy_pack: str | None = None,
+        state: str | None = None,
+    ) -> dict[str, Any]:
+        items = self._load()["sessions"]
+        items = _filter_records(items, agent_id=agent_id, repository=repository, policy_pack=policy_pack, state=state)
+        return _summarize_session_records(items)
+
     def upsert_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         data = self._load()
         session_id = payload.get("session_id")
@@ -357,6 +369,40 @@ class SQLiteActivityStore:
             ).fetchall()
         return {"items": [json.loads(row["payload"]) for row in rows], "total": total, "limit": limit, "offset": offset}
 
+    def summarize_sessions(
+        self,
+        *,
+        agent_id: str | None = None,
+        repository: str | None = None,
+        policy_pack: str | None = None,
+        state: str | None = None,
+    ) -> dict[str, Any]:
+        params = _optional_filter_params(agent_id, repository, policy_pack, state)
+        with self._connect() as connection:
+            row = connection.execute(
+                """
+                SELECT
+                  COUNT(*) AS total_sessions,
+                  COALESCE(SUM(decision_count), 0) AS total_decisions,
+                  COALESCE(SUM(blocked_count), 0) AS total_blocked,
+                  COALESCE(SUM(approval_required_count), 0) AS total_approval_required,
+                  MAX(updated_at) AS latest_session_at
+                FROM activity_sessions
+                WHERE (? IS NULL OR agent_id = ?)
+                  AND (? IS NULL OR repository = ?)
+                  AND (? IS NULL OR policy_pack = ?)
+                  AND (? IS NULL OR state = ?)
+                """,
+                params,
+            ).fetchone()
+        return {
+            "total_sessions": int(row["total_sessions"] or 0),
+            "total_decisions": int(row["total_decisions"] or 0),
+            "total_blocked": int(row["total_blocked"] or 0),
+            "total_approval_required": int(row["total_approval_required"] or 0),
+            "latest_session_at": row["latest_session_at"],
+        }
+
     def upsert_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         session_id = payload.get("session_id")
         if not session_id:
@@ -456,6 +502,16 @@ def _filter_records(items: list[dict[str, Any]], **filters: str | None) -> list[
         if value:
             filtered = [item for item in filtered if item.get(key) == value]
     return filtered
+
+
+def _summarize_session_records(items: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "total_sessions": len(items),
+        "total_decisions": sum(int(item.get("decision_count", 0)) for item in items),
+        "total_blocked": sum(int(item.get("blocked_count", 0)) for item in items),
+        "total_approval_required": sum(int(item.get("approval_required_count", 0)) for item in items),
+        "latest_session_at": max((str(item.get("updated_at", "")) for item in items if item.get("updated_at")), default=None),
+    }
 
 
 def _session_payload_from_decision(decision: dict[str, Any]) -> dict[str, Any]:

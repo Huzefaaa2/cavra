@@ -17,6 +17,12 @@ nav button { background: rgba(16,19,22,.8); color: #eef3f6; }
 h1 { font-size: clamp(48px, 8vw, 116px); line-height: .95; margin: 0; max-width: 960px; }
 .hero p { max-width: 760px; font-size: 20px; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+.hero-metrics { display: grid; grid-template-columns: minmax(190px, 1.15fr) repeat(4, minmax(92px, .55fr)) minmax(112px, .65fr); gap: 10px; max-width: 960px; margin-top: 18px; }
+.metric-source, .metric-card { border: 1px solid rgba(118, 214, 178, .34); border-radius: 8px; background: rgba(15, 20, 24, .76); padding: 12px; box-sizing: border-box; min-height: 76px; backdrop-filter: blur(8px); }
+.metric-source { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.metric-source strong, .metric-card strong { display: block; color: #eef3f6; overflow-wrap: anywhere; }
+.metric-source span, .metric-card span { display: block; color: #aebbc3; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.metric-card strong { margin-top: 6px; font-size: 28px; line-height: 1; }
 main { padding: 24px clamp(18px, 4vw, 56px) 48px; }
 .controls { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
 select, input { margin-left: 8px; padding: 8px; border-radius: 6px; border: 1px solid #3d4c54; background: #0f1418; color: #eef3f6; }
@@ -80,4 +86,4 @@ tr:last-child td { border-bottom: 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }
-@media (max-width: 900px) { .grid, .split, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 900px) { .grid, .split, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }

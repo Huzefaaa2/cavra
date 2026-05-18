@@ -64,7 +64,7 @@ Status: deployment workflow started.
 
 Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, smoke-tests the public page and core assets after deployment, and can point the public page at a deployed CAVRA API for backend-driven scenario runs. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
 
-Next: add public telemetry-free run counters from persisted backend metadata and keyless OIDC attestations for release provenance.
+Next: add keyless OIDC attestations for release provenance and air-gapped installer bundle verification.
 
 ## Phase 10: Production Release
 

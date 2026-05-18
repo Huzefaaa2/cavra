@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import quote
 
-from cavra.activity import ActivityStore, SQLiteActivityStore
+from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -187,6 +187,7 @@ def create_app():
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
                 "sandbox_scenarios": "/api/sandbox/scenarios",
+                "sandbox_metrics": "/api/sandbox/metrics",
                 "sandbox_run": "/api/sandbox/run",
                 "sandbox_run_item": "/api/sandbox/runs/{run_id}",
                 "sandbox_run_events": "/api/sandbox/runs/{run_id}/events",
@@ -876,6 +877,25 @@ def create_app():
     def sandbox_scenarios() -> list[dict]:
         return available_sandbox_scenarios()
 
+    @app.get("/api/sandbox/metrics")
+    def sandbox_metrics() -> dict:
+        summary = activity_store.summarize_sessions(repository="sandbox/before-the-agent-acts", agent_id="sandbox-agent")
+        return {
+            "schema_version": "cavra.sandbox.metrics.v1",
+            "product": "CAVRA",
+            "source": "activity_store",
+            "tracking": "none",
+            "telemetry": "disabled",
+            "scenario": "before-the-agent-acts",
+            "repository": "sandbox/before-the-agent-acts",
+            "total_runs": summary["total_sessions"],
+            "total_decisions": summary["total_decisions"],
+            "blocked_actions": summary["total_blocked"],
+            "approval_required_actions": summary["total_approval_required"],
+            "latest_run_at": summary["latest_session_at"],
+            "generated_at": utc_now(),
+        }
+
     @app.post("/api/sandbox/run")
     def sandbox_run(payload: Optional[dict] = None) -> dict:
         try:
@@ -883,16 +903,7 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         runs[run["run_id"]] = run
-        evidence_store.upsert(sandbox_evidence_metadata(run))
-        activity_store.upsert_session(sandbox_activity_session(run))
-        for event in run["events"]:
-            activity_store.upsert_decision(
-                {
-                    **event,
-                    "evidence_refs": event.get("evidence_refs") or event.get("evidence_generated", []),
-                    "requested_operation": event.get("action_type"),
-                }
-            )
+        _persist_sandbox_run(run, evidence_store, activity_store)
         return run
 
     @app.get("/api/sandbox/runs/{run_id}")
@@ -920,6 +931,7 @@ def create_app():
         previous = _sandbox_run_or_404(runs, run_id)
         run = create_sandbox_run(previous["policy_mode"], previous["persona"], previous["scenario"], previous["policy_pack"])
         runs[run["run_id"]] = run
+        _persist_sandbox_run(run, evidence_store, activity_store)
         return run
 
     return app
@@ -934,6 +946,23 @@ def _sandbox_run_or_404(runs: dict[str, dict], run_id: str) -> dict:
     if run is None:
         raise HTTPException(status_code=404, detail="sandbox run not found")
     return run
+
+
+def _persist_sandbox_run(
+    run: dict,
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+    activity_store: ActivityStore | SQLiteActivityStore,
+) -> None:
+    evidence_store.upsert(sandbox_evidence_metadata(run))
+    activity_store.upsert_session(sandbox_activity_session(run))
+    for event in run["events"]:
+        activity_store.upsert_decision(
+            {
+                **event,
+                "evidence_refs": event.get("evidence_refs") or event.get("evidence_generated", []),
+                "requested_operation": event.get("action_type"),
+            }
+        )
 
 
 def _filter_json_evidence(
