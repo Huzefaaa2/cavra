@@ -15,7 +15,7 @@ def test_live_github_governance_workflow_is_required_check_candidate() -> None:
     assert workflow["jobs"]["cavra"]["name"] == "cavra-required-check"
     assert "cavra policy validate" in text
     assert "ruff check src/ tests/" in text
-    assert "actions/setup-go@v5" in text
+    assert "actions/setup-go@v6" in text
     assert "go test ./..." in text
     assert "pytest -q" in text
     assert "cavra evidence verify .cavra/evidence/required-check" in text
@@ -30,7 +30,7 @@ def test_go_runtime_ci_job_runs_with_setup_go() -> None:
     text = Path(workflow_path).read_text(encoding="utf-8")
 
     assert workflow["jobs"]["go-runtime"]["name"] == "go-runtime-parity"
-    assert "actions/setup-go@v5" in text
+    assert "actions/setup-go@v6" in text
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "go test ./..." in text
     assert "working-directory: go/cavra-runtime" in text
@@ -48,9 +48,25 @@ def test_sandbox_pages_workflow_builds_static_artifact() -> None:
     assert "assets/brand/**" in text
     assert "node --check apps/sandbox-ui/sandbox.js" in text
     assert "cp -R assets/brand public/assets/" in text
-    assert "actions/configure-pages@v5" in text
+    assert "actions/configure-pages@v6" in text
     assert "actions/upload-pages-artifact@v3" in text
     assert "actions/deploy-pages@v4" in text
+
+
+def test_go_release_workflow_packages_signed_release_artifacts() -> None:
+    workflow_path = ".github/workflows/go-release.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    assert workflow["jobs"]["package"]["name"] == "package-go-runtime"
+    assert "actions/setup-go@v6" in text
+    assert "go-version-file: go/cavra-runtime/go.mod" in text
+    assert "GOOS=" in text
+    assert "go list -m -json all" in text
+    assert "scripts/package_go_release.py" in text
+    assert "CAVRA_GO_RELEASE_SIGNING_KEY" in text
+    assert "--signing-required" in text
+    assert "cavra-go-runtime-release-package" in text
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:

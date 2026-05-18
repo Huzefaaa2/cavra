@@ -12,6 +12,7 @@ Python remains the authoritative CAVRA runtime. The Go enforcement plane now has
 - Trust-registry loader and CLI `--registry` flag for registry-backed MCP decisions.
 - Runtime evidence metadata with decision IDs, correlation IDs, timestamps, and `evidence://...` references.
 - Compiled-policy parity across every bundled policy pack through Python-to-Go CLI validation.
+- Go release package workflow with checksums, SPDX SBOM metadata, detached signatures, and release evidence.
 - Go unit tests for file, command, Git, and MCP decisions.
 - Python parity tests against the same fixture.
 - `go-runtime-parity` GitHub Actions job.
@@ -45,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Package signed Go binaries with SBOM and release evidence, then continue broadening approval-route parity as new policy packs are added.
+Attach signed Go release packages directly to GitHub Releases, add verifier CLI support, and continue broadening approval-route parity as new policy packs are added.
