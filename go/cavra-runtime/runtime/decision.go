@@ -1,7 +1,9 @@
 package runtime
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -29,7 +31,8 @@ type Decision struct {
 	ApproverGroup      string `json:"approver_group,omitempty"`
 }
 
-type policy struct {
+type Policy struct {
+	id                   string
 	blockRead            []string
 	blockWrite           []string
 	requireApprovalWrite []string
@@ -40,12 +43,43 @@ type policy struct {
 	mcpBlockUnknown      bool
 }
 
+type compiledPolicy struct {
+	Metadata struct {
+		ID string `json:"id"`
+	} `json:"metadata"`
+	Filesystem struct {
+		BlockRead            []string `json:"block_read"`
+		BlockWrite           []string `json:"block_write"`
+		RequireApprovalWrite []string `json:"require_approval_write"`
+	} `json:"filesystem"`
+	Commands struct {
+		Block []string `json:"block"`
+		Allow []string `json:"allow"`
+	} `json:"commands"`
+	MCP struct {
+		AllowedServers      []string `json:"allowed_servers"`
+		BlockedServers      []string `json:"blocked_servers"`
+		BlockUnknownServers *bool    `json:"block_unknown_servers"`
+	} `json:"mcp"`
+}
+
 func Evaluate(request Request) Decision {
 	pack := request.PolicyPack
 	if pack == "" {
 		pack = "cavra-ai-agent-baseline"
 	}
 	p := builtInPolicy(pack)
+	return EvaluateWithPolicy(request, p)
+}
+
+func EvaluateWithPolicy(request Request, p Policy) Decision {
+	pack := request.PolicyPack
+	if pack == "" {
+		pack = p.id
+	}
+	if pack == "" {
+		pack = "cavra-ai-agent-baseline"
+	}
 	switch request.ActionType {
 	case "read_file":
 		return evaluateFile(request.Target, "read", pack, p)
@@ -62,7 +96,33 @@ func Evaluate(request Request) Decision {
 	}
 }
 
-func evaluateFile(target string, mode string, pack string, p policy) Decision {
+func LoadCompiledPolicy(path string) (Policy, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return Policy{}, err
+	}
+	var compiled compiledPolicy
+	if err := json.Unmarshal(data, &compiled); err != nil {
+		return Policy{}, err
+	}
+	p := Policy{
+		id:                   compiled.Metadata.ID,
+		blockRead:            stringsList(compiled.Filesystem.BlockRead),
+		blockWrite:           stringsList(compiled.Filesystem.BlockWrite),
+		requireApprovalWrite: stringsList(compiled.Filesystem.RequireApprovalWrite),
+		commandBlock:         stringsList(compiled.Commands.Block),
+		commandAllow:         stringsList(compiled.Commands.Allow),
+		mcpAllowedServers:    stringsList(compiled.MCP.AllowedServers),
+		mcpBlockedServers:    stringsList(compiled.MCP.BlockedServers),
+		mcpBlockUnknown:      true,
+	}
+	if compiled.MCP.BlockUnknownServers != nil {
+		p.mcpBlockUnknown = *compiled.MCP.BlockUnknownServers
+	}
+	return p, nil
+}
+
+func evaluateFile(target string, mode string, pack string, p Policy) Decision {
 	patterns := p.blockRead
 	if mode == "write" {
 		patterns = p.blockWrite
@@ -82,7 +142,7 @@ func evaluateFile(target string, mode string, pack string, p policy) Decision {
 	return baseDecision("allow", "No sensitive path policy matched.", mode+"_file", target, mode, pack, "filesystem."+mode+".allow", "low", "")
 }
 
-func evaluateCommand(command string, pack string, p policy) Decision {
+func evaluateCommand(command string, pack string, p Policy) Decision {
 	cleaned := strings.TrimSpace(command)
 	for _, pattern := range p.commandBlock {
 		if matchPattern(cleaned, pattern) {
@@ -112,7 +172,7 @@ func evaluateGit(operation string, target string, pack string) Decision {
 	return baseDecision("allow", "Git operation is allowed by policy.", "git_operation", target, requested, pack, "git.allow", "low", "")
 }
 
-func evaluateMCP(request Request, pack string, p policy) Decision {
+func evaluateMCP(request Request, pack string, p Policy) Decision {
 	target := request.Server + ":" + request.Tool
 	requested := request.Capability
 	if requested == "" {
@@ -156,17 +216,30 @@ func contains(items []string, value string) bool {
 	return false
 }
 
-func builtInPolicy(pack string) policy {
+func stringsList(items []string) []string {
+	result := make([]string, 0, len(items))
+	for _, item := range items {
+		cleaned := strings.TrimSpace(item)
+		if cleaned != "" {
+			result = append(result, cleaned)
+		}
+	}
+	return result
+}
+
+func builtInPolicy(pack string) Policy {
 	switch pack {
 	case "cavra-banking-baseline":
-		return policy{
+		return Policy{
+			id:                   pack,
 			blockRead:            []string{".env", "**/secrets.*", "**/*.pem", "**/kubeconfig", "**/terraform.tfstate", "**/terraform.tfvars"},
 			requireApprovalWrite: []string{"iam/**", "**/iam/**", "**/security/**", "**/policies/**"},
 			commandBlock:         []string{"terraform apply*", "kubectl delete*", "az role assignment create*", "aws iam create-access-key*", "gcloud projects add-iam-policy-binding*", "git push origin main"},
 			commandAllow:         []string{"terraform fmt*", "terraform validate*", "terraform plan*", "pytest*", "npm test*"},
 		}
 	case "cavra-mcp-enterprise":
-		return policy{
+		return Policy{
+			id:                   pack,
 			blockRead:            []string{".env", "**/secrets.*", "**/*.pem", "**/kubeconfig", "**/terraform.tfstate"},
 			requireApprovalWrite: []string{"**/iam/**", "**/security/**", "**/policies/**"},
 			commandBlock:         []string{"terraform apply*", "kubectl delete*", "aws iam*", "az role*"},
@@ -176,7 +249,8 @@ func builtInPolicy(pack string) policy {
 			mcpBlockUnknown:      true,
 		}
 	default:
-		return policy{
+		return Policy{
+			id:                   pack,
 			blockRead:            []string{".env", "**/secrets.*", "**/*.pem", "**/*.pfx", "**/id_rsa", "**/kubeconfig", "**/terraform.tfstate", "**/terraform.tfvars"},
 			blockWrite:           []string{".github/workflows/**", "**/main.tf", "**/providers.tf", "**/backend.tf"},
 			requireApprovalWrite: []string{"iam/**", "security/**", "policies/**"},

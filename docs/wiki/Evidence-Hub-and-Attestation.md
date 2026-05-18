@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Compiled-policy loading for the Go enforcement plane.
+- Generated Go enforcement contracts.
 - Public sandbox URL validation after deployment from `main`.

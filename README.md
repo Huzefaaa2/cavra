@@ -103,7 +103,7 @@ OIDC/RBAC deployment references for Microsoft Entra ID and Okta are documented i
 
 Policy authoring and rollout workflows are exposed through `/policy-pack-catalog`, `/policy-packs/draft`, `/policy-rollouts/change-plan`, and `/policy-rollouts/apply-change`. Production deployment validation is exposed through `/deployment/production-readiness`.
 
-The Go enforcement-plane scaffold lives under `go/cavra-runtime/` and currently mirrors critical Python runtime decisions for file, command, Git, and MCP actions through a shared parity fixture. The hosted sandbox deployment workflow lives at `.github/workflows/deploy-sandbox.yml` and publishes the static evidence console from `main` through GitHub Pages after JavaScript validation.
+The Go enforcement-plane scaffold lives under `go/cavra-runtime/` and currently mirrors critical Python runtime decisions for file, command, Git, and MCP actions through a shared parity fixture. It can also load normalized compiled policy JSON from `cavra policy compile` through the Go CLI `--policy` flag. The hosted sandbox deployment workflow lives at `.github/workflows/deploy-sandbox.yml` and publishes the static evidence console from `main` through GitHub Pages after JavaScript validation.
 
 ## Policy packs
 
@@ -251,7 +251,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Expand the Go enforcement plane from scaffold to compiled-policy loading and daemon transport.
+- Expand the Go enforcement plane from compiled-policy loading to generated contracts and daemon transport.
 - After merge to `main`, deploy the sandbox workflow, verify the public URL, and record it in README/wiki.
 
 ## User stories and enterprise value

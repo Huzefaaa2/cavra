@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.
+The next recommended work is generated Go enforcement contracts and public sandbox URL validation after deployment from `main`.

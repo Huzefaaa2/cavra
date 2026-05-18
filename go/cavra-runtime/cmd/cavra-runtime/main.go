@@ -12,6 +12,7 @@ import (
 
 func main() {
 	inputPath := flag.String("input", "-", "JSON request file, or - for stdin")
+	policyPath := flag.String("policy", "", "compiled policy JSON file from `cavra policy compile`; built-in scaffold policy is used when omitted")
 	flag.Parse()
 
 	var reader io.Reader = os.Stdin
@@ -28,7 +29,16 @@ func main() {
 	if err := json.NewDecoder(reader).Decode(&request); err != nil {
 		fail(err)
 	}
-	decision := cavraruntime.Evaluate(request)
+	var decision cavraruntime.Decision
+	if *policyPath != "" {
+		policy, err := cavraruntime.LoadCompiledPolicy(*policyPath)
+		if err != nil {
+			fail(err)
+		}
+		decision = cavraruntime.EvaluateWithPolicy(request, policy)
+	} else {
+		decision = cavraruntime.Evaluate(request)
+	}
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(decision); err != nil {

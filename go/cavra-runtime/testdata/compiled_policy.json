@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "id": "cavra-go-compiled-fixture",
+    "title": "CAVRA Go Compiled Fixture",
+    "description": "Compiled policy fixture for Go runtime loading tests.",
+    "version": "2026.05"
+  },
+  "filesystem": {
+    "block_read": [
+      "**/*.secret"
+    ],
+    "block_write": [
+      "protected/**"
+    ],
+    "require_approval_write": [
+      "iam/**"
+    ]
+  },
+  "commands": {
+    "block": [
+      "dangerous mutate*"
+    ],
+    "allow": [
+      "custom scan*"
+    ]
+  },
+  "mcp": {
+    "allowed_servers": [
+      "github-enterprise"
+    ],
+    "blocked_servers": [
+      "personal-drive-mcp"
+    ],
+    "block_unknown_servers": true
+  }
+}

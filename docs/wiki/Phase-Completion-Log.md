@@ -166,6 +166,8 @@ Completed:
 - Go module under `go/cavra-runtime/`.
 - Runtime evaluator for critical file, command, Git, and MCP decisions.
 - JSON request/decision CLI entrypoint.
+- Compiled-policy JSON loading from `cavra policy compile`.
+- Go CLI `--policy` flag for compiled policy evaluation.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - Go unit tests that load the shared parity fixture.
 - Python parity tests that validate the same fixture against authoritative `RuntimeGuard`.
@@ -176,7 +178,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: add compiled-policy loading to the Go runtime, generate Go contracts from the enforcement protobuf, and expose a local daemon interface.
+Recommended next issue: generate Go contracts from the enforcement protobuf and expose a local daemon interface.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -208,7 +210,7 @@ Completed:
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 - Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: expand Go compiled-policy loading, validate the public sandbox URL after merge, and add post-deploy smoke checks.
+Recommended next issue: generate Go enforcement contracts, validate the public sandbox URL after merge, and add post-deploy smoke checks.
 
 ## Transparent Agent Methodology Enablement
 

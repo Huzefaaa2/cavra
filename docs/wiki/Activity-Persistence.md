@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Compiled-policy loading for the Go enforcement plane.
+- Generated Go enforcement contracts.
 - Public sandbox URL validation after deployment from `main`.

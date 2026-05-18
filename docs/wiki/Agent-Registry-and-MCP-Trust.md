@@ -58,5 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Compiled-policy loading for the Go enforcement plane.
+- Generated Go enforcement contracts.
 - Public sandbox URL validation after deployment from `main`.

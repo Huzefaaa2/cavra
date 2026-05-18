@@ -7,6 +7,8 @@ Python remains the authoritative CAVRA runtime. The Go enforcement plane now has
 - Go module and runtime evaluator.
 - JSON request to JSON decision CLI entrypoint.
 - Shared critical parity fixture.
+- Compiled-policy loader for normalized JSON from `cavra policy compile`.
+- CLI `--policy` flag for evaluating against compiled policy JSON.
 - Go unit tests for file, command, Git, and MCP decisions.
 - Python parity tests against the same fixture.
 - `go-runtime-parity` GitHub Actions job.
@@ -18,6 +20,12 @@ Python remains the authoritative CAVRA runtime. The Go enforcement plane now has
 python3 -m pytest tests/test_go_runtime_parity.py -q
 cd go/cavra-runtime
 go test ./...
+```
+
+```bash
+PYTHONPATH=src python3 -m cavra.cli policy compile --policy-pack cavra-ai-agent-baseline > /tmp/cavra-compiled-policy.json
+echo '{"action_type":"read_file","target":".env"}' \
+  | go run ./cmd/cavra-runtime --policy /tmp/cavra-compiled-policy.json
 ```
 
 ## User Stories
@@ -32,4 +40,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Load compiled policy JSON, generate protobuf-backed contracts, add a local daemon interface, expand golden cases, and package signed binaries.
+Generate protobuf-backed contracts, add a local daemon interface, expand golden cases, and package signed binaries.

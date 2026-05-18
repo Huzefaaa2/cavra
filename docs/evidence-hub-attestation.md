@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Expand Go enforcement from parity scaffold to compiled-policy loading.
+- Expand Go enforcement from compiled-policy loading to generated contracts.
 - Validate the hosted sandbox URL after deployment from `main`.

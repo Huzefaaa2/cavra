@@ -52,4 +52,4 @@ OIDC/RBAC deployment references move CAVRA from local approval claims to product
 
 ## Next
 
-Compiled-policy loading for the Go enforcement plane and public sandbox URL validation after deployment from `main`.
+Generated Go enforcement contracts and public sandbox URL validation after deployment from `main`.

@@ -227,6 +227,7 @@ Goal: add low-latency local and CI enforcement without replacing the Python mana
 
 Implement:
 - Go runtime service for file, command, Git, and MCP decisions. Scaffold delivered.
+- Compiled-policy JSON loading from `cavra policy compile`. Delivered for mirrored filesystem, command, and MCP sections.
 - Parity tests between Python and Go decisions. Critical fixture scaffold delivered.
 - CI runner integration mode. Initial `go-runtime-parity` and required-check execution delivered.
 - Generated protobuf clients.
@@ -337,12 +338,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: expand the Go enforcement plane from scaffold to compiled-policy loading and daemon interface, then validate the public sandbox URL after the workflow lands on `main`.
+Next recommended implementation phase: expand the Go enforcement plane from compiled-policy loading to generated enforcement contracts and daemon interface, then validate the public sandbox URL after the workflow lands on `main`.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Teach `go/cavra-runtime` to load compiled policy JSON from `cavra policy compile`.
 - Generate Go request and response types from the enforcement protobuf contract.
 - Add a local Unix-socket or gRPC daemon interface.
 - After merge to `main`, run the sandbox deployment workflow and record the public URL in README and wiki.

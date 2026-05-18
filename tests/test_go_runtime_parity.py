@@ -42,3 +42,39 @@ def test_go_parity_cases_match_python_runtime_expectations() -> None:
 @pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain is not installed")
 def test_go_runtime_scaffold_tests_pass() -> None:
     subprocess.run(["go", "test", "./..."], cwd=Path("go/cavra-runtime"), check=True)
+
+
+@pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain is not installed")
+def test_go_runtime_cli_accepts_compiled_policy_fixture() -> None:
+    request = {
+        "action_type": "read_file",
+        "target": "config/prod.secret",
+    }
+    completed = subprocess.run(
+        [
+            "go",
+            "run",
+            "./cmd/cavra-runtime",
+            "--policy",
+            "testdata/compiled_policy.json",
+        ],
+        cwd=Path("go/cavra-runtime"),
+        input=json.dumps(request),
+        text=True,
+        check=True,
+        capture_output=True,
+    )
+    decision = json.loads(completed.stdout)
+
+    assert decision["decision"] == "block"
+    assert decision["rule_id"] == "filesystem.read.block"
+    assert decision["policy_pack"] == "cavra-go-compiled-fixture"
+
+
+def test_go_compiled_policy_fixture_shape_is_supported() -> None:
+    fixture = json.loads(Path("go/cavra-runtime/testdata/compiled_policy.json").read_text(encoding="utf-8"))
+
+    assert fixture["metadata"]["id"] == "cavra-go-compiled-fixture"
+    assert fixture["filesystem"]["block_read"] == ["**/*.secret"]
+    assert fixture["commands"]["allow"] == ["custom scan*"]
+    assert fixture["mcp"]["block_unknown_servers"] is True
