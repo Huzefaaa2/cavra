@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add Go daemon lifecycle management and evidence hooks.
+- Add Go daemon evidence hooks.
 - Validate the hosted sandbox URL after deployment from `main`.

@@ -172,7 +172,9 @@ Completed:
 - Contract conversion helpers for runtime requests and decisions.
 - Unix-socket daemon transport with one JSON `EvaluateRequest` per connection.
 - Reusable Go daemon client helper and CLI `--daemon` mode.
+- Daemon lifecycle `start/status/stop` with PID-file tracking and socket readiness probing.
 - Compiled-policy-backed daemon evaluator tests.
+- Lifecycle status tests for PID-file and socket health.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - Go unit tests that load the shared parity fixture.
 - Python parity tests that validate the same fixture against authoritative `RuntimeGuard`.
@@ -183,7 +185,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: add daemon lifecycle management and evidence hooks.
+Recommended next issue: add daemon evidence hooks.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -229,7 +231,7 @@ Completed:
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 - Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: add Go daemon lifecycle management, validate the public sandbox URL after merge, and add post-deploy smoke checks.
+Recommended next issue: add Go daemon evidence hooks, validate the public sandbox URL after merge, and add post-deploy smoke checks.
 
 ## Transparent Agent Methodology Enablement
 

@@ -30,4 +30,4 @@ Generated contracts reduce integration drift between management-plane policy dec
 
 ## Next
 
-Add daemon lifecycle management, evidence hooks, and expanded parity tests across approvals, registry-backed MCP decisions, and evidence references.
+Add daemon evidence hooks and expanded parity tests across approvals, registry-backed MCP decisions, and evidence references.

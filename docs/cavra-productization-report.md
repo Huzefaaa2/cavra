@@ -54,7 +54,7 @@ Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the 
 
 ## Go enforcement-plane status
 
-`go/cavra-runtime/` now contains the first Go enforcement-plane parity scaffold. It includes a Go module, runtime evaluator, command-line entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, shared parity cases, and Go unit tests for critical file, command, Git, and MCP decisions. Python remains authoritative; the scaffold is intentionally bounded until lifecycle management, evidence hooks, and binary release packaging are implemented.
+`go/cavra-runtime/` now contains the first Go enforcement-plane parity scaffold. It includes a Go module, runtime evaluator, command-line entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, shared parity cases, and Go unit tests for critical file, command, Git, and MCP decisions. Python remains authoritative; the scaffold is intentionally bounded until evidence hooks and binary release packaging are implemented.
 
 ## Validation commands run
 
@@ -120,9 +120,9 @@ Phase 3, Evidence Hub and Attestation, is near complete. Added evidence bundle m
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. Added JSON and SQLite approval persistence, API and CLI approval lifecycle, break-glass evidence, repository-specific routing, signed OIDC/JWKS validation, repository RBAC policy files, live approval provider delivery, console approval actions, console break-glass creation, and approval audit detail views.
 
-Next recommended implementation work: add Go daemon lifecycle management and evidence hooks, then validate the public sandbox URL after the deployment workflow lands on `main`. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, immutable evidence storage deployment references, Entra/Okta OIDC-RBAC deployment references, Go parity scaffold, Go compiled-policy loading, Go enforcement contracts, Go daemon transport, Go daemon client helper, hosted sandbox deployment workflow, and CAVRA brand assets are now delivered.
+Next recommended implementation work: add Go daemon evidence hooks, then validate the public sandbox URL after the deployment workflow lands on `main`. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, immutable evidence storage deployment references, Entra/Okta OIDC-RBAC deployment references, Go parity scaffold, Go compiled-policy loading, Go enforcement contracts, Go daemon transport, Go daemon client helper, hosted sandbox deployment workflow, and CAVRA brand assets are now delivered.
 
-Later roadmap backlog: full persistent API storage for every domain, daemon lifecycle supervision, expanded parity tests, public sandbox URL smoke validation, SBOM automation, and signed releases.
+Later roadmap backlog: full persistent API storage for every domain, expanded parity tests, public sandbox URL smoke validation, SBOM automation, and signed releases.
 
 ## Market, partner, and commercialization summary
 

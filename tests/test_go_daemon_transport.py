@@ -8,6 +8,7 @@ def test_go_daemon_transport_docs_reference_socket_contract() -> None:
     assert "go/cavra-runtime/daemon" in doc
     assert "--serve" in doc
     assert "--daemon" in doc
+    assert "--lifecycle" in doc
     assert "Unix-socket" in doc
     assert "EvaluateRequest" in doc
     assert "DecisionResponse" in doc
@@ -20,6 +21,7 @@ def test_go_runtime_readme_references_daemon_mode() -> None:
 
     assert "--serve" in readme
     assert "--daemon" in readme
+    assert "--lifecycle" in readme
     assert "--socket" in readme
     assert "EvaluateRequest" in readme
     assert "DecisionResponse" in readme
@@ -34,3 +36,15 @@ def test_go_daemon_client_helper_is_present() -> None:
     assert "func (client Client) Evaluate" in client
     assert 'flag.Bool("daemon"' in cli
     assert "daemon.NewClient(socket).Evaluate" in cli
+
+
+def test_go_daemon_lifecycle_helper_is_present() -> None:
+    lifecycle = Path("go/cavra-runtime/daemon/lifecycle.go").read_text(encoding="utf-8")
+    cli = Path("go/cavra-runtime/cmd/cavra-runtime/main.go").read_text(encoding="utf-8")
+
+    assert "type LifecycleConfig struct" in lifecycle
+    assert "func StartDaemon" in lifecycle
+    assert "func StopDaemon" in lifecycle
+    assert "func StatusDaemon" in lifecycle
+    assert 'flag.String("lifecycle"' in cli
+    assert "daemon.StartDaemon" in cli

@@ -7,7 +7,10 @@ import (
 	"io"
 	"net"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/Huzefaaa2/cavra/go/cavra-runtime/daemon"
 	enforcementv1 "github.com/Huzefaaa2/cavra/go/cavra-runtime/enforcement/v1"
@@ -19,8 +22,21 @@ func main() {
 	policyPath := flag.String("policy", "", "compiled policy JSON file from `cavra policy compile`; built-in scaffold policy is used when omitted")
 	serve := flag.Bool("serve", false, "serve the generated enforcement contract over a local Unix socket")
 	clientMode := flag.Bool("daemon", false, "send an EvaluateRequest to a running local daemon and print the DecisionResponse")
-	socketPath := flag.String("socket", ".cavra/cavra-runtime.sock", "Unix socket path for --serve or --daemon")
+	lifecycle := flag.String("lifecycle", "", "manage daemon lifecycle: start, stop, or status")
+	socketPath := flag.String("socket", ".cavra/cavra-runtime.sock", "Unix socket path for --serve, --daemon, or --lifecycle")
+	pidPath := flag.String("pid", "", "PID file path for --lifecycle; defaults to <socket>.pid")
+	lifecycleTimeout := flag.Duration("lifecycle-timeout", 5*time.Second, "timeout for daemon lifecycle readiness and shutdown")
 	flag.Parse()
+
+	if *lifecycle != "" {
+		runLifecycle(*lifecycle, daemon.LifecycleConfig{
+			SocketPath:     *socketPath,
+			PIDPath:        *pidPath,
+			PolicyPath:     *policyPath,
+			StartupTimeout: *lifecycleTimeout,
+		})
+		return
+	}
 
 	if *clientMode {
 		runDaemonClient(*socketPath, *inputPath)
@@ -102,6 +118,31 @@ func runDaemonClient(socket string, inputPath string) {
 	}
 }
 
+func runLifecycle(action string, config daemon.LifecycleConfig) {
+	var (
+		status daemon.LifecycleStatus
+		err    error
+	)
+	switch action {
+	case "start":
+		status, err = daemon.StartDaemon(config)
+	case "stop":
+		status, err = daemon.StopDaemon(config)
+	case "status":
+		status, err = daemon.StatusDaemon(config)
+	default:
+		fail(fmt.Errorf("unknown lifecycle action %q; expected start, stop, or status", action))
+	}
+	if err != nil {
+		fail(err)
+	}
+	data, err := status.JSON()
+	if err != nil {
+		fail(err)
+	}
+	fmt.Println(string(data))
+}
+
 func serveUnixSocket(socket string, policy *cavraruntime.Policy) {
 	if err := os.MkdirAll(filepath.Dir(socket), 0o755); err != nil {
 		fail(err)
@@ -113,6 +154,13 @@ func serveUnixSocket(socket string, policy *cavraruntime.Policy) {
 	}
 	defer listener.Close()
 	defer os.Remove(socket)
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(signals)
+	go func() {
+		<-signals
+		_ = listener.Close()
+	}()
 	if err := daemon.Serve(listener, daemon.RuntimeEvaluator(policy)); err != nil {
 		fail(err)
 	}

@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is Go daemon lifecycle management, daemon evidence hooks, and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.

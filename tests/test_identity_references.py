@@ -56,6 +56,6 @@ def test_oidc_rbac_docs_reference_identity_bundles_and_next_work() -> None:
     assert str(OKTA_DIR) in doc
     assert "CAVRA_APPROVAL_OIDC_CONFIG" in doc
     assert "CAVRA_APPROVAL_RBAC_FILE" in doc
-    assert "Go daemon lifecycle management" in doc
+    assert "Go daemon evidence hooks" in doc
     assert str(ENTRA_DIR) in wiki
     assert str(OKTA_DIR) in wiki

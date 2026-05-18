@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is Go daemon lifecycle management, daemon evidence hooks, and public sandbox URL validation after deployment from `main`.
+The next recommended implementation step is Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.

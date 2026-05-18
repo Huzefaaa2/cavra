@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-Go daemon lifecycle management, daemon evidence hooks, and public sandbox URL validation after deployment from `main`.
+Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.
