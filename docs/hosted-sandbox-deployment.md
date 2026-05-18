@@ -39,12 +39,10 @@ https://huzefaaa2.github.io/cavra/
 - As a CISO, I can see CAVRA decisions, evidence, and deployment readiness from a browser.
 - As a developer, I can copy the Claude Code MCP setup command from the same product surface.
 - As a platform evaluator, I can point the public sandbox at a deployed CAVRA API and run backend-generated policy decisions.
-- As a design partner, I can jump from the sandbox to current release notes, release integrity details, and roadmap context.
-- As a product stakeholder, I can see aggregate public demo run counters without adding external analytics.
 
 ## Enterprise Challenge Solved
 
-Security and platform buyers need a short, credible product walkthrough before design-partner workshops. The hosted sandbox makes CAVRA reviewable from a static URL while the same surface can call a deployed API for backend-generated scenario runs, persisted evidence metadata, activity records, telemetry-free public run counters, and release-note context.
+Security and platform buyers need a short, credible product walkthrough before design-partner workshops. The hosted sandbox makes CAVRA reviewable from a static URL while the same surface can call a deployed API for backend-generated scenario runs, persisted evidence metadata, and activity records.
 
 ## Current Limits
 

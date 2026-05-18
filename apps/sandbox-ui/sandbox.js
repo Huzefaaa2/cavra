@@ -483,30 +483,7 @@ async function runScenario() {
     status.className = `status-line ${run.source === "cavra-api" ? "ok" : "warn"}`;
   }
   if (run.source === "cavra-api") {
-    await Promise.all([refreshDemoMetrics(), refreshEvidence(), refreshActivity()]);
-  }
-}
-
-async function loadDemoMetrics() {
-  await loadConsoleConfig();
-  try {
-    const response = await fetch(apiUrl(consoleConfig?.endpoints?.sandbox_metrics || "/api/sandbox/metrics"));
-    if (!response.ok) throw new Error("sandbox metrics unavailable");
-    return await response.json();
-  } catch {
-    return {
-      schema_version: "cavra.sandbox.metrics.v1",
-      product: "CAVRA",
-      source: "local-sample",
-      tracking: "none",
-      telemetry: "disabled",
-      scenario: "before-the-agent-acts",
-      total_runs: 0,
-      total_decisions: 0,
-      blocked_actions: 0,
-      approval_required_actions: 0,
-      latest_run_at: null
-    };
+    await Promise.all([refreshEvidence(), refreshActivity()]);
   }
 }
 

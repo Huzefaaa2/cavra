@@ -76,6 +76,8 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
+1. Add release-note links to the public sandbox for design-partner demos.
+2. Add keyless OIDC attestations for Go release package provenance.
 1. Add air-gapped installer bundle verification.
 2. Add offline trust-root bootstrap guidance.
 3. Continue broadening approval-route parity as new policy packs are added.
