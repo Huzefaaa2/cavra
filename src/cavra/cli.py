@@ -62,6 +62,7 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
+from cavra.release import verify_go_release_package
 from cavra.runtime import RuntimeGuard
 
 console = Console()
@@ -75,6 +76,7 @@ evidence_app = typer.Typer(help="Evidence bundle commands.")
 approval_app = typer.Typer(help="Human approval router commands.")
 registry_app = typer.Typer(help="Agent and MCP trust registry commands.")
 ops_app = typer.Typer(help="Persistent API operations commands.")
+release_app = typer.Typer(help="Release package verification commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -84,6 +86,7 @@ app.add_typer(evidence_app, name="evidence")
 app.add_typer(approval_app, name="approval")
 app.add_typer(registry_app, name="registry")
 app.add_typer(ops_app, name="ops")
+app.add_typer(release_app, name="release")
 
 
 @app.command()
@@ -1192,6 +1195,35 @@ def persistent_api_retention_plan(
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     _print_json(result)
+
+
+@release_app.command("verify-go-package")
+def verify_go_package(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for release artifacts.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable verification output."),
+) -> None:
+    """Verify a CAVRA Go runtime release package."""
+    result = verify_go_release_package(package_dir, require_signatures=require_signatures)
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status}[/] {result.package_dir}")
+        for artifact in result.verified_artifacts:
+            console.print(f"  artifact: {artifact}")
+        for signature in result.verified_signatures:
+            console.print(f"  signature: {signature}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
 
 
 def _print_json(payload: object) -> None:

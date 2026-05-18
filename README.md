@@ -257,14 +257,15 @@ Current phase status:
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
-- Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable Go daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, daemon request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP parity, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, release evidence, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
+- Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable Go daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, daemon request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP parity, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, release evidence, GitHub Release asset attachment, verifier CLI support, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
 - Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
 - Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console; Pages is enabled and post-deploy smoke validation is in progress.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Attach signed Go runtime packages directly to GitHub Releases and add verifier CLI support.
+- Add SLSA provenance for Go runtime release packages.
+- Add a vulnerability disclosure and release advisory workflow.
 - Connect the public sandbox to backend-driven scenario runs.
 
 ## User stories and enterprise value
@@ -309,6 +310,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Go Enforcement Parity](docs/wiki/Go-Enforcement-Parity.md)
 - [Go Enforcement Contracts](docs/wiki/Go-Enforcement-Contracts.md)
 - [Go Daemon Transport](docs/wiki/Go-Daemon-Transport.md)
+- [Go Release Packaging](docs/wiki/Go-Release-Packaging.md)
 - [Hosted Sandbox Deployment](docs/wiki/Hosted-Sandbox-Deployment.md)
 - [Brand Assets](docs/wiki/Brand-Assets.md)
 
@@ -321,3 +323,10 @@ Contributions should preserve CAVRA’s pre-action enforcement model, open evide
 ## License
 
 This repository is licensed under BUSL-1.1. See `LICENSE`.
+
+The current BUSL parameters are:
+
+- Licensor: Huzefa Husain.
+- Additional Use Grant: None.
+- Change Date: 2030-05-18.
+- Change License: Apache License, Version 2.0.
