@@ -1205,10 +1205,19 @@ def verify_go_package(
         "--require-signatures/--allow-unsigned",
         help="Require detached Ed25519 signatures for release artifacts.",
     ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for release artifacts.",
+    ),
     json_output: bool = typer.Option(False, "--json", help="Print machine-readable verification output."),
 ) -> None:
     """Verify a CAVRA Go runtime release package."""
-    result = verify_go_release_package(package_dir, require_signatures=require_signatures)
+    result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
     if json_output:
         _print_json(result.to_dict())
     else:
@@ -1216,6 +1225,8 @@ def verify_go_package(
         console.print(f"[{'green' if result.valid else 'red'}]{status}[/] {result.package_dir}")
         for artifact in result.verified_artifacts:
             console.print(f"  artifact: {artifact}")
+        for subject in result.verified_provenance:
+            console.print(f"  provenance: {subject}")
         for signature in result.verified_signatures:
             console.print(f"  signature: {signature}")
         for warning in result.warnings:

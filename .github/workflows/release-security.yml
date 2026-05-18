@@ -1,0 +1,32 @@
+name: Release Security Readiness
+
+on:
+  pull_request:
+    paths:
+      - SECURITY.md
+      - docs/vulnerability-disclosure.md
+      - docs/release-security-advisories.md
+      - scripts/package_go_release.py
+      - scripts/validate_release_security.py
+      - src/cavra/release.py
+      - src/cavra/cli.py
+      - .github/workflows/go-release.yml
+      - .github/workflows/release-security.yml
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate-release-security-controls
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Validate release security controls
+        run: python scripts/validate_release_security.py

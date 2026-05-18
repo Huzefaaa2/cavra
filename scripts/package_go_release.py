@@ -12,6 +12,14 @@ from typing import Any
 
 
 SIGNING_ENV = "CAVRA_GO_RELEASE_SIGNING_KEY"
+GO_TARGETS = [
+    "linux/amd64",
+    "linux/arm64",
+    "darwin/amd64",
+    "darwin/arm64",
+    "windows/amd64",
+    "windows/arm64",
+]
 
 
 @dataclass(frozen=True)
@@ -143,6 +151,78 @@ def write_checksums(dist: Path, artifacts: list[Artifact]) -> Path:
     return path
 
 
+def write_slsa_provenance(
+    dist: Path,
+    *,
+    version: str,
+    commit: str,
+    ref: str,
+    event: str,
+    dry_run: bool,
+    signing_required: bool,
+    repository: str,
+    workflow_ref: str,
+    run_id: str,
+    run_attempt: str,
+    builder_id: str,
+    artifacts: list[Artifact],
+) -> Path:
+    now = datetime.now(timezone.utc).isoformat()
+    run_uri = ""
+    if repository and run_id:
+        run_uri = f"https://github.com/{repository}/actions/runs/{run_id}"
+        if run_attempt:
+            run_uri = f"{run_uri}/attempts/{run_attempt}"
+    payload = {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [
+            {
+                "name": artifact.relative_path,
+                "digest": {"sha256": artifact.sha256},
+            }
+            for artifact in artifacts
+        ],
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "predicate": {
+            "buildDefinition": {
+                "buildType": "https://github.com/Attestations/GitHubActionsWorkflow@v1",
+                "externalParameters": {
+                    "event": event,
+                    "ref": ref,
+                    "repository": repository,
+                    "version": version,
+                    "workflow_ref": workflow_ref,
+                },
+                "internalParameters": {
+                    "dry_run": dry_run,
+                    "go_targets": GO_TARGETS,
+                    "package_script": "scripts/package_go_release.py",
+                    "signing_required": signing_required,
+                },
+                "resolvedDependencies": [
+                    {
+                        "uri": f"git+https://github.com/{repository}@{commit}" if repository else f"git:{commit}",
+                        "digest": {"gitCommit": commit},
+                    },
+                    {
+                        "uri": "pkg:golang/github.com/Huzefaaa2/cavra/go/cavra-runtime",
+                        "digest": {"gitCommit": commit},
+                    },
+                ],
+            },
+            "runDetails": {
+                "builder": {"id": builder_id},
+                "metadata": {
+                    "invocationId": run_uri or run_id or "local",
+                    "startedOn": now,
+                    "finishedOn": now,
+                },
+            },
+        },
+    }
+    return write_json(dist / "cavra-runtime.provenance.intoto.json", payload)
+
+
 def sign_artifact(path: Path, dist: Path, private_key_pem: str, *, key_id: str, signer: str) -> dict[str, Any]:
     try:
         from cryptography.hazmat.primitives import serialization
@@ -210,6 +290,7 @@ def write_evidence(
             "reproducible-go-build-flags",
             "sha256-checksums",
             "spdx-sbom",
+            "slsa-provenance",
             "ed25519-detached-signatures",
             "release-evidence-manifest",
         ],
@@ -252,6 +333,22 @@ def package_release(args: argparse.Namespace) -> None:
     modules = load_go_modules(dist / "go-modules.json")
     write_spdx_sbom(dist, args.version, args.commit, modules)
     artifacts = collect_artifacts(dist)
+    provenance = write_slsa_provenance(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        ref=args.ref,
+        event=args.event,
+        dry_run=args.dry_run,
+        signing_required=args.signing_required,
+        repository=args.repository,
+        workflow_ref=args.workflow_ref,
+        run_id=args.run_id,
+        run_attempt=args.run_attempt,
+        builder_id=args.builder_id,
+        artifacts=artifacts,
+    )
+    artifacts.append(_artifact(dist, provenance, "slsa-provenance"))
     checksums = write_checksums(dist, artifacts)
     artifacts.append(_artifact(dist, checksums, "checksums"))
 
@@ -298,6 +395,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--event", required=True)
     parser.add_argument("--signer", default="github-actions")
     parser.add_argument("--key-id", default="cavra-go-release")
+    parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", "Huzefaaa2/cavra"))
+    parser.add_argument("--workflow-ref", default=os.environ.get("GITHUB_WORKFLOW_REF", ""))
+    parser.add_argument("--run-id", default=os.environ.get("GITHUB_RUN_ID", "local"))
+    parser.add_argument("--run-attempt", default=os.environ.get("GITHUB_RUN_ATTEMPT", ""))
+    parser.add_argument(
+        "--builder-id",
+        default=os.environ.get("CAVRA_GO_RELEASE_BUILDER_ID", "https://github.com/actions/runner/github-hosted"),
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--signing-required", action="store_true")
     return parser.parse_args()

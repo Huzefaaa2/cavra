@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add SLSA provenance, add vulnerability disclosure documentation, and continue broadening approval-route parity as new policy packs are added.
+Connect the public sandbox to backend-driven scenario runs, add keyless OIDC attestations for release provenance, and continue broadening approval-route parity as new policy packs are added.

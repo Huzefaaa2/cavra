@@ -22,7 +22,7 @@ Phase 5, Agent Registry and MCP Trust Registry, is complete for the current prod
 
 Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
-Phase 7, Go Enforcement Plane, has started with a bounded parity scaffold. It includes a Go module, runtime evaluator, CLI entrypoint, compiled-policy JSON loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical decision fixture, Python and Go parity tests, a dedicated `go-runtime-parity` CI job, and Go test execution in the required governance check.
+Phase 7, Go Enforcement Plane, has started with a bounded parity scaffold. It includes a Go module, runtime evaluator, CLI entrypoint, compiled-policy JSON loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical decision fixture, Python and Go parity tests, a dedicated `go-runtime-parity` CI job, and Go test execution in the required governance check.
 
 Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, live SIEM/ITSM/ChatOps connector execution hooks, AWS/Azure immutable evidence storage references, and Entra/Okta OIDC-RBAC deployment references.
 
@@ -35,6 +35,8 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - White Paper: `White-Paper.md`
 - Production Roadmap: `Production-Roadmap.md`
 - Go Release Packaging: `Go-Release-Packaging.md`
+- Vulnerability Disclosure: `Vulnerability-Disclosure.md`
+- Release Security Advisories: `Release-Security-Advisories.md`
 - Implementation Plan: `Implementation-Plan.md`
 - User Stories: `User-Stories.md`
 - Enterprise Challenges: `Enterprise-Challenges.md`
@@ -67,6 +69,8 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Enforcement Parity: `Go-Enforcement-Parity.md`
 - Go Enforcement Contracts: `Go-Enforcement-Contracts.md`
 - Go Daemon Transport: `Go-Daemon-Transport.md`
+- Vulnerability Disclosure: `Vulnerability-Disclosure.md`
+- Release Security Advisories: `Release-Security-Advisories.md`
 - Hosted Sandbox Deployment: `Hosted-Sandbox-Deployment.md`
 - Brand Assets: `Brand-Assets.md`
 
