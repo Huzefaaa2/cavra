@@ -15,6 +15,7 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 - Unix-socket daemon transport under `go/cavra-runtime/daemon`.
 - Reusable daemon client helper and CLI `--daemon` mode for one-shot socket calls.
 - Daemon lifecycle `start/status/stop` with PID-file tracking and readiness probing.
+- Daemon request/response evidence hooks with JSONL output and `go-daemon-evidence://...` refs.
 - `cavra-runtime --serve --socket ...` server mode.
 - Python parity test that verifies the same fixture against the authoritative `RuntimeGuard`.
 - Go unit test that loads the fixture and verifies the Go evaluator.
@@ -23,11 +24,10 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 
 ## Current Boundary
 
-The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, and manage local daemon lifecycle through PID-file-backed `start/status/stop`. It does not yet include evidence hooks or production binary packaging.
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, and write request/response evidence records. It does not yet include expanded approval/registry parity or production binary packaging.
 
 ## Next Implementation Steps
 
-1. Add request/response evidence hooks.
-4. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
-5. Package the Go binary for CI runner and air-gapped usage.
-6. Promote Go to an optional backend only after audited parity and deployment tests pass.
+1. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
+2. Package the Go binary for CI runner and air-gapped usage.
+3. Promote Go to an optional backend only after audited parity and deployment tests pass.

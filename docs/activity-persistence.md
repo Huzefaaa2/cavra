@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add Go daemon evidence hooks.
+- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
 - Validate the hosted sandbox URL after deployment from `main`.

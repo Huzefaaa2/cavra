@@ -13,8 +13,10 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - CLI `--daemon` client mode for one-shot socket calls.
 - Daemon lifecycle helper with `--lifecycle start`, `status`, and `stop`.
 - PID-file tracking, socket readiness probing, and graceful signal cleanup.
+- Request/response evidence hooks through `--evidence-log`.
+- JSONL evidence records with `cavra.go-daemon.evidence.v1` schema and `go-daemon-evidence://...` references.
 - Support for compiled policy JSON loaded with `--policy`.
-- Go tests for contract handling, client calls, lifecycle status, and compiled-policy-backed evaluation.
+- Go tests for contract handling, client calls, lifecycle status, evidence recording, and compiled-policy-backed evaluation.
 
 ## How To Use
 
@@ -27,6 +29,7 @@ printf '{"action_type":"execute_command","target":"terraform plan","requested_op
 go run ./cmd/cavra-runtime --lifecycle start --socket .cavra/cavra-runtime.sock --policy testdata/compiled_policy.json
 go run ./cmd/cavra-runtime --lifecycle status --socket .cavra/cavra-runtime.sock
 go run ./cmd/cavra-runtime --lifecycle stop --socket .cavra/cavra-runtime.sock
+go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock --evidence-log .cavra/go-daemon/evidence.jsonl
 ```
 
 ## Enterprise Value
@@ -35,4 +38,4 @@ Daemon transport gives CAVRA a path to low-latency local and CI enforcement with
 
 ## Next
 
-Add evidence hooks and expanded parity for approvals and registry-backed MCP decisions.
+Expand parity for approvals, evidence references, and registry-backed MCP decisions, then package signed runner binaries after audited parity coverage exists.

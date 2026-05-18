@@ -185,7 +185,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: add daemon evidence hooks.
+Recommended next issue: expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -231,7 +231,7 @@ Completed:
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 - Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: add Go daemon evidence hooks, validate the public sandbox URL after merge, and add post-deploy smoke checks.
+Recommended next issue: expand Go parity, validate the public sandbox URL after merge, and add post-deploy smoke checks.
 
 ## Transparent Agent Methodology Enablement
 

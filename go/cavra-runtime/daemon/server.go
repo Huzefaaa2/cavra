@@ -25,6 +25,10 @@ func RuntimeEvaluator(policy *cavraruntime.Policy) Evaluator {
 }
 
 func Serve(listener net.Listener, evaluate Evaluator) error {
+	return ServeWithEvidence(listener, evaluate, nil)
+}
+
+func ServeWithEvidence(listener net.Listener, evaluate Evaluator, recorder *EvidenceRecorder) error {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -34,17 +38,26 @@ func Serve(listener net.Listener, evaluate Evaluator) error {
 			return err
 		}
 		go func() {
-			_ = HandleConnection(conn, evaluate)
+			_ = HandleConnectionWithEvidence(conn, evaluate, recorder)
 		}()
 	}
 }
 
 func HandleConnection(conn net.Conn, evaluate Evaluator) error {
+	return HandleConnectionWithEvidence(conn, evaluate, nil)
+}
+
+func HandleConnectionWithEvidence(conn net.Conn, evaluate Evaluator, recorder *EvidenceRecorder) error {
 	defer conn.Close()
 	var request enforcementv1.EvaluateRequest
 	if err := json.NewDecoder(conn).Decode(&request); err != nil {
 		return err
 	}
 	response := evaluate(request)
+	var err error
+	response, err = recorder.Record(request, response)
+	if err != nil {
+		return err
+	}
 	return json.NewEncoder(conn).Encode(response)
 }

@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.
+expanded Go parity and public sandbox URL validation after deployment from `main`.

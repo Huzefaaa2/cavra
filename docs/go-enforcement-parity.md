@@ -65,6 +65,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add daemon transport and request lifecycle evidence hooks.
-2. Expand parity cases for approvals, registry-backed MCP trust, policy inheritance, and evidence references.
-3. Package signed Go binaries with release evidence and SBOMs.
+1. Expand parity cases for approvals, registry-backed MCP trust, policy inheritance, and evidence references.
+2. Package signed Go binaries with release evidence and SBOMs.

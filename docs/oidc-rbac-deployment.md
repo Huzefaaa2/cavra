@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.
+The next recommended work is expanded Go parity and public sandbox URL validation after deployment from `main`.

@@ -26,20 +26,22 @@ func main() {
 	socketPath := flag.String("socket", ".cavra/cavra-runtime.sock", "Unix socket path for --serve, --daemon, or --lifecycle")
 	pidPath := flag.String("pid", "", "PID file path for --lifecycle; defaults to <socket>.pid")
 	lifecycleTimeout := flag.Duration("lifecycle-timeout", 5*time.Second, "timeout for daemon lifecycle readiness and shutdown")
+	evidenceLogPath := flag.String("evidence-log", "", "JSONL evidence log path for daemon request/response records")
 	flag.Parse()
 
 	if *lifecycle != "" {
 		runLifecycle(*lifecycle, daemon.LifecycleConfig{
-			SocketPath:     *socketPath,
-			PIDPath:        *pidPath,
-			PolicyPath:     *policyPath,
-			StartupTimeout: *lifecycleTimeout,
+			SocketPath:      *socketPath,
+			PIDPath:         *pidPath,
+			PolicyPath:      *policyPath,
+			EvidenceLogPath: *evidenceLogPath,
+			StartupTimeout:  *lifecycleTimeout,
 		})
 		return
 	}
 
 	if *clientMode {
-		runDaemonClient(*socketPath, *inputPath)
+		runDaemonClient(*socketPath, *inputPath, *evidenceLogPath)
 		return
 	}
 
@@ -52,7 +54,7 @@ func main() {
 		policy = &loadedPolicy
 	}
 	if *serve {
-		serveUnixSocket(*socketPath, policy)
+		serveUnixSocket(*socketPath, policy, *evidenceLogPath)
 		return
 	}
 
@@ -97,7 +99,7 @@ func inputReader(inputPath string) (io.Reader, func(), error) {
 	}, nil
 }
 
-func runDaemonClient(socket string, inputPath string) {
+func runDaemonClient(socket string, inputPath string, evidenceLogPath string) {
 	reader, closeInput, err := inputReader(inputPath)
 	if err != nil {
 		fail(err)
@@ -108,6 +110,10 @@ func runDaemonClient(socket string, inputPath string) {
 		fail(err)
 	}
 	response, err := daemon.NewClient(socket).Evaluate(request)
+	if err != nil {
+		fail(err)
+	}
+	response, err = daemon.NewEvidenceRecorder(evidenceLogPath).Record(request, response)
 	if err != nil {
 		fail(err)
 	}
@@ -143,7 +149,7 @@ func runLifecycle(action string, config daemon.LifecycleConfig) {
 	fmt.Println(string(data))
 }
 
-func serveUnixSocket(socket string, policy *cavraruntime.Policy) {
+func serveUnixSocket(socket string, policy *cavraruntime.Policy, evidenceLogPath string) {
 	if err := os.MkdirAll(filepath.Dir(socket), 0o755); err != nil {
 		fail(err)
 	}
@@ -161,7 +167,7 @@ func serveUnixSocket(socket string, policy *cavraruntime.Policy) {
 		<-signals
 		_ = listener.Close()
 	}()
-	if err := daemon.Serve(listener, daemon.RuntimeEvaluator(policy)); err != nil {
+	if err := daemon.ServeWithEvidence(listener, daemon.RuntimeEvaluator(policy), daemon.NewEvidenceRecorder(evidenceLogPath)); err != nil {
 		fail(err)
 	}
 }

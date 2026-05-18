@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is Go daemon evidence hooks and public sandbox URL validation after deployment from `main`.
+The next recommended step is expanded Go parity and public sandbox URL validation after deployment from `main`.

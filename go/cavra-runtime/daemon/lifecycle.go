@@ -18,11 +18,12 @@ import (
 const DefaultLifecycleTimeout = 5 * time.Second
 
 type LifecycleConfig struct {
-	SocketPath     string
-	PIDPath        string
-	PolicyPath     string
-	BinaryPath     string
-	StartupTimeout time.Duration
+	SocketPath      string
+	PIDPath         string
+	PolicyPath      string
+	EvidenceLogPath string
+	BinaryPath      string
+	StartupTimeout  time.Duration
 }
 
 type LifecycleStatus struct {
@@ -61,6 +62,9 @@ func StartDaemon(config LifecycleConfig) (LifecycleStatus, error) {
 	args := []string{"--serve", "--socket", config.SocketPath}
 	if config.PolicyPath != "" {
 		args = append(args, "--policy", config.PolicyPath)
+	}
+	if config.EvidenceLogPath != "" {
+		args = append(args, "--evidence-log", config.EvidenceLogPath)
 	}
 	cmd := exec.Command(config.BinaryPath, args...)
 	cmd.Stdout = os.Stdout

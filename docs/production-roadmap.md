@@ -341,10 +341,10 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: add Go daemon evidence hooks, then validate the public sandbox URL after the workflow lands on `main`.
+Next recommended implementation phase: expand Go parity across approvals, evidence references, and registry-backed MCP decisions, then validate the public sandbox URL after the workflow lands on `main`.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Add request and response evidence hooks.
+- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
 - After merge to `main`, run the sandbox deployment workflow and record the public URL in README and wiki.

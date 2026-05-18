@@ -34,7 +34,7 @@ Go enforcement-plane parity scaffold: `go/cavra-runtime/` contains a Go module, 
 
 Go enforcement contracts: `scripts/generate_go_enforcement_contracts.py` generates `go/cavra-runtime/enforcement/v1/contracts.go` from `proto/cavra/enforcement/v1/enforcement.proto`. The generated package provides `EvaluateRequest`, `DecisionResponse`, and conversion helpers for future daemon transport.
 
-Go daemon transport: `go/cavra-runtime/daemon` and `go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock` provide the first Unix-socket transport for generated `EvaluateRequest` and `DecisionResponse` JSON payloads. `daemon.NewClient(socket).Evaluate(request)` and `go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock` provide a reusable client path. `go run ./cmd/cavra-runtime --lifecycle start|status|stop` provides PID-file-backed daemon lifecycle management.
+Go daemon transport: `go/cavra-runtime/daemon` and `go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock` provide the first Unix-socket transport for generated `EvaluateRequest` and `DecisionResponse` JSON payloads. `daemon.NewClient(socket).Evaluate(request)` and `go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock` provide a reusable client path. `go run ./cmd/cavra-runtime --lifecycle start|status|stop` provides PID-file-backed daemon lifecycle management. `--evidence-log` writes request/response JSONL evidence and appends `go-daemon-evidence://...` references to decision responses.
 
 Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
 
@@ -50,6 +50,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: Go daemon evidence hooks, expanded Go parity across approvals and registry-backed MCP, signed Go binary release packaging, public sandbox URL verification after merge to `main`, SBOM automation, and signed releases.
+Known gaps: expanded Go parity across approvals, evidence references, and registry-backed MCP, signed Go binary release packaging, public sandbox URL verification after merge to `main`, SBOM automation, and signed releases.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, expanded golden parity suite, and generated enforcement contracts for the Go runtime.
