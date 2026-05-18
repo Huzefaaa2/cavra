@@ -3,6 +3,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import tempfile
+import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -31,6 +33,30 @@ class ReleaseVerificationResult:
             "verified_artifacts": self.verified_artifacts,
             "verified_provenance": self.verified_provenance,
             "verified_signatures": self.verified_signatures,
+        }
+
+
+@dataclass(frozen=True)
+class AirgapBundleVerificationResult:
+    bundle_path: Path
+    package_dir: Path | None
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    verified_members: list[str] = field(default_factory=list)
+    verified_bootstrap: list[str] = field(default_factory=list)
+    release_verification: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "bundle_path": str(self.bundle_path),
+            "package_dir": str(self.package_dir) if self.package_dir else None,
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "verified_members": self.verified_members,
+            "verified_bootstrap": self.verified_bootstrap,
+            "release_verification": self.release_verification,
         }
 
 
@@ -148,6 +174,141 @@ def verify_go_release_package(
     )
 
 
+def verify_go_airgap_bundle(
+    bundle_path: Path,
+    *,
+    extract_dir: Path | None = None,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+    require_bootstrap: bool = True,
+) -> AirgapBundleVerificationResult:
+    bundle_path = bundle_path.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    verified_members: list[str] = []
+    verified_bootstrap: list[str] = []
+    package_dir: Path | None = None
+    release_result: ReleaseVerificationResult | None = None
+    bootstrap_checked = False
+
+    if not bundle_path.exists() or not bundle_path.is_file():
+        return AirgapBundleVerificationResult(
+            bundle_path=bundle_path,
+            package_dir=None,
+            valid=False,
+            errors=[f"air-gapped bundle does not exist: {bundle_path}"],
+        )
+    if not zipfile.is_zipfile(bundle_path):
+        return AirgapBundleVerificationResult(
+            bundle_path=bundle_path,
+            package_dir=None,
+            valid=False,
+            errors=[f"air-gapped bundle is not a zip archive: {bundle_path}"],
+        )
+
+    try:
+        with zipfile.ZipFile(bundle_path) as archive:
+            members = archive.infolist()
+            unsafe_members = [member.filename for member in members if _unsafe_zip_member(member.filename)]
+            if unsafe_members:
+                errors.extend(f"unsafe archive member path: {member}" for member in sorted(unsafe_members))
+            else:
+                verified_members = sorted(member.filename for member in members if not member.is_dir())
+            top_level = sorted({member.filename.split("/", 1)[0] for member in members if member.filename and "/" in member.filename})
+            if len(top_level) != 1 or not top_level[0].startswith("go-runtime-"):
+                errors.append("air-gapped bundle must contain exactly one go-runtime-* package directory")
+            if not errors:
+                if extract_dir:
+                    target_root = extract_dir.resolve()
+                    target_root.mkdir(parents=True, exist_ok=True)
+                    archive.extractall(target_root)
+                    package_dir = target_root / top_level[0]
+                    release_result = _verify_extracted_airgap_package(
+                        package_dir,
+                        require_signatures=require_signatures,
+                        require_provenance=require_provenance,
+                        require_bootstrap=require_bootstrap,
+                    )
+                    verified_bootstrap = _verify_airgap_bootstrap(package_dir, require_bootstrap)
+                    bootstrap_checked = True
+                else:
+                    with tempfile.TemporaryDirectory(prefix="cavra-airgap-") as temporary:
+                        target_root = Path(temporary)
+                        archive.extractall(target_root)
+                        package_dir = target_root / top_level[0]
+                        release_result = _verify_extracted_airgap_package(
+                            package_dir,
+                            require_signatures=require_signatures,
+                            require_provenance=require_provenance,
+                            require_bootstrap=require_bootstrap,
+                        )
+                        verified_bootstrap = _verify_airgap_bootstrap(package_dir, require_bootstrap)
+                        bootstrap_checked = True
+    except zipfile.BadZipFile as exc:
+        errors.append(f"invalid air-gapped zip archive: {exc}")
+    except ReleaseVerificationError as exc:
+        errors.append(str(exc))
+
+    if release_result:
+        errors.extend(release_result.errors)
+        warnings.extend(release_result.warnings)
+        if not bootstrap_checked:
+            try:
+                verified_bootstrap = _verify_airgap_bootstrap(package_dir, require_bootstrap)
+            except ReleaseVerificationError as exc:
+                errors.append(str(exc))
+
+    return AirgapBundleVerificationResult(
+        bundle_path=bundle_path,
+        package_dir=package_dir,
+        valid=not errors,
+        errors=errors,
+        warnings=warnings,
+        verified_members=verified_members,
+        verified_bootstrap=sorted(verified_bootstrap),
+        release_verification=release_result.to_dict() if release_result else None,
+    )
+
+
+def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
+    bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
+    if bootstrap_path and bootstrap_path.exists():
+        return verify_offline_trust_bootstrap(bootstrap_path, package_dir)
+    if require_bootstrap:
+        raise ReleaseVerificationError("missing offline-trust-root-bootstrap.json")
+    return []
+
+
+def verify_offline_trust_bootstrap(bootstrap_path: Path, package_dir: Path) -> list[str]:
+    try:
+        payload = json.loads(bootstrap_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid offline trust bootstrap JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.offline-trust-bootstrap.v1":
+        raise ReleaseVerificationError("offline trust bootstrap has an invalid schema_version")
+    if payload.get("mode") != "air_gapped":
+        raise ReleaseVerificationError("offline trust bootstrap mode must be air_gapped")
+    required_files = payload.get("required_files")
+    if not isinstance(required_files, list) or not required_files:
+        raise ReleaseVerificationError("offline trust bootstrap is missing required_files")
+    verified: list[str] = []
+    for relative_path in required_files:
+        if not isinstance(relative_path, str):
+            raise ReleaseVerificationError("offline trust bootstrap required_files must be strings")
+        path = _safe_package_path(package_dir, relative_path)
+        if path is None or not path.exists() or not path.is_file():
+            raise ReleaseVerificationError(f"offline bootstrap required file is missing: {relative_path}")
+        verified.append(relative_path)
+    commands = payload.get("verification_commands")
+    if not isinstance(commands, list) or not commands:
+        raise ReleaseVerificationError("offline trust bootstrap is missing verification_commands")
+    if not any("cavra release verify-go-package" in str(command) for command in commands):
+        raise ReleaseVerificationError("offline trust bootstrap must include cavra release verify-go-package guidance")
+    if not any("cavra release verify-airgap-bundle" in str(command) for command in commands):
+        raise ReleaseVerificationError("offline trust bootstrap must include cavra release verify-airgap-bundle guidance")
+    return verified
+
+
 def verify_go_release_provenance(
     provenance_path: Path,
     package_dir: Path,
@@ -206,6 +367,31 @@ def verify_go_release_provenance(
             raise ReleaseVerificationError(f"SLSA provenance subject disagrees with checksums.txt: {name}")
         verified_subjects.append(name)
     return verified_subjects
+
+
+def _verify_extracted_airgap_package(
+    package_dir: Path,
+    *,
+    require_signatures: bool,
+    require_provenance: bool,
+    require_bootstrap: bool,
+) -> ReleaseVerificationResult:
+    result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    if require_bootstrap and "offline-trust-root-bootstrap.json" not in result.verified_artifacts:
+        return ReleaseVerificationResult(
+            package_dir=result.package_dir,
+            valid=False,
+            errors=[*result.errors, "offline-trust-root-bootstrap.json is missing from checksums.txt"],
+            warnings=result.warnings,
+            verified_artifacts=result.verified_artifacts,
+            verified_provenance=result.verified_provenance,
+            verified_signatures=result.verified_signatures,
+        )
+    return result
 
 
 def verify_go_release_signature(signature_path: Path, package_dir: Path) -> str:
@@ -278,3 +464,10 @@ def _safe_package_path(package_dir: Path, relative_path: str) -> Path | None:
     except ValueError:
         return None
     return path
+
+
+def _unsafe_zip_member(name: str) -> bool:
+    if not name or name.startswith("/") or name.startswith("\\"):
+        return True
+    parts = Path(name).parts
+    return any(part == ".." for part in parts)

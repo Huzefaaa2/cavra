@@ -26,7 +26,8 @@ Before publishing a Go runtime package:
    - `cavra-runtime.sbom.spdx.json`;
    - `cavra-runtime.provenance.intoto.json`;
    - detached `*.sig.json` files;
-   - `github-keyless-attestation.json`;
+- `github-keyless-attestation.json`;
+- `offline-trust-root-bootstrap.json`;
    - `release-evidence.json`;
    - `release-evidence.md`.
 4. Verify locally:
@@ -35,20 +36,27 @@ Before publishing a Go runtime package:
 cavra release verify-go-package go/cavra-runtime/dist/go-runtime-<version>
 ```
 
-5. Verify the GitHub keyless attestation:
+5. Verify the air-gapped zip:
+
+```bash
+cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-<version>.zip
+```
+
+6. Verify the GitHub keyless attestation:
 
 ```bash
 gh attestation verify go/cavra-runtime/dist/cavra-go-runtime-<version>.zip \
   --repo Huzefaaa2/cavra
 ```
 
-6. Attach `cavra-go-runtime-<version>.zip` and `github-keyless-attestation.json` to the GitHub Release.
-7. Link the release asset, keyless attestation, and provenance statement from the advisory.
+7. Attach `cavra-go-runtime-<version>.zip` and `github-keyless-attestation.json` to the GitHub Release.
+8. Link the release asset, keyless attestation, offline bootstrap manifest, and provenance statement from the advisory.
 
 ## User Stories
 
 - As a security engineer, I can connect an advisory to a signed release asset, keyless GitHub attestation, and provenance statement.
 - As a platform owner, I can block runtime rollout until verification succeeds.
+- As an enterprise architect, I can verify an air-gapped runtime bundle before restricted-network transfer.
 - As an auditor, I can prove that security releases follow the same evidence path as normal releases.
 
 ## Enterprise Challenge Solved

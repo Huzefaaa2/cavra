@@ -19,18 +19,23 @@ REQUIRED_TEXT = {
         "Go Runtime Release Gate",
         "cavra-runtime.provenance.intoto.json",
         "gh attestation verify",
+        "cavra release verify-airgap-bundle",
     ],
     "scripts/package_go_release.py": [
         "https://in-toto.io/Statement/v1",
         "https://slsa.dev/provenance/v1",
         "cavra-runtime.provenance.intoto.json",
+        "offline-trust-root-bootstrap.json",
     ],
     "src/cavra/release.py": [
         "verify_go_release_provenance",
+        "verify_go_airgap_bundle",
+        "verify_offline_trust_bootstrap",
         "https://slsa.dev/provenance/v1",
     ],
     "src/cavra/cli.py": [
         "--allow-missing-provenance",
+        "verify-airgap-bundle",
     ],
     ".github/workflows/go-release.yml": [
         "id-token: write",

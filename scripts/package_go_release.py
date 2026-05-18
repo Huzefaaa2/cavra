@@ -70,6 +70,9 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
             artifacts.append(_artifact(dist, path, "go-binary"))
     for path in sorted(dist.glob("*.spdx.json")):
         artifacts.append(_artifact(dist, path, "sbom"))
+    bootstrap = dist / "offline-trust-root-bootstrap.json"
+    if bootstrap.exists():
+        artifacts.append(_artifact(dist, bootstrap, "offline-trust-bootstrap"))
     modules = dist / "go-modules.json"
     if modules.exists():
         artifacts.append(_artifact(dist, modules, "go-modules"))
@@ -140,6 +143,49 @@ def write_spdx_sbom(dist: Path, version: str, commit: str, modules: list[dict[st
             "creationInfo": {"created": now, "creators": ["Tool: CAVRA Go release packaging"]},
             "packages": packages,
             "relationships": relationships,
+        },
+    )
+
+
+def write_offline_trust_bootstrap(
+    dist: Path,
+    *,
+    version: str,
+    commit: str,
+    ref: str,
+    repository: str,
+    key_id: str,
+) -> Path:
+    return write_json(
+        dist / "offline-trust-root-bootstrap.json",
+        {
+            "schema_version": "cavra.offline-trust-bootstrap.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "ref": ref,
+            "repository": repository,
+            "mode": "air_gapped",
+            "release_package": f"cavra-go-runtime-{version}.zip",
+            "signature_key_id": key_id,
+            "required_files": [
+                "checksums.txt",
+                "cavra-runtime.sbom.spdx.json",
+                "cavra-runtime.provenance.intoto.json",
+                "release-evidence.json",
+                "release-evidence.md",
+                "offline-trust-root-bootstrap.json",
+            ],
+            "verification_commands": [
+                f"cavra release verify-airgap-bundle cavra-go-runtime-{version}.zip",
+                f"cavra release verify-go-package go-runtime-{version}",
+            ],
+            "offline_operator_notes": [
+                "Transfer the zip and published public trust material through an approved removable-media process.",
+                "Run verification before placing binaries on developer machines, CI runners, or restricted networks.",
+                "Preserve release evidence, checksums, provenance, signatures, and this bootstrap manifest with the change record.",
+            ],
         },
     )
 
@@ -332,6 +378,14 @@ def package_release(args: argparse.Namespace) -> None:
     dist.mkdir(parents=True, exist_ok=True)
     modules = load_go_modules(dist / "go-modules.json")
     write_spdx_sbom(dist, args.version, args.commit, modules)
+    write_offline_trust_bootstrap(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        ref=args.ref,
+        repository=args.repository,
+        key_id=args.key_id,
+    )
     artifacts = collect_artifacts(dist)
     provenance = write_slsa_provenance(
         dist,

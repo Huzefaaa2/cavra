@@ -42,13 +42,13 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 
 - As a release manager, I can publish Go binaries with release evidence, provenance, and GitHub keyless attestations.
 - As a security engineer, I can validate checksums, SBOM metadata, SLSA provenance, detached signatures, and `gh attestation verify` results.
-- As an enterprise architect, I can review binary distribution controls before air-gapped rollout.
+- As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
 - As an auditor, I can run a local verifier before approving runtime distribution.
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, GitHub OIDC-backed keyless attestations, and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add air-gapped installer bundle verification and offline trust-root bootstrap guidance.
+Add release-candidate upgrade validation and offline trust-root distribution automation.
