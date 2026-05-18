@@ -198,6 +198,10 @@ Completed:
 - SVG diagram asset inclusion in the artifact.
 - CAVRA brand assets included in the sandbox artifact.
 - Deployment gated to `main` through `actions/deploy-pages`.
+- GitHub Pages enabled for Actions publishing on the repository.
+- Public sandbox verified at `https://huzefaaa2.github.io/cavra/`.
+- Downloadable sample evidence packaged in the public artifact.
+- Post-deploy smoke validation for the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
 
 ## Brand Asset System
 
@@ -216,7 +220,7 @@ Validation:
 - Workflow YAML parses.
 - Sandbox JavaScript syntax check is covered by the workflow and local validation.
 
-Recommended next issue: after merge to `main`, run the workflow, verify the public Pages URL, add the URL to README/wiki, and add a post-deploy smoke check.
+Recommended next issue: merge the smoke-check update to `main`, rerun the workflow, and confirm the smoke job passes against the public URL.
 
 ## GitHub Required Checks and CI/CD Enforcement
 

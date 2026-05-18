@@ -11,10 +11,12 @@ The workflow:
 - Runs on manual dispatch and pushes to `main` that affect the sandbox, docs, or workflow file.
 - Validates `apps/sandbox-ui/sandbox.js` with `node --check`.
 - Copies `apps/sandbox-ui` into a static `public/` artifact.
+- Packages the generated Before the Agent Acts sample evidence at `evidence/before-the-agent-acts/evidence.json`.
 - Includes SVG diagrams from `docs/diagrams`.
-- Configures GitHub Pages.
+- Configures the already-enabled GitHub Pages site for GitHub Actions publishing.
 - Uploads a Pages artifact.
 - Deploys only when the workflow runs on `refs/heads/main`.
+- Runs a post-deploy smoke check against the public page, JavaScript, stylesheet, brand assets, C4 diagram asset, and downloadable evidence file.
 
 ## How To Run
 
@@ -24,7 +26,11 @@ After the branch is merged to `main`, run:
 gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
 ```
 
-The GitHub Pages deployment URL should then be recorded in the README and wiki.
+GitHub Pages is enabled for Actions publishing. The public sandbox URL is:
+
+```text
+https://huzefaaa2.github.io/cavra/
+```
 
 ## User Stories
 
@@ -44,8 +50,6 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Merge the workflow to `main`.
-2. Run the Pages deployment.
-3. Add the public sandbox URL to README and wiki.
-4. Add a post-deploy smoke check that verifies the page, JavaScript, and key diagram assets.
-5. Add backend-driven scenario runs when the public demo is connected to a deployed API.
+1. Merge the smoke-check and static evidence packaging update to `main`.
+2. Rerun the Pages deployment and confirm the new smoke job passes.
+3. Add backend-driven scenario runs when the public demo is connected to a deployed API.

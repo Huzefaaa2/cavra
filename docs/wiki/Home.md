@@ -26,7 +26,7 @@ Phase 7, Go Enforcement Plane, has started with a bounded parity scaffold. It in
 
 Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, live SIEM/ITSM/ChatOps connector execution hooks, AWS/Azure immutable evidence storage references, and Entra/Okta OIDC-RBAC deployment references.
 
-Phase 9, Public Sandbox, has started with a GitHub Pages deployment workflow for the static Before the Agent Acts sandbox and evidence console. The public URL will be added after the workflow lands on `main` and the first deployment succeeds.
+Phase 9, Public Sandbox, has started with a GitHub Pages deployment workflow for the static Before the Agent Acts sandbox and evidence console. GitHub Pages is enabled for Actions publishing, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`. The workflow now includes packaged downloadable sample evidence plus post-deploy smoke validation for the page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
