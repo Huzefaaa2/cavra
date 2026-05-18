@@ -24,7 +24,7 @@ jobs:
     name: build-sandbox
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate sandbox JavaScript
         run: node --check apps/sandbox-ui/sandbox.js
       - name: Build static sandbox artifact
