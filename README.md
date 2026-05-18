@@ -239,6 +239,8 @@ Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisi
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
 
+The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub Pages is enabled for Actions publishing, and the deployment workflow now packages downloadable sample evidence and smoke-tests the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
+
 ## Demo scenarios
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
@@ -257,13 +259,13 @@ Current phase status:
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable Go daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, daemon request/response evidence hooks, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
 - Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
-- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console.
+- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console; Pages is enabled and post-deploy smoke validation is in progress.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
 - Expand Go parity for approvals, evidence references, and registry-backed MCP decisions.
-- After merge to `main`, deploy the sandbox workflow, verify the public URL, and record it in README/wiki.
+- Merge the smoke-check update, rerun the sandbox workflow from `main`, and confirm the smoke job passes against the public URL.
 
 ## User stories and enterprise value
 

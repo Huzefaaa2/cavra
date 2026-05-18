@@ -35,6 +35,8 @@ jobs:
           cp -R apps/sandbox-ui/. public/
           mkdir -p public/assets
           cp -R assets/brand public/assets/
+          mkdir -p public/evidence/before-the-agent-acts
+          cp examples/demos/before-the-agent-acts/generated/evidence.json public/evidence/before-the-agent-acts/evidence.json
           cp docs/diagrams/*.svg public/
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -48,6 +50,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -55,3 +59,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    name: smoke-sandbox
+    if: github.ref == 'refs/heads/main'
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployed sandbox
+        env:
+          CAVRA_SANDBOX_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          test -n "$CAVRA_SANDBOX_URL"
+          curl --fail --silent --show-error --location "$CAVRA_SANDBOX_URL" | tee index.html
+          grep -q "Evidence Console" index.html
+          grep -q "sandbox.js" index.html
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}styles.css" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}brand/cavra-mark.svg" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}assets/brand/cavra-logo-horizontal.svg" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}c4-container.svg" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/before-the-agent-acts/evidence.json" | grep -q "cavra"
