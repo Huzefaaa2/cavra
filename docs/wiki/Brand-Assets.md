@@ -14,7 +14,7 @@ CAVRA includes a professional logo and thumbnail asset set for documentation, da
 
 ## Usage
 
-Use the horizontal logo for documentation and README pages. Use the mark for compact dashboard navigation, favicons, and larger hero identity placement beside the Evidence Console title. Use the thumbnails for GitHub previews, release notes, and enterprise presentation covers.
+Use the horizontal logo for documentation and README pages. Use the mark for compact dashboard navigation, favicons, and larger right-side hero identity placement below the install CTA. Use the thumbnails for GitHub previews, release notes, and enterprise presentation covers.
 
 ## Enterprise Value
 

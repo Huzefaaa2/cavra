@@ -38,7 +38,7 @@ Go daemon transport: `go/cavra-runtime/daemon` and `go run ./cmd/cavra-runtime -
 
 Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
 
-Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses the compact mark in navigation, a larger hero mark beside the Evidence Console title, and ships the brand assets in the Pages artifact.
+Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses the compact mark in navigation, a larger right-side hero mark below the install CTA, and ships the brand assets in the Pages artifact.
 
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 

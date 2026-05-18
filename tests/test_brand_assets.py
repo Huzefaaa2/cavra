@@ -48,5 +48,6 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert './brand/cavra-mark.svg' in html
     assert '<a class="brand"' not in html
     assert 'width="34" height="34"' in html
+    assert 'class="hero-side"' in html
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
