@@ -191,7 +191,21 @@ Completed:
 - Static artifact build from `apps/sandbox-ui`.
 - JavaScript syntax validation with `node --check`.
 - SVG diagram asset inclusion in the artifact.
+- CAVRA brand assets included in the sandbox artifact.
 - Deployment gated to `main` through `actions/deploy-pages`.
+
+## Brand Asset System
+
+Status: complete for the current productization slice.
+
+Completed:
+- SVG runtime authority mark, favicon, horizontal logo, stacked logo, product thumbnail, and GitHub social preview.
+- PNG exports for compact icons, README/document surfaces, product thumbnails, and social previews.
+- README header logo.
+- Sandbox console favicon and navigation mark.
+- Brand asset documentation and wiki page.
+
+Recommended next issue: use the assets in release notes and configure the repository social preview after merge.
 
 Validation:
 - Workflow YAML parses.

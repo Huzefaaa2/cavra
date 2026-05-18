@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA stacked logo</title>
+  <desc id="desc">Stacked CAVRA logo with shield mark and authority tagline.</desc>
+  <rect width="900" height="900" rx="64" fill="#101316"/>
+  <image href="cavra-mark.svg" x="236" y="72" width="428" height="428"/>
+  <text x="450" y="604" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="128" font-weight="800" fill="#eef3f6">CAVRA</text>
+  <text x="450" y="668" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="4" fill="#76d6b2">RUNTIME AUTHORITY</text>
+  <text x="450" y="724" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#cbd5db">Before the agent acts, CAVRA decides.</text>
+  <path d="M220 780H680" stroke="#344955" stroke-width="4"/>
+  <circle cx="292" cy="780" r="8" fill="#76d6b2"/>
+  <circle cx="450" cy="780" r="8" fill="#45a6c6"/>
+  <circle cx="608" cy="780" r="8" fill="#f2c96d"/>
+</svg>

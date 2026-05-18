@@ -16,6 +16,8 @@ The workflow at `.github/workflows/deploy-sandbox.yml` validates `sandbox.js`, c
 
 The sandbox is a simulated AI-agent scenario using real CAVRA policy decisions. It shows agent actions, CAVRA decisions, policy rules, risk, evidence, compliance mapping, and Claude Code install CTA.
 
+The sandbox uses the compact CAVRA mark from `apps/sandbox-ui/brand/`, sourced from the canonical brand files under `assets/brand/`.
+
 The same surface now includes the first hosted evidence console views:
 
 - Evidence metadata search with signer, blocked-action, approval-state, and limit filters.

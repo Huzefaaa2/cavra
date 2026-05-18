@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/cavra-logo-horizontal.svg" alt="CAVRA - Controlled Agentic Verification and Runtime Authority" width="760">
+</p>
+
 # CAVRA
 ## Controlled Agentic Verification & Runtime Authority
 
@@ -51,6 +55,13 @@ Architecture references:
 - [Developer Journey SVG](docs/diagrams/developer-journey.svg)
 - [Transparent Agent Orchestration SVG](docs/diagrams/agent-orchestration.svg)
 - [Go parity and sandbox deployment SVG](docs/diagrams/go-parity-sandbox-deployment.svg)
+
+Brand assets:
+
+- [CAVRA brand assets](assets/brand/README.md)
+- [CAVRA mark SVG](assets/brand/cavra-mark.svg)
+- [CAVRA horizontal logo SVG](assets/brand/cavra-logo-horizontal.svg)
+- [CAVRA GitHub social preview PNG](assets/brand/png/cavra-github-social-preview-1200x630.png)
 
 ## Quick start
 
@@ -296,6 +307,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Go Enforcement Parity](docs/wiki/Go-Enforcement-Parity.md)
 - [Go Enforcement Contracts](docs/wiki/Go-Enforcement-Contracts.md)
 - [Hosted Sandbox Deployment](docs/wiki/Hosted-Sandbox-Deployment.md)
+- [Brand Assets](docs/wiki/Brand-Assets.md)
 
 The wiki white paper explains why CAVRA exists, how pre-action enforcement works, the dual-plane architecture, regulated SDLC fit, Claude Code strategy, and the production roadmap.
 

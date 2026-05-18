@@ -66,6 +66,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Enforcement Parity: `Go-Enforcement-Parity.md`
 - Go Enforcement Contracts: `Go-Enforcement-Contracts.md`
 - Hosted Sandbox Deployment: `Hosted-Sandbox-Deployment.md`
+- Brand Assets: `Brand-Assets.md`
 
 ## Quick Start
 

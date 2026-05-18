@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA product thumbnail</title>
+  <desc id="desc">Enterprise product thumbnail for CAVRA runtime authority.</desc>
+  <rect width="1280" height="640" fill="#101316"/>
+  <path d="M0 518C178 480 288 530 430 489c118-34 170-118 292-132 158-18 252 102 558 25v258H0Z" fill="#14202a"/>
+  <g opacity=".34" stroke="#2d3a40" stroke-width="1">
+    <path d="M80 0V640M200 0V640M320 0V640M440 0V640M560 0V640M680 0V640M800 0V640M920 0V640M1040 0V640M1160 0V640"/>
+    <path d="M0 100H1280M0 220H1280M0 340H1280M0 460H1280M0 580H1280"/>
+  </g>
+  <g transform="translate(835 96) scale(.82)">
+    <path d="M256 36 416 104v126c0 103-63 191-160 246C159 421 96 333 96 230V104L256 36Z" fill="#0d171b"/>
+    <path d="M256 58 396 118v111c0 88-52 164-140 215-88-51-140-127-140-215V118L256 58Z" fill="none" stroke="#76d6b2" stroke-width="12"/>
+    <path d="M319 165c-22-25-54-39-89-35-62 7-107 62-100 123 8 63 63 108 126 101 24-3 46-13 63-29" fill="none" stroke="#eef7f8" stroke-width="38" stroke-linecap="round"/>
+    <path d="M207 258 244 295 318 211" fill="none" stroke="#f2c96d" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="80" y="176" font-family="Inter, Arial, sans-serif" font-size="108" font-weight="800" fill="#eef3f6">CAVRA</text>
+  <text x="86" y="238" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="700" letter-spacing="4" fill="#76d6b2">CONTROLLED AGENTIC VERIFICATION</text>
+  <text x="86" y="286" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="700" letter-spacing="4" fill="#f2c96d">AND RUNTIME AUTHORITY</text>
+  <text x="86" y="372" font-family="Inter, Arial, sans-serif" font-size="37" font-weight="700" fill="#eef3f6">Before the agent acts, CAVRA decides.</text>
+  <text x="88" y="430" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600" fill="#aebbc3">Pre-action enforcement, approvals, evidence, and audit controls for AI engineering agents.</text>
+  <g transform="translate(88 494)">
+    <rect width="202" height="44" rx="7" fill="#10231f" stroke="#76d6b2"/>
+    <text x="22" y="29" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#76d6b2">Runtime Guard</text>
+    <rect x="226" width="164" height="44" rx="7" fill="#17222b" stroke="#45a6c6"/>
+    <text x="248" y="29" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#8fd4ea">Evidence</text>
+    <rect x="414" width="164" height="44" rx="7" fill="#261f12" stroke="#f2c96d"/>
+    <text x="436" y="29" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#f2c96d">Approvals</text>
+  </g>
+</svg>

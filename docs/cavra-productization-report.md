@@ -36,6 +36,8 @@ Added GitHub repository readiness controls and documentation: protected `main`, 
 
 Added high-quality user-facing diagram images for architecture, runtime flow, evidence hub, policy lifecycle, developer journey, OIDC/RBAC deployment, immutable evidence storage, and Go parity plus sandbox deployment.
 
+Added CAVRA brand assets: SVG logo mark, horizontal logo, stacked logo, favicon, product thumbnail, GitHub social preview, and PNG exports for README, documentation, dashboard, and release surfaces.
+
 Added transparent CAVRA engineering-agent methodology: declarative agent manifests, agent task issue template, label catalog, conservative GitHub Actions orchestrator scaffold, `cavra-agentic-delivery` policy pack, architecture documentation, wiki pages, and the user-facing agent orchestration diagram. The methodology explicitly requires bot identities and prohibits fake human developer identities.
 
 Published the GitHub Wiki at `https://github.com/Huzefaaa2/cavra/wiki` with the white paper, roadmap, user stories, challenge mapping, C4 diagram pages, SVG diagram assets, Phase 2 policy engine hardening page, Phase 3 evidence hub page, evidence key management page, evidence metadata migrations page, GitHub repository readiness page, release documentation policy, transparent agent methodology, and agent orchestration architecture. Wiki commits: `784a847`, `9b24196`, `e584f14`, `92a14ab`, `983dc54`, `66cd075`, `4683941`, `c26f7af`, and `235c30c`.

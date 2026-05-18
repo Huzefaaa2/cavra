@@ -1,6 +1,6 @@
 # Current Feature Inventory
 
-Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model, Go enforcement-plane parity scaffold, Go enforcement contracts, hosted sandbox deployment workflow.
+Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model, Go enforcement-plane parity scaffold, Go enforcement contracts, hosted sandbox deployment workflow, CAVRA brand asset system.
 
 Existing CLI commands: `version`, `evaluate`, `agent start`, `agent exec`, `agent attest`, `policy list`, `policy describe`, `policy validate`, `policy test`, `policy explain`, `policy compile`, `policy diff`, `policy sign`, `policy verify`, `policy simulate`, `policy dry-run`, `policy init`, `integration deliver`, `ops stores`, `ops backup`, `ops restore`, `ops retention-plan`, `init claude-code`, `demo before-the-agent-acts`.
 
@@ -35,6 +35,8 @@ Go enforcement-plane parity scaffold: `go/cavra-runtime/` contains a Go module, 
 Go enforcement contracts: `scripts/generate_go_enforcement_contracts.py` generates `go/cavra-runtime/enforcement/v1/contracts.go` from `proto/cavra/enforcement/v1/enforcement.proto`. The generated package provides `EvaluateRequest`, `DecisionResponse`, and conversion helpers for future daemon transport.
 
 Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
+
+Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses the compact mark in navigation and ships the brand assets in the Pages artifact.
 
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="360" viewBox="0 0 1400 360" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA horizontal logo</title>
+  <desc id="desc">CAVRA wordmark with runtime authority shield mark.</desc>
+  <defs>
+    <linearGradient id="shield" x1="48" y1="34" x2="300" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#12252d"/>
+      <stop offset="0.55" stop-color="#0d171b"/>
+      <stop offset="1" stop-color="#1f2b33"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="60" y1="45" x2="292" y2="312" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7fe4c5"/>
+      <stop offset="0.55" stop-color="#45a6c6"/>
+      <stop offset="1" stop-color="#f2c96d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="360" fill="none"/>
+  <g transform="translate(42 22)">
+    <path d="M158 14 298 74v110c0 90-52 165-140 214C70 349 18 274 18 184V74L158 14Z" fill="url(#shield)"/>
+    <path d="M158 35 278 86v97c0 74-42 138-120 183C80 321 38 257 38 183V86L158 35Z" fill="none" stroke="url(#edge)" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M213 124c-18-20-44-32-73-29-50 6-86 50-80 100 6 51 51 87 102 81 20-2 38-11 51-23" fill="none" stroke="#eef7f8" stroke-width="30" stroke-linecap="round"/>
+    <path d="M122 201 153 231 215 160" fill="none" stroke="#7fe4c5" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="390" y="160" font-family="Inter, Arial, sans-serif" font-size="116" font-weight="800" letter-spacing="0" fill="#eef3f6">CAVRA</text>
+  <text x="397" y="218" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="3" fill="#76d6b2">CONTROLLED AGENTIC VERIFICATION</text>
+  <text x="397" y="258" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="3" fill="#f2c96d">AND RUNTIME AUTHORITY</text>
+  <path d="M397 286H970" stroke="#344955" stroke-width="3"/>
+  <text x="397" y="322" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600" fill="#aebbc3">Before the agent acts, CAVRA decides.</text>
+</svg>
