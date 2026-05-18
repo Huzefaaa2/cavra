@@ -52,4 +52,4 @@ OIDC/RBAC deployment references move CAVRA from local approval claims to product
 
 ## Next
 
-Go daemon transport and public sandbox URL validation after deployment from `main`.
+Go daemon client helpers and public sandbox URL validation after deployment from `main`.

@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Go daemon transport and public sandbox URL validation after deployment from `main`.
+Go daemon client helpers and public sandbox URL validation after deployment from `main`.

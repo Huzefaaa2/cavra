@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Expand Go enforcement from generated contracts to local daemon transport.
+- Add Go daemon client helpers and evidence hooks.
 - Validate the hosted sandbox URL after deployment from `main`.

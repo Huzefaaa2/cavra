@@ -30,4 +30,4 @@ Generated contracts reduce integration drift between management-plane policy dec
 
 ## Next
 
-Build the local daemon transport on these request and response types, then expand parity tests across approvals, registry-backed MCP decisions, and evidence references.
+Add client helpers, daemon lifecycle management, evidence hooks, and expanded parity tests across approvals, registry-backed MCP decisions, and evidence references.

@@ -77,9 +77,9 @@
   <text x="1054" y="312" class="node-title">Promotion Gate</text>
   <text x="1054" y="336" class="small">Compiled policies loaded</text>
   <text x="1054" y="354" class="small">Generated contracts</text>
-  <text x="1054" y="372" class="small">Daemon transport next</text>
-  <text x="1054" y="390" class="small">Signed binaries</text>
-  <text x="1054" y="408" class="small">Expanded golden tests</text>
+  <text x="1054" y="372" class="small">Unix socket daemon</text>
+  <text x="1054" y="390" class="small">Client and evidence hooks next</text>
+  <text x="1054" y="408" class="small">Signed binaries</text>
 
   <path class="arrow" d="M308 214 L390 214"/>
   <path class="arrow" d="M628 214 L710 214"/>

@@ -58,5 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Go daemon transport.
+- Go daemon client helpers and registry-backed parity.
 - Public sandbox URL validation after deployment from `main`.

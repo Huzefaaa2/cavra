@@ -170,6 +170,8 @@ Completed:
 - Go CLI `--policy` flag for compiled policy evaluation.
 - Generated Go enforcement contracts from `proto/cavra/enforcement/v1/enforcement.proto`.
 - Contract conversion helpers for runtime requests and decisions.
+- Unix-socket daemon transport with one JSON `EvaluateRequest` per connection.
+- Compiled-policy-backed daemon evaluator tests.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - Go unit tests that load the shared parity fixture.
 - Python parity tests that validate the same fixture against authoritative `RuntimeGuard`.
@@ -180,7 +182,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: expose a local daemon interface using the generated enforcement contracts.
+Recommended next issue: add daemon client helpers, lifecycle management, and evidence hooks.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -226,7 +228,7 @@ Completed:
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
 - Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: implement Go daemon transport, validate the public sandbox URL after merge, and add post-deploy smoke checks.
+Recommended next issue: add Go daemon client helpers, validate the public sandbox URL after merge, and add post-deploy smoke checks.
 
 ## Transparent Agent Methodology Enablement
 

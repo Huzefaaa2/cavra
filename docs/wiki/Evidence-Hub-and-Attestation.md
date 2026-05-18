@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Go daemon transport.
+- Go daemon evidence hooks.
 - Public sandbox URL validation after deployment from `main`.

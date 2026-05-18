@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Go daemon transport.
+- Go daemon client helpers and evidence hooks.
 - Public sandbox URL validation after deployment from `main`.

@@ -1,6 +1,6 @@
 # Current Feature Inventory
 
-Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model, Go enforcement-plane parity scaffold, Go enforcement contracts, hosted sandbox deployment workflow, CAVRA brand asset system.
+Implemented modules: policy registry, policy authoring preview, approval-bound signed policy publishing, rollout change planning, runtime guard, session audit, command interceptor, PR attestation exporter, webhook exporter, connector execution hooks, approval router, evidence hub, evidence artifact retrieval, CI/CD required-check templates, activity persistence, repository inventory, policy rollout persistence, integration inventory, persistent API operations, production deployment validation, Typer CLI, MCP server, FastAPI app, sandbox decision model, Go enforcement-plane parity scaffold, Go enforcement contracts, Go daemon transport, hosted sandbox deployment workflow, CAVRA brand asset system.
 
 Existing CLI commands: `version`, `evaluate`, `agent start`, `agent exec`, `agent attest`, `policy list`, `policy describe`, `policy validate`, `policy test`, `policy explain`, `policy compile`, `policy diff`, `policy sign`, `policy verify`, `policy simulate`, `policy dry-run`, `policy init`, `integration deliver`, `ops stores`, `ops backup`, `ops restore`, `ops retention-plan`, `init claude-code`, `demo before-the-agent-acts`.
 
@@ -34,6 +34,8 @@ Go enforcement-plane parity scaffold: `go/cavra-runtime/` contains a Go module, 
 
 Go enforcement contracts: `scripts/generate_go_enforcement_contracts.py` generates `go/cavra-runtime/enforcement/v1/contracts.go` from `proto/cavra/enforcement/v1/enforcement.proto`. The generated package provides `EvaluateRequest`, `DecisionResponse`, and conversion helpers for future daemon transport.
 
+Go daemon transport: `go/cavra-runtime/daemon` and `go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock` provide the first Unix-socket transport for generated `EvaluateRequest` and `DecisionResponse` JSON payloads.
+
 Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
 
 Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses the compact mark in navigation and ships the brand assets in the Pages artifact.
@@ -48,6 +50,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: Go local daemon or gRPC interface, expanded Go parity across approvals and registry-backed MCP, signed Go binary release packaging, public sandbox URL verification after merge to `main`, SBOM automation, and signed releases.
+Known gaps: Go daemon client helpers, daemon lifecycle management, evidence hooks, expanded Go parity across approvals and registry-backed MCP, signed Go binary release packaging, public sandbox URL verification after merge to `main`, SBOM automation, and signed releases.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, expanded golden parity suite, and generated enforcement contracts for the Go runtime.

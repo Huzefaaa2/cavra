@@ -61,4 +61,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is Go daemon transport and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon client helpers and public sandbox URL validation after deployment from `main`.

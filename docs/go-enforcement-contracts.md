@@ -59,4 +59,5 @@ Generated contracts reduce integration drift between Python, Go, future daemon t
 ## Current Limits
 
 - The generated package is a lightweight JSON transport contract, not a full gRPC server.
-- The next step is a local Unix-socket or gRPC daemon that uses these generated request and response types.
+- The current daemon transport uses these contracts over a one-request-per-connection Unix socket.
+- Client helpers, lifecycle management, and evidence hooks remain next.
