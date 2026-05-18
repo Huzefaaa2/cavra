@@ -82,7 +82,7 @@ jobs:
           cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
 ```
 
-Set the GitHub branch protection required status check to `cavra-required-check`. For stricter regulated repositories, use `examples/github-actions/cavra-enterprise-enforcement.yml` with trust-root verification, key IDs, and minimum retention thresholds. GitLab users can start from `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`.
+Set the GitHub branch protection required status check to `cavra-required-check`. For stricter regulated repositories, use `examples/github-actions/cavra-enterprise-enforcement.yml` with trust-root verification, key IDs, and minimum retention thresholds. GitLab users can start from `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`. Azure DevOps users can create an Azure Pipeline from `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml`, then add that pipeline as a required Azure Repos Build validation branch policy.
 
 ---
 

@@ -1,6 +1,6 @@
-# GitHub Required Checks and CI/CD Enforcement
+# Required Checks and CI/CD Enforcement
 
-CAVRA now includes required-check templates for GitHub and CI/CD enforcement examples for GitHub Actions and GitLab CI.
+CAVRA now includes required-check templates for GitHub, GitLab CI, and Azure DevOps.
 
 ## Delivered
 
@@ -9,10 +9,13 @@ CAVRA now includes required-check templates for GitHub and CI/CD enforcement exa
 - `examples/github-actions/cavra-required-check.yml` provides a starter downstream workflow.
 - `examples/github-actions/cavra-enterprise-enforcement.yml` provides trust-root, key-ID, retention, and signed-policy enforcement.
 - `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml` provides the same governance pattern for GitLab CI.
+- `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml` provides Azure Pipelines enforcement for Azure Repos Build validation policies.
 
 ## How to Enforce
 
 Enable branch protection for `main`, require status checks before merge, and select `cavra-required-check`.
+
+For Azure DevOps, create a pipeline from `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml`, add `CAVRA_EVIDENCE_SIGNING_KEY` as a secret pipeline variable, then add the pipeline as a Required Azure Repos Build validation policy on the protected branch.
 
 ## User Stories
 
@@ -23,8 +26,8 @@ Enable branch protection for `main`, require status checks before merge, and sel
 
 ## Enterprise Value
 
-Required checks turn CAVRA evidence and policy validation into a merge gate. This helps regulated teams adopt AI coding agents without losing branch protection, review evidence, or auditability.
+Required checks turn CAVRA evidence and policy validation into a merge gate. This helps regulated teams adopt AI coding agents across GitHub, GitLab, and Azure DevOps without losing branch protection, review evidence, or auditability.
 
 ## Next
 
-Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
+Immutable evidence store deployment references and OIDC/RBAC deployment bundles.

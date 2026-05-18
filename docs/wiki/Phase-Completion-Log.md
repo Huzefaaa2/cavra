@@ -155,7 +155,7 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
+Recommended next issue: add immutable evidence store deployment references and OIDC/RBAC deployment bundles.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -167,8 +167,9 @@ Completed:
 - Evidence artifact upload for reviewer and auditor inspection.
 - Reusable GitHub Actions required-check and enterprise enforcement templates.
 - GitLab CI enforcement example.
+- Azure Pipelines required-check template for Azure Repos Build validation policies.
 
-Recommended next issue: add Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
+Recommended next issue: add immutable evidence store deployment references and OIDC/RBAC deployment bundles.
 
 ## Transparent Agent Methodology Enablement
 

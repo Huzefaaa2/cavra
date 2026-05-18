@@ -58,6 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Azure DevOps required-check template.
 - Immutable evidence store deployment reference.
 - OIDC/RBAC deployment reference bundles.

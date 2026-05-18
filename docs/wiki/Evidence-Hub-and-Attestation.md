@@ -83,6 +83,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Azure DevOps required-check template.
 - Immutable evidence store deployment reference.
 - OIDC/RBAC deployment reference bundles.

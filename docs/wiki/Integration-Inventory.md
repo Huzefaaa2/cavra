@@ -61,4 +61,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
+The next recommended work is immutable evidence store deployment references and OIDC/RBAC deployment bundles.

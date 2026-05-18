@@ -1,0 +1,62 @@
+# CAVRA Required Check for Azure Pipelines.
+#
+# Create a pipeline from this YAML file, then add it to the protected branch as
+# an Azure Repos Build validation policy named `cavra-required-check`.
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  CAVRA_POLICY_PACK: cavra-agentic-delivery
+  CAVRA_EVIDENCE_DIR: .cavra/evidence/latest
+
+stages:
+  - stage: governance
+    displayName: CAVRA governance
+    jobs:
+      - job: cavra_required_check
+        displayName: cavra-required-check
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: UsePythonVersion@0
+            displayName: Set up Python
+            inputs:
+              versionSpec: "3.11"
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install cavra
+            displayName: Install CAVRA
+
+          - script: |
+              set -euo pipefail
+              cavra policy validate "policies/${CAVRA_POLICY_PACK}/policy.yaml"
+            displayName: Validate selected policy pack
+
+          - script: |
+              set -euo pipefail
+              mkdir -p "$CAVRA_EVIDENCE_DIR" .cavra/evidence/attestation
+              evidence_key="${CAVRA_EVIDENCE_SIGNING_KEY:-cavra-required-check-demo-key}"
+              if [ ! -f "$CAVRA_EVIDENCE_DIR/manifest.json" ]; then
+                cavra evidence bundle \
+                  --output "$CAVRA_EVIDENCE_DIR" \
+                  --policy-pack "$CAVRA_POLICY_PACK" \
+                  --signer "azure-pipelines:${BUILD_BUILDID:-local}" \
+                  --key "$evidence_key"
+              fi
+              cavra evidence verify "$CAVRA_EVIDENCE_DIR" --key "$evidence_key"
+              cavra evidence verify-attestation "$CAVRA_EVIDENCE_DIR" --output .cavra/evidence/attestation
+            displayName: Verify evidence and PR attestation
+            env:
+              CAVRA_EVIDENCE_SIGNING_KEY: $(CAVRA_EVIDENCE_SIGNING_KEY)
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish CAVRA evidence
+            condition: always()
+            inputs:
+              targetPath: .cavra/evidence
+              artifact: cavra-required-check-evidence

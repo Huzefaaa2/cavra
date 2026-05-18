@@ -238,13 +238,13 @@ Current phase status:
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane.
-- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI enforcement example, CI evidence artifact upload, and live SIEM/ITSM/ChatOps connector execution hooks.
+- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, and live SIEM/ITSM/ChatOps connector execution hooks.
 - Phase 9: Public Sandbox and Growth Loop.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Add Azure DevOps required-check template and immutable evidence store deployment reference.
+- Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles for Entra ID and Okta.
 
 ## User stories and enterprise value

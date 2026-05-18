@@ -45,3 +45,20 @@ def test_gitlab_required_check_template_parses_and_exports_artifacts() -> None:
     assert "cavra evidence verify" in text
     assert "cavra evidence verify-attestation" in text
     assert ".cavra/evidence/attestation/" in job["artifacts"]["paths"]
+
+
+def test_azure_pipelines_required_check_template_parses_and_exports_artifacts() -> None:
+    pipeline_path = "examples/azure-pipelines/cavra-required-check.azure-pipelines.yml"
+    pipeline = _load_yaml(pipeline_path)
+    text = Path(pipeline_path).read_text(encoding="utf-8")
+
+    job = pipeline["stages"][0]["jobs"][0]
+    artifact_step = job["steps"][-1]
+    assert pipeline["trigger"] == "none"
+    assert pipeline["pr"] == "none"
+    assert job["displayName"] == "cavra-required-check"
+    assert "cavra policy validate" in text
+    assert "cavra evidence verify" in text
+    assert "cavra evidence verify-attestation" in text
+    assert artifact_step["task"] == "PublishPipelineArtifact@1"
+    assert artifact_step["inputs"]["artifact"] == "cavra-required-check-evidence"

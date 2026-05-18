@@ -31,6 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Azure DevOps required-check template.
 - Immutable evidence store deployment reference.
 - OIDC/RBAC deployment reference bundles.

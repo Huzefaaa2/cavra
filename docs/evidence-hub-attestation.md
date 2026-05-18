@@ -165,6 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add Azure DevOps required-check template.
 - Add immutable evidence store deployment reference.
 - Add OIDC/RBAC deployment reference bundles.

@@ -1,6 +1,6 @@
-# GitHub Required Checks and CI/CD Enforcement
+# Required Checks and CI/CD Enforcement
 
-CAVRA can run as a required branch-protection check so AI-assisted changes cannot merge without policy validation, evidence verification, and PR attestation verification.
+CAVRA can run as a required branch-protection or build-validation check so AI-assisted changes cannot merge without policy validation, evidence verification, and PR attestation verification.
 
 ## Delivered Workflow
 
@@ -31,6 +31,18 @@ Copy one of these templates into downstream repositories:
 - `examples/github-actions/cavra-required-check.yml`: starter GitHub required check that validates a policy pack, creates evidence if none exists, verifies the bundle, verifies PR attestation, and uploads evidence.
 - `examples/github-actions/cavra-enterprise-enforcement.yml`: stricter GitHub workflow for signed policy packs, trust-root evidence verification, key IDs, retention minimums, and artifact enforcement.
 - `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`: GitLab CI equivalent for teams that want the same governance control outside GitHub.
+- `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml`: Azure Pipelines equivalent for Azure Repos Build validation branch policies.
+
+## Azure DevOps Setup
+
+1. Copy `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml` into the repository.
+2. Create an Azure Pipeline from that YAML file.
+3. Add `CAVRA_EVIDENCE_SIGNING_KEY` as a secret pipeline variable for production evidence signatures.
+4. Open Azure Repos branch policies for the protected target branch.
+5. Add a Build validation policy that selects the CAVRA pipeline.
+6. Set Policy requirement to Required and use the display name `cavra-required-check`.
+
+Azure Repos PR validation is enforced through branch policies. The CAVRA pipeline disables direct YAML `trigger` and `pr` triggers so the protected branch Build validation policy is the merge gate.
 
 ## User Stories
 
@@ -41,8 +53,8 @@ Copy one of these templates into downstream repositories:
 
 ## Enterprise Challenge Solved
 
-Required checks convert CAVRA from advisory tooling into a merge gate. Enterprises can standardize AI coding controls across repositories, preserve evidence for audits, and prevent undocumented AI-generated changes from merging without verifier-ready attestation.
+Required checks convert CAVRA from advisory tooling into a merge gate. Enterprises can standardize AI coding controls across GitHub, GitLab, and Azure DevOps repositories, preserve evidence for audits, and prevent undocumented AI-generated changes from merging without verifier-ready attestation.
 
 ## Next
 
-The next recommended implementation step is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
+The next recommended implementation step is immutable evidence store deployment references and OIDC/RBAC deployment bundles.

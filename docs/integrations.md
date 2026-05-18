@@ -1,6 +1,6 @@
 # Integrations
 
-Implemented: CLI, MCP stdio server, FastAPI, webhook exporter, PR attestation exporter, Claude Code repository initializer, GitHub required-check workflow, GitHub Actions and GitLab CI enforcement templates, approval-bound signed policy publishing, approval provider request specs, live approval provider delivery, SIEM export payloads, JSON/SQLite integration inventory, and live connector execution hooks for SIEM, ITSM, ChatOps, and generic webhooks.
+Implemented: CLI, MCP stdio server, FastAPI, webhook exporter, PR attestation exporter, Claude Code repository initializer, GitHub required-check workflow, GitHub Actions, GitLab CI, and Azure Pipelines enforcement templates, approval-bound signed policy publishing, approval provider request specs, live approval provider delivery, SIEM export payloads, JSON/SQLite integration inventory, and live connector execution hooks for SIEM, ITSM, ChatOps, and generic webhooks.
 
 Reference or planned integrations: GitHub App orchestrator, Azure DevOps, pre-commit, VS Code, Docker, Kubernetes, Homebrew, PyPI, Microsoft Sentinel, Splunk, Datadog, ServiceNow, Jira, Slack, Teams, Security Hub, CloudTrail, Azure Monitor, Google SCC, S3 Object Lock, Azure immutable blob, Entra ID, Okta, SAML, and RBAC.
 
