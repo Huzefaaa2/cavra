@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is OIDC/RBAC deployment reference bundles.
+The next recommended step is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

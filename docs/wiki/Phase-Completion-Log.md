@@ -156,7 +156,7 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add OIDC/RBAC deployment reference bundles.
+Recommended next issue: add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -169,8 +169,9 @@ Completed:
 - Reusable GitHub Actions required-check and enterprise enforcement templates.
 - GitLab CI enforcement example.
 - Azure Pipelines required-check template for Azure Repos Build validation policies.
+- Entra ID and Okta OIDC/RBAC deployment references.
 
-Recommended next issue: add OIDC/RBAC deployment reference bundles.
+Recommended next issue: add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
 
 ## Transparent Agent Methodology Enablement
 

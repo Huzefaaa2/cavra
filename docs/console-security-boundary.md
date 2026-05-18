@@ -28,6 +28,8 @@ Production deployments should:
 - Restrict `CAVRA_CORS_ORIGINS`.
 - Keep backup and restore operations in CLI or platform runbooks.
 
+Deployment references for Entra ID and Okta live in `examples/identity/`; see [OIDC/RBAC deployment](oidc-rbac-deployment.md).
+
 ## Console
 
 The sandbox console includes a Console Security Boundary panel that displays mode, OIDC status, RBAC status, CORS origins, allowed console permission categories, and operator notes. It also includes a Console Session panel for bearer-token validation.

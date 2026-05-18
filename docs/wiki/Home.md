@@ -16,13 +16,13 @@ Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema va
 
 Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, SIEM exports, retention controls, AWS/Azure immutable evidence storage references, SQLite and JSON evidence metadata search, governed artifact retrieval APIs, console API wiring, and migration automation.
 
-Phase 4, Approval Router, is complete for the current production-readiness slice. It includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC, provider payload and request-spec exports, secret-backed live provider delivery, console approval queue actions, console break-glass creation, approval audit detail views, and approval evidence linkage.
+Phase 4, Approval Router, is complete for the current production-readiness slice. It includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC, Entra/Okta OIDC-RBAC deployment references, provider payload and request-spec exports, secret-backed live provider delivery, console approval queue actions, console break-glass creation, approval audit detail views, and approval evidence linkage.
 
 Phase 5, Agent Registry and MCP Trust Registry, is complete for the current production-readiness slice. It includes JSON and SQLite governed agent identities, MCP server trust records, predefined agent capability profiles, MCP capability classification, API and CLI access, console registry views, and registry-backed MCP runtime decisions.
 
 Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
-Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, and live SIEM/ITSM/ChatOps connector execution hooks.
+Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, live SIEM/ITSM/ChatOps connector execution hooks, AWS/Azure immutable evidence storage references, and Entra/Okta OIDC-RBAC deployment references.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
@@ -54,6 +54,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Connector Execution Hooks: `Connector-Execution-Hooks.md`
 - Console Security Boundary: `Console-Security-Boundary.md`
 - Console Authenticated Sessions: `Console-Authenticated-Sessions.md`
+- OIDC/RBAC Deployment: `OIDC-RBAC-Deployment.md`
 - Evidence Artifact Retrieval: `Evidence-Artifact-Retrieval.md`
 - Immutable Evidence Storage: `Immutable-Evidence-Storage.md`
 - Policy Pack Authoring Workflows: `Policy-Pack-Authoring-Workflows.md`

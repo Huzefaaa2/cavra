@@ -58,5 +58,5 @@ The registry removes identity ambiguity and MCP tool sprawl. Agents and tools be
 
 ## Next
 
-- Immutable evidence store deployment reference.
-- OIDC/RBAC deployment reference bundles.
+- Go enforcement plane parity scaffold.
+- Hosted sandbox deployment workflow.

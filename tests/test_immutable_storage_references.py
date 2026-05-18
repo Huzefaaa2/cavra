@@ -53,6 +53,6 @@ def test_immutable_storage_docs_reference_deployment_bundles() -> None:
 
     assert str(AWS_DIR) in doc
     assert str(AZURE_DIR) in doc
-    assert "OIDC/RBAC deployment reference bundles" in doc
+    assert "Go enforcement plane parity scaffold" in doc
     assert str(AWS_DIR) in wiki
     assert str(AZURE_DIR) in wiki

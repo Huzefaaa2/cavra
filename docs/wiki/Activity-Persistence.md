@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Immutable evidence store deployment reference.
-- OIDC/RBAC deployment reference bundles.
+- Go enforcement plane parity scaffold.
+- Hosted sandbox deployment workflow.

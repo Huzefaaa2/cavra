@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Immutable evidence store deployment reference.
-- OIDC/RBAC deployment reference bundles.
+- Go enforcement plane parity scaffold.
+- Hosted sandbox deployment workflow.

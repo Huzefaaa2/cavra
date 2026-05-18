@@ -40,4 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add OIDC/RBAC deployment reference bundles.
+- Add Go enforcement plane parity scaffold.
+- Add hosted sandbox deployment workflow.

@@ -78,7 +78,7 @@ MCP (Model Context Protocol) is expanding AI agent capabilities. Governance must
 - [ ] Azure Sentinel integration
 - [ ] AWS CloudTrail integration
 - [ ] ServiceNow change management sync
-- [ ] Okta / Azure AD SSO
+- [x] Okta / Azure AD SSO reference bundles
 - [ ] OAuth2 API authentication
 - [ ] Approval workflow orchestration
 

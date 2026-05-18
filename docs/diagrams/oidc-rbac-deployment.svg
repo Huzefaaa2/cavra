@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA OIDC/RBAC Deployment Flow</title>
+  <desc id="desc">A flow diagram showing Entra ID or Okta discovery and groups feeding CAVRA OIDC configuration, repository RBAC, console sessions, approvals, and break-glass decisions.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344955"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f9fb; }
+      .title { font: 700 30px Arial, sans-serif; fill: #14212b; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #4b5f6f; }
+      .idp { fill: #f2f0fa; stroke: #7256b8; stroke-width: 1.5; }
+      .config { fill: #eef6ff; stroke: #3b6f8f; stroke-width: 1.5; }
+      .rbac { fill: #f3fbef; stroke: #4d8b55; stroke-width: 1.5; }
+      .api { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.5; }
+      .node-title { font: 700 15px Arial, sans-serif; fill: #17242d; }
+      .node-text { font: 400 12px Arial, sans-serif; fill: #435464; }
+      .arrow { stroke: #344955; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="620"/>
+  <text x="56" y="58" class="title">CAVRA OIDC/RBAC Deployment</text>
+  <text x="56" y="84" class="subtitle">Enterprise identity metadata and group claims become signed console sessions and repository-scoped approval permissions.</text>
+
+  <rect x="68" y="170" width="210" height="92" rx="8" class="idp"/>
+  <text x="92" y="204" class="node-title">Entra ID or Okta</text>
+  <text x="92" y="226" class="node-text">OIDC issuer, audience,</text>
+  <text x="92" y="244" class="node-text">groups, roles, JWKS</text>
+
+  <rect x="350" y="112" width="220" height="92" rx="8" class="config"/>
+  <text x="374" y="146" class="node-title">OIDC Discovery</text>
+  <text x="374" y="168" class="node-text">Metadata document and</text>
+  <text x="374" y="186" class="node-text">JWKS signing keys</text>
+
+  <rect x="350" y="286" width="220" height="92" rx="8" class="rbac"/>
+  <text x="374" y="320" class="node-title">Group Claims</text>
+  <text x="374" y="342" class="node-text">External group IDs or</text>
+  <text x="374" y="360" class="node-text">Okta group names</text>
+
+  <rect x="642" y="112" width="230" height="92" rx="8" class="config"/>
+  <text x="666" y="146" class="node-title">approval-oidc.json</text>
+  <text x="666" y="168" class="node-text">Issuer, audience,</text>
+  <text x="666" y="186" class="node-text">JWKS path, leeway</text>
+
+  <rect x="642" y="286" width="230" height="92" rx="8" class="rbac"/>
+  <text x="666" y="320" class="node-title">approval-rbac.yaml</text>
+  <text x="666" y="342" class="node-text">Group mappings and</text>
+  <text x="666" y="360" class="node-text">repository permissions</text>
+
+  <rect x="944" y="198" width="230" height="108" rx="8" class="api"/>
+  <text x="968" y="234" class="node-title">CAVRA API</text>
+  <text x="968" y="256" class="node-text">Validates RS256 tokens,</text>
+  <text x="968" y="274" class="node-text">maps groups, enforces RBAC</text>
+
+  <rect x="642" y="454" width="230" height="92" rx="8" class="config"/>
+  <text x="666" y="488" class="node-title">Console Bearer Token</text>
+  <text x="666" y="510" class="node-text">Pasted or proxied by</text>
+  <text x="666" y="528" class="node-text">enterprise console host</text>
+
+  <rect x="944" y="406" width="230" height="116" rx="8" class="api"/>
+  <text x="968" y="442" class="node-title">Protected Actions</text>
+  <text x="968" y="464" class="node-text">Console session, approvals,</text>
+  <text x="968" y="482" class="node-text">policy write-back,</text>
+  <text x="968" y="500" class="node-text">break-glass decisions</text>
+
+  <path class="arrow" d="M278 216 C312 216 316 158 350 158"/>
+  <path class="arrow" d="M278 216 C312 216 316 332 350 332"/>
+  <path class="arrow" d="M570 158 L642 158"/>
+  <path class="arrow" d="M570 332 L642 332"/>
+  <path class="arrow" d="M872 158 C920 158 920 234 944 234"/>
+  <path class="arrow" d="M872 332 C920 332 920 274 944 274"/>
+  <path class="arrow" d="M757 454 C757 390 944 390 944 306"/>
+  <path class="arrow" d="M1059 306 L1059 406"/>
+</svg>

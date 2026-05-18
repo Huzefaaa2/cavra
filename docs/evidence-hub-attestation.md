@@ -165,4 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add OIDC/RBAC deployment reference bundles.
+- Add Go enforcement plane parity scaffold.
+- Add hosted sandbox deployment workflow.

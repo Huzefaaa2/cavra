@@ -68,4 +68,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is OIDC/RBAC deployment reference bundles.
+The next recommended work is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

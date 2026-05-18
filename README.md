@@ -98,6 +98,8 @@ Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to expose read-only evidence artifact retriev
 
 Set `CAVRA_APPROVAL_OIDC_CONFIG` and `CAVRA_APPROVAL_RBAC_FILE` to enable authenticated console sessions through `/console/session`. Approval decisions and break-glass console mutations then require verified actor context from a bearer token, `actor_token`, or `actor_claims`.
 
+OIDC/RBAC deployment references for Microsoft Entra ID and Okta are documented in [docs/oidc-rbac-deployment.md](docs/oidc-rbac-deployment.md). Reference bundles live under `examples/identity/`.
+
 Policy authoring and rollout workflows are exposed through `/policy-pack-catalog`, `/policy-packs/draft`, `/policy-rollouts/change-plan`, and `/policy-rollouts/apply-change`. Production deployment validation is exposed through `/deployment/production-readiness`.
 
 ## Policy packs
@@ -246,7 +248,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add OIDC/RBAC deployment reference bundles for Entra ID and Okta.
+- Add Go enforcement plane parity scaffold and hosted sandbox deployment workflow.
 
 ## User stories and enterprise value
 
@@ -272,6 +274,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Evidence Key Management](docs/wiki/Evidence-Key-Management.md)
 - [Evidence Trust-Root Distribution](docs/wiki/Evidence-Trust-Root-Distribution.md)
 - [Immutable Evidence Storage](docs/wiki/Immutable-Evidence-Storage.md)
+- [OIDC/RBAC Deployment](docs/wiki/OIDC-RBAC-Deployment.md)
 - [GitHub Repository Readiness](docs/wiki/GitHub-Repository-Readiness.md)
 - [GitHub Required Checks and CI/CD Enforcement](docs/wiki/GitHub-Required-Checks-and-CI-CD-Enforcement.md)
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)

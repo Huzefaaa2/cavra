@@ -114,9 +114,9 @@ Phase 3, Evidence Hub and Attestation, is near complete. Added evidence bundle m
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. Added JSON and SQLite approval persistence, API and CLI approval lifecycle, break-glass evidence, repository-specific routing, signed OIDC/JWKS validation, repository RBAC policy files, live approval provider delivery, console approval actions, console break-glass creation, and approval audit detail views.
 
-Next recommended implementation work: continue Phase 8 with OIDC/RBAC deployment bundles. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, and immutable evidence storage deployment references are now delivered.
+Next recommended implementation work: start the Go enforcement plane parity scaffold and hosted sandbox deployment workflow. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, GitLab and Azure DevOps CI/CD enforcement examples, live SIEM/ITSM/ChatOps connector execution hooks, immutable evidence storage deployment references, and Entra/Okta OIDC-RBAC deployment references are now delivered.
 
-Later roadmap backlog: full persistent API storage for every domain, Go enforcement implementation, parity tests, hosted sandbox deployment, OIDC/RBAC deployment bundles, SBOM automation, and signed releases.
+Later roadmap backlog: full persistent API storage for every domain, Go enforcement implementation, parity tests, hosted sandbox deployment, SBOM automation, and signed releases.
 
 ## Market, partner, and commercialization summary
 

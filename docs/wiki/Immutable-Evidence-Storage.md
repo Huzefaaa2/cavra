@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-OIDC/RBAC deployment reference bundles for Entra ID and Okta.
+Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

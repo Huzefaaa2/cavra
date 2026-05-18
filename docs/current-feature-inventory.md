@@ -8,7 +8,7 @@ Policy engine hardening: `policy validate` uses JSON Schema, `policy compile` em
 
 Evidence hub: `evidence bundle` creates `manifest.json`, `evidence.json`, `pr-attestation.md`, `compliance-mapping.md`, `siem-event.json`, and `sandbox-run-summary.json`; `evidence verify` validates checksums plus optional HMAC or Ed25519 signatures; trust-root bundles, retention artifacts, immutable storage plans, AWS S3 Object Lock and Azure Blob immutability deployment references, SQLite metadata indexing, PR attestation verification, and governed artifact retrieval are available.
 
-Approval router: `approval create`, `list`, `approve`, `deny`, `expire`, `break-glass`, `route`, `migrate`, `export-notifications`, `provider-requests`, and `deliver` support JSON or SQLite stores, repository routing files, local claims authorization, signed OIDC/JWKS validation, repository RBAC policies, provider payload exports, credential-free provider request specs, live provider delivery with redacted evidence, console break-glass creation, and approval audit detail views.
+Approval router: `approval create`, `list`, `approve`, `deny`, `expire`, `break-glass`, `route`, `migrate`, `export-notifications`, `provider-requests`, and `deliver` support JSON or SQLite stores, repository routing files, local claims authorization, signed OIDC/JWKS validation, repository RBAC policies, Entra ID and Okta deployment references, provider payload exports, credential-free provider request specs, live provider delivery with redacted evidence, console break-glass creation, and approval audit detail views.
 
 Existing API endpoints: `/health`, `/version`, `/policies`, `/policy-packs`, `/policy-pack-catalog`, `/policy-packs/draft`, `/policy-packs/publish-plan`, `/policy-packs/publish-request`, `/policy-packs/publish`, `/policy-rollouts/change-plan`, `/policy-rollouts/apply-change`, `/deployment/production-readiness`, `/decisions`, `/sessions`, `/agents`, `/repositories`, `/approvals`, `/evidence`, `/evidence/{session_id}/artifacts`, `/integrations`, `/integrations/{integration_id}/deliver`, `/mcp/servers`, `/mcp/trust`, `/risk/events`, `/compliance/mappings`, and sandbox endpoints under `/api/sandbox`.
 
@@ -30,7 +30,7 @@ Production deployment validation: `GET /deployment/production-readiness` checks 
 
 CI/CD required-check templates: `.github/workflows/cavra-governance.yml` exposes `cavra-required-check` for branch protection, validates policy packs, runs lint/tests, generates and verifies evidence, verifies PR attestation, and uploads CI evidence artifacts. Reusable GitHub Actions, GitLab CI, and Azure Pipelines examples live under `examples/`.
 
-Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured.
+Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. The console shows artifact lists and bundle download links from evidence rows.
 
@@ -40,6 +40,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: packaged Go backend, hosted sandbox deployment, and OIDC/RBAC deployment reference bundles.
+Known gaps: packaged Go backend and hosted sandbox deployment.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, and parity test suite for future Go enforcement.

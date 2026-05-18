@@ -22,7 +22,7 @@ System_Boundary(cavra, "CAVRA") {
   Container_Boundary(authority, "Runtime Authority") {
     Container(runtime, "Runtime Guard", "Python", "Pre-action decisions for file, command, Git, MCP, and PR-attestation requests.")
     Container(policy, "Policy Registry", "YAML + JSON Schema", "Policy packs, schema validation, inheritance, semantic diff, approval-bound write-back, and signature metadata.")
-    Container(approval, "Approval Router", "Python + JSON/SQLite", "Routes high-risk actions with default or repository rules, validates signed OIDC/JWKS identity and repository RBAC, exports and delivers provider requests, records approval outcomes, and supports console break-glass and audit details.")
+    Container(approval, "Approval Router", "Python + JSON/SQLite", "Routes high-risk actions with default or repository rules, validates signed OIDC/JWKS identity and repository RBAC, includes Entra/Okta deployment references, exports and delivers provider requests, records approval outcomes, and supports console break-glass and audit details.")
     Container(registry, "Agent and MCP Trust Registry", "Python + JSON/SQLite", "Tracks governed agents, MCP servers, trust tiers, owners, capabilities, approval state, agent profiles, MCP tool classifications, and runtime trust decisions.")
   }
 

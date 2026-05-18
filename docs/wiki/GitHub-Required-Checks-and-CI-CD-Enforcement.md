@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-OIDC/RBAC deployment reference bundles.
+Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

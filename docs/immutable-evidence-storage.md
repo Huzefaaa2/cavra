@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is OIDC/RBAC deployment reference bundles for Entra ID and Okta.
+The next recommended work is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

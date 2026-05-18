@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is OIDC/RBAC deployment reference bundles.
+The next recommended work is the Go enforcement plane parity scaffold and hosted sandbox deployment workflow.

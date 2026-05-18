@@ -27,6 +27,8 @@ uvicorn cavra.api:app --reload
 
 The OIDC config validates issuer, audience, expiry, not-before, JWKS key ID, and RS256 signature. The RBAC file maps external identity groups to CAVRA approval groups and repository permissions.
 
+Deployment references for Entra ID and Okta live in `examples/identity/`; see [OIDC/RBAC deployment](oidc-rbac-deployment.md).
+
 ## Enforced Console Mutations
 
 When OIDC or RBAC is configured, the following API actions require verified actor context from an `Authorization: Bearer` token, `actor_token`, or `actor_claims`:
