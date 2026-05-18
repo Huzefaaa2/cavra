@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+The next recommended work is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.

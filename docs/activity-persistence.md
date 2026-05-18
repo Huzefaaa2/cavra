@@ -40,5 +40,6 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
 - Add Azure DevOps required-check template.
+- Add immutable evidence store deployment reference.
+- Add OIDC/RBAC deployment reference bundles.

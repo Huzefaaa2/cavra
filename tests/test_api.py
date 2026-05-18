@@ -400,6 +400,52 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
 
 
+def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_INTEGRATION_DB", raising=False)
+    monkeypatch.setenv("CAVRA_INTEGRATION_STORE", str(tmp_path / "integrations.json"))
+    config_path = tmp_path / "connectors.json"
+    config_path.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_CONNECTOR_CONFIG", str(config_path))
+    client = TestClient(create_app())
+    client.post(
+        "/integrations",
+        json={
+            "integration_id": "webhook",
+            "provider": "webhook",
+            "category": "siem",
+            "status": "active",
+            "health_status": "healthy",
+        },
+    )
+
+    response = client.post(
+        "/integrations/webhook/deliver",
+        json={
+            "event": {
+                "event_type": "cavra.evidence_bundle",
+                "session_id": "api-session",
+                "decision_count": 1,
+                "blocked_count": 1,
+                "approval_required_count": 0,
+                "max_severity": "high",
+            },
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    config = client.get("/console/config").json()
+
+    assert response.status_code == 200
+    assert response.json()["schema_version"] == "cavra.connector.delivery.v1"
+    assert response.json()["deliveries"][0]["provider"] == "webhook"
+    assert response.json()["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert config["connector_delivery"] == "configured"
+    assert config["endpoints"]["integration_deliver"] == "/integrations/{integration_id}/deliver"
+
+
 def test_api_sqlite_inventory_store(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_INVENTORY_STORE", raising=False)
     monkeypatch.setenv("CAVRA_INVENTORY_DB", str(tmp_path / "inventory.db"))

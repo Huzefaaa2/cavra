@@ -27,4 +27,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.

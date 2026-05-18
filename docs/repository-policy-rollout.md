@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+The next recommended step is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.

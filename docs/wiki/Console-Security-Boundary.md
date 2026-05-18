@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+The next recommended work is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.

@@ -155,7 +155,7 @@ Completed:
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+Recommended next issue: add Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -168,7 +168,7 @@ Completed:
 - Reusable GitHub Actions required-check and enterprise enforcement templates.
 - GitLab CI enforcement example.
 
-Recommended next issue: add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+Recommended next issue: add Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.
 
 ## Transparent Agent Methodology Enablement
 

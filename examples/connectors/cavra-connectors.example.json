@@ -1,0 +1,38 @@
+{
+  "connectors": {
+    "splunk": {
+      "url_env": "SPLUNK_HEC_URL",
+      "token_env": "SPLUNK_HEC_TOKEN",
+      "index": "cavra",
+      "authorization_scheme": "Splunk"
+    },
+    "sentinel": {
+      "url_env": "SENTINEL_LOG_INGEST_URL",
+      "api_key_env": "SENTINEL_API_KEY",
+      "api_key_header": "x-api-key"
+    },
+    "datadog": {
+      "url_env": "DATADOG_LOG_INTAKE_URL",
+      "api_key_env": "DATADOG_API_KEY",
+      "api_key_header": "dd-api-key",
+      "service": "cavra-runtime"
+    },
+    "slack": {
+      "url_env": "SLACK_WEBHOOK_URL"
+    },
+    "teams": {
+      "url_env": "TEAMS_WEBHOOK_URL"
+    },
+    "jira": {
+      "url_env": "JIRA_ISSUE_URL",
+      "token_env": "JIRA_TOKEN"
+    },
+    "servicenow": {
+      "url_env": "SERVICENOW_CHANGE_URL",
+      "token_env": "SERVICENOW_TOKEN"
+    },
+    "webhook": {
+      "url_env": "CAVRA_CONNECTOR_WEBHOOK_URL"
+    }
+  }
+}

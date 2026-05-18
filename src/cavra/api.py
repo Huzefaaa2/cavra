@@ -28,7 +28,7 @@ from cavra.evidence import (
     list_evidence_artifacts,
     load_evidence_artifact,
 )
-from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
+from cavra.integrations import IntegrationStore, SQLiteIntegrationStore, deliver_connector_event, load_connector_config
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
 from cavra.policy_authoring import (
@@ -93,6 +93,7 @@ def create_app():
     )
     routing_rules = load_routing_rules(Path(os.environ["CAVRA_APPROVAL_ROUTING_FILE"])) if os.environ.get("CAVRA_APPROVAL_ROUTING_FILE") else None
     provider_config = load_provider_config(Path(os.environ["CAVRA_APPROVAL_PROVIDER_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_PROVIDER_CONFIG") else None
+    connector_config = load_connector_config(Path(os.environ["CAVRA_CONNECTOR_CONFIG"])) if os.environ.get("CAVRA_CONNECTOR_CONFIG") else None
     rbac_rules = load_rbac_rules(Path(os.environ["CAVRA_APPROVAL_RBAC_FILE"])) if os.environ.get("CAVRA_APPROVAL_RBAC_FILE") else {}
     oidc_config = load_oidc_config(Path(os.environ["CAVRA_APPROVAL_OIDC_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_OIDC_CONFIG") else {}
     registry_store = (
@@ -142,6 +143,7 @@ def create_app():
             "inventory_mode": inventory_mode,
             "integration_mode": integration_mode,
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
+            "connector_delivery": "configured" if connector_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
             "evidence_artifacts": "configured" if evidence_artifact_root else "disabled",
@@ -172,6 +174,7 @@ def create_app():
                 "operations_stores": "/operations/stores",
                 "operations_retention_plan": "/operations/retention-plan",
                 "integrations": "/integrations",
+                "integration_deliver": "/integrations/{integration_id}/deliver",
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
@@ -602,6 +605,33 @@ def create_app():
         if item is None:
             raise HTTPException(status_code=404, detail="integration not found")
         return item
+
+    @app.post("/integrations/{integration_id}/deliver")
+    def deliver_integration(integration_id: str, payload: dict) -> dict:
+        item = integration_store.get_integration(integration_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="integration not found")
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        event = payload.get("event") if isinstance(payload.get("event"), dict) else payload
+        event = {
+            "event_type": "cavra.integration.delivery",
+            "product": "CAVRA",
+            "integration_id": item.get("integration_id"),
+            "integration_provider": item.get("provider"),
+            "integration_category": item.get("category"),
+            **event,
+        }
+        try:
+            return deliver_connector_event(
+                event,
+                connector_config,
+                provider=payload.get("provider", item.get("provider", "all")),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/risk/events")
     @app.get("/compliance/mappings")

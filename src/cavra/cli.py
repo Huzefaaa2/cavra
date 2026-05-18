@@ -39,7 +39,7 @@ from cavra.evidence import (
     generate_ed25519_keypair,
     verify_evidence_bundle,
 )
-from cavra.integrations import CommandInterceptor
+from cavra.integrations import CommandInterceptor, deliver_connector_event, export_connector_delivery_result, load_connector_config
 from cavra.operations import (
     backup_persistent_api_stores,
     export_persistent_api_retention_plan,
@@ -70,6 +70,7 @@ agent_app = typer.Typer(help="AI agent runtime commands.")
 policy_app = typer.Typer(help="Policy registry commands.")
 demo_app = typer.Typer(help="Runnable CAVRA demos.")
 init_app = typer.Typer(help="Initialize CAVRA integrations.")
+integration_app = typer.Typer(help="Enterprise connector delivery commands.")
 evidence_app = typer.Typer(help="Evidence bundle commands.")
 approval_app = typer.Typer(help="Human approval router commands.")
 registry_app = typer.Typer(help="Agent and MCP trust registry commands.")
@@ -78,6 +79,7 @@ app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
 app.add_typer(init_app, name="init")
+app.add_typer(integration_app, name="integration")
 app.add_typer(evidence_app, name="evidence")
 app.add_typer(approval_app, name="approval")
 app.add_typer(registry_app, name="registry")
@@ -895,6 +897,35 @@ def deliver_approval_provider_requests(
         raise typer.Exit(code=1) from exc
     console.print(JSON(json.dumps(result, indent=2)))
     console.print(f"[green]approval provider delivery evidence exported[/green] {path}")
+
+
+@integration_app.command("deliver")
+def deliver_integration_connector_event(
+    event: Annotated[Path, typer.Argument(help="Connector event JSON file, such as siem-event.json.")],
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for delivery evidence.")] = Path(".cavra/integrations/deliveries"),
+    provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+) -> None:
+    """Send live connector requests and write redacted delivery evidence."""
+    try:
+        payload = json.loads(event.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("connector event JSON must be an object")
+        result = deliver_connector_event(
+            payload,
+            load_connector_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_connector_delivery_result(result, output)
+    except (FileNotFoundError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(JSON(json.dumps(result, indent=2)))
+    console.print(f"[green]connector delivery evidence exported[/green] {path}")
 
 
 @approval_app.command("migrate")

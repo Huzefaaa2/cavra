@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -56,3 +57,49 @@ def test_verify_attestation_cli_exports_valid_report(tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert "PR attestation verification exported" in result.output
+
+
+def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
+    event = tmp_path / "event.json"
+    config = tmp_path / "connectors.json"
+    output = tmp_path / "delivery"
+    event.write_text(
+        json.dumps(
+            {
+                "event_type": "cavra.evidence_bundle",
+                "session_id": "cli-connector-test",
+                "decision_count": 1,
+                "blocked_count": 1,
+                "approval_required_count": 0,
+                "max_severity": "high",
+            }
+        ),
+        encoding="utf-8",
+    )
+    config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "integration",
+            "deliver",
+            str(event),
+            "--config",
+            str(config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--timeout-seconds",
+            "0.1",
+            "--output",
+            str(output),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "connector delivery evidence exported" in result.output
+    assert list(output.glob("*.json"))

@@ -22,6 +22,8 @@ I can govern AI-agent engineering actions before they touch code, cloud, Git, MC
 
 I can make CAVRA evidence part of PR review, CI, SIEM, and change-management workflows.
 
+I can deliver CAVRA evidence events to SIEM, ITSM, and ChatOps systems with credential-redacted delivery evidence.
+
 I can require CAVRA evidence and PR attestation verification before AI-assisted pull requests merge.
 
 ## Auditor

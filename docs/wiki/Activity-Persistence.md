@@ -31,5 +31,6 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Vendor-specific connector execution hooks.
 - Azure DevOps required-check template.
+- Immutable evidence store deployment reference.
+- OIDC/RBAC deployment reference bundles.

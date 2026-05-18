@@ -11,6 +11,7 @@ CAVRA integration inventory gives platform and security teams a central view of 
 - `GET /integrations`
 - `POST /integrations`
 - `GET /integrations/{integration_id}`
+- `POST /integrations/{integration_id}/deliver`
 
 Supported filters:
 
@@ -48,16 +49,23 @@ The migration `006_integrations_inventory.sql` creates the `integrations` table 
 
 The sandbox console includes an Enterprise Integrations view. It filters integration records by category, status, health, and owner, then displays provider, environment, capabilities, and operational status.
 
+## Connector Execution
+
+CAVRA can execute configured connector hooks for Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks. Configure connector secrets outside the inventory record, set `CAVRA_CONNECTOR_CONFIG`, and call `POST /integrations/{integration_id}/deliver` or `cavra integration deliver`.
+
+Delivery evidence uses the `cavra.connector.delivery.v1` schema and redacts credentials before writing output.
+
 ## User Stories
 
 - As a platform engineer, I can see which enterprise systems CAVRA is configured to use.
 - As a SOC lead, I can track SIEM connector ownership and health status.
+- As a SOC lead, I can deliver signed CAVRA evidence events into SIEM and ChatOps systems with credential-redacted delivery records.
 - As an auditor, I can inspect whether source control, ITSM, identity, and evidence storage integrations have owners and evidence references.
 
 ## Enterprise Challenge Solved
 
-Enterprise CAVRA deployments touch multiple control systems. Integration inventory prevents those connectors from becoming undocumented configuration drift by making ownership, status, health, and capability scope visible through the API and console.
+Enterprise CAVRA deployments touch multiple control systems. Integration inventory prevents those connectors from becoming undocumented configuration drift by making ownership, status, health, and capability scope visible through the API and console. Connector execution turns those records into auditable delivery paths for SOC, ITSM, and collaboration workflows.
 
 ## Next Work
 
-The next recommended work is vendor-specific connector execution hooks beyond generated payloads.
+The next recommended work is Azure DevOps required-check enforcement, immutable evidence store deployment references, and OIDC/RBAC deployment bundles.

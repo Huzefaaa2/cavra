@@ -32,6 +32,8 @@ As a platform engineer, I want a production readiness report, so missing identit
 
 As a DevSecOps engineer, I want GitHub required checks and SIEM exports, so CAVRA decisions become part of existing SDLC controls.
 
+As a DevSecOps engineer, I want CAVRA to deliver evidence events to Splunk, Sentinel, Datadog, Slack, Teams, Jira, and ServiceNow with redacted delivery records, so governance signals reach the systems my enterprise already operates.
+
 As a DevSecOps engineer, I want CI to fail when CAVRA evidence or PR attestation verification fails, so AI-assisted changes cannot merge without verifier-ready proof.
 
 As a DevSecOps engineer, I want signed policy and evidence bundles, so audit artifacts can be trusted after the fact.

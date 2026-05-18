@@ -6,6 +6,9 @@ from cavra.integrations import (
     GitHubPRAttestationExporter,
     IntegrationStore,
     SQLiteIntegrationStore,
+    build_connector_request_specs,
+    deliver_connector_event,
+    export_connector_delivery_result,
 )
 from cavra.runtime import RuntimeGuard
 
@@ -103,3 +106,75 @@ def test_sqlite_integration_store_filters_records(tmp_path: Path) -> None:
     assert store.list_integrations(provider="github")["total"] == 1
     assert store.list_integrations(health_status="degraded")["items"][0]["provider"] == "jira"
     assert store.get_integration("jira")["category"] == "itsm"
+
+
+def _connector_event() -> dict[str, object]:
+    return {
+        "event_type": "cavra.evidence_bundle",
+        "product": "CAVRA",
+        "session_id": "session-1",
+        "decision_count": 3,
+        "blocked_count": 1,
+        "approval_required_count": 1,
+        "max_severity": "high",
+        "timestamp": "2026-05-18T00:00:00+00:00",
+        "decisions": [],
+    }
+
+
+def test_connector_request_specs_build_vendor_payloads_and_headers(monkeypatch) -> None:
+    monkeypatch.setenv("SPLUNK_TOKEN", "splunk-secret")
+    monkeypatch.setenv("DATADOG_KEY", "datadog-secret")
+    config = {
+        "connectors": {
+            "splunk": {"url": "https://splunk.example/services/collector", "token_env": "SPLUNK_TOKEN", "index": "cavra_prod"},
+            "datadog": {
+                "url": "https://http-intake.logs.datadoghq.com/api/v2/logs",
+                "api_key_env": "DATADOG_KEY",
+                "api_key_header": "dd-api-key",
+                "service": "cavra-runtime",
+            },
+            "slack": {"url": "https://hooks.slack.com/services/T000/B000/SECRET"},
+        }
+    }
+
+    specs = build_connector_request_specs(_connector_event(), config)
+
+    assert specs["splunk"]["body"]["index"] == "cavra_prod"
+    assert specs["splunk"]["headers"]["authorization"] == "Bearer splunk-secret"
+    assert specs["datadog"]["body"]["events"][0]["service"] == "cavra-runtime"
+    assert specs["datadog"]["headers"]["dd-api-key"] == "datadog-secret"
+    assert specs["slack"]["body"]["blocks"][0]["type"] == "header"
+
+
+def test_connector_request_specs_require_credentials_for_enterprise_providers() -> None:
+    try:
+        build_connector_request_specs(_connector_event(), {"connectors": {"servicenow": {"url": "https://snow.example/api/now/table/change_request"}}})
+    except ValueError as exc:
+        assert "must configure token_env" in str(exc)
+    else:
+        raise AssertionError("expected missing connector credentials to fail")
+
+
+def test_deliver_connector_event_redacts_credentials_and_exports(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("JIRA_TOKEN", "jira-secret")
+    calls = []
+
+    def sender(spec, *, timeout_seconds):
+        calls.append((spec, timeout_seconds))
+        return {"status_code": 201, "body": "created"}
+
+    result = deliver_connector_event(
+        _connector_event(),
+        {"connectors": {"jira": {"url": "https://jira.example/rest/api/3/issue?token=secret", "token_env": "JIRA_TOKEN"}}},
+        provider="jira",
+        retries=0,
+        sender=sender,
+    )
+    output = export_connector_delivery_result(result, tmp_path)
+
+    assert result["success"] is True
+    assert result["deliveries"][0]["request"]["headers"]["authorization"] == "REDACTED"
+    assert result["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert calls[0][0]["body"]["fields"]["labels"][0] == "cavra"
+    assert output.exists()

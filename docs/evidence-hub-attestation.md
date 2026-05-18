@@ -158,11 +158,13 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 - As a reviewer, I can attach CAVRA PR attestation to AI-assisted changes.
 - As a reviewer, I can generate a PR attestation verification report.
 - As a SOC analyst, I can ingest CAVRA decisions into Splunk, Sentinel, Datadog, or webhook workflows.
+- As a SOC analyst, I can deliver CAVRA evidence events through configured SIEM, ITSM, and ChatOps connector hooks while retaining redacted delivery evidence.
 - As a platform engineer, I can create immutable storage plans without granting CAVRA cloud credentials.
 - As a platform engineer, I can persist evidence metadata for API search and review workflows.
 - As a platform engineer, I can distribute one approved trust-root bundle to CI, reviewers, API services, and auditors.
 
 ## Next Work
 
-- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
 - Add Azure DevOps required-check template.
+- Add immutable evidence store deployment reference.
+- Add OIDC/RBAC deployment reference bundles.

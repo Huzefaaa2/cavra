@@ -203,7 +203,7 @@ CAVRA allows read-only planning workflows such as `terraform plan`, while blocki
 
 ## Enterprise integrations
 
-The repository includes reference paths for GitHub, GitLab, Azure DevOps, pre-commit, Docker, Kubernetes, Microsoft Sentinel, Splunk, Datadog, ServiceNow, Jira, Slack, Microsoft Teams, immutable evidence stores, Entra ID, Okta, SAML, and RBAC. CAVRA now persists integration inventory records through JSON or SQLite so owners, status, health, capabilities, and evidence references are visible through the API and console. Planned live integrations remain labeled as reference architecture until implemented.
+The repository includes reference paths for GitHub, GitLab, Azure DevOps, pre-commit, Docker, Kubernetes, Microsoft Sentinel, Splunk, Datadog, ServiceNow, Jira, Slack, Microsoft Teams, immutable evidence stores, Entra ID, Okta, SAML, and RBAC. CAVRA now persists integration inventory records through JSON or SQLite and can execute configured SIEM, ITSM, ChatOps, and webhook connector hooks with redacted delivery evidence. See [docs/connector-execution-hooks.md](docs/connector-execution-hooks.md).
 
 ## Compliance packs
 
@@ -238,14 +238,14 @@ Current phase status:
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane.
-- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI enforcement example, and CI evidence artifact upload.
+- Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI enforcement example, CI evidence artifact upload, and live SIEM/ITSM/ChatOps connector execution hooks.
 - Phase 9: Public Sandbox and Growth Loop.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks beyond generated payload templates.
 - Add Azure DevOps required-check template and immutable evidence store deployment reference.
+- Add OIDC/RBAC deployment reference bundles for Entra ID and Okta.
 
 ## User stories and enterprise value
 
@@ -278,6 +278,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Repository Inventory and Policy Rollout](docs/wiki/Repository-Policy-Rollout.md)
 - [Persistent API Operations](docs/wiki/Persistent-API-Operations.md)
 - [Integration Inventory](docs/wiki/Integration-Inventory.md)
+- [Connector Execution Hooks](docs/wiki/Connector-Execution-Hooks.md)
 - [Console Security Boundary](docs/wiki/Console-Security-Boundary.md)
 - [Console Authenticated Sessions](docs/wiki/Console-Authenticated-Sessions.md)
 - [Evidence Artifact Retrieval](docs/wiki/Evidence-Artifact-Retrieval.md)

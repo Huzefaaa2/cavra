@@ -22,7 +22,7 @@ Phase 5, Agent Registry and MCP Trust Registry, is complete for the current prod
 
 Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
 
-Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, a GitLab CI enforcement example, CI evidence artifact upload for branch protection, and approval-bound policy write-back.
+Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, a GitLab CI enforcement example, CI evidence artifact upload for branch protection, approval-bound policy write-back, and live SIEM/ITSM/ChatOps connector execution hooks.
 
 Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
 
@@ -51,6 +51,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Repository Inventory and Policy Rollout: `Repository-Policy-Rollout.md`
 - Persistent API Operations: `Persistent-API-Operations.md`
 - Integration Inventory: `Integration-Inventory.md`
+- Connector Execution Hooks: `Connector-Execution-Hooks.md`
 - Console Security Boundary: `Console-Security-Boundary.md`
 - Console Authenticated Sessions: `Console-Authenticated-Sessions.md`
 - Evidence Artifact Retrieval: `Evidence-Artifact-Retrieval.md`

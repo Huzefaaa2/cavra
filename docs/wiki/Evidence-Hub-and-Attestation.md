@@ -16,6 +16,7 @@ CAVRA now creates verifier-ready evidence bundles:
 - HMAC or Ed25519 manifest signatures.
 - Key IDs and trust-root verification.
 - Provider-specific SIEM payloads for Splunk, Sentinel, Datadog, and webhooks.
+- Live connector execution hooks for SIEM, ITSM, ChatOps, and generic webhook destinations.
 - Immutable storage reference plans for S3 Object Lock and Azure immutable blob.
 - Evidence metadata indexing through CLI and API workflows.
 - SQLite-backed evidence search with filters and pagination.
@@ -39,11 +40,12 @@ cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidenc
 cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
+cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra/connectors.json --provider splunk
 ```
 
 ## Enterprise Value
 
-Evidence bundles turn pre-action runtime decisions into artifacts that reviewers, auditors, and SOC teams can inspect. The manifest includes checksums and signature metadata so tampering can be detected. SIEM exports let teams route CAVRA decisions into existing SOC pipelines without giving the CLI live SIEM credentials.
+Evidence bundles turn pre-action runtime decisions into artifacts that reviewers, auditors, and SOC teams can inspect. The manifest includes checksums and signature metadata so tampering can be detected. SIEM exports let teams route CAVRA decisions into existing SOC pipelines, and connector execution hooks let controlled deployments deliver those events with credential-redacted evidence.
 
 ## Export Files
 
@@ -81,5 +83,6 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Vendor-specific connector execution hooks.
 - Azure DevOps required-check template.
+- Immutable evidence store deployment reference.
+- OIDC/RBAC deployment reference bundles.

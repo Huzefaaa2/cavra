@@ -1,6 +1,6 @@
 # CLI
 
-Primary commands: `cavra version`, `cavra evaluate`, `cavra agent start`, `cavra agent exec`, `cavra agent attest`, `cavra policy list`, `cavra policy validate`, `cavra policy test`, `cavra policy explain`, `cavra policy sign`, `cavra policy verify`, `cavra approval create`, `cavra approval list`, `cavra approval approve`, `cavra approval deny`, `cavra approval expire`, `cavra approval break-glass`, `cavra approval route`, `cavra approval migrate`, `cavra approval export-notifications`, `cavra approval provider-requests`, `cavra approval deliver`, `cavra registry agent-register`, `cavra registry agent-list`, `cavra registry profiles`, `cavra registry mcp-register`, `cavra registry mcp-list`, `cavra registry mcp-check`, `cavra registry mcp-classifications`, `cavra registry migrate`, `cavra ops stores`, `cavra ops backup`, `cavra ops restore`, `cavra ops retention-plan`, `cavra evidence generate-keypair`, `cavra evidence trust-root`, `cavra evidence trust-bundle`, `cavra evidence bundle`, `cavra evidence verify`, `cavra evidence siem-event`, `cavra evidence export-siem`, `cavra evidence retention-policy`, `cavra evidence storage-plan`, `cavra evidence verify-attestation`, `cavra evidence migrate`, `cavra evidence index`, `cavra evidence search`, `cavra init claude-code`, and `cavra demo before-the-agent-acts`.
+Primary commands: `cavra version`, `cavra evaluate`, `cavra agent start`, `cavra agent exec`, `cavra agent attest`, `cavra policy list`, `cavra policy validate`, `cavra policy test`, `cavra policy explain`, `cavra policy sign`, `cavra policy verify`, `cavra approval create`, `cavra approval list`, `cavra approval approve`, `cavra approval deny`, `cavra approval expire`, `cavra approval break-glass`, `cavra approval route`, `cavra approval migrate`, `cavra approval export-notifications`, `cavra approval provider-requests`, `cavra approval deliver`, `cavra integration deliver`, `cavra registry agent-register`, `cavra registry agent-list`, `cavra registry profiles`, `cavra registry mcp-register`, `cavra registry mcp-list`, `cavra registry mcp-check`, `cavra registry mcp-classifications`, `cavra registry migrate`, `cavra ops stores`, `cavra ops backup`, `cavra ops restore`, `cavra ops retention-plan`, `cavra evidence generate-keypair`, `cavra evidence trust-root`, `cavra evidence trust-bundle`, `cavra evidence bundle`, `cavra evidence verify`, `cavra evidence siem-event`, `cavra evidence export-siem`, `cavra evidence retention-policy`, `cavra evidence storage-plan`, `cavra evidence verify-attestation`, `cavra evidence migrate`, `cavra evidence index`, `cavra evidence search`, `cavra init claude-code`, and `cavra demo before-the-agent-acts`.
 
 Approval examples:
 
@@ -41,6 +41,12 @@ cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --lim
 ```
 
 `cavra evidence verify-attestation` exits with a nonzero status when `pr-attestation.md` is missing or does not match the bundle evidence, so CI/CD systems can use it as a required merge check.
+
+Connector delivery example:
+
+```bash
+cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra/connectors.json --provider splunk
+```
 
 Registry examples:
 
