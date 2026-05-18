@@ -229,7 +229,7 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
@@ -264,7 +264,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add release-note links to the public sandbox for design-partner demos.
+- Add public telemetry-free demo run counters from persisted backend metadata.
 - Add keyless OIDC attestations for release provenance.
 - Add air-gapped installer bundle verification.
 

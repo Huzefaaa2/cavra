@@ -314,4 +314,21 @@ Validation:
 - `python3 -m pytest tests/test_api.py::test_api_sandbox_run_uses_backend_policy_and_persists_metadata tests/test_api.py::test_api_console_config_and_cors tests/test_ci_templates.py::test_sandbox_pages_workflow_builds_static_artifact -q` passed locally.
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add release-note links to the public sandbox and add keyless release attestations with GitHub OIDC.
+Recommended next issue: delivered below as public sandbox release-note links.
+
+## Public Sandbox Release-Note Links
+
+Status: complete for the current growth-loop slice.
+
+Completed:
+- Added a Release Notes panel to the public sandbox.
+- Linked design-partner demos to PR context, sandbox docs, release integrity docs, release security docs, the hosted sandbox, and the production roadmap.
+- Added responsive release-note styling for desktop and mobile views.
+- Updated README, sandbox docs, roadmap docs, and wiki source.
+- Added sandbox smoke assertions for the release-note panel.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_brand_assets.py -q` passed locally.
+
+Recommended next issue: add public telemetry-free run counters from persisted backend metadata and add keyless release attestations with GitHub OIDC.

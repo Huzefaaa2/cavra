@@ -56,6 +56,36 @@ const evidenceArtifactCatalog = [
   artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
 }));
 
+const releaseNoteCatalog = [
+  {
+    title: "Backend-Driven Sandbox Runs",
+    date: "2026-05-18",
+    summary: "The public sandbox can now call a deployed CAVRA API, run the flagship scenario with backend policy decisions, and refresh evidence and activity records.",
+    links: [
+      ["PR #12", "https://github.com/Huzefaaa2/cavra/pull/12"],
+      ["Sandbox docs", "https://github.com/Huzefaaa2/cavra/blob/main/docs/sandbox.md"]
+    ]
+  },
+  {
+    title: "Release Integrity",
+    date: "2026-05-18",
+    summary: "Go runtime release packages now include checksums, SBOM metadata, SLSA provenance, detached signatures, and local verifier support.",
+    links: [
+      ["Go release packaging", "https://github.com/Huzefaaa2/cavra/blob/main/docs/go-release-packaging.md"],
+      ["Release security", "https://github.com/Huzefaaa2/cavra/blob/main/docs/release-security-advisories.md"]
+    ]
+  },
+  {
+    title: "Public Evidence Console",
+    date: "2026-05-18",
+    summary: "The hosted demo includes evidence search, PR attestation checks, approval views, registry views, production readiness, and release documentation links.",
+    links: [
+      ["Hosted sandbox", "https://huzefaaa2.github.io/cavra/"],
+      ["Roadmap", "https://github.com/Huzefaaa2/cavra/blob/main/docs/production-roadmap.md"]
+    ]
+  }
+];
+
 const activitySessions = evidenceCatalog.map((item) => ({
   schema_version: "cavra.session.v1",
   session_id: item.session_id,
@@ -1148,6 +1178,23 @@ function renderEvidenceArtifacts(payload) {
   `;
 }
 
+function renderReleaseNotes() {
+  const panel = document.querySelector("#releaseNotes");
+  if (!panel) return;
+  panel.innerHTML = releaseNoteCatalog.map((item) => `
+    <article class="release-note">
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.date)}</span>
+      </div>
+      <p>${escapeHtml(item.summary)}</p>
+      <div class="release-note-links">
+        ${item.links.map(([label, href]) => `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>`).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
 function renderActivityRows(sessions, decisions) {
   const sessionRows = document.querySelector("#sessionRows");
   const decisionRows = document.querySelector("#decisionRows");
@@ -1771,6 +1818,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+renderReleaseNotes();
 refreshActivity();
 refreshInventory();
 refreshPolicyCatalog();

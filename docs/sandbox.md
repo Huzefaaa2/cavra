@@ -21,6 +21,7 @@ The sandbox uses the CAVRA mark from `apps/sandbox-ui/brand/` as a top-right her
 The same surface now includes the first hosted evidence console views:
 
 - Evidence metadata search with signer, blocked-action, approval-state, and limit filters.
+- Release-note links for design-partner demos, current public sandbox changes, release integrity work, and roadmap context.
 - Evidence artifact listing with individual artifact and bundle download links when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured.
 - PR attestation verification for selected sessions.
 - Console Session panel for validating signed OIDC bearer-token context and repository permissions.
