@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, and release evidence.
 
 ## Workflow
 
@@ -14,6 +14,7 @@ The workflow:
 - Exports Go module metadata with `go list -m -json all`.
 - Generates `cavra-runtime.sbom.spdx.json`.
 - Generates `cavra-runtime.provenance.intoto.json` using an in-toto Statement and SLSA provenance predicate.
+- Generates `offline-trust-root-bootstrap.json` with offline operator notes and verification commands.
 - Generates `checksums.txt`.
 - Generates `release-evidence.json` and `release-evidence.md`.
 - Signs release artifacts with detached Ed25519 signature JSON files when `CAVRA_GO_RELEASE_SIGNING_KEY` is configured.
@@ -45,6 +46,12 @@ Production release:
 cavra release verify-go-package go/cavra-runtime/dist/go-runtime-v0.1.0
 ```
 
+Verify the air-gapped zip before transferring it into a restricted environment:
+
+```bash
+cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-v0.1.0.zip
+```
+
 Verify the GitHub keyless attestation for the release zip:
 
 ```bash
@@ -72,15 +79,15 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 
 - As a release manager, I can publish Go runtime binaries with checksums, SBOM, SLSA provenance, signatures, keyless attestations, and evidence.
 - As a security engineer, I can verify that binaries map to a specific commit, ref, workflow identity, and dependency set.
-- As an enterprise architect, I can review a path toward air-gapped runtime distribution.
+- As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, CAVRA release evidence, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add air-gapped installer bundle verification.
-2. Add offline trust-root bootstrap guidance.
-3. Add release-candidate upgrade validation.
+1. Add release-candidate upgrade validation.
+2. Add offline trust-root distribution automation.
+3. Add signed installer metadata for packaged deployment targets.

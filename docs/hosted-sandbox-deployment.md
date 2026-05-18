@@ -55,5 +55,5 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add air-gapped installer bundle verification.
-2. Add offline trust-root bootstrap guidance.
+1. Add release-candidate upgrade validation.
+2. Add offline trust-root distribution automation.

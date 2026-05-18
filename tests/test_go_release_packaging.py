@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import json
 import subprocess
+import zipfile
 from pathlib import Path
 
 from typer.testing import CliRunner
 
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
-from cavra.release import verify_go_release_package
+from cavra.release import verify_go_airgap_bundle, verify_go_release_package
 
 runner = CliRunner()
 
@@ -53,21 +54,27 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     sbom = json.loads((dist / "cavra-runtime.sbom.spdx.json").read_text(encoding="utf-8"))
     evidence = json.loads((dist / "release-evidence.json").read_text(encoding="utf-8"))
     provenance = json.loads((dist / "cavra-runtime.provenance.intoto.json").read_text(encoding="utf-8"))
+    bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
     assert "cavra-runtime.provenance.intoto.json" in checksums
+    assert "offline-trust-root-bootstrap.json" in checksums
     assert sbom["spdxVersion"] == "SPDX-2.3"
     assert {package["name"] for package in sbom["packages"]} >= {"cavra-runtime", "example.com/dependency"}
     assert provenance["_type"] == "https://in-toto.io/Statement/v1"
     assert provenance["predicateType"] == "https://slsa.dev/provenance/v1"
     assert provenance["predicate"]["buildDefinition"]["externalParameters"]["version"] == "v0.1.0-test"
+    assert bootstrap["schema_version"] == "cavra.offline-trust-bootstrap.v1"
+    assert bootstrap["mode"] == "air_gapped"
+    assert "cavra release verify-airgap-bundle cavra-go-runtime-v0.1.0-test.zip" in bootstrap["verification_commands"]
     assert evidence["schema_version"] == "cavra.go-release.evidence.v1"
     assert evidence["dry_run"] is True
     assert evidence["signature_count"] == 0
     assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {
         "go-binary",
         "sbom",
+        "offline-trust-bootstrap",
         "slsa-provenance",
         "checksums",
     }
@@ -114,6 +121,7 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_provenance
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_signatures
     assert "cavra-runtime.provenance.intoto.json" in valid_result.verified_signatures
+    assert "offline-trust-root-bootstrap.json" in valid_result.verified_signatures
     assert "release-evidence.json" in valid_result.verified_signatures
     cli_result = runner.invoke(app, ["release", "verify-go-package", str(dist), "--json"])
     assert cli_result.exit_code == 0
@@ -126,6 +134,68 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert any("checksum mismatch" in error for error in invalid_result.errors)
     cli_invalid_result = runner.invoke(app, ["release", "verify-go-package", str(dist)])
     assert cli_invalid_result.exit_code == 1
+
+
+def test_airgap_bundle_verifier_accepts_signed_zip_and_rejects_missing_bootstrap(tmp_path: Path, monkeypatch) -> None:
+    dist = tmp_path / "go-runtime-v0.1.0-test"
+    bin_dir = dist / "bin"
+    bin_dir.mkdir(parents=True)
+    (bin_dir / "cavra-runtime_test_linux_amd64").write_bytes(b"test-binary")
+    (dist / "go-modules.json").write_text(
+        json.dumps({"Path": "github.com/Huzefaaa2/cavra/go/cavra-runtime", "Version": "main"}) + "\n",
+        encoding="utf-8",
+    )
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+
+    subprocess.run(
+        [
+            "python3",
+            "scripts/package_go_release.py",
+            "--dist",
+            str(dist),
+            "--version",
+            "v0.1.0-test",
+            "--commit",
+            "abc123",
+            "--ref",
+            "refs/tags/v0.1.0-test",
+            "--event",
+            "release",
+            "--signing-required",
+        ],
+        check=True,
+    )
+
+    bundle = tmp_path / "cavra-go-runtime-v0.1.0-test.zip"
+    _zip_package(dist, bundle)
+    valid_result = verify_go_airgap_bundle(bundle)
+    assert valid_result.valid
+    assert "go-runtime-v0.1.0-test/offline-trust-root-bootstrap.json" in valid_result.verified_members
+    assert "offline-trust-root-bootstrap.json" in valid_result.verified_bootstrap
+    cli_result = runner.invoke(app, ["release", "verify-airgap-bundle", str(bundle), "--json"])
+    assert cli_result.exit_code == 0
+    assert json.loads(cli_result.output)["valid"] is True
+
+    (dist / "offline-trust-root-bootstrap.json").unlink()
+    missing_bootstrap_bundle = tmp_path / "missing-bootstrap.zip"
+    _zip_package(dist, missing_bootstrap_bundle)
+    invalid_result = verify_go_airgap_bundle(missing_bootstrap_bundle)
+    assert not invalid_result.valid
+    assert any("offline-trust-root-bootstrap" in error for error in invalid_result.errors)
+
+
+def test_airgap_bundle_verifier_rejects_unsafe_zip_members(tmp_path: Path) -> None:
+    bundle = tmp_path / "unsafe.zip"
+    with zipfile.ZipFile(bundle, "w") as archive:
+        archive.writestr("../escape.txt", "bad")
+
+    result = verify_go_airgap_bundle(bundle, require_signatures=False, require_provenance=False)
+
+    assert not result.valid
+    assert any("unsafe archive member path" in error for error in result.errors)
 
 
 def test_go_release_workflow_requires_signed_release_artifacts() -> None:
@@ -142,3 +212,10 @@ def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     assert "--signing-required" in text
     assert "gh release upload" in text
     assert "actions/upload-artifact@v4" in text
+
+
+def _zip_package(package_dir: Path, bundle: Path) -> None:
+    with zipfile.ZipFile(bundle, "w") as archive:
+        for path in sorted(package_dir.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(package_dir.parent))
