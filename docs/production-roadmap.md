@@ -232,7 +232,9 @@ Implement:
 - Local Unix-socket daemon transport. Initial one-request-per-connection transport delivered.
 - Reusable Go daemon client helper and CLI `--daemon` one-shot client mode. Delivered.
 - Daemon lifecycle `start/status/stop` with PID-file tracking, socket readiness probing, and graceful signal cleanup. Delivered.
-- Parity tests between Python and Go decisions. Critical fixture scaffold delivered.
+- Registry-backed MCP decisions from CAVRA trust-registry JSON. Delivered for approved, pending, blocked, tool-scope, and capability-scope outcomes.
+- Runtime evidence reference metadata in Go decisions. Delivered.
+- Parity tests between Python and Go decisions. Critical fixture scaffold expanded for approvals, evidence references, and registry-backed MCP decisions.
 - CI runner integration mode. Initial `go-runtime-parity` and required-check execution delivered.
 - Unix-socket or gRPC local interface.
 - Air-gapped single-binary packaging.
@@ -343,10 +345,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: expand Go parity across approvals, evidence references, and registry-backed MCP decisions, then keep the public sandbox protected by post-deploy smoke validation.
+Next recommended implementation phase: expand Go parity across every bundled policy pack and approval route, then begin signed binary, SBOM, and release evidence packaging.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
-- Merge the smoke-check update to `main`, rerun the sandbox deployment workflow, and confirm the smoke job passes against the public URL.
+- Expand Go parity across every bundled policy pack and approval route.
+- Add signed Go binary, SBOM, and release evidence packaging.
+- Rerun the sandbox deployment workflow and confirm the public smoke job passes.

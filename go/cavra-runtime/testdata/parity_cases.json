@@ -55,6 +55,9 @@
   {
     "name": "banking iam write requires approval",
     "request": {
+      "session_id": "parity-approval",
+      "agent_id": "codex-agent",
+      "actor": "ai-agent",
       "action_type": "write_file",
       "target": "iam/admin-role.tf",
       "policy_pack": "cavra-banking-baseline"
@@ -63,7 +66,76 @@
       "decision": "require_approval",
       "rule_id": "filesystem.write.require_approval",
       "severity": "high",
-      "approver_group": "Platform Security"
+      "approver_group": "Platform Security",
+      "evidence_ref_prefix": "evidence://parity-approval/"
+    }
+  },
+  {
+    "name": "registry approved mcp server allows scoped tool",
+    "request": {
+      "session_id": "parity-registry",
+      "action_type": "mcp_tool_call",
+      "server": "github-mcp",
+      "tool": "create_pull_request",
+      "capability": "repository",
+      "policy_pack": "cavra-mcp-enterprise"
+    },
+    "registry": "mcp_registry.json",
+    "expected": {
+      "decision": "allow",
+      "rule_id": "mcp.registry.allow",
+      "severity": "low",
+      "evidence_ref_prefix": "evidence://parity-registry/"
+    }
+  },
+  {
+    "name": "registry approved mcp server requires approval outside tool scope",
+    "request": {
+      "action_type": "mcp_tool_call",
+      "server": "github-mcp",
+      "tool": "delete_repository",
+      "capability": "repository",
+      "policy_pack": "cavra-mcp-enterprise"
+    },
+    "registry": "mcp_registry.json",
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "mcp.registry.tool_scope",
+      "severity": "medium",
+      "approver_group": "AI Governance"
+    }
+  },
+  {
+    "name": "registry pending mcp server requires trust approval",
+    "request": {
+      "action_type": "mcp_tool_call",
+      "server": "filesystem-lab",
+      "tool": "read_file",
+      "capability": "filesystem",
+      "policy_pack": "cavra-mcp-enterprise"
+    },
+    "registry": "mcp_registry.json",
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "mcp.registry.requires_approval",
+      "severity": "medium",
+      "approver_group": "AI Governance"
+    }
+  },
+  {
+    "name": "registry blocked mcp server blocks",
+    "request": {
+      "action_type": "mcp_tool_call",
+      "server": "personal-drive-mcp",
+      "tool": "read_file",
+      "capability": "filesystem",
+      "policy_pack": "cavra-mcp-enterprise"
+    },
+    "registry": "mcp_registry.json",
+    "expected": {
+      "decision": "block",
+      "rule_id": "mcp.registry.blocked",
+      "severity": "high"
     }
   },
   {

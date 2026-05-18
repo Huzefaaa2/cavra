@@ -1,11 +1,14 @@
 package runtime
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type Request struct {
@@ -23,10 +26,10 @@ type Request struct {
 }
 
 type Decision struct {
-	DecisionID          string   `json:"decision_id,omitempty"`
-	SessionID           string   `json:"session_id,omitempty"`
-	AgentID             string   `json:"agent_id,omitempty"`
-	Actor               string   `json:"actor,omitempty"`
+	DecisionID         string   `json:"decision_id,omitempty"`
+	SessionID          string   `json:"session_id,omitempty"`
+	AgentID            string   `json:"agent_id,omitempty"`
+	Actor              string   `json:"actor,omitempty"`
 	Decision           string   `json:"decision"`
 	Reason             string   `json:"reason"`
 	ActionType         string   `json:"action_type"`
@@ -38,8 +41,8 @@ type Decision struct {
 	Severity           string   `json:"severity"`
 	EvidenceRefs       []string `json:"evidence_refs,omitempty"`
 	ApproverGroup      string   `json:"approver_group,omitempty"`
-	Timestamp           string   `json:"timestamp,omitempty"`
-	CorrelationID       string   `json:"correlation_id,omitempty"`
+	Timestamp          string   `json:"timestamp,omitempty"`
+	CorrelationID      string   `json:"correlation_id,omitempty"`
 }
 
 type Policy struct {
@@ -52,6 +55,19 @@ type Policy struct {
 	mcpAllowedServers    []string
 	mcpBlockedServers    []string
 	mcpBlockUnknown      bool
+}
+
+type TrustRegistry struct {
+	MCPServers []MCPServerRecord `json:"mcp_servers"`
+}
+
+type MCPServerRecord struct {
+	ServerID      string   `json:"server_id"`
+	Name          string   `json:"name"`
+	TrustTier     string   `json:"trust_tier"`
+	ApprovalState string   `json:"approval_state"`
+	Capabilities  []string `json:"capabilities"`
+	AllowedTools  []string `json:"allowed_tools"`
 }
 
 type compiledPolicy struct {
@@ -83,7 +99,20 @@ func Evaluate(request Request) Decision {
 	return EvaluateWithPolicy(request, p)
 }
 
+func EvaluateWithRegistry(request Request, registry TrustRegistry) Decision {
+	pack := request.PolicyPack
+	if pack == "" {
+		pack = "cavra-ai-agent-baseline"
+	}
+	p := builtInPolicy(pack)
+	return EvaluateWithPolicyAndRegistry(request, p, &registry)
+}
+
 func EvaluateWithPolicy(request Request, p Policy) Decision {
+	return EvaluateWithPolicyAndRegistry(request, p, nil)
+}
+
+func EvaluateWithPolicyAndRegistry(request Request, p Policy, registry *TrustRegistry) Decision {
 	pack := request.PolicyPack
 	if pack == "" {
 		pack = p.id
@@ -102,11 +131,27 @@ func EvaluateWithPolicy(request Request, p Policy) Decision {
 	case "git_operation":
 		decision = evaluateGit(request.operation(), request.Target, pack)
 	case "mcp_tool_call":
-		decision = evaluateMCP(request, pack, p)
+		if registry != nil {
+			decision = evaluateMCPRegistry(request, pack, registry)
+		} else {
+			decision = evaluateMCP(request, pack, p)
+		}
 	default:
 		decision = baseDecision("require_approval", "Unknown action type; review required.", request.ActionType, request.Target, request.operation(), pack, "runtime.default.require_approval", "medium", "Repository Owners")
 	}
 	return withRequestMetadata(decision, request)
+}
+
+func LoadTrustRegistry(path string) (TrustRegistry, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return TrustRegistry{}, err
+	}
+	var registry TrustRegistry
+	if err := json.Unmarshal(data, &registry); err != nil {
+		return TrustRegistry{}, err
+	}
+	return registry, nil
 }
 
 func LoadCompiledPolicy(path string) (Policy, error) {
@@ -197,6 +242,41 @@ func evaluateMCP(request Request, pack string, p Policy) Decision {
 	return baseDecision("allow", "MCP server is trusted for this tool call.", "mcp_tool_call", target, requested, pack, "mcp.server.trust.allow", "low", "")
 }
 
+func evaluateMCPRegistry(request Request, pack string, registry *TrustRegistry) Decision {
+	target := request.Server + ":" + request.Tool
+	requested := request.operation()
+	if requested == "" {
+		requested = request.Tool
+	}
+	record := registry.FindMCPServer(request.Server)
+	if record == nil {
+		return baseDecision("block", "MCP server is not registered.", "mcp_tool_call", target, requested, pack, "mcp.registry.unknown", "high", "")
+	}
+	if record.TrustTier == "blocked" || record.ApprovalState == "denied" {
+		return baseDecision("block", "MCP server is blocked or denied in the trust registry.", "mcp_tool_call", target, requested, pack, "mcp.registry.blocked", "high", "")
+	}
+	if record.ApprovalState == "pending" || record.TrustTier == "unknown" || record.TrustTier == "experimental" {
+		return baseDecision("require_approval", "MCP server requires trust approval before use.", "mcp_tool_call", target, requested, pack, "mcp.registry.requires_approval", "medium", "AI Governance")
+	}
+	if len(record.AllowedTools) > 0 && !contains(record.AllowedTools, request.Tool) {
+		return baseDecision("require_approval", "MCP tool is outside the server's approved tool scope.", "mcp_tool_call", target, requested, pack, "mcp.registry.tool_scope", "medium", "AI Governance")
+	}
+	if request.Capability != "" && len(record.Capabilities) > 0 && !contains(record.Capabilities, request.Capability) {
+		return baseDecision("require_approval", "MCP capability is outside the server's approved capability scope.", "mcp_tool_call", target, requested, pack, "mcp.registry.capability_scope", "medium", "AI Governance")
+	}
+	return baseDecision("allow", "MCP server is approved in the trust registry.", "mcp_tool_call", target, requested, pack, "mcp.registry.allow", "low", "")
+}
+
+func (registry TrustRegistry) FindMCPServer(serverID string) *MCPServerRecord {
+	for index := range registry.MCPServers {
+		record := &registry.MCPServers[index]
+		if record.ServerID == serverID || record.Name == serverID {
+			return record
+		}
+	}
+	return nil
+}
+
 func (request Request) operation() string {
 	if request.Operation != "" {
 		return request.Operation
@@ -211,10 +291,10 @@ func (request Request) operation() string {
 }
 
 func withRequestMetadata(decision Decision, request Request) Decision {
-	decision.SessionID = request.SessionID
-	decision.AgentID = request.AgentID
-	decision.Actor = request.Actor
-	return decision
+	decision.SessionID = defaultString(request.SessionID, "local")
+	decision.AgentID = defaultString(request.AgentID, "unknown-agent")
+	decision.Actor = defaultString(request.Actor, "ai-agent")
+	return withEvidenceMetadata(decision)
 }
 
 func baseDecision(decision string, reason string, actionType string, target string, requested string, pack string, ruleID string, severity string, approverGroup string) Decision {
@@ -230,6 +310,45 @@ func baseDecision(decision string, reason string, actionType string, target stri
 		Severity:           severity,
 		ApproverGroup:      approverGroup,
 	}
+}
+
+func withEvidenceMetadata(decision Decision) Decision {
+	if decision.DecisionID == "" {
+		decision.DecisionID = "dec_" + randomHex(12)
+	}
+	if decision.Timestamp == "" {
+		decision.Timestamp = time.Now().UTC().Format(time.RFC3339Nano)
+	}
+	if decision.CorrelationID == "" {
+		decision.CorrelationID = "corr_" + randomHex(12)
+	}
+	if len(decision.EvidenceRefs) == 0 {
+		sessionID := defaultString(decision.SessionID, "local")
+		decision.EvidenceRefs = []string{fmt.Sprintf("evidence://%s/%s", sessionID, decision.DecisionID)}
+	}
+	return decision
+}
+
+func randomHex(length int) string {
+	if length <= 0 {
+		return ""
+	}
+	data := make([]byte, (length+1)/2)
+	if _, err := rand.Read(data); err != nil {
+		return strings.Repeat("0", length)
+	}
+	encoded := hex.EncodeToString(data)
+	if len(encoded) > length {
+		return encoded[:length]
+	}
+	return encoded
+}
+
+func defaultString(value string, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
 }
 
 func matchPattern(value string, pattern string) bool {

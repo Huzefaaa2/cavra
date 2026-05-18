@@ -48,9 +48,9 @@ Next: expanded Go parity and public sandbox URL validation after deployment from
 
 Status: scaffold started.
 
-Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
+Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
 
-Next: expanded golden parity tests and signed binary packaging.
+Next: expanded golden parity across every bundled policy pack and approval route, then signed binary packaging.
 
 ## Phase 8: Enterprise Integrations
 

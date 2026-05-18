@@ -80,14 +80,20 @@ func TestHandleConnectionWithEvidenceAppendsEvidenceRef(t *testing.T) {
 	if err := <-done; err != nil {
 		t.Fatal(err)
 	}
-	if len(response.EvidenceRefs) != 1 {
+	if len(response.EvidenceRefs) != 2 {
 		t.Fatalf("evidence refs mismatch: %+v", response.EvidenceRefs)
+	}
+	if !strings.HasPrefix(response.EvidenceRefs[0], "evidence://session-server/") {
+		t.Fatalf("unexpected runtime evidence ref: %q", response.EvidenceRefs[0])
+	}
+	if !strings.HasPrefix(response.EvidenceRefs[1], "go-daemon-evidence://") {
+		t.Fatalf("unexpected daemon evidence ref: %q", response.EvidenceRefs[1])
 	}
 	records := readEvidenceRecords(t, evidencePath)
 	if len(records) != 1 {
 		t.Fatalf("record count mismatch: got %d", len(records))
 	}
-	if records[0].Response.EvidenceRefs[0] != response.EvidenceRefs[0] {
+	if records[0].Response.EvidenceRefs[1] != response.EvidenceRefs[1] {
 		t.Fatalf("record evidence ref mismatch: got %+v", records[0].Response.EvidenceRefs)
 	}
 }
