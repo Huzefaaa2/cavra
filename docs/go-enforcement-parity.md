@@ -72,10 +72,10 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
 - Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
 - It exposes an initial Unix-socket daemon transport using the generated request and response types.
-- It does not yet ship signed binaries, SBOMs, or air-gapped release bundles.
+- It does not yet include SLSA provenance or air-gapped installer bundles.
 
 ## Next Recommended Work
 
-1. Attach signed Go release packages directly to GitHub Releases.
-2. Add verifier CLI support for Go release package signatures.
+1. Add SLSA provenance for Go release package signatures.
+2. Add vulnerability disclosure and release advisory documentation.
 3. Continue broadening approval-route parity as new policy packs are added.

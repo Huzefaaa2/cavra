@@ -182,6 +182,7 @@ Completed:
 - Go release package workflow with Linux/macOS/Windows binaries for `amd64` and `arm64`.
 - SHA-256 checksums, SPDX-style SBOM, release evidence JSON/Markdown, and detached Ed25519 signature JSON files when signing is configured.
 - Required signing for real release events and non-dry-run manual packaging.
+- GitHub Release asset attachment and verifier CLI support.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - MCP trust registry fixture at `go/cavra-runtime/testdata/mcp_registry.json`.
 - Go unit tests that load the shared parity fixture.
@@ -193,7 +194,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: attach signed Go runtime packages directly to GitHub Releases and add verifier CLI support.
+Recommended next issue: add SLSA provenance and a vulnerability disclosure workflow.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -258,3 +259,21 @@ Completed:
 - Transparent agent methodology docs, orchestration architecture docs, wiki pages, and SVG diagram.
 
 Recommended next issue: implement the real GitHub App orchestrator backend only after protected branch checks, evidence verification, and human approval requirements are enforced.
+
+## License and Go Release Verification
+
+Status: complete for the current production-readiness slice.
+
+Completed:
+- Replaced the repository `LICENSE` source with BUSL-1.1 parameters for CAVRA.
+- Documented BUSL parameters in the README.
+- Added `cavra release verify-go-package` for local verification of Go release package checksums, release evidence, and detached Ed25519 signatures.
+- Added tamper-detection tests for signed Go release packages.
+- Updated the Go release workflow to create `cavra-go-runtime-<version>.zip`.
+- Updated the Go release workflow to attach signed packages directly to published GitHub Releases.
+- Kept CI artifact upload for reviewer and auditor retrieval.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+
+Recommended next issue: add SLSA provenance for Go release packages and create the vulnerability disclosure and release advisory workflow.
