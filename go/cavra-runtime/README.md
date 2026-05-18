@@ -11,6 +11,7 @@ The Python runtime remains authoritative. The Go package intentionally covers on
 - policy-backed MCP allow/block decisions
 - registry-backed MCP allow, approval, and block decisions
 - runtime evidence reference metadata
+- representative compiled-policy decisions across every bundled policy pack
 
 Run the scaffold locally:
 
@@ -44,5 +45,5 @@ python3 scripts/generate_go_enforcement_contracts.py
 
 Next Go work:
 
-- Add Python-to-Go golden parity for every bundled policy pack and approval route.
-- Package signed CI runner and air-gapped binaries only after audited parity coverage exists.
+- Add signed CI runner and air-gapped binary packaging with SBOM and release evidence.
+- Continue broadening approval-route coverage as new policy packs are added.

@@ -11,7 +11,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go/cavra-runtime/testdata/compiled_policy.json` captures a compiled-policy loading fixture.
 - `go/cavra-runtime/testdata/mcp_registry.json` captures registry-backed MCP trust decisions.
 - `go/cavra-runtime/runtime/decision_test.go` verifies the Go evaluator against the shared fixture.
-- `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard`.
+- `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard` and compiles every bundled policy pack before checking representative Go CLI decisions.
 - `go run ./cmd/cavra-runtime --policy compiled-policy.json` evaluates against normalized JSON from `cavra policy compile`.
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
@@ -75,5 +75,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Expand parity cases across every bundled policy pack and approval route.
-2. Package signed Go binaries with release evidence and SBOMs.
+1. Package signed Go binaries with release evidence and SBOMs.
+2. Continue broadening approval-route parity as new policy packs are added.

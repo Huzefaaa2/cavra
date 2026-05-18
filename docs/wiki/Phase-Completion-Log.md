@@ -178,6 +178,7 @@ Completed:
 - Runtime evidence references with decision IDs, correlation IDs, timestamps, and `evidence://...` refs.
 - Trust-registry JSON loading for Go runtime and CLI `--registry`.
 - Registry-backed MCP decisions for approved, pending, blocked, tool-scope, and capability-scope outcomes.
+- All-bundled-policy compiled parity through Python-to-Go CLI validation.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - MCP trust registry fixture at `go/cavra-runtime/testdata/mcp_registry.json`.
 - Go unit tests that load the shared parity fixture.
@@ -189,7 +190,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: expand Go parity across every bundled policy pack and approval route, then package signed Go binaries with SBOM and release evidence.
+Recommended next issue: package signed Go binaries with SBOM and release evidence.
 
 ## Phase 9: Hosted Sandbox Deployment
 

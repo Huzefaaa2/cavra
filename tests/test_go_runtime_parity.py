@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from cavra.policy_engine import compile_policy
+from cavra.policy_registry import PolicyRegistry
 from cavra.registry import RegistryStore
 from cavra.runtime import RuntimeGuard
 
@@ -129,6 +131,41 @@ def test_go_runtime_cli_accepts_mcp_registry_fixture() -> None:
     assert decision["evidence_refs"][0].startswith("evidence://cli-registry/")
 
 
+@pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain is not installed")
+def test_go_runtime_accepts_all_bundled_compiled_policy_packs(tmp_path: Path) -> None:
+    binary = tmp_path / "cavra-runtime"
+    subprocess.run(
+        ["go", "build", "-o", str(binary), "./cmd/cavra-runtime"],
+        cwd=Path("go/cavra-runtime"),
+        check=True,
+    )
+    registry = PolicyRegistry()
+    for pack in registry.list_policy_packs():
+        policy_pack = pack["id"]
+        compiled = compile_policy(registry.load_policy(policy_pack))
+        policy_path = tmp_path / f"{policy_pack}.json"
+        policy_path.write_text(json.dumps(compiled), encoding="utf-8")
+        for request in _representative_policy_requests(policy_pack, compiled):
+            expected = _python_decision(request)
+            completed = subprocess.run(
+                [str(binary), "--policy", str(policy_path)],
+                input=json.dumps(request),
+                text=True,
+                check=True,
+                capture_output=True,
+            )
+            actual = json.loads(completed.stdout)
+
+            case_name = f"{policy_pack} {request['action_type']} {request.get('target') or request.get('server')}"
+            assert actual["decision"] == expected["decision"], case_name
+            assert actual["rule_id"] == expected["rule_id"], case_name
+            assert actual["severity"] == expected["severity"], case_name
+            if expected.get("approver_group"):
+                assert actual["approver_group"] == expected["approver_group"], case_name
+            assert actual["policy_pack"] == policy_pack, case_name
+            assert actual["evidence_refs"][0].startswith("evidence://"), case_name
+
+
 def test_go_compiled_policy_fixture_shape_is_supported() -> None:
     fixture = json.loads(Path("go/cavra-runtime/testdata/compiled_policy.json").read_text(encoding="utf-8"))
 
@@ -143,3 +180,115 @@ def test_go_mcp_registry_fixture_shape_is_supported() -> None:
 
     assert {item["server_id"] for item in fixture["mcp_servers"]} >= {"github-mcp", "filesystem-lab", "personal-drive-mcp"}
     assert next(item for item in fixture["mcp_servers"] if item["server_id"] == "github-mcp")["allowed_tools"] == ["create_pull_request"]
+
+
+def _representative_policy_requests(policy_pack: str, compiled: dict[str, object]) -> list[dict[str, str]]:
+    filesystem = compiled.get("filesystem") if isinstance(compiled.get("filesystem"), dict) else {}
+    commands = compiled.get("commands") if isinstance(compiled.get("commands"), dict) else {}
+    mcp = compiled.get("mcp") if isinstance(compiled.get("mcp"), dict) else {}
+    requests: list[dict[str, str]] = []
+    if filesystem.get("block_read"):
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-block-read",
+                "action_type": "read_file",
+                "target": _target_for_pattern(str(filesystem["block_read"][0])),
+                "policy_pack": policy_pack,
+            }
+        )
+    if filesystem.get("block_write"):
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-block-write",
+                "action_type": "write_file",
+                "target": _target_for_pattern(str(filesystem["block_write"][0])),
+                "policy_pack": policy_pack,
+            }
+        )
+    if filesystem.get("require_approval_write"):
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-approval-write",
+                "action_type": "write_file",
+                "target": _target_for_pattern(str(filesystem["require_approval_write"][0])),
+                "policy_pack": policy_pack,
+            }
+        )
+    if commands.get("block"):
+        command = _command_for_pattern(str(commands["block"][0]))
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-block-command",
+                "action_type": "execute_command",
+                "target": command,
+                "policy_pack": policy_pack,
+            }
+        )
+    if commands.get("allow"):
+        command = _command_for_pattern(str(commands["allow"][0]))
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-allow-command",
+                "action_type": "execute_command",
+                "target": command,
+                "policy_pack": policy_pack,
+            }
+        )
+    if mcp.get("allowed_servers"):
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-mcp-allow",
+                "action_type": "mcp_tool_call",
+                "server": str(mcp["allowed_servers"][0]),
+                "tool": "read_file",
+                "capability": "filesystem",
+                "policy_pack": policy_pack,
+            }
+        )
+    if mcp.get("blocked_servers"):
+        requests.append(
+            {
+                "session_id": f"{policy_pack}-mcp-block",
+                "action_type": "mcp_tool_call",
+                "server": str(mcp["blocked_servers"][0]),
+                "tool": "read_file",
+                "capability": "filesystem",
+                "policy_pack": policy_pack,
+            }
+        )
+    return requests
+
+
+def _target_for_pattern(pattern: str) -> str:
+    if pattern == ".env":
+        return ".env"
+    if pattern.startswith(".github/"):
+        return pattern.replace("**", "cavra-required-check.yml").replace("*", "security")
+    if pattern.startswith(".gitlab"):
+        return pattern.replace("**", "ci.yml").replace("*", "security")
+    cleaned = pattern
+    cleaned = cleaned.replace("**/", "src/")
+    cleaned = cleaned.replace("/**", "/policy.yaml")
+    cleaned = cleaned.replace("**", "src")
+    cleaned = cleaned.replace("*", "sample")
+    if cleaned.endswith("/"):
+        cleaned += "file.txt"
+    if "." not in Path(cleaned).name:
+        cleaned += "/file.txt" if cleaned.endswith("src") else ""
+    return cleaned
+
+
+def _command_for_pattern(pattern: str) -> str:
+    if pattern.endswith("*"):
+        prefix = pattern[:-1].strip()
+        suffixes = {
+            "aws iam": " create-role",
+            "az role": " assignment create",
+            "gcloud projects add-iam-policy-binding": " cavra-prod",
+            "kubectl delete": " pod cavra-prod",
+            "terraform apply": " -auto-approve",
+            "gitlab project-settings update": " --protected-branches=false",
+            "gh api repos": "/owner/repo/actions/secrets",
+        }
+        return prefix + suffixes.get(prefix, " --check")
+    return pattern
