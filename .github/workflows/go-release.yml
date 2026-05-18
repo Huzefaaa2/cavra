@@ -17,6 +17,9 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   package:
@@ -24,6 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Resolve release version
+        id: release_version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
@@ -97,16 +108,69 @@ jobs:
           version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
           cd go/cavra-runtime/dist
           zip -r "cavra-go-runtime-${version}.zip" "go-runtime-${version}"
+      - name: Generate keyless provenance attestation
+        id: keyless_attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ github.workspace }}/go/cavra-runtime/dist/cavra-go-runtime-${{ steps.release_version.outputs.version }}.zip
+      - name: Record keyless attestation metadata
+        env:
+          VERSION: ${{ steps.release_version.outputs.version }}
+          ATTESTATION_ID: ${{ steps.keyless_attestation.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.keyless_attestation.outputs.attestation-url }}
+          BUNDLE_PATH: ${{ steps.keyless_attestation.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          package_dir="go/cavra-runtime/dist/go-runtime-${VERSION}"
+          mkdir -p "${package_dir}/github-attestations"
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          repository = os.environ.get("GITHUB_REPOSITORY", "Huzefaaa2/cavra")
+          run_id = os.environ.get("GITHUB_RUN_ID", "")
+          attestation_url = os.environ.get("ATTESTATION_URL", "")
+          if not attestation_url:
+              attestation_url = f"https://github.com/{repository}/attestations"
+          package_dir = Path("go/cavra-runtime/dist") / f"go-runtime-{version}"
+          payload = {
+              "schema_version": "cavra.github-keyless-attestation.v1",
+              "repository": repository,
+              "workflow_run": f"https://github.com/{repository}/actions/runs/{run_id}" if run_id else "",
+              "subject": f"cavra-go-runtime-{version}.zip",
+              "subject_path": f"go/cavra-runtime/dist/cavra-go-runtime-{version}.zip",
+              "attestation_id": os.environ.get("ATTESTATION_ID", ""),
+              "attestation_url": attestation_url,
+              "bundle_path": os.environ.get("BUNDLE_PATH", ""),
+              "issuer": "https://token.actions.githubusercontent.com",
+              "signing": "sigstore-keyless-github-oidc",
+              "verification_command": (
+                  f"gh attestation verify go/cavra-runtime/dist/cavra-go-runtime-{version}.zip "
+                  "--repo Huzefaaa2/cavra"
+              ),
+              "created_at": datetime.now(timezone.utc).isoformat(),
+          }
+          (package_dir / "github-keyless-attestation.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          if [ -n "${BUNDLE_PATH}" ] && [ -f "${BUNDLE_PATH}" ]; then
+            cp "${BUNDLE_PATH}" "${package_dir}/github-attestations/cavra-go-runtime-${VERSION}.sigstore-bundle.json"
+          fi
       - name: Attach package to GitHub Release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_VERSION: ${{ inputs.version }}
+          VERSION: ${{ steps.release_version.outputs.version }}
         run: |
           set -euo pipefail
-          version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
-          gh release upload "$version" \
-            "go/cavra-runtime/dist/cavra-go-runtime-${version}.zip" \
+          gh release upload "$VERSION" \
+            "go/cavra-runtime/dist/cavra-go-runtime-${VERSION}.zip" \
+            "go/cavra-runtime/dist/go-runtime-${VERSION}/github-keyless-attestation.json" \
             --clobber
       - name: Upload Go release package
         uses: actions/upload-artifact@v4

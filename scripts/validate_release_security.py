@@ -18,6 +18,7 @@ REQUIRED_TEXT = {
         "Advisory Content",
         "Go Runtime Release Gate",
         "cavra-runtime.provenance.intoto.json",
+        "gh attestation verify",
     ],
     "scripts/package_go_release.py": [
         "https://in-toto.io/Statement/v1",
@@ -30,6 +31,13 @@ REQUIRED_TEXT = {
     ],
     "src/cavra/cli.py": [
         "--allow-missing-provenance",
+    ],
+    ".github/workflows/go-release.yml": [
+        "id-token: write",
+        "attestations: write",
+        "artifact-metadata: write",
+        "actions/attest@v4",
+        "github-keyless-attestation.json",
     ],
 }
 

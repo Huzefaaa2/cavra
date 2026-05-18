@@ -16,7 +16,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
 - Go decisions now emit runtime evidence metadata: decision ID, correlation ID, timestamp, and `evidence://...` references.
-- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, detached signatures, and release evidence.
+- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, detached signatures, GitHub keyless OIDC attestations, and release evidence.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 
@@ -72,10 +72,10 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
 - Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
 - It exposes an initial Unix-socket daemon transport using the generated request and response types.
-- It does not yet include keyless OIDC attestations or air-gapped installer bundles.
+- It does not yet include air-gapped installer bundles or offline trust-root bootstrap.
 
 ## Next Recommended Work
 
-1. Add keyless OIDC attestations for Go release package provenance.
-2. Add air-gapped installer bundle verification.
+1. Add air-gapped installer bundle verification.
+2. Add offline trust-root bootstrap guidance.
 3. Continue broadening approval-route parity as new policy packs are added.
