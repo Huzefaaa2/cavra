@@ -350,4 +350,22 @@ Validation:
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_api.py::test_api_sandbox_run_uses_backend_policy_and_persists_metadata tests/test_brand_assets.py -q` passed locally.
 
-Recommended next issue: add keyless release attestations with GitHub OIDC and air-gapped installer bundle verification.
+Recommended next issue: delivered below as keyless release attestations.
+
+## GitHub Keyless Release Attestations
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added GitHub OIDC permissions for Go release packaging: `id-token: write`, `attestations: write`, and `artifact-metadata: write`.
+- Added `actions/attest@v4` to generate a keyless provenance attestation for `cavra-go-runtime-<version>.zip`.
+- Added `github-keyless-attestation.json` metadata with attestation ID, URL, issuer, and `gh attestation verify` command.
+- Attached keyless attestation metadata alongside the Go runtime zip on GitHub Release events.
+- Updated release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added workflow and release-security assertions for the keyless attestation path.
+
+Validation:
+- `python3 -m pytest tests/test_ci_templates.py::test_go_release_workflow_packages_signed_release_artifacts tests/test_release_security.py -q` passed locally.
+- `python3 scripts/validate_release_security.py` passed locally.
+
+Recommended next issue: add air-gapped installer bundle verification and offline trust-root bootstrap guidance.

@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add keyless OIDC attestations for release provenance, air-gapped installer bundle verification, and continue broadening approval-route parity as new policy packs are added.
+Add air-gapped installer bundle verification, offline trust-root bootstrap guidance, and continue broadening approval-route parity as new policy packs are added.

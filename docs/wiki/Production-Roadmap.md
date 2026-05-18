@@ -48,9 +48,9 @@ Next: expanded Go parity and public sandbox URL validation after deployment from
 
 Status: scaffold started.
 
-Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
+Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, GitHub keyless OIDC attestations, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
 
-Next: add keyless OIDC attestations for release provenance.
+Next: add air-gapped installer bundle verification.
 
 ## Phase 8: Enterprise Integrations
 
@@ -64,7 +64,7 @@ Status: deployment workflow started.
 
 Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, smoke-tests the public page and core assets after deployment, and can point the public page at a deployed CAVRA API for backend-driven scenario runs. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
 
-Next: add keyless OIDC attestations for release provenance and air-gapped installer bundle verification.
+Next: add air-gapped installer bundle verification and offline trust-root bootstrap guidance.
 
 ## Phase 10: Production Release
 

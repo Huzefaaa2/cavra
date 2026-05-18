@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add keyless OIDC attestations for release provenance and air-gapped installer bundle verification.
+Add air-gapped installer bundle verification and offline trust-root bootstrap guidance.
