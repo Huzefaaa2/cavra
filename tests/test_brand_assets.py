@@ -50,6 +50,7 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'class="brand"' not in html
     assert '<a class="brand"' not in html
     assert 'class="hero-title-block"' in html
+    assert 'class="hero-wordmark">CAVRA<' in html
     assert 'class="hero-side"' in html
     assert 'class="hero-logo-lockup"' in html
     assert 'class="hero-product-mark"' in html

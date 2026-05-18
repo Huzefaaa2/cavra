@@ -14,7 +14,7 @@ CAVRA now includes a professional brand asset set for documentation, the sandbox
 
 ## Usage
 
-Use the horizontal logo in README files, long-form documentation, and landing surfaces. Use the mark for favicons, top-right hero identity placement below the CAVRA label and install CTA, release icons, and UI headers. Use the social preview or thumbnail for GitHub previews, release notes, and presentation covers.
+Use the horizontal logo in README files, long-form documentation, and landing surfaces. Use the mark for favicons, the top-right hero image below the install CTA, release icons, and UI headers. Use the wordmark on the top-left of the sandbox hero. Use the social preview or thumbnail for GitHub previews, release notes, and presentation covers.
 
 The design language uses a shielded `C` monogram with a decision check to represent pre-action authority. Teal signals runtime allow/control, blue signals integration and evidence flow, and gold signals approval or audit outcomes.
 
