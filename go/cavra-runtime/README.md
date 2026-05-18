@@ -24,8 +24,15 @@ echo '{"action_type":"read_file","target":".env"}' \
 
 `--policy` accepts normalized JSON from `cavra policy compile`. When omitted, the runtime uses the built-in scaffold policy subset for local parity tests.
 
+Generated enforcement contracts live under `enforcement/v1` and are generated from `../../proto/cavra/enforcement/v1/enforcement.proto`:
+
+```bash
+cd ../..
+python3 scripts/generate_go_enforcement_contracts.py
+```
+
 Next Go work:
 
-- Generate protobuf or JSON-RPC service boundaries for local daemon mode.
+- Add protobuf, JSON-RPC, or Unix-socket service boundaries for local daemon mode.
 - Add Python-to-Go golden parity for every bundled policy pack, approval route, and registry-backed MCP decision.
 - Package signed CI runner and air-gapped binaries only after audited parity coverage exists.

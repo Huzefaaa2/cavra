@@ -53,6 +53,6 @@ def test_immutable_storage_docs_reference_deployment_bundles() -> None:
 
     assert str(AWS_DIR) in doc
     assert str(AZURE_DIR) in doc
-    assert "generated Go enforcement contracts" in doc
+    assert "Go daemon transport" in doc
     assert str(AWS_DIR) in wiki
     assert str(AZURE_DIR) in wiki

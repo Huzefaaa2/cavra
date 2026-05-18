@@ -9,26 +9,37 @@ import (
 )
 
 type Request struct {
-	ActionType string `json:"action_type"`
-	Target     string `json:"target"`
-	Operation  string `json:"operation"`
-	PolicyPack string `json:"policy_pack"`
-	Server     string `json:"server"`
-	Tool       string `json:"tool"`
-	Capability string `json:"capability"`
+	SessionID          string `json:"session_id,omitempty"`
+	AgentID            string `json:"agent_id,omitempty"`
+	Actor              string `json:"actor,omitempty"`
+	ActionType         string `json:"action_type"`
+	Target             string `json:"target"`
+	Operation          string `json:"operation"`
+	RequestedOperation string `json:"requested_operation"`
+	PolicyPack         string `json:"policy_pack"`
+	Server             string `json:"server"`
+	Tool               string `json:"tool"`
+	Capability         string `json:"capability"`
 }
 
 type Decision struct {
-	Decision           string `json:"decision"`
-	Reason             string `json:"reason"`
-	ActionType         string `json:"action_type"`
-	Target             string `json:"target"`
-	RequestedOperation string `json:"requested_operation"`
-	PolicyPack         string `json:"policy_pack"`
-	PolicyID           string `json:"policy_id"`
-	RuleID             string `json:"rule_id"`
-	Severity           string `json:"severity"`
-	ApproverGroup      string `json:"approver_group,omitempty"`
+	DecisionID          string   `json:"decision_id,omitempty"`
+	SessionID           string   `json:"session_id,omitempty"`
+	AgentID             string   `json:"agent_id,omitempty"`
+	Actor               string   `json:"actor,omitempty"`
+	Decision           string   `json:"decision"`
+	Reason             string   `json:"reason"`
+	ActionType         string   `json:"action_type"`
+	Target             string   `json:"target"`
+	RequestedOperation string   `json:"requested_operation"`
+	PolicyPack         string   `json:"policy_pack"`
+	PolicyID           string   `json:"policy_id"`
+	RuleID             string   `json:"rule_id"`
+	Severity           string   `json:"severity"`
+	EvidenceRefs       []string `json:"evidence_refs,omitempty"`
+	ApproverGroup      string   `json:"approver_group,omitempty"`
+	Timestamp           string   `json:"timestamp,omitempty"`
+	CorrelationID       string   `json:"correlation_id,omitempty"`
 }
 
 type Policy struct {
@@ -80,20 +91,22 @@ func EvaluateWithPolicy(request Request, p Policy) Decision {
 	if pack == "" {
 		pack = "cavra-ai-agent-baseline"
 	}
+	var decision Decision
 	switch request.ActionType {
 	case "read_file":
-		return evaluateFile(request.Target, "read", pack, p)
+		decision = evaluateFile(request.Target, "read", pack, p)
 	case "write_file":
-		return evaluateFile(request.Target, "write", pack, p)
+		decision = evaluateFile(request.Target, "write", pack, p)
 	case "execute_command":
-		return evaluateCommand(request.Target, pack, p)
+		decision = evaluateCommand(request.Target, pack, p)
 	case "git_operation":
-		return evaluateGit(request.Operation, request.Target, pack)
+		decision = evaluateGit(request.operation(), request.Target, pack)
 	case "mcp_tool_call":
-		return evaluateMCP(request, pack, p)
+		decision = evaluateMCP(request, pack, p)
 	default:
-		return baseDecision("require_approval", "Unknown action type; review required.", request.ActionType, request.Target, request.Operation, pack, "runtime.default.require_approval", "medium", "Repository Owners")
+		decision = baseDecision("require_approval", "Unknown action type; review required.", request.ActionType, request.Target, request.operation(), pack, "runtime.default.require_approval", "medium", "Repository Owners")
 	}
+	return withRequestMetadata(decision, request)
 }
 
 func LoadCompiledPolicy(path string) (Policy, error) {
@@ -174,7 +187,7 @@ func evaluateGit(operation string, target string, pack string) Decision {
 
 func evaluateMCP(request Request, pack string, p Policy) Decision {
 	target := request.Server + ":" + request.Tool
-	requested := request.Capability
+	requested := request.operation()
 	if requested == "" {
 		requested = request.Tool
 	}
@@ -182,6 +195,26 @@ func evaluateMCP(request Request, pack string, p Policy) Decision {
 		return baseDecision("block", "Untrusted MCP server with filesystem/tool capability is not approved.", "mcp_tool_call", target, requested, pack, "mcp.server.trust.block_unknown", "high", "")
 	}
 	return baseDecision("allow", "MCP server is trusted for this tool call.", "mcp_tool_call", target, requested, pack, "mcp.server.trust.allow", "low", "")
+}
+
+func (request Request) operation() string {
+	if request.Operation != "" {
+		return request.Operation
+	}
+	if request.RequestedOperation != "" {
+		return request.RequestedOperation
+	}
+	if request.Capability != "" {
+		return request.Capability
+	}
+	return ""
+}
+
+func withRequestMetadata(decision Decision, request Request) Decision {
+	decision.SessionID = request.SessionID
+	decision.AgentID = request.AgentID
+	decision.Actor = request.Actor
+	return decision
 }
 
 func baseDecision(decision string, reason string, actionType string, target string, requested string, pack string, ruleID string, severity string, approverGroup string) Decision {

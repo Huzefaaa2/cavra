@@ -12,6 +12,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go/cavra-runtime/runtime/decision_test.go` verifies the Go evaluator against the shared fixture.
 - `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard`.
 - `go run ./cmd/cavra-runtime --policy compiled-policy.json` evaluates against normalized JSON from `cavra policy compile`.
+- `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 
@@ -59,12 +60,11 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
 - It does not expose a Unix-socket, gRPC, or long-running daemon interface.
-- It does not yet use generated protobuf-backed request and response types.
+- It does not yet expose a daemon transport using the generated request and response types.
 - It does not yet ship signed binaries, SBOMs, or air-gapped release bundles.
 
 ## Next Recommended Work
 
-1. Generate Go contracts from `proto/cavra/enforcement/v1/enforcement.proto`.
-2. Add daemon transport and request lifecycle evidence hooks.
-3. Expand parity cases for approvals, registry-backed MCP trust, policy inheritance, and evidence references.
-4. Package signed Go binaries with release evidence and SBOMs.
+1. Add daemon transport and request lifecycle evidence hooks.
+2. Expand parity cases for approvals, registry-backed MCP trust, policy inheritance, and evidence references.
+3. Package signed Go binaries with release evidence and SBOMs.

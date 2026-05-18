@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-Generated Go enforcement contracts and public sandbox URL validation after deployment from `main`.
+Go daemon transport and public sandbox URL validation after deployment from `main`.

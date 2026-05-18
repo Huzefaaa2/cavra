@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Generated Go enforcement contracts.
+- Go daemon transport.
 - Public sandbox URL validation after deployment from `main`.

@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is generated Go enforcement contracts and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon transport and public sandbox URL validation after deployment from `main`.

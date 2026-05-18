@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Generated Go enforcement contracts.
+- Go daemon transport.
 - Public sandbox URL validation after deployment from `main`.

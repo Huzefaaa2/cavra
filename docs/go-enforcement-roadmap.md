@@ -10,6 +10,8 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
 - Compiled-policy loader for normalized JSON from `cavra policy compile`.
 - CLI `--policy` flag for evaluating requests against compiled policy JSON.
+- Generated Go request and response contracts under `go/cavra-runtime/enforcement/v1`.
+- Contract generator at `scripts/generate_go_enforcement_contracts.py`.
 - Python parity test that verifies the same fixture against the authoritative `RuntimeGuard`.
 - Go unit test that loads the fixture and verifies the Go evaluator.
 - GitHub Actions `go-runtime-parity` job with `actions/setup-go`.
@@ -17,12 +19,11 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 
 ## Current Boundary
 
-The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, but it does not yet expose a daemon interface, use generated protobuf-backed contracts, or ship as the production enforcement backend.
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts and expose generated Go request/response contracts, but it does not yet expose a daemon interface or ship as the production enforcement backend.
 
 ## Next Implementation Steps
 
-1. Generate Go request and response types from `proto/cavra/enforcement/v1/enforcement.proto`.
-2. Add a local daemon interface over Unix socket or gRPC.
-3. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
-4. Package the Go binary for CI runner and air-gapped usage.
-5. Promote Go to an optional backend only after audited parity and deployment tests pass.
+1. Add a local daemon interface over Unix socket or gRPC.
+2. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
+3. Package the Go binary for CI runner and air-gapped usage.
+4. Promote Go to an optional backend only after audited parity and deployment tests pass.

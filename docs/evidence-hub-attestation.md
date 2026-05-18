@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Expand Go enforcement from compiled-policy loading to generated contracts.
+- Expand Go enforcement from generated contracts to local daemon transport.
 - Validate the hosted sandbox URL after deployment from `main`.

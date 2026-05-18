@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is generated Go enforcement contracts and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon transport and public sandbox URL validation after deployment from `main`.
