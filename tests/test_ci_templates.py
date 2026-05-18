@@ -46,7 +46,10 @@ def test_sandbox_pages_workflow_builds_static_artifact() -> None:
     assert workflow["jobs"]["build"]["name"] == "build-sandbox"
     assert workflow["jobs"]["deploy"]["name"] == "deploy-sandbox"
     assert "assets/brand/**" in text
+    assert "node --check apps/sandbox-ui/config.js" in text
     assert "node --check apps/sandbox-ui/sandbox.js" in text
+    assert "CAVRA_PUBLIC_API_BASE_URL" in text
+    assert "public/config.js" in text
     assert "cp -R assets/brand public/assets/" in text
     assert "actions/configure-pages@v6" in text
     assert "actions/upload-pages-artifact@v3" in text

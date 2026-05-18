@@ -50,7 +50,7 @@ Status: scaffold started.
 
 Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
 
-Next: connect the public sandbox to backend-driven scenario runs.
+Next: add keyless OIDC attestations for release provenance.
 
 ## Phase 8: Enterprise Integrations
 
@@ -62,9 +62,9 @@ Next: expanded Go parity and public sandbox smoke validation.
 
 Status: deployment workflow started.
 
-Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, and smoke-tests the public page and core assets after deployment. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
+Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, smoke-tests the public page and core assets after deployment, and can point the public page at a deployed CAVRA API for backend-driven scenario runs. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
 
-Next: connect the public sandbox to backend-driven scenario runs.
+Next: add public telemetry-free run counters from persisted backend metadata and keyless OIDC attestations for release provenance.
 
 ## Phase 10: Production Release
 

@@ -229,7 +229,7 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated agent decisions, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
@@ -259,12 +259,12 @@ Current phase status:
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable Go daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, daemon request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP parity, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
 - Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
-- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console; Pages is enabled and post-deploy smoke validation is in progress.
+- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console, optional API configuration for backend-driven scenario runs, and post-deploy smoke validation.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Connect the public sandbox to backend-driven scenario runs.
+- Add public telemetry-free demo run counters from persisted backend metadata.
 - Add keyless OIDC attestations for release provenance.
 - Add air-gapped installer bundle verification.
 

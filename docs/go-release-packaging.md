@@ -72,6 +72,6 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Connect the public sandbox to backend-driven scenario runs.
+1. Add public telemetry-free demo run counters from persisted backend metadata.
 2. Add SLSA keyless attestations with GitHub OIDC after the release process stabilizes.
 3. Add air-gapped installer bundle verification.

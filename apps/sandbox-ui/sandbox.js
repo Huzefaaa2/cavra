@@ -56,6 +56,36 @@ const evidenceArtifactCatalog = [
   artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
 }));
 
+const releaseNoteCatalog = [
+  {
+    title: "Backend-Driven Sandbox Runs",
+    date: "2026-05-18",
+    summary: "The public sandbox can now call a deployed CAVRA API, run the flagship scenario with backend policy decisions, and refresh evidence and activity records.",
+    links: [
+      ["PR #12", "https://github.com/Huzefaaa2/cavra/pull/12"],
+      ["Sandbox docs", "https://github.com/Huzefaaa2/cavra/blob/main/docs/sandbox.md"]
+    ]
+  },
+  {
+    title: "Release Integrity",
+    date: "2026-05-18",
+    summary: "Go runtime release packages now include checksums, SBOM metadata, SLSA provenance, detached signatures, and local verifier support.",
+    links: [
+      ["Go release packaging", "https://github.com/Huzefaaa2/cavra/blob/main/docs/go-release-packaging.md"],
+      ["Release security", "https://github.com/Huzefaaa2/cavra/blob/main/docs/release-security-advisories.md"]
+    ]
+  },
+  {
+    title: "Public Evidence Console",
+    date: "2026-05-18",
+    summary: "The hosted demo includes evidence search, PR attestation checks, approval views, registry views, production readiness, and release documentation links.",
+    links: [
+      ["Hosted sandbox", "https://huzefaaa2.github.io/cavra/"],
+      ["Roadmap", "https://github.com/Huzefaaa2/cavra/blob/main/docs/production-roadmap.md"]
+    ]
+  }
+];
+
 const activitySessions = evidenceCatalog.map((item) => ({
   schema_version: "cavra.session.v1",
   session_id: item.session_id,
@@ -346,6 +376,7 @@ const mcpClassifications = [
 let consoleConfig = null;
 let consoleAuthToken = window.sessionStorage?.getItem("cavraConsoleToken") || "";
 let lastPolicyPublishApprovalId = "";
+let lastSandboxRun = null;
 
 function eventPayload(row, index) {
   const [action_type, target, decision, rule_id, reason] = row;
@@ -418,16 +449,80 @@ async function runScenario() {
   const actions = document.querySelector("#actions");
   const decisions = document.querySelector("#decisions");
   const evidence = document.querySelector("#evidence");
+  const status = document.querySelector("#scenarioStatus");
   actions.innerHTML = "";
   decisions.innerHTML = "";
-  const events = scenario.map(eventPayload);
+  if (status) {
+    status.textContent = "Scenario source: running";
+    status.className = "status-line";
+  }
   evidence.textContent = "Running...";
+  const run = await loadSandboxRun();
+  lastSandboxRun = run;
+  const events = Array.isArray(run.events) ? run.events : [];
   for (const event of events) {
     await new Promise((resolve) => setTimeout(resolve, 280));
     actions.insertAdjacentHTML("beforeend", `<li><strong>${event.action_type}</strong><br>${event.target}</li>`);
     decisions.insertAdjacentHTML("beforeend", `<li class="${event.decision}"><strong>${event.decision}</strong><br>${event.reason}<br><small>${event.rule_id}</small></li>`);
   }
-  evidence.textContent = JSON.stringify({ product: "CAVRA", tagline: "Before the agent acts, CAVRA decides.", events }, null, 2);
+  evidence.textContent = JSON.stringify(run, null, 2);
+  updateScenarioDownloads(run);
+  if (status) {
+    status.textContent = `Scenario source: ${run.source === "cavra-api" ? "CAVRA API" : "local sample"} · ${run.run_id || "sample"}`;
+    status.className = `status-line ${run.source === "cavra-api" ? "ok" : "warn"}`;
+  }
+  if (run.source === "cavra-api") {
+    await Promise.all([refreshEvidence(), refreshActivity()]);
+  }
+}
+
+async function loadSandboxRun() {
+  await loadConsoleConfig();
+  const persona = document.querySelector("#persona")?.value || "Developer";
+  const policyMode = document.querySelector("#policyMode")?.value || "Enforce";
+  try {
+    const response = await fetch(apiUrl(consoleConfig?.endpoints?.sandbox_run || "/api/sandbox/run"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        scenario: "before-the-agent-acts",
+        persona,
+        policy_mode: policyMode
+      })
+    });
+    if (!response.ok) throw new Error("sandbox API unavailable");
+    return await response.json();
+  } catch {
+    const events = scenario.map(eventPayload);
+    const blocked = events.filter((event) => event.decision === "block").length;
+    const approvals = events.filter((event) => event.decision === "require_approval").length;
+    return {
+      schema_version: "cavra.sandbox.run.v1",
+      product: "CAVRA",
+      run_id: `local_${Date.now()}`,
+      scenario: "before-the-agent-acts",
+      persona,
+      policy_mode: policyMode.toLowerCase().replaceAll(" ", "_"),
+      policy_pack: "cavra-ai-agent-baseline",
+      source: "local-sample",
+      tagline: "Before the agent acts, CAVRA decides.",
+      decision_count: events.length,
+      blocked_count: blocked,
+      approval_required_count: approvals,
+      events,
+      artifacts: [
+        { artifact: "evidence.json", kind: "evidence", media_type: "application/json", download_url: "./evidence/before-the-agent-acts/evidence.json" }
+      ]
+    };
+  }
+}
+
+function updateScenarioDownloads(run) {
+  const evidenceLink = document.querySelector("#downloadEvidence");
+  if (!evidenceLink) return;
+  const evidenceArtifact = (run.artifacts || []).find((item) => item.artifact === "evidence.json" || item.kind === "evidence");
+  const downloadUrl = evidenceArtifact?.download_url || "./evidence/before-the-agent-acts/evidence.json";
+  evidenceLink.href = downloadUrl.startsWith(".") || downloadUrl.startsWith("http") ? downloadUrl : apiUrl(downloadUrl);
 }
 
 async function loadEvidenceMetadata() {
@@ -1083,6 +1178,23 @@ function renderEvidenceArtifacts(payload) {
   `;
 }
 
+function renderReleaseNotes() {
+  const panel = document.querySelector("#releaseNotes");
+  if (!panel) return;
+  panel.innerHTML = releaseNoteCatalog.map((item) => `
+    <article class="release-note">
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.date)}</span>
+      </div>
+      <p>${escapeHtml(item.summary)}</p>
+      <div class="release-note-links">
+        ${item.links.map(([label, href]) => `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>`).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
 function renderActivityRows(sessions, decisions) {
   const sessionRows = document.querySelector("#sessionRows");
   const decisionRows = document.querySelector("#decisionRows");
@@ -1706,6 +1818,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+renderReleaseNotes();
 refreshActivity();
 refreshInventory();
 refreshPolicyCatalog();
