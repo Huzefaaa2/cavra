@@ -34,11 +34,12 @@ https://huzefaaa2.github.io/cavra/
 - As a developer, I can find the Claude Code MCP setup command from the same surface.
 - As a platform evaluator, I can connect the hosted sandbox to a deployed CAVRA API and run backend-generated policy decisions.
 - As a design partner, I can jump from the sandbox to current release notes, release integrity details, and roadmap context.
+- As a product stakeholder, I can see aggregate public demo run counters without adding external analytics.
 
 ## Enterprise Challenge Solved
 
-The hosted sandbox shortens enterprise review by giving security, platform, and audit stakeholders a consistent demo surface before they install anything. When an API URL is configured, the same page runs real backend scenarios and persists evidence metadata plus activity records. Release-note links keep design-partner demos tied to the latest implementation context.
+The hosted sandbox shortens enterprise review by giving security, platform, and audit stakeholders a consistent demo surface before they install anything. When an API URL is configured, the same page runs real backend scenarios and persists evidence metadata plus activity records. Telemetry-free public run counters summarize those records without browser tracking, and release-note links keep design-partner demos tied to the latest implementation context.
 
 ## Next
 
-Add public telemetry-free run counters from persisted backend metadata and add keyless OIDC attestations for release provenance.
+Add keyless OIDC attestations for release provenance and air-gapped installer bundle verification.

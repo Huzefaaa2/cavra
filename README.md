@@ -229,15 +229,15 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, telemetry-free public run counters from persisted backend metadata, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
 ```
 
-Open `http://127.0.0.1:5173`, run the agent scenario, filter sessions and decisions, inspect repository policy rollout detail, preview policy drafts, request approval for signed policy write-back, publish approved policy packs, plan and apply rollout changes, review enterprise integration health, inspect OIDC/RBAC boundary status, validate console session context, inspect deployment readiness, filter evidence metadata, review downloadable evidence artifacts, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
+Open `http://127.0.0.1:5173`, run the agent scenario, review telemetry-free public demo counters, filter sessions and decisions, inspect repository policy rollout detail, preview policy drafts, request approval for signed policy write-back, publish approved policy packs, plan and apply rollout changes, review enterprise integration health, inspect OIDC/RBAC boundary status, validate console session context, inspect deployment readiness, filter evidence metadata, review downloadable evidence artifacts, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
 
-For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` when available and falls back to bundled sample evidence when the API is unreachable. See [docs/sandbox.md](docs/sandbox.md).
+For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` and `/api/sandbox/metrics` when available and falls back to bundled sample evidence when the API is unreachable. The counters are sourced from CAVRA activity metadata only; no cookies, browser identifiers, or third-party analytics are required. See [docs/sandbox.md](docs/sandbox.md).
 
 The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub Pages is enabled for Actions publishing, and the deployment workflow now packages downloadable sample evidence and smoke-tests the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
 
@@ -259,12 +259,11 @@ Current phase status:
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
 - Phase 7: Go Enforcement Plane - scaffold started in PR #1 with a Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated Go enforcement contracts, Unix-socket daemon transport, reusable Go daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, daemon request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP parity, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared parity fixture, Python and Go tests, a dedicated `go-runtime-parity` CI job, and Go execution in the required governance check.
 - Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
-- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console, optional API configuration for backend-driven scenario runs, and post-deploy smoke validation.
+- Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console, optional API configuration for backend-driven scenario runs, telemetry-free public run counters, and post-deploy smoke validation.
 - Phase 10: Production Readiness and Release.
 
 Next recommended implementation work:
 
-- Add public telemetry-free demo run counters from persisted backend metadata.
 - Add keyless OIDC attestations for release provenance.
 - Add air-gapped installer bundle verification.
 

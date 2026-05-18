@@ -72,6 +72,6 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add public telemetry-free demo run counters from persisted backend metadata.
-2. Add SLSA keyless attestations with GitHub OIDC after the release process stabilizes.
-3. Add air-gapped installer bundle verification.
+1. Add SLSA keyless attestations with GitHub OIDC after the release process stabilizes.
+2. Add air-gapped installer bundle verification.
+3. Add offline trust-root bootstrap guidance.
