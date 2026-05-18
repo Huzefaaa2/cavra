@@ -230,6 +230,7 @@ Implement:
 - Compiled-policy JSON loading from `cavra policy compile`. Delivered for mirrored filesystem, command, and MCP sections.
 - Generated Go request and response types from the enforcement protobuf contract. Delivered as lightweight JSON transport contracts.
 - Local Unix-socket daemon transport. Initial one-request-per-connection transport delivered.
+- Reusable Go daemon client helper and CLI `--daemon` one-shot client mode. Delivered.
 - Parity tests between Python and Go decisions. Critical fixture scaffold delivered.
 - CI runner integration mode. Initial `go-runtime-parity` and required-check execution delivered.
 - Unix-socket or gRPC local interface.
@@ -339,12 +340,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: add Go daemon client helpers, lifecycle management, and evidence hooks, then validate the public sandbox URL after the workflow lands on `main`.
+Next recommended implementation phase: add Go daemon lifecycle management and evidence hooks, then validate the public sandbox URL after the workflow lands on `main`.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Add a reusable client helper for Unix-socket daemon requests.
 - Add daemon lifecycle management for developer laptops and CI runners.
 - Add request and response evidence hooks.
 - After merge to `main`, run the sandbox deployment workflow and record the public URL in README and wiki.

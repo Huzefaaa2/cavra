@@ -68,4 +68,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is Go daemon client helpers and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon lifecycle management, daemon evidence hooks, and public sandbox URL validation after deployment from `main`.

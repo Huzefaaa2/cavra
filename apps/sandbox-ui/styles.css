@@ -5,8 +5,8 @@ nav { display: flex; justify-content: space-between; align-items: center; gap: 1
 button, a { border: 1px solid #76d6b2; background: #76d6b2; color: #07110d; padding: 10px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; cursor: pointer; }
 button.secondary { border-color: #3d4c54; background: #0f1418; color: #eef3f6; }
 nav button { background: rgba(16,19,22,.8); color: #eef3f6; }
-.brand { display: inline-flex; align-items: center; gap: 10px; padding: 0; border: 0; background: transparent; color: #eef3f6; font-size: 18px; letter-spacing: 1px; }
-.brand img { width: 42px; height: 42px; display: block; }
+.brand { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 10px; min-width: 0; padding: 0; border: 0; background: transparent; color: #eef3f6; font-size: 18px; letter-spacing: 1px; }
+.brand img { display: block; inline-size: 34px; block-size: 34px; width: 34px; height: 34px; max-width: 34px; max-height: 34px; object-fit: contain; }
 .brand span { font-weight: 800; }
 .eyebrow { color: #76d6b2; font-weight: 700; }
 h1 { font-size: clamp(48px, 8vw, 116px); line-height: .95; margin: 0; max-width: 960px; }

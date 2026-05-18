@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is Go daemon client helpers and public sandbox URL validation after deployment from `main`.
+The next recommended work is Go daemon lifecycle management, daemon evidence hooks, and public sandbox URL validation after deployment from `main`.

@@ -8,8 +8,10 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - Unix-socket server mode through `go run ./cmd/cavra-runtime --serve`.
 - One JSON `EvaluateRequest` per connection.
 - One JSON `DecisionResponse` returned per connection.
+- Reusable Go `daemon.Client` helper for Unix-socket requests.
+- CLI `--daemon` client mode for one-shot `EvaluateRequest` calls.
 - Runtime evaluator that can use either the built-in scaffold policy or compiled policy JSON loaded through `--policy`.
-- Go tests for contract request handling and compiled-policy-backed daemon evaluation.
+- Go tests for contract request handling, client calls, and compiled-policy-backed daemon evaluation.
 
 ## How To Use
 
@@ -27,12 +29,20 @@ printf '{"action_type":"read_file","target":"config/prod.secret"}\n' \
   | nc -U .cavra/cavra-runtime.sock
 ```
 
+Or use the CAVRA Go client mode:
+
+```bash
+printf '{"action_type":"execute_command","target":"terraform plan","requested_operation":"terraform plan"}\n' \
+  | go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock
+```
+
 The daemon returns a `DecisionResponse` JSON object matching the generated contract package under `go/cavra-runtime/enforcement/v1`.
 
 ## User Stories
 
 - As a developer, I can run a local enforcement daemon without starting the Python API.
 - As a CI owner, I can connect runner-side tooling to a stable socket protocol.
+- As a platform engineer, I can call the daemon through a typed Go helper instead of hand-rolled socket code.
 - As an enterprise architect, I can evaluate a path toward a lightweight air-gapped enforcement binary.
 
 ## Enterprise Challenge Solved
@@ -47,7 +57,6 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 
 ## Next Recommended Work
 
-1. Add a small client helper for the Unix-socket protocol.
-2. Add daemon lifecycle management for developer laptops and CI runners.
-3. Add request/response evidence hooks.
-4. Expand golden parity across approvals and registry-backed MCP decisions.
+1. Add daemon lifecycle management for developer laptops and CI runners.
+2. Add request/response evidence hooks.
+3. Expand golden parity across approvals and registry-backed MCP decisions.
