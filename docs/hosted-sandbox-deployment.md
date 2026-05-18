@@ -49,8 +49,9 @@ Security and platform buyers need a short, credible product walkthrough before d
 - Public URL validation requires the workflow to run from `main`.
 - The static sandbox uses built-in sample data when no API is configured.
 - Backend-driven sandbox runs require a reachable API URL and matching `CAVRA_CORS_ORIGINS`.
+- Public counters require the API activity store to retain sandbox session rows.
 
 ## Next Recommended Work
 
-1. Add release-note links to the public sandbox for design-partner demos.
-2. Add public telemetry-free demo run counters from persisted backend metadata.
+1. Add air-gapped installer bundle verification.
+2. Add offline trust-root bootstrap guidance.

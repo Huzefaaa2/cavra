@@ -146,6 +146,7 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     assert config["api_base_url"] == "https://cavra.example"
     assert config["metadata_mode"] == "json"
     assert config["activity_mode"] == "json"
+    assert config["endpoints"]["sandbox_metrics"] == "/api/sandbox/metrics"
     assert config["endpoints"]["sandbox_run"] == "/api/sandbox/run"
     assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
 
@@ -169,6 +170,9 @@ def test_api_sandbox_run_uses_backend_policy_and_persists_metadata(monkeypatch, 
     metadata = client.get(f"/evidence/{run_id}")
     sessions = client.get("/sessions", params={"repository": "sandbox/before-the-agent-acts"})
     decisions = client.get("/decisions", params={"session_id": run_id})
+    metrics = client.get("/api/sandbox/metrics")
+    replay = client.post(f"/api/sandbox/runs/{run_id}/replay")
+    replay_metrics = client.get("/api/sandbox/metrics")
     missing = client.get("/api/sandbox/runs/missing")
 
     assert scenarios.status_code == 200
@@ -187,6 +191,15 @@ def test_api_sandbox_run_uses_backend_policy_and_persists_metadata(monkeypatch, 
     assert metadata.json()["session_id"] == run_id
     assert sessions.json()["total"] == 1
     assert decisions.json()["total"] == 7
+    assert metrics.status_code == 200
+    assert metrics.json()["tracking"] == "none"
+    assert metrics.json()["telemetry"] == "disabled"
+    assert metrics.json()["total_runs"] == 1
+    assert metrics.json()["total_decisions"] == 7
+    assert replay.status_code == 200
+    assert replay.json()["run_id"] != run_id
+    assert replay_metrics.json()["total_runs"] == 2
+    assert replay_metrics.json()["total_decisions"] == 14
     assert missing.status_code == 404
 
 
@@ -221,6 +234,7 @@ def test_api_persists_json_decisions_and_sessions(monkeypatch, tmp_path) -> None
 def test_api_sqlite_activity_store(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_ACTIVITY_STORE", raising=False)
     monkeypatch.setenv("CAVRA_ACTIVITY_DB", str(tmp_path / "activity.db"))
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
     client = TestClient(create_app())
 
     decision = client.post(
@@ -236,12 +250,17 @@ def test_api_sqlite_activity_store(monkeypatch, tmp_path) -> None:
     session = client.get("/sessions/sqlite-session")
     listed = client.get("/decisions", params={"agent_id": "claude-code", "severity": "high"})
     config = client.get("/console/config").json()
+    sandbox_run = client.post("/api/sandbox/run", json={"scenario": "before-the-agent-acts"})
+    sandbox_metrics = client.get("/api/sandbox/metrics").json()
 
     assert decision.status_code == 200
     assert decision.json()["decision"] == "require_approval"
     assert session.json()["approval_required_count"] == 1
     assert listed.json()["total"] == 1
     assert config["activity_mode"] == "sqlite"
+    assert sandbox_run.status_code == 200
+    assert sandbox_metrics["total_runs"] == 1
+    assert sandbox_metrics["total_decisions"] == 7
 
 
 def test_api_operations_store_status_and_retention_plan(monkeypatch, tmp_path) -> None:

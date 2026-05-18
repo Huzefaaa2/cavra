@@ -301,10 +301,10 @@ Implement:
 - Public sandbox URL. Verified at `https://huzefaaa2.github.io/cavra/`.
 - Static evidence packaging and post-deploy smoke validation for the public page and core assets.
 - Public post-deploy smoke run. Passed from `main`.
-- Backend-driven sandbox runs using the real policy engine. Delivered with optional API-backed Pages config, `/api/sandbox/run`, persisted evidence metadata, and activity records.
+- Backend-driven sandbox runs using the real policy engine. Delivered with optional API-backed Pages config, `/api/sandbox/run`, persisted evidence metadata, activity records, and telemetry-free public run counters from `/api/sandbox/metrics`.
 - Downloadable evidence, PR attestation, and compliance reports.
 - Persona-specific narratives for Developer, CISO, Platform Engineer, and Auditor.
-- Install for Claude Code CTA and measurement hooks.
+- Install for Claude Code CTA and telemetry-free adoption counters.
 
 User stories:
 - As a prospect, I can run the demo without credentials or cloud spend.
@@ -348,11 +348,10 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: add release-note links to the public sandbox and add keyless OIDC attestations for release provenance.
+Next recommended implementation phase: add air-gapped installer bundle verification and offline trust-root bootstrap guidance.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates, signed Go release packages attached to GitHub Releases, verifier CLI support, SLSA provenance, vulnerability disclosure/release advisory documentation, and backend-driven public sandbox scenario runs.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates, signed Go release packages attached to GitHub Releases, verifier CLI support, SLSA provenance, GitHub keyless OIDC attestations, vulnerability disclosure/release advisory documentation, backend-driven public sandbox scenario runs, public sandbox release-note links, and telemetry-free public run counters from persisted backend metadata.
 
 Immediate next tasks:
-- Add release-note links to the public sandbox for design-partner demos.
-- Add keyless OIDC attestations for release provenance.
 - Add air-gapped installer bundle verification.
+- Add offline trust-root bootstrap guidance.

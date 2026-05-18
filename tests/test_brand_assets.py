@@ -53,6 +53,12 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'class="hero-wordmark">CAVRA<' in html
     assert 'class="hero-side"' in html
     assert 'class="hero-logo-lockup"' in html
+    assert 'id="demoMetrics"' in html
+    assert 'id="releaseNotes"' in html
+    assert "hero-metrics" in css
+    assert "metric-card" in css
+    assert "release-note-grid" in css
+    assert "release-note-links" in css
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
     assert ".hero-side { position: absolute;" in css

@@ -61,8 +61,14 @@ def test_go_release_workflow_packages_signed_release_artifacts() -> None:
     workflow = _load_yaml(workflow_path)
     text = Path(workflow_path).read_text(encoding="utf-8")
 
+    assert workflow["permissions"]["id-token"] == "write"
+    assert workflow["permissions"]["attestations"] == "write"
+    assert workflow["permissions"]["artifact-metadata"] == "write"
     assert workflow["jobs"]["package"]["name"] == "package-go-runtime"
     assert "actions/setup-go@v6" in text
+    assert "actions/attest@v4" in text
+    assert "github-keyless-attestation.json" in text
+    assert "gh attestation verify" in text
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "GOOS=" in text
     assert "go list -m -json all" in text

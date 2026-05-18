@@ -56,6 +56,36 @@ const evidenceArtifactCatalog = [
   artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
 }));
 
+const releaseNoteCatalog = [
+  {
+    title: "Backend-Driven Sandbox Runs",
+    date: "2026-05-18",
+    summary: "The public sandbox can now call a deployed CAVRA API, run the flagship scenario with backend policy decisions, and refresh evidence and activity records.",
+    links: [
+      ["PR #12", "https://github.com/Huzefaaa2/cavra/pull/12"],
+      ["Sandbox docs", "https://github.com/Huzefaaa2/cavra/blob/main/docs/sandbox.md"]
+    ]
+  },
+  {
+    title: "Release Integrity",
+    date: "2026-05-18",
+    summary: "Go runtime release packages now include checksums, SBOM metadata, SLSA provenance, detached signatures, and local verifier support.",
+    links: [
+      ["Go release packaging", "https://github.com/Huzefaaa2/cavra/blob/main/docs/go-release-packaging.md"],
+      ["Release security", "https://github.com/Huzefaaa2/cavra/blob/main/docs/release-security-advisories.md"]
+    ]
+  },
+  {
+    title: "Public Evidence Console",
+    date: "2026-05-18",
+    summary: "The hosted demo includes evidence search, PR attestation checks, approval views, registry views, production readiness, and release documentation links.",
+    links: [
+      ["Hosted sandbox", "https://huzefaaa2.github.io/cavra/"],
+      ["Roadmap", "https://github.com/Huzefaaa2/cavra/blob/main/docs/production-roadmap.md"]
+    ]
+  }
+];
+
 const activitySessions = evidenceCatalog.map((item) => ({
   schema_version: "cavra.session.v1",
   session_id: item.session_id,
@@ -372,6 +402,17 @@ function escapeHtml(value) {
     "\"": "&quot;",
     "'": "&#39;"
   })[char]);
+}
+
+function formatMetricNumber(value) {
+  return Number(value || 0).toLocaleString("en-US");
+}
+
+function formatMetricDate(value) {
+  if (!value) return "None yet";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value).slice(0, 16);
+  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function apiUrl(path, params = {}) {
@@ -1148,6 +1189,51 @@ function renderEvidenceArtifacts(payload) {
   `;
 }
 
+function renderReleaseNotes() {
+  const panel = document.querySelector("#releaseNotes");
+  if (!panel) return;
+  panel.innerHTML = releaseNoteCatalog.map((item) => `
+    <article class="release-note">
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.date)}</span>
+      </div>
+      <p>${escapeHtml(item.summary)}</p>
+      <div class="release-note-links">
+        ${item.links.map(([label, href]) => `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>`).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderDemoMetrics(metrics) {
+  const panel = document.querySelector("#demoMetrics");
+  if (!panel) return;
+  const items = [
+    ["Runs", metrics.total_runs],
+    ["Decisions", metrics.total_decisions],
+    ["Blocked", metrics.blocked_actions],
+    ["Approvals", metrics.approval_required_actions]
+  ];
+  const sourceLabel = metrics.source === "activity_store" ? "Persisted backend metadata" : "Local sample mode";
+  panel.innerHTML = `
+    <div class="metric-source">
+      <strong>${escapeHtml(sourceLabel)}</strong>
+      <span>${escapeHtml(metrics.telemetry === "disabled" ? "Telemetry-free" : "Telemetry status unknown")}</span>
+    </div>
+    ${items.map(([label, value]) => `
+      <div class="metric-card">
+        <span>${escapeHtml(label)}</span>
+        <strong>${formatMetricNumber(value)}</strong>
+      </div>
+    `).join("")}
+    <div class="metric-card metric-wide">
+      <span>Latest</span>
+      <strong>${escapeHtml(formatMetricDate(metrics.latest_run_at))}</strong>
+    </div>
+  `;
+}
+
 function renderActivityRows(sessions, decisions) {
   const sessionRows = document.querySelector("#sessionRows");
   const decisionRows = document.querySelector("#decisionRows");
@@ -1548,6 +1634,10 @@ async function refreshActivity() {
   renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
 }
 
+async function refreshDemoMetrics() {
+  renderDemoMetrics(await loadDemoMetrics());
+}
+
 async function refreshInventory() {
   const [repositories, rollouts] = await Promise.all([loadRepositories(), loadPolicyRollouts()]);
   renderInventoryRows(filterRepositories(repositories), filterPolicyRollouts(rollouts));
@@ -1771,6 +1861,8 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+renderReleaseNotes();
+refreshDemoMetrics();
 refreshActivity();
 refreshInventory();
 refreshPolicyCatalog();
