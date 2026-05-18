@@ -9,8 +9,9 @@ Workflow file: `.github/workflows/deploy-sandbox.yml`
 The workflow:
 
 - Runs on manual dispatch and pushes to `main` that affect the sandbox, docs, or workflow file.
-- Validates `apps/sandbox-ui/sandbox.js` with `node --check`.
+- Validates `apps/sandbox-ui/config.js` and `apps/sandbox-ui/sandbox.js` with `node --check`.
 - Copies `apps/sandbox-ui` into a static `public/` artifact.
+- Writes `public/config.js` from the optional `CAVRA_PUBLIC_API_BASE_URL` repository variable.
 - Packages the generated Before the Agent Acts sample evidence at `evidence/before-the-agent-acts/evidence.json`.
 - Includes SVG diagrams from `docs/diagrams`.
 - Configures the already-enabled GitHub Pages site for GitHub Actions publishing.
@@ -37,18 +38,19 @@ https://huzefaaa2.github.io/cavra/
 - As a prospect, I can open the sandbox without cloud credentials or a local install.
 - As a CISO, I can see CAVRA decisions, evidence, and deployment readiness from a browser.
 - As a developer, I can copy the Claude Code MCP setup command from the same product surface.
+- As a platform evaluator, I can point the public sandbox at a deployed CAVRA API and run backend-generated policy decisions.
 
 ## Enterprise Challenge Solved
 
-Security and platform buyers need a short, credible product walkthrough before design-partner workshops. The hosted sandbox makes CAVRA reviewable from a static URL while the API-backed console can still be deployed behind enterprise identity for production use.
+Security and platform buyers need a short, credible product walkthrough before design-partner workshops. The hosted sandbox makes CAVRA reviewable from a static URL while the same surface can call a deployed API for backend-generated scenario runs, persisted evidence metadata, and activity records.
 
 ## Current Limits
 
 - Public URL validation requires the workflow to run from `main`.
 - The static sandbox uses built-in sample data when no API is configured.
-- Backend-driven sandbox runs remain a future Phase 9 enhancement.
+- Backend-driven sandbox runs require a reachable API URL and matching `CAVRA_CORS_ORIGINS`.
 
 ## Next Recommended Work
 
-1. Add backend-driven scenario runs when the public demo is connected to a deployed API.
-2. Add release-note links to the public sandbox for design-partner demos.
+1. Add release-note links to the public sandbox for design-partner demos.
+2. Add public telemetry-free demo run counters from persisted backend metadata.

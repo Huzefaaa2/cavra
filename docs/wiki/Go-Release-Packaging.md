@@ -51,4 +51,4 @@ Signed Go release packaging gives regulated teams an auditable path from source 
 
 ## Next
 
-Connect the public sandbox to backend-driven scenario runs and add keyless release attestations with GitHub OIDC.
+Add release-note links to the public sandbox and add keyless release attestations with GitHub OIDC.

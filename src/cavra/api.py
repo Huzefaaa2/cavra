@@ -49,7 +49,15 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.runtime import RuntimeGuard
-from cavra.sandbox import compliance_mapping, create_sandbox_run, evidence_json, pr_attestation
+from cavra.sandbox import (
+    compliance_mapping,
+    create_sandbox_run,
+    evidence_json,
+    pr_attestation,
+    sandbox_activity_session,
+    sandbox_evidence_metadata,
+    sandbox_scenarios as available_sandbox_scenarios,
+)
 
 try:
     from fastapi import FastAPI, Header, HTTPException, Response
@@ -178,7 +186,13 @@ def create_app():
                 "agents": "/agents",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
+                "sandbox_scenarios": "/api/sandbox/scenarios",
                 "sandbox_run": "/api/sandbox/run",
+                "sandbox_run_item": "/api/sandbox/runs/{run_id}",
+                "sandbox_run_events": "/api/sandbox/runs/{run_id}/events",
+                "sandbox_run_evidence": "/api/sandbox/runs/{run_id}/evidence",
+                "sandbox_run_attestation": "/api/sandbox/runs/{run_id}/attestation",
+                "sandbox_run_compliance": "/api/sandbox/runs/{run_id}/compliance",
             },
         }
 
@@ -860,38 +874,51 @@ def create_app():
 
     @app.get("/api/sandbox/scenarios")
     def sandbox_scenarios() -> list[dict]:
-        return [{"id": "before-the-agent-acts", "title": "Before the Agent Acts"}]
+        return available_sandbox_scenarios()
 
     @app.post("/api/sandbox/run")
     def sandbox_run(payload: Optional[dict] = None) -> dict:
-        run = create_sandbox_run(**(payload or {}))
+        try:
+            run = create_sandbox_run(**(payload or {}))
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         runs[run["run_id"]] = run
+        evidence_store.upsert(sandbox_evidence_metadata(run))
+        activity_store.upsert_session(sandbox_activity_session(run))
+        for event in run["events"]:
+            activity_store.upsert_decision(
+                {
+                    **event,
+                    "evidence_refs": event.get("evidence_refs") or event.get("evidence_generated", []),
+                    "requested_operation": event.get("action_type"),
+                }
+            )
         return run
 
     @app.get("/api/sandbox/runs/{run_id}")
     def get_run(run_id: str) -> dict:
-        return runs[run_id]
+        return _sandbox_run_or_404(runs, run_id)
 
     @app.get("/api/sandbox/runs/{run_id}/events")
     def get_events(run_id: str) -> list[dict]:
-        return runs[run_id]["events"]
+        return _sandbox_run_or_404(runs, run_id)["events"]
 
     @app.get("/api/sandbox/runs/{run_id}/evidence")
     def get_evidence(run_id: str):
-        return Response(evidence_json(runs[run_id]), media_type="application/json")
+        return Response(evidence_json(_sandbox_run_or_404(runs, run_id)), media_type="application/json")
 
     @app.get("/api/sandbox/runs/{run_id}/attestation")
     def get_attestation(run_id: str):
-        return Response(pr_attestation(runs[run_id]), media_type="text/markdown")
+        return Response(pr_attestation(_sandbox_run_or_404(runs, run_id)), media_type="text/markdown")
 
     @app.get("/api/sandbox/runs/{run_id}/compliance")
     def get_compliance(run_id: str):
-        return Response(compliance_mapping(runs[run_id]), media_type="text/markdown")
+        return Response(compliance_mapping(_sandbox_run_or_404(runs, run_id)), media_type="text/markdown")
 
     @app.post("/api/sandbox/runs/{run_id}/replay")
     def replay(run_id: str) -> dict:
-        previous = runs[run_id]
-        run = create_sandbox_run(previous["policy_mode"], previous["persona"])
+        previous = _sandbox_run_or_404(runs, run_id)
+        run = create_sandbox_run(previous["policy_mode"], previous["persona"], previous["scenario"], previous["policy_pack"])
         runs[run["run_id"]] = run
         return run
 
@@ -900,6 +927,13 @@ def create_app():
 
 def _csv_env(name: str) -> list[str]:
     return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
+
+
+def _sandbox_run_or_404(runs: dict[str, dict], run_id: str) -> dict:
+    run = runs.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="sandbox run not found")
+    return run
 
 
 def _filter_json_evidence(

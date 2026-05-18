@@ -301,7 +301,7 @@ Implement:
 - Public sandbox URL. Verified at `https://huzefaaa2.github.io/cavra/`.
 - Static evidence packaging and post-deploy smoke validation for the public page and core assets.
 - Public post-deploy smoke run. Passed from `main`.
-- Backend-driven sandbox runs using the real policy engine.
+- Backend-driven sandbox runs using the real policy engine. Delivered with optional API-backed Pages config, `/api/sandbox/run`, persisted evidence metadata, and activity records.
 - Downloadable evidence, PR attestation, and compliance reports.
 - Persona-specific narratives for Developer, CISO, Platform Engineer, and Auditor.
 - Install for Claude Code CTA and measurement hooks.
@@ -348,11 +348,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: connect the public sandbox to backend-driven scenario runs.
+Next recommended implementation phase: add release-note links to the public sandbox and add keyless OIDC attestations for release provenance.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates, signed Go release packages attached to GitHub Releases, verifier CLI support, SLSA provenance, and vulnerability disclosure/release advisory documentation.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates, signed Go release packages attached to GitHub Releases, verifier CLI support, SLSA provenance, vulnerability disclosure/release advisory documentation, and backend-driven public sandbox scenario runs.
 
 Immediate next tasks:
-- Connect the public sandbox to backend-driven scenario runs.
+- Add release-note links to the public sandbox for design-partner demos.
 - Add keyless OIDC attestations for release provenance.
 - Add air-gapped installer bundle verification.

@@ -26,13 +26,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Validate sandbox JavaScript
-        run: node --check apps/sandbox-ui/sandbox.js
+        run: |
+          node --check apps/sandbox-ui/config.js
+          node --check apps/sandbox-ui/sandbox.js
       - name: Build static sandbox artifact
+        env:
+          CAVRA_PUBLIC_API_BASE_URL: ${{ vars.CAVRA_PUBLIC_API_BASE_URL }}
         run: |
           set -euo pipefail
           rm -rf public
           mkdir -p public
           cp -R apps/sandbox-ui/. public/
+          printf 'window.CAVRA_API_BASE = %s;\n' "$(python -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_API_BASE_URL", "")))')" > public/config.js
           mkdir -p public/assets
           cp -R assets/brand public/assets/
           mkdir -p public/evidence/before-the-agent-acts

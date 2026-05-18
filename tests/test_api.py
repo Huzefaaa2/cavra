@@ -146,7 +146,48 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     assert config["api_base_url"] == "https://cavra.example"
     assert config["metadata_mode"] == "json"
     assert config["activity_mode"] == "json"
+    assert config["endpoints"]["sandbox_run"] == "/api/sandbox/run"
     assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+
+
+def test_api_sandbox_run_uses_backend_policy_and_persists_metadata(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    monkeypatch.setenv("CAVRA_ACTIVITY_STORE", str(tmp_path / "activity.json"))
+    client = TestClient(create_app())
+
+    scenarios = client.get("/api/sandbox/scenarios")
+    response = client.post(
+        "/api/sandbox/run",
+        json={"scenario": "before-the-agent-acts", "persona": "Auditor", "policy_mode": "Strict regulated repository"},
+    )
+    payload = response.json()
+    run_id = payload["run_id"]
+    evidence = client.get(f"/api/sandbox/runs/{run_id}/evidence")
+    attestation = client.get(f"/api/sandbox/runs/{run_id}/attestation")
+    metadata = client.get(f"/evidence/{run_id}")
+    sessions = client.get("/sessions", params={"repository": "sandbox/before-the-agent-acts"})
+    decisions = client.get("/decisions", params={"session_id": run_id})
+    missing = client.get("/api/sandbox/runs/missing")
+
+    assert scenarios.status_code == 200
+    assert scenarios.json()[0]["id"] == "before-the-agent-acts"
+    assert response.status_code == 200
+    assert payload["source"] == "cavra-api"
+    assert payload["policy_mode"] == "strict"
+    assert payload["decision_count"] == 7
+    assert payload["blocked_count"] >= 3
+    assert any(item["download_url"].endswith("/evidence") for item in payload["artifacts"])
+    assert evidence.status_code == 200
+    assert evidence.json()["run"]["run_id"] == run_id
+    assert attestation.status_code == 200
+    assert "CAVRA PR Attestation" in attestation.text
+    assert metadata.status_code == 200
+    assert metadata.json()["session_id"] == run_id
+    assert sessions.json()["total"] == 1
+    assert decisions.json()["total"] == 7
+    assert missing.status_code == 404
 
 
 def test_api_persists_json_decisions_and_sessions(monkeypatch, tmp_path) -> None:
