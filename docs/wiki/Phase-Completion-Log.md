@@ -194,7 +194,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: connect the public sandbox to backend-driven scenario runs.
+Recommended next issue: delivered below as backend-driven public sandbox runs.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -230,7 +230,7 @@ Validation:
 - Workflow YAML parses.
 - Sandbox JavaScript syntax check is covered by the workflow and local validation.
 
-Recommended next issue: connect the public sandbox to backend-driven scenario runs.
+Recommended next issue: delivered below as backend-driven public sandbox runs.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -295,4 +295,23 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py tests/test_release_security.py -q` passed locally.
 - `python3 scripts/validate_release_security.py` passed locally.
 
-Recommended next issue: connect the public sandbox to backend-driven scenario runs.
+Recommended next issue: delivered below as backend-driven public sandbox runs.
+
+## Backend-Driven Public Sandbox Runs
+
+Status: complete for the current growth-loop slice.
+
+Completed:
+- Connected the Run Agent Scenario button to `POST /api/sandbox/run` when the CAVRA API is reachable.
+- Kept static sample fallback behavior for GitHub Pages deployments without an API.
+- Added deploy-time `config.js` generation from `CAVRA_PUBLIC_API_BASE_URL`.
+- Added backend sandbox run persistence into evidence metadata and activity session/decision stores.
+- Added sandbox run artifact links for evidence JSON, PR attestation, and compliance mapping.
+- Updated console status and evidence download behavior based on the active backend or sample run.
+- Added API and CI-template tests for backend sandbox runs and Pages API configuration.
+
+Validation:
+- `python3 -m pytest tests/test_api.py::test_api_sandbox_run_uses_backend_policy_and_persists_metadata tests/test_api.py::test_api_console_config_and_cors tests/test_ci_templates.py::test_sandbox_pages_workflow_builds_static_artifact -q` passed locally.
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add release-note links to the public sandbox and add keyless release attestations with GitHub OIDC.

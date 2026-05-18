@@ -27,8 +27,9 @@
           <p>Run the flagship agent scenario, search evidence metadata, and verify PR attestation coverage from one operational surface.</p>
           <div class="actions">
             <button id="runScenario">Run Agent Scenario</button>
-            <a href="./evidence/before-the-agent-acts/evidence.json" download>Download Evidence</a>
+            <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download Evidence</a>
           </div>
+          <p id="scenarioStatus" class="status-line">Scenario source: local sample until the CAVRA API is reachable.</p>
         </div>
       </section>
     </header>
@@ -443,6 +444,7 @@
         </div>
       </section>
     </main>
+    <script src="./config.js"></script>
     <script src="./sandbox.js"></script>
   </body>
 </html>

@@ -168,9 +168,19 @@ Set `CAVRA_APPROVAL_PROVIDER_CONFIG` to a JSON or YAML provider config file to e
 
 ## Console
 
-The static console under `apps/sandbox-ui` includes activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, evidence artifact downloads, PR attestation verification, console session validation, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API activity, inventory, integrations, connector delivery, evidence metadata, evidence artifact, approval, agent, MCP, and console session endpoints when hosted on the same origin or an allowed cross origin.
+The static console under `apps/sandbox-ui` includes backend-driven sandbox runs, activity session and decision browsing, repository inventory and policy rollout views, enterprise integration inventory views, evidence search, evidence artifact downloads, PR attestation verification, console session validation, approval queue views, break-glass creation, approval audit details, Agent Registry views, MCP Trust Registry views, predefined agent profiles, and MCP capability classification. It can run as a standalone static demo or query the API sandbox, activity, inventory, integrations, connector delivery, evidence metadata, evidence artifact, approval, agent, MCP, and console session endpoints when hosted on the same origin or an allowed cross origin.
 
 `GET /console/config` returns the console API base URL, metadata mode, allowed CORS origins, persistence modes, and endpoint paths including rollout detail, security boundary, operations status, and retention-plan endpoints. Configure cross-origin deployments with:
 
 - `CAVRA_PUBLIC_API_BASE_URL`
 - `CAVRA_CORS_ORIGINS`
+
+## Sandbox API
+
+- `GET /api/sandbox/scenarios`: list runnable public sandbox scenarios.
+- `POST /api/sandbox/run`: run the flagship scenario with real backend policy decisions. The API persists evidence metadata plus activity session and decision records.
+- `GET /api/sandbox/runs/{run_id}`: fetch a generated sandbox run.
+- `GET /api/sandbox/runs/{run_id}/events`: fetch the run decision events.
+- `GET /api/sandbox/runs/{run_id}/evidence`: download run evidence JSON.
+- `GET /api/sandbox/runs/{run_id}/attestation`: download the run PR attestation.
+- `GET /api/sandbox/runs/{run_id}/compliance`: download compliance mapping for the run.
