@@ -345,6 +345,7 @@ const mcpClassifications = [
 
 let consoleConfig = null;
 let consoleAuthToken = window.sessionStorage?.getItem("cavraConsoleToken") || "";
+let lastPolicyPublishApprovalId = "";
 
 function eventPayload(row, index) {
   const [action_type, target, decision, rule_id, reason] = row;
@@ -640,6 +641,93 @@ async function previewPolicyDraft() {
       operator_notes: ["Sample draft preview; connect the API for schema validation."]
     });
   }
+}
+
+async function planPolicyPublish() {
+  await loadConsoleConfig();
+  const payload = draftPolicyPayload();
+  try {
+    const response = await fetch(apiUrl("/policy-packs/publish-plan"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error("Policy publish plan API unavailable");
+    renderPolicyPublishPlan(await response.json(), null);
+  } catch {
+    renderPolicyPublishPlan(samplePolicyPublishPlan(payload), null);
+  }
+}
+
+async function requestPolicyPublishApproval() {
+  await loadConsoleConfig();
+  const payload = draftPolicyPayload();
+  try {
+    const response = await fetch(apiUrl("/policy-packs/publish-request"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({ draft: payload, requested_by: "platform-security", approver_group: "Platform Security" })
+    });
+    if (!response.ok) throw new Error("Policy publish request API unavailable");
+    const result = await response.json();
+    lastPolicyPublishApprovalId = result.approval?.approval_id || "";
+    document.querySelector("#policyPublishApprovalId").value = lastPolicyPublishApprovalId;
+    renderPolicyPublishPlan(result.plan, result.approval);
+    await refreshApprovals();
+  } catch {
+    lastPolicyPublishApprovalId = `apr_policy_${Date.now()}`;
+    document.querySelector("#policyPublishApprovalId").value = lastPolicyPublishApprovalId;
+    renderPolicyPublishPlan(samplePolicyPublishPlan(payload), {
+      approval_id: lastPolicyPublishApprovalId,
+      state: "pending",
+      approver_group: "Platform Security",
+      requested_by: "platform-security"
+    });
+  }
+}
+
+async function publishPolicyPack() {
+  await loadConsoleConfig();
+  const approvalId = document.querySelector("#policyPublishApprovalId").value.trim() || lastPolicyPublishApprovalId;
+  const payload = draftPolicyPayload();
+  try {
+    const response = await fetch(apiUrl("/policy-packs/publish"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({ draft: payload, approval_id: approvalId, signer: "platform-security" })
+    });
+    if (!response.ok) throw new Error("Policy publish API unavailable");
+    renderPolicyPublishResult(await response.json());
+    await refreshPolicyCatalog();
+  } catch {
+    renderPolicyPublishResult({
+      schema_version: "cavra.policy_pack.publish_result.v1",
+      product: "CAVRA",
+      status: approvalId ? "waiting_for_approval" : "approval_required",
+      policy_id: payload.id,
+      policy_digest: "sample-digest",
+      approval: { approval_id: approvalId || "n/a", state: approvalId ? "pending" : "missing" },
+      operator_notes: ["Approve the policy publish request before signed write-back."]
+    });
+  }
+}
+
+function samplePolicyPublishPlan(payload) {
+  return {
+    schema_version: "cavra.policy_pack.publish_plan.v1",
+    product: "CAVRA",
+    operation: "create",
+    valid: payload.id.startsWith("cavra-"),
+    errors: payload.id.startsWith("cavra-") ? [] : ["metadata.id must start with cavra-"],
+    approval_required: true,
+    risk: "high",
+    policy_id: payload.id,
+    policy_digest: "sample-digest",
+    target_path: `policies/${payload.id}/policy.yaml`,
+    summary: { policy_id: payload.id, title: payload.title, version: payload.version, rule_counts: { filesystem: 3, commands: 2, git: 2 } },
+    diff: { added: ["metadata", "filesystem", "commands", "git"], removed: [], changed: [] },
+    operator_notes: ["Sample publish plan; connect the API for approval-bound signed write-back."]
+  };
 }
 
 async function planRolloutChange() {
@@ -1122,6 +1210,48 @@ function renderPolicyDraft(draft) {
   `;
 }
 
+function renderPolicyPublishPlan(plan, approval) {
+  const panel = document.querySelector("#policyPublishPlan");
+  const diff = plan.diff || {};
+  const notes = Array.isArray(plan.operator_notes) ? plan.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Status</dt><dd class="${plan.valid ? "allow" : "block"}">${plan.valid ? "ready for approval" : "invalid"}</dd>
+      <dt>Operation</dt><dd>${escapeHtml(plan.operation || "create")}</dd>
+      <dt>Risk</dt><dd class="${riskClass(plan.risk)}">${escapeHtml(plan.risk || "high")}</dd>
+      <dt>Approval</dt><dd class="require_approval">${approval ? escapeHtml(`${approval.state || "pending"} ${approval.approval_id || ""}`) : "required"}</dd>
+      <dt>Policy</dt><dd>${escapeHtml(plan.policy_id || "unknown")}</dd>
+      <dt>Digest</dt><dd>${escapeHtml(plan.policy_digest || "n/a")}</dd>
+      <dt>Target</dt><dd>${escapeHtml(plan.target_path || "policies/.../policy.yaml")}</dd>
+    </dl>
+    <h3>Policy Diff</h3>
+    <ul>
+      <li>Added: ${Number(diff.added?.length || 0)}</li>
+      <li>Changed: ${Number(diff.changed?.length || 0)}</li>
+      <li>Removed: ${Number(diff.removed?.length || 0)}</li>
+    </ul>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
+function renderPolicyPublishResult(result) {
+  const panel = document.querySelector("#policyPublishPlan");
+  const notes = Array.isArray(result.operator_notes) ? result.operator_notes : [];
+  panel.innerHTML = `
+    <dl>
+      <dt>Status</dt><dd class="${result.status === "published" ? "allow" : "require_approval"}">${escapeHtml(result.status || "approval_required")}</dd>
+      <dt>Policy</dt><dd>${escapeHtml(result.policy_id || "unknown")}</dd>
+      <dt>Digest</dt><dd>${escapeHtml(result.policy_digest || "n/a")}</dd>
+      <dt>Approval</dt><dd>${escapeHtml(result.approval?.approval_id || "n/a")} ${escapeHtml(result.approval?.state || "")}</dd>
+      <dt>Signature</dt><dd class="${result.signature_verified ? "allow" : "require_approval"}">${result.signature_verified ? "verified" : "pending"}</dd>
+      <dt>Policy path</dt><dd>${escapeHtml(result.policy_path || "not written")}</dd>
+    </dl>
+    <h3>Operator Notes</h3>
+    <ul>${notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>n/a</li>"}</ul>
+  `;
+}
+
 function renderRolloutChangePlan(plan, applied) {
   const panel = document.querySelector("#rolloutChangePlan");
   const changes = Array.isArray(plan.changes) ? plan.changes : [];
@@ -1525,6 +1655,9 @@ document.querySelector("#refreshActivity").addEventListener("click", refreshActi
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
 document.querySelector("#previewPolicyDraft").addEventListener("click", previewPolicyDraft);
+document.querySelector("#planPolicyPublish").addEventListener("click", planPolicyPublish);
+document.querySelector("#requestPolicyPublishApproval").addEventListener("click", requestPolicyPublishApproval);
+document.querySelector("#publishPolicyPack").addEventListener("click", publishPolicyPack);
 document.querySelector("#planRolloutChange").addEventListener("click", planRolloutChange);
 document.querySelector("#applyRolloutChange").addEventListener("click", applyRolloutChange);
 document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);

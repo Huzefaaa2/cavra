@@ -29,7 +29,7 @@
 
   <rect class="bg" width="1440" height="980"/>
   <text x="54" y="54" class="title">CAVRA C4 Container View</text>
-  <text x="54" y="80" class="subtitle">Runtime authority, policy authoring, deployment readiness, evidence retrieval, required checks, and integrations.</text>
+  <text x="54" y="80" class="subtitle">Runtime authority, signed policy publishing, deployment readiness, evidence retrieval, required checks, and integrations.</text>
 
   <rect x="54" y="108" width="210" height="72" rx="8" class="actor"/>
   <text x="78" y="136" class="node-title">Developer</text>
@@ -68,7 +68,7 @@
   <text x="728" y="253" class="node-text">Pre-action decisions</text>
   <rect x="712" y="276" width="250" height="46" rx="7" class="authority"/>
   <text x="728" y="295" class="node-title">Policy Registry</text>
-  <text x="728" y="311" class="node-text">Validation, inheritance, diff</text>
+  <text x="728" y="311" class="node-text">Validation, diff, signed publish</text>
   <rect x="712" y="334" width="250" height="46" rx="7" class="authority"/>
   <text x="728" y="353" class="node-title">Approval Router</text>
   <text x="728" y="369" class="node-text">OIDC, RBAC, approval console</text>

@@ -60,4 +60,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is policy-pack approval/signature write-back workflow and vendor-specific connector execution hooks beyond generated payloads.
+The next recommended work is vendor-specific connector execution hooks beyond generated payloads.

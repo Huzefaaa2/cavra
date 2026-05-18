@@ -344,6 +344,48 @@ def test_api_policy_pack_draft_catalog_and_rollout_change(monkeypatch, tmp_path)
     assert client.get("/console/config").json()["endpoints"]["policy_pack_draft"] == "/policy-packs/draft"
 
 
+def test_api_policy_pack_publish_requires_approved_digest_bound_approval(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    monkeypatch.setenv("CAVRA_POLICY_DIR", str(tmp_path / "policies"))
+    monkeypatch.setenv("CAVRA_POLICY_SIGNING_KEY", "secret")
+    client = TestClient(create_app())
+    draft = {
+        "id": "cavra-platform-baseline",
+        "title": "Platform Baseline",
+        "description": "Platform engineering controls.",
+        "version": "2026.05",
+        "commands": {"block": ["terraform apply -auto-approve"]},
+    }
+
+    plan = client.post("/policy-packs/publish-plan", json=draft)
+    request = client.post("/policy-packs/publish-request", json={"draft": draft, "requested_by": "platform@example.com"})
+    approval_id = request.json()["approval"]["approval_id"]
+    pending_publish = client.post("/policy-packs/publish", json={"draft": draft, "approval_id": approval_id})
+    approved = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "security@example.com", "reason": "approved policy write-back"},
+    )
+    published = client.post("/policy-packs/publish", json={"draft": draft, "approval_id": approval_id})
+    mutated = {**draft, "commands": {"block": ["terraform apply -auto-approve", "kubectl delete namespace"]}}
+    rejected = client.post("/policy-packs/publish", json={"draft": mutated, "approval_id": approval_id})
+    config = client.get("/console/config").json()
+
+    assert plan.status_code == 200
+    assert plan.json()["approval_required"] is True
+    assert request.status_code == 200
+    assert request.json()["approval"]["state"] == "pending"
+    assert pending_publish.status_code == 400
+    assert approved.status_code == 200
+    assert published.status_code == 200
+    assert published.json()["status"] == "published"
+    assert (tmp_path / "policies" / "cavra-platform-baseline" / "policy.yaml").exists()
+    assert (tmp_path / "policies" / "cavra-platform-baseline" / "policy.yaml.sig.json").exists()
+    assert rejected.status_code == 400
+    assert "approval does not match policy draft digest" in rejected.json()["detail"]
+    assert config["endpoints"]["policy_pack_publish"] == "/policy-packs/publish"
+
+
 def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_CORS_ORIGINS", "https://console.example")
     monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(tmp_path / "artifacts"))

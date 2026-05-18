@@ -18,7 +18,7 @@ The response reports:
 
 ## Boundary Model
 
-The boundary endpoint is intentionally read-only and does not expose secrets. It tells operators whether the console/API topology is ready to rely on signed OIDC actor tokens and repository RBAC for approval decisions. `GET /console/session` validates signed bearer-token context and reports the active console actor and repository permissions.
+The boundary endpoint is intentionally read-only and does not expose secrets. It tells operators whether the console/API topology is ready to rely on signed OIDC actor tokens and repository RBAC for approval decisions, break-glass actions, and policy publish write-back. `GET /console/session` validates signed bearer-token context and reports the active console actor and repository permissions.
 
 Production deployments should:
 

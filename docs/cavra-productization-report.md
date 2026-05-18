@@ -114,7 +114,7 @@ Phase 3, Evidence Hub and Attestation, is near complete. Added evidence bundle m
 
 Phase 4, Approval Router, is complete for the current production-readiness slice. Added JSON and SQLite approval persistence, API and CLI approval lifecycle, break-glass evidence, repository-specific routing, signed OIDC/JWKS validation, repository RBAC policy files, live approval provider delivery, console approval actions, console break-glass creation, and approval audit detail views.
 
-Next recommended implementation work: continue Phase 8 with policy-pack approval/signature write-back workflow. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, and CI/CD enforcement examples are now delivered.
+Next recommended implementation work: continue Phase 8 with vendor-specific ITSM, ChatOps, and SIEM connector execution hooks. Governed evidence artifact retrieval, authenticated console sessions, RBAC-enforced console mutations, policy-pack authoring previews, approval-bound signed policy publishing, rollout change planning/apply workflows, production deployment validation, GitHub required-check templates, and CI/CD enforcement examples are now delivered.
 
 Later roadmap backlog: full persistent API storage for every domain, Go enforcement implementation, parity tests, GitHub required check, hosted sandbox deployment, immutable evidence storage, SBOM automation, and signed releases.
 

@@ -44,4 +44,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is policy-pack approval/signature write-back workflow and vendor-specific connector execution hooks.
+The next recommended work is vendor-specific connector execution hooks beyond generated payloads.

@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is policy-pack approval/signature workflow before write-back publishing.
+The next recommended work is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.

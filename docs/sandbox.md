@@ -14,7 +14,7 @@ The same surface now includes the first hosted evidence console views:
 - Evidence artifact listing with individual artifact and bundle download links when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured.
 - PR attestation verification for selected sessions.
 - Console Session panel for validating signed OIDC bearer-token context and repository permissions.
-- Policy Authoring and Rollout Changes for catalog summaries, draft validation, rollout planning, and rollout apply.
+- Policy Authoring and Rollout Changes for catalog summaries, draft validation, approval-bound signed policy publishing, rollout planning, and rollout apply.
 - Production Readiness panel for OIDC, RBAC, CORS, evidence artifact root, policy catalog, and persistent store checks.
 - Approval queue view with state and approver group filters.
 - Approval queue actions for approve, deny, and expire on pending requests.

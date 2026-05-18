@@ -166,6 +166,10 @@
           <label>Version <input id="draftPolicyVersion" value="2026.05" /></label>
           <label>Inherits <input id="draftPolicyInherits" value="cavra-ai-agent-baseline" /></label>
           <button id="previewPolicyDraft">Preview draft</button>
+          <button id="planPolicyPublish" class="secondary">Plan publish</button>
+          <button id="requestPolicyPublishApproval" class="secondary">Request approval</button>
+          <label>Approval <input id="policyPublishApprovalId" placeholder="apr_..." /></label>
+          <button id="publishPolicyPack" class="secondary">Publish signed</button>
         </div>
         <div class="search-controls">
           <label>Rollout <input id="changeRolloutId" value="payments-api-banking" /></label>
@@ -181,6 +185,7 @@
           <div id="policyCatalog" class="detail-panel">Policy catalog is loading.</div>
           <div id="policyDraft" class="detail-panel">Preview a policy draft.</div>
         </div>
+        <div id="policyPublishPlan" class="detail-panel">Plan a signed policy write-back.</div>
         <div id="rolloutChangePlan" class="detail-panel">Plan a rollout change.</div>
       </section>
       <section class="console integration-console">

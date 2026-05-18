@@ -46,8 +46,11 @@ Policy authoring endpoints:
 
 - `GET /policy-pack-catalog`: list installed policy packs with rule-count summaries.
 - `POST /policy-packs/draft`: build and validate a policy pack draft without writing to the policy directory.
+- `POST /policy-packs/publish-plan`: preview create/update write-back risk, diff, target path, and approval requirement for a draft.
+- `POST /policy-packs/publish-request`: create a digest-bound approval request for policy write-back.
+- `POST /policy-packs/publish`: write `policy.yaml` and `policy.yaml.sig.json` only after the matching approval is approved or break-glass.
 
-Policy drafts return schema validation errors, generated policy data, rule-count summaries, and operator notes. Policy publishing remains a repository change-control workflow.
+Policy drafts return schema validation errors, generated policy data, rule-count summaries, and operator notes. Publish requests bind the approval to the draft policy digest. Publishing rejects pending approvals, denied approvals, and approvals created for a different draft digest. Set `CAVRA_POLICY_DIR` to control the write-back root and `CAVRA_POLICY_SIGNING_KEY` to create HMAC-backed signature metadata.
 
 ## Console Security Boundary
 

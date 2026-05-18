@@ -26,7 +26,7 @@ Status: complete for the current production-readiness slice.
 
 Implemented approval request JSON and SQLite persistence, API and CLI approval queue, approve/deny/expire lifecycle state, break-glass override evidence, default routing policies, repository-specific routing files, local claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC policy files, reference notification payloads, credential-free provider request specs, secret-backed live provider delivery with redacted evidence, console approval queue actions, console break-glass creation, approval audit detail views, and approval outcome linkage into evidence and PR attestations.
 
-Next: continue Phase 8 with policy-pack approval/signature write-back workflow.
+Next: continue Phase 8 with vendor-specific connector execution hooks.
 
 ## Phase 5: Agent Registry and MCP Trust Registry
 
@@ -34,7 +34,7 @@ Status: complete for the current production-readiness slice.
 
 Implemented JSON/SQLite governed agent identities, MCP server trust tiers, owner/capability/approval-state metadata, API and CLI access, default-deny unknown server mode, predefined profiles for Claude Code, Codex, Copilot, Cursor, Gemini CLI, and AWS Q Developer, MCP tool classification for filesystem, shell, network, database, SaaS, cloud, and repository capabilities, console registry views, and registry-backed MCP runtime decisions.
 
-Next: policy-pack approval/signature write-back workflow.
+Next: vendor-specific connector execution hooks.
 
 ## Phase 6: Console and Persistent API
 
@@ -42,7 +42,7 @@ Status: started.
 
 Implemented JSON and SQLite activity persistence for sessions and decisions, API filters for session, agent, repository, policy pack, outcome, severity, and action type, repository inventory and policy rollout JSON/SQLite persistence, repository and rollout API filters, policy rollout detail API and console drill-downs, policy-pack authoring previews, rollout change planning/apply workflows, production deployment validation, integration inventory JSON/SQLite persistence, integration API filters, evidence artifact retrieval and console download views, persistent API store status, backup, restore, retention-plan operations, read-only operations API endpoints, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, console Activity Explorer views, and console repository/rollout/integration views.
 
-Next: policy-pack approval/signature write-back workflow.
+Next: vendor-specific connector execution hooks.
 
 ## Phase 7: Go Enforcement Plane
 
@@ -50,9 +50,9 @@ Implement Go runtime backend, generated protobuf clients, local daemon, CI runne
 
 ## Phase 8: Enterprise Integrations
 
-Started with a GitHub required check, reusable GitHub Actions templates, a GitLab CI enforcement example, evidence verification in branch protection, and CI evidence artifact upload.
+Started with a GitHub required check, reusable GitHub Actions templates, a GitLab CI enforcement example, evidence verification in branch protection, CI evidence artifact upload, and approval-bound signed policy publishing.
 
-Next: policy-pack approval/signature write-back workflow, Azure DevOps template, SIEM exporter execution hooks, ITSM connector execution hooks, OIDC/RBAC deployment references, and immutable evidence store references.
+Next: Azure DevOps template, SIEM exporter execution hooks, ITSM connector execution hooks, OIDC/RBAC deployment references, and immutable evidence store references.
 
 ## Phase 9: Public Sandbox
 

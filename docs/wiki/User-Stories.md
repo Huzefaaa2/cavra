@@ -12,6 +12,8 @@ I can validate signed OIDC console session context and repository-scoped permiss
 
 I can preview policy drafts, plan rollout changes, and validate production readiness before applying governance changes.
 
+I can require approval and signature metadata before a policy draft is written back to the policy catalog.
+
 ## CISO
 
 I can govern AI-agent engineering actions before they touch code, cloud, Git, MCP, or production workflows.

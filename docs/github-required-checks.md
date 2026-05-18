@@ -45,4 +45,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is policy-pack approval and signature workflow before write-back publishing.
+The next recommended implementation step is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.

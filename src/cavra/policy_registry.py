@@ -41,8 +41,10 @@ class PolicyRegistry:
 
     @staticmethod
     def _default_policy_dir() -> Path:
+        configured = os.environ.get("CAVRA_POLICY_DIR")
+        if configured:
+            return Path(configured)
         candidates = [
-            os.environ.get("CAVRA_POLICY_DIR"),
             Path.cwd() / "policies",
             POLICY_DIR,
         ]

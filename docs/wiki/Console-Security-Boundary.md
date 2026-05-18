@@ -22,7 +22,7 @@ The sandbox console displays the same information in the Console Security Bounda
 
 ## Boundary
 
-The boundary endpoint reports whether the console/API topology is ready for signed OIDC actor tokens and repository RBAC on approval decisions. `GET /console/session` validates a bearer token and reports actor context. Production deployments should host the console behind enterprise identity and restrict CORS.
+The boundary endpoint reports whether the console/API topology is ready for signed OIDC actor tokens and repository RBAC on approval decisions, break-glass actions, and policy publish write-back. `GET /console/session` validates a bearer token and reports actor context. Production deployments should host the console behind enterprise identity and restrict CORS.
 
 ## User Stories
 
@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is policy-pack approval/signature workflow before write-back publishing.
+The next recommended work is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.

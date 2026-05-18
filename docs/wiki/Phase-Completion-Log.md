@@ -151,10 +151,11 @@ Completed:
 - RBAC-enforced approval and break-glass console mutations when OIDC or RBAC is configured.
 - Console Session panel for actor, group, permission, and repository-scope visibility.
 - `GET /policy-pack-catalog` and `POST /policy-packs/draft` for read-only policy authoring previews.
+- `POST /policy-packs/publish-plan`, `POST /policy-packs/publish-request`, and `POST /policy-packs/publish` for approval-bound signed policy write-back.
 - `POST /policy-rollouts/change-plan` and `POST /policy-rollouts/apply-change` for governed rollout transitions.
 - `GET /deployment/production-readiness` and console Production Readiness panel.
 
-Recommended next issue: add policy-pack approval/signature write-back workflow.
+Recommended next issue: add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
 
 ## GitHub Required Checks and CI/CD Enforcement
 
@@ -167,7 +168,7 @@ Completed:
 - Reusable GitHub Actions required-check and enterprise enforcement templates.
 - GitLab CI enforcement example.
 
-Recommended next issue: add policy-pack approval/signature write-back workflow.
+Recommended next issue: add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
 
 ## Transparent Agent Methodology Enablement
 

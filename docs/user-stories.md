@@ -24,6 +24,8 @@ As a platform engineer, I want the console to validate signed OIDC bearer tokens
 
 As a platform engineer, I want to preview policy drafts and rollout changes before applying them, so policy adoption is controlled and reviewable.
 
+As a platform engineer, I want policy write-back to require approval and signature metadata, so unreviewed drafts cannot become active policy packs.
+
 As a platform engineer, I want a production readiness report, so missing identity, RBAC, CORS, evidence, policy, or persistence controls are visible before rollout.
 
 ## DevSecOps

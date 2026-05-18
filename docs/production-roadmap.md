@@ -270,6 +270,7 @@ Delivered in the current slice:
 - GitHub Actions required-check template and stricter enterprise enforcement template.
 - GitLab CI enforcement example.
 - CI evidence artifact upload with evidence and PR attestation verification.
+- Approval-bound signed policy publishing before write-back.
 
 Exit criteria:
 - GitHub required check demo works.
@@ -329,10 +330,11 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Next recommended implementation phase: continue Phase 8, Enterprise Integrations, focused on policy-pack approval/signature write-back workflow.
+Next recommended implementation phase: continue Phase 8, Enterprise Integrations, focused on vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
 
-Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, policy authoring previews, rollout change workflows, production deployment readiness reporting, and required-check CI/CD enforcement templates.
+Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, retention artifacts, immutable storage plans, trust roots, trust-root bundles, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, and required-check CI/CD enforcement templates.
 
 Immediate next tasks:
-- Add policy-pack approval/signature write-back workflow.
 - Add vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
+- Add Azure DevOps required-check template.
+- Add immutable evidence store deployment reference.

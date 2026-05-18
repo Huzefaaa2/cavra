@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is policy-pack approval/signature workflow before write-back publishing.
+The next recommended step is vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.

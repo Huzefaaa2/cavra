@@ -6,7 +6,7 @@ CAVRA policies are YAML-based rule sets that govern AI agent behavior at runtime
 
 Every policy pack is a YAML file with metadata and rule sections:
 
-The API also supports read-only draft previews through `POST /policy-packs/draft` and catalog summaries through `GET /policy-pack-catalog`. Draft previews validate schema and report rule counts, but they do not write to the policy directory. Use repository change control and policy signatures before publishing a draft policy pack.
+The API also supports read-only draft previews through `POST /policy-packs/draft` and catalog summaries through `GET /policy-pack-catalog`. Draft previews validate schema and report rule counts, but they do not write to the policy directory. Use `POST /policy-packs/publish-plan`, `POST /policy-packs/publish-request`, and `POST /policy-packs/publish` for approval-bound signed write-back after review.
 
 ```yaml
 metadata:

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
+from cavra.approvals import approval_summary
 from cavra.inventory import normalize_policy_rollout_record
-from cavra.policy_engine import validate_policy
+from cavra.policy_engine import diff_policies, validate_policy, verify_policy_signature, write_policy_signature
+from cavra.policy_registry import PolicyRegistry
 
 
 POLICY_SECTIONS = ("filesystem", "commands", "git", "mcp", "approvals", "evidence", "compliance")
@@ -51,6 +56,11 @@ def build_policy_pack_draft(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def policy_content_digest(policy: dict[str, Any]) -> str:
+    canonical = json.dumps(policy, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+
+
 def summarize_policy(policy: dict[str, Any]) -> dict[str, Any]:
     return {
         "policy_id": policy.get("metadata", {}).get("id"),
@@ -67,6 +77,108 @@ def summarize_policy(policy: dict[str, Any]) -> dict[str, Any]:
             "evidence": _count_rules(policy.get("evidence", {})),
             "compliance": _count_rules(policy.get("compliance", {})),
         },
+    }
+
+
+def build_policy_pack_publish_plan(payload: dict[str, Any], current_policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    draft = build_policy_pack_draft(payload)
+    policy = draft["policy_pack"]
+    pack_id = str(policy.get("metadata", {}).get("id", ""))
+    digest = policy_content_digest(policy)
+    diff = diff_policies(current_policy, policy).to_dict() if current_policy else {"added": [], "removed": [], "changed": []}
+    risk = _policy_publish_risk(current_policy, diff)
+    return {
+        "schema_version": "cavra.policy_pack.publish_plan.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "operation": "update" if current_policy else "create",
+        "valid": draft["valid"],
+        "errors": draft["errors"],
+        "approval_required": True,
+        "risk": risk,
+        "policy_id": pack_id,
+        "policy_digest": digest,
+        "target_path": f"policies/{pack_id}/policy.yaml",
+        "summary": draft["summary"],
+        "diff": diff,
+        "operator_notes": _policy_publish_operator_notes(risk, draft["valid"]),
+    }
+
+
+def build_policy_publish_decision(
+    publish_plan: dict[str, Any],
+    *,
+    requested_by: str,
+    approver_group: str = "Platform Security",
+    repository: str | None = None,
+) -> dict[str, Any]:
+    if not publish_plan.get("valid"):
+        raise ValueError("policy publish request requires a valid draft")
+    policy_id = str(publish_plan.get("policy_id", ""))
+    digest = str(publish_plan.get("policy_digest", ""))
+    return {
+        "decision_id": f"policy_publish:{policy_id}:{digest.removeprefix('sha256:')[:12]}",
+        "session_id": "policy-authoring",
+        "agent_id": "policy-authoring-console",
+        "actor": requested_by,
+        "repository": repository or "policy-catalog",
+        "action_type": "policy_publish",
+        "target": publish_plan.get("target_path"),
+        "decision": "require_approval",
+        "severity": publish_plan.get("risk", "high"),
+        "policy_pack": policy_id,
+        "rule_id": "policy.publish.requires_approval",
+        "reason": "Policy pack write-back requires approval and signature before publishing.",
+        "approver_group": approver_group,
+        "policy_id": policy_id,
+        "policy_digest": digest,
+        "operation": publish_plan.get("operation"),
+        "evidence_refs": [f"policy-draft://{policy_id}/{digest.removeprefix('sha256:')[:12]}"],
+    }
+
+
+def publish_policy_pack(
+    payload: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    policy_root: Path | None = None,
+    signer: str = "policy-publisher",
+    key: str | None = None,
+    actor: str | None = None,
+) -> dict[str, Any]:
+    draft = build_policy_pack_draft(payload)
+    if not draft["valid"]:
+        raise ValueError("policy draft must be valid before publishing")
+    policy = draft["policy_pack"]
+    pack_id = str(policy.get("metadata", {}).get("id", ""))
+    _validate_publish_pack_id(pack_id)
+    digest = policy_content_digest(policy)
+    _validate_policy_publish_approval(approval, policy_id=pack_id, policy_digest=digest)
+    registry = PolicyRegistry(policy_root)
+    registry.save_policy(pack_id, policy)
+    policy_path = registry.root / pack_id / "policy.yaml"
+    signature_path = write_policy_signature(policy_path, signer=signer, key=key)
+    verified, message = verify_policy_signature(policy_path, signature_path=signature_path, key=key)
+    if not verified:
+        raise ValueError(f"published policy signature verification failed: {message}")
+    return {
+        "schema_version": "cavra.policy_pack.publish_result.v1",
+        "product": "CAVRA",
+        "status": "published",
+        "published_at": datetime.now(timezone.utc).isoformat(),
+        "published_by": actor or signer,
+        "policy_id": pack_id,
+        "policy_digest": digest,
+        "policy_path": str(policy_path),
+        "signature_path": str(signature_path),
+        "signature_verified": verified,
+        "signature_message": message,
+        "approval": approval_summary(approval),
+        "summary": summarize_policy(policy),
+        "operator_notes": [
+            "Published policy was schema-validated, approval-bound by digest, written to policy.yaml, and signed.",
+            "Commit the policy file and signature through repository change control.",
+        ],
     }
 
 
@@ -164,3 +276,45 @@ def _rollout_operator_notes(risk: str) -> list[str]:
     if risk in {"high", "critical"}:
         notes.append("Route this rollout change through security approval before enforcement.")
     return notes
+
+
+def _policy_publish_risk(current_policy: dict[str, Any] | None, diff: dict[str, list[str]]) -> str:
+    if current_policy is None:
+        return "high"
+    if diff.get("removed"):
+        return "critical"
+    sensitive_prefixes = ("approvals.", "git.", "mcp.", "evidence.", "compliance.")
+    if any(item.startswith(sensitive_prefixes) for item in [*diff.get("added", []), *diff.get("changed", [])]):
+        return "high"
+    if diff.get("added") or diff.get("changed"):
+        return "medium"
+    return "low"
+
+
+def _policy_publish_operator_notes(risk: str, valid: bool) -> list[str]:
+    notes = [
+        "Publishing writes policy.yaml and policy.yaml.sig.json only after approval.",
+        "The approval request is bound to the draft policy digest to prevent approving one draft and publishing another.",
+    ]
+    if not valid:
+        notes.insert(0, "Fix schema validation errors before requesting approval.")
+    if risk in {"high", "critical"}:
+        notes.append("Security or platform approval is required before write-back.")
+    return notes
+
+
+def _validate_policy_publish_approval(approval: dict[str, Any], *, policy_id: str, policy_digest: str) -> None:
+    if approval.get("state") not in {"approved", "break_glass"}:
+        raise ValueError("policy publish approval must be approved before write-back")
+    decision = approval.get("decision", {})
+    if not isinstance(decision, dict):
+        raise ValueError("policy publish approval must include a decision payload")
+    if decision.get("action_type") != "policy_publish":
+        raise ValueError("approval is not for policy publish")
+    if decision.get("policy_id") != policy_id or decision.get("policy_digest") != policy_digest:
+        raise ValueError("approval does not match policy draft digest")
+
+
+def _validate_publish_pack_id(pack_id: str) -> None:
+    if not pack_id or pack_id in {".", ".."} or Path(pack_id).name != pack_id:
+        raise ValueError("policy id is not safe for write-back")

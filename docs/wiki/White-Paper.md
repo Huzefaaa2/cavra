@@ -106,7 +106,7 @@ The path to production readiness is:
 5. Agent Registry and MCP Trust Registry. This phase is complete for the current production-readiness slice and includes JSON/SQLite registry persistence, agent profiles, MCP capability classification, console views, and registry-backed runtime decisions.
 6. Console and persistent API. This phase has started with durable sessions, decisions, repository inventory, policy rollout persistence, policy authoring previews, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, console Activity Explorer views, and repository/rollout/integration console views.
 7. Go enforcement plane.
-8. Enterprise integrations. This phase has started with GitHub required-check templates, CI/CD enforcement examples, evidence verification in branch protection, and CI evidence artifact upload. Policy-pack approval/signature write-back is next.
+8. Enterprise integrations. This phase has started with GitHub required-check templates, CI/CD enforcement examples, evidence verification in branch protection, CI evidence artifact upload, and approval-bound signed policy publishing. Vendor-specific connector execution hooks are next.
 9. Public sandbox and growth loop.
 10. Production readiness and release.
 

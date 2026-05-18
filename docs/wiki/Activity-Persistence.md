@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Policy-pack approval and signature workflow before write-back publishing.
 - Vendor-specific connector execution hooks.
+- Azure DevOps required-check template.

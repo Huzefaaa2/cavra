@@ -31,7 +31,15 @@ from cavra.evidence import (
 from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
-from cavra.policy_authoring import build_policy_pack_draft, build_rollout_change_plan, production_readiness_report, summarize_policy
+from cavra.policy_authoring import (
+    build_policy_pack_draft,
+    build_policy_pack_publish_plan,
+    build_policy_publish_decision,
+    build_rollout_change_plan,
+    production_readiness_report,
+    publish_policy_pack,
+    summarize_policy,
+)
 from cavra.policy_registry import PolicyRegistry, PolicyRegistryError
 from cavra.registry import (
     RegistryStore,
@@ -149,6 +157,9 @@ def create_app():
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
+                "policy_pack_publish_plan": "/policy-packs/publish-plan",
+                "policy_pack_publish_request": "/policy-packs/publish-request",
+                "policy_pack_publish": "/policy-packs/publish",
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
@@ -196,6 +207,76 @@ def create_app():
     def policy_pack_draft(payload: dict) -> dict:
         try:
             return build_policy_pack_draft(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/policy-packs/publish-plan")
+    def policy_pack_publish_plan(payload: dict) -> dict:
+        draft_payload = payload.get("draft") if isinstance(payload.get("draft"), dict) else payload
+        try:
+            return build_policy_pack_publish_plan(draft_payload, _current_policy_for_draft(draft_payload))
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/policy-packs/publish-request")
+    def policy_pack_publish_request(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        draft_payload = payload.get("draft") if isinstance(payload.get("draft"), dict) else payload
+        try:
+            plan = build_policy_pack_publish_plan(draft_payload, _current_policy_for_draft(draft_payload))
+            requested_by = actor_context.get("actor") if actor_context else payload.get("requested_by", "policy-authoring-console")
+            decision = build_policy_publish_decision(
+                plan,
+                requested_by=str(requested_by),
+                approver_group=payload.get("approver_group", "Platform Security"),
+                repository=payload.get("repository"),
+            )
+            approval = approval_store.create_request(
+                decision,
+                approver_group=payload.get("approver_group", "Platform Security"),
+                requested_by=str(requested_by),
+                ttl_hours=int(payload.get("ttl_hours", 24)),
+                routing_rules=routing_rules,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "schema_version": "cavra.policy_pack.publish_request.v1",
+            "product": "CAVRA",
+            "plan": plan,
+            "approval": approval,
+        }
+
+    @app.post("/policy-packs/publish")
+    def policy_pack_publish(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        draft_payload = payload.get("draft") if isinstance(payload.get("draft"), dict) else payload
+        approval_id = payload.get("approval_id")
+        if not approval_id:
+            raise HTTPException(status_code=400, detail="approval_id is required")
+        approval = approval_store.get(str(approval_id))
+        if approval is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        if actor_context and not actor_can_decide(actor_context, approval, action="approved", rbac_rules=rbac_rules):
+            raise HTTPException(status_code=403, detail="actor is not authorized to publish this policy")
+        try:
+            return publish_policy_pack(
+                draft_payload,
+                approval,
+                signer=payload.get("signer") or (actor_context.get("actor") if actor_context else "policy-authoring-api"),
+                key=os.environ.get("CAVRA_POLICY_SIGNING_KEY"),
+                actor=actor_context.get("actor") if actor_context else payload.get("actor", "policy-authoring-api"),
+            )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -1006,6 +1087,7 @@ def _console_security_boundary(
             "read_integrations",
             "read_evidence_metadata",
             "read_console_session",
+            "policy_publish_requires_digest_bound_approval",
             "approval_decision_requires_oidc_context_when_configured",
             "break_glass_requires_oidc_context_when_configured",
         ],
@@ -1084,8 +1166,20 @@ def _console_permissions(
         "read_integrations": True,
         "read_evidence_metadata": True,
         "decide_approvals": can_decide,
+        "publish_policy_packs": can_decide,
         "create_break_glass": bool(actor_context and "Change Advisory Board" in actor_context.get("groups", [])),
     }
+
+
+def _current_policy_for_draft(draft_payload: dict) -> dict | None:
+    metadata = draft_payload.get("metadata") if isinstance(draft_payload.get("metadata"), dict) else {}
+    pack_id = metadata.get("id") or draft_payload.get("id")
+    if not pack_id:
+        return None
+    try:
+        return PolicyRegistry().get_policy_pack(str(pack_id)).get("policy")
+    except PolicyRegistryError:
+        return None
 
 
 def _public_actor_context(actor_context: dict[str, object]) -> dict[str, object]:

@@ -27,4 +27,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-Policy-pack approval and signature workflow before write-back publishing.
+Vendor-specific ITSM, ChatOps, and SIEM connector execution hooks.
