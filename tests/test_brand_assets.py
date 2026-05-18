@@ -47,9 +47,11 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert "assets/brand/png/cavra-github-social-preview-1200x630.png" in readme
     assert './brand/favicon.svg' in html
     assert './brand/cavra-mark.svg' in html
+    assert 'class="brand"' not in html
     assert '<a class="brand"' not in html
-    assert 'width="34" height="34"' in html
+    assert 'class="hero-title-block"' in html
     assert 'class="hero-side"' in html
+    assert 'class="hero-logo-lockup"' in html
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
     assert ".hero-side { position: absolute;" in css
