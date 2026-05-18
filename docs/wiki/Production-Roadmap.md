@@ -48,9 +48,9 @@ Next: expanded Go parity and public sandbox URL validation after deployment from
 
 Status: scaffold started.
 
-Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
+Delivered a Go runtime scaffold, JSON CLI entrypoint, compiled-policy JSON loader, generated enforcement contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, signed release package workflow, SBOM generation, SLSA provenance, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical parity fixture, Python parity test, Go unit test, dedicated `go-runtime-parity` CI job, and required-check Go test execution.
 
-Next: add SLSA provenance and a vulnerability disclosure workflow.
+Next: connect the public sandbox to backend-driven scenario runs.
 
 ## Phase 8: Enterprise Integrations
 

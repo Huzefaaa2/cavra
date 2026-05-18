@@ -8,6 +8,7 @@ CAVRA now includes a release packaging workflow for the Go enforcement-plane run
 - Linux, macOS, and Windows builds for `amd64` and `arm64`.
 - `checksums.txt`.
 - SPDX-style SBOM: `cavra-runtime.sbom.spdx.json`.
+- SLSA provenance: `cavra-runtime.provenance.intoto.json`.
 - Release evidence: `release-evidence.json` and `release-evidence.md`.
 - Detached Ed25519 signature JSON files when `CAVRA_GO_RELEASE_SIGNING_KEY` is configured.
 - Required signing for real release events and non-dry-run manual packaging.
@@ -39,15 +40,15 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 
 ## User Stories
 
-- As a release manager, I can publish Go binaries with release evidence.
-- As a security engineer, I can validate checksums, SBOM metadata, and detached signatures.
+- As a release manager, I can publish Go binaries with release evidence and provenance.
+- As a security engineer, I can validate checksums, SBOM metadata, SLSA provenance, and detached signatures.
 - As an enterprise architect, I can review binary distribution controls before air-gapped rollout.
 - As an auditor, I can run a local verifier before approving runtime distribution.
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add SLSA provenance and a vulnerability disclosure workflow.
+Connect the public sandbox to backend-driven scenario runs and add keyless release attestations with GitHub OIDC.

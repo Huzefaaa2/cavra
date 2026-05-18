@@ -62,7 +62,7 @@ jobs:
           done
           go list -m -json all > "$dist/go-modules.json"
         working-directory: go/cavra-runtime
-      - name: Generate SBOM, checksums, signatures, and release evidence
+      - name: Generate SBOM, checksums, SLSA provenance, signatures, and release evidence
         env:
           CAVRA_GO_RELEASE_SIGNING_KEY: ${{ secrets.CAVRA_GO_RELEASE_SIGNING_KEY }}
           INPUT_VERSION: ${{ inputs.version }}

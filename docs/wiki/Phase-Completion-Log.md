@@ -180,7 +180,7 @@ Completed:
 - Registry-backed MCP decisions for approved, pending, blocked, tool-scope, and capability-scope outcomes.
 - All-bundled-policy compiled parity through Python-to-Go CLI validation.
 - Go release package workflow with Linux/macOS/Windows binaries for `amd64` and `arm64`.
-- SHA-256 checksums, SPDX-style SBOM, release evidence JSON/Markdown, and detached Ed25519 signature JSON files when signing is configured.
+- SHA-256 checksums, SPDX-style SBOM, SLSA provenance, release evidence JSON/Markdown, and detached Ed25519 signature JSON files when signing is configured.
 - Required signing for real release events and non-dry-run manual packaging.
 - GitHub Release asset attachment and verifier CLI support.
 - Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
@@ -194,7 +194,7 @@ Validation:
 - `python3 -m pytest tests/test_go_runtime_parity.py tests/test_runtime.py tests/test_ci_templates.py -q` passed locally with Go-toolchain-dependent test skipped because Go is not installed on this Mac.
 - GitHub Actions is configured with `actions/setup-go@v5` so CI can run Go tests independently of the local toolchain.
 
-Recommended next issue: add SLSA provenance and a vulnerability disclosure workflow.
+Recommended next issue: connect the public sandbox to backend-driven scenario runs.
 
 ## Phase 9: Hosted Sandbox Deployment
 
@@ -276,4 +276,23 @@ Completed:
 Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 
-Recommended next issue: add SLSA provenance for Go release packages and create the vulnerability disclosure and release advisory workflow.
+Recommended next issue: delivered below as SLSA provenance and release security advisory workflow.
+
+## SLSA Provenance and Release Security Advisory Workflow
+
+Status: complete for the current production-readiness slice.
+
+Completed:
+- Added `cavra-runtime.provenance.intoto.json` to Go release packages using an in-toto Statement and SLSA provenance predicate.
+- Added provenance verification to `cavra release verify-go-package`.
+- Added signature coverage for the provenance statement when release signing is configured.
+- Added `SECURITY.md` with private reporting guidance, severity triage, and release advisory process.
+- Added vulnerability disclosure and release security advisory documentation.
+- Added `.github/workflows/release-security.yml` and `scripts/validate_release_security.py` to validate release security controls.
+- Added tests for provenance generation, provenance verification, tamper detection, and release security workflow presence.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py tests/test_release_security.py -q` passed locally.
+- `python3 scripts/validate_release_security.py` passed locally.
+
+Recommended next issue: connect the public sandbox to backend-driven scenario runs.

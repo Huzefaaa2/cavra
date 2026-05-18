@@ -52,15 +52,25 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     checksums = (dist / "checksums.txt").read_text(encoding="utf-8")
     sbom = json.loads((dist / "cavra-runtime.sbom.spdx.json").read_text(encoding="utf-8"))
     evidence = json.loads((dist / "release-evidence.json").read_text(encoding="utf-8"))
+    provenance = json.loads((dist / "cavra-runtime.provenance.intoto.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
+    assert "cavra-runtime.provenance.intoto.json" in checksums
     assert sbom["spdxVersion"] == "SPDX-2.3"
     assert {package["name"] for package in sbom["packages"]} >= {"cavra-runtime", "example.com/dependency"}
+    assert provenance["_type"] == "https://in-toto.io/Statement/v1"
+    assert provenance["predicateType"] == "https://slsa.dev/provenance/v1"
+    assert provenance["predicate"]["buildDefinition"]["externalParameters"]["version"] == "v0.1.0-test"
     assert evidence["schema_version"] == "cavra.go-release.evidence.v1"
     assert evidence["dry_run"] is True
     assert evidence["signature_count"] == 0
-    assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {"go-binary", "sbom", "checksums"}
+    assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {
+        "go-binary",
+        "sbom",
+        "slsa-provenance",
+        "checksums",
+    }
     assert "No signing key was provided" in summary
 
 
@@ -101,7 +111,9 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     valid_result = verify_go_release_package(dist)
     assert valid_result.valid
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_artifacts
+    assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_provenance
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_signatures
+    assert "cavra-runtime.provenance.intoto.json" in valid_result.verified_signatures
     assert "release-evidence.json" in valid_result.verified_signatures
     cli_result = runner.invoke(app, ["release", "verify-go-package", str(dist), "--json"])
     assert cli_result.exit_code == 0
@@ -124,6 +136,7 @@ def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "GOOS=" in text
     assert "checksums" in text
+    assert "provenance" in text
     assert "scripts/package_go_release.py" in text
     assert "CAVRA_GO_RELEASE_SIGNING_KEY" in text
     assert "--signing-required" in text
