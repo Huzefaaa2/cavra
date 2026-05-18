@@ -1,0 +1,33 @@
+agent_id: cavra-test-agent
+display_name: CAVRA Test Agent
+github_app_slug: cavra-test
+bot_identity: cavra-test[bot]
+purpose: Add unit, integration, CLI, evidence, policy, sandbox, and regression tests for agent-delivered changes.
+allowed_triggers:
+  - pull_request.opened
+  - pull_request.synchronize
+  - issues.labeled
+allowed_branch_patterns:
+  - agent/tests/*
+allowed_paths:
+  - tests/**
+  - examples/**
+  - docs/testing.md
+  - .github/workflows/**
+required_checks:
+  - python3 -m pytest -q
+  - Docker smoke test when packaging changes
+  - Policy validation when policies change
+requires_human_approval_for:
+  - CI workflow permission changes
+  - Test exclusions
+  - Coverage threshold reductions
+prohibited_actions:
+  - Removing failing tests to pass CI
+  - Weakening branch protection
+  - Merging PRs
+evidence_required:
+  - Test plan
+  - Tests added or updated
+  - Commands executed
+  - Residual risk

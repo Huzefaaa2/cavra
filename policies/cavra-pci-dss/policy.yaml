@@ -1,0 +1,16 @@
+metadata:
+  id: cavra-pci-dss
+  title: CAVRA PCI DSS Engineering Controls
+  description: Runtime controls for AI-agent changes touching payment and cardholder-data workflows.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/*.pem", "**/*.key", "**/cardholder-data/**"]
+  require_approval_write: ["**/payments/**", "**/pci/**", ".github/workflows/**"]
+commands:
+  block: ["terraform apply*", "kubectl delete*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+git:
+  require_pull_request: true
+  require_ai_attestation: true
+compliance:
+  maps_to: ["PCI DSS 6", "PCI DSS 10", "PCI DSS 12"]

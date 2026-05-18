@@ -1,0 +1,98 @@
+[
+  {
+    "name": "block sensitive env read",
+    "request": {
+      "action_type": "read_file",
+      "target": ".env",
+      "policy_pack": "cavra-ai-agent-baseline"
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "filesystem.read.block",
+      "severity": "high"
+    }
+  },
+  {
+    "name": "block terraform apply",
+    "request": {
+      "action_type": "execute_command",
+      "target": "terraform apply -auto-approve",
+      "policy_pack": "cavra-ai-agent-baseline"
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "commands.block",
+      "severity": "critical"
+    }
+  },
+  {
+    "name": "allow terraform plan",
+    "request": {
+      "action_type": "execute_command",
+      "target": "terraform plan",
+      "policy_pack": "cavra-ai-agent-baseline"
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "commands.allow",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "unknown command requires approval",
+    "request": {
+      "action_type": "execute_command",
+      "target": "rm -rf /tmp/important",
+      "policy_pack": "cavra-ai-agent-baseline"
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "commands.default.require_approval",
+      "severity": "medium",
+      "approver_group": "Repository Owners"
+    }
+  },
+  {
+    "name": "banking iam write requires approval",
+    "request": {
+      "action_type": "write_file",
+      "target": "iam/admin-role.tf",
+      "policy_pack": "cavra-banking-baseline"
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "filesystem.write.require_approval",
+      "severity": "high",
+      "approver_group": "Platform Security"
+    }
+  },
+  {
+    "name": "unknown mcp server blocks",
+    "request": {
+      "action_type": "mcp_tool_call",
+      "server": "unknown-filesystem",
+      "tool": "read_file",
+      "capability": "filesystem",
+      "policy_pack": "cavra-mcp-enterprise"
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "mcp.server.trust.block_unknown",
+      "severity": "high"
+    }
+  },
+  {
+    "name": "push to main blocks",
+    "request": {
+      "action_type": "git_operation",
+      "target": "origin/main",
+      "operation": "push",
+      "policy_pack": "cavra-ai-agent-baseline"
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "git.protected_branch.block_direct_push",
+      "severity": "high"
+    }
+  }
+]

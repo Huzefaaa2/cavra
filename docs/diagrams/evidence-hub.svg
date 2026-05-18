@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-label="CAVRA Evidence Hub">
+  <rect width="1400" height="860" fill="#101316"/>
+  <text x="70" y="70" fill="#eef3f6" font-family="Arial" font-size="36" font-weight="700">CAVRA Evidence Hub</text>
+  <text x="70" y="108" fill="#76d6b2" font-family="Arial" font-size="19">Every decision becomes audit-ready evidence.</text>
+  <rect x="500" y="285" width="400" height="210" rx="14" fill="#182026" stroke="#76d6b2" stroke-width="3"/>
+  <text x="700" y="360" text-anchor="middle" fill="#eef3f6" font-family="Arial" font-size="34" font-weight="700">Evidence Bundle</text>
+  <text x="700" y="398" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="17">manifest.json • checksums • signature</text>
+  <text x="700" y="428" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="17">evidence.json • attestation • compliance</text>
+  <g fill="#151a1e" stroke="#3d4b52" stroke-width="2">
+    <rect x="70" y="210" width="280" height="96" rx="10"/>
+    <rect x="70" y="380" width="280" height="96" rx="10"/>
+    <rect x="70" y="550" width="280" height="96" rx="10"/>
+    <rect x="1050" y="160" width="280" height="96" rx="10"/>
+    <rect x="1050" y="330" width="280" height="96" rx="10"/>
+    <rect x="1050" y="500" width="280" height="96" rx="10"/>
+    <rect x="1050" y="670" width="280" height="96" rx="10"/>
+  </g>
+  <g fill="#eef3f6" font-family="Arial" font-size="19" font-weight="700">
+    <text x="210" y="252" text-anchor="middle">Agent Action</text>
+    <text x="210" y="282" text-anchor="middle">Attempt</text>
+    <text x="210" y="422" text-anchor="middle">CAVRA Decision</text>
+    <text x="210" y="452" text-anchor="middle">allow / block / approve</text>
+    <text x="210" y="592" text-anchor="middle">Policy Context</text>
+    <text x="210" y="622" text-anchor="middle">pack • rule • reason</text>
+    <text x="1190" y="215" text-anchor="middle">PR Reviewers</text>
+    <text x="1190" y="385" text-anchor="middle">Auditors</text>
+    <text x="1190" y="555" text-anchor="middle">SIEM / SOC</text>
+    <text x="1190" y="725" text-anchor="middle">Immutable Store</text>
+  </g>
+  <g stroke="#76d6b2" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#76d6b2"/></marker></defs>
+    <path d="M350 258 L500 335"/>
+    <path d="M350 428 L500 390"/>
+    <path d="M350 598 L500 450"/>
+    <path d="M900 335 L1050 208"/>
+    <path d="M900 385 L1050 378"/>
+    <path d="M900 435 L1050 548"/>
+    <path d="M900 475 L1050 718"/>
+  </g>
+  <text x="700" y="805" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="18">CAVRA evidence links runtime decisions to review, audit, detection, and retention workflows.</text>
+</svg>

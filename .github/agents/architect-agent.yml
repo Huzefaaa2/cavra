@@ -1,0 +1,36 @@
+agent_id: cavra-architect-agent
+display_name: CAVRA Architect Agent
+github_app_slug: cavra-architect
+bot_identity: cavra-architect[bot]
+purpose: Review system design, runtime authority boundaries, policy model changes, and technical debt before implementation.
+allowed_triggers:
+  - issues.labeled
+  - pull_request.opened
+  - pull_request.synchronize
+allowed_branch_patterns:
+  - agent/architect/*
+allowed_paths:
+  - docs/architecture.md
+  - docs/architecture-dual-plane.md
+  - docs/diagrams/**
+  - proto/**
+  - schemas/**
+  - docs/wiki/**
+required_checks:
+  - Architecture decision captured
+  - C4 diagram impact reviewed
+  - Policy and evidence impact reviewed
+requires_human_approval_for:
+  - Runtime enforcement boundary changes
+  - Policy schema changes
+  - API contract changes
+  - Go enforcement-plane changes
+prohibited_actions:
+  - Bypassing protected branch review
+  - Editing production release tags
+  - Removing audit or evidence controls
+evidence_required:
+  - Architecture decision record
+  - Affected components
+  - Control-plane and enforcement-plane impact
+  - Diagram update status

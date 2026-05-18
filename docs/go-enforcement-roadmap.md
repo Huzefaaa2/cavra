@@ -1,0 +1,33 @@
+# Go Enforcement Roadmap
+
+Python remains the authoritative management and policy plane. The Go runtime is being introduced as a low-latency enforcement plane only where parity is proven by tests and release evidence.
+
+## Delivered Scaffold
+
+- Go module under `go/cavra-runtime/`.
+- Runtime evaluator for critical file, command, Git, and MCP decisions.
+- CLI entrypoint at `go/cavra-runtime/cmd/cavra-runtime`.
+- Shared parity fixture at `go/cavra-runtime/testdata/parity_cases.json`.
+- Compiled-policy loader for normalized JSON from `cavra policy compile`.
+- CLI `--policy` flag for evaluating requests against compiled policy JSON.
+- Generated Go request and response contracts under `go/cavra-runtime/enforcement/v1`.
+- Contract generator at `scripts/generate_go_enforcement_contracts.py`.
+- Unix-socket daemon transport under `go/cavra-runtime/daemon`.
+- Reusable daemon client helper and CLI `--daemon` mode for one-shot socket calls.
+- Daemon lifecycle `start/status/stop` with PID-file tracking and readiness probing.
+- Daemon request/response evidence hooks with JSONL output and `go-daemon-evidence://...` refs.
+- `cavra-runtime --serve --socket ...` server mode.
+- Python parity test that verifies the same fixture against the authoritative `RuntimeGuard`.
+- Go unit test that loads the fixture and verifies the Go evaluator.
+- GitHub Actions `go-runtime-parity` job with `actions/setup-go`.
+- Required governance check now runs the Go parity suite before publishing evidence.
+
+## Current Boundary
+
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, and write request/response evidence records. It does not yet include expanded approval/registry parity or production binary packaging.
+
+## Next Implementation Steps
+
+1. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
+2. Package the Go binary for CI runner and air-gapped usage.
+3. Promote Go to an optional backend only after audited parity and deployment tests pass.

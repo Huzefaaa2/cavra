@@ -1,0 +1,57 @@
+name: Deploy Sandbox
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/sandbox-ui/**"
+      - "assets/brand/**"
+      - "docs/**"
+      - ".github/workflows/deploy-sandbox.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build-sandbox
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate sandbox JavaScript
+        run: node --check apps/sandbox-ui/sandbox.js
+      - name: Build static sandbox artifact
+        run: |
+          set -euo pipefail
+          rm -rf public
+          mkdir -p public
+          cp -R apps/sandbox-ui/. public/
+          mkdir -p public/assets
+          cp -R assets/brand public/assets/
+          cp docs/diagrams/*.svg public/
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    name: deploy-sandbox
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

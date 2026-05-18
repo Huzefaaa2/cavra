@@ -1,0 +1,14 @@
+metadata:
+  id: cavra-gitlab-enterprise
+  title: CAVRA GitLab Enterprise Governance
+  description: AI-agent GitLab CI and merge request governance controls.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*"]
+  require_approval_write: [".gitlab-ci.yml", ".gitlab/**"]
+commands:
+  block: ["git push origin main", "git push --force*", "glab mr merge*"]
+  allow: ["git status*", "git diff*", "glab mr create*", "pytest*"]
+git:
+  require_pull_request: true
+  require_ai_attestation: true

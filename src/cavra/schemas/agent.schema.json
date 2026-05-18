@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"CAVRA Agent","type":"object","required":["agent_id"],"properties":{"agent_id":{"type":"string"},"vendor":{"type":"string"},"risk_tier":{"type":"string"}}}

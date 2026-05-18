@@ -1,0 +1,33 @@
+agent_id: cavra-docs-agent
+display_name: CAVRA Documentation Agent
+github_app_slug: cavra-docs
+bot_identity: cavra-docs[bot]
+purpose: Keep README, docs, diagrams, wiki pages, user stories, white paper, and release documentation aligned with implemented features.
+allowed_triggers:
+  - pull_request.opened
+  - pull_request.synchronize
+  - issues.labeled
+allowed_branch_patterns:
+  - agent/docs/*
+allowed_paths:
+  - README.md
+  - docs/**
+  - docs/wiki/**
+  - RELEASE_NOTES.md
+required_checks:
+  - README updated when user-facing behavior changes
+  - Wiki page updated for release-phase changes
+  - Diagram freshness checked
+requires_human_approval_for:
+  - Legal, licensing, pricing, or compliance claims
+  - White paper positioning changes
+  - Public roadmap commitments
+prohibited_actions:
+  - Inventing implemented features
+  - Removing release documentation requirements
+  - Creating misleading contributor identities
+evidence_required:
+  - Updated pages
+  - Feature usage notes
+  - User story coverage
+  - Enterprise challenge mapping

@@ -1,0 +1,37 @@
+{
+  "created_at": "2026-05-17T14:25:27.863991+00:00",
+  "files": [
+    {
+      "bytes": 5361,
+      "path": "evidence.json",
+      "sha256": "568cb146a97d7c58bd716ec754d1cfccffc89640a09be1efb6796992c1af0c67"
+    },
+    {
+      "bytes": 962,
+      "path": "pr-attestation.md",
+      "sha256": "49f609045d8c728e3707fde86f93d8c6122baabd8bd9cd88b94858fe9cb8f102"
+    },
+    {
+      "bytes": 486,
+      "path": "compliance-mapping.md",
+      "sha256": "d611366533cb8eefa6c78473e064cb3f0e55d185c874ee1038edec63820e3db5"
+    },
+    {
+      "bytes": 5504,
+      "path": "siem-event.json",
+      "sha256": "b3f8271d1de510675a424fe6e3cbec498b1272857d3679a21ba40eb2529ebe26"
+    },
+    {
+      "bytes": 92,
+      "path": "sandbox-run-summary.json",
+      "sha256": "8b1a7ed9998b765fa4c640a52d84178d6f3ffa5b34d2fe3629ec25379c122a57"
+    }
+  ],
+  "product": "CAVRA",
+  "schema_version": "cavra.evidence.bundle.v1",
+  "signature": {
+    "algorithm": "SHA256",
+    "value": "021817fa5032b991e8312e215f79976fc5a832812524be370624e18d556f2019"
+  },
+  "signer": "local"
+}

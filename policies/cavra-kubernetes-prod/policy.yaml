@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-kubernetes-prod
+  title: CAVRA Kubernetes Production Safety
+  description: Runtime controls for Kubernetes production operations.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/kubeconfig", "**/secrets.*"]
+  require_approval_write: ["**/rbac/**", "**/clusterrole*.yaml", "**/prod/**"]
+commands:
+  block: ["kubectl delete*", "kubectl apply*--context*prod*", "git push origin main"]
+  allow: ["kubectl diff*", "kubectl get*", "kubectl describe*", "pytest*"]
+compliance:
+  maps_to: ["Kubernetes RBAC", "production change control"]

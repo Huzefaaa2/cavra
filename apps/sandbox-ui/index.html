@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAVRA | Evidence Console</title>
+    <link rel="icon" href="./brand/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav>
+        <div class="hero-title-block">
+          <p class="hero-wordmark">CAVRA</p>
+          <p class="eyebrow">Controlled Agentic Verification & Runtime Authority</p>
+          <h1>Evidence Console</h1>
+        </div>
+        <div class="hero-side">
+          <button id="copyInstall">claude mcp add cavra</button>
+          <div class="hero-logo-lockup">
+            <img class="hero-product-mark" src="./brand/cavra-mark.svg" width="220" height="220" alt="CAVRA shield mark" />
+          </div>
+        </div>
+      </nav>
+      <section class="hero-content">
+        <div class="hero-copy">
+          <p>Run the flagship agent scenario, search evidence metadata, and verify PR attestation coverage from one operational surface.</p>
+          <div class="actions">
+            <button id="runScenario">Run Agent Scenario</button>
+            <a href="../../examples/demos/before-the-agent-acts/generated/evidence.json" download>Download Evidence</a>
+          </div>
+        </div>
+      </section>
+    </header>
+    <main>
+      <section class="controls">
+        <label>Persona <select id="persona"><option>Developer</option><option>CISO</option><option>Platform Engineer</option><option>Auditor</option></select></label>
+        <label>Policy Mode <select id="policyMode"><option>Enforce</option><option>Audit-only</option><option>Strict regulated repository</option></select></label>
+      </section>
+      <section class="grid">
+        <div>
+          <h2>Agent Actions</h2>
+          <ol id="actions"></ol>
+        </div>
+        <div>
+          <h2>CAVRA Decisions</h2>
+          <ol id="decisions"></ol>
+        </div>
+        <div>
+          <h2>Evidence</h2>
+          <pre id="evidence">Simulated AI-agent scenario using real CAVRA policy decisions.</pre>
+        </div>
+      </section>
+      <section class="console activity-console">
+        <div class="console-header">
+          <div>
+            <h2>Activity Explorer</h2>
+            <p>Browse persisted sessions and decisions by repository, agent, policy, outcome, and severity.</p>
+          </div>
+          <button id="refreshActivity">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Repository <input id="filterActivityRepository" placeholder="payments/api" /></label>
+          <label>Agent <input id="filterActivityAgent" placeholder="codex-agent" /></label>
+          <label>Policy <input id="filterActivityPolicy" placeholder="cavra-ai-agent-baseline" /></label>
+          <label>Decision <select id="filterDecisionState"><option value="">Any</option><option value="allow">Allow</option><option value="block">Block</option><option value="require_approval">Require approval</option><option value="warn">Warn</option><option value="allow_with_attestation">Allow with attestation</option></select></label>
+          <label>Severity <select id="filterDecisionSeverity"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+        </div>
+        <div class="activity-grid">
+          <div>
+            <h3>Sessions</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Session</th>
+                    <th>Repository</th>
+                    <th>Agent</th>
+                    <th>Decisions</th>
+                    <th>Blocked</th>
+                    <th>Approvals</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Decisions</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Decision</th>
+                    <th>Outcome</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Rule</th>
+                    <th>Severity</th>
+                  </tr>
+                </thead>
+                <tbody id="decisionRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="console inventory-console">
+        <div class="console-header">
+          <div>
+            <h2>Repository and Policy Rollout</h2>
+            <p>Track repository ownership, risk tier, required checks, policy pack rollout state, and enforcement mode.</p>
+          </div>
+          <button id="refreshInventory">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Owner <input id="filterRepositoryOwner" placeholder="Payments Platform" /></label>
+          <label>Policy <input id="filterRepositoryPolicy" placeholder="cavra-banking" /></label>
+          <label>Risk <select id="filterRepositoryRisk"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+          <label>Rollout state <select id="filterRolloutState"><option value="">Any</option><option value="planned">Planned</option><option value="active">Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
+          <label>Mode <select id="filterRolloutMode"><option value="">Any</option><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict">Strict</option><option value="break_glass">Break glass</option></select></label>
+        </div>
+        <div class="inventory-grid">
+          <div>
+            <h3>Repositories</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Repository</th>
+                    <th>Owner</th>
+                    <th>Policy</th>
+                    <th>Risk</th>
+                    <th>Status</th>
+                    <th>Required Checks</th>
+                  </tr>
+                </thead>
+                <tbody id="repositoryRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Policy Rollouts</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Repository</th>
+                    <th>Policy</th>
+                    <th>Mode</th>
+                    <th>State</th>
+                    <th>Coverage</th>
+                    <th>Owner</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="rolloutRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="rolloutDetail" class="detail-panel">Select Details from a policy rollout row.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Policy Authoring and Rollout Changes</h2>
+            <p>Create safe policy drafts, review rollout change plans, and apply rollout transitions.</p>
+          </div>
+          <button id="refreshPolicyCatalog">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Policy ID <input id="draftPolicyId" value="cavra-platform-baseline" /></label>
+          <label>Title <input id="draftPolicyTitle" value="Platform Baseline" /></label>
+          <label>Version <input id="draftPolicyVersion" value="2026.05" /></label>
+          <label>Inherits <input id="draftPolicyInherits" value="cavra-ai-agent-baseline" /></label>
+          <button id="previewPolicyDraft">Preview draft</button>
+          <button id="planPolicyPublish" class="secondary">Plan publish</button>
+          <button id="requestPolicyPublishApproval" class="secondary">Request approval</button>
+          <label>Approval <input id="policyPublishApprovalId" placeholder="apr_..." /></label>
+          <button id="publishPolicyPack" class="secondary">Publish signed</button>
+        </div>
+        <div class="search-controls">
+          <label>Rollout <input id="changeRolloutId" value="payments-api-banking" /></label>
+          <label>Repository <input id="changeRepository" value="payments/api" /></label>
+          <label>Policy <input id="changePolicyPack" value="cavra-platform-baseline" /></label>
+          <label>Mode <select id="changeMode"><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict" selected>Strict</option><option value="break_glass">Break glass</option></select></label>
+          <label>State <select id="changeState"><option value="planned">Planned</option><option value="active" selected>Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
+          <label>Coverage <input id="changeCoverage" type="number" min="0" max="100" value="95" /></label>
+          <button id="planRolloutChange">Plan</button>
+          <button id="applyRolloutChange" class="secondary">Apply</button>
+        </div>
+        <div class="inventory-grid">
+          <div id="policyCatalog" class="detail-panel">Policy catalog is loading.</div>
+          <div id="policyDraft" class="detail-panel">Preview a policy draft.</div>
+        </div>
+        <div id="policyPublishPlan" class="detail-panel">Plan a signed policy write-back.</div>
+        <div id="rolloutChangePlan" class="detail-panel">Plan a rollout change.</div>
+      </section>
+      <section class="console integration-console">
+        <div class="console-header">
+          <div>
+            <h2>Enterprise Integrations</h2>
+            <p>Track source control, SIEM, ITSM, identity, storage, and ChatOps connectors by owner, status, health, and capability.</p>
+          </div>
+          <button id="refreshIntegrations">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Category <select id="filterIntegrationCategory"><option value="">Any</option><option value="source_control">Source control</option><option value="ci_cd">CI/CD</option><option value="siem">SIEM</option><option value="itsm">ITSM</option><option value="chatops">ChatOps</option><option value="identity">Identity</option><option value="storage">Storage</option><option value="security">Security</option><option value="observability">Observability</option></select></label>
+          <label>Status <select id="filterIntegrationStatus"><option value="">Any</option><option value="planned">Planned</option><option value="configured">Configured</option><option value="active">Active</option><option value="paused">Paused</option><option value="disabled">Disabled</option></select></label>
+          <label>Health <select id="filterIntegrationHealth"><option value="">Any</option><option value="healthy">Healthy</option><option value="degraded">Degraded</option><option value="failed">Failed</option><option value="not_checked">Not checked</option><option value="unknown">Unknown</option></select></label>
+          <label>Owner <input id="filterIntegrationOwner" placeholder="Developer Platform" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Health</th>
+                <th>Owner</th>
+                <th>Environment</th>
+                <th>Capabilities</th>
+              </tr>
+            </thead>
+            <tbody id="integrationRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Evidence Search</h2>
+            <p>Filter persisted evidence metadata by signer, risk, approval state, and page size.</p>
+          </div>
+          <div class="console-actions">
+            <span id="apiStatus">API: loading</span>
+            <button id="refreshEvidence">Refresh</button>
+          </div>
+        </div>
+        <div class="search-controls">
+          <label>Signer <input id="filterSigner" placeholder="security" /></label>
+          <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="1" /></label>
+          <label>Approval required <select id="filterApprovals"><option value="">Any</option><option value="true">Yes</option><option value="false">No</option></select></label>
+          <label>Limit <input id="filterLimit" type="number" min="1" max="50" value="10" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Signer</th>
+                <th>Decisions</th>
+                <th>Blocked</th>
+                <th>Approvals</th>
+                <th>Retention</th>
+                <th>Artifacts</th>
+              </tr>
+            </thead>
+            <tbody id="evidenceRows"></tbody>
+          </table>
+        </div>
+        <div id="evidenceArtifacts" class="detail-panel">Select Artifacts from an evidence row to review downloadable bundle files.</div>
+      </section>
+      <section class="console split">
+        <div>
+          <div class="console-header compact">
+            <div>
+              <h2>PR Attestation Verification</h2>
+              <p>Confirm the attestation covers the selected evidence session and decision targets.</p>
+            </div>
+            <button id="verifyAttestation">Verify</button>
+          </div>
+          <label>Session <select id="attestationSession"></select></label>
+          <ul id="attestationResult" class="verification"></ul>
+        </div>
+        <div>
+          <h2>Operational Readiness</h2>
+          <ul class="readiness">
+            <li>Trust-root verification supports key IDs and active signing keys.</li>
+            <li>SQLite search supports filters and pagination for self-hosted pilots.</li>
+            <li>PR attestation verification produces reviewer-ready JSON and Markdown artifacts.</li>
+            <li>Production migration SQL is maintained under migrations.</li>
+          </ul>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Console Security Boundary</h2>
+            <p>Review OIDC, RBAC, CORS, and operator boundaries for deployed console/API topologies.</p>
+          </div>
+          <button id="refreshSecurityBoundary">Refresh</button>
+        </div>
+        <div id="securityBoundary" class="detail-panel">Security boundary status is loading.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Production Readiness</h2>
+            <p>Validate deployment controls for authenticated console/API topologies.</p>
+          </div>
+          <button id="refreshDeploymentReadiness">Refresh</button>
+        </div>
+        <div id="deploymentReadiness" class="detail-panel">Production readiness status is loading.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Console Session</h2>
+            <p>Validate signed OIDC context and repository-scoped console permissions.</p>
+          </div>
+          <button id="refreshConsoleSession">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Bearer token <input id="consoleToken" type="password" placeholder="OIDC JWT" /></label>
+          <button id="saveConsoleToken" class="secondary">Use token</button>
+          <button id="clearConsoleToken" class="secondary">Clear</button>
+        </div>
+        <div id="consoleSession" class="detail-panel">Console session status is loading.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
+            <h2>Approval Queue</h2>
+            <p>Review pending, approved, denied, expired, and break-glass approval records.</p>
+          </div>
+          <button id="refreshApprovals">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>State <select id="filterApprovalState"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="denied">Denied</option><option value="expired">Expired</option><option value="break_glass">Break glass</option></select></label>
+          <label>Approver group <input id="filterApprovalGroup" placeholder="Platform Security" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Approval</th>
+                <th>State</th>
+                <th>Group</th>
+                <th>Requester</th>
+                <th>Decision</th>
+                <th>External Ref</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="approvalRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console approval-workbench">
+        <div>
+          <div class="console-header compact">
+            <div>
+              <h2>Break Glass</h2>
+              <p>Create a mandatory-reason emergency override with incident or change evidence.</p>
+            </div>
+            <button id="createBreakGlass">Create</button>
+          </div>
+          <div class="form-grid">
+            <label>Target <input id="breakGlassTarget" value="terraform apply" /></label>
+            <label>Rule <input id="breakGlassRule" value="commands.block" /></label>
+            <label>Actor <input id="breakGlassActor" value="incident-commander" /></label>
+            <label>Group <input id="breakGlassGroup" value="Change Advisory Board" /></label>
+            <label>External ref <input id="breakGlassRef" value="INC-777" /></label>
+            <label>TTL hours <input id="breakGlassTtl" type="number" min="1" max="24" value="4" /></label>
+          </div>
+          <label class="wide-field">Reason <input id="breakGlassReason" value="Production recovery for active incident." /></label>
+          <p id="breakGlassStatus" class="status-line">No emergency override submitted.</p>
+        </div>
+        <div>
+          <div class="console-header compact">
+            <div>
+              <h2>Approval Audit</h2>
+              <p>Inspect lifecycle state, decision context, evidence references, and history.</p>
+            </div>
+          </div>
+          <div id="approvalDetail" class="detail-panel">Select Details from an approval row.</div>
+        </div>
+      </section>
+      <section class="console registry-console">
+        <div class="console-header">
+          <div>
+            <h2>Agent and MCP Registry</h2>
+            <p>Inspect governed agent profiles, active agent identities, approved MCP servers, and tool capability risk.</p>
+          </div>
+          <button id="refreshRegistry">Refresh</button>
+        </div>
+        <div class="search-controls">
+          <label>Agent status <select id="filterAgentStatus"><option value="">Any</option><option value="active">Active</option><option value="disabled">Disabled</option><option value="retired">Retired</option></select></label>
+          <label>Agent owner <input id="filterAgentOwner" placeholder="AI Platform" /></label>
+          <label>MCP trust <select id="filterMcpTrust"><option value="">Any</option><option value="trusted">Trusted</option><option value="approved">Approved</option><option value="experimental">Experimental</option><option value="blocked">Blocked</option><option value="unknown">Unknown</option></select></label>
+          <label>Capability <select id="filterMcpCapability"><option value="">Any</option><option value="filesystem">Filesystem</option><option value="shell">Shell</option><option value="network">Network</option><option value="database">Database</option><option value="saas">SaaS</option><option value="cloud">Cloud</option><option value="repository">Repository</option></select></label>
+        </div>
+        <div class="registry-grid">
+          <div>
+            <h3>Agents</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Vendor</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Capabilities</th>
+                    <th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="agentRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>MCP Trust</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Server</th>
+                    <th>Trust</th>
+                    <th>Approval</th>
+                    <th>Capabilities</th>
+                    <th>Tools</th>
+                  </tr>
+                </thead>
+                <tbody id="mcpRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="registry-grid secondary-grid">
+          <div>
+            <h3>Capability Profiles</h3>
+            <div id="agentProfileRows" class="profile-list"></div>
+          </div>
+          <div>
+            <h3>MCP Tool Classification</h3>
+            <div id="mcpClassificationRows" class="profile-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./sandbox.js"></script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Agent and MCP Trust Registry</title>
+  <desc id="desc">Diagram showing agent profiles, agent identity records, MCP trust records, capability classifications, runtime decisions, and console/API access.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f4654"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f9fb; }
+      .title { font: 700 28px Arial, sans-serif; fill: #14212b; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #4b5f6f; }
+      .group { fill: #ffffff; stroke: #c7d3dc; stroke-width: 1.4; }
+      .group-title { font: 700 15px Arial, sans-serif; fill: #253642; }
+      .source { fill: #eef6ff; stroke: #3b6f8f; stroke-width: 1.3; }
+      .registry { fill: #f3fbef; stroke: #4d8b55; stroke-width: 1.3; }
+      .store { fill: #fff8d7; stroke: #9b7d0a; stroke-width: 1.3; }
+      .decision { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.3; }
+      .node-title { font: 700 13px Arial, sans-serif; fill: #17242d; }
+      .node-text { font: 400 11px Arial, sans-serif; fill: #435464; }
+      .arrow { stroke: #2f4654; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .soft { stroke: #7a8d9a; stroke-width: 1.3; fill: none; marker-end: url(#arrow); stroke-dasharray: 5 5; }
+    </style>
+  </defs>
+  <rect class="bg" width="1320" height="760"/>
+  <text x="48" y="52" class="title">Agent and MCP Trust Registry</text>
+  <text x="48" y="78" class="subtitle">Governed AI-agent identities and tool trust decisions before MCP calls reach enterprise systems.</text>
+
+  <rect x="48" y="116" width="250" height="500" rx="10" class="group"/>
+  <text x="72" y="146" class="group-title">Inputs</text>
+  <rect x="72" y="178" width="202" height="66" rx="8" class="source"/>
+  <text x="92" y="204" class="node-title">Agent Profiles</text>
+  <text x="92" y="224" class="node-text">Claude Code, Codex, Copilot</text>
+  <rect x="72" y="272" width="202" height="66" rx="8" class="source"/>
+  <text x="92" y="298" class="node-title">Registered Agents</text>
+  <text x="92" y="318" class="node-text">Owner, scope, tools, status</text>
+  <rect x="72" y="366" width="202" height="66" rx="8" class="source"/>
+  <text x="92" y="392" class="node-title">MCP Servers</text>
+  <text x="92" y="412" class="node-text">Trust tier and approval state</text>
+  <rect x="72" y="460" width="202" height="66" rx="8" class="source"/>
+  <text x="92" y="486" class="node-title">Tool Classifications</text>
+  <text x="92" y="506" class="node-text">Filesystem, shell, cloud, SaaS</text>
+
+  <rect x="370" y="116" width="330" height="500" rx="10" class="group"/>
+  <text x="394" y="146" class="group-title">Registry Services</text>
+  <rect x="398" y="180" width="274" height="76" rx="8" class="registry"/>
+  <text x="420" y="208" class="node-title">Agent Registry API</text>
+  <text x="420" y="228" class="node-text">/agents and /agents/profiles</text>
+  <rect x="398" y="292" width="274" height="76" rx="8" class="registry"/>
+  <text x="420" y="320" class="node-title">MCP Trust API</text>
+  <text x="420" y="340" class="node-text">/mcp/servers and /mcp/trust</text>
+  <rect x="398" y="404" width="274" height="76" rx="8" class="registry"/>
+  <text x="420" y="432" class="node-title">Capability Catalog API</text>
+  <text x="420" y="452" class="node-text">/mcp/tool-classifications</text>
+
+  <rect x="772" y="116" width="220" height="500" rx="10" class="group"/>
+  <text x="796" y="146" class="group-title">Persistence</text>
+  <rect x="802" y="214" width="160" height="76" rx="8" class="store"/>
+  <text x="824" y="242" class="node-title">JSON Store</text>
+  <text x="824" y="262" class="node-text">Local pilots</text>
+  <rect x="802" y="348" width="160" height="76" rx="8" class="store"/>
+  <text x="824" y="376" class="node-title">SQLite Store</text>
+  <text x="824" y="396" class="node-text">Self-hosted API</text>
+
+  <rect x="1064" y="116" width="208" height="500" rx="10" class="group"/>
+  <text x="1088" y="146" class="group-title">Consumers</text>
+  <rect x="1090" y="178" width="156" height="66" rx="8" class="decision"/>
+  <text x="1110" y="204" class="node-title">Runtime Guard</text>
+  <text x="1110" y="224" class="node-text">Allow, block, approve</text>
+  <rect x="1090" y="292" width="156" height="66" rx="8" class="decision"/>
+  <text x="1110" y="318" class="node-title">Console</text>
+  <text x="1110" y="338" class="node-text">Registry operations view</text>
+  <rect x="1090" y="406" width="156" height="66" rx="8" class="decision"/>
+  <text x="1110" y="432" class="node-title">Evidence</text>
+  <text x="1110" y="452" class="node-text">Trust decision records</text>
+
+  <path class="arrow" d="M274 211 L398 218"/>
+  <path class="arrow" d="M274 305 L398 218"/>
+  <path class="arrow" d="M274 399 L398 330"/>
+  <path class="arrow" d="M274 493 L398 442"/>
+  <path class="arrow" d="M672 218 L802 252"/>
+  <path class="arrow" d="M672 330 L802 386"/>
+  <path class="arrow" d="M962 252 L1090 211"/>
+  <path class="arrow" d="M962 386 L1090 211"/>
+  <path class="soft" d="M672 442 C850 442 914 325 1090 325"/>
+  <path class="soft" d="M1168 244 L1168 406"/>
+</svg>

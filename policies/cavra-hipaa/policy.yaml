@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-hipaa
+  title: CAVRA HIPAA Engineering Controls
+  description: Runtime controls for AI-agent work in PHI-sensitive repositories.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*", "**/phi/**", "**/patient-data/**"]
+  require_approval_write: ["**/healthcare/**", "**/audit/**", "**/data-retention/**"]
+commands:
+  block: ["terraform apply*", "kubectl delete*", "git push origin main"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+compliance:
+  maps_to: ["HIPAA Security Rule", "HIPAA Privacy Rule"]

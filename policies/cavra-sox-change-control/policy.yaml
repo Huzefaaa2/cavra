@@ -1,0 +1,17 @@
+metadata:
+  id: cavra-sox-change-control
+  title: CAVRA SOX Change Control
+  description: Human approval and attestation controls for material engineering changes.
+  version: 0.1.0
+filesystem:
+  block_read: [".env", "**/secrets.*"]
+  require_approval_write: [".github/workflows/**", "**/financial-reporting/**", "**/prod/**"]
+commands:
+  block: ["terraform apply*", "git push origin main", "git push --force*"]
+  allow: ["terraform plan*", "pytest*", "npm test*"]
+git:
+  require_pull_request: true
+  require_human_reviewer: true
+  require_ai_attestation: true
+compliance:
+  maps_to: ["SOX change management", "SOX audit evidence"]

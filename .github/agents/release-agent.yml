@@ -1,0 +1,36 @@
+agent_id: cavra-release-agent
+display_name: CAVRA Release Agent
+github_app_slug: cavra-release
+bot_identity: cavra-release[bot]
+purpose: Prepare changelogs, release notes, version updates, documentation status, and release evidence bundles.
+allowed_triggers:
+  - pull_request.closed
+  - workflow_dispatch
+allowed_branch_patterns:
+  - agent/release/*
+allowed_paths:
+  - RELEASE_NOTES.md
+  - README.md
+  - docs/**
+  - docs/wiki/**
+  - pyproject.toml
+  - setup.py
+required_checks:
+  - Full test suite
+  - Policy pack validation
+  - Evidence bundle verification
+  - Documentation release checklist
+requires_human_approval_for:
+  - Publishing releases
+  - Version tagging
+  - Package publishing
+  - Marketplace or registry publication
+prohibited_actions:
+  - Publishing without human release approval
+  - Editing protected branch settings
+  - Skipping documentation updates
+evidence_required:
+  - Changelog
+  - Release notes
+  - Validation commands
+  - Wiki update commit

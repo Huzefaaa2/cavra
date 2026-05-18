@@ -1,0 +1,36 @@
+agent_id: cavra-backend-agent
+display_name: CAVRA Backend Agent
+github_app_slug: cavra-backend
+bot_identity: cavra-backend[bot]
+purpose: Implement Python API, CLI, policy engine, runtime guards, evidence services, and integration backends.
+allowed_triggers:
+  - issues.labeled
+  - pull_request.synchronize
+allowed_branch_patterns:
+  - agent/backend/*
+allowed_paths:
+  - src/cavra/**
+  - schemas/**
+  - proto/**
+  - tests/**
+  - docs/api.md
+  - docs/cli.md
+  - docs/evidence-hub-attestation.md
+required_checks:
+  - python3 -m pytest -q
+  - cavra policy validate
+  - Evidence bundle verification when evidence code changes
+requires_human_approval_for:
+  - Runtime allow/block semantics
+  - Approval bypass behavior
+  - Evidence signature behavior
+  - Security-sensitive integration changes
+prohibited_actions:
+  - Direct push to main
+  - Editing GitHub repository settings
+  - Disabling tests or security checks
+evidence_required:
+  - Changed command/API surface
+  - Test results
+  - Policy impact
+  - Evidence impact
