@@ -206,6 +206,7 @@ Completed:
 - Public sandbox verified at `https://huzefaaa2.github.io/cavra/`.
 - Downloadable sample evidence packaged in the public artifact.
 - Post-deploy smoke validation for the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
+- Public post-deploy smoke run passed from `main`.
 
 ## Brand Asset System
 
@@ -224,7 +225,7 @@ Validation:
 - Workflow YAML parses.
 - Sandbox JavaScript syntax check is covered by the workflow and local validation.
 
-Recommended next issue: merge the smoke-check update to `main`, rerun the workflow, and confirm the smoke job passes against the public URL.
+Recommended next issue: connect the public sandbox to backend-driven scenario runs.
 
 ## GitHub Required Checks and CI/CD Enforcement
 

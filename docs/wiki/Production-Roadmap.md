@@ -64,7 +64,7 @@ Status: deployment workflow started.
 
 Delivered a GitHub Pages workflow that validates the static sandbox JavaScript, builds a Pages artifact from `apps/sandbox-ui`, includes SVG diagrams and downloadable sample evidence, deploys only from `main`, and smoke-tests the public page and core assets after deployment. GitHub Pages is enabled for Actions publishing on the repository, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`.
 
-Next: merge the smoke-check update to `main`, rerun the Pages workflow, and confirm the smoke job passes against the public URL.
+Next: connect the public sandbox to backend-driven scenario runs.
 
 ## Phase 10: Production Release
 

@@ -265,7 +265,7 @@ Current phase status:
 Next recommended implementation work:
 
 - Expand Go parity across the remaining bundled policy packs and prepare signed binary packaging.
-- Rerun the sandbox workflow from `main` and confirm the public smoke job passes.
+- Connect the public sandbox to backend-driven scenario runs.
 
 ## User stories and enterprise value
 

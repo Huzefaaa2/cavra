@@ -298,6 +298,7 @@ Implement:
 - Hosted sandbox deployment workflow. Delivered for GitHub Pages from `main`.
 - Public sandbox URL. Verified at `https://huzefaaa2.github.io/cavra/`.
 - Static evidence packaging and post-deploy smoke validation for the public page and core assets.
+- Public post-deploy smoke run. Passed from `main`.
 - Backend-driven sandbox runs using the real policy engine.
 - Downloadable evidence, PR attestation, and compliance reports.
 - Persona-specific narratives for Developer, CISO, Platform Engineer, and Auditor.
@@ -352,4 +353,4 @@ Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validatio
 Immediate next tasks:
 - Expand Go parity across every bundled policy pack and approval route.
 - Add signed Go binary, SBOM, and release evidence packaging.
-- Rerun the sandbox deployment workflow and confirm the public smoke job passes.
+- Connect the public sandbox to backend-driven scenario runs.
