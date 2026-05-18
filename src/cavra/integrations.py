@@ -559,7 +559,7 @@ def _deliver_one_connector(
             }
             if success:
                 return last_result
-        except Exception as exc:  # pragma: no cover - exercised through sender tests
+        except Exception:  # pragma: no cover - exercised through sender tests
             last_result = {
                 "provider": provider,
                 "success": False,
@@ -567,7 +567,7 @@ def _deliver_one_connector(
                 "attempt_count": attempt,
                 "started_at": started_at,
                 "completed_at": utc_now(),
-                "error": str(exc),
+                "error": "connector delivery failed",
                 "request": _redacted_request_spec(spec),
             }
         if attempt < attempts:
@@ -592,9 +592,9 @@ def _send_http_json_request(spec: dict[str, Any], *, timeout_seconds: float) -> 
         with request.urlopen(req, timeout=timeout_seconds) as response:
             return {"status_code": response.getcode(), "body": response.read(4096).decode("utf-8", errors="replace")}
     except error.HTTPError as exc:
-        return {"status_code": exc.code, "body": exc.read(4096).decode("utf-8", errors="replace"), "error": str(exc)}
-    except error.URLError as exc:
-        return {"status_code": 0, "error": str(exc.reason)}
+        return {"status_code": exc.code, "body": exc.read(4096).decode("utf-8", errors="replace"), "error": "HTTP request failed"}
+    except error.URLError:
+        return {"status_code": 0, "error": "connector endpoint unreachable"}
 
 
 def _redacted_request_spec(spec: dict[str, Any]) -> dict[str, Any]:
