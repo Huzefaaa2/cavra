@@ -1,21 +1,27 @@
 # Hosted Sandbox Deployment
 
-CAVRA now includes a GitHub Pages deployment workflow for the static Before the Agent Acts sandbox and evidence console.
+The hosted sandbox deployment workflow publishes the static CAVRA evidence console through GitHub Pages after merge to `main`.
 
-## Delivered
+## Workflow
 
-- `.github/workflows/deploy-sandbox.yml`
-- JavaScript validation for `config.js` and `sandbox.js` with `node --check`.
-- Static artifact build from `apps/sandbox-ui`.
-- Optional `CAVRA_PUBLIC_API_BASE_URL` Pages config for API-backed scenario runs.
-- Before the Agent Acts sample evidence packaged for the download action.
-- SVG diagram assets included in the artifact.
-- GitHub Pages Actions configuration, artifact upload, and deployment from `main`.
-- Post-deploy smoke validation for the public page, JavaScript, stylesheet, brand assets, C4 diagram, and downloadable evidence.
+Workflow file: `.github/workflows/deploy-sandbox.yml`
 
-## How To Use
+The workflow:
 
-After merge to `main`:
+- Runs on manual dispatch and pushes to `main` that affect the sandbox, docs, or workflow file.
+- Validates `apps/sandbox-ui/config.js` and `apps/sandbox-ui/sandbox.js` with `node --check`.
+- Copies `apps/sandbox-ui` into a static `public/` artifact.
+- Writes `public/config.js` from the optional `CAVRA_PUBLIC_API_BASE_URL` repository variable.
+- Packages the generated Before the Agent Acts sample evidence at `evidence/before-the-agent-acts/evidence.json`.
+- Includes SVG diagrams from `docs/diagrams`.
+- Configures the already-enabled GitHub Pages site for GitHub Actions publishing.
+- Uploads a Pages artifact.
+- Deploys only when the workflow runs on `refs/heads/main`.
+- Runs a post-deploy smoke check against the public page, JavaScript, stylesheet, brand assets, C4 diagram asset, and downloadable evidence file.
+
+## How To Run
+
+After the branch is merged to `main`, run:
 
 ```bash
 gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
@@ -29,17 +35,22 @@ https://huzefaaa2.github.io/cavra/
 
 ## User Stories
 
-- As a prospect, I can evaluate the sandbox without credentials.
-- As a CISO, I can inspect decision outcomes and evidence concepts from a browser.
-- As a developer, I can find the Claude Code MCP setup command from the same surface.
-- As a platform evaluator, I can connect the hosted sandbox to a deployed CAVRA API and run backend-generated policy decisions.
-- As a design partner, I can jump from the sandbox to current release notes, release integrity details, and roadmap context.
-- As a product stakeholder, I can see aggregate public demo run counters without adding external analytics.
+- As a prospect, I can open the sandbox without cloud credentials or a local install.
+- As a CISO, I can see CAVRA decisions, evidence, and deployment readiness from a browser.
+- As a developer, I can copy the Claude Code MCP setup command from the same product surface.
+- As a platform evaluator, I can point the public sandbox at a deployed CAVRA API and run backend-generated policy decisions.
 
 ## Enterprise Challenge Solved
 
-The hosted sandbox shortens enterprise review by giving security, platform, and audit stakeholders a consistent demo surface before they install anything. When an API URL is configured, the same page runs real backend scenarios and persists evidence metadata plus activity records. Telemetry-free public run counters summarize those records without browser tracking, and release-note links keep design-partner demos tied to the latest implementation context.
+Security and platform buyers need a short, credible product walkthrough before design-partner workshops. The hosted sandbox makes CAVRA reviewable from a static URL while the same surface can call a deployed API for backend-generated scenario runs, persisted evidence metadata, and activity records.
 
-## Next
+## Current Limits
 
-Add persisted delivery history views and alerting dashboards for release governance connectors.
+- Public URL validation requires the workflow to run from `main`.
+- The static sandbox uses built-in sample data when no API is configured.
+- Backend-driven sandbox runs require a reachable API URL and matching `CAVRA_CORS_ORIGINS`.
+- Public counters require the API activity store to retain sandbox session rows.
+
+## Next Recommended Work
+
+1. Add release package channel manifests and updater policy for managed developer workstations.

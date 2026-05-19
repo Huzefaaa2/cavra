@@ -28,7 +28,7 @@ commercial policy pack source, customer templates, or customer data.
    registry, plugin runtime, trial docs, Community Docker, public workflows,
    boundary validator, and migration report.
 2. Release connector observability: persisted delivery history views and
-   alerting dashboards for release governance connectors.
+   alerting dashboards for release governance connectors. Delivered.
 3. Community packaging hardening: public artifact signing, Community release
    notes, and install smoke tests.
 4. Private Enterprise bootstrap: create `cavra-enterprise`, implement private
@@ -40,5 +40,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add persisted delivery history views and alerting dashboards for release
-governance connectors.
+Add release package channel manifests and updater policy for managed developer
+workstations.

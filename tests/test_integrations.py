@@ -6,9 +6,12 @@ from cavra.integrations import (
     GitHubPRAttestationExporter,
     IntegrationStore,
     SQLiteIntegrationStore,
+    build_connector_delivery_dashboard,
+    build_connector_delivery_metadata,
     build_connector_request_specs,
     deliver_connector_event,
     export_connector_delivery_result,
+    filter_connector_delivery_history,
 )
 from cavra.runtime import RuntimeGuard
 
@@ -179,3 +182,34 @@ def test_deliver_connector_event_redacts_credentials_and_exports(monkeypatch, tm
     assert result["deliveries"][0]["request"]["url"].endswith("?REDACTED")
     assert calls[0][0]["body"]["fields"]["labels"][0] == "cavra"
     assert output.exists()
+
+
+def test_connector_delivery_metadata_history_and_dashboard() -> None:
+    result = {
+        "schema_version": "cavra.connector.delivery.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.rollout_rollback_execution",
+        "event_id": "rollback-1",
+        "generated_at": "2026-05-19T00:00:00+00:00",
+        "success": False,
+        "deliveries": [
+            {
+                "provider": "webhook",
+                "success": False,
+                "status_code": 0,
+                "attempt_count": 2,
+                "error": "connector endpoint unreachable",
+            }
+        ],
+    }
+
+    metadata = build_connector_delivery_metadata(result, delivery_evidence="rollback-1-connector-delivery.json")
+    history = filter_connector_delivery_history([metadata], provider="webhook", success=False)
+    dashboard = build_connector_delivery_dashboard([metadata])
+
+    assert metadata["metadata_kind"] == "release-connector-delivery"
+    assert metadata["blocked_count"] == 1
+    assert metadata["failed_providers"] == ["webhook"]
+    assert history["total"] == 1
+    assert dashboard["alert_level"] == "critical"
+    assert dashboard["providers"][0]["failed"] == 1

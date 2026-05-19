@@ -309,6 +309,7 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert client.get("/approvals", params={"state": "pending"}).json()["items"][0]["approval_id"] == approval["approval_id"]
     assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_request"] == "/evidence/{session_id}/promotion-request"
     assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_execution"] == "/evidence/{session_id}/promotion-execution"
+    assert client.get("/console/config").json()["endpoints"]["release_connector_deliveries"] == "/release-connector-deliveries"
 
     pending_execution = client.post(
         "/evidence/rollout-1/promotion-execution",
@@ -368,6 +369,7 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert audit_delivery.json()["event_id"] == execution.json()["execution"]["execution_id"]
     assert audit_delivery.json()["deliveries"][0]["attempt_count"] == 2
     assert audit_delivery.json()["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert audit_delivery.json()["metadata"]["metadata_kind"] == "release-connector-delivery"
     rollback_approval = client.post(
         "/approvals",
         json={
@@ -427,6 +429,13 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert rollback_delivery.status_code == 200
     assert rollback_delivery.json()["event_id"] == rollback.json()["rollback"]["rollback_id"]
     assert rollback_delivery.json()["deliveries"][0]["attempt_count"] == 2
+    delivery_history = client.get("/release-connector-deliveries", params={"provider": "webhook", "success": False})
+    delivery_dashboard = client.get("/release-connector-deliveries/dashboard")
+    assert delivery_history.status_code == 200
+    assert delivery_history.json()["total"] == 2
+    assert delivery_dashboard.status_code == 200
+    assert delivery_dashboard.json()["alert_level"] == "critical"
+    assert delivery_dashboard.json()["failed_deliveries"] == 2
 
     rejected = client.post(
         "/evidence/rollout-1/promotion-request",

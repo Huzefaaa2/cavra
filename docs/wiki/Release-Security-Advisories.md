@@ -23,6 +23,7 @@ Every security advisory or security-impacting release note should include:
 - approved rollback execution records with `cavra release execute-rollout-rollback`;
 - SIEM and ITSM promotion audit exports with `cavra release export-promotion-audit`;
 - connector delivery for promotion audit and rollback execution records with `cavra release deliver-promotion-audit` and `cavra release deliver-rollback-execution`;
+- persisted connector delivery history and dashboard alerts with `cavra release connector-delivery-history` and `cavra release connector-delivery-dashboard`;
 - rollout evidence search filters and governed rollout artifact downloads through `cavra evidence search` and the `/evidence` API;
 - SBOM, installer metadata, managed endpoint deployment manifest, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
 
@@ -32,16 +33,84 @@ Before publishing a Go runtime package:
 
 1. Build release binaries through `.github/workflows/go-release.yml`.
 2. Require `CAVRA_GO_RELEASE_SIGNING_KEY` for production releases.
-3. Confirm the package contains `checksums.txt`, `cavra-runtime.endpoint-deployment.json`, `cavra-runtime.installers.json`, `cavra-runtime.sbom.spdx.json`, `cavra-runtime.provenance.intoto.json`, detached signatures, `github-keyless-attestation.json`, `offline-trust-root-bootstrap.json`, and release evidence.
-4. Verify locally with `cavra release verify-go-package go/cavra-runtime/dist/go-runtime-<version>`.
-5. Verify the air-gapped zip with `cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-<version>.zip`.
-6. Verify the GitHub keyless attestation with `gh attestation verify go/cavra-runtime/dist/cavra-go-runtime-<version>.zip --repo Huzefaaa2/cavra`.
-7. Validate the candidate with `cavra release validate-upgrade go/cavra-runtime/dist/go-runtime-<previous-version> go/cavra-runtime/dist/go-runtime-<candidate-version>`.
-8. Inspect managed endpoint deployment guidance with `jq '.deployment_targets[] | {id, surface, platform, installer_target}' go/cavra-runtime/dist/go-runtime-<version>/cavra-runtime.endpoint-deployment.json`.
-9. Smoke-test installer metadata and the native packaged runtime with `cavra release smoke-installers go/cavra-runtime/dist/go-runtime-<version>`.
-10. Capture endpoint rollout evidence with `cavra release capture-rollout go/cavra-runtime/dist/go-runtime-<version> --deployment-id github-actions-linux-amd64-runner --change-record CHG-123`.
-11. Verify and index endpoint rollout evidence with `cavra release verify-rollout .cavra/release/rollout --metadata-json .cavra/evidence/metadata.json --sqlite .cavra/evidence/metadata.db`.
-12. Search endpoint rollout evidence with `cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind managed-endpoint-rollout --rollout-status staged`.
+3. Confirm the package contains:
+   - `checksums.txt`;
+   - `cavra-runtime.endpoint-deployment.json`;
+   - `cavra-runtime.installers.json`;
+   - `cavra-runtime.sbom.spdx.json`;
+   - `cavra-runtime.provenance.intoto.json`;
+   - detached `*.sig.json` files;
+   - `github-keyless-attestation.json`;
+   - `offline-trust-root-bootstrap.json`;
+   - `release-evidence.json`;
+   - `release-evidence.md`.
+4. Verify locally:
+
+```bash
+cavra release verify-go-package go/cavra-runtime/dist/go-runtime-<version>
+```
+
+5. Verify the air-gapped zip:
+
+```bash
+cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-<version>.zip
+```
+
+6. Verify the GitHub keyless attestation:
+
+```bash
+gh attestation verify go/cavra-runtime/dist/cavra-go-runtime-<version>.zip \
+  --repo Huzefaaa2/cavra
+```
+
+7. Validate the candidate against the previously approved package:
+
+```bash
+cavra release validate-upgrade \
+  go/cavra-runtime/dist/go-runtime-<previous-version> \
+  go/cavra-runtime/dist/go-runtime-<candidate-version>
+```
+
+8. Inspect managed endpoint deployment guidance for approved runner and workstation channels:
+
+```bash
+jq '.deployment_targets[] | {id, surface, platform, installer_target}' \
+  go/cavra-runtime/dist/go-runtime-<version>/cavra-runtime.endpoint-deployment.json
+```
+
+9. Smoke-test installer metadata and the native packaged runtime:
+
+```bash
+cavra release smoke-installers go/cavra-runtime/dist/go-runtime-<version>
+```
+
+10. Capture managed endpoint rollout evidence for the approved channel:
+
+```bash
+cavra release capture-rollout \
+  go/cavra-runtime/dist/go-runtime-<version> \
+  --deployment-id github-actions-linux-amd64-runner \
+  --change-record CHG-123
+```
+
+11. Verify and index rollout evidence:
+
+```bash
+cavra release verify-rollout \
+  .cavra/release/rollout \
+  --metadata-json .cavra/evidence/metadata.json \
+  --sqlite .cavra/evidence/metadata.db
+```
+
+12. Search the indexed rollout evidence:
+
+```bash
+cavra evidence search \
+  --sqlite .cavra/evidence/metadata.db \
+  --metadata-kind managed-endpoint-rollout \
+  --rollout-status staged
+```
+
 13. Attach `cavra-go-runtime-<version>.zip` and `github-keyless-attestation.json` to the GitHub Release.
 14. Link the release asset, keyless attestation, installer metadata, endpoint deployment manifest, rollout evidence, installer smoke result, offline bootstrap manifest, upgrade validation result, and provenance statement from the advisory.
 
@@ -53,7 +122,7 @@ Before publishing a Go runtime package:
 - As a release manager, I can reject rollback versions or missing runtime targets before promoting a release candidate.
 - As an endpoint engineering owner, I can approve signed install paths and platform targets before managed rollout.
 - As an endpoint engineering owner, I can verify approved CI runner and developer workstation deployment channels before rollout.
-- As an endpoint engineering owner, I can capture rollout status and change-record evidence before endpoint promotion.
+- As an endpoint engineering owner, I can capture rollout status, selected target, rollback plan, and change-record evidence before endpoint promotion.
 - As an endpoint engineering owner, I can verify and index rollout evidence for audit retrieval.
 - As an endpoint engineering owner, I can search rollout evidence by deployment target, environment, and status during release review.
 - As a release engineer, I can smoke-test the packaged runtime selected by installer metadata before release publication.
@@ -61,4 +130,4 @@ Before publishing a Go runtime package:
 
 ## Enterprise Challenge Solved
 
-Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
+Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.

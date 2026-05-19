@@ -63,6 +63,37 @@
         </div>
         <div id="releaseNotes" class="release-note-grid"></div>
       </section>
+      <section class="console release-delivery-console">
+        <div class="console-header">
+          <div>
+            <h2>Release Connector Delivery</h2>
+            <p>Review persisted SIEM, ITSM, ChatOps, and webhook delivery history for promotion and rollback governance events.</p>
+          </div>
+          <button id="refreshReleaseDelivery">Refresh</button>
+        </div>
+        <div id="releaseDeliveryDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <input id="filterReleaseDeliveryProvider" placeholder="webhook" /></label>
+          <label>Event <select id="filterReleaseDeliveryEvent"><option value="">Any</option><option value="cavra.rollout_promotion_execution">Promotion</option><option value="cavra.rollout_rollback_execution">Rollback</option></select></label>
+          <label>Success <select id="filterReleaseDeliverySuccess"><option value="">Any</option><option value="true">Success</option><option value="false">Failed</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Delivery</th>
+                <th>Source Event</th>
+                <th>Type</th>
+                <th>Providers</th>
+                <th>Status</th>
+                <th>Attempts</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="releaseDeliveryRows"></tbody>
+          </table>
+        </div>
+      </section>
       <section class="console activity-console">
         <div class="console-header">
           <div>

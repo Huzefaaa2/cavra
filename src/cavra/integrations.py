@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -396,11 +397,155 @@ def export_connector_delivery_result(result: dict[str, Any], output_dir: Path) -
     return path
 
 
+def build_connector_delivery_metadata(
+    result: dict[str, Any],
+    *,
+    delivery_evidence: Path | str | None = None,
+    source: str = "release_governance",
+) -> dict[str, Any]:
+    deliveries = [item for item in result.get("deliveries", []) if isinstance(item, dict)]
+    providers = [str(item.get("provider")) for item in deliveries if item.get("provider")]
+    failed_providers = [str(item.get("provider")) for item in deliveries if item.get("provider") and not item.get("success")]
+    generated_at = str(result.get("generated_at") or utc_now())
+    event_id = str(result.get("event_id") or result.get("session_id") or result.get("event_type") or "connector")
+    metadata = {
+        "session_id": _connector_delivery_id(result),
+        "created_at": generated_at,
+        "signer": source,
+        "decision_count": 0,
+        "blocked_count": len(failed_providers),
+        "approval_required_count": 0,
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": source,
+        "event_id": event_id,
+        "event_type": result.get("event_type", "cavra.connector.event"),
+        "delivery_success": bool(result.get("success")),
+        "providers": providers,
+        "failed_providers": failed_providers,
+        "attempt_count": sum(int(item.get("attempt_count") or 0) for item in deliveries),
+        "max_attempt_count": max([int(item.get("attempt_count") or 0) for item in deliveries] or [0]),
+        "status_codes": [item.get("status_code") for item in deliveries],
+        "delivery": result,
+    }
+    if delivery_evidence:
+        metadata["delivery_evidence"] = str(delivery_evidence)
+    return metadata
+
+
+def filter_connector_delivery_history(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    event_type: str | None = None,
+    event_id: str | None = None,
+    success: bool | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "release-connector-delivery"]
+    if provider:
+        filtered = [item for item in filtered if provider in {str(value) for value in item.get("providers", [])}]
+    if event_type:
+        filtered = [item for item in filtered if item.get("event_type") == event_type]
+    if event_id:
+        filtered = [item for item in filtered if event_id in str(item.get("event_id", ""))]
+    if success is not None:
+        filtered = [item for item in filtered if bool(item.get("delivery_success")) is success]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.release.connector_delivery_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_connector_delivery_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_connector_delivery_history(items, limit=500)["items"]
+    providers: dict[str, dict[str, Any]] = {}
+    event_types: dict[str, int] = {}
+    alerts: list[dict[str, Any]] = []
+    successes = 0
+    for item in history:
+        if item.get("delivery_success"):
+            successes += 1
+        event_type = str(item.get("event_type") or "cavra.connector.event")
+        event_types[event_type] = event_types.get(event_type, 0) + 1
+        for provider in item.get("providers", []):
+            provider_key = str(provider)
+            summary = providers.setdefault(
+                provider_key,
+                {"provider": provider_key, "total": 0, "success": 0, "failed": 0, "attempt_count": 0, "last_delivery_at": None},
+            )
+            summary["total"] += 1
+            summary["attempt_count"] += int(item.get("attempt_count") or 0)
+            summary["last_delivery_at"] = max(
+                str(summary.get("last_delivery_at") or ""),
+                str(item.get("created_at") or ""),
+            )
+            if item.get("delivery_success") and provider_key not in {str(value) for value in item.get("failed_providers", [])}:
+                summary["success"] += 1
+            else:
+                summary["failed"] += 1
+        if not item.get("delivery_success"):
+            severity = "critical" if "rollback" in event_type else "warning"
+            alerts.append(
+                {
+                    "severity": severity,
+                    "event_id": item.get("event_id"),
+                    "event_type": event_type,
+                    "failed_providers": item.get("failed_providers", []),
+                    "message": f"Release connector delivery failed for {item.get('event_id')}.",
+                }
+            )
+    if not history:
+        alerts.append(
+            {
+                "severity": "warning",
+                "event_id": None,
+                "event_type": "cavra.release.connector_delivery",
+                "failed_providers": [],
+                "message": "No release connector delivery history has been persisted.",
+            }
+        )
+    alert_level = "healthy"
+    if any(item["severity"] == "critical" for item in alerts):
+        alert_level = "critical"
+    elif alerts:
+        alert_level = "warning"
+    return {
+        "schema_version": "cavra.release.connector_delivery_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": utc_now(),
+        "alert_level": alert_level,
+        "total_deliveries": len(history),
+        "successful_deliveries": successes,
+        "failed_deliveries": len(history) - successes,
+        "success_rate": round(successes / len(history), 4) if history else 0.0,
+        "providers": sorted(providers.values(), key=lambda item: item["provider"]),
+        "event_types": event_types,
+        "alerts": alerts,
+    }
+
+
 def _event_identity(event: dict[str, Any]) -> str | None:
     for key in ("session_id", "execution_id", "rollback_id", "approval_id", "request_id", "event_id"):
         if event.get(key):
             return str(event[key])
     return str(event.get("event_type")) if event.get("event_type") else None
+
+
+def _connector_delivery_id(result: dict[str, Any]) -> str:
+    event_id = str(result.get("event_id") or result.get("session_id") or result.get("event_type") or "connector")
+    generated_at = str(result.get("generated_at") or utc_now())
+    providers = ",".join(str(item.get("provider")) for item in result.get("deliveries", []) if isinstance(item, dict))
+    digest = hashlib.sha256(f"{event_id}|{generated_at}|{providers}".encode("utf-8")).hexdigest()[:12]
+    slug = _slug(event_id) or "connector"
+    return f"rcd-{slug}-{digest}"
 
 
 def _optional_filter_params(*values: str | None) -> list[Any]:

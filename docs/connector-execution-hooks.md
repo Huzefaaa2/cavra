@@ -52,6 +52,13 @@ curl -X POST http://127.0.0.1:8000/rollback-executions/rre_prod/deliver \
   -d '{"provider":"webhook","retries":1}'
 ```
 
+Release governance API deliveries are indexed as `metadata_kind=release-connector-delivery` in the active evidence metadata store. Review delivery history and alert summaries:
+
+```bash
+curl 'http://127.0.0.1:8000/release-connector-deliveries?provider=webhook&success=false'
+curl http://127.0.0.1:8000/release-connector-deliveries/dashboard
+```
+
 ## CLI Delivery
 
 ```bash
@@ -63,12 +70,17 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json \
 cavra release deliver-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json \
   --config .cavra/connectors.json \
   --provider webhook \
-  --retries 1
+  --retries 1 \
+  --metadata-json .cavra/evidence/metadata.json
 
 cavra release deliver-rollback-execution .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json \
   --config .cavra/connectors.json \
   --provider webhook \
-  --retries 1
+  --retries 1 \
+  --metadata-json .cavra/evidence/metadata.json
+
+cavra release connector-delivery-history --metadata-json .cavra/evidence/metadata.json --provider webhook --no-success
+cavra release connector-delivery-dashboard --metadata-json .cavra/evidence/metadata.json
 ```
 
 ## User Stories
@@ -77,6 +89,8 @@ cavra release deliver-rollback-execution .cavra/release/rollout-rollback-executi
 - As a platform engineer, I can send governance notifications to Slack or Teams with redacted delivery evidence.
 - As a change manager, I can create Jira or ServiceNow records from CAVRA events.
 - As a release manager, I can route promotion audit and rollback execution events with retry evidence.
+- As a release manager, I can review persisted release connector delivery history by provider, event, and success state.
+- As a SOC analyst, I can see dashboard alerts when release governance delivery fails.
 - As an auditor, I can inspect delivery evidence without seeing connector secrets.
 
 ## Enterprise Value

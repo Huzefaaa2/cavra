@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add persisted delivery history views and alerting dashboards for release governance connectors, and continue broadening approval-route parity as new policy packs are added.
+Add release package channel manifests and updater policy for managed developer workstations, and continue broadening approval-route parity as new policy packs are added.

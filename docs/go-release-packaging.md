@@ -206,16 +206,32 @@ cavra release deliver-promotion-audit \
   .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json \
   --config .cavra/connectors.json \
   --provider webhook \
-  --retries 1
+  --retries 1 \
+  --metadata-json .cavra/evidence/metadata.json
 
 cavra release deliver-rollback-execution \
   .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json \
   --config .cavra/connectors.json \
   --provider webhook \
-  --retries 1
+  --retries 1 \
+  --metadata-json .cavra/evidence/metadata.json
 ```
 
-Connector delivery reuses the enterprise connector layer for Splunk, Sentinel, Datadog, webhook, Slack, Teams, Jira, and ServiceNow. The CLI writes `cavra.connector.delivery.v1` evidence with event ID, provider, success state, status code, attempt count, redacted URL and headers, and delivery errors. The API exposes the same delivery path through `POST /promotion-executions/{execution_id}/audit-export/deliver` and `POST /rollback-executions/{rollback_id}/deliver`.
+Connector delivery reuses the enterprise connector layer for Splunk, Sentinel, Datadog, webhook, Slack, Teams, Jira, and ServiceNow. The CLI writes `cavra.connector.delivery.v1` evidence with event ID, provider, success state, status code, attempt count, redacted URL and headers, and delivery errors. When `--metadata-json` or `--sqlite` is supplied, the delivery is also indexed as `metadata_kind=release-connector-delivery`.
+
+Review persisted delivery history and dashboard alerts:
+
+```bash
+cavra release connector-delivery-history \
+  --metadata-json .cavra/evidence/metadata.json \
+  --provider webhook \
+  --no-success
+
+cavra release connector-delivery-dashboard \
+  --metadata-json .cavra/evidence/metadata.json
+```
+
+The API exposes the same delivery path through `POST /promotion-executions/{execution_id}/audit-export/deliver` and `POST /rollback-executions/{rollback_id}/deliver`. API deliveries are persisted into the active evidence metadata store. `/release-connector-deliveries` returns delivery history filters by provider, event type, source event ID, and success state. `/release-connector-deliveries/dashboard` summarizes total delivery batches, failed providers, success rate, and critical rollback-delivery alerts. The Evidence Console includes a Release Connector Delivery panel for release managers, SOC analysts, and auditors.
 
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
@@ -264,11 +280,13 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a SOC analyst, I can deliver promotion audit and rollback execution records through configured connectors with retry evidence.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
+- As a release manager, I can review persisted connector delivery history after promotion and rollback audit events are sent.
+- As a SOC analyst, I can see dashboard alerts when release governance delivery to SIEM, ITSM, ChatOps, or webhook targets fails.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add persisted delivery history views and alerting dashboards for release governance connectors.
+1. Add release package channel manifests and updater policy for managed developer workstations.

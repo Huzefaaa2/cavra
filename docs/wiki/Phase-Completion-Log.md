@@ -694,4 +694,25 @@ Validation:
 - `python3 -m ruff check src tests` passed.
 - `python3 -m pytest -q` passed with 191 tests and 4 skipped.
 
-Recommended next issue: add persisted delivery history views and alerting dashboards for release governance connectors.
+Recommended next issue: delivered below as persisted delivery history views and alerting dashboards for release governance connectors.
+
+## Release Connector Delivery History And Alerting Dashboard
+
+Status: complete for the current release governance delivery visibility slice.
+
+Completed:
+- Added `release-connector-delivery` evidence metadata records for promotion audit and rollback execution connector deliveries.
+- Added CLI indexing options for `cavra release deliver-promotion-audit` and `cavra release deliver-rollback-execution`.
+- Added `cavra release connector-delivery-history` for provider, event, source ID, and success-state history filters.
+- Added `cavra release connector-delivery-dashboard` for delivery totals, success rate, provider summaries, and warning or critical alerts.
+- Added `/release-connector-deliveries` and `/release-connector-deliveries/dashboard` API endpoints.
+- Updated the Evidence Console with a Release Connector Delivery panel showing dashboard metrics, alerts, and delivery rows.
+- Updated README, CLI docs, API docs, connector docs, release packaging docs, release advisory docs, roadmap docs, and wiki source.
+- Added unit, CLI, and API tests for delivery metadata, history filters, and dashboard alerts.
+
+Validation:
+- `python3 -m pytest tests/test_integrations.py::test_connector_delivery_metadata_history_and_dashboard tests/test_go_release_packaging.py::test_managed_endpoint_rollout_rollback_execution_and_audit_exports tests/test_api.py::test_api_creates_signed_rollout_promotion_approval -q` passed locally.
+- `python3 -m ruff check src/cavra/integrations.py src/cavra/api.py src/cavra/cli.py tests/test_integrations.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add release package channel manifests and updater policy for managed developer workstations.
