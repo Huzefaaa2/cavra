@@ -250,7 +250,12 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
                 "environment": "production",
                 "rollout_ring": "pilot",
                 "release": {"version": "v0.1.0", "repository": "Huzefaaa2/cavra"},
-                "deployment_targets": [{"id": "github-actions-linux-amd64-runner"}],
+                "deployment_targets": [
+                    {
+                        "id": "github-actions-linux-amd64-runner",
+                        "rollback_steps": ["Restore previous signed runtime package."],
+                    }
+                ],
                 "controls": ["rollout-evidence-checksummed"],
             }
         ),
@@ -346,6 +351,61 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert detail.json()["audit_links"]["approval"] == f"approval://{approval['approval_id']}"
     assert evidence_search.status_code == 200
     assert evidence_search.json()["items"][0]["session_id"] == execution.json()["execution"]["execution_id"]
+    audit_export = client.get(f"/promotion-executions/{execution.json()['execution']['execution_id']}/audit-export")
+    assert audit_export.status_code == 200
+    assert audit_export.json()["event"]["event_type"] == "cavra.rollout_promotion_execution"
+    rollback_approval = client.post(
+        "/approvals",
+        json={
+            "decision": {
+                "decision_id": "rollback-decision",
+                "session_id": "rollout-1",
+                "correlation_id": execution.json()["execution"]["execution_id"],
+                "action_type": "release_rollback_endpoint_rollout",
+                "target": "rollout-1",
+                "decision": "require_approval",
+                "severity": "high",
+                "rule_id": "release.rollout.rollback.require_approval",
+                "reason": "Rollback requires approved change control.",
+                "metadata": {
+                    "promotion_execution_id": execution.json()["execution"]["execution_id"],
+                    "target_ring": "production",
+                },
+            },
+            "approver_group": "Change Advisory Board",
+            "requested_by": "release-manager",
+        },
+    )
+    rollback_approval_id = rollback_approval.json()["approval_id"]
+    approved_rollback = client.post(
+        f"/approvals/{rollback_approval_id}/approve",
+        json={"actor": "cab@example.com", "reason": "Approved rollback."},
+    )
+    rollback = client.post(
+        f"/promotion-executions/{execution.json()['execution']['execution_id']}/rollback-execution",
+        json={
+            "approval_id": rollback_approval_id,
+            "executed_by": "release-manager",
+            "rollback_reason": "Production validation failed.",
+        },
+    )
+    assert approved_rollback.status_code == 200
+    assert rollback.status_code == 200
+    assert rollback.json()["valid"] is True
+    assert rollback.json()["metadata"]["metadata_kind"] == "rollout-rollback-execution"
+    assert rollback.json()["rollback"]["ring_rollback"]["to"] == "pilot"
+    rollback_detail = client.get(f"/rollback-executions/{rollback.json()['rollback']['rollback_id']}")
+    rollback_search = client.get(
+        "/evidence",
+        params={
+            "metadata_kind": "rollout-rollback-execution",
+            "rollback_execution_status": "executed",
+            "approval_state": "approved",
+        },
+    )
+    assert rollback_detail.status_code == 200
+    assert rollback_search.status_code == 200
+    assert rollback_search.json()["items"][0]["session_id"] == rollback.json()["rollback"]["rollback_id"]
 
     rejected = client.post(
         "/evidence/rollout-1/promotion-request",

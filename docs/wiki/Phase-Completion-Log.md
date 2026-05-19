@@ -633,4 +633,25 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py src/cavra/evidence.py tests/test_go_release_packaging.py tests/test_api.py tests/test_evidence.py` passed locally.
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.
+Recommended next issue: delivered below as approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.
+
+## Approved Rollback Execution Workflows And SIEM/ITSM Promotion Audit Exports
+
+Status: complete for the current rollback governance and audit export slice.
+
+Completed:
+- Added approved rollout rollback execution record generation for promotion execution records.
+- Added `cavra release execute-rollout-rollback` with JSON and Markdown rollback artifacts.
+- Required rollback approvals to be approved, authorize `release_rollback_endpoint_rollout`, and bind to the original promotion execution.
+- Added rollback execution metadata indexing as `metadata_kind=rollout-rollback-execution`.
+- Added `cavra release export-promotion-audit` for normalized CAVRA, Splunk, Sentinel, Datadog, webhook, Jira, and ServiceNow payloads.
+- Added `/promotion-executions/{execution_id}/audit-export`, `/promotion-executions/{execution_id}/rollback-execution`, and `/rollback-executions/{rollback_id}` API endpoints.
+- Added console evidence rows and audit drill-downs for rollback execution metadata.
+- Updated README, CLI docs, API docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit, CLI, API, and metadata-store tests for rollback execution records and audit exports.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_rollback_execution_and_audit_exports tests/test_api.py::test_api_creates_signed_rollout_promotion_approval tests/test_evidence.py::test_sqlite_evidence_metadata_store_filters_rollback_execution_metadata -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py src/cavra/evidence.py tests/test_go_release_packaging.py tests/test_api.py tests/test_evidence.py` passed locally.
+
+Recommended next issue: add connector delivery for promotion audit exports and rollback execution records with retry evidence.

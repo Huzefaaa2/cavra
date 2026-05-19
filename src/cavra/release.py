@@ -213,6 +213,38 @@ class ManagedEndpointRolloutPromotionExecutionResult:
         }
 
 
+@dataclass(frozen=True)
+class ManagedEndpointRolloutRollbackExecutionResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    rollout_id: str | None = None
+    rollback: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "rollout_id": self.rollout_id,
+            "rollback": self.rollback,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
+class ReleaseAuditExportResult:
+    output_dir: Path
+    files: list[Path]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "output_dir": str(self.output_dir),
+            "files": [str(path) for path in self.files],
+        }
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -1195,6 +1227,235 @@ def build_managed_endpoint_rollout_promotion_execution_metadata(
     return metadata
 
 
+def create_managed_endpoint_rollout_rollback_execution(
+    promotion_execution: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    executed_by: str = "release-manager",
+    rollback_reason: str = "Rollback approved from promotion execution audit.",
+    execution_environment: str | None = None,
+    notes: str | None = None,
+) -> ManagedEndpointRolloutRollbackExecutionResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if promotion_execution.get("schema_version") != "cavra.go-runtime.endpoint-rollout-promotion-execution.v1":
+        errors.append("promotion execution has an invalid schema_version")
+    if promotion_execution.get("execution_status") != "executed":
+        errors.append("rollback execution requires an executed promotion record")
+    rollback_refs = promotion_execution.get("rollback_evidence_refs")
+    if not isinstance(rollback_refs, list) or not rollback_refs:
+        errors.append("rollback execution requires rollback evidence references")
+    approval_id = str(approval.get("approval_id") or "")
+    if not approval_id:
+        errors.append("approval record must include approval_id")
+    if approval.get("state") != "approved":
+        errors.append("rollout rollback execution requires an approved approval record")
+    if approval.get("session_id") != promotion_execution.get("rollout_id"):
+        errors.append("approval session_id does not match rollout_id")
+    decision = approval.get("decision", {})
+    if not isinstance(decision, dict):
+        errors.append("approval decision payload is invalid")
+        decision = {}
+    if decision.get("action_type") != "release_rollback_endpoint_rollout":
+        errors.append("approval decision action_type does not authorize rollout rollback")
+    metadata = decision.get("metadata", {}) if isinstance(decision.get("metadata"), dict) else {}
+    if metadata.get("promotion_execution_id") and metadata.get("promotion_execution_id") != promotion_execution.get("execution_id"):
+        errors.append("approval promotion_execution_id does not match promotion execution")
+    if metadata.get("target_ring"):
+        ring = promotion_execution.get("ring_advancement", {})
+        if not isinstance(ring, dict) or metadata.get("target_ring") != ring.get("to"):
+            errors.append("approval target ring does not match promoted ring")
+    rollout_id = str(promotion_execution.get("rollout_id") or "")
+    if errors:
+        return ManagedEndpointRolloutRollbackExecutionResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            rollout_id=rollout_id or None,
+        )
+
+    execution_canonical = json.dumps(promotion_execution, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    execution_sha256 = hashlib.sha256(execution_canonical).hexdigest()
+    ring = promotion_execution.get("ring_advancement", {}) if isinstance(promotion_execution.get("ring_advancement"), dict) else {}
+    rollback_id = _rollback_execution_id(str(promotion_execution.get("execution_id")), approval_id)
+    rollback = {
+        "schema_version": "cavra.go-runtime.endpoint-rollout-rollback-execution.v1",
+        "product": "CAVRA",
+        "rollback_id": rollback_id,
+        "promotion_execution_id": promotion_execution.get("execution_id"),
+        "approval_id": approval_id,
+        "rollout_id": rollout_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "executed_by": executed_by,
+        "execution_environment": execution_environment or promotion_execution.get("execution_environment"),
+        "rollback_status": "executed",
+        "rollback_reason": rollback_reason,
+        "change_record": promotion_execution.get("change_record"),
+        "release": promotion_execution.get("release", {}),
+        "deployment_targets": sorted(str(target) for target in promotion_execution.get("deployment_targets", [])),
+        "ring_rollback": {
+            "from": ring.get("to"),
+            "to": ring.get("from"),
+            "previous_rollout_status": ring.get("new_rollout_status"),
+            "new_rollout_status": "rolled_back",
+        },
+        "approval": {
+            "approval_id": approval_id,
+            "state": approval.get("state"),
+            "approver_group": approval.get("approver_group"),
+            "decided_by": approval.get("decided_by"),
+            "decided_at": approval.get("decided_at"),
+            "decision_reason": approval.get("decision_reason"),
+        },
+        "controls": [
+            "rollback-approval-state-approved",
+            "rollback-bound-to-promotion-execution",
+            "rollback-evidence-references-present",
+            "ring-rollback-recorded",
+        ],
+        "promotion_execution_sha256": execution_sha256,
+        "evidence_refs": [
+            f"rollout://{rollout_id}",
+            f"promotion-execution://{promotion_execution.get('execution_id')}",
+            f"approval://{approval_id}",
+            f"change://{promotion_execution.get('change_record', 'unassigned')}",
+        ],
+        "rollback_evidence_refs": rollback_refs,
+    }
+    if notes:
+        rollback["notes"] = notes
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        rollback_path = output_dir / "rollout-rollback-execution.json"
+        summary_path = output_dir / "rollout-rollback-execution.md"
+        _write_release_json(rollback_path, rollback)
+        summary_path.write_text(_rollback_execution_markdown_summary(rollback), encoding="utf-8")
+        files = [rollback_path.name, summary_path.name]
+    return ManagedEndpointRolloutRollbackExecutionResult(
+        valid=True,
+        warnings=warnings,
+        rollout_id=rollout_id,
+        rollback=rollback,
+        files=files,
+    )
+
+
+def build_managed_endpoint_rollout_rollback_execution_metadata(
+    rollback: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    ring = rollback.get("ring_rollback", {}) if isinstance(rollback.get("ring_rollback"), dict) else {}
+    approval = rollback.get("approval", {}) if isinstance(rollback.get("approval"), dict) else {}
+    metadata = {
+        "session_id": rollback.get("rollback_id"),
+        "created_at": rollback.get("created_at"),
+        "signer": rollback.get("executed_by", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "rollout-rollback-execution",
+        "rollout_id": rollback.get("rollout_id"),
+        "rollout_status": ring.get("new_rollout_status"),
+        "rollback_execution_status": rollback.get("rollback_status"),
+        "environment": rollback.get("execution_environment"),
+        "deployment_targets": rollback.get("deployment_targets", []),
+        "current_ring": ring.get("from"),
+        "target_ring": ring.get("to"),
+        "approval_id": rollback.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "promotion_execution_id": rollback.get("promotion_execution_id"),
+        "change_record": rollback.get("change_record"),
+        "release": rollback.get("release", {}),
+        "evidence_refs": rollback.get("evidence_refs", []),
+        "rollback_evidence_refs": rollback.get("rollback_evidence_refs", []),
+        "audit_links": {
+            "rollout": f"rollout://{rollback.get('rollout_id')}",
+            "promotion_execution": f"promotion-execution://{rollback.get('promotion_execution_id')}",
+            "approval": f"approval://{rollback.get('approval_id')}",
+            "change": f"change://{rollback.get('change_record', 'unassigned')}",
+        },
+        "rollback": rollback,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def export_rollout_promotion_execution_audit(
+    promotion_execution: dict[str, Any],
+    output_dir: Path,
+    *,
+    provider: str = "all",
+    splunk_index: str = "cavra",
+    datadog_service: str = "cavra",
+    itsm_project_key: str = "CAVRA",
+) -> ReleaseAuditExportResult:
+    output_dir = output_dir.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    providers = {"splunk", "sentinel", "datadog", "webhook", "jira", "servicenow"} if provider == "all" else {provider}
+    unknown = providers - {"splunk", "sentinel", "datadog", "webhook", "jira", "servicenow"}
+    if unknown:
+        raise ValueError(f"unknown rollout audit export provider: {', '.join(sorted(unknown))}")
+    event = build_rollout_promotion_execution_audit_event(promotion_execution)
+    files: list[Path] = []
+    files.append(_write_release_json(output_dir / "promotion-execution-audit-event.json", event))
+    if "splunk" in providers:
+        files.append(_write_release_json(output_dir / "splunk-hec-events.json", {"events": [_promotion_splunk_event(event, splunk_index)]}))
+    if "sentinel" in providers:
+        files.append(_write_release_json(output_dir / "sentinel-log-analytics.json", {"records": [_promotion_sentinel_event(event)]}))
+    if "datadog" in providers:
+        files.append(_write_release_json(output_dir / "datadog-events.json", {"events": [_promotion_datadog_event(event, datadog_service)]}))
+    if "webhook" in providers:
+        files.append(_write_release_json(output_dir / "webhook-payload.json", _promotion_webhook_payload(event)))
+    if "jira" in providers:
+        files.append(_write_release_json(output_dir / "jira-issue.json", _promotion_jira_issue(event, itsm_project_key)))
+    if "servicenow" in providers:
+        files.append(_write_release_json(output_dir / "servicenow-change-task.json", _promotion_servicenow_task(event)))
+    return ReleaseAuditExportResult(output_dir=output_dir, files=files)
+
+
+def build_rollout_promotion_execution_audit_event(promotion_execution: dict[str, Any]) -> dict[str, Any]:
+    if promotion_execution.get("schema_version") != "cavra.go-runtime.endpoint-rollout-promotion-execution.v1":
+        raise ValueError("promotion execution has an invalid schema_version")
+    ring = promotion_execution.get("ring_advancement", {}) if isinstance(promotion_execution.get("ring_advancement"), dict) else {}
+    approval = promotion_execution.get("approval", {}) if isinstance(promotion_execution.get("approval"), dict) else {}
+    rollback_refs = promotion_execution.get("rollback_evidence_refs", [])
+    return {
+        "schema_version": "cavra.rollout-promotion.audit-event.v1",
+        "event_type": "cavra.rollout_promotion_execution",
+        "product": "CAVRA",
+        "timestamp": promotion_execution.get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "severity": "high",
+        "execution_id": promotion_execution.get("execution_id"),
+        "rollout_id": promotion_execution.get("rollout_id"),
+        "request_id": promotion_execution.get("request_id"),
+        "approval_id": promotion_execution.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "change_record": promotion_execution.get("change_record"),
+        "execution_status": promotion_execution.get("execution_status"),
+        "environment": promotion_execution.get("execution_environment"),
+        "current_ring": ring.get("from"),
+        "target_ring": ring.get("to"),
+        "release": promotion_execution.get("release", {}),
+        "deployment_targets": promotion_execution.get("deployment_targets", []),
+        "rollback_evidence_refs": rollback_refs,
+        "rollback_reference_count": len(rollback_refs) if isinstance(rollback_refs, list) else 0,
+        "audit_links": {
+            "rollout": f"rollout://{promotion_execution.get('rollout_id')}",
+            "promotion_request": f"promotion-request://{promotion_execution.get('request_id')}",
+            "promotion_execution": f"promotion-execution://{promotion_execution.get('execution_id')}",
+            "approval": f"approval://{promotion_execution.get('approval_id')}",
+            "change": f"change://{promotion_execution.get('change_record', 'unassigned')}",
+        },
+        "controls": promotion_execution.get("controls", []),
+        "raw_execution": promotion_execution,
+    }
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -1416,9 +1677,10 @@ def verify_managed_endpoint_deployment(
     return sorted(verified)
 
 
-def _write_release_json(path: Path, payload: dict[str, Any]) -> None:
+def _write_release_json(path: Path, payload: dict[str, Any]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
 
 
 def _rollout_package_dir(payload: dict[str, Any]) -> Path | None:
@@ -1492,6 +1754,11 @@ def _promotion_request_id(rollout_id: str, target_ring: str) -> str:
 def _promotion_execution_id(request_id: str, approval_id: str) -> str:
     digest = hashlib.sha256(f"{request_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
     return f"rpe_{digest}"
+
+
+def _rollback_execution_id(promotion_execution_id: str, approval_id: str) -> str:
+    digest = hashlib.sha256(f"{promotion_execution_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
+    return f"rre_{digest}"
 
 
 def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[dict[str, Any]]:
@@ -1636,6 +1903,140 @@ def _promotion_execution_markdown_summary(payload: dict[str, Any]) -> str:
         lines.append(f"- `{target}`")
     lines.extend(["", "## Evidence", "", f"Promotion request SHA-256: `{payload.get('request_sha256')}`"])
     return "\n".join(lines) + "\n"
+
+
+def _rollback_execution_markdown_summary(payload: dict[str, Any]) -> str:
+    release = payload.get("release", {})
+    ring = payload.get("ring_rollback", {})
+    approval = payload.get("approval", {})
+    lines = [
+        "# CAVRA Rollout Rollback Execution",
+        "",
+        f"Rollback ID: `{payload.get('rollback_id')}`",
+        f"Promotion execution ID: `{payload.get('promotion_execution_id')}`",
+        f"Approval ID: `{payload.get('approval_id')}`",
+        f"Rollout ID: `{payload.get('rollout_id')}`",
+        f"Version: `{release.get('version')}`",
+        f"Ring rollback: `{ring.get('from')}` -> `{ring.get('to')}`",
+        f"Rollback status: `{payload.get('rollback_status')}`",
+        f"Executed by: `{payload.get('executed_by')}`",
+        f"Approved by: `{approval.get('decided_by')}`",
+        f"Reason: `{payload.get('rollback_reason')}`",
+        "",
+        "## Controls",
+        "",
+    ]
+    for control in payload.get("controls", []):
+        lines.append(f"- `{control}`")
+    lines.extend(["", "## Deployment Targets", ""])
+    for target in payload.get("deployment_targets", []):
+        lines.append(f"- `{target}`")
+    lines.extend(["", "## Rollback Evidence", ""])
+    for ref in payload.get("rollback_evidence_refs", []):
+        if isinstance(ref, dict):
+            lines.append(f"- `{ref.get('target')}` `{ref.get('ref')}`: {ref.get('step')}")
+    lines.extend(["", f"Promotion execution SHA-256: `{payload.get('promotion_execution_sha256')}`"])
+    return "\n".join(lines) + "\n"
+
+
+def _promotion_splunk_event(event: dict[str, Any], index: str) -> dict[str, Any]:
+    return {
+        "time": _promotion_event_epoch(event),
+        "host": "cavra",
+        "source": "cavra:release",
+        "sourcetype": "cavra:rollout-promotion:json",
+        "index": index,
+        "event": event,
+    }
+
+
+def _promotion_sentinel_event(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "TimeGenerated": event.get("timestamp"),
+        "SourceSystem": "CAVRA",
+        "EventName": event.get("event_type"),
+        "ProductName": "CAVRA",
+        "ExecutionId": event.get("execution_id"),
+        "RolloutId": event.get("rollout_id"),
+        "ApprovalState": event.get("approval_state"),
+        "ExecutionStatus": event.get("execution_status"),
+        "Severity": event.get("severity", "high"),
+        "RawEvent": event,
+    }
+
+
+def _promotion_datadog_event(event: dict[str, Any], service: str) -> dict[str, Any]:
+    return {
+        "ddsource": "cavra",
+        "service": service,
+        "status": "warning",
+        "message": (
+            f"CAVRA rollout promotion {event.get('execution_id')} moved "
+            f"{event.get('rollout_id')} to {event.get('target_ring')}."
+        ),
+        "tags": [
+            "product:cavra",
+            f"rollout_id:{event.get('rollout_id')}",
+            f"execution_id:{event.get('execution_id')}",
+            f"approval_state:{event.get('approval_state')}",
+            f"target_ring:{event.get('target_ring')}",
+        ],
+        "attributes": event,
+    }
+
+
+def _promotion_webhook_payload(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schema_version": "cavra.webhook.rollout-promotion.v1",
+        "product": "CAVRA",
+        "event_type": event.get("event_type"),
+        "timestamp": event.get("timestamp"),
+        "payload": event,
+    }
+
+
+def _promotion_jira_issue(event: dict[str, Any], project_key: str) -> dict[str, Any]:
+    return {
+        "fields": {
+            "project": {"key": project_key},
+            "summary": f"CAVRA rollout promotion audit: {event.get('rollout_id')} -> {event.get('target_ring')}",
+            "issuetype": {"name": "Task"},
+            "labels": ["cavra", "rollout-promotion", "audit"],
+            "description": (
+                f"Promotion execution: {event.get('execution_id')}\n"
+                f"Rollout: {event.get('rollout_id')}\n"
+                f"Approval: {event.get('approval_id')} ({event.get('approval_state')})\n"
+                f"Change: {event.get('change_record')}\n"
+                f"Rollback refs: {event.get('rollback_reference_count')}"
+            ),
+        },
+        "cavra_event": event,
+    }
+
+
+def _promotion_servicenow_task(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "short_description": f"CAVRA rollout promotion audit for {event.get('rollout_id')}",
+        "description": (
+            f"Promotion execution {event.get('execution_id')} moved "
+            f"{event.get('current_ring')} to {event.get('target_ring')}."
+        ),
+        "category": "software",
+        "subcategory": "release",
+        "impact": "2",
+        "urgency": "2",
+        "correlation_id": event.get("execution_id"),
+        "change_request": event.get("change_record"),
+        "u_cavra_event": event,
+    }
+
+
+def _promotion_event_epoch(event: dict[str, Any]) -> float:
+    raw = str(event.get("timestamp") or "")
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return datetime.now(timezone.utc).timestamp()
 
 
 def _verify_extracted_airgap_package(

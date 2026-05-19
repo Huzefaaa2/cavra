@@ -64,10 +64,13 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
+    create_managed_endpoint_rollout_rollback_execution,
     capture_managed_endpoint_rollout_evidence,
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
+    export_rollout_promotion_execution_audit,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -679,6 +682,7 @@ def search_evidence(
     target_ring: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by target ring.")] = None,
     approval_state: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by approval state.")] = None,
     promotion_execution_status: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by execution status.")] = None,
+    rollback_execution_status: Annotated[Optional[str], typer.Option(help="Filter rollout rollback executions by execution status.")] = None,
     limit: Annotated[int, typer.Option(help="Page size.")] = 50,
     offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
 ) -> None:
@@ -695,6 +699,7 @@ def search_evidence(
         target_ring=target_ring,
         approval_state=approval_state,
         promotion_execution_status=promotion_execution_status,
+        rollback_execution_status=rollback_execution_status,
         limit=limit,
         offset=offset,
     )
@@ -1697,6 +1702,110 @@ def execute_rollout_promotion(
             console.print(f"  [red]error:[/] {error}")
     if not result.valid:
         raise typer.Exit(code=1)
+
+
+@release_app.command("execute-rollout-rollback")
+def execute_rollout_rollback(
+    promotion_execution: Annotated[Path, typer.Argument(help="Approved rollout promotion execution JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for rollback execution artifacts.")] = Path(
+        ".cavra/release/rollout-rollback-execution"
+    ),
+    approval_json: Annotated[Optional[Path], typer.Option(help="Approved rollback approval JSON file.")] = None,
+    approval_store: Annotated[Optional[Path], typer.Option(help="JSON approval store containing the approved rollback record.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="SQLite approval store containing the approved rollback record.")] = None,
+    approval_id: Annotated[Optional[str], typer.Option(help="Rollback approval ID.")] = None,
+    executed_by: Annotated[str, typer.Option(help="Actor or automation identity executing rollback.")] = "release-manager",
+    rollback_reason: Annotated[str, typer.Option(help="Rollback reason recorded on the artifact.")] = "Rollback approved from promotion execution audit.",
+    execution_environment: Annotated[Optional[str], typer.Option(help="Environment recorded on the rollback artifact.")] = None,
+    notes: Annotated[Optional[str], typer.Option(help="Optional rollback execution note.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index the rollback.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index the rollback.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable rollback execution output."),
+) -> None:
+    """Record an approved endpoint rollout rollback execution."""
+    try:
+        execution_payload = json.loads(promotion_execution.read_text(encoding="utf-8"))
+        approval = _load_release_approval(
+            approval_id,
+            approval_json=approval_json,
+            approval_store=approval_store,
+            approval_sqlite=approval_sqlite,
+        )
+        result = create_managed_endpoint_rollout_rollback_execution(
+            execution_payload,
+            approval,
+            output_dir=output,
+            executed_by=executed_by,
+            rollback_reason=rollback_reason,
+            execution_environment=execution_environment,
+            notes=notes,
+        )
+    except (OSError, json.JSONDecodeError, KeyError, ValueError, RuntimeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    indexed: list[str] = []
+    if result.valid and result.rollback:
+        metadata = build_managed_endpoint_rollout_rollback_execution_metadata(result.rollback, bundle_dir=output)
+        if metadata_json:
+            EvidenceMetadataStore(metadata_json).upsert(metadata)
+            indexed.append(str(metadata_json))
+        if sqlite:
+            SQLiteEvidenceMetadataStore(sqlite).upsert(metadata)
+            indexed.append(str(sqlite))
+    payload = result.to_dict() | {"indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] rollout rollback execution")
+        if result.rollout_id:
+            console.print(f"  rollout: {result.rollout_id}")
+        if result.rollback:
+            console.print(f"  rollback: {result.rollback['rollback_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("export-promotion-audit")
+def export_promotion_audit(
+    promotion_execution: Annotated[Path, typer.Argument(help="Approved rollout promotion execution JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for SIEM and ITSM audit payloads.")] = Path(
+        ".cavra/release/promotion-audit-export"
+    ),
+    provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, jira, or servicenow.")] = "all",
+    splunk_index: Annotated[str, typer.Option(help="Splunk HEC index name.")] = "cavra",
+    datadog_service: Annotated[str, typer.Option(help="Datadog service name.")] = "cavra",
+    itsm_project_key: Annotated[str, typer.Option(help="Jira project key for ITSM issue payloads.")] = "CAVRA",
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable export output."),
+) -> None:
+    """Export SIEM and ITSM audit payloads for a rollout promotion execution."""
+    try:
+        execution_payload = json.loads(promotion_execution.read_text(encoding="utf-8"))
+        result = export_rollout_promotion_execution_audit(
+            execution_payload,
+            output,
+            provider=provider,
+            splunk_index=splunk_index,
+            datadog_service=datadog_service,
+            itsm_project_key=itsm_project_key,
+        )
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        console.print(f"[green]promotion audit exported[/green] {result.output_dir}")
+        for path in result.files:
+            console.print(f"  {path.name}")
 
 
 def _load_release_approval(

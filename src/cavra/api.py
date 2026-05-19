@@ -49,7 +49,10 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
+    build_rollout_promotion_execution_audit_event,
+    create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
 )
@@ -172,6 +175,9 @@ def create_app():
                 "evidence_rollout_promotion_execution": "/evidence/{session_id}/promotion-execution",
                 "promotion_executions": "/promotion-executions",
                 "promotion_execution": "/promotion-executions/{execution_id}",
+                "promotion_execution_audit_export": "/promotion-executions/{execution_id}/audit-export",
+                "promotion_execution_rollback": "/promotion-executions/{execution_id}/rollback-execution",
+                "rollback_execution": "/rollback-executions/{rollback_id}",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -800,6 +806,7 @@ def create_app():
         target_ring: Optional[str] = None,
         approval_state: Optional[str] = None,
         promotion_execution_status: Optional[str] = None,
+        rollback_execution_status: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ):
@@ -816,6 +823,7 @@ def create_app():
                 target_ring=target_ring,
                 approval_state=approval_state,
                 promotion_execution_status=promotion_execution_status,
+                rollback_execution_status=rollback_execution_status,
                 limit=limit,
                 offset=offset,
             )
@@ -832,6 +840,7 @@ def create_app():
             target_ring=target_ring,
             approval_state=approval_state,
             promotion_execution_status=promotion_execution_status,
+            rollback_execution_status=rollback_execution_status,
             limit=limit,
             offset=offset,
         )
@@ -868,6 +877,56 @@ def create_app():
         item = evidence_store.get(execution_id)
         if item is None or item.get("metadata_kind") != "rollout-promotion-execution":
             raise HTTPException(status_code=404, detail="promotion execution not found")
+        return item
+
+    @app.get("/promotion-executions/{execution_id}/audit-export")
+    def promotion_execution_audit_export(execution_id: str) -> dict:
+        item = evidence_store.get(execution_id)
+        if item is None or item.get("metadata_kind") != "rollout-promotion-execution":
+            raise HTTPException(status_code=404, detail="promotion execution not found")
+        execution = item.get("execution")
+        if not isinstance(execution, dict):
+            raise HTTPException(status_code=400, detail="promotion execution metadata is missing execution payload")
+        return {
+            "schema_version": "cavra.rollout-promotion.audit-export.v1",
+            "event": build_rollout_promotion_execution_audit_event(execution),
+        }
+
+    @app.post("/promotion-executions/{execution_id}/rollback-execution")
+    def promotion_execution_rollback(execution_id: str, payload: dict) -> dict:
+        item = evidence_store.get(execution_id)
+        if item is None or item.get("metadata_kind") != "rollout-promotion-execution":
+            raise HTTPException(status_code=404, detail="promotion execution not found")
+        execution = item.get("execution")
+        if not isinstance(execution, dict):
+            raise HTTPException(status_code=400, detail="promotion execution metadata is missing execution payload")
+        approval_id = payload.get("approval_id")
+        if not approval_id:
+            raise HTTPException(status_code=400, detail="rollback execution requires approval_id")
+        approval = approval_store.get(str(approval_id))
+        if approval is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        result = create_managed_endpoint_rollout_rollback_execution(
+            execution,
+            approval,
+            output_dir=None,
+            executed_by=payload.get("executed_by", "console"),
+            rollback_reason=payload.get("rollback_reason", "Rollback approved from promotion execution audit."),
+            execution_environment=payload.get("execution_environment"),
+            notes=payload.get("notes"),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = None
+        if result.rollback:
+            metadata = evidence_store.upsert(build_managed_endpoint_rollout_rollback_execution_metadata(result.rollback))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/rollback-executions/{rollback_id}")
+    def rollback_execution_detail(rollback_id: str) -> dict:
+        item = evidence_store.get(rollback_id)
+        if item is None or item.get("metadata_kind") != "rollout-rollback-execution":
+            raise HTTPException(status_code=404, detail="rollback execution not found")
         return item
 
     @app.post("/evidence")
@@ -1115,6 +1174,7 @@ def _filter_json_evidence(
     target_ring: Optional[str] = None,
     approval_state: Optional[str] = None,
     promotion_execution_status: Optional[str] = None,
+    rollback_execution_status: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, object]:
@@ -1154,6 +1214,12 @@ def _filter_json_evidence(
             item
             for item in filtered
             if item.get("promotion_execution_status") == promotion_execution_status
+        ]
+    if rollback_execution_status:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("rollback_execution_status") == rollback_execution_status
         ]
     return {
         "items": filtered[offset : offset + limit],

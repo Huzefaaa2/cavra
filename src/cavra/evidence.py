@@ -1232,6 +1232,7 @@ class SQLiteEvidenceMetadataStore:
         target_ring: str | None = None,
         approval_state: str | None = None,
         promotion_execution_status: str | None = None,
+        rollback_execution_status: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1260,6 +1261,7 @@ class SQLiteEvidenceMetadataStore:
                 target_ring,
                 approval_state,
                 promotion_execution_status,
+                rollback_execution_status,
             ]
         )
         with self._connect() as connection:
@@ -1281,6 +1283,7 @@ class SQLiteEvidenceMetadataStore:
                     target_ring=target_ring,
                     approval_state=approval_state,
                     promotion_execution_status=promotion_execution_status,
+                    rollback_execution_status=rollback_execution_status,
                 )
                 total = len(filtered)
                 items = filtered[offset : offset + limit]
@@ -1317,6 +1320,7 @@ def _filter_evidence_metadata_payloads(
     target_ring: str | None = None,
     approval_state: str | None = None,
     promotion_execution_status: str | None = None,
+    rollback_execution_status: str | None = None,
 ) -> list[dict[str, Any]]:
     filtered = items
     if metadata_kind:
@@ -1340,6 +1344,12 @@ def _filter_evidence_metadata_payloads(
             item
             for item in filtered
             if item.get("promotion_execution_status") == promotion_execution_status
+        ]
+    if rollback_execution_status:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("rollback_execution_status") == rollback_execution_status
         ]
     return filtered
 
