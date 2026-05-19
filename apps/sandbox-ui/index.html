@@ -360,6 +360,38 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Drift Monitoring</h2>
+            <p>Compare signed deployment targets with observed runtime versions and checksum state across managed endpoints.</p>
+          </div>
+          <button id="refreshEndpointReconciliation">Refresh</button>
+        </div>
+        <div id="endpointReconciliationDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Status <select id="filterEndpointReconciliationStatus"><option value="">Any</option><option value="aligned">Aligned</option><option value="drift_detected">Drift detected</option></select></label>
+          <label>Alert <select id="filterEndpointReconciliationAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
+          <label>Target <input id="filterEndpointReconciliationTarget" placeholder="linux-systemd" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Reconciliation</th>
+                <th>Status</th>
+                <th>Alert</th>
+                <th>Observed</th>
+                <th>Compliant</th>
+                <th>Drifted</th>
+                <th>Missing</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="endpointReconciliationRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

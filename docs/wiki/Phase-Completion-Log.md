@@ -817,3 +817,25 @@ Validation:
 - `python3 -m pytest tests/test_integrations.py::test_endpoint_management_connectors_use_provider_payloads tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports tests/test_api.py::test_api_serves_endpoint_management_export_artifacts_with_integrity -q` passed locally.
 
 Recommended next issue: add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.
+
+## Managed Endpoint Reconciliation And Drift Monitoring
+
+Status: complete for the current endpoint drift visibility slice.
+
+Completed:
+- Added managed endpoint reconciliation report generation from signed `cavra-runtime.endpoint-deployment.json` desired state and observed endpoint inventory.
+- Detected runtime version drift, binary checksum drift, missing deployment target observations, unknown targets, and stale endpoint observations.
+- Added `cavra release reconcile-endpoint-deployment` with JSON and Markdown reconciliation artifacts plus checksums.
+- Indexed reconciliation records as `metadata_kind=managed-endpoint-reconciliation`.
+- Added `cavra release endpoint-reconciliation-history` and `cavra release endpoint-reconciliation-dashboard`.
+- Added `POST /endpoint-deployment/reconcile`, `/endpoint-reconciliations`, and `/endpoint-reconciliations/dashboard`.
+- Updated the Evidence Console with an Endpoint Drift Monitoring panel for report status, alert level, compliant endpoints, drifted endpoints, and missing targets.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for reconciliation drift detection, CLI metadata indexing, and API reconciliation history/dashboard retrieval.
+
+Validation:
+- `python3 -m ruff check src tests` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint drift remediation plans with approval-bound republish and rollback workflows.
