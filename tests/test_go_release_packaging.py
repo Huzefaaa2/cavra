@@ -16,6 +16,9 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_remediation_handoff,
+    build_endpoint_remediation_handoff_dashboard,
+    build_endpoint_remediation_handoff_metadata,
     build_endpoint_inventory_freshness_dashboard,
     build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -37,6 +40,7 @@ from cavra.release import (
     filter_endpoint_inventory_freshness_history,
     filter_managed_endpoint_reconciliation_history,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_remediation_handoff_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_reconciliation_automation_history,
     evaluate_endpoint_inventory_freshness,
@@ -830,17 +834,32 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         output_dir=tmp_path / "remediation-execution",
     )
     request_metadata = build_endpoint_drift_remediation_request_metadata(request_result.request)
+    handoff_result = build_endpoint_remediation_handoff(
+        request_result.request,
+        output_dir=tmp_path / "remediation-handoff",
+        providers=["jira", "servicenow", "slack", "teams", "private_queue"],
+    )
+    handoff_metadata = build_endpoint_remediation_handoff_metadata(handoff_result.handoff or {})
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
         reconciliation_id=reconciliation.reconciliation_id,
     )
+    handoff_history = filter_endpoint_remediation_handoff_history([handoff_metadata], provider="private_queue")
+    handoff_dashboard = build_endpoint_remediation_handoff_dashboard([handoff_metadata])
     dashboard = build_endpoint_drift_remediation_dashboard([request_metadata, execution_metadata])
 
     assert execution_result.valid
     assert execution_result.execution is not None
     assert execution_result.execution["approval"]["state"] == "approved"
     assert execution_result.execution["action_results"][0]["status"] == "queued_for_private_connector_or_manual_execution"
+    assert handoff_result.valid
+    assert handoff_result.handoff["payloads"]["jira"]["issue"]["summary"].startswith("CAVRA endpoint remediation")
+    assert handoff_result.handoff["payloads"]["private_queue"]["queue_event"]["status"] == "ready_for_private_connector"
+    assert "private-queue-handoff.json" in handoff_result.files
+    assert handoff_metadata["metadata_kind"] == "endpoint-remediation-handoff"
+    assert handoff_history["total"] == 1
+    assert handoff_dashboard["provider_count"] == 5
     assert execution_metadata["metadata_kind"] == "endpoint-drift-remediation-execution"
     assert history["total"] == 2
     assert dashboard["execution_count"] == 1
@@ -887,9 +906,32 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "--json",
         ],
     )
+    handoff_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "export-endpoint-remediation-handoff",
+            str(tmp_path / "cli-remediation-request" / "endpoint-remediation-request.json"),
+            "--provider",
+            "jira",
+            "--provider",
+            "private_queue",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
     history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-history", "--metadata-json", str(metadata_json)],
+    )
+    handoff_history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-handoff-history", "--metadata-json", str(metadata_json)],
+    )
+    handoff_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-handoff-dashboard", "--metadata-json", str(metadata_json)],
     )
     dashboard_cli = runner.invoke(
         app,
@@ -897,8 +939,14 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     )
     assert execution_cli.exit_code == 0
     assert json.loads(execution_cli.output)["execution"]["execution_status"] == "recorded"
+    assert handoff_cli.exit_code == 0
+    assert json.loads(handoff_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-handoff"
     assert history_cli.exit_code == 0
     assert json.loads(history_cli.output)["total"] == 2
+    assert handoff_history_cli.exit_code == 0
+    assert json.loads(handoff_history_cli.output)["total"] == 1
+    assert handoff_dashboard_cli.exit_code == 0
+    assert json.loads(handoff_dashboard_cli.output)["provider_count"] == 2
     assert dashboard_cli.exit_code == 0
     assert json.loads(dashboard_cli.output)["request_count"] == 1
 

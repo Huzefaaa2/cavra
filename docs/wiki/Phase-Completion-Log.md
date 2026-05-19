@@ -904,4 +904,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_inventory_freshness_and_automation_open_remediation tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add endpoint remediation delivery handoff packages for ITSM, ChatOps, and private endpoint connector queues.
+Recommended next issue: delivered below as endpoint remediation handoff packages for ITSM, ChatOps, and private endpoint connector queues.
+
+## Endpoint Remediation Handoff Packages
+
+Status: complete for the current public-safe endpoint remediation handoff slice.
+
+Completed:
+- Added remediation handoff package generation from endpoint drift remediation requests.
+- Generated Jira, ServiceNow, Slack, Teams, and private connector queue payloads without embedding connector credentials or endpoint mutation logic.
+- Preserved request ID, reconciliation ID, approval ID/state, release package metadata, channel, strategy, planned actions, evidence references, and request checksum in the handoff package.
+- Added `cavra release export-endpoint-remediation-handoff`, `endpoint-remediation-handoff-history`, and `endpoint-remediation-handoff-dashboard`.
+- Added `POST /endpoint-remediations/{request_id}/handoff`, `/endpoint-remediation-handoffs`, and `/endpoint-remediation-handoffs/dashboard`.
+- Updated the Evidence Console with an Endpoint Remediation Handoffs panel for provider coverage, approval state, action count, and request filtering.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for handoff artifact generation, CLI metadata indexing, API handoff creation, and handoff dashboard history.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add closed-loop endpoint remediation handoff status reconciliation from ITSM, ChatOps, and private endpoint connector callbacks.
