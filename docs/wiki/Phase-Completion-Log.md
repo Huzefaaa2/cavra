@@ -549,4 +549,25 @@ Validation:
 - `python3 -m pytest tests/test_evidence.py::test_evidence_artifact_root_lists_and_loads_rollout_files tests/test_evidence.py::test_evidence_artifact_root_rejects_rollout_bundle_outside_root tests/test_api.py::test_api_serves_configured_rollout_evidence_artifacts -q` passed locally.
 - `python3 -m ruff check src/cavra/evidence.py src/cavra/api.py tests/test_evidence.py tests/test_api.py` passed locally.
 
-Recommended next issue: add rollout artifact integrity status and promotion readiness indicators to the console evidence view.
+Recommended next issue: delivered below as rollout artifact integrity status and promotion readiness indicators.
+
+## Rollout Artifact Integrity And Promotion Readiness
+
+Status: complete for the current release-integrity and console-readiness slice.
+
+Completed:
+- Added rollout artifact checksum integrity reporting to evidence artifact listings.
+- Added promotion readiness status for managed endpoint rollout records based on artifact integrity and rollout state.
+- Reported verified, missing, unchecked, and mismatched rollout evidence artifacts from the API.
+- Added console Evidence Search readiness column for rollout records.
+- Added console artifact panel details for rollout integrity, promotion readiness rationale, and rollout control status.
+- Updated hosted console sample data for rollout artifact readiness.
+- Updated README, evidence artifact retrieval docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit and API tests for verified and failed rollout artifact integrity.
+
+Validation:
+- `python3 -m pytest tests/test_evidence.py::test_evidence_artifact_root_lists_and_loads_rollout_files tests/test_evidence.py::test_evidence_artifact_root_reports_rollout_integrity_failures tests/test_api.py::test_api_serves_configured_rollout_evidence_artifacts -q` passed locally.
+- `python3 -m ruff check src/cavra/evidence.py src/cavra/api.py tests/test_evidence.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add signed promotion approval requests for endpoint rollout readiness.

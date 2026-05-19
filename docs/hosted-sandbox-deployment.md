@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.
+1. Add signed promotion approval requests for endpoint rollout readiness.

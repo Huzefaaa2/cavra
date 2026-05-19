@@ -5,7 +5,7 @@ from base64 import urlsafe_b64encode
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
-from cavra.evidence import create_evidence_bundle
+from cavra.evidence import create_evidence_bundle, sha256_file
 from cavra.runtime import RuntimeGuard
 
 
@@ -178,12 +178,23 @@ def test_api_serves_configured_rollout_evidence_artifacts(monkeypatch, tmp_path)
     artifact_root = tmp_path / "artifacts"
     rollout_dir = artifact_root / "rollout-1"
     rollout_dir.mkdir(parents=True)
-    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    summary_path = rollout_dir / "managed-endpoint-rollout-evidence.md"
+    evidence_path.write_text(
         json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
         encoding="utf-8",
     )
-    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
-    (rollout_dir / "checksums.txt").write_text("abc  managed-endpoint-rollout-evidence.json\n", encoding="utf-8")
+    summary_path.write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text(
+        "\n".join(
+            [
+                f"{sha256_file(evidence_path)}  managed-endpoint-rollout-evidence.json",
+                f"{sha256_file(summary_path)}  managed-endpoint-rollout-evidence.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(artifact_root))
     client = TestClient(create_app())
     client.post(
@@ -205,6 +216,8 @@ def test_api_serves_configured_rollout_evidence_artifacts(monkeypatch, tmp_path)
     assert listing.status_code == 200
     assert listing.json()["metadata_kind"] == "managed-endpoint-rollout"
     assert listing.json()["artifact_count"] == 3
+    assert listing.json()["rollout_artifact_integrity"]["status"] == "verified"
+    assert listing.json()["promotion_readiness"]["status"] == "ready"
     assert listing.json()["artifacts"][0]["artifact"] == "managed-endpoint-rollout-evidence.json"
     assert evidence.status_code == 200
     assert evidence.headers["content-type"].startswith("application/json")

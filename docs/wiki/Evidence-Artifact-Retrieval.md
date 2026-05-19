@@ -16,6 +16,8 @@ For `metadata_kind=managed-endpoint-rollout`, the API serves only `managed-endpo
 
 Downloads include `x-cavra-artifact-sha256` for audit logging and client-side verification.
 
+Rollout artifact listings include checksum integrity and promotion readiness. The console shows whether rollout evidence is verified, incomplete, blocked, or ready before a release owner promotes to the next deployment ring.
+
 ## Security Boundary
 
 - No arbitrary server-side paths.
@@ -30,6 +32,7 @@ Downloads include `x-cavra-artifact-sha256` for audit logging and client-side ve
 - As an auditor, I can download a full CAVRA evidence bundle for a session.
 - As a reviewer, I can retrieve the PR attestation directly from the console.
 - As an endpoint engineering owner, I can download verified rollout evidence and checksums for a managed endpoint deployment record.
+- As a release manager, I can see rollout artifact integrity and promotion readiness before approving the next ring.
 - As a platform engineer, I can expose evidence from a controlled root without granting broad filesystem access.
 
 ## Enterprise Value

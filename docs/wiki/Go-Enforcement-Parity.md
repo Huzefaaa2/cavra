@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add rollout artifact integrity status and promotion readiness indicators to the console evidence view and continue broadening approval-route parity as new policy packs are added.
+Add signed promotion approval requests for endpoint rollout readiness and continue broadening approval-route parity as new policy packs are added.

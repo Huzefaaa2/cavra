@@ -47,6 +47,8 @@ Downloads include `x-cavra-artifact-sha256` so clients can log or verify the ret
 
 For metadata records with `metadata_kind=managed-endpoint-rollout`, CAVRA serves only the rollout allowlist: `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt`.
 
+Rollout artifact listings also include `rollout_artifact_integrity` and `promotion_readiness`. Integrity verifies rollout evidence files against `checksums.txt`, reports missing, unchecked, and mismatched artifacts, and blocks promotion readiness when checksums do not verify.
+
 ## Security Boundary
 
 - The API never accepts arbitrary bundle paths.
@@ -61,6 +63,7 @@ For metadata records with `metadata_kind=managed-endpoint-rollout`, CAVRA serves
 - As an auditor, I can download the manifest and evidence bundle for a reviewed AI-agent session.
 - As a pull request reviewer, I can retrieve the PR attestation from the same console used for evidence search.
 - As an endpoint engineering owner, I can retrieve verified rollout evidence and checksums for a managed endpoint deployment record.
+- As a release manager, I can see whether rollout artifacts are checksum-verified and ready for promotion review.
 - As a platform engineer, I can expose artifact downloads from a controlled evidence root without granting the API broad filesystem access.
 
 ## Enterprise Value

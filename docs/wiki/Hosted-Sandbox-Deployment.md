@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.
+Add signed promotion approval requests for endpoint rollout readiness.
