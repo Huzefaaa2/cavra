@@ -464,8 +464,10 @@ def test_managed_endpoint_rollout_promotion_execution_requires_approved_request(
         "new_rollout_status": "promoted",
     }
     assert "promotion-request-signature-verified" in result.execution["controls"]
+    assert result.execution["rollback_evidence_refs"]
     assert set(result.files) == {"rollout-promotion-execution.json", "rollout-promotion-execution.md"}
 
+    metadata_json = tmp_path / "execution-metadata.json"
     cli_result = runner.invoke(
         app,
         [
@@ -476,6 +478,8 @@ def test_managed_endpoint_rollout_promotion_execution_requires_approved_request(
             str(tmp_path / "approvals.json"),
             "--output",
             str(tmp_path / "cli-promotion-execution"),
+            "--metadata-json",
+            str(metadata_json),
             "--json",
         ],
     )
@@ -484,6 +488,12 @@ def test_managed_endpoint_rollout_promotion_execution_requires_approved_request(
     payload = json.loads(cli_result.output)
     assert payload["valid"] is True
     assert payload["execution"]["approval"]["state"] == "approved"
+    assert str(metadata_json) in payload["indexed_metadata_stores"]
+    metadata = json.loads(metadata_json.read_text(encoding="utf-8"))["items"][0]
+    assert metadata["metadata_kind"] == "rollout-promotion-execution"
+    assert metadata["rollout_status"] == "promoted"
+    assert metadata["target_ring"] == "production"
+    assert metadata["rollback_evidence_refs"]
 
 
 def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:

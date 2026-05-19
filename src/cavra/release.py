@@ -962,6 +962,7 @@ def create_managed_endpoint_rollout_promotion_request(
         for target in evidence.get("deployment_targets", [])
         if isinstance(target, dict) and target.get("id")
     ]
+    rollback_evidence_refs = _rollback_evidence_refs(rollout_id, evidence.get("deployment_targets", []))
     decision = {
         "decision_id": f"{request_id}:decision",
         "session_id": rollout_id,
@@ -1011,6 +1012,7 @@ def create_managed_endpoint_rollout_promotion_request(
         "change_record": evidence.get("change_record"),
         "release": release,
         "deployment_targets": sorted(deployment_targets),
+        "rollback_evidence_refs": rollback_evidence_refs,
         "verified_artifacts": verification.verified_artifacts,
         "approval": approval,
     }
@@ -1129,6 +1131,7 @@ def create_managed_endpoint_rollout_promotion_execution(
             f"approval://{approval_id}",
             f"change://{promotion_request.get('change_record', 'unassigned')}",
         ],
+        "rollback_evidence_refs": promotion_request.get("rollback_evidence_refs", []),
     }
     if notes:
         execution["notes"] = notes
@@ -1148,6 +1151,48 @@ def create_managed_endpoint_rollout_promotion_execution(
         execution=execution,
         files=files,
     )
+
+
+def build_managed_endpoint_rollout_promotion_execution_metadata(
+    execution: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    ring = execution.get("ring_advancement", {}) if isinstance(execution.get("ring_advancement"), dict) else {}
+    approval = execution.get("approval", {}) if isinstance(execution.get("approval"), dict) else {}
+    metadata = {
+        "session_id": execution.get("execution_id"),
+        "created_at": execution.get("created_at"),
+        "signer": execution.get("executed_by", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "rollout-promotion-execution",
+        "rollout_id": execution.get("rollout_id"),
+        "rollout_status": ring.get("new_rollout_status"),
+        "promotion_execution_status": execution.get("execution_status"),
+        "environment": execution.get("execution_environment"),
+        "deployment_targets": execution.get("deployment_targets", []),
+        "current_ring": ring.get("from"),
+        "target_ring": ring.get("to"),
+        "approval_id": execution.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "request_id": execution.get("request_id"),
+        "change_record": execution.get("change_record"),
+        "release": execution.get("release", {}),
+        "evidence_refs": execution.get("evidence_refs", []),
+        "rollback_evidence_refs": execution.get("rollback_evidence_refs", []),
+        "audit_links": {
+            "rollout": f"rollout://{execution.get('rollout_id')}",
+            "promotion_request": f"promotion-request://{execution.get('request_id')}",
+            "approval": f"approval://{execution.get('approval_id')}",
+            "change": f"change://{execution.get('change_record', 'unassigned')}",
+        },
+        "execution": execution,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
 
 
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
@@ -1447,6 +1492,25 @@ def _promotion_request_id(rollout_id: str, target_ring: str) -> str:
 def _promotion_execution_id(request_id: str, approval_id: str) -> str:
     digest = hashlib.sha256(f"{request_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
     return f"rpe_{digest}"
+
+
+def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[dict[str, Any]]:
+    refs: list[dict[str, Any]] = []
+    if not isinstance(deployment_targets, list):
+        return refs
+    for target in deployment_targets:
+        if not isinstance(target, dict):
+            continue
+        target_id = str(target.get("id") or "unknown-target")
+        for index, step in enumerate(target.get("rollback_steps", []) or [], start=1):
+            refs.append(
+                {
+                    "target": target_id,
+                    "ref": f"rollback://{rollout_id}/{target_id}/{index}",
+                    "step": str(step),
+                }
+            )
+    return refs
 
 
 def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *, signer: str) -> dict[str, Any]:

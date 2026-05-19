@@ -1229,6 +1229,9 @@ class SQLiteEvidenceMetadataStore:
         rollout_status: str | None = None,
         environment: str | None = None,
         deployment_target: str | None = None,
+        target_ring: str | None = None,
+        approval_state: str | None = None,
+        promotion_execution_status: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1248,7 +1251,17 @@ class SQLiteEvidenceMetadataStore:
         if has_approvals is not None:
             clauses.append("approval_required_count > 0" if has_approvals else "approval_required_count = 0")
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        payload_filters = any([metadata_kind, rollout_status, environment, deployment_target])
+        payload_filters = any(
+            [
+                metadata_kind,
+                rollout_status,
+                environment,
+                deployment_target,
+                target_ring,
+                approval_state,
+                promotion_execution_status,
+            ]
+        )
         with self._connect() as connection:
             if payload_filters:
                 rows = connection.execute(
@@ -1265,6 +1278,9 @@ class SQLiteEvidenceMetadataStore:
                     rollout_status=rollout_status,
                     environment=environment,
                     deployment_target=deployment_target,
+                    target_ring=target_ring,
+                    approval_state=approval_state,
+                    promotion_execution_status=promotion_execution_status,
                 )
                 total = len(filtered)
                 items = filtered[offset : offset + limit]
@@ -1298,6 +1314,9 @@ def _filter_evidence_metadata_payloads(
     rollout_status: str | None = None,
     environment: str | None = None,
     deployment_target: str | None = None,
+    target_ring: str | None = None,
+    approval_state: str | None = None,
+    promotion_execution_status: str | None = None,
 ) -> list[dict[str, Any]]:
     filtered = items
     if metadata_kind:
@@ -1311,6 +1330,16 @@ def _filter_evidence_metadata_payloads(
             item
             for item in filtered
             if deployment_target in {str(target) for target in item.get("deployment_targets", [])}
+        ]
+    if target_ring:
+        filtered = [item for item in filtered if item.get("target_ring") == target_ring]
+    if approval_state:
+        filtered = [item for item in filtered if item.get("approval_state") == approval_state]
+    if promotion_execution_status:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("promotion_execution_status") == promotion_execution_status
         ]
     return filtered
 

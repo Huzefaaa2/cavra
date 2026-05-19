@@ -63,6 +63,43 @@ const evidenceCatalog = [
     decisions: [],
     attestation_targets: [],
     artifact_count: 3
+  },
+  {
+    session_id: "rpe-prod-v0.2.0-rc.1",
+    signer: "release-manager",
+    metadata_kind: "rollout-promotion-execution",
+    rollout_id: "prod-v0.2.0-rc.1-rollout",
+    rollout_status: "promoted",
+    promotion_execution_status: "executed",
+    current_ring: "pilot",
+    target_ring: "production",
+    approval_state: "approved",
+    approval_id: "apr_sample_prod_ring",
+    request_id: "rpr_sample_prod_ring",
+    environment: "production",
+    change_record: "CHG-123",
+    deployment_targets: ["github-actions-linux-amd64-runner", "linux-systemd-amd64-workstation"],
+    rollback_evidence_refs: [
+      { target: "github-actions-linux-amd64-runner", ref: "rollback://prod-v0.2.0-rc.1-rollout/github-actions-linux-amd64-runner/1", step: "Restore previous signed runtime package." }
+    ],
+    audit_links: {
+      rollout: "rollout://prod-v0.2.0-rc.1-rollout",
+      promotion_request: "promotion-request://rpr_sample_prod_ring",
+      approval: "approval://apr_sample_prod_ring",
+      change: "change://CHG-123"
+    },
+    execution: {
+      execution_id: "rpe-prod-v0.2.0-rc.1",
+      execution_status: "executed",
+      ring_advancement: { from: "pilot", to: "production", new_rollout_status: "promoted" }
+    },
+    decision_count: 0,
+    blocked_count: 0,
+    approval_required_count: 0,
+    retention: { retention_days: 2555, retain_until: "2033-05-15T00:00:00Z" },
+    decisions: [],
+    attestation_targets: [],
+    artifact_count: 0
   }
 ];
 
@@ -87,6 +124,7 @@ const rolloutArtifactCatalog = [
 }));
 
 const rolloutPromotionRequests = new Map();
+let evidenceMetadataCache = [];
 
 const releaseNoteCatalog = [
   {
@@ -1215,9 +1253,9 @@ function renderEvidenceRows(items) {
   rows.innerHTML = "";
   sessionSelect.innerHTML = "";
   for (const item of items) {
-    const kind = item.metadata_kind === "managed-endpoint-rollout" ? "Endpoint rollout" : "Session";
-    const rollout = item.metadata_kind === "managed-endpoint-rollout"
-      ? `${item.environment || "environment"} / ${item.rollout_status || "unknown"}`
+    const kind = evidenceKindLabel(item);
+    const rollout = item.metadata_kind === "managed-endpoint-rollout" || item.metadata_kind === "rollout-promotion-execution"
+      ? `${item.environment || "environment"} / ${item.rollout_status || item.promotion_execution_status || "unknown"}`
       : "n/a";
     const readiness = evidenceReadiness(item);
     rows.insertAdjacentHTML("beforeend", `
@@ -1231,11 +1269,17 @@ function renderEvidenceRows(items) {
         <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>
         <td>${item.retention?.retention_days || "n/a"} days</td>
         <td class="${escapeHtml(readiness.className)}">${escapeHtml(readiness.label)}</td>
-        <td><button class="evidenceArtifactAction secondary" data-session="${escapeHtml(item.session_id || "")}">Artifacts</button></td>
+        <td><button class="evidenceArtifactAction secondary" data-session="${escapeHtml(item.session_id || "")}">${item.metadata_kind === "rollout-promotion-execution" ? "Audit" : "Artifacts"}</button></td>
       </tr>
     `);
     sessionSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(item.session_id)}">${escapeHtml(item.session_id)}</option>`);
   }
+}
+
+function evidenceKindLabel(item) {
+  if (item.metadata_kind === "managed-endpoint-rollout") return "Endpoint rollout";
+  if (item.metadata_kind === "rollout-promotion-execution") return "Promotion execution";
+  return "Session";
 }
 
 function renderEvidenceArtifacts(payload) {
@@ -1734,11 +1778,38 @@ function renderApprovalDetail(item) {
 
 async function refreshEvidence() {
   const items = filterEvidence(await loadEvidenceMetadata());
+  evidenceMetadataCache = items;
   renderEvidenceRows(items);
 }
 
 async function showEvidenceArtifacts(sessionId) {
   renderEvidenceArtifacts(await loadEvidenceArtifacts(sessionId));
+}
+
+async function showPromotionExecutionDetail(executionId) {
+  const panel = document.querySelector("#evidenceArtifacts");
+  let item = evidenceMetadataCache.find((entry) => entry.session_id === executionId) || evidenceCatalog.find((entry) => entry.session_id === executionId);
+  try {
+    const response = await fetch(apiUrl(`/promotion-executions/${encodeURIComponent(executionId)}`));
+    if (response.ok) item = await response.json();
+  } catch {
+    // sample metadata is rendered below
+  }
+  const rollbackRefs = Array.isArray(item?.rollback_evidence_refs) ? item.rollback_evidence_refs : [];
+  const auditLinks = item?.audit_links || {};
+  panel.innerHTML = `
+    <dl>
+      <dt>Execution</dt><dd>${escapeHtml(item?.session_id || executionId)}</dd>
+      <dt>Rollout</dt><dd>${escapeHtml(item?.rollout_id || "unknown")}</dd>
+      <dt>Ring</dt><dd>${escapeHtml(item?.current_ring || "unknown")} -> ${escapeHtml(item?.target_ring || "unknown")}</dd>
+      <dt>Status</dt><dd class="ok">${escapeHtml(item?.promotion_execution_status || item?.rollout_status || "executed")}</dd>
+      <dt>Approval</dt><dd>${escapeHtml(item?.approval_id || "unknown")} (${escapeHtml(item?.approval_state || "unknown")})</dd>
+    </dl>
+    <h3>Audit Links</h3>
+    <ul>${Object.entries(auditLinks).map(([key, value]) => `<li><strong>${escapeHtml(key)}</strong>: ${escapeHtml(value)}</li>`).join("") || "<li>n/a</li>"}</ul>
+    <h3>Rollback Evidence</h3>
+    <ul>${rollbackRefs.map((ref) => `<li>${escapeHtml(ref.target || "target")}: ${escapeHtml(ref.ref || "")}<br><small>${escapeHtml(ref.step || "")}</small></li>`).join("") || "<li>No rollback evidence links recorded.</li>"}</ul>
+  `;
 }
 
 async function requestRolloutPromotionApproval(sessionId) {
@@ -2049,6 +2120,11 @@ document.querySelector("#evidenceRows").addEventListener("click", async (event) 
   if (!(event.target instanceof Element)) return;
   const artifactButton = event.target.closest(".evidenceArtifactAction");
   if (!artifactButton) return;
+  const item = evidenceMetadataCache.find((entry) => entry.session_id === artifactButton.dataset.session);
+  if (item?.metadata_kind === "rollout-promotion-execution") {
+    await showPromotionExecutionDetail(artifactButton.dataset.session);
+    return;
+  }
   await showEvidenceArtifacts(artifactButton.dataset.session);
 });
 document.querySelector("#evidenceArtifacts").addEventListener("click", async (event) => {

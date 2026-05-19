@@ -254,8 +254,8 @@
         </div>
         <div class="search-controls">
           <label>Signer <input id="filterSigner" placeholder="security" /></label>
-          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option></select></label>
-          <label>Rollout status <select id="filterRolloutStatus"><option value="">Any</option><option value="planned">Planned</option><option value="staged">Staged</option><option value="succeeded">Succeeded</option><option value="failed">Failed</option><option value="rolled_back">Rolled back</option></select></label>
+          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option><option value="rollout-promotion-execution">Promotion execution</option></select></label>
+          <label>Rollout status <select id="filterRolloutStatus"><option value="">Any</option><option value="planned">Planned</option><option value="staged">Staged</option><option value="succeeded">Succeeded</option><option value="promoted">Promoted</option><option value="failed">Failed</option><option value="rolled_back">Rolled back</option></select></label>
           <label>Environment <input id="filterEnvironment" placeholder="production" /></label>
           <label>Deployment target <input id="filterDeploymentTarget" placeholder="github-actions-linux-amd64-runner" /></label>
           <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="1" /></label>

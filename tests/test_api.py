@@ -318,6 +318,34 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert execution.json()["valid"] is True
     assert execution.json()["execution"]["ring_advancement"]["to"] == "production"
     assert execution.json()["execution"]["approval"]["state"] == "approved"
+    assert execution.json()["metadata"]["metadata_kind"] == "rollout-promotion-execution"
+    assert execution.json()["metadata"]["rollback_evidence_refs"] == execution.json()["execution"]["rollback_evidence_refs"]
+    searched = client.get(
+        "/promotion-executions",
+        params={
+            "rollout_id": "rollout-1",
+            "target_ring": "production",
+            "approval_state": "approved",
+            "promotion_execution_status": "executed",
+            "deployment_target": "github-actions-linux-amd64-runner",
+        },
+    )
+    detail = client.get(f"/promotion-executions/{execution.json()['execution']['execution_id']}")
+    evidence_search = client.get(
+        "/evidence",
+        params={
+            "metadata_kind": "rollout-promotion-execution",
+            "rollout_status": "promoted",
+            "target_ring": "production",
+            "approval_state": "approved",
+        },
+    )
+    assert searched.status_code == 200
+    assert searched.json()["total"] == 1
+    assert detail.status_code == 200
+    assert detail.json()["audit_links"]["approval"] == f"approval://{approval['approval_id']}"
+    assert evidence_search.status_code == 200
+    assert evidence_search.json()["items"][0]["session_id"] == execution.json()["execution"]["execution_id"]
 
     rejected = client.post(
         "/evidence/rollout-1/promotion-request",

@@ -613,4 +613,24 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.
+Recommended next issue: delivered below as promotion execution search, audit drill-downs, and rollback evidence links.
+
+## Promotion Execution Search, Audit Drill-Downs, And Rollback Evidence Links
+
+Status: complete for the current rollout governance and auditability slice.
+
+Completed:
+- Indexed approved promotion executions as evidence metadata with `metadata_kind=rollout-promotion-execution`.
+- Added search filters for target ring, approval state, promotion execution status, rollout status, environment, and deployment target.
+- Added `/promotion-executions` and `/promotion-executions/{execution_id}` API endpoints for execution search and audit detail.
+- Added rollback evidence references to signed promotion requests and approved execution records.
+- Added console support for promotion execution audit drill-downs from evidence search.
+- Updated README, CLI docs, API docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit, CLI, API, and metadata-store tests for promotion execution search and audit details.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_promotion_execution_requires_approved_request tests/test_api.py::test_api_creates_signed_rollout_promotion_approval tests/test_evidence.py::test_sqlite_evidence_metadata_store_filters_promotion_execution_metadata -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py src/cavra/evidence.py tests/test_go_release_packaging.py tests/test_api.py tests/test_evidence.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.

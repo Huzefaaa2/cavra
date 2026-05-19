@@ -154,10 +154,26 @@ After the approval is approved, record the rollout ring advancement:
 ```bash
 cavra release execute-rollout-promotion \
   .cavra/release/rollout-promotion/rollout-promotion-approval-request.json \
-  --approval-store .cavra/api/approvals.json
+  --approval-store .cavra/api/approvals.json \
+  --metadata-json .cavra/evidence/metadata.json
 ```
 
-The execution command verifies the signed promotion request, requires the approval record to be `approved`, checks that the approval decision is bound to the rollout and target ring, and writes JSON plus Markdown execution records. The API exposes the same control through `POST /evidence/{session_id}/promotion-execution`, and the console can record the promotion execution from the rollout artifact panel.
+The execution command verifies the signed promotion request, requires the approval record to be `approved`, checks that the approval decision is bound to the rollout and target ring, writes JSON plus Markdown execution records, and can index the execution into JSON or SQLite evidence metadata stores.
+
+Search and inspect promotion executions:
+
+```bash
+cavra evidence search \
+  --sqlite .cavra/evidence/metadata.db \
+  --metadata-kind rollout-promotion-execution \
+  --rollout-status promoted \
+  --target-ring production \
+  --approval-state approved \
+  --promotion-execution-status executed \
+  --deployment-target github-actions-linux-amd64-runner
+```
+
+The API exposes execution recording through `POST /evidence/{session_id}/promotion-execution`, search through `/promotion-executions`, and audit drill-down through `/promotion-executions/{execution_id}`. The console can record the promotion execution from the rollout artifact panel and inspect execution audit links plus rollback evidence references from evidence search.
 
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
@@ -200,13 +216,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an endpoint engineering owner, I can search rollout evidence by environment, status, and deployment target from the CLI, API, or console.
 - As a release manager, I can generate a signed promotion approval request only after rollout evidence is verified and ready.
 - As a release manager, I can record a promotion execution only after the signed request is approved and bound to the rollout ring advancement.
+- As a release manager, I can search promotion executions and open audit details with approval, request, rollout, change, and rollback evidence links.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.
+1. Add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.
