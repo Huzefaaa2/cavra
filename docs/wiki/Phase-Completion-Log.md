@@ -496,4 +496,21 @@ Completed:
 Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 
-Recommended next issue: add rollout evidence verification and evidence-store indexing for managed endpoint deployments.
+Recommended next issue: delivered below as rollout evidence verification and indexing.
+
+## Rollout Evidence Verification And Indexing
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra release verify-rollout` for validating managed endpoint rollout evidence.
+- Verified rollout artifact checksums, rollout schema, rollout status, selected deployment targets, required controls, source package artifact checksums, and referenced package verification.
+- Added optional JSON and SQLite evidence metadata indexing through the existing evidence metadata stores.
+- Added rollout metadata fields for rollout ID, environment, ring, status, change record, release metadata, selected deployment targets, and artifact checksum.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for valid rollout verification, JSON/SQLite metadata indexing, and checksum tampering rejection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+
+Recommended next issue: add rollout evidence search filters and console/API views for managed endpoint deployments.

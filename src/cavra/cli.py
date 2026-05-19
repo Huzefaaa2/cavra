@@ -65,6 +65,7 @@ from cavra.registry import (
 )
 from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
+    verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_go_airgap_bundle,
@@ -1461,6 +1462,67 @@ def capture_rollout(
             console.print(f"  target: {target}")
         for file in result.files:
             console.print(f"  file: {file}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("verify-rollout")
+def verify_rollout(
+    rollout_dir: Annotated[Path, typer.Argument(help="Managed endpoint rollout evidence directory.")],
+    package_dir: Annotated[Optional[Path], typer.Option(help="Override Go release package directory for source artifact verification.")] = None,
+    require_package_verification: bool = typer.Option(
+        True,
+        "--require-package-verification/--skip-package-verification",
+        help="Verify the referenced release package while verifying rollout evidence.",
+    ),
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for referenced release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for referenced release artifacts.",
+    ),
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to upsert rollout metadata.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to upsert rollout metadata.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable verification output."),
+) -> None:
+    """Verify managed endpoint rollout evidence and optionally index its metadata."""
+    result = verify_managed_endpoint_rollout_evidence(
+        rollout_dir,
+        package_dir=package_dir,
+        require_package_verification=require_package_verification,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    indexed: list[str] = []
+    if result.valid and result.metadata:
+        if metadata_json:
+            EvidenceMetadataStore(metadata_json).upsert(result.metadata)
+            indexed.append(str(metadata_json))
+        if sqlite:
+            SQLiteEvidenceMetadataStore(sqlite).upsert(result.metadata)
+            indexed.append(str(sqlite))
+    payload = result.to_dict() | {"indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint rollout evidence")
+        if result.rollout_id:
+            console.print(f"  rollout: {result.rollout_id}")
+        for artifact in result.verified_artifacts:
+            console.print(f"  artifact: {artifact}")
+        for target in result.deployment_targets:
+            console.print(f"  target: {target}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:
