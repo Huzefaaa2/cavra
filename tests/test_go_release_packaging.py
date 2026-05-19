@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -11,11 +12,16 @@ from cavra.approvals import ApprovalStore, create_approval_request
 from cavra.cli import app
 from cavra.evidence import EvidenceMetadataStore, generate_ed25519_keypair
 from cavra.release import (
+    automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_inventory_freshness_dashboard,
+    build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
     build_endpoint_inventory_ingestion_metadata,
+    build_endpoint_reconciliation_automation_dashboard,
+    build_endpoint_reconciliation_automation_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -28,9 +34,12 @@ from cavra.release import (
     execute_endpoint_drift_remediation,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
+    filter_endpoint_inventory_freshness_history,
     filter_managed_endpoint_reconciliation_history,
     filter_endpoint_drift_remediation_history,
     filter_endpoint_inventory_ingestion_history,
+    filter_endpoint_reconciliation_automation_history,
+    evaluate_endpoint_inventory_freshness,
     ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
     smoke_test_go_installers,
@@ -623,6 +632,138 @@ def test_endpoint_inventory_ingestion_normalizes_provider_exports_and_indexes_me
     assert json.loads(history_cli.output)["total"] == 1
     assert dashboard_cli.exit_code == 0
     assert json.loads(dashboard_cli.output)["endpoint_count"] == 1
+
+
+def test_endpoint_inventory_freshness_and_automation_open_remediation(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.2.0-rc.1", "abc123", targets=("linux_amd64",))
+    desired_manifest = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    target = desired_manifest["deployment_targets"][0]
+    linux_export = {
+        "schema_version": "linux.fleet.inventory.v1",
+        "observed_at": "2026-05-19T00:00:00+00:00",
+        "hosts": [
+            {
+                "endpoint_id": "runner-2",
+                "deployment_target": target["id"],
+                "installed_version": "v0.1.0",
+                "binary_sha256": "bad",
+                "last_seen_at": "2026-05-19T00:00:00+00:00",
+            }
+        ],
+    }
+    ingestion = ingest_endpoint_inventory("linux", linux_export, output_dir=tmp_path / "inventory", channel="stable")
+    ingestion_metadata = build_endpoint_inventory_ingestion_metadata(ingestion.ingestion or {})
+    freshness = evaluate_endpoint_inventory_freshness(
+        [ingestion_metadata],
+        output_dir=tmp_path / "freshness",
+        max_age_hours=24,
+        critical_age_hours=48,
+        now=datetime(2026, 5, 21, 12, 0, tzinfo=timezone.utc),
+    )
+    freshness_metadata = build_endpoint_inventory_freshness_metadata(freshness.report or {})
+    freshness_history = filter_endpoint_inventory_freshness_history(
+        [freshness_metadata],
+        alert_level="critical",
+        provider="linux",
+    )
+    freshness_dashboard = build_endpoint_inventory_freshness_dashboard([freshness_metadata])
+
+    assert freshness.valid
+    assert freshness.alert_level == "critical"
+    assert "endpoint-inventory-freshness.json" in freshness.files
+    assert freshness_metadata["metadata_kind"] == "endpoint-inventory-freshness-report"
+    assert freshness_history["total"] == 1
+    assert freshness_dashboard["critical_count"] == 1
+
+    automation = automate_endpoint_reconciliation_from_ingestion(
+        desired_manifest,
+        ingestion_metadata,
+        package_dir=dist,
+        output_dir=tmp_path / "automation",
+        remediation_strategy="rollback",
+        requested_by="release-agent",
+    )
+    automation_metadata = build_endpoint_reconciliation_automation_metadata(automation.automation or {})
+    automation_history = filter_endpoint_reconciliation_automation_history(
+        [automation_metadata],
+        drift_status="drift_detected",
+        approval_state="pending",
+    )
+    automation_dashboard = build_endpoint_reconciliation_automation_dashboard([automation_metadata])
+
+    assert automation.valid
+    assert automation.reconciliation is not None
+    assert automation.remediation_request is not None
+    assert automation.approval is not None
+    assert automation.approval["state"] == "pending"
+    assert automation.remediation_request["strategy"] == "rollback"
+    assert automation_metadata["metadata_kind"] == "endpoint-reconciliation-automation"
+    assert automation_history["total"] == 1
+    assert automation_dashboard["pending_approval_count"] == 1
+
+    metadata_json = tmp_path / "metadata.json"
+    approval_json = tmp_path / "approvals.json"
+    EvidenceMetadataStore(metadata_json).upsert(ingestion_metadata)
+    cli_freshness = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-inventory-freshness",
+            "--metadata-json",
+            str(metadata_json),
+            "--output",
+            str(tmp_path / "cli-freshness"),
+            "--max-age-hours",
+            "1",
+            "--critical-age-hours",
+            "1",
+            "--json",
+        ],
+    )
+    ingestion_path = tmp_path / "inventory" / "endpoint-inventory-ingestion.json"
+    cli_automation = runner.invoke(
+        app,
+        [
+            "release",
+            "automate-endpoint-reconciliation",
+            str(dist),
+            str(ingestion_path),
+            "--output",
+            str(tmp_path / "cli-automation"),
+            "--approval-store",
+            str(approval_json),
+            "--metadata-json",
+            str(metadata_json),
+            "--remediation-strategy",
+            "rollback",
+            "--json",
+        ],
+    )
+    automation_history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-reconciliation-automation-history", "--metadata-json", str(metadata_json)],
+    )
+    automation_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-reconciliation-automation-dashboard", "--metadata-json", str(metadata_json)],
+    )
+    assert cli_freshness.exit_code == 0
+    assert json.loads(cli_freshness.output)["metadata"]["metadata_kind"] == "endpoint-inventory-freshness-report"
+    assert cli_automation.exit_code == 0
+    automation_payload = json.loads(cli_automation.output)
+    assert automation_payload["metadata"]["metadata_kind"] == "endpoint-reconciliation-automation"
+    assert ApprovalStore(approval_json).get(automation_payload["approval"]["approval_id"]) is not None
+    assert automation_history_cli.exit_code == 0
+    assert json.loads(automation_history_cli.output)["total"] == 1
+    assert automation_dashboard_cli.exit_code == 0
+    assert json.loads(automation_dashboard_cli.output)["pending_approval_count"] == 1
 
 
 def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(

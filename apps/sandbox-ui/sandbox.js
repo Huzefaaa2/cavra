@@ -289,6 +289,40 @@ const endpointInventoryCatalog = [
   }
 ];
 
+const endpointInventoryFreshnessCatalog = [
+  {
+    session_id: "eif-stable-sample",
+    metadata_kind: "endpoint-inventory-freshness-report",
+    report_id: "eif-stable-sample",
+    created_at: "2026-05-20T00:00:00+00:00",
+    alert_level: "warning",
+    max_age_hours: 24,
+    critical_age_hours: 48,
+    warning_count: 1,
+    critical_count: 0,
+    alert_count: 1,
+    latest_ingestions: [
+      {
+        inventory_id: "eii-linux-stable-sample",
+        provider: "linux",
+        channel: "stable",
+        deployment_target: "linux-systemd-amd64-workstation",
+        age_hours: 25,
+        severity: "warning"
+      }
+    ],
+    alerts: [
+      {
+        severity: "warning",
+        provider: "linux",
+        channel: "stable",
+        deployment_target: "linux-systemd-amd64-workstation",
+        message: "Latest endpoint inventory for linux/stable/linux-systemd-amd64-workstation is 25h old."
+      }
+    ]
+  }
+];
+
 const endpointRemediationCatalog = [
   {
     session_id: "err-prod-v0-2-0-rc-1-sample",
@@ -1053,6 +1087,47 @@ async function loadEndpointInventoryDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointInventoryDashboard(endpointInventoryCatalog);
+  }
+}
+
+async function loadEndpointInventoryFreshness() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      alert_level: document.querySelector("#filterEndpointInventoryFreshnessAlert")?.value,
+      provider: document.querySelector("#filterEndpointInventoryFreshnessProvider")?.value,
+      channel: document.querySelector("#filterEndpointInventoryFreshnessChannel")?.value.trim(),
+      deployment_target: document.querySelector("#filterEndpointInventoryFreshnessTarget")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-inventory-freshness", params));
+    if (!response.ok) throw new Error("Endpoint inventory freshness API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return endpointInventoryFreshnessCatalog.filter((item) => {
+      const alert = document.querySelector("#filterEndpointInventoryFreshnessAlert")?.value;
+      const provider = document.querySelector("#filterEndpointInventoryFreshnessProvider")?.value;
+      const channel = document.querySelector("#filterEndpointInventoryFreshnessChannel")?.value.trim();
+      const target = document.querySelector("#filterEndpointInventoryFreshnessTarget")?.value.trim();
+      const latest = item.latest_ingestions || [];
+      if (alert && item.alert_level !== alert) return false;
+      if (provider && !latest.some((entry) => entry.provider === provider)) return false;
+      if (channel && !latest.some((entry) => entry.channel === channel)) return false;
+      if (target && !latest.some((entry) => entry.deployment_target === target)) return false;
+      return true;
+    });
+  }
+}
+
+async function loadEndpointInventoryFreshnessDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-inventory-freshness/dashboard"));
+    if (!response.ok) throw new Error("Endpoint inventory freshness dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointInventoryFreshnessDashboard(endpointInventoryFreshnessCatalog);
   }
 }
 
@@ -2011,6 +2086,48 @@ function renderEndpointInventoryIngestions(items, dashboard) {
   }
 }
 
+function renderEndpointInventoryFreshness(items, dashboard) {
+  const rows = document.querySelector("#endpointInventoryFreshnessRows");
+  const panel = document.querySelector("#endpointInventoryFreshnessDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  const alerts = Array.isArray(dashboard.alerts) ? dashboard.alerts : [];
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Reports</span>
+      <strong>${formatMetricNumber(dashboard.report_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Warnings</span>
+      <strong class="${Number(dashboard.warning_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(dashboard.warning_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Critical</span>
+      <strong class="${Number(dashboard.critical_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.critical_count)}</strong>
+    </div>
+    <div class="release-delivery-alerts">
+      <strong>Freshness Alerts</strong>
+      <ul>${alerts.map((item) => `<li><span class="${riskClass(item.severity)}">${escapeHtml(item.severity)}</span> ${escapeHtml(item.message || "inventory freshness alert")}</li>`).join("") || "<li class=\"allow\">No endpoint inventory freshness alerts.</li>"}</ul>
+    </div>
+  `;
+  for (const item of items) {
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.report_id || item.session_id || "freshness-report")}</td>
+        <td class="${riskClass(item.alert_level)}">${escapeHtml(item.alert_level || "unknown")}</td>
+        <td>${Number(item.warning_count || 0)}</td>
+        <td>${Number(item.critical_count || 0)}</td>
+        <td>${Number(item.alert_count || (item.alerts || []).length || 0)}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderEndpointReconciliations(items, dashboard) {
   const rows = document.querySelector("#endpointReconciliationRows");
   const panel = document.querySelector("#endpointReconciliationDashboard");
@@ -2280,6 +2397,23 @@ function sampleEndpointInventoryDashboard(items) {
     endpoint_count: items.reduce((total, item) => total + Number(item.endpoint_count || 0), 0),
     missing_target_count: missing,
     providers: Array.from(providerMap.values()).sort((a, b) => a.provider.localeCompare(b.provider)),
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointInventoryFreshnessDashboard(items) {
+  const alerts = items.flatMap((item) => Array.isArray(item.alerts) ? item.alerts : []);
+  const critical = items.reduce((total, item) => total + Number(item.critical_count || 0), 0);
+  const warning = items.reduce((total, item) => total + Number(item.warning_count || 0), 0);
+  return {
+    schema_version: "cavra.endpoint_inventory_freshness.dashboard.v1",
+    product: "CAVRA",
+    alert_level: critical ? "critical" : warning ? "warning" : "healthy",
+    report_count: items.length,
+    warning_count: warning,
+    critical_count: critical,
+    alert_count: alerts.length,
+    alerts,
     latest: items.slice(0, 10)
   };
 }
@@ -2729,6 +2863,14 @@ async function refreshEndpointInventory() {
   renderEndpointInventoryIngestions(items, dashboard);
 }
 
+async function refreshEndpointInventoryFreshness() {
+  const [items, dashboard] = await Promise.all([
+    loadEndpointInventoryFreshness(),
+    loadEndpointInventoryFreshnessDashboard()
+  ]);
+  renderEndpointInventoryFreshness(items, dashboard);
+}
+
 async function refreshEndpointReconciliation() {
   const [items, dashboard] = await Promise.all([loadEndpointReconciliations(), loadEndpointReconciliationDashboard()]);
   renderEndpointReconciliations(items, dashboard);
@@ -3097,6 +3239,7 @@ document.querySelector("#refreshEvidence").addEventListener("click", refreshEvid
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
 document.querySelector("#refreshEndpointPublicationDelivery").addEventListener("click", refreshEndpointPublicationDelivery);
 document.querySelector("#refreshEndpointInventory").addEventListener("click", refreshEndpointInventory);
+document.querySelector("#refreshEndpointInventoryFreshness").addEventListener("click", refreshEndpointInventoryFreshness);
 document.querySelector("#refreshEndpointReconciliation").addEventListener("click", refreshEndpointReconciliation);
 document.querySelector("#refreshEndpointRemediation").addEventListener("click", refreshEndpointRemediation);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
@@ -3182,6 +3325,7 @@ refreshReleaseChannels();
 refreshReleaseDelivery();
 refreshEndpointPublicationDelivery();
 refreshEndpointInventory();
+refreshEndpointInventoryFreshness();
 refreshEndpointReconciliation();
 refreshEndpointRemediation();
 refreshDemoMetrics();
