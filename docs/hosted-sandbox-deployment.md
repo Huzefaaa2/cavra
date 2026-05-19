@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add connector delivery for promotion audit exports and rollback execution records with retry evidence.
+1. Add persisted delivery history views and alerting dashboards for release governance connectors.

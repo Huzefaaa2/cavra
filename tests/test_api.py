@@ -231,6 +231,12 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_CONNECTOR_CONFIG", str(connector_config))
     private_key = tmp_path / "keys" / "private.pem"
     public_key = tmp_path / "keys" / "public.pem"
     generate_ed25519_keypair(private_key, public_key)
@@ -354,6 +360,14 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     audit_export = client.get(f"/promotion-executions/{execution.json()['execution']['execution_id']}/audit-export")
     assert audit_export.status_code == 200
     assert audit_export.json()["event"]["event_type"] == "cavra.rollout_promotion_execution"
+    audit_delivery = client.post(
+        f"/promotion-executions/{execution.json()['execution']['execution_id']}/audit-export/deliver",
+        json={"provider": "webhook", "retries": 1, "timeout_seconds": 0.1},
+    )
+    assert audit_delivery.status_code == 200
+    assert audit_delivery.json()["event_id"] == execution.json()["execution"]["execution_id"]
+    assert audit_delivery.json()["deliveries"][0]["attempt_count"] == 2
+    assert audit_delivery.json()["deliveries"][0]["request"]["url"].endswith("?REDACTED")
     rollback_approval = client.post(
         "/approvals",
         json={
@@ -406,6 +420,13 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert rollback_detail.status_code == 200
     assert rollback_search.status_code == 200
     assert rollback_search.json()["items"][0]["session_id"] == rollback.json()["rollback"]["rollback_id"]
+    rollback_delivery = client.post(
+        f"/rollback-executions/{rollback.json()['rollback']['rollback_id']}/deliver",
+        json={"provider": "webhook", "retries": 1, "timeout_seconds": 0.1},
+    )
+    assert rollback_delivery.status_code == 200
+    assert rollback_delivery.json()["event_id"] == rollback.json()["rollback"]["rollback_id"]
+    assert rollback_delivery.json()["deliveries"][0]["attempt_count"] == 2
 
     rejected = client.post(
         "/evidence/rollout-1/promotion-request",

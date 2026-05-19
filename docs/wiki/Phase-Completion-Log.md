@@ -654,4 +654,23 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_rollback_execution_and_audit_exports tests/test_api.py::test_api_creates_signed_rollout_promotion_approval tests/test_evidence.py::test_sqlite_evidence_metadata_store_filters_rollback_execution_metadata -q` passed locally.
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py src/cavra/evidence.py tests/test_go_release_packaging.py tests/test_api.py tests/test_evidence.py` passed locally.
 
-Recommended next issue: add connector delivery for promotion audit exports and rollback execution records with retry evidence.
+Recommended next issue: delivered below as connector delivery for promotion audit exports and rollback execution records with retry evidence.
+
+## Release Governance Connector Delivery
+
+Status: complete for the current release connector delivery slice.
+
+Completed:
+- Added `cavra release deliver-promotion-audit` for sending normalized promotion audit events through configured connectors.
+- Added `cavra release deliver-rollback-execution` for sending rollback execution audit events through configured connectors.
+- Added release audit event identity fallback so connector delivery evidence records promotion execution IDs and rollback IDs.
+- Added `/promotion-executions/{execution_id}/audit-export/deliver` and `/rollback-executions/{rollback_id}/deliver` API endpoints.
+- Reused the existing connector retry and credential-redaction evidence schema for release governance delivery.
+- Updated README, CLI docs, API docs, connector docs, integration inventory docs, release packaging docs, roadmap docs, and wiki source.
+- Added CLI, API, and connector tests for retry counts, event IDs, and redacted delivery evidence.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_rollback_execution_and_audit_exports tests/test_api.py::test_api_creates_signed_rollout_promotion_approval tests/test_integrations.py::test_deliver_connector_event_redacts_credentials_and_exports -q` passed locally.
+- `python3 -m ruff check src/cavra/integrations.py src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py tests/test_integrations.py` passed locally.
+
+Recommended next issue: add persisted delivery history views and alerting dashboards for release governance connectors.

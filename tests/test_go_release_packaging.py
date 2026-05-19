@@ -637,6 +637,59 @@ def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path:
     assert export_cli.exit_code == 0
     assert "jira-issue.json" in export_cli.output
 
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+    promotion_delivery = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-promotion-audit",
+            str(tmp_path / "promotion-execution" / "rollout-promotion-execution.json"),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "1",
+            "--timeout-seconds",
+            "0.1",
+            "--output",
+            str(tmp_path / "promotion-delivery"),
+            "--json",
+        ],
+    )
+    rollback_delivery = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-rollback-execution",
+            str(tmp_path / "rollback-execution" / "rollout-rollback-execution.json"),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "1",
+            "--timeout-seconds",
+            "0.1",
+            "--output",
+            str(tmp_path / "rollback-delivery"),
+            "--json",
+        ],
+    )
+    assert promotion_delivery.exit_code == 0
+    promotion_delivery_payload = json.loads(promotion_delivery.output)
+    assert promotion_delivery_payload["event_id"] == promotion.execution["execution_id"]
+    assert promotion_delivery_payload["deliveries"][0]["attempt_count"] == 2
+    assert promotion_delivery_payload["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert rollback_delivery.exit_code == 0
+    rollback_delivery_payload = json.loads(rollback_delivery.output)
+    assert rollback_delivery_payload["event_id"] == result.rollback["rollback_id"]
+    assert rollback_delivery_payload["deliveries"][0]["attempt_count"] == 2
+
 
 def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:
     private_key = tmp_path / "keys" / "private.pem"

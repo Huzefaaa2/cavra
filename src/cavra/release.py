@@ -1456,6 +1456,45 @@ def build_rollout_promotion_execution_audit_event(promotion_execution: dict[str,
     }
 
 
+def build_rollout_rollback_execution_audit_event(rollback_execution: dict[str, Any]) -> dict[str, Any]:
+    if rollback_execution.get("schema_version") != "cavra.go-runtime.endpoint-rollout-rollback-execution.v1":
+        raise ValueError("rollback execution has an invalid schema_version")
+    ring = rollback_execution.get("ring_rollback", {}) if isinstance(rollback_execution.get("ring_rollback"), dict) else {}
+    approval = rollback_execution.get("approval", {}) if isinstance(rollback_execution.get("approval"), dict) else {}
+    rollback_refs = rollback_execution.get("rollback_evidence_refs", [])
+    return {
+        "schema_version": "cavra.rollout-rollback.audit-event.v1",
+        "event_type": "cavra.rollout_rollback_execution",
+        "product": "CAVRA",
+        "timestamp": rollback_execution.get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "severity": "critical",
+        "rollback_id": rollback_execution.get("rollback_id"),
+        "promotion_execution_id": rollback_execution.get("promotion_execution_id"),
+        "rollout_id": rollback_execution.get("rollout_id"),
+        "approval_id": rollback_execution.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "change_record": rollback_execution.get("change_record"),
+        "rollback_status": rollback_execution.get("rollback_status"),
+        "rollback_reason": rollback_execution.get("rollback_reason"),
+        "environment": rollback_execution.get("execution_environment"),
+        "current_ring": ring.get("from"),
+        "target_ring": ring.get("to"),
+        "release": rollback_execution.get("release", {}),
+        "deployment_targets": rollback_execution.get("deployment_targets", []),
+        "rollback_evidence_refs": rollback_refs,
+        "rollback_reference_count": len(rollback_refs) if isinstance(rollback_refs, list) else 0,
+        "audit_links": {
+            "rollout": f"rollout://{rollback_execution.get('rollout_id')}",
+            "promotion_execution": f"promotion-execution://{rollback_execution.get('promotion_execution_id')}",
+            "rollback_execution": f"rollback-execution://{rollback_execution.get('rollback_id')}",
+            "approval": f"approval://{rollback_execution.get('approval_id')}",
+            "change": f"change://{rollback_execution.get('change_record', 'unassigned')}",
+        },
+        "controls": rollback_execution.get("controls", []),
+        "raw_rollback": rollback_execution,
+    }
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():

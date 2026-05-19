@@ -51,7 +51,7 @@ The sandbox console includes an Enterprise Integrations view. It filters integra
 
 ## Connector Execution
 
-CAVRA can execute configured connector hooks for Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks. Configure connector secrets outside the inventory record, set `CAVRA_CONNECTOR_CONFIG`, and call `POST /integrations/{integration_id}/deliver` or `cavra integration deliver`.
+CAVRA can execute configured connector hooks for Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks. Configure connector secrets outside the inventory record, set `CAVRA_CONNECTOR_CONFIG`, and call `POST /integrations/{integration_id}/deliver` or `cavra integration deliver`. Release governance records can use the same connector layer through `POST /promotion-executions/{execution_id}/audit-export/deliver`, `POST /rollback-executions/{rollback_id}/deliver`, `cavra release deliver-promotion-audit`, and `cavra release deliver-rollback-execution`.
 
 Delivery evidence uses the `cavra.connector.delivery.v1` schema and redacts credentials before writing output.
 
@@ -60,6 +60,7 @@ Delivery evidence uses the `cavra.connector.delivery.v1` schema and redacts cred
 - As a platform engineer, I can see which enterprise systems CAVRA is configured to use.
 - As a SOC lead, I can track SIEM connector ownership and health status.
 - As a SOC lead, I can deliver signed CAVRA evidence events into SIEM and ChatOps systems with credential-redacted delivery records.
+- As a release manager, I can deliver promotion audit and rollback execution records through owned connectors with retry evidence.
 - As an auditor, I can inspect whether source control, ITSM, identity, and evidence storage integrations have owners and evidence references.
 
 ## Enterprise Challenge Solved

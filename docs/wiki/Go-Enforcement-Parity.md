@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add connector delivery for promotion audit exports and rollback execution records with retry evidence, and continue broadening approval-route parity as new policy packs are added.
+Add persisted delivery history views and alerting dashboards for release governance connectors, and continue broadening approval-route parity as new policy packs are added.

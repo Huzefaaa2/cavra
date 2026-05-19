@@ -40,6 +40,18 @@ curl -X POST http://127.0.0.1:8000/integrations/splunk/deliver \
 
 The response uses `cavra.connector.delivery.v1` and records provider, success, status code, attempt count, redacted request metadata, and errors.
 
+Release governance records can use the same connector path:
+
+```bash
+curl -X POST http://127.0.0.1:8000/promotion-executions/rpe_prod/audit-export/deliver \
+  -H 'content-type: application/json' \
+  -d '{"provider":"webhook","retries":1}'
+
+curl -X POST http://127.0.0.1:8000/rollback-executions/rre_prod/deliver \
+  -H 'content-type: application/json' \
+  -d '{"provider":"webhook","retries":1}'
+```
+
 ## CLI Delivery
 
 ```bash
@@ -47,6 +59,16 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json \
   --config .cavra/connectors.json \
   --provider splunk \
   --output .cavra/integrations/deliveries
+
+cavra release deliver-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
+
+cavra release deliver-rollback-execution .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
 ```
 
 ## User Stories
@@ -54,6 +76,7 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json \
 - As a SOC analyst, I can receive CAVRA evidence events in SIEM without manually uploading JSON.
 - As a platform engineer, I can send governance notifications to Slack or Teams with redacted delivery evidence.
 - As a change manager, I can create Jira or ServiceNow records from CAVRA events.
+- As a release manager, I can route promotion audit and rollback execution events with retry evidence.
 - As an auditor, I can inspect delivery evidence without seeing connector secrets.
 
 ## Enterprise Value
