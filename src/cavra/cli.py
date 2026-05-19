@@ -72,8 +72,10 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_endpoint_management_export_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
+    build_release_channel_promotion_request_metadata,
     build_rollout_promotion_execution_audit_event,
     build_rollout_rollback_execution_audit_event,
     create_managed_endpoint_rollout_rollback_execution,
@@ -1517,6 +1519,8 @@ def request_channel_promotion(
     signer: Annotated[str, typer.Option(help="Signer identity recorded in the channel promotion request signature.")] = "release-manager",
     approval_store: Annotated[Optional[Path], typer.Option(help="Optional JSON approval store to upsert the generated approval.")] = None,
     approval_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval store to upsert the generated approval.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index promotion request history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index promotion request history.")] = None,
     require_signatures: bool = typer.Option(
         True,
         "--require-signatures/--allow-unsigned",
@@ -1556,7 +1560,19 @@ def request_channel_promotion(
         if approval_sqlite:
             SQLiteApprovalStore(approval_sqlite).upsert(result.approval)
             persisted.append(str(approval_sqlite))
-    payload = result.to_dict() | {"approval_stores": persisted}
+    metadata = None
+    indexed_metadata_stores: list[str] = []
+    if result.valid and result.request:
+        metadata, indexed_metadata_stores = _index_release_metadata(
+            build_release_channel_promotion_request_metadata(result.request, package_dir=package_dir, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {
+        "approval_stores": persisted,
+        "metadata": metadata,
+        "indexed_metadata_stores": indexed_metadata_stores,
+    }
     if json_output:
         _print_json(payload)
     else:
@@ -1570,6 +1586,8 @@ def request_channel_promotion(
             console.print(f"  file: {file}")
         for store in persisted:
             console.print(f"  approval store: {store}")
+        for store in indexed_metadata_stores:
+            console.print(f"  indexed metadata: {store}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:
@@ -1587,6 +1605,8 @@ def export_endpoint_management(
     channel: Annotated[str, typer.Option(help="Release channel to export, such as stable, beta, or canary.")] = "stable",
     provider: Annotated[str, typer.Option(help="all, jamf, intune, or linux.")] = "all",
     promotion_request: Annotated[Optional[Path], typer.Option(help="Optional signed release channel promotion request JSON to link.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index endpoint export history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index endpoint export history.")] = None,
     require_signatures: bool = typer.Option(
         True,
         "--require-signatures/--allow-unsigned",
@@ -1614,8 +1634,17 @@ def export_endpoint_management(
     except (OSError, json.JSONDecodeError, RuntimeError, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
+    metadata = None
+    indexed_metadata_stores: list[str] = []
+    if result.valid and result.manifest:
+        metadata, indexed_metadata_stores = _index_release_metadata(
+            build_endpoint_management_export_metadata(result.manifest, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed_metadata_stores}
     if json_output:
-        _print_json(result.to_dict())
+        _print_json(payload)
     else:
         status_text = "valid" if result.valid else "invalid"
         console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint-management export")
@@ -1623,6 +1652,8 @@ def export_endpoint_management(
             console.print(f"  provider: {provider_name}")
         for file in result.files:
             console.print(f"  file: {file}")
+        for store in indexed_metadata_stores:
+            console.print(f"  indexed metadata: {store}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:
@@ -2130,6 +2161,22 @@ def connector_delivery_dashboard(
     """Summarize release governance connector delivery health and alerts."""
     items = _load_release_connector_delivery_items(metadata_json=metadata_json, sqlite=sqlite)
     _print_json(build_connector_delivery_dashboard(items))
+
+
+def _index_release_metadata(
+    metadata: dict,
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> tuple[dict, list[str]]:
+    indexed: list[str] = []
+    if metadata_json:
+        EvidenceMetadataStore(metadata_json).upsert(metadata)
+        indexed.append(str(metadata_json))
+    if sqlite:
+        SQLiteEvidenceMetadataStore(sqlite).upsert(metadata)
+        indexed.append(str(sqlite))
+    return metadata, indexed
 
 
 def _index_release_connector_delivery(

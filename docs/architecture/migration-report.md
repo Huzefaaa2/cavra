@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add API and console views for release-channel promotion requests and endpoint-management export bundle history.
+4. Add governed download APIs and integrity verification for endpoint-management export bundle artifacts.

@@ -45,8 +45,8 @@ cavra release validate-upgrade go/cavra-runtime/dist/go-runtime-v0.1.0 go/cavra-
 cavra release smoke-installers go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --json
 cavra release channel-manifest go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --json
 cavra release updater-policy go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --json
-cavra release request-channel-promotion go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --approval-store .cavra/api/approvals.json --json
-cavra release export-endpoint-management go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --provider all --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json --json
+cavra release request-channel-promotion go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
+cavra release export-endpoint-management go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --provider all --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json --metadata-json .cavra/evidence/metadata.json --json
 cavra release capture-rollout go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --deployment-id github-actions-linux-amd64-runner --change-record CHG-123 --json
 cavra release verify-rollout .cavra/release/rollout --metadata-json .cavra/evidence/metadata.json --sqlite .cavra/evidence/metadata.db --json
 cavra release request-rollout-promotion .cavra/release/rollout --target-ring production --approval-store .cavra/api/approvals.json --json

@@ -187,6 +187,39 @@ const releaseConnectorDeliveryCatalog = [
   }
 ];
 
+const releaseChannelPromotionCatalog = [
+  {
+    session_id: "rcp-stable-v0.2.0-rc.1",
+    metadata_kind: "release-channel-promotion-request",
+    created_at: "2026-05-19T00:00:00+00:00",
+    request_id: "rcp-stable-v0.2.0-rc.1",
+    channel: "stable",
+    target_ring: "enterprise",
+    approval_id: "apr_channel_stable",
+    approval_state: "pending",
+    deployment_targets: ["linux-systemd-amd64-workstation", "macos-jamf-arm64-workstation"],
+    endpoint_management_tools: ["linux", "jamf"],
+    release: { version: "v0.2.0-rc.1", commit: "sample" }
+  }
+];
+
+const endpointManagementExportCatalog = [
+  {
+    session_id: "eme-stable-v0.2.0-rc.1",
+    metadata_kind: "endpoint-management-export",
+    created_at: "2026-05-19T00:05:00+00:00",
+    export_id: "eme-stable-v0.2.0-rc.1",
+    channel: "stable",
+    provider: "all",
+    providers: ["jamf", "linux"],
+    approval_id: "apr_channel_stable",
+    approval_state: "pending",
+    request_id: "rcp-stable-v0.2.0-rc.1",
+    files: ["jamf-policy.json", "linux-fleet-manifest.json", "checksums.txt"],
+    release: { version: "v0.2.0-rc.1", commit: "sample" }
+  }
+];
+
 const releaseNoteCatalog = [
   {
     title: "Backend-Driven Sandbox Runs",
@@ -755,6 +788,50 @@ async function loadReleaseConnectorDashboard() {
   }
 }
 
+async function loadReleaseChannelPromotions() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      channel: document.querySelector("#filterReleaseChannel")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/release-channel-promotions", params));
+    if (!response.ok) throw new Error("Release channel promotion API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return filterReleaseChannelPromotions(releaseChannelPromotionCatalog);
+  }
+}
+
+async function loadEndpointManagementExports() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      channel: document.querySelector("#filterReleaseChannel")?.value.trim(),
+      provider: document.querySelector("#filterEndpointExportProvider")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-management-exports", params));
+    if (!response.ok) throw new Error("Endpoint management export API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return filterEndpointManagementExports(endpointManagementExportCatalog);
+  }
+}
+
+async function loadEndpointManagementExportDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-management-exports/dashboard"));
+    if (!response.ok) throw new Error("Endpoint management export dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointManagementExportDashboard(filterEndpointManagementExports(endpointManagementExportCatalog));
+  }
+}
+
 async function loadSessions() {
   await loadConsoleConfig();
   try {
@@ -1267,6 +1344,19 @@ function filterReleaseConnectorDeliveries(items) {
     .filter((item) => success === "" || Boolean(item.delivery_success) === (success === "true"));
 }
 
+function filterReleaseChannelPromotions(items) {
+  const channel = document.querySelector("#filterReleaseChannel")?.value.trim().toLowerCase();
+  return items.filter((item) => !channel || String(item.channel || "").toLowerCase().includes(channel));
+}
+
+function filterEndpointManagementExports(items) {
+  const channel = document.querySelector("#filterReleaseChannel")?.value.trim().toLowerCase();
+  const provider = document.querySelector("#filterEndpointExportProvider")?.value.trim().toLowerCase();
+  return items
+    .filter((item) => !channel || String(item.channel || "").toLowerCase().includes(channel))
+    .filter((item) => !provider || (item.providers || []).some((value) => String(value).toLowerCase().includes(provider)));
+}
+
 function filterSessions(items) {
   const repository = document.querySelector("#filterActivityRepository").value.trim().toLowerCase();
   const agent = document.querySelector("#filterActivityAgent").value.trim().toLowerCase();
@@ -1534,6 +1624,85 @@ function renderReleaseConnectorDeliveries(items, dashboard) {
       </tr>
     `);
   }
+}
+
+function renderReleaseChannelPublishing(promotions, exports, dashboard) {
+  const promotionRows = document.querySelector("#releaseChannelRows");
+  const exportRows = document.querySelector("#endpointExportRows");
+  const panel = document.querySelector("#releaseChannelDashboard");
+  if (!promotionRows || !exportRows || !panel) return;
+  promotionRows.innerHTML = "";
+  exportRows.innerHTML = "";
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Promotions</span>
+      <strong>${formatMetricNumber(promotions.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Exports</span>
+      <strong>${formatMetricNumber(dashboard.total_exports || exports.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Pending</span>
+      <strong class="${Number(dashboard.pending_approval_exports || 0) ? "require_approval" : "allow"}">${formatMetricNumber(dashboard.pending_approval_exports)}</strong>
+    </div>
+    <div class="release-delivery-alerts">
+      <strong>Providers</strong>
+      <ul>${Object.entries(dashboard.providers || {}).map(([provider, count]) => `<li>${escapeHtml(provider)}: ${formatMetricNumber(count)}</li>`).join("") || "<li>No endpoint exports indexed yet.</li>"}</ul>
+    </div>
+  `;
+  for (const item of promotions) {
+    promotionRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.request_id || item.session_id || "request")}</td>
+        <td>${escapeHtml(item.channel || "unknown")}</td>
+        <td>${escapeHtml(item.target_ring || "unknown")}</td>
+        <td class="${item.approval_state === "approved" ? "allow" : "require_approval"}">${escapeHtml(item.approval_id || "required")} / ${escapeHtml(item.approval_state || "pending")}</td>
+        <td>${escapeHtml(formatList(item.deployment_targets))}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+  for (const item of exports) {
+    exportRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.export_id || item.session_id || "export")}</td>
+        <td>${escapeHtml(item.channel || "unknown")}</td>
+        <td>${escapeHtml(formatList(item.providers))}</td>
+        <td class="${item.approval_state === "approved" ? "allow" : "require_approval"}">${escapeHtml(item.approval_id || "required")} / ${escapeHtml(item.approval_state || "pending")}</td>
+        <td>${Number((item.files || []).length)}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
+function sampleEndpointManagementExportDashboard(items) {
+  const providers = {};
+  const channels = {};
+  let pending = 0;
+  let files = 0;
+  for (const item of items) {
+    for (const provider of item.providers || []) providers[provider] = Number(providers[provider] || 0) + 1;
+    channels[item.channel || "unknown"] = Number(channels[item.channel || "unknown"] || 0) + 1;
+    files += (item.files || []).length;
+    if (item.approval_state !== "approved") pending += 1;
+  }
+  return {
+    schema_version: "cavra.endpoint_management.export_dashboard.v1",
+    product: "CAVRA",
+    total_exports: items.length,
+    pending_approval_exports: pending,
+    total_files: files,
+    providers,
+    channels,
+    alert_level: pending ? "warning" : "healthy",
+    latest: items.slice(0, 10)
+  };
 }
 
 function sampleReleaseConnectorDashboard(items) {
@@ -1954,6 +2123,15 @@ async function refreshReleaseDelivery() {
   renderReleaseConnectorDeliveries(items, dashboard);
 }
 
+async function refreshReleaseChannels() {
+  const [promotions, exports, dashboard] = await Promise.all([
+    loadReleaseChannelPromotions(),
+    loadEndpointManagementExports(),
+    loadEndpointManagementExportDashboard()
+  ]);
+  renderReleaseChannelPublishing(promotions, exports, dashboard);
+}
+
 async function showEvidenceArtifacts(sessionId) {
   renderEvidenceArtifacts(await loadEvidenceArtifacts(sessionId));
 }
@@ -2306,6 +2484,7 @@ document.querySelector("#requestPolicyPublishApproval").addEventListener("click"
 document.querySelector("#publishPolicyPack").addEventListener("click", publishPolicyPack);
 document.querySelector("#planRolloutChange").addEventListener("click", planRolloutChange);
 document.querySelector("#applyRolloutChange").addEventListener("click", applyRolloutChange);
+document.querySelector("#refreshReleaseChannels").addEventListener("click", refreshReleaseChannels);
 document.querySelector("#refreshIntegrations").addEventListener("click", refreshIntegrations);
 document.querySelector("#refreshSecurityBoundary").addEventListener("click", refreshSecurityBoundary);
 document.querySelector("#refreshDeploymentReadiness").addEventListener("click", refreshDeploymentReadiness);
@@ -2369,6 +2548,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 });
 refreshEvidence();
 renderReleaseNotes();
+refreshReleaseChannels();
 refreshReleaseDelivery();
 refreshDemoMetrics();
 refreshActivity();
