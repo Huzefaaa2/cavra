@@ -76,6 +76,8 @@ from cavra.release import (
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
     build_endpoint_management_publication_metadata,
+    build_managed_endpoint_reconciliation_dashboard,
+    build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_release_channel_promotion_request_metadata,
@@ -89,8 +91,10 @@ from cavra.release import (
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_endpoint_management_publication_history,
+    filter_managed_endpoint_reconciliation_history,
     load_release_channel_manifest,
     load_workstation_updater_policy,
+    reconcile_managed_endpoint_deployment,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -1733,6 +1737,66 @@ def deliver_endpoint_export(
             console.print(f"  indexed: {store}")
 
 
+@release_app.command("reconcile-endpoint-deployment")
+def reconcile_endpoint_deployment(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory containing cavra-runtime.endpoint-deployment.json.")],
+    observed_inventory: Annotated[Path, typer.Argument(help="Observed endpoint inventory JSON file.")],
+    output: Annotated[Path, typer.Option(help="Output directory for reconciliation report artifacts.")] = Path(
+        ".cavra/release/endpoint-reconciliation"
+    ),
+    stale_after_hours: Annotated[int, typer.Option(help="Hours after which endpoint observations are stale.")] = 24,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index reconciliation history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index reconciliation history.")] = None,
+    require_package_verification: bool = typer.Option(
+        True,
+        "--require-package-verification/--skip-package-verification",
+        help="Verify the Go release package before reconciling observed endpoints.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable reconciliation output."),
+) -> None:
+    """Compare desired signed endpoint deployment state with observed endpoint inventory."""
+    try:
+        desired_manifest = json.loads((package_dir / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+        observed_payload = json.loads(observed_inventory.read_text(encoding="utf-8"))
+        if not isinstance(desired_manifest, dict) or not isinstance(observed_payload, dict):
+            raise ValueError("desired manifest and observed inventory must be JSON objects")
+        result = reconcile_managed_endpoint_deployment(
+            desired_manifest,
+            observed_payload,
+            package_dir=package_dir,
+            output_dir=output,
+            stale_after_hours=stale_after_hours,
+            require_package_verification=require_package_verification,
+        )
+    except (OSError, json.JSONDecodeError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata = None
+    indexed: list[str] = []
+    if result.valid and result.report:
+        metadata, indexed = _index_release_metadata(
+            build_managed_endpoint_reconciliation_metadata(result.report, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = result.drift_status or "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint deployment reconciliation")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
 @release_app.command("capture-rollout")
 def capture_rollout(
     package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
@@ -2270,6 +2334,40 @@ def endpoint_publication_dashboard(
     _print_json(build_endpoint_management_publication_dashboard(items))
 
 
+@release_app.command("endpoint-reconciliation-history")
+def endpoint_reconciliation_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    drift_status: Annotated[Optional[str], typer.Option(help="Filter by aligned or drift_detected.")] = None,
+    alert_level: Annotated[Optional[str], typer.Option(help="Filter by healthy, warning, or critical.")] = None,
+    deployment_target: Annotated[Optional[str], typer.Option(help="Filter by deployment target ID.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show managed endpoint deployment reconciliation history."""
+    items = _load_managed_endpoint_reconciliation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_managed_endpoint_reconciliation_history(
+            items,
+            drift_status=drift_status,
+            alert_level=alert_level,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-reconciliation-dashboard")
+def endpoint_reconciliation_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize managed endpoint deployment drift and stale endpoint observations."""
+    items = _load_managed_endpoint_reconciliation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_managed_endpoint_reconciliation_dashboard(items))
+
+
 def _index_release_metadata(
     metadata: dict,
     *,
@@ -2327,6 +2425,21 @@ def _load_endpoint_management_publication_items(
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(
             metadata_kind="endpoint-management-publication-delivery",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_managed_endpoint_reconciliation_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="managed-endpoint-reconciliation",
             limit=500,
         )["items"]
     return []

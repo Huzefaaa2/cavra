@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.
+1. Add endpoint drift remediation plans with approval-bound republish and rollback workflows.

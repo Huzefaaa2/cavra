@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.
+4. Add endpoint drift remediation plans with approval-bound republish and rollback workflows.

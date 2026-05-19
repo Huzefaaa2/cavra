@@ -532,6 +532,60 @@ def test_api_release_channel_and_endpoint_export_history(monkeypatch, tmp_path) 
     assert dashboard.json()["pending_approval_exports"] == 1
 
 
+def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+    desired_manifest = {
+        "schema_version": "cavra.go-runtime.endpoint-deployment.v1",
+        "version": "v0.2.0-rc.1",
+        "commit": "abc123",
+        "repository": "Huzefaaa2/cavra",
+        "deployment_targets": [
+            {
+                "id": "linux-systemd-amd64-workstation",
+                "binary_sha256": "good",
+                "management_tool": "Linux endpoint management",
+            }
+        ],
+    }
+    observed_inventory = {
+        "schema_version": "cavra.endpoint-observations.v1",
+        "observed_at": "2026-05-19T00:00:00+00:00",
+        "channel": "stable",
+        "endpoints": [
+            {
+                "endpoint_id": "workstation-1",
+                "deployment_target": "linux-systemd-amd64-workstation",
+                "installed_version": "v0.1.0",
+                "binary_sha256": "old",
+                "last_seen_at": "2026-05-19T00:00:00+00:00",
+            }
+        ],
+    }
+
+    response = client.post(
+        "/endpoint-deployment/reconcile",
+        json={
+            "desired_manifest": desired_manifest,
+            "observed_inventory": observed_inventory,
+            "stale_after_hours": 24,
+        },
+    )
+    history = client.get("/endpoint-reconciliations", params={"drift_status": "drift_detected"})
+    dashboard = client.get("/endpoint-reconciliations/dashboard")
+    config = client.get("/console/config").json()
+
+    assert response.status_code == 200
+    assert response.json()["drift_status"] == "drift_detected"
+    assert response.json()["metadata"]["metadata_kind"] == "managed-endpoint-reconciliation"
+    assert history.status_code == 200
+    assert history.json()["total"] == 1
+    assert dashboard.status_code == 200
+    assert dashboard.json()["alert_level"] == "critical"
+    assert config["endpoints"]["endpoint_reconciliation_dashboard"] == "/endpoint-reconciliations/dashboard"
+
+
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))

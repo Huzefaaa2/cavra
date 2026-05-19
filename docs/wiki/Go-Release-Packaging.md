@@ -325,6 +325,46 @@ curl http://127.0.0.1:8000/endpoint-management-publications/dashboard
 
 The Evidence Console includes an Endpoint Publication Delivery panel with publication counts, failed delivery alerts, provider rows, and attempt history. This lets endpoint engineering and release managers distinguish "export generated" from "export delivered to fleet tooling" during a controlled runtime rollout.
 
+## Managed Endpoint Reconciliation
+
+CAVRA can compare the desired runtime state from `cavra-runtime.endpoint-deployment.json` with an observed endpoint inventory captured from fleet tooling. The public repo defines the reconciliation model and evidence records; private Enterprise connectors can later automate collection from Jamf, Intune, Linux management, EDR, or SaaS inventory systems.
+
+Observed inventory input is intentionally simple:
+
+```json
+{
+  "schema_version": "cavra.endpoint-observations.v1",
+  "observed_at": "2026-05-19T00:00:00+00:00",
+  "channel": "stable",
+  "endpoints": [
+    {
+      "endpoint_id": "workstation-1",
+      "deployment_target": "linux-systemd-amd64-workstation",
+      "installed_version": "v0.2.0-rc.1",
+      "binary_sha256": "..."
+    }
+  ]
+}
+```
+
+Run reconciliation and index drift evidence:
+
+```bash
+cavra release reconcile-endpoint-deployment \
+  go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 \
+  .cavra/release/observed-endpoints.json \
+  --metadata-json .cavra/evidence/metadata.json
+
+cavra release endpoint-reconciliation-history \
+  --metadata-json .cavra/evidence/metadata.json \
+  --drift-status drift_detected
+
+cavra release endpoint-reconciliation-dashboard \
+  --metadata-json .cavra/evidence/metadata.json
+```
+
+The report is indexed as `metadata_kind=managed-endpoint-reconciliation` with desired target counts, observed endpoint counts, compliant endpoints, version drift, binary checksum drift, missing target observations, stale endpoint observations, and alert level. The API exposes the same workflow through `POST /endpoint-deployment/reconcile`, `/endpoint-reconciliations`, and `/endpoint-reconciliations/dashboard`. The Evidence Console includes an Endpoint Drift Monitoring panel for drift counts and alert summaries.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -382,11 +422,13 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an auditor, I can confirm that endpoint export bundles were generated from an approved channel promotion request before publication.
 - As an endpoint engineering owner, I can download only checksum-verified endpoint export provider files from a governed API.
 - As a release manager, I can see endpoint export download readiness before handing artifacts to Jamf, Intune, or Linux fleet tooling.
+- As an endpoint engineering owner, I can reconcile observed runtime versions and checksums against signed deployment targets.
+- As a release manager, I can see endpoint drift, missing observations, and stale endpoint reports from CLI, API, or Evidence Console.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, endpoint drift reconciliation, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.
+1. Add endpoint drift remediation plans with approval-bound republish and rollback workflows.

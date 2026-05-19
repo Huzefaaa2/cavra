@@ -11,6 +11,8 @@ from cavra.approvals import ApprovalStore, create_approval_request
 from cavra.cli import app
 from cavra.evidence import EvidenceMetadataStore, generate_ed25519_keypair
 from cavra.release import (
+    build_managed_endpoint_reconciliation_dashboard,
+    build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     capture_managed_endpoint_rollout_evidence,
     create_managed_endpoint_rollout_rollback_execution,
@@ -19,6 +21,8 @@ from cavra.release import (
     create_release_channel_promotion_request,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
+    filter_managed_endpoint_reconciliation_history,
+    reconcile_managed_endpoint_deployment,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_managed_endpoint_rollout_evidence,
@@ -426,6 +430,107 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
     assert json.loads(history.output)["total"] == 1
     assert dashboard.exit_code == 0
     assert json.loads(dashboard.output)["providers"][0]["failed"] == 1
+
+
+def test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.2.0-rc.1", "abc123", targets=("linux_amd64",))
+    desired_manifest = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    target = desired_manifest["deployment_targets"][0]
+    observed = {
+        "schema_version": "cavra.endpoint-observations.v1",
+        "observed_at": "2026-05-19T00:00:00+00:00",
+        "channel": "stable",
+        "endpoints": [
+            {
+                "endpoint_id": "runner-1",
+                "deployment_target": target["id"],
+                "installed_version": "v0.2.0-rc.1",
+                "binary_sha256": target["binary_sha256"],
+                "last_seen_at": "2026-05-19T00:00:00+00:00",
+            },
+            {
+                "endpoint_id": "runner-2",
+                "deployment_target": target["id"],
+                "installed_version": "v0.1.0",
+                "binary_sha256": "bad",
+                "last_seen_at": "2026-05-19T00:00:00+00:00",
+            },
+        ],
+    }
+
+    result = reconcile_managed_endpoint_deployment(
+        desired_manifest,
+        observed,
+        package_dir=dist,
+        output_dir=tmp_path / "reconciliation",
+        stale_after_hours=24,
+    )
+
+    assert result.valid
+    assert result.drift_status == "drift_detected"
+    assert result.report["summary"]["compliant_endpoint_count"] == 1
+    assert result.report["summary"]["drifted_endpoint_count"] == 1
+    assert "managed-endpoint-reconciliation.json" in result.files
+    metadata = build_managed_endpoint_reconciliation_metadata(result.report, bundle_dir=tmp_path / "reconciliation")
+    history = filter_managed_endpoint_reconciliation_history(
+        [metadata],
+        drift_status="drift_detected",
+        deployment_target=target["id"],
+    )
+    dashboard = build_managed_endpoint_reconciliation_dashboard([metadata])
+    assert metadata["metadata_kind"] == "managed-endpoint-reconciliation"
+    assert history["total"] == 1
+    assert dashboard["alert_level"] == "critical"
+
+    observed_path = tmp_path / "observed-endpoints.json"
+    observed_path.write_text(json.dumps(observed), encoding="utf-8")
+    metadata_json = tmp_path / "reconciliation-metadata.json"
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "reconcile-endpoint-deployment",
+            str(dist),
+            str(observed_path),
+            "--output",
+            str(tmp_path / "cli-reconciliation"),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    assert cli_result.exit_code == 0
+    cli_payload = json.loads(cli_result.output)
+    assert cli_payload["metadata"]["metadata_kind"] == "managed-endpoint-reconciliation"
+    assert cli_payload["report"]["summary"]["drifted_endpoint_count"] == 1
+    history_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-reconciliation-history",
+            "--metadata-json",
+            str(metadata_json),
+            "--drift-status",
+            "drift_detected",
+        ],
+    )
+    dashboard_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-reconciliation-dashboard",
+            "--metadata-json",
+            str(metadata_json),
+        ],
+    )
+    assert history_cli.exit_code == 0
+    assert json.loads(history_cli.output)["total"] == 1
+    assert dashboard_cli.exit_code == 0
+    assert json.loads(dashboard_cli.output)["drifted_endpoint_count"] == 1
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

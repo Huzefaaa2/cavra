@@ -61,6 +61,8 @@ from cavra.release import (
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
     build_endpoint_management_publication_metadata,
+    build_managed_endpoint_reconciliation_dashboard,
+    build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
@@ -69,6 +71,8 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
     filter_endpoint_management_publication_history,
+    filter_managed_endpoint_reconciliation_history,
+    reconcile_managed_endpoint_deployment,
 )
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import (
@@ -207,6 +211,9 @@ def create_app():
                 "endpoint_management_export_publish": "/endpoint-management-exports/{export_id}/publish",
                 "endpoint_management_publications": "/endpoint-management-publications",
                 "endpoint_management_publication_dashboard": "/endpoint-management-publications/dashboard",
+                "endpoint_deployment_reconcile": "/endpoint-deployment/reconcile",
+                "endpoint_reconciliations": "/endpoint-reconciliations",
+                "endpoint_reconciliation_dashboard": "/endpoint-reconciliations/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1247,6 +1254,56 @@ def create_app():
             offset=0,
         )
         return build_endpoint_management_publication_dashboard(result["items"])
+
+    @app.post("/endpoint-deployment/reconcile")
+    def endpoint_deployment_reconcile(payload: dict) -> dict:
+        desired_manifest = payload.get("desired_manifest")
+        observed_inventory = payload.get("observed_inventory")
+        if not isinstance(desired_manifest, dict) or not isinstance(observed_inventory, dict):
+            raise HTTPException(status_code=400, detail="desired_manifest and observed_inventory are required objects")
+        result = reconcile_managed_endpoint_deployment(
+            desired_manifest,
+            observed_inventory,
+            stale_after_hours=int(payload.get("stale_after_hours", 24)),
+            require_package_verification=False,
+        )
+        if not result.valid or result.report is None:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = evidence_store.upsert(build_managed_endpoint_reconciliation_metadata(result.report))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-reconciliations")
+    def endpoint_reconciliation_index(
+        drift_status: Optional[str] = None,
+        alert_level: Optional[str] = None,
+        deployment_target: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="managed-endpoint-reconciliation",
+            limit=500,
+            offset=0,
+        )
+        return filter_managed_endpoint_reconciliation_history(
+            result["items"],
+            drift_status=drift_status,
+            alert_level=alert_level,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-reconciliations/dashboard")
+    def endpoint_reconciliation_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="managed-endpoint-reconciliation",
+            limit=500,
+            offset=0,
+        )
+        return build_managed_endpoint_reconciliation_dashboard(result["items"])
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:

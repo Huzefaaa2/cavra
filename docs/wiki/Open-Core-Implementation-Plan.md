@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add managed endpoint deployment reconciliation and drift monitoring for
-published CAVRA runtime versions.
+Add endpoint drift remediation plans with approval-bound republish and rollback
+workflows.

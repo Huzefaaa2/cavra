@@ -306,6 +306,30 @@ class EndpointManagementPublicationEventResult:
 
 
 @dataclass(frozen=True)
+class ManagedEndpointReconciliationResult:
+    package_dir: Path | None
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    reconciliation_id: str | None = None
+    drift_status: str | None = None
+    report: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "package_dir": str(self.package_dir) if self.package_dir else None,
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "reconciliation_id": self.reconciliation_id,
+            "drift_status": self.drift_status,
+            "report": self.report,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class ReleaseAuditExportResult:
     output_dir: Path
     files: list[Path]
@@ -1779,6 +1803,176 @@ def build_endpoint_management_publication_dashboard(items: list[dict[str, Any]])
     }
 
 
+def reconcile_managed_endpoint_deployment(
+    desired_manifest: dict[str, Any],
+    observed_inventory: dict[str, Any],
+    *,
+    package_dir: Path | None = None,
+    output_dir: Path | None = None,
+    stale_after_hours: int = 24,
+    require_package_verification: bool = True,
+) -> ManagedEndpointReconciliationResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    package_result = None
+    if desired_manifest.get("schema_version") != "cavra.go-runtime.endpoint-deployment.v1":
+        errors.append("endpoint deployment manifest has an invalid schema_version")
+    if observed_inventory.get("schema_version") != "cavra.endpoint-observations.v1":
+        errors.append("observed endpoint inventory has an invalid schema_version")
+    if package_dir and require_package_verification:
+        package_result = verify_go_release_package(package_dir)
+        errors.extend(package_result.errors)
+        warnings.extend(package_result.warnings)
+    desired_targets = [
+        target for target in desired_manifest.get("deployment_targets", []) if isinstance(target, dict) and target.get("id")
+    ]
+    observations = [
+        endpoint for endpoint in observed_inventory.get("endpoints", []) if isinstance(endpoint, dict)
+    ]
+    if not desired_targets:
+        errors.append("endpoint deployment manifest has no deployment_targets")
+    if errors:
+        return ManagedEndpointReconciliationResult(
+            package_dir=package_dir,
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+        )
+
+    report = _managed_endpoint_reconciliation_report(
+        desired_manifest,
+        observed_inventory,
+        desired_targets,
+        observations,
+        stale_after_hours=max(1, stale_after_hours),
+        package_verification=package_result.to_dict() if package_result else None,
+    )
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        report_path = output_dir / "managed-endpoint-reconciliation.json"
+        summary_path = output_dir / "managed-endpoint-reconciliation.md"
+        _write_release_json(report_path, report)
+        summary_path.write_text(_managed_endpoint_reconciliation_markdown_summary(report), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in [report_path, summary_path]) + "\n",
+            encoding="utf-8",
+        )
+        files = [report_path.name, summary_path.name, checksums_path.name]
+    return ManagedEndpointReconciliationResult(
+        package_dir=package_dir,
+        valid=True,
+        warnings=warnings,
+        reconciliation_id=report["reconciliation_id"],
+        drift_status=report["drift_status"],
+        report=report,
+        files=files,
+    )
+
+
+def build_managed_endpoint_reconciliation_metadata(
+    report: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    summary = report.get("summary", {}) if isinstance(report.get("summary"), dict) else {}
+    metadata = {
+        "session_id": report.get("reconciliation_id"),
+        "created_at": report.get("created_at"),
+        "signer": "endpoint-reconciliation",
+        "decision_count": 0,
+        "blocked_count": int(summary.get("drifted_endpoint_count") or 0) + int(summary.get("missing_target_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "managed-endpoint-reconciliation",
+        "reconciliation_id": report.get("reconciliation_id"),
+        "drift_status": report.get("drift_status"),
+        "alert_level": report.get("alert_level"),
+        "release": report.get("release", {}),
+        "observed_at": report.get("observed_at"),
+        "channel": report.get("channel"),
+        "desired_target_count": summary.get("desired_target_count", 0),
+        "observed_endpoint_count": summary.get("observed_endpoint_count", 0),
+        "compliant_endpoint_count": summary.get("compliant_endpoint_count", 0),
+        "drifted_endpoint_count": summary.get("drifted_endpoint_count", 0),
+        "missing_target_count": summary.get("missing_target_count", 0),
+        "unknown_target_count": summary.get("unknown_target_count", 0),
+        "stale_endpoint_count": summary.get("stale_endpoint_count", 0),
+        "deployment_targets": report.get("deployment_targets", []),
+        "drift_items": report.get("drift_items", []),
+        "report": report,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_managed_endpoint_reconciliation_history(
+    items: list[dict[str, Any]],
+    *,
+    drift_status: str | None = None,
+    alert_level: str | None = None,
+    deployment_target: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "managed-endpoint-reconciliation"]
+    if drift_status:
+        filtered = [item for item in filtered if item.get("drift_status") == drift_status]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if deployment_target in {str(value) for value in item.get("deployment_targets", [])}
+        ]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_reconciliation.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_managed_endpoint_reconciliation_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_managed_endpoint_reconciliation_history(items, limit=500)["items"]
+    latest = history[:10]
+    drifted = sum(int(item.get("drifted_endpoint_count") or 0) for item in history)
+    missing = sum(int(item.get("missing_target_count") or 0) for item in history)
+    stale = sum(int(item.get("stale_endpoint_count") or 0) for item in history)
+    compliant = sum(int(item.get("compliant_endpoint_count") or 0) for item in history)
+    alerts = [
+        {
+            "severity": item.get("alert_level", "warning"),
+            "reconciliation_id": item.get("reconciliation_id"),
+            "message": f"Endpoint reconciliation found {item.get('drifted_endpoint_count', 0)} drifted endpoints and {item.get('missing_target_count', 0)} missing targets.",
+        }
+        for item in history
+        if item.get("alert_level") in {"warning", "critical"}
+    ]
+    alert_level = "critical" if any(item.get("severity") == "critical" for item in alerts) else "warning" if alerts else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_reconciliation.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "total_reconciliations": len(history),
+        "compliant_endpoint_count": compliant,
+        "drifted_endpoint_count": drifted,
+        "missing_target_count": missing,
+        "stale_endpoint_count": stale,
+        "alerts": alerts[:25],
+        "latest": latest,
+    }
+
+
 def create_managed_endpoint_rollout_promotion_execution(
     promotion_request: dict[str, Any],
     approval: dict[str, Any],
@@ -2656,6 +2850,187 @@ def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[di
                 }
             )
     return refs
+
+
+def _managed_endpoint_reconciliation_report(
+    desired_manifest: dict[str, Any],
+    observed_inventory: dict[str, Any],
+    desired_targets: list[dict[str, Any]],
+    observations: list[dict[str, Any]],
+    *,
+    stale_after_hours: int,
+    package_verification: dict[str, Any] | None,
+) -> dict[str, Any]:
+    created_at = datetime.now(timezone.utc).isoformat()
+    release = {
+        "version": desired_manifest.get("version"),
+        "commit": desired_manifest.get("commit"),
+        "repository": desired_manifest.get("repository"),
+    }
+    desired_by_id = {str(target["id"]): target for target in desired_targets}
+    observed_by_target: dict[str, list[dict[str, Any]]] = {}
+    for endpoint in observations:
+        target_id = str(endpoint.get("deployment_target") or endpoint.get("target_id") or "")
+        if target_id:
+            observed_by_target.setdefault(target_id, []).append(endpoint)
+    drift_items: list[dict[str, Any]] = []
+    compliant = 0
+    stale = 0
+    now = datetime.now(timezone.utc)
+    for target_id, target in sorted(desired_by_id.items()):
+        target_observations = observed_by_target.get(target_id, [])
+        if not target_observations:
+            drift_items.append(
+                {
+                    "type": "missing_observation",
+                    "severity": "critical",
+                    "deployment_target": target_id,
+                    "expected_version": release.get("version"),
+                    "expected_binary_sha256": target.get("binary_sha256"),
+                    "message": f"No observed endpoints reported for deployment target {target_id}.",
+                }
+            )
+            continue
+        for endpoint in target_observations:
+            endpoint_id = str(endpoint.get("endpoint_id") or endpoint.get("id") or "unknown-endpoint")
+            endpoint_drift: list[str] = []
+            observed_version = endpoint.get("installed_version") or endpoint.get("version")
+            observed_sha256 = endpoint.get("binary_sha256") or endpoint.get("installed_binary_sha256")
+            if release.get("version") and observed_version and observed_version != release.get("version"):
+                endpoint_drift.append("version_drift")
+            if target.get("binary_sha256") and observed_sha256 and observed_sha256 != target.get("binary_sha256"):
+                endpoint_drift.append("binary_drift")
+            last_seen_at = str(endpoint.get("last_seen_at") or "")
+            if _endpoint_observation_is_stale(last_seen_at, now=now, stale_after_hours=stale_after_hours):
+                endpoint_drift.append("stale_observation")
+                stale += 1
+            if endpoint_drift:
+                drift_items.append(
+                    {
+                        "type": ",".join(endpoint_drift),
+                        "severity": "critical" if {"version_drift", "binary_drift"} & set(endpoint_drift) else "warning",
+                        "endpoint_id": endpoint_id,
+                        "deployment_target": target_id,
+                        "expected_version": release.get("version"),
+                        "observed_version": observed_version,
+                        "expected_binary_sha256": target.get("binary_sha256"),
+                        "observed_binary_sha256": observed_sha256,
+                        "last_seen_at": last_seen_at,
+                        "message": f"Endpoint {endpoint_id} is not aligned with deployment target {target_id}.",
+                    }
+                )
+            else:
+                compliant += 1
+    unknown_targets = sorted(set(observed_by_target) - set(desired_by_id))
+    for target_id in unknown_targets:
+        for endpoint in observed_by_target[target_id]:
+            drift_items.append(
+                {
+                    "type": "unknown_deployment_target",
+                    "severity": "warning",
+                    "endpoint_id": str(endpoint.get("endpoint_id") or endpoint.get("id") or "unknown-endpoint"),
+                    "deployment_target": target_id,
+                    "observed_version": endpoint.get("installed_version") or endpoint.get("version"),
+                    "message": f"Endpoint reported deployment target {target_id}, which is not in the signed manifest.",
+                }
+            )
+    missing_target_count = sum(1 for item in drift_items if item.get("type") == "missing_observation")
+    drifted_endpoint_count = sum(1 for item in drift_items if item.get("endpoint_id") and item.get("severity") == "critical")
+    alert_level = "critical" if drifted_endpoint_count or missing_target_count else "warning" if stale or unknown_targets else "healthy"
+    drift_status = "drift_detected" if alert_level in {"critical", "warning"} else "aligned"
+    observed_at = observed_inventory.get("observed_at") or created_at
+    reconciliation_id = _managed_endpoint_reconciliation_id(desired_manifest, observed_inventory, observed_at)
+    return {
+        "schema_version": "cavra.endpoint-reconciliation.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "reconciliation_id": reconciliation_id,
+        "created_at": created_at,
+        "observed_at": observed_at,
+        "drift_status": drift_status,
+        "alert_level": alert_level,
+        "release": release,
+        "channel": observed_inventory.get("channel"),
+        "deployment_targets": sorted(desired_by_id),
+        "summary": {
+            "desired_target_count": len(desired_targets),
+            "observed_endpoint_count": len(observations),
+            "compliant_endpoint_count": compliant,
+            "drifted_endpoint_count": drifted_endpoint_count,
+            "missing_target_count": missing_target_count,
+            "unknown_target_count": len(unknown_targets),
+            "stale_endpoint_count": stale,
+        },
+        "desired_manifest": desired_manifest,
+        "observed_inventory": observed_inventory,
+        "drift_items": drift_items,
+        "controls": [
+            "signed-endpoint-deployment-manifest-compared",
+            "observed-endpoint-inventory-normalized",
+            "runtime-version-drift-detected",
+            "binary-checksum-drift-detected",
+            "stale-endpoint-observations-flagged",
+        ],
+        "package_verification": package_verification,
+    }
+
+
+def _managed_endpoint_reconciliation_id(
+    desired_manifest: dict[str, Any],
+    observed_inventory: dict[str, Any],
+    observed_at: object,
+) -> str:
+    material = json.dumps(
+        {
+            "version": desired_manifest.get("version"),
+            "commit": desired_manifest.get("commit"),
+            "observed_at": observed_at,
+            "endpoints": observed_inventory.get("endpoints", []),
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return f"mer_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_observation_is_stale(last_seen_at: str, *, now: datetime, stale_after_hours: int) -> bool:
+    if not last_seen_at:
+        return False
+    try:
+        observed = datetime.fromisoformat(last_seen_at.replace("Z", "+00:00"))
+    except ValueError:
+        return True
+    if observed.tzinfo is None:
+        observed = observed.replace(tzinfo=timezone.utc)
+    return (now - observed).total_seconds() > stale_after_hours * 3600
+
+
+def _managed_endpoint_reconciliation_markdown_summary(report: dict[str, Any]) -> str:
+    summary = report.get("summary", {}) if isinstance(report.get("summary"), dict) else {}
+    lines = [
+        "# Managed Endpoint Reconciliation",
+        "",
+        f"- Reconciliation ID: `{report.get('reconciliation_id')}`",
+        f"- Status: `{report.get('drift_status')}`",
+        f"- Alert level: `{report.get('alert_level')}`",
+        f"- Desired targets: {summary.get('desired_target_count', 0)}",
+        f"- Observed endpoints: {summary.get('observed_endpoint_count', 0)}",
+        f"- Compliant endpoints: {summary.get('compliant_endpoint_count', 0)}",
+        f"- Drifted endpoints: {summary.get('drifted_endpoint_count', 0)}",
+        f"- Missing targets: {summary.get('missing_target_count', 0)}",
+        f"- Stale endpoints: {summary.get('stale_endpoint_count', 0)}",
+        "",
+        "## Drift Items",
+    ]
+    drift_items = [item for item in report.get("drift_items", []) if isinstance(item, dict)]
+    if not drift_items:
+        lines.append("- No drift detected.")
+    for item in drift_items:
+        lines.append(
+            f"- `{item.get('severity')}` `{item.get('type')}` target `{item.get('deployment_target')}` "
+            f"endpoint `{item.get('endpoint_id', 'n/a')}`: {item.get('message')}"
+        )
+    return "\n".join(lines) + "\n"
 
 
 def _select_release_channel(channel_manifest: dict[str, Any], channel: str) -> dict[str, Any]:
