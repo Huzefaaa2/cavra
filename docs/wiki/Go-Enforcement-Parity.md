@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add offline trust-root distribution automation and continue broadening approval-route parity as new policy packs are added.
+Add signed installer metadata for packaged deployment targets and continue broadening approval-route parity as new policy packs are added.

@@ -51,4 +51,4 @@ Signed Go release packaging gives regulated teams an auditable path from source 
 
 ## Next
 
-Add offline trust-root distribution automation.
+Add signed installer metadata for packaged deployment targets.

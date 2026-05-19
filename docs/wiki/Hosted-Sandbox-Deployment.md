@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add offline trust-root distribution automation.
+Add signed installer metadata for packaged deployment targets.

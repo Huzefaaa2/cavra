@@ -53,5 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add offline trust-root distribution automation.
-2. Add signed installer metadata for packaged deployment targets.
+1. Add signed installer metadata for packaged deployment targets.

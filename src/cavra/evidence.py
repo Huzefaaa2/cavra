@@ -193,6 +193,138 @@ def export_trust_root_bundle(trust_roots: list[Path], output_path: Path) -> Path
     return write_json(output_path, build_trust_root_bundle(trust_roots))
 
 
+def export_trust_root_distribution(
+    trust_roots: list[Path],
+    output_dir: Path,
+    *,
+    environment: str = "production",
+    distribution_id: str | None = None,
+    channels: list[str] | None = None,
+) -> ExportResult:
+    if not trust_roots:
+        raise ValueError("at least one trust root is required")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    bundle = build_trust_root_bundle(trust_roots)
+    created_at = datetime.now(timezone.utc).isoformat()
+    distribution_id = distribution_id or f"trust-roots-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+    channels = channels or ["source-control", "secure-portal", "offline-transfer"]
+
+    bundle_path = write_json(output_dir / "evidence-trust-roots.json", bundle)
+    manifest = build_trust_root_distribution_manifest(
+        bundle,
+        distribution_id=distribution_id,
+        environment=environment,
+        channels=channels,
+        created_at=created_at,
+        bundle_path=bundle_path,
+        output_dir=output_dir,
+    )
+    manifest_path = write_json(output_dir / "trust-root-distribution-manifest.json", manifest)
+    readme_path = output_dir / "trust-root-distribution.md"
+    readme_path.write_text(render_trust_root_distribution(manifest), encoding="utf-8")
+    checksums_path = output_dir / "checksums.txt"
+    checksum_artifacts = [bundle_path, manifest_path, readme_path]
+    checksums_path.write_text(
+        "\n".join(f"{sha256_file(path)}  {path.relative_to(output_dir).as_posix()}" for path in checksum_artifacts)
+        + "\n",
+        encoding="utf-8",
+    )
+    return ExportResult(output_dir, [bundle_path, manifest_path, readme_path, checksums_path])
+
+
+def build_trust_root_distribution_manifest(
+    bundle: dict[str, Any],
+    *,
+    distribution_id: str,
+    environment: str,
+    channels: list[str],
+    created_at: str,
+    bundle_path: Path,
+    output_dir: Path,
+) -> dict[str, Any]:
+    trust_roots = bundle.get("trust_roots", [])
+    key_summaries = [
+        {
+            "key_id": root.get("key_id"),
+            "owner": root.get("owner"),
+            "status": root.get("status"),
+            "algorithm": root.get("algorithm"),
+            "public_key_sha256": root.get("public_key_sha256"),
+            "valid_from": root.get("valid_from"),
+            "valid_until": root.get("valid_until"),
+        }
+        for root in trust_roots
+        if isinstance(root, dict)
+    ]
+    active_key_ids = sorted(str(root["key_id"]) for root in key_summaries if root.get("status") == "active" and root.get("key_id"))
+    retired_key_ids = sorted(str(root["key_id"]) for root in key_summaries if root.get("status") == "retired" and root.get("key_id"))
+    revoked_key_ids = sorted(str(root["key_id"]) for root in key_summaries if root.get("status") == "revoked" and root.get("key_id"))
+    return {
+        "schema_version": "cavra.evidence.trust-root-distribution.v1",
+        "product": "CAVRA",
+        "distribution_id": distribution_id,
+        "environment": environment,
+        "created_at": created_at,
+        "bundle": {
+            "path": bundle_path.relative_to(output_dir).as_posix(),
+            "sha256": sha256_file(bundle_path),
+            "schema_version": bundle.get("schema_version"),
+            "trust_root_count": len(key_summaries),
+            "active_key_ids": active_key_ids,
+            "retired_key_ids": retired_key_ids,
+            "revoked_key_ids": revoked_key_ids,
+        },
+        "channels": channels,
+        "keys": key_summaries,
+        "verification_commands": [
+            "sha256sum -c checksums.txt",
+            "cavra evidence verify .cavra/evidence/latest --trust-root evidence-trust-roots.json",
+        ],
+        "operator_steps": [
+            "Distribute only the public trust-root files in this directory; never include private signing keys.",
+            "Verify checksums before importing the bundle into CI, reviewer workstations, API services, or audit tooling.",
+            "Publish the updated trust-root distribution before evidence bundles are signed by a new active key.",
+            "Retain retired keys for historical evidence verification and remove revoked keys only after incident response approval.",
+        ],
+    }
+
+
+def render_trust_root_distribution(manifest: dict[str, Any]) -> str:
+    lines = [
+        "# CAVRA Trust-Root Distribution",
+        "",
+        f"Distribution ID: `{manifest['distribution_id']}`",
+        f"Environment: `{manifest['environment']}`",
+        f"Created at: `{manifest['created_at']}`",
+        "",
+        "## Bundle",
+        "",
+        f"- Path: `{manifest['bundle']['path']}`",
+        f"- SHA-256: `{manifest['bundle']['sha256']}`",
+        f"- Trust roots: `{manifest['bundle']['trust_root_count']}`",
+        "",
+        "## Active Keys",
+        "",
+    ]
+    active_key_ids = manifest.get("bundle", {}).get("active_key_ids", [])
+    if active_key_ids:
+        for key_id in active_key_ids:
+            lines.append(f"- `{key_id}`")
+    else:
+        lines.append("- No active keys in this distribution.")
+    lines.extend(["", "## Distribution Channels", ""])
+    for channel in manifest.get("channels", []):
+        lines.append(f"- `{channel}`")
+    lines.extend(["", "## Operator Steps", ""])
+    for step in manifest.get("operator_steps", []):
+        lines.append(f"- {step}")
+    lines.extend(["", "## Verification", ""])
+    for command in manifest.get("verification_commands", []):
+        lines.append(f"```bash\n{command}\n```")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def render_pr_attestation(session_id: str, decisions: list[dict[str, Any]]) -> str:
     blocked = [item for item in decisions if item.get("decision") == "block"]
     approvals = [item for item in decisions if item.get("decision") == "require_approval"]
