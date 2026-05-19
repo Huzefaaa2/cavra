@@ -11,11 +11,13 @@ from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
 from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
+    create_managed_endpoint_rollout_promotion_request,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_managed_endpoint_rollout_evidence,
     verify_go_airgap_bundle,
     verify_go_release_package,
+    verify_rollout_promotion_request_signature,
 )
 
 runner = CliRunner()
@@ -343,6 +345,92 @@ def test_managed_endpoint_rollout_evidence_rejects_checksum_tampering(tmp_path: 
 
     assert not result.valid
     assert any("rollout checksum mismatch" in error for error in result.errors)
+
+
+def test_managed_endpoint_rollout_promotion_request_is_signed_and_persisted(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        rollout_ring="pilot",
+        status="staged",
+        actor="release-agent",
+        change_record="CHG-123",
+    )
+
+    result = create_managed_endpoint_rollout_promotion_request(
+        rollout_dir,
+        output_dir=tmp_path / "promotion",
+        target_ring="production",
+        requested_by="release-manager",
+        signing_key_pem=private_key.read_text(encoding="utf-8"),
+    )
+
+    assert result.valid
+    assert result.approval["state"] == "pending"
+    assert result.approval["approver_group"] == "Change Advisory Board"
+    assert result.request["target_ring"] == "production"
+    assert result.request["signature"]["algorithm"] == "Ed25519"
+    verify_rollout_promotion_request_signature(result.request)
+    assert set(result.files) == {
+        "rollout-promotion-approval-request.json",
+        "rollout-promotion-approval-request.md",
+    }
+
+    approval_json = tmp_path / "approvals.json"
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "request-rollout-promotion",
+            str(rollout_dir),
+            "--output",
+            str(tmp_path / "cli-promotion"),
+            "--target-ring",
+            "production",
+            "--approval-store",
+            str(approval_json),
+            "--json",
+        ],
+    )
+
+    assert cli_result.exit_code == 0
+    payload = json.loads(cli_result.output)
+    assert payload["valid"] is True
+    assert payload["request"]["signature"]["algorithm"] == "Ed25519"
+    assert json.loads(approval_json.read_text(encoding="utf-8"))["items"][0]["state"] == "pending"
+
+
+def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        status="planned",
+    )
+
+    result = create_managed_endpoint_rollout_promotion_request(
+        rollout_dir,
+        target_ring="production",
+        signing_key_pem=private_key.read_text(encoding="utf-8"),
+    )
+
+    assert not result.valid
+    assert "rollout promotion requires staged or succeeded rollout evidence" in result.errors
 
 
 def test_managed_endpoint_rollout_evidence_rejects_unknown_target(tmp_path: Path, monkeypatch) -> None:

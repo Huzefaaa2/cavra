@@ -42,12 +42,15 @@ The session must also exist in evidence metadata through `POST /evidence`, `cavr
 - `GET /evidence/{session_id}/artifacts`: list available artifacts, media types, sizes, checksums, descriptions, and download URLs.
 - `GET /evidence/{session_id}/artifacts/{artifact_name}`: download one allowlisted artifact.
 - `GET /evidence/{session_id}/artifact-bundle`: download a ZIP containing all available allowlisted artifacts.
+- `POST /evidence/{session_id}/promotion-request`: create a signed pending approval request for promotion-ready managed endpoint rollout evidence.
 
 Downloads include `x-cavra-artifact-sha256` so clients can log or verify the returned payload.
 
 For metadata records with `metadata_kind=managed-endpoint-rollout`, CAVRA serves only the rollout allowlist: `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt`.
 
 Rollout artifact listings also include `rollout_artifact_integrity` and `promotion_readiness`. Integrity verifies rollout evidence files against `checksums.txt`, reports missing, unchecked, and mismatched artifacts, and blocks promotion readiness when checksums do not verify.
+
+Promotion requests require `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RELEASE_SIGNING_KEY`, re-verify rollout evidence, and persist a pending approval in the configured approval store.
 
 ## Security Boundary
 
@@ -64,6 +67,7 @@ Rollout artifact listings also include `rollout_artifact_integrity` and `promoti
 - As a pull request reviewer, I can retrieve the PR attestation from the same console used for evidence search.
 - As an endpoint engineering owner, I can retrieve verified rollout evidence and checksums for a managed endpoint deployment record.
 - As a release manager, I can see whether rollout artifacts are checksum-verified and ready for promotion review.
+- As a release manager, I can create a signed promotion approval request from the same governed rollout evidence record.
 - As a platform engineer, I can expose artifact downloads from a controlled evidence root without granting the API broad filesystem access.
 
 ## Enterprise Value

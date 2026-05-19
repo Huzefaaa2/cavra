@@ -1263,6 +1263,10 @@ function renderEvidenceArtifacts(payload) {
         <li>Unchecked: ${escapeHtml(formatList(integrity.unchecked_artifacts))}</li>
         <li>Mismatched: ${escapeHtml(formatList(integrity.checksum_mismatches))}</li>
       </ul>
+      <div class="artifact-actions">
+        <button class="rolloutPromotionRequestAction" data-session="${escapeHtml(payload.session_id || "")}">Request Promotion Approval</button>
+        <span id="rolloutPromotionStatus" class="status-line"></span>
+      </div>
     ` : ""}
     <h3>Bundle Files</h3>
     <ul>${artifacts.map((item) => {
@@ -1734,6 +1738,61 @@ async function showEvidenceArtifacts(sessionId) {
   renderEvidenceArtifacts(await loadEvidenceArtifacts(sessionId));
 }
 
+async function requestRolloutPromotionApproval(sessionId) {
+  const status = document.querySelector("#rolloutPromotionStatus");
+  if (status) {
+    status.textContent = "Requesting signed promotion approval...";
+    status.className = "status-line require_approval";
+  }
+  try {
+    const response = await fetch(apiUrl(`/evidence/${encodeURIComponent(sessionId)}/promotion-request`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        target_ring: "production",
+        requested_by: "console",
+        approver_group: "Change Advisory Board"
+      })
+    });
+    if (!response.ok) throw new Error("Promotion approval API unavailable");
+    const result = await response.json();
+    if (status) {
+      status.textContent = `Signed promotion approval requested: ${result.approval?.approval_id || "pending"}`;
+      status.className = "status-line ok";
+    }
+    if (result.approval) renderApprovalDetail(result.approval);
+  } catch {
+    const approval = {
+      schema_version: "cavra.approval.v1",
+      product: "CAVRA",
+      approval_id: `apr_rollout_${Date.now()}`,
+      decision_id: `rpr_${Date.now()}:decision`,
+      session_id: sessionId,
+      state: "pending",
+      approver_group: "Change Advisory Board",
+      requested_by: "console",
+      requested_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      decision: {
+        action_type: "release_promote_endpoint_rollout",
+        target: `${sessionId}->production`,
+        decision: "require_approval",
+        rule_id: "release.rollout.promotion.require_approval",
+        reason: "Managed endpoint rollout promotion requires signed approval."
+      },
+      evidence_refs: [`approval://rollout/${Date.now()}`, `evidence://${sessionId}/managed-endpoint-rollout-evidence.json`],
+      history: [{ event: "requested", actor: "console", timestamp: new Date().toISOString(), reason: "Sample signed promotion request." }]
+    };
+    approvalCatalog.unshift(approval);
+    if (status) {
+      status.textContent = `Sample promotion approval requested: ${approval.approval_id}`;
+      status.className = "status-line ok";
+    }
+    renderApprovalDetail(approval);
+  }
+  await refreshApprovals();
+}
+
 async function refreshActivity() {
   const [sessions, decisions] = await Promise.all([loadSessions(), loadDecisions()]);
   renderActivityRows(filterSessions(sessions), filterDecisions(decisions));
@@ -1943,6 +2002,12 @@ document.querySelector("#evidenceRows").addEventListener("click", async (event) 
   const artifactButton = event.target.closest(".evidenceArtifactAction");
   if (!artifactButton) return;
   await showEvidenceArtifacts(artifactButton.dataset.session);
+});
+document.querySelector("#evidenceArtifacts").addEventListener("click", async (event) => {
+  if (!(event.target instanceof Element)) return;
+  const promotionButton = event.target.closest(".rolloutPromotionRequestAction");
+  if (!promotionButton) return;
+  await requestRolloutPromotionApproval(promotionButton.dataset.session);
 });
 document.querySelector("#rolloutRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;

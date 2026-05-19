@@ -118,6 +118,7 @@ Evidence metadata endpoints:
 - `GET /evidence/{session_id}/artifacts`: list downloadable evidence bundle artifacts for an indexed session.
 - `GET /evidence/{session_id}/artifacts/{artifact_name}`: download one allowlisted evidence artifact.
 - `GET /evidence/{session_id}/artifact-bundle`: download an allowlisted ZIP bundle for the session.
+- `POST /evidence/{session_id}/promotion-request`: create a signed pending approval request for a managed endpoint rollout that is ready for promotion.
 
 Default metadata path: `.cavra/api/evidence-metadata.json`.
 
@@ -134,7 +135,7 @@ Set `CAVRA_EVIDENCE_METADATA_DB` to use SQLite-backed metadata persistence. `GET
 
 For security, the API does not accept arbitrary server-side bundle paths. Use `cavra evidence index` locally to extract metadata from a bundle, then persist the resulting metadata with `POST /evidence`.
 
-Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to enable hosted artifact retrieval. The artifact root is expected to contain one directory per indexed session, for example `.cavra/evidence/artifacts/api-session/manifest.json`. Retrieval endpoints require the session to exist in evidence metadata, only serve known bundle filenames, reject path traversal, and include `x-cavra-artifact-sha256` on downloads.
+Set `CAVRA_EVIDENCE_ARTIFACT_ROOT` to enable hosted artifact retrieval. The artifact root is expected to contain one directory per indexed session or managed endpoint rollout, for example `.cavra/evidence/artifacts/api-session/manifest.json`. Retrieval endpoints require the session to exist in evidence metadata, only serve known bundle filenames, reject path traversal, and include `x-cavra-artifact-sha256` on downloads. Rollout promotion requests require `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RELEASE_SIGNING_KEY`.
 
 ## Approvals
 

@@ -89,6 +89,17 @@ curl -OJ http://127.0.0.1:8000/evidence/chg-123-v0.1.0/artifact-bundle
 
 The artifact listing reports checksum integrity and promotion readiness so release owners can distinguish verified, incomplete, blocked, and ready rollout records.
 
+Create a signed approval request before promotion:
+
+```bash
+cavra release request-rollout-promotion \
+  .cavra/release/rollout \
+  --target-ring production \
+  --approval-store .cavra/api/approvals.json
+```
+
+The command re-verifies rollout evidence, requires staged or succeeded rollout status, signs the request with `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RELEASE_SIGNING_KEY`, writes JSON and Markdown request artifacts, and can persist the pending approval. The console exposes the same workflow from the rollout artifact panel.
+
 Verify an unsigned dry-run package:
 
 ```bash
@@ -106,12 +117,13 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 - As an endpoint engineering owner, I can find rollout evidence by environment, status, and target from the CLI, API, or console.
 - As an endpoint engineering owner, I can download the verified rollout evidence files and checksum manifest from a governed artifact root.
 - As a release manager, I can see whether rollout evidence is ready for the next deployment ring.
+- As a release manager, I can create a signed promotion approval request before advancing endpoint rollout.
 - As an auditor, I can run a local verifier before approving runtime distribution.
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, console/API views, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, console/API views, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add signed promotion approval requests for endpoint rollout readiness.
+Add approved promotion execution records for endpoint rollout ring advancement.

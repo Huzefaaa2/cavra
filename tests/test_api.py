@@ -5,7 +5,7 @@ from base64 import urlsafe_b64encode
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
-from cavra.evidence import create_evidence_bundle, sha256_file
+from cavra.evidence import create_evidence_bundle, generate_ed25519_keypair, sha256_file
 from cavra.runtime import RuntimeGuard
 
 
@@ -225,6 +225,78 @@ def test_api_serves_configured_rollout_evidence_artifacts(monkeypatch, tmp_path)
     assert bundle.status_code == 200
     assert bundle.content.startswith(b"PK")
     assert rejected.status_code == 400
+
+
+def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    artifact_root = tmp_path / "artifacts"
+    rollout_dir = artifact_root / "rollout-1"
+    rollout_dir.mkdir(parents=True)
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    summary_path = rollout_dir / "managed-endpoint-rollout-evidence.md"
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1",
+                "rollout_id": "rollout-1",
+                "status": "staged",
+                "change_record": "CHG-123",
+                "environment": "production",
+                "rollout_ring": "pilot",
+                "release": {"version": "v0.1.0", "repository": "Huzefaaa2/cavra"},
+                "deployment_targets": [{"id": "github-actions-linux-amd64-runner"}],
+                "controls": ["rollout-evidence-checksummed"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    summary_path.write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text(
+        "\n".join(
+            [
+                f"{sha256_file(evidence_path)}  managed-endpoint-rollout-evidence.json",
+                f"{sha256_file(summary_path)}  managed-endpoint-rollout-evidence.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(artifact_root))
+    client = TestClient(create_app())
+    client.post(
+        "/evidence",
+        json={
+            "session_id": "rollout-1",
+            "metadata_kind": "managed-endpoint-rollout",
+            "bundle_dir": str(rollout_dir),
+            "rollout_status": "staged",
+        },
+    )
+
+    response = client.post(
+        "/evidence/rollout-1/promotion-request",
+        json={
+            "target_ring": "production",
+            "requested_by": "release-manager",
+            "require_package_verification": False,
+            "require_signatures": False,
+            "require_provenance": False,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["valid"] is True
+    assert response.json()["request"]["signature"]["algorithm"] == "Ed25519"
+    approval = response.json()["approval"]
+    assert approval["state"] == "pending"
+    assert client.get("/approvals", params={"state": "pending"}).json()["items"][0]["approval_id"] == approval["approval_id"]
+    assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_request"] == "/evidence/{session_id}/promotion-request"
 
 
 def test_api_evidence_artifacts_require_configured_root(monkeypatch, tmp_path) -> None:

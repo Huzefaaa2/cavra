@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add signed promotion approval requests for endpoint rollout readiness and continue broadening approval-route parity as new policy packs are added.
+Add approved promotion execution records for endpoint rollout ring advancement and continue broadening approval-route parity as new policy packs are added.

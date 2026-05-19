@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import os
 import platform
 import re
 import subprocess
@@ -12,6 +13,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from cavra.approvals import create_approval_request
 
 
 class ReleaseVerificationError(ValueError):
@@ -163,6 +166,30 @@ class ManagedEndpointRolloutVerificationResult:
             "deployment_targets": self.deployment_targets,
             "metadata": self.metadata,
             "package_verification": self.package_verification,
+        }
+
+
+@dataclass(frozen=True)
+class ManagedEndpointRolloutPromotionRequestResult:
+    rollout_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    rollout_id: str | None = None
+    request: dict[str, Any] | None = None
+    approval: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "rollout_dir": str(self.rollout_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "rollout_id": self.rollout_id,
+            "request": self.request,
+            "approval": self.approval,
+            "files": self.files,
         }
 
 
@@ -856,6 +883,138 @@ def build_managed_endpoint_rollout_metadata(rollout_dir: Path, payload: dict[str
     }
 
 
+def create_managed_endpoint_rollout_promotion_request(
+    rollout_dir: Path,
+    *,
+    output_dir: Path | None = None,
+    target_ring: str = "production",
+    requested_by: str = "release-manager",
+    approver_group: str = "Change Advisory Board",
+    ttl_hours: int = 24,
+    signing_key_pem: str | None = None,
+    signer: str = "release-manager",
+    package_dir: Path | None = None,
+    require_package_verification: bool = True,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+) -> ManagedEndpointRolloutPromotionRequestResult:
+    rollout_dir = rollout_dir.resolve()
+    verification = verify_managed_endpoint_rollout_evidence(
+        rollout_dir,
+        package_dir=package_dir,
+        require_package_verification=require_package_verification,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors = list(verification.errors)
+    warnings = list(verification.warnings)
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    evidence: dict[str, Any] = {}
+    if evidence_path.exists():
+        try:
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid rollout evidence JSON: {exc}")
+    else:
+        errors.append("missing managed-endpoint-rollout-evidence.json")
+    rollout_id = str(evidence.get("rollout_id") or verification.rollout_id or "")
+    rollout_status = str(evidence.get("status") or "")
+    if verification.valid and rollout_status not in {"staged", "succeeded"}:
+        errors.append("rollout promotion requires staged or succeeded rollout evidence")
+    signing_key_pem = signing_key_pem or os.environ.get("CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY") or os.environ.get(
+        "CAVRA_GO_RELEASE_SIGNING_KEY"
+    )
+    if not signing_key_pem:
+        errors.append("rollout promotion request signing key is required")
+    if errors:
+        return ManagedEndpointRolloutPromotionRequestResult(
+            rollout_dir=rollout_dir,
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            rollout_id=rollout_id or None,
+        )
+
+    request_id = _promotion_request_id(rollout_id, target_ring)
+    release = evidence.get("release", {}) if isinstance(evidence.get("release"), dict) else {}
+    deployment_targets = [
+        str(target.get("id"))
+        for target in evidence.get("deployment_targets", [])
+        if isinstance(target, dict) and target.get("id")
+    ]
+    decision = {
+        "decision_id": f"{request_id}:decision",
+        "session_id": rollout_id,
+        "correlation_id": request_id,
+        "action_type": "release_promote_endpoint_rollout",
+        "target": f"{rollout_id}->{target_ring}",
+        "decision": "require_approval",
+        "severity": "high",
+        "rule_id": "release.rollout.promotion.require_approval",
+        "reason": "Managed endpoint rollout promotion requires signed approval.",
+        "actor": requested_by,
+        "policy_pack": "cavra-release-integrity",
+        "repository": release.get("repository"),
+        "evidence_refs": [
+            f"rollout://{rollout_id}",
+            f"evidence://{rollout_id}/managed-endpoint-rollout-evidence.json",
+            f"change://{evidence.get('change_record', 'unassigned')}",
+        ],
+        "metadata": {
+            "rollout_id": rollout_id,
+            "current_ring": evidence.get("rollout_ring"),
+            "target_ring": target_ring,
+            "environment": evidence.get("environment"),
+            "rollout_status": rollout_status,
+            "change_record": evidence.get("change_record"),
+            "deployment_targets": sorted(deployment_targets),
+            "verified_artifacts": verification.verified_artifacts,
+            "release": release,
+        },
+    }
+    approval = create_approval_request(
+        decision,
+        approver_group=approver_group,
+        requested_by=requested_by,
+        ttl_hours=ttl_hours,
+    )
+    request_payload = {
+        "schema_version": "cavra.go-runtime.endpoint-rollout-promotion-request.v1",
+        "product": "CAVRA",
+        "request_id": request_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "rollout_id": rollout_id,
+        "environment": evidence.get("environment"),
+        "current_ring": evidence.get("rollout_ring"),
+        "target_ring": target_ring,
+        "rollout_status": rollout_status,
+        "change_record": evidence.get("change_record"),
+        "release": release,
+        "deployment_targets": sorted(deployment_targets),
+        "verified_artifacts": verification.verified_artifacts,
+        "approval": approval,
+    }
+    request_payload["signature"] = _sign_json_payload_ed25519(request_payload, signing_key_pem, signer=signer)
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        request_path = output_dir / "rollout-promotion-approval-request.json"
+        summary_path = output_dir / "rollout-promotion-approval-request.md"
+        _write_release_json(request_path, request_payload)
+        summary_path.write_text(_promotion_request_markdown_summary(request_payload), encoding="utf-8")
+        files = [request_path.name, summary_path.name]
+    return ManagedEndpointRolloutPromotionRequestResult(
+        rollout_dir=rollout_dir,
+        valid=True,
+        warnings=warnings,
+        rollout_id=rollout_id,
+        request=request_payload,
+        approval=approval,
+        files=files,
+    )
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -1142,6 +1301,107 @@ def _rollout_markdown_summary(payload: dict[str, Any]) -> str:
     lines.extend(["", "## Source Artifacts", ""])
     for artifact in payload["source_artifacts"].values():
         lines.append(f"- `{artifact['path']}` `{artifact['sha256']}`")
+    return "\n".join(lines) + "\n"
+
+
+def _promotion_request_id(rollout_id: str, target_ring: str) -> str:
+    digest = hashlib.sha256(f"{rollout_id}:{target_ring}".encode("utf-8")).hexdigest()[:12]
+    return f"rpr_{digest}"
+
+
+def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *, signer: str) -> dict[str, Any]:
+    try:
+        from cryptography.hazmat.primitives import serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to sign rollout promotion requests.") from exc
+    unsigned = {key: value for key, value in payload.items() if key != "signature"}
+    canonical = json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    private_key = serialization.load_pem_private_key(private_key_pem.encode("utf-8"), password=None)
+    signature = private_key.sign(canonical)
+    public_key = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    public_key_sha256 = hashlib.sha256(public_key).hexdigest()
+    return {
+        "schema_version": "cavra.rollout-promotion.signature.v1",
+        "algorithm": "Ed25519",
+        "signer": signer,
+        "key_id": public_key_sha256[:16],
+        "public_key_sha256": public_key_sha256,
+        "public_key_pem": public_key.decode("utf-8"),
+        "payload_sha256": hashlib.sha256(canonical).hexdigest(),
+        "value": base64.b64encode(signature).decode("ascii"),
+    }
+
+
+def verify_rollout_promotion_request_signature(payload: dict[str, Any]) -> None:
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives import serialization
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError("Install cryptography to verify rollout promotion request signatures.") from exc
+    signature = payload.get("signature")
+    if not isinstance(signature, dict):
+        raise ReleaseVerificationError("rollout promotion request is missing signature")
+    if signature.get("schema_version") != "cavra.rollout-promotion.signature.v1":
+        raise ReleaseVerificationError("rollout promotion request signature has an invalid schema_version")
+    if signature.get("algorithm") != "Ed25519":
+        raise ReleaseVerificationError("rollout promotion request signature must use Ed25519")
+    public_key_pem = str(signature.get("public_key_pem", "")).encode("utf-8")
+    if not public_key_pem:
+        raise ReleaseVerificationError("rollout promotion request signature is missing public_key_pem")
+    if hashlib.sha256(public_key_pem).hexdigest() != signature.get("public_key_sha256"):
+        raise ReleaseVerificationError("rollout promotion request public key fingerprint mismatch")
+    unsigned = {key: value for key, value in payload.items() if key != "signature"}
+    canonical = json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != signature.get("payload_sha256"):
+        raise ReleaseVerificationError("rollout promotion request payload digest mismatch")
+    try:
+        value = base64.b64decode(str(signature.get("value", "")), validate=True)
+    except ValueError as exc:
+        raise ReleaseVerificationError("rollout promotion request signature has invalid base64") from exc
+    public_key = serialization.load_pem_public_key(public_key_pem)
+    try:
+        public_key.verify(value, canonical)
+    except InvalidSignature as exc:
+        raise ReleaseVerificationError("rollout promotion request signature is invalid") from exc
+
+
+def _promotion_request_markdown_summary(payload: dict[str, Any]) -> str:
+    approval = payload.get("approval", {})
+    release = payload.get("release", {})
+    lines = [
+        "# CAVRA Rollout Promotion Approval Request",
+        "",
+        f"Request ID: `{payload.get('request_id')}`",
+        f"Rollout ID: `{payload.get('rollout_id')}`",
+        f"Current ring: `{payload.get('current_ring')}`",
+        f"Target ring: `{payload.get('target_ring')}`",
+        f"Status: `{payload.get('rollout_status')}`",
+        f"Change record: `{payload.get('change_record')}`",
+        f"Version: `{release.get('version')}`",
+        f"Approval ID: `{approval.get('approval_id')}`",
+        f"Approver group: `{approval.get('approver_group')}`",
+        "",
+        "## Deployment Targets",
+        "",
+    ]
+    for target in payload.get("deployment_targets", []):
+        lines.append(f"- `{target}`")
+    lines.extend(["", "## Verified Artifacts", ""])
+    for artifact in payload.get("verified_artifacts", []):
+        lines.append(f"- `{artifact}`")
+    lines.extend(
+        [
+            "",
+            "## Signature",
+            "",
+            f"Algorithm: `{payload.get('signature', {}).get('algorithm')}`",
+            f"Signer: `{payload.get('signature', {}).get('signer')}`",
+            f"Payload SHA-256: `{payload.get('signature', {}).get('payload_sha256')}`",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
