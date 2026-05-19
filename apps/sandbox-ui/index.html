@@ -326,6 +326,37 @@
           </table>
         </div>
       </section>
+      <section class="console release-delivery-console">
+        <div class="console-header">
+          <div>
+            <h2>Endpoint Publication Delivery</h2>
+            <p>Track Jamf, Intune, and Linux fleet publication attempts for governed endpoint-management exports.</p>
+          </div>
+          <button id="refreshEndpointPublicationDelivery">Refresh</button>
+        </div>
+        <div id="endpointPublicationDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <input id="filterEndpointPublicationProvider" placeholder="jamf" /></label>
+          <label>Channel <input id="filterEndpointPublicationChannel" placeholder="stable" /></label>
+          <label>Success <select id="filterEndpointPublicationSuccess"><option value="">Any</option><option value="true">Success</option><option value="false">Failed</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Publication</th>
+                <th>Export</th>
+                <th>Channel</th>
+                <th>Providers</th>
+                <th>Status</th>
+                <th>Attempts</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="endpointPublicationRows"></tbody>
+          </table>
+        </div>
+      </section>
       <section class="console">
         <div class="console-header">
           <div>

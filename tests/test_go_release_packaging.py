@@ -369,6 +369,64 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
         "endpoint-management-export",
     }
 
+    connector_config = tmp_path / "endpoint-connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"jamf": {"url": "http://127.0.0.1:9/jamf?token=secret"}}}),
+        encoding="utf-8",
+    )
+    publication_metadata = tmp_path / "endpoint-publications.json"
+    publication_delivery = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-export",
+            str(tmp_path / "cli-endpoint-export" / "endpoint-management-export-manifest.json"),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "jamf",
+            "--retries",
+            "0",
+            "--timeout-seconds",
+            "0.1",
+            "--metadata-json",
+            str(publication_metadata),
+            "--json",
+        ],
+    )
+    assert publication_delivery.exit_code == 0
+    publication_payload = json.loads(publication_delivery.output)
+    assert publication_payload["valid"] is True
+    assert publication_payload["providers"] == ["jamf"]
+    assert publication_payload["delivery"]["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert publication_payload["metadata"]["metadata_kind"] == "endpoint-management-publication-delivery"
+    assert publication_payload["metadata"]["failed_providers"] == ["jamf"]
+    history = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-publication-history",
+            "--metadata-json",
+            str(publication_metadata),
+            "--provider",
+            "jamf",
+            "--no-success",
+        ],
+    )
+    dashboard = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-publication-dashboard",
+            "--metadata-json",
+            str(publication_metadata),
+        ],
+    )
+    assert history.exit_code == 0
+    assert json.loads(history.output)["total"] == 1
+    assert dashboard.exit_code == 0
+    assert json.loads(dashboard.output)["providers"][0]["failed"] == 1
+
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:
     private_key = tmp_path / "keys" / "private.pem"

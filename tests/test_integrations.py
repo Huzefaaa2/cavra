@@ -213,3 +213,29 @@ def test_connector_delivery_metadata_history_and_dashboard() -> None:
     assert history["total"] == 1
     assert dashboard["alert_level"] == "critical"
     assert dashboard["providers"][0]["failed"] == 1
+
+
+def test_endpoint_management_connectors_use_provider_payloads() -> None:
+    event = {
+        "event_type": "cavra.endpoint_management_export_publication",
+        "publication_id": "emp_123",
+        "export_id": "eme_123",
+        "provider_payloads": {
+            "jamf": {"schema_version": "cavra.endpoint-management.jamf.v1", "provider": "jamf"},
+            "intune": {"schema_version": "cavra.endpoint-management.intune.v1", "provider": "intune"},
+            "linux": {"schema_version": "cavra.endpoint-management.linux.v1", "provider": "linux"},
+        },
+    }
+    config = {
+        "connectors": {
+            "jamf": {"url": "https://jamf.example.test/api/policies"},
+            "intune": {"url": "https://intune.example.test/apps"},
+            "linux": {"url": "https://fleet.example.test/manifests"},
+        }
+    }
+
+    specs = build_connector_request_specs(event, config)
+
+    assert specs["jamf"]["body"]["provider"] == "jamf"
+    assert specs["intune"]["body"]["provider"] == "intune"
+    assert specs["linux"]["body"]["provider"] == "linux"

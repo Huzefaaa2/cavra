@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint-management export publication records and connector delivery to
-Jamf, Intune, and Linux fleet managers.
+Add managed endpoint deployment reconciliation and drift monitoring for
+published CAVRA runtime versions.

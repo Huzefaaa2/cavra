@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.
+1. Add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.

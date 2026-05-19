@@ -73,6 +73,9 @@ from cavra.registry import (
 )
 from cavra.release import (
     build_endpoint_management_export_metadata,
+    build_endpoint_management_publication_dashboard,
+    build_endpoint_management_publication_event,
+    build_endpoint_management_publication_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_release_channel_promotion_request_metadata,
@@ -85,6 +88,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_execution,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
+    filter_endpoint_management_publication_history,
     load_release_channel_manifest,
     load_workstation_updater_policy,
     verify_managed_endpoint_rollout_evidence,
@@ -1662,6 +1666,73 @@ def export_endpoint_management(
         raise typer.Exit(code=1)
 
 
+@release_app.command("deliver-endpoint-export")
+def deliver_endpoint_export(
+    export_manifest: Annotated[Path, typer.Argument(help="endpoint-management-export-manifest.json path.")],
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for connector delivery evidence.")] = Path(
+        ".cavra/release/endpoint-publication-deliveries"
+    ),
+    provider: Annotated[str, typer.Option(help="all, jamf, intune, or linux.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
+) -> None:
+    """Publish an endpoint-management export to Jamf, Intune, or Linux fleet connectors."""
+    try:
+        manifest = json.loads(export_manifest.read_text(encoding="utf-8"))
+        if not isinstance(manifest, dict):
+            raise ValueError("endpoint-management export manifest JSON must be an object")
+        event_result = build_endpoint_management_publication_event(
+            manifest,
+            export_dir=export_manifest.parent,
+            provider=provider,
+        )
+        if not event_result.valid or event_result.event is None:
+            payload = event_result.to_dict()
+            if json_output:
+                _print_json(payload)
+            else:
+                for error in event_result.errors:
+                    console.print(f"  [red]error:[/] {error}")
+            raise typer.Exit(code=1)
+        result = deliver_connector_event(
+            event_result.event,
+            load_connector_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_connector_delivery_result(result, output)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_metadata(
+        build_endpoint_management_publication_metadata(
+            result,
+            event_result.event,
+            delivery_evidence=path,
+        ),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = event_result.to_dict() | {
+        "delivery": result,
+        "delivery_evidence": str(path),
+        "metadata": metadata,
+        "indexed_metadata_stores": indexed,
+    }
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(result, indent=2)))
+        console.print(f"[green]endpoint export connector delivery evidence exported[/green] {path}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+
+
 @release_app.command("capture-rollout")
 def capture_rollout(
     package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
@@ -2163,6 +2234,42 @@ def connector_delivery_dashboard(
     _print_json(build_connector_delivery_dashboard(items))
 
 
+@release_app.command("endpoint-publication-history")
+def endpoint_publication_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    provider: Annotated[Optional[str], typer.Option(help="Filter by endpoint-management provider.")] = None,
+    export_id: Annotated[Optional[str], typer.Option(help="Filter by endpoint-management export ID.")] = None,
+    channel: Annotated[Optional[str], typer.Option(help="Filter by release channel.")] = None,
+    success: Annotated[Optional[bool], typer.Option(help="Filter successful or failed delivery batches.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show persisted endpoint-management export publication history."""
+    items = _load_endpoint_management_publication_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_management_publication_history(
+            items,
+            provider=provider,
+            export_id=export_id,
+            channel=channel,
+            success=success,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-publication-dashboard")
+def endpoint_publication_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint-management publication health and provider failures."""
+    items = _load_endpoint_management_publication_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_management_publication_dashboard(items))
+
+
 def _index_release_metadata(
     metadata: dict,
     *,
@@ -2207,6 +2314,21 @@ def _load_release_connector_delivery_items(
         return EvidenceMetadataStore(metadata_json).list()
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(metadata_kind="release-connector-delivery", limit=500)["items"]
+    return []
+
+
+def _load_endpoint_management_publication_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-management-publication-delivery",
+            limit=500,
+        )["items"]
     return []
 
 

@@ -58,6 +58,9 @@ from cavra.registry import (
 )
 from cavra.release import (
     build_endpoint_management_export_dashboard,
+    build_endpoint_management_publication_dashboard,
+    build_endpoint_management_publication_event,
+    build_endpoint_management_publication_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
@@ -65,6 +68,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
+    filter_endpoint_management_publication_history,
 )
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import (
@@ -200,6 +204,9 @@ def create_app():
                 "endpoint_management_export_artifacts": "/endpoint-management-exports/{export_id}/artifacts",
                 "endpoint_management_export_artifact": "/endpoint-management-exports/{export_id}/artifacts/{artifact_name}",
                 "endpoint_management_export_artifact_bundle": "/endpoint-management-exports/{export_id}/artifact-bundle",
+                "endpoint_management_export_publish": "/endpoint-management-exports/{export_id}/publish",
+                "endpoint_management_publications": "/endpoint-management-publications",
+                "endpoint_management_publication_dashboard": "/endpoint-management-publications/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1169,6 +1176,77 @@ def create_app():
                 "x-cavra-artifact-kind": str(artifact_metadata["kind"]),
             },
         )
+
+    @app.post("/endpoint-management-exports/{export_id}/publish")
+    def endpoint_management_export_publish(export_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        metadata = _get_endpoint_management_export_or_404(evidence_store, export_id)
+        manifest = metadata.get("manifest")
+        if not isinstance(manifest, dict):
+            raise HTTPException(status_code=400, detail="endpoint management export metadata is missing manifest payload")
+        export_dir = None
+        if metadata.get("bundle_dir"):
+            root = _configured_artifact_root(evidence_artifact_root)
+            export_dir = _resolve_under_artifact_root(root, metadata.get("bundle_dir"), "endpoint management export directory")
+        try:
+            event_result = build_endpoint_management_publication_event(
+                manifest,
+                export_dir=export_dir,
+                export_id=export_id,
+                provider=payload.get("provider", "all"),
+                requested_by=payload.get("requested_by", "console"),
+            )
+            if not event_result.valid or event_result.event is None:
+                raise ValueError("; ".join(event_result.errors) or "endpoint management publication event is invalid")
+            result = deliver_connector_event(
+                event_result.event,
+                connector_config,
+                provider=payload.get("provider", "all"),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+            publication_metadata = evidence_store.upsert(
+                build_endpoint_management_publication_metadata(result, event_result.event)
+            )
+            return event_result.to_dict() | {"delivery": result, "metadata": publication_metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/endpoint-management-publications")
+    def endpoint_management_publication_index(
+        provider: Optional[str] = None,
+        export_id: Optional[str] = None,
+        channel: Optional[str] = None,
+        success: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-management-publication-delivery",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_management_publication_history(
+            result["items"],
+            provider=provider,
+            export_id=export_id,
+            channel=channel,
+            success=success,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-management-publications/dashboard")
+    def endpoint_management_publication_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-management-publication-delivery",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_management_publication_dashboard(result["items"])
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:
