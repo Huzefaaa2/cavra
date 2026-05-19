@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, endpoint export publication delivery, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -297,6 +297,34 @@ curl -OJ http://127.0.0.1:8000/endpoint-management-exports/eme_stable/artifact-b
 
 The API serves only files listed in the endpoint export metadata and known to CAVRA: export manifest JSON, export summary Markdown, Jamf policy JSON, Intune app JSON, Linux fleet manifest JSON, Linux install script, and `checksums.txt`. Provider files must match `checksums.txt` before download. Responses include `x-cavra-artifact-sha256`, and the artifact listing exposes `endpoint_management_export_integrity` plus `download_readiness` so release managers can see whether downloads are blocked or ready.
 
+## Endpoint Export Publication Delivery
+
+Endpoint-management exports can be published through the same connector runtime used by release governance events. Configure `jamf`, `intune`, or `linux` connectors in `.cavra/connectors.json`, then deliver a checksum-verified endpoint export manifest:
+
+```bash
+cavra release deliver-endpoint-export \
+  .cavra/release/endpoint-management-export/endpoint-management-export-manifest.json \
+  --config .cavra/connectors.json \
+  --provider jamf \
+  --metadata-json .cavra/evidence/metadata.json
+```
+
+The command builds a `cavra.endpoint-management-publication.v1` event, selects provider-specific payloads from `jamf-policy.json`, `intune-win32-app.json`, or `linux-fleet-manifest.json`, verifies export checksums when the export directory is present, writes redacted connector delivery evidence, and indexes `metadata_kind=endpoint-management-publication-delivery`.
+
+Publication history and health are available from both CLI and API:
+
+```bash
+cavra release endpoint-publication-history --metadata-json .cavra/evidence/metadata.json --provider jamf --no-success
+cavra release endpoint-publication-dashboard --metadata-json .cavra/evidence/metadata.json
+curl -X POST http://127.0.0.1:8000/endpoint-management-exports/eme_stable/publish \
+  -H 'content-type: application/json' \
+  -d '{"provider":"jamf","retries":1}'
+curl http://127.0.0.1:8000/endpoint-management-publications
+curl http://127.0.0.1:8000/endpoint-management-publications/dashboard
+```
+
+The Evidence Console includes an Endpoint Publication Delivery panel with publication counts, failed delivery alerts, provider rows, and attempt history. This lets endpoint engineering and release managers distinguish "export generated" from "export delivered to fleet tooling" during a controlled runtime rollout.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -350,7 +378,7 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 - As a release manager, I can review persisted connector delivery history after promotion and rollback audit events are sent.
 - As a SOC analyst, I can see dashboard alerts when release governance delivery to SIEM, ITSM, ChatOps, or webhook targets fails.
-- As a release manager, I can review channel promotion request history and endpoint-management export history from the API or Evidence Console.
+- As a release manager, I can review channel promotion request history, endpoint-management export history, and endpoint publication delivery status from the API or Evidence Console.
 - As an auditor, I can confirm that endpoint export bundles were generated from an approved channel promotion request before publication.
 - As an endpoint engineering owner, I can download only checksum-verified endpoint export provider files from a governed API.
 - As a release manager, I can see endpoint export download readiness before handing artifacts to Jamf, Intune, or Linux fleet tooling.
@@ -361,4 +389,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.
+1. Add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.

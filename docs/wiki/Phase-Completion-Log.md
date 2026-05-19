@@ -795,3 +795,25 @@ Validation:
 - `python3 -m pytest tests/test_api.py::test_api_serves_endpoint_management_export_artifacts_with_integrity -q` passed locally.
 
 Recommended next issue: add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.
+
+## Endpoint Export Publication Delivery
+
+Status: complete for the current endpoint-management publication delivery slice.
+
+Completed:
+- Added Jamf, Intune, and Linux as supported connector delivery providers.
+- Added endpoint-management publication event construction with checksum-aware artifact references and provider-specific payload selection.
+- Added `cavra release deliver-endpoint-export` to publish endpoint exports through configured endpoint-management connectors.
+- Added `cavra release endpoint-publication-history` and `cavra release endpoint-publication-dashboard` for persisted publication delivery review.
+- Added `/endpoint-management-exports/{export_id}/publish`, `/endpoint-management-publications`, and `/endpoint-management-publications/dashboard` API endpoints.
+- Indexed delivery records as `metadata_kind=endpoint-management-publication-delivery` with export ID, publication ID, provider status, attempt counts, failed providers, and delivery evidence references.
+- Updated the Evidence Console with an Endpoint Publication Delivery panel for provider status, failed publication alerts, and attempt history.
+- Updated README, CLI docs, API docs, connector docs, Go release packaging docs, feature inventory, release advisory docs, roadmap docs, and wiki source.
+- Added tests for endpoint provider payload routing, CLI publication delivery indexing, and API publication delivery history/dashboard retrieval.
+
+Validation:
+- `python3 -m ruff check src tests` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_integrations.py::test_endpoint_management_connectors_use_provider_payloads tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports tests/test_api.py::test_api_serves_endpoint_management_export_artifacts_with_integrity -q` passed locally.
+
+Recommended next issue: add managed endpoint deployment reconciliation and drift monitoring for published CAVRA runtime versions.

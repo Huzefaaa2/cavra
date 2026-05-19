@@ -542,10 +542,14 @@ def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypa
     summary_path = export_dir / "endpoint-management-export-manifest.md"
     jamf_path = export_dir / "jamf-policy.json"
     linux_path = export_dir / "linux-fleet-manifest.json"
-    manifest_path.write_text(
-        json.dumps({"schema_version": "cavra.endpoint-management-export.v1", "channel": "stable"}),
-        encoding="utf-8",
-    )
+    manifest_payload = {
+        "schema_version": "cavra.endpoint-management-export.v1",
+        "channel": "stable",
+        "providers": ["jamf", "linux"],
+        "release": {"version": "v0.2.0-rc.1"},
+        "approval": {"approval_id": "apr_channel"},
+    }
+    manifest_path.write_text(json.dumps(manifest_payload), encoding="utf-8")
     summary_path.write_text("# Endpoint Export\n", encoding="utf-8")
     jamf_path.write_text(json.dumps({"schema_version": "cavra.endpoint-management.jamf.v1"}), encoding="utf-8")
     linux_path.write_text(json.dumps({"schema_version": "cavra.endpoint-management.linux.v1"}), encoding="utf-8")
@@ -562,6 +566,12 @@ def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypa
         encoding="utf-8",
     )
     monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(artifact_root))
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"jamf": {"url": "http://127.0.0.1:9/jamf?token=secret"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_CONNECTOR_CONFIG", str(connector_config))
     client = TestClient(create_app())
     client.post(
         "/evidence",
@@ -579,6 +589,7 @@ def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypa
                 "linux-fleet-manifest.json",
                 "checksums.txt",
             ],
+            "manifest": manifest_payload,
         },
     )
 
@@ -586,6 +597,12 @@ def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypa
     artifact = client.get("/endpoint-management-exports/eme_stable_1/artifacts/jamf-policy.json")
     bundle = client.get("/endpoint-management-exports/eme_stable_1/artifact-bundle")
     rejected = client.get("/endpoint-management-exports/eme_stable_1/artifacts/intune-win32-app.json")
+    publish = client.post(
+        "/endpoint-management-exports/eme_stable_1/publish",
+        json={"provider": "jamf", "retries": 0, "timeout_seconds": 0.1},
+    )
+    publications = client.get("/endpoint-management-publications", params={"provider": "jamf", "success": "false"})
+    publication_dashboard = client.get("/endpoint-management-publications/dashboard")
     jamf_sha256 = sha256_file(jamf_path)
     jamf_path.write_text(json.dumps({"tampered": True}), encoding="utf-8")
     tampered_listing = client.get("/endpoint-management-exports/eme_stable_1/artifacts")
@@ -605,6 +622,14 @@ def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypa
     assert bundle.content.startswith(b"PK")
     assert bundle.headers["x-cavra-artifact-count"] == "5"
     assert rejected.status_code == 400
+    assert publish.status_code == 200
+    assert publish.json()["providers"] == ["jamf"]
+    assert publish.json()["delivery"]["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert publish.json()["metadata"]["metadata_kind"] == "endpoint-management-publication-delivery"
+    assert publications.status_code == 200
+    assert publications.json()["total"] == 1
+    assert publication_dashboard.status_code == 200
+    assert publication_dashboard.json()["providers"][0]["failed"] == 1
     assert tampered_listing.status_code == 200
     assert tampered_listing.json()["endpoint_management_export_integrity"]["status"] == "failed"
     assert tampered_download.status_code == 400

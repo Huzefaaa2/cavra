@@ -220,6 +220,24 @@ const endpointManagementExportCatalog = [
   }
 ];
 
+const endpointPublicationDeliveryCatalog = [
+  {
+    session_id: "epd-emp-stable-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-management-publication-delivery",
+    created_at: "2026-05-19T00:12:00+00:00",
+    publication_id: "emp-stable-v0.2.0-rc.1",
+    event_id: "emp-stable-v0.2.0-rc.1",
+    export_id: "eme-stable-v0.2.0-rc.1",
+    channel: "stable",
+    delivery_success: false,
+    providers: ["jamf"],
+    failed_providers: ["jamf"],
+    attempt_count: 1,
+    max_attempt_count: 1,
+    delivery_evidence: ".cavra/release/endpoint-publication-deliveries/emp-stable-v0.2.0-rc.1-connector-delivery.json"
+  }
+];
+
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
     schema_version: "cavra.evidence.artifacts.v1",
@@ -864,6 +882,35 @@ async function loadEndpointManagementExportDashboard() {
   }
 }
 
+async function loadEndpointPublicationDeliveries() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      provider: document.querySelector("#filterEndpointPublicationProvider")?.value.trim(),
+      channel: document.querySelector("#filterEndpointPublicationChannel")?.value.trim(),
+      success: document.querySelector("#filterEndpointPublicationSuccess")?.value,
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-management-publications", params));
+    if (!response.ok) throw new Error("Endpoint publication delivery API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return filterEndpointPublicationDeliveries(endpointPublicationDeliveryCatalog);
+  }
+}
+
+async function loadEndpointPublicationDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-management-publications/dashboard"));
+    if (!response.ok) throw new Error("Endpoint publication dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointPublicationDashboard(filterEndpointPublicationDeliveries(endpointPublicationDeliveryCatalog));
+  }
+}
+
 async function loadEndpointManagementExportArtifacts(exportId) {
   await loadConsoleConfig();
   try {
@@ -1411,6 +1458,16 @@ function filterEndpointManagementExports(items) {
     .filter((item) => !provider || (item.providers || []).some((value) => String(value).toLowerCase().includes(provider)));
 }
 
+function filterEndpointPublicationDeliveries(items) {
+  const provider = document.querySelector("#filterEndpointPublicationProvider")?.value.trim().toLowerCase();
+  const channel = document.querySelector("#filterEndpointPublicationChannel")?.value.trim().toLowerCase();
+  const success = document.querySelector("#filterEndpointPublicationSuccess")?.value;
+  return items
+    .filter((item) => !provider || (item.providers || []).some((value) => String(value).toLowerCase().includes(provider)))
+    .filter((item) => !channel || String(item.channel || "").toLowerCase().includes(channel))
+    .filter((item) => success === "" || Boolean(item.delivery_success) === (success === "true"));
+}
+
 function filterSessions(items) {
   const repository = document.querySelector("#filterActivityRepository").value.trim().toLowerCase();
   const agent = document.querySelector("#filterActivityAgent").value.trim().toLowerCase();
@@ -1680,6 +1737,50 @@ function renderReleaseConnectorDeliveries(items, dashboard) {
   }
 }
 
+function renderEndpointPublicationDeliveries(items, dashboard) {
+  const rows = document.querySelector("#endpointPublicationRows");
+  const panel = document.querySelector("#endpointPublicationDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  const alerts = Array.isArray(dashboard.alerts) ? dashboard.alerts : [];
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Publications</span>
+      <strong>${formatMetricNumber(dashboard.total_publications)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Failed</span>
+      <strong class="${Number(dashboard.failed_publications || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_publications)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Success Rate</span>
+      <strong>${Math.round(Number(dashboard.success_rate || 0) * 100)}%</strong>
+    </div>
+    <div class="release-delivery-alerts">
+      <strong>Alerts</strong>
+      <ul>${alerts.map((item) => `<li><span class="${riskClass(item.severity)}">${escapeHtml(item.severity)}</span> ${escapeHtml(item.message || item.export_id || "publication alert")}</li>`).join("") || "<li class=\"allow\">No active endpoint publication alerts.</li>"}</ul>
+    </div>
+  `;
+  for (const item of items) {
+    const status = item.delivery_success ? "success" : "failed";
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.publication_id || item.event_id || item.session_id || "publication")}</td>
+        <td>${escapeHtml(item.export_id || "unknown")}</td>
+        <td>${escapeHtml(item.channel || "unknown")}</td>
+        <td>${escapeHtml(formatList(item.providers))}</td>
+        <td class="${item.delivery_success ? "allow" : "block"}">${escapeHtml(status)}</td>
+        <td>${Number(item.attempt_count || 0)}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -1789,6 +1890,28 @@ function sampleEndpointManagementExportDashboard(items) {
     providers,
     channels,
     alert_level: pending ? "warning" : "healthy",
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointPublicationDashboard(items) {
+  const failed = items.filter((item) => !item.delivery_success);
+  return {
+    schema_version: "cavra.endpoint_management.publication_dashboard.v1",
+    product: "CAVRA",
+    alert_level: failed.length ? "warning" : "healthy",
+    total_publications: items.length,
+    successful_publications: items.length - failed.length,
+    failed_publications: failed.length,
+    success_rate: items.length ? (items.length - failed.length) / items.length : 0,
+    providers: [],
+    alerts: failed.map((item) => ({
+      severity: "warning",
+      event_id: item.event_id,
+      export_id: item.export_id,
+      failed_providers: item.failed_providers || [],
+      message: `Endpoint publication failed for ${item.export_id}.`
+    })),
     latest: items.slice(0, 10)
   };
 }
@@ -2211,6 +2334,11 @@ async function refreshReleaseDelivery() {
   renderReleaseConnectorDeliveries(items, dashboard);
 }
 
+async function refreshEndpointPublicationDelivery() {
+  const [items, dashboard] = await Promise.all([loadEndpointPublicationDeliveries(), loadEndpointPublicationDashboard()]);
+  renderEndpointPublicationDeliveries(items, dashboard);
+}
+
 async function refreshReleaseChannels() {
   const [promotions, exports, dashboard] = await Promise.all([
     loadReleaseChannelPromotions(),
@@ -2567,6 +2695,7 @@ async function verifyAttestation() {
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
+document.querySelector("#refreshEndpointPublicationDelivery").addEventListener("click", refreshEndpointPublicationDelivery);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -2648,6 +2777,7 @@ refreshEvidence();
 renderReleaseNotes();
 refreshReleaseChannels();
 refreshReleaseDelivery();
+refreshEndpointPublicationDelivery();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

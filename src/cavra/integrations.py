@@ -110,7 +110,19 @@ INTEGRATION_CATEGORIES = {
 }
 INTEGRATION_STATUSES = {"planned", "configured", "active", "paused", "disabled"}
 INTEGRATION_HEALTH = {"unknown", "healthy", "degraded", "failed", "not_checked"}
-CONNECTOR_PROVIDERS = {"splunk", "sentinel", "datadog", "webhook", "slack", "teams", "jira", "servicenow"}
+CONNECTOR_PROVIDERS = {
+    "splunk",
+    "sentinel",
+    "datadog",
+    "webhook",
+    "slack",
+    "teams",
+    "jira",
+    "servicenow",
+    "jamf",
+    "intune",
+    "linux",
+}
 
 
 def utc_now() -> str:
@@ -533,7 +545,16 @@ def build_connector_delivery_dashboard(items: list[dict[str, Any]]) -> dict[str,
 
 
 def _event_identity(event: dict[str, Any]) -> str | None:
-    for key in ("session_id", "execution_id", "rollback_id", "approval_id", "request_id", "event_id"):
+    for key in (
+        "session_id",
+        "execution_id",
+        "rollback_id",
+        "publication_id",
+        "export_id",
+        "approval_id",
+        "request_id",
+        "event_id",
+    ):
         if event.get(key):
             return str(event[key])
     return str(event.get("event_type")) if event.get("event_type") else None
@@ -681,6 +702,11 @@ def _connector_body(provider: str, event: dict[str, Any], provider_config: dict[
             "category": "software",
             "correlation_id": event.get("session_id") or event.get("event_type"),
         }
+    if provider in {"jamf", "intune", "linux"}:
+        provider_payloads = event.get("provider_payloads", {})
+        if isinstance(provider_payloads, dict) and isinstance(provider_payloads.get(provider), dict):
+            return provider_payloads[provider]
+        return build_webhook_payload(event)
     raise ValueError(f"unsupported connector provider: {provider}")
 
 

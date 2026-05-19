@@ -1,12 +1,13 @@
 # Connector Execution Hooks
 
-CAVRA now supports live connector execution hooks for SIEM, ChatOps, ITSM, and generic webhooks.
+CAVRA now supports live connector execution hooks for SIEM, ChatOps, ITSM, generic webhooks, and endpoint-management publication delivery.
 
 ## Supported Providers
 
 - SIEM: Splunk HEC, Microsoft Sentinel or Log Analytics ingestion endpoints, Datadog Logs, generic webhook.
 - ChatOps: Slack incoming webhooks, Microsoft Teams incoming webhooks.
 - ITSM: Jira issue API, ServiceNow change request API.
+- Endpoint management: Jamf, Microsoft Intune, and Linux fleet delivery endpoints for governed runtime export publication.
 
 ## Configuration
 
@@ -50,6 +51,10 @@ curl -X POST http://127.0.0.1:8000/promotion-executions/rpe_prod/audit-export/de
 curl -X POST http://127.0.0.1:8000/rollback-executions/rre_prod/deliver \
   -H 'content-type: application/json' \
   -d '{"provider":"webhook","retries":1}'
+
+curl -X POST http://127.0.0.1:8000/endpoint-management-exports/eme_stable/publish \
+  -H 'content-type: application/json' \
+  -d '{"provider":"jamf","retries":1}'
 ```
 
 Release governance API deliveries are indexed as `metadata_kind=release-connector-delivery` in the active evidence metadata store. Review delivery history and alert summaries:
@@ -57,6 +62,8 @@ Release governance API deliveries are indexed as `metadata_kind=release-connecto
 ```bash
 curl 'http://127.0.0.1:8000/release-connector-deliveries?provider=webhook&success=false'
 curl http://127.0.0.1:8000/release-connector-deliveries/dashboard
+curl 'http://127.0.0.1:8000/endpoint-management-publications?provider=jamf&success=false'
+curl http://127.0.0.1:8000/endpoint-management-publications/dashboard
 ```
 
 ## CLI Delivery
@@ -79,8 +86,16 @@ cavra release deliver-rollback-execution .cavra/release/rollout-rollback-executi
   --retries 1 \
   --metadata-json .cavra/evidence/metadata.json
 
+cavra release deliver-endpoint-export .cavra/release/endpoint-management-export/endpoint-management-export-manifest.json \
+  --config .cavra/connectors.json \
+  --provider jamf \
+  --retries 1 \
+  --metadata-json .cavra/evidence/metadata.json
+
 cavra release connector-delivery-history --metadata-json .cavra/evidence/metadata.json --provider webhook --no-success
 cavra release connector-delivery-dashboard --metadata-json .cavra/evidence/metadata.json
+cavra release endpoint-publication-history --metadata-json .cavra/evidence/metadata.json --provider jamf --no-success
+cavra release endpoint-publication-dashboard --metadata-json .cavra/evidence/metadata.json
 ```
 
 ## User Stories
@@ -90,6 +105,7 @@ cavra release connector-delivery-dashboard --metadata-json .cavra/evidence/metad
 - As a change manager, I can create Jira or ServiceNow records from CAVRA events.
 - As a release manager, I can route promotion audit and rollback execution events with retry evidence.
 - As a release manager, I can review persisted release connector delivery history by provider, event, and success state.
+- As an endpoint engineer, I can see whether a Jamf, Intune, or Linux export was actually delivered after it was generated.
 - As a SOC analyst, I can see dashboard alerts when release governance delivery fails.
 - As an auditor, I can inspect delivery evidence without seeing connector secrets.
 

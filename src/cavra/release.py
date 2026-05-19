@@ -284,6 +284,28 @@ class EndpointManagementExportResult:
 
 
 @dataclass(frozen=True)
+class EndpointManagementPublicationEventResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    publication_id: str | None = None
+    export_id: str | None = None
+    providers: list[str] = field(default_factory=list)
+    event: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "publication_id": self.publication_id,
+            "export_id": self.export_id,
+            "providers": self.providers,
+            "event": self.event,
+        }
+
+
+@dataclass(frozen=True)
 class ReleaseAuditExportResult:
     output_dir: Path
     files: list[Path]
@@ -1556,6 +1578,207 @@ def build_endpoint_management_export_dashboard(items: list[dict[str, Any]]) -> d
     }
 
 
+def build_endpoint_management_publication_event(
+    manifest: dict[str, Any],
+    *,
+    export_dir: Path | None = None,
+    export_id: str | None = None,
+    provider: str = "all",
+    requested_by: str = "release-manager",
+) -> EndpointManagementPublicationEventResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if manifest.get("schema_version") != "cavra.endpoint-management-export.v1":
+        errors.append("endpoint-management export manifest has an invalid schema_version")
+    manifest_providers = sorted(str(item) for item in manifest.get("providers", []) if isinstance(item, str))
+    if not manifest_providers:
+        errors.append("endpoint-management export manifest has no providers")
+    selected_providers = manifest_providers if provider == "all" else [provider]
+    unsupported = sorted(set(selected_providers) - {"jamf", "intune", "linux"})
+    if unsupported:
+        errors.append(f"unsupported endpoint-management publication provider: {', '.join(unsupported)}")
+    missing_from_export = sorted(set(selected_providers) - set(manifest_providers))
+    if missing_from_export:
+        errors.append(f"provider not present in endpoint export: {', '.join(missing_from_export)}")
+    if errors:
+        return EndpointManagementPublicationEventResult(valid=False, errors=errors, warnings=warnings)
+
+    export_id = export_id or _endpoint_management_export_id(manifest)
+    publication_id = _endpoint_management_publication_id(manifest, selected_providers, export_id)
+    release = manifest.get("release", {}) if isinstance(manifest.get("release"), dict) else {}
+    approval = manifest.get("approval", {}) if isinstance(manifest.get("approval"), dict) else {}
+    artifacts, provider_payloads, artifact_errors = _endpoint_management_publication_artifacts(
+        manifest,
+        selected_providers,
+        export_dir=export_dir,
+    )
+    errors.extend(artifact_errors)
+    if errors:
+        return EndpointManagementPublicationEventResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            publication_id=publication_id,
+            export_id=export_id,
+            providers=selected_providers,
+        )
+    event = {
+        "schema_version": "cavra.endpoint-management-publication.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_management_export_publication",
+        "event_id": publication_id,
+        "publication_id": publication_id,
+        "export_id": export_id,
+        "session_id": export_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "requested_by": requested_by,
+        "channel": manifest.get("channel"),
+        "provider": provider,
+        "providers": selected_providers,
+        "release": release,
+        "approval": {
+            "required": approval.get("required"),
+            "approval_id": approval.get("approval_id"),
+            "request_id": approval.get("request_id"),
+        },
+        "controls": [
+            "endpoint-export-metadata-indexed",
+            "endpoint-export-artifacts-checksummed",
+            "endpoint-publication-provider-selected",
+            "endpoint-publication-delivery-recorded",
+        ],
+        "artifacts": artifacts,
+        "provider_payloads": provider_payloads,
+        "manifest": manifest,
+    }
+    return EndpointManagementPublicationEventResult(
+        valid=True,
+        warnings=warnings,
+        publication_id=publication_id,
+        export_id=export_id,
+        providers=selected_providers,
+        event=event,
+    )
+
+
+def build_endpoint_management_publication_metadata(
+    delivery: dict[str, Any],
+    event: dict[str, Any],
+    *,
+    delivery_evidence: Path | str | None = None,
+) -> dict[str, Any]:
+    deliveries = [item for item in delivery.get("deliveries", []) if isinstance(item, dict)]
+    providers = [str(item.get("provider")) for item in deliveries if item.get("provider")]
+    failed_providers = [str(item.get("provider")) for item in deliveries if item.get("provider") and not item.get("success")]
+    metadata = {
+        "session_id": _endpoint_management_publication_delivery_id(delivery),
+        "created_at": delivery.get("generated_at") or datetime.now(timezone.utc).isoformat(),
+        "signer": "endpoint-management-publication",
+        "decision_count": 0,
+        "blocked_count": len(failed_providers),
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-management-publication-delivery",
+        "event_id": delivery.get("event_id"),
+        "event_type": delivery.get("event_type", "cavra.endpoint_management_export_publication"),
+        "publication_id": event.get("publication_id"),
+        "export_id": event.get("export_id"),
+        "channel": event.get("channel"),
+        "release": event.get("release", {}),
+        "approval_id": (event.get("approval") or {}).get("approval_id") if isinstance(event.get("approval"), dict) else None,
+        "delivery_success": bool(delivery.get("success")),
+        "providers": providers,
+        "failed_providers": failed_providers,
+        "attempt_count": sum(int(item.get("attempt_count") or 0) for item in deliveries),
+        "max_attempt_count": max([int(item.get("attempt_count") or 0) for item in deliveries] or [0]),
+        "status_codes": [item.get("status_code") for item in deliveries],
+        "artifacts": event.get("artifacts", []),
+        "delivery": delivery,
+        "event": event,
+    }
+    if delivery_evidence:
+        metadata["delivery_evidence"] = str(delivery_evidence)
+    return metadata
+
+
+def filter_endpoint_management_publication_history(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    export_id: str | None = None,
+    channel: str | None = None,
+    success: bool | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-management-publication-delivery"]
+    if provider:
+        filtered = [item for item in filtered if provider in {str(value) for value in item.get("providers", [])}]
+    if export_id:
+        filtered = [item for item in filtered if item.get("export_id") == export_id]
+    if channel:
+        filtered = [item for item in filtered if item.get("channel") == channel]
+    if success is not None:
+        filtered = [item for item in filtered if bool(item.get("delivery_success")) is success]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_management.publication_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_management_publication_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_management_publication_history(items, limit=500)["items"]
+    providers: dict[str, dict[str, Any]] = {}
+    successes = 0
+    alerts: list[dict[str, Any]] = []
+    for item in history:
+        if item.get("delivery_success"):
+            successes += 1
+        for provider in item.get("providers", []):
+            provider_key = str(provider)
+            summary = providers.setdefault(
+                provider_key,
+                {"provider": provider_key, "total": 0, "success": 0, "failed": 0, "attempt_count": 0, "last_delivery_at": None},
+            )
+            summary["total"] += 1
+            summary["attempt_count"] += int(item.get("attempt_count") or 0)
+            summary["last_delivery_at"] = max(str(summary.get("last_delivery_at") or ""), str(item.get("created_at") or ""))
+            if item.get("delivery_success") and provider_key not in {str(value) for value in item.get("failed_providers", [])}:
+                summary["success"] += 1
+            else:
+                summary["failed"] += 1
+        if not item.get("delivery_success"):
+            alerts.append(
+                {
+                    "severity": "warning",
+                    "event_id": item.get("event_id"),
+                    "export_id": item.get("export_id"),
+                    "failed_providers": item.get("failed_providers", []),
+                    "message": f"Endpoint-management publication failed for {item.get('export_id')}.",
+                }
+            )
+    alert_level = "healthy" if not alerts else "warning"
+    return {
+        "schema_version": "cavra.endpoint_management.publication_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "total_publications": len(history),
+        "successful_publications": successes,
+        "failed_publications": len(history) - successes,
+        "success_rate": round(successes / len(history), 4) if history else 0.0,
+        "providers": sorted(providers.values(), key=lambda item: item["provider"]),
+        "alerts": alerts,
+        "latest": history[:10],
+    }
+
+
 def create_managed_endpoint_rollout_promotion_execution(
     promotion_request: dict[str, Any],
     approval: dict[str, Any],
@@ -2455,6 +2678,126 @@ def _endpoint_export_providers(provider: str) -> list[str]:
         return sorted(providers)
     normalized = provider.lower()
     return [normalized] if normalized in providers else []
+
+
+def _endpoint_management_export_id(manifest: dict[str, Any]) -> str:
+    approval = manifest.get("approval", {}) if isinstance(manifest.get("approval"), dict) else {}
+    release = manifest.get("release", {}) if isinstance(manifest.get("release"), dict) else {}
+    channel = str(manifest.get("channel") or "unknown")
+    version = str(release.get("version") or "unknown")
+    providers = sorted(str(provider) for provider in manifest.get("providers", []) if isinstance(provider, str))
+    digest_material = f"{channel}:{version}:{','.join(providers)}:{approval.get('approval_id')}"
+    return f"eme_{hashlib.sha256(digest_material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_management_publication_id(
+    manifest: dict[str, Any],
+    providers: list[str],
+    export_id: str,
+) -> str:
+    channel = str(manifest.get("channel") or "unknown")
+    release = manifest.get("release", {}) if isinstance(manifest.get("release"), dict) else {}
+    digest_material = f"{export_id}:{channel}:{release.get('version')}:{','.join(sorted(providers))}"
+    return f"emp_{hashlib.sha256(digest_material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_management_publication_delivery_id(delivery: dict[str, Any]) -> str:
+    event_id = str(delivery.get("event_id") or delivery.get("session_id") or "endpoint-publication")
+    generated_at = str(delivery.get("generated_at") or datetime.now(timezone.utc).isoformat())
+    providers = ",".join(str(item.get("provider")) for item in delivery.get("deliveries", []) if isinstance(item, dict))
+    digest = hashlib.sha256(f"{event_id}|{generated_at}|{providers}".encode("utf-8")).hexdigest()[:12]
+    return f"epd-{_release_slug(event_id) or 'endpoint-publication'}-{digest}"
+
+
+def _endpoint_management_publication_artifacts(
+    manifest: dict[str, Any],
+    providers: list[str],
+    *,
+    export_dir: Path | None,
+) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], list[str]]:
+    artifact_names = {"endpoint-management-export-manifest.json", "endpoint-management-export-manifest.md", "checksums.txt"}
+    for provider in providers:
+        artifact_names.update(_endpoint_publication_provider_artifacts(provider))
+    checksums: dict[str, str] = {}
+    errors: list[str] = []
+    if export_dir:
+        export_dir = export_dir.resolve()
+        checksums_path = export_dir / "checksums.txt"
+        if not checksums_path.exists():
+            errors.append("endpoint-management export checksums.txt is missing")
+        else:
+            try:
+                checksums = _parse_checksums(checksums_path)
+            except ReleaseVerificationError as exc:
+                errors.append(str(exc))
+    artifacts: list[dict[str, Any]] = []
+    provider_payloads: dict[str, dict[str, Any]] = {}
+    for artifact_name in sorted(artifact_names):
+        item: dict[str, Any] = {"artifact": artifact_name}
+        if export_dir:
+            path = _safe_package_path(export_dir, artifact_name)
+            if path is None:
+                errors.append(f"endpoint export artifact path escapes export directory: {artifact_name}")
+                continue
+            if not path.exists() or not path.is_file():
+                errors.append(f"endpoint export artifact is missing: {artifact_name}")
+                continue
+            actual_sha256 = sha256_file(path)
+            expected_sha256 = checksums.get(artifact_name)
+            if artifact_name != "checksums.txt":
+                if not expected_sha256:
+                    errors.append(f"endpoint export artifact missing from checksums.txt: {artifact_name}")
+                elif actual_sha256 != expected_sha256:
+                    errors.append(f"endpoint export artifact checksum mismatch: {artifact_name}")
+            item |= {"sha256": actual_sha256, "bytes": path.stat().st_size}
+        artifacts.append(item)
+    for provider in providers:
+        payload_path = _endpoint_publication_provider_payload_path(provider)
+        if not export_dir:
+            provider_payloads[provider] = {
+                "schema_version": f"cavra.endpoint-management.{provider}.publication.v1",
+                "provider": provider,
+                "manifest": manifest,
+            }
+            continue
+        provider_payloads[provider] = _load_endpoint_publication_provider_payload(export_dir / payload_path, provider, manifest)
+    return artifacts, provider_payloads, errors
+
+
+def _endpoint_publication_provider_artifacts(provider: str) -> list[str]:
+    if provider == "jamf":
+        return ["jamf-policy.json"]
+    if provider == "intune":
+        return ["intune-win32-app.json"]
+    if provider == "linux":
+        return ["linux-fleet-manifest.json", "linux-install-cavra-runtime.sh"]
+    return []
+
+
+def _endpoint_publication_provider_payload_path(provider: str) -> str:
+    if provider == "jamf":
+        return "jamf-policy.json"
+    if provider == "intune":
+        return "intune-win32-app.json"
+    if provider == "linux":
+        return "linux-fleet-manifest.json"
+    return "endpoint-management-export-manifest.json"
+
+
+def _load_endpoint_publication_provider_payload(path: Path, provider: str, manifest: dict[str, Any]) -> dict[str, Any]:
+    if path.suffix == ".json" and path.exists():
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            return payload | {"publication_context": {"provider": provider, "channel": manifest.get("channel")}}
+    return {
+        "schema_version": f"cavra.endpoint-management.{provider}.publication.v1",
+        "provider": provider,
+        "manifest": manifest,
+    }
+
+
+def _release_slug(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
 
 def _endpoint_provider_for_target(target: dict[str, Any]) -> str:
