@@ -76,6 +76,9 @@ from cavra.release import (
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
     build_endpoint_management_publication_metadata,
+    build_endpoint_drift_remediation_dashboard,
+    build_endpoint_drift_remediation_execution_metadata,
+    build_endpoint_drift_remediation_request_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -88,8 +91,11 @@ from cavra.release import (
     create_release_channel_promotion_request,
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
+    create_endpoint_drift_remediation_request,
+    execute_endpoint_drift_remediation,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
+    filter_endpoint_drift_remediation_history,
     filter_endpoint_management_publication_history,
     filter_managed_endpoint_reconciliation_history,
     load_release_channel_manifest,
@@ -2368,6 +2374,187 @@ def endpoint_reconciliation_dashboard(
     _print_json(build_managed_endpoint_reconciliation_dashboard(items))
 
 
+@release_app.command("request-endpoint-remediation")
+def request_endpoint_remediation(
+    reconciliation_report: Annotated[Path, typer.Argument(help="Managed endpoint reconciliation report JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for remediation request artifacts.")] = Path(
+        ".cavra/release/endpoint-remediation"
+    ),
+    strategy: Annotated[str, typer.Option(help="Remediation strategy: mixed, republish, or rollback.")] = "mixed",
+    requested_by: Annotated[str, typer.Option(help="Actor or automation identity requesting remediation.")] = "release-manager",
+    approver_group: Annotated[str, typer.Option(help="Approval group for remediation review.")] = "Endpoint Change Advisory Board",
+    ttl_hours: Annotated[int, typer.Option(help="Approval request time to live in hours.")] = 24,
+    approval_store: Annotated[Optional[Path], typer.Option(help="Optional JSON approval store to upsert the generated approval.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval store to upsert the generated approval.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index the request.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index the request.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable remediation request output."),
+) -> None:
+    """Create an approval-bound endpoint drift remediation plan."""
+    try:
+        report = json.loads(reconciliation_report.read_text(encoding="utf-8"))
+        if not isinstance(report, dict):
+            raise ValueError("reconciliation report must be a JSON object")
+        result = create_endpoint_drift_remediation_request(
+            report,
+            output_dir=output,
+            strategy=strategy,
+            requested_by=requested_by,
+            approver_group=approver_group,
+            ttl_hours=ttl_hours,
+        )
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    persisted: list[str] = []
+    if result.valid and result.approval:
+        if approval_store:
+            ApprovalStore(approval_store).upsert(result.approval)
+            persisted.append(str(approval_store))
+        if approval_sqlite:
+            SQLiteApprovalStore(approval_sqlite).upsert(result.approval)
+            persisted.append(str(approval_sqlite))
+    metadata = None
+    indexed: list[str] = []
+    if result.valid and result.request:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_drift_remediation_request_metadata(result.request, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"approval_stores": persisted, "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint remediation request")
+        if result.reconciliation_id:
+            console.print(f"  reconciliation: {result.reconciliation_id}")
+        if result.approval:
+            console.print(f"  approval: {result.approval['approval_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in persisted:
+            console.print(f"  approval store: {store}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("execute-endpoint-remediation")
+def execute_endpoint_remediation(
+    remediation_request: Annotated[Path, typer.Argument(help="Endpoint remediation request JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for remediation execution artifacts.")] = Path(
+        ".cavra/release/endpoint-remediation-execution"
+    ),
+    approval_json: Annotated[Optional[Path], typer.Option(help="Approved remediation approval JSON file.")] = None,
+    approval_store: Annotated[Optional[Path], typer.Option(help="JSON approval store containing the approved record.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="SQLite approval store containing the approved record.")] = None,
+    approval_id: Annotated[Optional[str], typer.Option(help="Approval ID. Defaults to the request approval_id.")] = None,
+    executed_by: Annotated[str, typer.Option(help="Actor or automation identity recording execution.")] = "release-manager",
+    execution_environment: Annotated[Optional[str], typer.Option(help="Environment recorded on the execution artifact.")] = None,
+    notes: Annotated[Optional[str], typer.Option(help="Optional execution note.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index the execution.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index the execution.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable remediation execution output."),
+) -> None:
+    """Record an approved endpoint drift remediation execution."""
+    try:
+        request_payload = json.loads(remediation_request.read_text(encoding="utf-8"))
+        if not isinstance(request_payload, dict):
+            raise ValueError("remediation request must be a JSON object")
+        request_approval = request_payload.get("approval", {})
+        selected_approval_id = approval_id or (
+            request_approval.get("approval_id") if isinstance(request_approval, dict) else None
+        )
+        approval = _load_release_approval(
+            selected_approval_id,
+            approval_json=approval_json,
+            approval_store=approval_store,
+            approval_sqlite=approval_sqlite,
+        )
+        result = execute_endpoint_drift_remediation(
+            request_payload,
+            approval,
+            output_dir=output,
+            executed_by=executed_by,
+            execution_environment=execution_environment,
+            notes=notes,
+        )
+    except (OSError, json.JSONDecodeError, KeyError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    indexed: list[str] = []
+    metadata = None
+    if result.valid and result.execution:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_drift_remediation_execution_metadata(result.execution, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint remediation execution")
+        if result.reconciliation_id:
+            console.print(f"  reconciliation: {result.reconciliation_id}")
+        if result.execution:
+            console.print(f"  execution: {result.execution['execution_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("endpoint-remediation-history")
+def endpoint_remediation_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    metadata_kind: Annotated[Optional[str], typer.Option(help="Filter by endpoint-drift-remediation-request or endpoint-drift-remediation-execution.")] = None,
+    reconciliation_id: Annotated[Optional[str], typer.Option(help="Filter by reconciliation ID.")] = None,
+    approval_state: Annotated[Optional[str], typer.Option(help="Filter by approval state.")] = None,
+    execution_status: Annotated[Optional[str], typer.Option(help="Filter by execution status.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint drift remediation request and execution history."""
+    items = _load_endpoint_drift_remediation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_drift_remediation_history(
+            items,
+            metadata_kind=metadata_kind,
+            reconciliation_id=reconciliation_id,
+            approval_state=approval_state,
+            execution_status=execution_status,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-dashboard")
+def endpoint_remediation_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint drift remediation approvals and executions."""
+    items = _load_endpoint_drift_remediation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_drift_remediation_dashboard(items))
+
+
 def _index_release_metadata(
     metadata: dict,
     *,
@@ -2442,6 +2629,26 @@ def _load_managed_endpoint_reconciliation_items(
             metadata_kind="managed-endpoint-reconciliation",
             limit=500,
         )["items"]
+    return []
+
+
+def _load_endpoint_drift_remediation_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        request_items = SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-drift-remediation-request",
+            limit=500,
+        )["items"]
+        execution_items = SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-drift-remediation-execution",
+            limit=500,
+        )["items"]
+        return [*request_items, *execution_items]
     return []
 
 

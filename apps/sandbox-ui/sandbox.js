@@ -258,6 +258,34 @@ const endpointReconciliationCatalog = [
   }
 ];
 
+const endpointRemediationCatalog = [
+  {
+    session_id: "err-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-drift-remediation-request",
+    request_id: "err-prod-v0-2-0-rc-1-sample",
+    reconciliation_id: "mer-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T00:34:00+00:00",
+    strategy: "mixed",
+    action_count: 2,
+    approval_id: "apr_endpoint_remediation_sample",
+    approval_state: "pending",
+    alert_level: "critical"
+  },
+  {
+    session_id: "ere-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-drift-remediation-execution",
+    execution_id: "ere-prod-v0-2-0-rc-1-sample",
+    request_id: "err-prod-v0-2-0-rc-1-sample",
+    reconciliation_id: "mer-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T00:42:00+00:00",
+    strategy: "mixed",
+    action_count: 2,
+    approval_id: "apr_endpoint_remediation_sample",
+    approval_state: "approved",
+    execution_status: "recorded"
+  }
+];
+
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
     schema_version: "cavra.evidence.artifacts.v1",
@@ -957,6 +985,43 @@ async function loadEndpointReconciliationDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointReconciliationDashboard(filterEndpointReconciliations(endpointReconciliationCatalog));
+  }
+}
+
+async function loadEndpointRemediations() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      metadata_kind: document.querySelector("#filterEndpointRemediationKind")?.value,
+      approval_state: document.querySelector("#filterEndpointRemediationApproval")?.value,
+      reconciliation_id: document.querySelector("#filterEndpointRemediationReconciliation")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-remediations", params));
+    if (!response.ok) throw new Error("Endpoint remediation API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return endpointRemediationCatalog.filter((item) => {
+      const kind = document.querySelector("#filterEndpointRemediationKind")?.value;
+      const approval = document.querySelector("#filterEndpointRemediationApproval")?.value;
+      const reconciliation = document.querySelector("#filterEndpointRemediationReconciliation")?.value.trim();
+      if (kind && item.metadata_kind !== kind) return false;
+      if (approval && item.approval_state !== approval) return false;
+      if (reconciliation && item.reconciliation_id !== reconciliation) return false;
+      return true;
+    });
+  }
+}
+
+async function loadEndpointRemediationDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediations/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointRemediationDashboard(endpointRemediationCatalog);
   }
 }
 
@@ -1884,6 +1949,51 @@ function renderEndpointReconciliations(items, dashboard) {
   }
 }
 
+function renderEndpointRemediations(items, dashboard) {
+  const rows = document.querySelector("#endpointRemediationRows");
+  const panel = document.querySelector("#endpointRemediationDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Requests</span>
+      <strong>${formatMetricNumber(dashboard.request_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Executions</span>
+      <strong>${formatMetricNumber(dashboard.execution_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Pending</span>
+      <strong class="${Number(dashboard.pending_approval_count || 0) ? "warn" : "allow"}">${formatMetricNumber(dashboard.pending_approval_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Actions</span>
+      <strong>${formatMetricNumber(dashboard.planned_action_count)}</strong>
+    </div>
+  `;
+  for (const item of items) {
+    const id = item.request_id || item.execution_id || item.session_id || "remediation";
+    const state = item.execution_status || item.approval_state || "unknown";
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(id)}</td>
+        <td>${escapeHtml(item.reconciliation_id || "unknown")}</td>
+        <td>${escapeHtml(item.metadata_kind === "endpoint-drift-remediation-execution" ? "execution" : "request")}</td>
+        <td>${escapeHtml(item.strategy || "mixed")}</td>
+        <td>${Number(item.action_count || 0)}</td>
+        <td class="${state === "approved" || state === "recorded" ? "allow" : "warn"}">${escapeHtml(state)}</td>
+        <td>${escapeHtml(item.approval_id || "unknown")}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -2041,6 +2151,23 @@ function sampleEndpointReconciliationDashboard(items) {
     missing_target_count: missing,
     stale_endpoint_count: stale,
     alerts,
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointRemediationDashboard(items) {
+  const requests = items.filter((item) => item.metadata_kind === "endpoint-drift-remediation-request");
+  const executions = items.filter((item) => item.metadata_kind === "endpoint-drift-remediation-execution");
+  const pending = requests.filter((item) => item.approval_state === "pending");
+  return {
+    schema_version: "cavra.endpoint_drift_remediation.dashboard.v1",
+    product: "CAVRA",
+    alert_level: pending.length ? "critical" : requests.length && !executions.length ? "warning" : "healthy",
+    request_count: requests.length,
+    execution_count: executions.length,
+    pending_approval_count: pending.length,
+    approved_execution_count: executions.filter((item) => item.approval_state === "approved").length,
+    planned_action_count: requests.reduce((total, item) => total + Number(item.action_count || 0), 0),
     latest: items.slice(0, 10)
   };
 }
@@ -2473,6 +2600,11 @@ async function refreshEndpointReconciliation() {
   renderEndpointReconciliations(items, dashboard);
 }
 
+async function refreshEndpointRemediation() {
+  const [items, dashboard] = await Promise.all([loadEndpointRemediations(), loadEndpointRemediationDashboard()]);
+  renderEndpointRemediations(items, dashboard);
+}
+
 async function refreshReleaseChannels() {
   const [promotions, exports, dashboard] = await Promise.all([
     loadReleaseChannelPromotions(),
@@ -2831,6 +2963,7 @@ document.querySelector("#refreshEvidence").addEventListener("click", refreshEvid
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
 document.querySelector("#refreshEndpointPublicationDelivery").addEventListener("click", refreshEndpointPublicationDelivery);
 document.querySelector("#refreshEndpointReconciliation").addEventListener("click", refreshEndpointReconciliation);
+document.querySelector("#refreshEndpointRemediation").addEventListener("click", refreshEndpointRemediation);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -2914,6 +3047,7 @@ refreshReleaseChannels();
 refreshReleaseDelivery();
 refreshEndpointPublicationDelivery();
 refreshEndpointReconciliation();
+refreshEndpointRemediation();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

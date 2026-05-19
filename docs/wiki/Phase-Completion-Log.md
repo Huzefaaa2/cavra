@@ -838,4 +838,26 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add endpoint drift remediation plans with approval-bound republish and rollback workflows.
+Recommended next issue: delivered below as endpoint drift remediation plans with approval-bound republish and rollback workflows.
+
+## Endpoint Drift Remediation Plans
+
+Status: complete for the current approval-bound endpoint remediation slice.
+
+Completed:
+- Added endpoint drift remediation request generation from managed endpoint reconciliation reports.
+- Converted version drift, binary checksum drift, missing observations, stale observations, and unknown targets into republish, rollback, refresh, or review actions.
+- Added approval requests bound to reconciliation ID, request ID, drift summary, strategy, and action count.
+- Added approved remediation execution records that preserve the public Community boundary by recording governance evidence without mutating endpoints.
+- Added `cavra release request-endpoint-remediation`, `execute-endpoint-remediation`, `endpoint-remediation-history`, and `endpoint-remediation-dashboard`.
+- Added `POST /endpoint-reconciliations/{reconciliation_id}/remediation-request`, `POST /endpoint-remediations/{request_id}/execute`, `/endpoint-remediations`, and `/endpoint-remediations/dashboard`.
+- Updated the Evidence Console with an Endpoint Drift Remediation panel for request, execution, approval, strategy, and action status.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for approval-required remediation execution, CLI metadata indexing, API request/approval/execution flow, and remediation dashboard history.
+
+Validation:
+- `python3 -m py_compile src/cavra/release.py src/cavra/cli.py src/cavra/api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.

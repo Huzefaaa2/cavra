@@ -61,15 +61,21 @@ from cavra.release import (
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
     build_endpoint_management_publication_metadata,
+    build_endpoint_drift_remediation_dashboard,
+    build_endpoint_drift_remediation_execution_metadata,
+    build_endpoint_drift_remediation_request_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
     build_rollout_rollback_execution_audit_event,
+    create_endpoint_drift_remediation_request,
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
+    execute_endpoint_drift_remediation,
+    filter_endpoint_drift_remediation_history,
     filter_endpoint_management_publication_history,
     filter_managed_endpoint_reconciliation_history,
     reconcile_managed_endpoint_deployment,
@@ -214,6 +220,10 @@ def create_app():
                 "endpoint_deployment_reconcile": "/endpoint-deployment/reconcile",
                 "endpoint_reconciliations": "/endpoint-reconciliations",
                 "endpoint_reconciliation_dashboard": "/endpoint-reconciliations/dashboard",
+                "endpoint_remediation_request": "/endpoint-reconciliations/{reconciliation_id}/remediation-request",
+                "endpoint_remediation_execute": "/endpoint-remediations/{request_id}/execute",
+                "endpoint_remediations": "/endpoint-remediations",
+                "endpoint_remediation_dashboard": "/endpoint-remediations/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1304,6 +1314,108 @@ def create_app():
             offset=0,
         )
         return build_managed_endpoint_reconciliation_dashboard(result["items"])
+
+    @app.post("/endpoint-reconciliations/{reconciliation_id}/remediation-request")
+    def endpoint_reconciliation_remediation_request(reconciliation_id: str, payload: dict) -> dict:
+        item = evidence_store.get(reconciliation_id)
+        if item is None or item.get("metadata_kind") != "managed-endpoint-reconciliation":
+            raise HTTPException(status_code=404, detail="endpoint reconciliation not found")
+        report = item.get("report")
+        if not isinstance(report, dict):
+            raise HTTPException(status_code=400, detail="reconciliation metadata is missing report payload")
+        result = create_endpoint_drift_remediation_request(
+            report,
+            strategy=payload.get("strategy", "mixed"),
+            requested_by=payload.get("requested_by", "console"),
+            approver_group=payload.get("approver_group", "Endpoint Change Advisory Board"),
+            ttl_hours=int(payload.get("ttl_hours", 24)),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        if result.approval:
+            approval_store.upsert(result.approval)
+        metadata = None
+        if result.request:
+            metadata = evidence_store.upsert(build_endpoint_drift_remediation_request_metadata(result.request))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.post("/endpoint-remediations/{request_id}/execute")
+    def endpoint_remediation_execute(request_id: str, payload: dict) -> dict:
+        item = evidence_store.get(request_id)
+        if item is None or item.get("metadata_kind") != "endpoint-drift-remediation-request":
+            raise HTTPException(status_code=404, detail="endpoint remediation request not found")
+        request_payload = item.get("request")
+        if not isinstance(request_payload, dict):
+            raise HTTPException(status_code=400, detail="remediation metadata is missing request payload")
+        request_approval = request_payload.get("approval", {})
+        approval_id = payload.get("approval_id") or (
+            request_approval.get("approval_id") if isinstance(request_approval, dict) else None
+        )
+        if not approval_id:
+            raise HTTPException(status_code=400, detail="endpoint remediation execution requires approval_id")
+        approval = approval_store.get(str(approval_id))
+        if approval is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        result = execute_endpoint_drift_remediation(
+            request_payload,
+            approval,
+            executed_by=payload.get("executed_by", "console"),
+            execution_environment=payload.get("execution_environment"),
+            notes=payload.get("notes"),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = None
+        if result.execution:
+            metadata = evidence_store.upsert(build_endpoint_drift_remediation_execution_metadata(result.execution))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-remediations")
+    def endpoint_remediation_index(
+        metadata_kind: Optional[str] = None,
+        reconciliation_id: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        execution_status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        request_result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-drift-remediation-request",
+            limit=500,
+            offset=0,
+        )
+        execution_result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-drift-remediation-execution",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_drift_remediation_history(
+            [*request_result["items"], *execution_result["items"]],
+            metadata_kind=metadata_kind,
+            reconciliation_id=reconciliation_id,
+            approval_state=approval_state,
+            execution_status=execution_status,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediations/dashboard")
+    def endpoint_remediation_dashboard() -> dict:
+        request_result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-drift-remediation-request",
+            limit=500,
+            offset=0,
+        )
+        execution_result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-drift-remediation-execution",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_drift_remediation_dashboard([*request_result["items"], *execution_result["items"]])
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:

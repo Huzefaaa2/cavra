@@ -330,6 +330,48 @@ class ManagedEndpointReconciliationResult:
 
 
 @dataclass(frozen=True)
+class EndpointDriftRemediationRequestResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    reconciliation_id: str | None = None
+    request: dict[str, Any] | None = None
+    approval: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "reconciliation_id": self.reconciliation_id,
+            "request": self.request,
+            "approval": self.approval,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
+class EndpointDriftRemediationExecutionResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    reconciliation_id: str | None = None
+    execution: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "reconciliation_id": self.reconciliation_id,
+            "execution": self.execution,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class ReleaseAuditExportResult:
     output_dir: Path
     files: list[Path]
@@ -1973,6 +2015,360 @@ def build_managed_endpoint_reconciliation_dashboard(items: list[dict[str, Any]])
     }
 
 
+def create_endpoint_drift_remediation_request(
+    reconciliation_report: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    strategy: str = "mixed",
+    requested_by: str = "release-manager",
+    approver_group: str = "Endpoint Change Advisory Board",
+    ttl_hours: int = 24,
+) -> EndpointDriftRemediationRequestResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    reconciliation_id = str(reconciliation_report.get("reconciliation_id") or "")
+    if reconciliation_report.get("schema_version") != "cavra.endpoint-reconciliation.v1":
+        errors.append("reconciliation report has an invalid schema_version")
+    if not reconciliation_id:
+        errors.append("reconciliation report must include reconciliation_id")
+    if strategy not in {"mixed", "republish", "rollback"}:
+        errors.append("strategy must be one of: mixed, republish, rollback")
+    drift_items = [item for item in reconciliation_report.get("drift_items", []) if isinstance(item, dict)]
+    if not drift_items:
+        warnings.append("reconciliation report has no drift items; remediation request will contain no actions")
+    if errors:
+        return EndpointDriftRemediationRequestResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            reconciliation_id=reconciliation_id or None,
+        )
+
+    actions = _endpoint_drift_remediation_actions(reconciliation_report, strategy=strategy)
+    request_id = _endpoint_remediation_request_id(reconciliation_id, actions, strategy)
+    created_at = datetime.now(timezone.utc).isoformat()
+    summary = reconciliation_report.get("summary", {}) if isinstance(reconciliation_report.get("summary"), dict) else {}
+    decision = {
+        "decision_id": f"{request_id}:decision",
+        "session_id": reconciliation_id,
+        "correlation_id": request_id,
+        "decision": "require_approval",
+        "action_type": "endpoint_drift_remediation",
+        "rule_id": "release.endpoint_remediation.require_approval",
+        "severity": reconciliation_report.get("alert_level", "warning"),
+        "target": reconciliation_id,
+        "reason": "Endpoint drift remediation requires approval before republish, rollback, or inventory refresh actions are executed.",
+        "metadata": {
+            "request_id": request_id,
+            "reconciliation_id": reconciliation_id,
+            "strategy": strategy,
+            "action_count": len(actions),
+            "drift_status": reconciliation_report.get("drift_status"),
+            "drifted_endpoint_count": summary.get("drifted_endpoint_count", 0),
+            "missing_target_count": summary.get("missing_target_count", 0),
+            "stale_endpoint_count": summary.get("stale_endpoint_count", 0),
+        },
+        "evidence_refs": [f"endpoint-reconciliation://{reconciliation_id}"],
+    }
+    approval = create_approval_request(
+        decision,
+        approver_group=approver_group,
+        requested_by=requested_by,
+        ttl_hours=ttl_hours,
+    )
+    report_canonical = json.dumps(reconciliation_report, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    request_payload = {
+        "schema_version": "cavra.endpoint-drift-remediation-request.v1",
+        "product": "CAVRA",
+        "request_id": request_id,
+        "reconciliation_id": reconciliation_id,
+        "created_at": created_at,
+        "requested_by": requested_by,
+        "strategy": strategy,
+        "drift_status": reconciliation_report.get("drift_status"),
+        "alert_level": reconciliation_report.get("alert_level"),
+        "release": reconciliation_report.get("release", {}),
+        "channel": reconciliation_report.get("channel"),
+        "summary": summary,
+        "action_count": len(actions),
+        "actions": actions,
+        "approval": {
+            "approval_id": approval["approval_id"],
+            "state": approval["state"],
+            "approver_group": approval["approver_group"],
+            "decision_id": approval["decision_id"],
+        },
+        "controls": [
+            "endpoint-drift-actions-derived-from-reconciliation",
+            "approval-required-before-remediation",
+            "public-repo-records-governance-only",
+            "private-connectors-required-for-endpoint-mutation",
+        ],
+        "evidence_refs": [
+            f"endpoint-reconciliation://{reconciliation_id}",
+            f"approval://{approval['approval_id']}",
+        ],
+        "reconciliation_sha256": hashlib.sha256(report_canonical).hexdigest(),
+        "reconciliation_report": reconciliation_report,
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        request_path = output_dir / "endpoint-remediation-request.json"
+        summary_path = output_dir / "endpoint-remediation-request.md"
+        _write_release_json(request_path, request_payload)
+        summary_path.write_text(_endpoint_remediation_request_markdown_summary(request_payload), encoding="utf-8")
+        files = [request_path.name, summary_path.name]
+    return EndpointDriftRemediationRequestResult(
+        valid=True,
+        warnings=warnings,
+        reconciliation_id=reconciliation_id,
+        request=request_payload,
+        approval=approval,
+        files=files,
+    )
+
+
+def execute_endpoint_drift_remediation(
+    remediation_request: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    executed_by: str = "release-manager",
+    execution_environment: str | None = None,
+    notes: str | None = None,
+) -> EndpointDriftRemediationExecutionResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if remediation_request.get("schema_version") != "cavra.endpoint-drift-remediation-request.v1":
+        errors.append("remediation request has an invalid schema_version")
+    request_id = str(remediation_request.get("request_id") or "")
+    reconciliation_id = str(remediation_request.get("reconciliation_id") or "")
+    approval_id = str(approval.get("approval_id") or "")
+    if not request_id:
+        errors.append("remediation request must include request_id")
+    if not reconciliation_id:
+        errors.append("remediation request must include reconciliation_id")
+    request_approval = remediation_request.get("approval", {})
+    request_approval_id = str(request_approval.get("approval_id") if isinstance(request_approval, dict) else "")
+    if not approval_id:
+        errors.append("approval record must include approval_id")
+    if request_approval_id and approval_id and request_approval_id != approval_id:
+        errors.append("approval record does not match remediation request approval_id")
+    if approval.get("state") != "approved":
+        errors.append("endpoint drift remediation requires an approved approval record")
+    if approval.get("decision_id") != f"{request_id}:decision":
+        errors.append("approval decision_id does not match remediation request")
+    if approval.get("session_id") != reconciliation_id:
+        errors.append("approval session_id does not match reconciliation_id")
+    decision = approval.get("decision", {})
+    if not isinstance(decision, dict):
+        errors.append("approval decision payload is invalid")
+        decision = {}
+    if decision.get("action_type") != "endpoint_drift_remediation":
+        errors.append("approval decision action_type does not authorize endpoint drift remediation")
+    metadata = decision.get("metadata", {}) if isinstance(decision.get("metadata"), dict) else {}
+    if metadata.get("request_id") and metadata.get("request_id") != request_id:
+        errors.append("approval request_id does not match remediation request")
+    if metadata.get("reconciliation_id") and metadata.get("reconciliation_id") != reconciliation_id:
+        errors.append("approval reconciliation_id does not match remediation request")
+    actions = [item for item in remediation_request.get("actions", []) if isinstance(item, dict)]
+    if not actions:
+        warnings.append("remediation request contains no actions")
+    if errors:
+        return EndpointDriftRemediationExecutionResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            reconciliation_id=reconciliation_id or None,
+        )
+
+    request_canonical = json.dumps(remediation_request, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    execution_id = _endpoint_remediation_execution_id(request_id, approval_id)
+    action_results = [_endpoint_remediation_action_result(action) for action in actions]
+    execution = {
+        "schema_version": "cavra.endpoint-drift-remediation-execution.v1",
+        "product": "CAVRA",
+        "execution_id": execution_id,
+        "request_id": request_id,
+        "approval_id": approval_id,
+        "reconciliation_id": reconciliation_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "executed_by": executed_by,
+        "execution_environment": execution_environment,
+        "execution_status": "recorded",
+        "strategy": remediation_request.get("strategy"),
+        "release": remediation_request.get("release", {}),
+        "channel": remediation_request.get("channel"),
+        "action_results": action_results,
+        "approval": {
+            "approval_id": approval_id,
+            "state": approval.get("state"),
+            "approver_group": approval.get("approver_group"),
+            "decided_by": approval.get("decided_by"),
+            "decided_at": approval.get("decided_at"),
+            "decision_reason": approval.get("decision_reason"),
+        },
+        "controls": [
+            "approval-state-approved",
+            "approval-bound-to-reconciliation",
+            "remediation-request-digest-recorded",
+            "public-execution-record-does-not-mutate-endpoints",
+        ],
+        "request_sha256": hashlib.sha256(request_canonical).hexdigest(),
+        "evidence_refs": [
+            f"endpoint-reconciliation://{reconciliation_id}",
+            f"endpoint-remediation-request://{request_id}",
+            f"approval://{approval_id}",
+        ],
+    }
+    if notes:
+        execution["notes"] = notes
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        execution_path = output_dir / "endpoint-remediation-execution.json"
+        summary_path = output_dir / "endpoint-remediation-execution.md"
+        _write_release_json(execution_path, execution)
+        summary_path.write_text(_endpoint_remediation_execution_markdown_summary(execution), encoding="utf-8")
+        files = [execution_path.name, summary_path.name]
+    return EndpointDriftRemediationExecutionResult(
+        valid=True,
+        warnings=warnings,
+        reconciliation_id=reconciliation_id,
+        execution=execution,
+        files=files,
+    )
+
+
+def build_endpoint_drift_remediation_request_metadata(
+    request: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    approval = request.get("approval", {}) if isinstance(request.get("approval"), dict) else {}
+    summary = request.get("summary", {}) if isinstance(request.get("summary"), dict) else {}
+    metadata = {
+        "session_id": request.get("request_id"),
+        "created_at": request.get("created_at"),
+        "signer": request.get("requested_by", "release-manager"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 1,
+        "metadata_kind": "endpoint-drift-remediation-request",
+        "request_id": request.get("request_id"),
+        "reconciliation_id": request.get("reconciliation_id"),
+        "drift_status": request.get("drift_status"),
+        "alert_level": request.get("alert_level"),
+        "strategy": request.get("strategy"),
+        "action_count": request.get("action_count", len(request.get("actions", []))),
+        "approval_id": approval.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "release": request.get("release", {}),
+        "channel": request.get("channel"),
+        "drifted_endpoint_count": summary.get("drifted_endpoint_count", 0),
+        "missing_target_count": summary.get("missing_target_count", 0),
+        "stale_endpoint_count": summary.get("stale_endpoint_count", 0),
+        "actions": request.get("actions", []),
+        "request": request,
+        "evidence_refs": request.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def build_endpoint_drift_remediation_execution_metadata(
+    execution: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    approval = execution.get("approval", {}) if isinstance(execution.get("approval"), dict) else {}
+    action_results = [item for item in execution.get("action_results", []) if isinstance(item, dict)]
+    metadata = {
+        "session_id": execution.get("execution_id"),
+        "created_at": execution.get("created_at"),
+        "signer": execution.get("executed_by", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-drift-remediation-execution",
+        "execution_id": execution.get("execution_id"),
+        "request_id": execution.get("request_id"),
+        "reconciliation_id": execution.get("reconciliation_id"),
+        "execution_status": execution.get("execution_status"),
+        "strategy": execution.get("strategy"),
+        "action_count": len(action_results),
+        "approval_id": execution.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "release": execution.get("release", {}),
+        "channel": execution.get("channel"),
+        "action_results": action_results,
+        "execution": execution,
+        "evidence_refs": execution.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_drift_remediation_history(
+    items: list[dict[str, Any]],
+    *,
+    metadata_kind: str | None = None,
+    reconciliation_id: str | None = None,
+    approval_state: str | None = None,
+    execution_status: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    allowed_kinds = {"endpoint-drift-remediation-request", "endpoint-drift-remediation-execution"}
+    filtered = [item for item in items if item.get("metadata_kind") in allowed_kinds]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if reconciliation_id:
+        filtered = [item for item in filtered if item.get("reconciliation_id") == reconciliation_id]
+    if approval_state:
+        filtered = [item for item in filtered if item.get("approval_state") == approval_state]
+    if execution_status:
+        filtered = [item for item in filtered if item.get("execution_status") == execution_status]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_drift_remediation.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_drift_remediation_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_drift_remediation_history(items, limit=500)["items"]
+    requests = [item for item in history if item.get("metadata_kind") == "endpoint-drift-remediation-request"]
+    executions = [item for item in history if item.get("metadata_kind") == "endpoint-drift-remediation-execution"]
+    pending = [item for item in requests if item.get("approval_state") == "pending"]
+    approved_executions = [item for item in executions if item.get("approval_state") == "approved"]
+    action_count = sum(int(item.get("action_count") or 0) for item in requests)
+    alert_level = "critical" if pending else "warning" if requests and not approved_executions else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_drift_remediation.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "request_count": len(requests),
+        "execution_count": len(executions),
+        "pending_approval_count": len(pending),
+        "approved_execution_count": len(approved_executions),
+        "planned_action_count": action_count,
+        "latest": history[:10],
+    }
+
+
 def create_managed_endpoint_rollout_promotion_execution(
     promotion_request: dict[str, Any],
     approval: dict[str, Any],
@@ -2833,6 +3229,20 @@ def _rollback_execution_id(promotion_execution_id: str, approval_id: str) -> str
     return f"rre_{digest}"
 
 
+def _endpoint_remediation_request_id(reconciliation_id: str, actions: list[dict[str, Any]], strategy: str) -> str:
+    material = json.dumps(
+        {"reconciliation_id": reconciliation_id, "strategy": strategy, "actions": actions},
+        sort_keys=True,
+        default=str,
+    )
+    return f"err_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_remediation_execution_id(request_id: str, approval_id: str) -> str:
+    digest = hashlib.sha256(f"{request_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
+    return f"ere_{digest}"
+
+
 def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[dict[str, Any]]:
     refs: list[dict[str, Any]] = []
     if not isinstance(deployment_targets, list):
@@ -3029,6 +3439,141 @@ def _managed_endpoint_reconciliation_markdown_summary(report: dict[str, Any]) ->
         lines.append(
             f"- `{item.get('severity')}` `{item.get('type')}` target `{item.get('deployment_target')}` "
             f"endpoint `{item.get('endpoint_id', 'n/a')}`: {item.get('message')}"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _endpoint_drift_remediation_actions(report: dict[str, Any], *, strategy: str) -> list[dict[str, Any]]:
+    desired_manifest = report.get("desired_manifest", {}) if isinstance(report.get("desired_manifest"), dict) else {}
+    targets = desired_manifest.get("deployment_targets", [])
+    targets_by_id = {str(target.get("id")): target for target in targets if isinstance(target, dict) and target.get("id")}
+    actions: list[dict[str, Any]] = []
+    for index, item in enumerate(report.get("drift_items", []) or [], start=1):
+        if not isinstance(item, dict):
+            continue
+        drift_type = str(item.get("type") or "unknown")
+        target_id = str(item.get("deployment_target") or "unknown-target")
+        target = targets_by_id.get(target_id, {})
+        provider = _endpoint_provider_for_target(target) if target else "unknown"
+        action_type = _endpoint_remediation_action_type(drift_type, strategy)
+        action_material = f"{report.get('reconciliation_id')}:{index}:{drift_type}:{target_id}:{item.get('endpoint_id')}"
+        action_id = f"era_{hashlib.sha256(action_material.encode('utf-8')).hexdigest()[:12]}"
+        actions.append(
+            {
+                "action_id": action_id,
+                "action_type": action_type,
+                "deployment_target": target_id,
+                "endpoint_id": item.get("endpoint_id"),
+                "provider": provider,
+                "severity": item.get("severity", "warning"),
+                "drift_type": drift_type,
+                "expected_version": item.get("expected_version"),
+                "observed_version": item.get("observed_version"),
+                "expected_binary_sha256": item.get("expected_binary_sha256"),
+                "observed_binary_sha256": item.get("observed_binary_sha256"),
+                "execution_mode": "manual_or_private_connector",
+                "requires_approval": True,
+                "message": item.get("message"),
+                "rationale": _endpoint_remediation_rationale(action_type, item),
+            }
+        )
+    return actions
+
+
+def _endpoint_remediation_action_type(drift_type: str, strategy: str) -> str:
+    drift_parts = {part.strip() for part in drift_type.split(",") if part.strip()}
+    if "missing_observation" in drift_parts:
+        return "republish_endpoint_export"
+    if "unknown_deployment_target" in drift_parts:
+        return "review_unknown_endpoint_target"
+    if "stale_observation" in drift_parts and not {"version_drift", "binary_drift"} & drift_parts:
+        return "refresh_endpoint_inventory"
+    if {"version_drift", "binary_drift"} & drift_parts:
+        if strategy == "rollback":
+            return "rollback_runtime"
+        if strategy == "republish":
+            return "republish_endpoint_export"
+        return "republish_or_rollback_runtime"
+    return "review_endpoint_drift"
+
+
+def _endpoint_remediation_rationale(action_type: str, item: dict[str, Any]) -> str:
+    if action_type == "republish_endpoint_export":
+        return "Republish the governed endpoint-management export for the target and verify the next inventory observation."
+    if action_type == "rollback_runtime":
+        return "Rollback the runtime on the affected endpoint or target to the last approved deployment state."
+    if action_type == "refresh_endpoint_inventory":
+        return "Refresh endpoint inventory before mutating deployment state because the observation is stale."
+    if action_type == "review_unknown_endpoint_target":
+        return "Review or quarantine the endpoint target because it is not present in the signed deployment manifest."
+    return str(item.get("message") or "Review the drift item before remediation.")
+
+
+def _endpoint_remediation_action_result(action: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "action_id": action.get("action_id"),
+        "action_type": action.get("action_type"),
+        "deployment_target": action.get("deployment_target"),
+        "endpoint_id": action.get("endpoint_id"),
+        "provider": action.get("provider"),
+        "status": "queued_for_private_connector_or_manual_execution",
+        "public_boundary": "Community Edition records approval and evidence only; endpoint mutation requires private connector implementation.",
+        "evidence_ref": f"endpoint-remediation-action://{action.get('action_id')}",
+    }
+
+
+def _endpoint_remediation_request_markdown_summary(request: dict[str, Any]) -> str:
+    approval = request.get("approval", {}) if isinstance(request.get("approval"), dict) else {}
+    lines = [
+        "# Endpoint Drift Remediation Request",
+        "",
+        f"- Request ID: `{request.get('request_id')}`",
+        f"- Reconciliation ID: `{request.get('reconciliation_id')}`",
+        f"- Strategy: `{request.get('strategy')}`",
+        f"- Approval ID: `{approval.get('approval_id')}`",
+        f"- Approval state: `{approval.get('state')}`",
+        f"- Action count: {request.get('action_count', 0)}",
+        "",
+        "## Actions",
+    ]
+    actions = [item for item in request.get("actions", []) if isinstance(item, dict)]
+    if not actions:
+        lines.append("- No remediation actions were planned.")
+    for action in actions:
+        lines.append(
+            f"- `{action.get('action_type')}` target `{action.get('deployment_target')}` "
+            f"endpoint `{action.get('endpoint_id', 'n/a')}`: {action.get('rationale')}"
+        )
+    lines.extend(
+        [
+            "",
+            "Community Edition records the approved remediation plan. Endpoint mutation is performed by private connectors or an operator runbook.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _endpoint_remediation_execution_markdown_summary(execution: dict[str, Any]) -> str:
+    approval = execution.get("approval", {}) if isinstance(execution.get("approval"), dict) else {}
+    lines = [
+        "# Endpoint Drift Remediation Execution",
+        "",
+        f"- Execution ID: `{execution.get('execution_id')}`",
+        f"- Request ID: `{execution.get('request_id')}`",
+        f"- Reconciliation ID: `{execution.get('reconciliation_id')}`",
+        f"- Status: `{execution.get('execution_status')}`",
+        f"- Approval ID: `{approval.get('approval_id')}`",
+        f"- Approved by: `{approval.get('decided_by')}`",
+        "",
+        "## Action Results",
+    ]
+    results = [item for item in execution.get("action_results", []) if isinstance(item, dict)]
+    if not results:
+        lines.append("- No remediation actions were recorded.")
+    for result in results:
+        lines.append(
+            f"- `{result.get('status')}` `{result.get('action_type')}` target `{result.get('deployment_target')}` "
+            f"endpoint `{result.get('endpoint_id', 'n/a')}`"
         )
     return "\n".join(lines) + "\n"
 
