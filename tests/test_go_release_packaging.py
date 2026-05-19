@@ -21,6 +21,9 @@ from cavra.release import (
     build_endpoint_remediation_handoff_metadata,
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
+    build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_report,
+    build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
     build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -44,6 +47,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_reconciliation_automation_history,
     evaluate_endpoint_inventory_freshness,
@@ -853,6 +857,21 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         output_dir=tmp_path / "remediation-handoff-status",
     )
     handoff_status_metadata = build_endpoint_remediation_handoff_status_metadata(handoff_status_result.status or {})
+    handoff_failed_status = record_endpoint_remediation_handoff_status(
+        handoff_result.handoff or {},
+        provider="jira",
+        status="failed",
+        external_ref="CAVRA-123",
+    )
+    handoff_failed_status_metadata = build_endpoint_remediation_handoff_status_metadata(handoff_failed_status.status or {})
+    sla_result = build_endpoint_remediation_sla_report(
+        [handoff_metadata],
+        [handoff_failed_status_metadata],
+        warning_hours=1,
+        critical_hours=2,
+        output_dir=tmp_path / "remediation-sla",
+    )
+    sla_metadata = build_endpoint_remediation_sla_report_metadata(sla_result.report or {})
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -865,6 +884,8 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         handoff_status="completed",
     )
     handoff_status_dashboard = build_endpoint_remediation_handoff_status_dashboard([handoff_status_metadata])
+    sla_history = filter_endpoint_remediation_sla_report_history([sla_metadata], alert_level="critical")
+    sla_dashboard = build_endpoint_remediation_sla_dashboard([sla_metadata])
     dashboard = build_endpoint_drift_remediation_dashboard([request_metadata, execution_metadata])
 
     assert execution_result.valid
@@ -884,6 +905,13 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert handoff_status_metadata["metadata_kind"] == "endpoint-remediation-handoff-status"
     assert handoff_status_history["total"] == 1
     assert handoff_status_dashboard["completed_count"] == 1
+    assert sla_result.valid
+    assert sla_result.report["executive_summary"]["breached_count"] == 1
+    assert sla_result.report["escalation_payloads"]["executive_summary"]["critical_count"] == 1
+    assert "endpoint-remediation-sla-report.json" in sla_result.files
+    assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
+    assert sla_history["total"] == 1
+    assert sla_dashboard["breached_count"] == 1
     assert execution_metadata["metadata_kind"] == "endpoint-drift-remediation-execution"
     assert history["total"] == 2
     assert dashboard["execution_count"] == 1
@@ -985,6 +1013,30 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         app,
         ["release", "endpoint-remediation-handoff-status-dashboard", "--metadata-json", str(metadata_json)],
     )
+    sla_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-report",
+            "--metadata-json",
+            str(metadata_json),
+            "--index-metadata-json",
+            str(metadata_json),
+            "--warning-hours",
+            "1",
+            "--critical-hours",
+            "1",
+            "--json",
+        ],
+    )
+    sla_history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-history", "--metadata-json", str(metadata_json)],
+    )
+    sla_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-dashboard", "--metadata-json", str(metadata_json)],
+    )
     dashboard_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-dashboard", "--metadata-json", str(metadata_json)],
@@ -1005,6 +1057,12 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert json.loads(handoff_status_history_cli.output)["total"] == 1
     assert handoff_status_dashboard_cli.exit_code == 0
     assert json.loads(handoff_status_dashboard_cli.output)["in_progress_count"] == 1
+    assert sla_cli.exit_code == 0
+    assert json.loads(sla_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-sla-report"
+    assert sla_history_cli.exit_code == 0
+    assert json.loads(sla_history_cli.output)["total"] == 1
+    assert sla_dashboard_cli.exit_code == 0
+    assert json.loads(sla_dashboard_cli.output)["report_count"] == 1
     assert dashboard_cli.exit_code == 0
     assert json.loads(dashboard_cli.output)["request_count"] == 1
 

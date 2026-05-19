@@ -546,6 +546,36 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Remediation SLA</h2>
+            <p>Review SLA breaches, escalation readiness, and executive release governance summaries.</p>
+          </div>
+          <button id="refreshEndpointRemediationSla">Refresh</button>
+        </div>
+        <div id="endpointRemediationSlaDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Alert <select id="filterEndpointRemediationSlaAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
+          <label>Minimum breached <input id="filterEndpointRemediationSlaBreached" type="number" min="0" value="0" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Report</th>
+                <th>Alert</th>
+                <th>Tracked</th>
+                <th>Completed</th>
+                <th>At Risk</th>
+                <th>Breached</th>
+                <th>Generated</th>
+              </tr>
+            </thead>
+            <tbody id="endpointRemediationSlaRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

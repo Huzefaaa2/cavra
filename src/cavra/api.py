@@ -70,6 +70,9 @@ from cavra.release import (
     build_endpoint_remediation_handoff_metadata,
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
+    build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_report,
+    build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
     build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -90,6 +93,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
@@ -259,6 +263,9 @@ def create_app():
                 "endpoint_remediation_handoff_status": "/endpoint-remediation-handoffs/{handoff_id}/status",
                 "endpoint_remediation_handoff_statuses": "/endpoint-remediation-handoff-statuses",
                 "endpoint_remediation_handoff_status_dashboard": "/endpoint-remediation-handoff-statuses/dashboard",
+                "endpoint_remediation_sla_report": "/endpoint-remediation-sla/report",
+                "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
+                "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1703,6 +1710,65 @@ def create_app():
             offset=0,
         )
         return build_endpoint_remediation_handoff_status_dashboard(result["items"])
+
+    @app.post("/endpoint-remediation-sla/report")
+    def endpoint_remediation_sla_report(payload: dict) -> dict:
+        handoffs = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff",
+            limit=500,
+            offset=0,
+        )["items"]
+        statuses = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff-status",
+            limit=500,
+            offset=0,
+        )["items"]
+        result = build_endpoint_remediation_sla_report(
+            handoffs,
+            statuses,
+            warning_hours=int(payload.get("warning_hours", 24)),
+            critical_hours=int(payload.get("critical_hours", 48)),
+            generated_by=payload.get("generated_by", "console"),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = None
+        if result.report:
+            metadata = evidence_store.upsert(build_endpoint_remediation_sla_report_metadata(result.report))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-remediation-sla-reports")
+    def endpoint_remediation_sla_report_index(
+        alert_level: Optional[str] = None,
+        min_breached: Optional[int] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-sla-report",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_remediation_sla_report_history(
+            result["items"],
+            alert_level=alert_level,
+            min_breached=min_breached,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-sla-reports/dashboard")
+    def endpoint_remediation_sla_report_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-sla-report",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_remediation_sla_dashboard(result["items"])
 
     @app.get("/endpoint-remediations")
     def endpoint_remediation_index(

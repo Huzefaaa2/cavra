@@ -619,6 +619,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     handoff_dashboard = client.get("/endpoint-remediation-handoffs/dashboard")
     handoff_status_history = client.get("/endpoint-remediation-handoff-statuses", params={"provider": "private_queue"})
     handoff_status_dashboard = client.get("/endpoint-remediation-handoff-statuses/dashboard")
+    sla_report = client.post(
+        "/endpoint-remediation-sla/report",
+        json={"warning_hours": 1, "critical_hours": 1, "generated_by": "release-agent"},
+    )
+    sla_history = client.get("/endpoint-remediation-sla-reports")
+    sla_dashboard = client.get("/endpoint-remediation-sla-reports/dashboard")
     automation = client.post(
         f"/endpoint-inventory-ingestions/{inventory_response.json()['inventory_id']}/reconcile",
         json={
@@ -674,6 +680,13 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert handoff_status_history.json()["total"] == 1
     assert handoff_status_dashboard.status_code == 200
     assert handoff_status_dashboard.json()["completed_count"] == 1
+    assert sla_report.status_code == 200
+    assert sla_report.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-report"
+    assert sla_report.json()["report"]["executive_summary"]["tracked_work_item_count"] == 2
+    assert sla_history.status_code == 200
+    assert sla_history.json()["total"] == 1
+    assert sla_dashboard.status_code == 200
+    assert sla_dashboard.json()["report_count"] == 1
     assert automation.status_code == 200
     assert automation.json()["metadata"]["metadata_kind"] == "endpoint-reconciliation-automation"
     assert automation.json()["approval"]["state"] == "pending"
@@ -691,6 +704,7 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         config["endpoints"]["endpoint_remediation_handoff_status_dashboard"]
         == "/endpoint-remediation-handoff-statuses/dashboard"
     )
+    assert config["endpoints"]["endpoint_remediation_sla_dashboard"] == "/endpoint-remediation-sla-reports/dashboard"
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:

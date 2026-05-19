@@ -87,6 +87,9 @@ from cavra.release import (
     build_endpoint_remediation_handoff_metadata,
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
+    build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_report,
+    build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_ingestion_dashboard,
     build_endpoint_inventory_ingestion_metadata,
     build_endpoint_reconciliation_automation_dashboard,
@@ -110,6 +113,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
@@ -3068,6 +3072,96 @@ def endpoint_remediation_handoff_status_dashboard(
     _print_json(build_endpoint_remediation_handoff_status_dashboard(items))
 
 
+@release_app.command("endpoint-remediation-sla-report")
+def endpoint_remediation_sla_report(
+    output: Annotated[Path, typer.Option(help="Output directory for endpoint remediation SLA report artifacts.")] = Path(
+        ".cavra/release/endpoint-remediation-sla"
+    ),
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    warning_hours: Annotated[int, typer.Option(help="Hours before a handoff is at risk.")] = 24,
+    critical_hours: Annotated[int, typer.Option(help="Hours before a handoff breaches SLA.")] = 48,
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity generating the report.")] = "release-manager",
+    index_metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index the report.")] = None,
+    index_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index the report.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable SLA report output."),
+) -> None:
+    """Generate endpoint remediation SLA, escalation, and executive reporting."""
+    handoffs = _load_endpoint_remediation_handoff_items(metadata_json=metadata_json, sqlite=sqlite)
+    statuses = _load_endpoint_remediation_handoff_status_items(metadata_json=metadata_json, sqlite=sqlite)
+    result = build_endpoint_remediation_sla_report(
+        handoffs,
+        statuses,
+        warning_hours=warning_hours,
+        critical_hours=critical_hours,
+        generated_by=generated_by,
+        output_dir=output,
+    )
+    indexed: list[str] = []
+    metadata = None
+    if result.valid and result.report:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_remediation_sla_report_metadata(result.report, bundle_dir=output),
+            metadata_json=index_metadata_json or metadata_json,
+            sqlite=index_sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint remediation SLA report")
+        if result.report_id:
+            console.print(f"  report: {result.report_id}")
+        if result.report:
+            summary = result.report.get("executive_summary", {})
+            console.print(f"  alert: {result.report.get('alert_level')}")
+            console.print(f"  tracked: {summary.get('tracked_work_item_count', 0)}")
+            console.print(f"  breached: {summary.get('breached_count', 0)}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("endpoint-remediation-sla-history")
+def endpoint_remediation_sla_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    alert_level: Annotated[Optional[str], typer.Option(help="Filter by alert level.")] = None,
+    min_breached: Annotated[Optional[int], typer.Option(help="Minimum breached handoff count.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint remediation SLA report history."""
+    items = _load_endpoint_remediation_sla_report_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_sla_report_history(
+            items,
+            alert_level=alert_level,
+            min_breached=min_breached,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-dashboard")
+def endpoint_remediation_sla_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint remediation SLA reports for executive release governance."""
+    items = _load_endpoint_remediation_sla_report_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_sla_dashboard(items))
+
+
 @release_app.command("endpoint-remediation-history")
 def endpoint_remediation_history(
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
@@ -3271,6 +3365,21 @@ def _load_endpoint_remediation_handoff_status_items(
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(
             metadata_kind="endpoint-remediation-handoff-status",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_endpoint_remediation_sla_report_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-remediation-sla-report",
             limit=500,
         )["items"]
     return []
