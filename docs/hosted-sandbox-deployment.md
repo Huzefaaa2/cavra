@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add managed endpoint deployment manifests for CI runners and developer workstations.
+1. Add rollout evidence capture for managed endpoint deployments.

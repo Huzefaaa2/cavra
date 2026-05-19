@@ -61,9 +61,11 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     provenance = json.loads((dist / "cavra-runtime.provenance.intoto.json").read_text(encoding="utf-8"))
     bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
     installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
+    endpoint_deployment = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
+    assert "cavra-runtime.endpoint-deployment.json" in checksums
     assert "cavra-runtime.installers.json" in checksums
     assert "cavra-runtime.provenance.intoto.json" in checksums
     assert "offline-trust-root-bootstrap.json" in checksums
@@ -74,17 +76,26 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert provenance["predicate"]["buildDefinition"]["externalParameters"]["version"] == "v0.1.0-test"
     assert bootstrap["schema_version"] == "cavra.offline-trust-bootstrap.v1"
     assert bootstrap["mode"] == "air_gapped"
+    assert "cavra-runtime.endpoint-deployment.json" in bootstrap["required_files"]
     assert "cavra-runtime.installers.json" in bootstrap["required_files"]
     assert "cavra release verify-airgap-bundle cavra-go-runtime-v0.1.0-test.zip" in bootstrap["verification_commands"]
     assert installers["schema_version"] == "cavra.go-runtime.installers.v1"
     assert installers["targets"][0]["target"] == "linux/amd64"
     assert installers["targets"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
     assert installers["targets"][0]["verification_command"] == "sha256sum -c checksums.txt"
+    assert endpoint_deployment["schema_version"] == "cavra.go-runtime.endpoint-deployment.v1"
+    assert endpoint_deployment["source_metadata"] == "cavra-runtime.installers.json"
+    assert endpoint_deployment["deployment_targets"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
+    assert any(
+        "cavra release smoke-installers" in command
+        for command in endpoint_deployment["deployment_targets"][0]["verification_commands"]
+    )
     assert evidence["schema_version"] == "cavra.go-release.evidence.v1"
     assert evidence["dry_run"] is True
     assert evidence["signature_count"] == 0
     assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {
         "go-binary",
+        "managed-endpoint-deployment",
         "installer-metadata",
         "sbom",
         "offline-trust-bootstrap",
@@ -133,6 +144,9 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_artifacts
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_provenance
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_signatures
+    assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_provenance
+    assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_signatures
     assert "cavra-runtime.installers.json" in valid_result.verified_artifacts
     assert "cavra-runtime.installers.json" in valid_result.verified_provenance
     assert "cavra-runtime.installers.json" in valid_result.verified_signatures
@@ -164,6 +178,20 @@ def test_go_release_verifier_rejects_missing_installer_metadata(tmp_path: Path, 
     invalid_result = verify_go_release_package(dist)
     assert not invalid_result.valid
     assert any("missing cavra-runtime.installers.json" in error for error in invalid_result.errors)
+
+
+def test_go_release_verifier_rejects_missing_endpoint_deployment_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    (dist / "cavra-runtime.endpoint-deployment.json").unlink()
+
+    invalid_result = verify_go_release_package(dist)
+    assert not invalid_result.valid
+    assert any("missing cavra-runtime.endpoint-deployment.json" in error for error in invalid_result.errors)
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

@@ -71,6 +71,9 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     installer_metadata = dist / "cavra-runtime.installers.json"
     if installer_metadata.exists():
         artifacts.append(_artifact(dist, installer_metadata, "installer-metadata"))
+    endpoint_deployment = dist / "cavra-runtime.endpoint-deployment.json"
+    if endpoint_deployment.exists():
+        artifacts.append(_artifact(dist, endpoint_deployment, "managed-endpoint-deployment"))
     for path in sorted(dist.glob("*.spdx.json")):
         artifacts.append(_artifact(dist, path, "sbom"))
     bootstrap = dist / "offline-trust-root-bootstrap.json"
@@ -174,6 +177,7 @@ def write_offline_trust_bootstrap(
             "signature_key_id": key_id,
             "required_files": [
                 "checksums.txt",
+                "cavra-runtime.endpoint-deployment.json",
                 "cavra-runtime.installers.json",
                 "cavra-runtime.sbom.spdx.json",
                 "cavra-runtime.provenance.intoto.json",
@@ -188,6 +192,7 @@ def write_offline_trust_bootstrap(
             "offline_operator_notes": [
                 "Transfer the zip and published public trust material through an approved removable-media process.",
                 "Run verification before placing binaries on developer machines, CI runners, or restricted networks.",
+                "Use the endpoint deployment manifest to map signed binaries to approved managed endpoint channels.",
                 "Preserve release evidence, checksums, provenance, signatures, and this bootstrap manifest with the change record.",
             ],
         },
@@ -243,6 +248,181 @@ def write_installer_metadata(dist: Path, *, version: str, commit: str, repositor
             ],
         },
     )
+
+
+def write_managed_endpoint_deployment(dist: Path, *, version: str, commit: str, repository: str) -> Path:
+    generated_at = datetime.now(timezone.utc).isoformat()
+    installers_path = dist / "cavra-runtime.installers.json"
+    installers = json.loads(installers_path.read_text(encoding="utf-8")) if installers_path.exists() else {}
+    installer_targets = {
+        str(target.get("target")): target
+        for target in installers.get("targets", [])
+        if isinstance(target, dict) and target.get("target")
+    }
+    deployments: list[dict[str, Any]] = []
+    for template in _endpoint_deployment_templates():
+        installer = installer_targets.get(template["installer_target"])
+        if not installer:
+            continue
+        deployment = {
+            "id": template["id"],
+            "surface": template["surface"],
+            "platform": template["platform"],
+            "os": installer["os"],
+            "arch": installer["arch"],
+            "installer_target": template["installer_target"],
+            "binary": installer["binary"],
+            "binary_sha256": installer["binary_sha256"],
+            "install_path": installer["install_path"],
+            "install_command": installer["install_command"],
+            "deployment_channel": template["deployment_channel"],
+            "management_tool": template["management_tool"],
+            "rollout_gate": "signed-package-verified-and-change-approved",
+            "verification_commands": [
+                f"cavra release verify-go-package go-runtime-{version}",
+                f"cavra release smoke-installers go-runtime-{version} --skip-execution",
+                "sha256sum -c checksums.txt",
+            ],
+            "rollback_steps": [
+                "Pause the endpoint management rollout.",
+                "Restore the previous signed CAVRA runtime package approved by change control.",
+                "Run cavra release verify-go-package against the restored package before returning endpoints to service.",
+            ],
+            "evidence_required": [
+                "release-evidence.json",
+                "cavra-runtime.provenance.intoto.json",
+                "cavra-runtime.installers.json",
+                "cavra-runtime.endpoint-deployment.json",
+                "checksums.txt",
+            ],
+        }
+        deployments.append(deployment)
+    if not deployments:
+        for installer in installer_targets.values():
+            target_name = str(installer["target"])
+            deployments.append(
+                {
+                    "id": f"managed-endpoint-{target_name.replace('/', '-')}",
+                    "surface": "managed-endpoint",
+                    "platform": "Generic managed endpoint channel",
+                    "os": installer["os"],
+                    "arch": installer["arch"],
+                    "installer_target": target_name,
+                    "binary": installer["binary"],
+                    "binary_sha256": installer["binary_sha256"],
+                    "install_path": installer["install_path"],
+                    "install_command": installer["install_command"],
+                    "deployment_channel": "approved-endpoint-management-tool",
+                    "management_tool": "Enterprise endpoint management platform",
+                    "rollout_gate": "signed-package-verified-and-change-approved",
+                    "verification_commands": [
+                        f"cavra release verify-go-package go-runtime-{version}",
+                        f"cavra release smoke-installers go-runtime-{version} --skip-execution",
+                        "sha256sum -c checksums.txt",
+                    ],
+                    "rollback_steps": [
+                        "Pause the endpoint management rollout.",
+                        "Restore the previous signed CAVRA runtime package approved by change control.",
+                    ],
+                    "evidence_required": [
+                        "release-evidence.json",
+                        "cavra-runtime.provenance.intoto.json",
+                        "cavra-runtime.installers.json",
+                        "cavra-runtime.endpoint-deployment.json",
+                        "checksums.txt",
+                    ],
+                }
+            )
+    return write_json(
+        dist / "cavra-runtime.endpoint-deployment.json",
+        {
+            "schema_version": "cavra.go-runtime.endpoint-deployment.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "repository": repository,
+            "generated_at": generated_at,
+            "source_metadata": "cavra-runtime.installers.json",
+            "controls": [
+                "verify-go-package-before-install",
+                "smoke-installers-before-rollout",
+                "signed-endpoint-deployment-manifest",
+                "managed-endpoint-change-record",
+                "least-privilege-runner-install",
+                "staged-workstation-rollout",
+            ],
+            "deployment_targets": deployments,
+            "operator_steps": [
+                "Verify the release package and endpoint deployment manifest before rollout.",
+                "Run installer smoke validation in the release staging environment.",
+                "Publish only the target-specific binary referenced by this manifest to each endpoint management channel.",
+                "Roll out to a limited runner or workstation ring before enterprise-wide deployment.",
+                "Preserve package evidence, endpoint deployment metadata, and rollout records with the change ticket.",
+            ],
+        },
+    )
+
+
+def _endpoint_deployment_templates() -> list[dict[str, str]]:
+    return [
+        {
+            "id": "github-actions-linux-amd64-runner",
+            "surface": "ci-runner",
+            "platform": "GitHub Actions self-hosted runner",
+            "installer_target": "linux/amd64",
+            "deployment_channel": "runner-image-or-bootstrap-script",
+            "management_tool": "GitHub Actions runner image pipeline",
+        },
+        {
+            "id": "gitlab-linux-amd64-runner",
+            "surface": "ci-runner",
+            "platform": "GitLab Runner",
+            "installer_target": "linux/amd64",
+            "deployment_channel": "runner-image-or-bootstrap-script",
+            "management_tool": "GitLab runner image pipeline",
+        },
+        {
+            "id": "azure-linux-amd64-runner",
+            "surface": "ci-runner",
+            "platform": "Azure Pipelines self-hosted agent",
+            "installer_target": "linux/amd64",
+            "deployment_channel": "agent-image-or-bootstrap-script",
+            "management_tool": "Azure Pipelines agent image pipeline",
+        },
+        {
+            "id": "linux-systemd-amd64-workstation",
+            "surface": "developer-workstation",
+            "platform": "Linux developer workstation",
+            "installer_target": "linux/amd64",
+            "deployment_channel": "fleet-management-script",
+            "management_tool": "Linux endpoint management",
+        },
+        {
+            "id": "macos-jamf-arm64-workstation",
+            "surface": "developer-workstation",
+            "platform": "macOS developer workstation",
+            "installer_target": "darwin/arm64",
+            "deployment_channel": "jamf-policy",
+            "management_tool": "Jamf Pro",
+        },
+        {
+            "id": "macos-jamf-amd64-workstation",
+            "surface": "developer-workstation",
+            "platform": "macOS developer workstation",
+            "installer_target": "darwin/amd64",
+            "deployment_channel": "jamf-policy",
+            "management_tool": "Jamf Pro",
+        },
+        {
+            "id": "windows-intune-amd64-workstation",
+            "surface": "developer-workstation",
+            "platform": "Windows developer workstation",
+            "installer_target": "windows/amd64",
+            "deployment_channel": "intune-win32-app",
+            "management_tool": "Microsoft Intune",
+        },
+    ]
 
 
 def _binary_target(name: str) -> dict[str, str]:
@@ -404,6 +584,7 @@ def write_evidence(
             "slsa-provenance",
             "ed25519-detached-signatures",
             "signed-installer-metadata",
+            "managed-endpoint-deployment-manifests",
             "release-evidence-manifest",
         ],
     }
@@ -444,6 +625,8 @@ def package_release(args: argparse.Namespace) -> None:
     dist.mkdir(parents=True, exist_ok=True)
     modules = load_go_modules(dist / "go-modules.json")
     write_spdx_sbom(dist, args.version, args.commit, modules)
+    write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
+    write_managed_endpoint_deployment(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_offline_trust_bootstrap(
         dist,
         version=args.version,
@@ -452,7 +635,6 @@ def package_release(args: argparse.Namespace) -> None:
         repository=args.repository,
         key_id=args.key_id,
     )
-    write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
     artifacts = collect_artifacts(dist)
     provenance = write_slsa_provenance(
         dist,
