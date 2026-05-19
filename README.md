@@ -145,6 +145,7 @@ cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/
 cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
 cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
 cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json --output .cavra/keys/evidence-trust-roots.json
+cavra evidence trust-distribution .cavra/keys/evidence-trust-root.json --output .cavra/keys/trust-root-distribution --distribution-id prod-trust-roots-2026-q2
 cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
 cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
@@ -256,7 +257,7 @@ Current phase status:
 
 - Phase 1: Productization Foundation - complete in PR #1.
 - Phase 2: Policy Engine Hardening - complete in PR #1.
-- Phase 3: Evidence Hub and Attestation - near complete in PR #1 with governed hosted artifact retrieval and production deployment validation now available.
+- Phase 3: Evidence Hub and Attestation - near complete in PR #1 with governed hosted artifact retrieval, trust-root distribution automation, and production deployment validation now available.
 - Phase 4: Approval Router - complete for the current production-readiness slice in PR #1 with JSON/SQLite persistence, routing files, signed OIDC/JWKS validation, repository RBAC, provider request specs, live provider delivery, console actions, break-glass creation, and audit detail views.
 - Phase 5: Agent Registry and MCP Trust Registry - complete for the current production-readiness slice in PR #1 with JSON/SQLite registry persistence, API and CLI access, predefined agent capability profiles, MCP tool classification, console registry views, and registry-backed MCP runtime decisions.
 - Phase 6: Console and Persistent API - started in PR #1 with JSON/SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring workflows, approval-bound signed policy publishing, rollout change planning/apply workflows, integration inventory persistence, persistent API backup/restore/retention operations, production deployment validation, policy rollout drill-downs, evidence artifact retrieval, read-only OIDC/RBAC console security boundary reporting, authenticated console session validation, API filters, console Activity Explorer views, and console repository/rollout/integration views.
@@ -267,7 +268,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add offline trust-root distribution automation.
+- Add signed installer metadata for packaged deployment targets.
 
 ## User stories and enterprise value
 

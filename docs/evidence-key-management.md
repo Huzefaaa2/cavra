@@ -26,6 +26,10 @@ cavra evidence trust-root .cavra/keys/prod-evidence-public.pem \
 cavra evidence trust-bundle .cavra/keys/prod-evidence-trust-root.json \
   --output .cavra/keys/evidence-trust-roots.json
 
+cavra evidence trust-distribution .cavra/keys/prod-evidence-trust-root.json \
+  --output .cavra/keys/trust-root-distribution \
+  --distribution-id prod-trust-roots-2026-q2
+
 cavra evidence bundle \
   --output .cavra/evidence/latest \
   --private-key .cavra/keys/prod-evidence-private.pem \
@@ -42,6 +46,8 @@ A trust root is a JSON document that records the trusted public key, key ID, own
 
 A trust-root bundle is a distributable JSON document containing one or more trust roots. Use it when production services, CI checks, reviewer workstations, and audit tooling need the same set of active, retired, and historical verification keys. CAVRA rejects duplicate key IDs in a bundle.
 
+A trust-root distribution package adds the bundle, a distribution manifest, operator README, and checksums. Use it when the same public trust material must be moved into CI, reviewer workstations, API services, audit tooling, or offline environments through an approved channel.
+
 Supported trust-root statuses:
 
 - `active`: accepted for new evidence.
@@ -55,7 +61,7 @@ Recommended production rotation:
 1. Generate a new Ed25519 keypair.
 2. Create a new trust-root document with a new `key_id`.
 3. Add the trust root to the trust-root bundle.
-4. Distribute the public trust-root bundle before the new key signs release evidence.
+4. Export and distribute the public trust-root package before the new key signs release evidence.
 5. Sign new evidence with the new key ID.
 6. Keep old trust roots for historical bundle verification.
 7. Mark compromised keys as `revoked`.

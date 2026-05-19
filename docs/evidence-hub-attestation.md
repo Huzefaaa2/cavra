@@ -142,7 +142,7 @@ The hosted console surface in `apps/sandbox-ui` now includes:
 - Evidence metadata search.
 - Evidence artifact listing and downloads.
 - PR attestation verification summary.
-- Operational readiness indicators for trust roots, SQLite search, attestation verification, and migrations.
+- Operational readiness indicators for trust roots, trust-root distribution packages, SQLite search, attestation verification, and migrations.
 
 The console reads `GET /console/config` when available. Set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` for cross-origin deployments, or set `window.CAVRA_API_BASE` before `sandbox.js` loads.
 
@@ -161,7 +161,7 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 - As a SOC analyst, I can deliver CAVRA evidence events through configured SIEM, ITSM, and ChatOps connector hooks while retaining redacted delivery evidence.
 - As a platform engineer, I can create immutable storage plans without granting CAVRA cloud credentials.
 - As a platform engineer, I can persist evidence metadata for API search and review workflows.
-- As a platform engineer, I can distribute one approved trust-root bundle to CI, reviewers, API services, and auditors.
+- As a platform engineer, I can distribute one approved trust-root package to CI, reviewers, API services, auditors, and offline environments.
 
 ## Next Work
 

@@ -35,6 +35,7 @@ from cavra.evidence import (
     export_key_trust_root,
     export_retention_policy,
     export_siem_payloads,
+    export_trust_root_distribution,
     export_trust_root_bundle,
     generate_ed25519_keypair,
     verify_evidence_bundle,
@@ -466,6 +467,33 @@ def evidence_trust_bundle(
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     console.print(f"[green]trust-root bundle exported[/green] {path}")
+
+
+@evidence_app.command("trust-distribution")
+def evidence_trust_distribution(
+    trust_roots: Annotated[list[Path], typer.Argument(help="One or more trust-root JSON documents.")],
+    output: Annotated[Path, typer.Option(help="Output directory for offline trust-root distribution artifacts.")] = Path(
+        ".cavra/keys/trust-root-distribution"
+    ),
+    environment: Annotated[str, typer.Option(help="Target environment label.")] = "production",
+    distribution_id: Annotated[Optional[str], typer.Option(help="Explicit distribution ID.")] = None,
+    channel: Annotated[Optional[list[str]], typer.Option(help="Approved distribution channel. Repeatable.")] = None,
+) -> None:
+    """Create an offline distribution package for CAVRA evidence trust roots."""
+    try:
+        result = export_trust_root_distribution(
+            trust_roots,
+            output,
+            environment=environment,
+            distribution_id=distribution_id,
+            channels=channel,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]trust-root distribution exported[/green] {result.output_dir}")
+    for path in result.files:
+        console.print(f"  {path}")
 
 
 @evidence_app.command("verify")

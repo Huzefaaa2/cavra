@@ -4,7 +4,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from cavra.cli import app
-from cavra.evidence import create_evidence_bundle
+from cavra.evidence import create_evidence_bundle, export_key_trust_root, generate_ed25519_keypair
 from cavra.runtime import RuntimeGuard
 
 
@@ -103,3 +103,37 @@ def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
     assert result.exit_code == 0
     assert "connector delivery evidence exported" in result.output
     assert list(output.glob("*.json"))
+
+
+def test_trust_distribution_cli_exports_offline_package(tmp_path: Path) -> None:
+    private_key = tmp_path / "private.pem"
+    public_key = tmp_path / "public.pem"
+    trust_root = tmp_path / "trust-root.json"
+    output = tmp_path / "trust-distribution"
+    generate_ed25519_keypair(private_key, public_key)
+    export_key_trust_root(public_key, trust_root, key_id="cli-prod")
+
+    result = runner.invoke(
+        app,
+        [
+            "evidence",
+            "trust-distribution",
+            str(trust_root),
+            "--output",
+            str(output),
+            "--environment",
+            "prod",
+            "--distribution-id",
+            "cli-dist",
+            "--channel",
+            "source-control",
+            "--channel",
+            "offline-media",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "trust-root distribution exported" in result.output
+    manifest = json.loads((output / "trust-root-distribution-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["distribution_id"] == "cli-dist"
+    assert manifest["channels"] == ["source-control", "offline-media"]

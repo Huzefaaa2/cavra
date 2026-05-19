@@ -99,5 +99,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add offline trust-root distribution automation.
-2. Add signed installer metadata for packaged deployment targets.
+1. Add signed installer metadata for packaged deployment targets.

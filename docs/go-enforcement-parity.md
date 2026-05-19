@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add offline trust-root distribution automation.
+1. Add signed installer metadata for packaged deployment targets.
 2. Continue broadening approval-route parity as new policy packs are added.

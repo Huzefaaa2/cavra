@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from cavra.evidence import (
@@ -13,6 +14,7 @@ from cavra.evidence import (
     export_key_trust_root,
     export_retention_policy,
     export_siem_payloads,
+    export_trust_root_distribution,
     export_trust_root_bundle,
     generate_ed25519_keypair,
     list_evidence_artifacts,
@@ -178,6 +180,38 @@ def test_trust_root_bundle_rejects_duplicate_key_ids(tmp_path: Path) -> None:
         assert "duplicate trust-root key IDs" in str(exc)
     else:
         raise AssertionError("expected duplicate key IDs to fail")
+
+
+def test_export_trust_root_distribution_creates_offline_artifacts(tmp_path: Path) -> None:
+    private_key = tmp_path / "private.pem"
+    public_key = tmp_path / "public.pem"
+    trust_root = tmp_path / "trust-root.json"
+    output = tmp_path / "distribution"
+    generate_ed25519_keypair(private_key, public_key)
+    export_key_trust_root(public_key, trust_root, key_id="prod-signing", owner="security")
+
+    result = export_trust_root_distribution(
+        [trust_root],
+        output,
+        environment="regulated-prod",
+        distribution_id="dist-2026-q2",
+        channels=["source-control", "offline-media"],
+    )
+
+    assert result.output_dir == output
+    bundle = json.loads((output / "evidence-trust-roots.json").read_text(encoding="utf-8"))
+    manifest = json.loads((output / "trust-root-distribution-manifest.json").read_text(encoding="utf-8"))
+    checksums = (output / "checksums.txt").read_text(encoding="utf-8")
+    readme = (output / "trust-root-distribution.md").read_text(encoding="utf-8")
+    assert bundle["schema_version"] == "cavra.evidence.trust-root-bundle.v1"
+    assert manifest["schema_version"] == "cavra.evidence.trust-root-distribution.v1"
+    assert manifest["distribution_id"] == "dist-2026-q2"
+    assert manifest["environment"] == "regulated-prod"
+    assert manifest["bundle"]["active_key_ids"] == ["prod-signing"]
+    assert "offline-media" in manifest["channels"]
+    assert "evidence-trust-roots.json" in checksums
+    assert "trust-root-distribution-manifest.json" in checksums
+    assert "cavra evidence verify" in readme
 
 
 def test_retention_policy_minimum_is_enforced(tmp_path: Path) -> None:

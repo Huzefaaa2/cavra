@@ -405,4 +405,22 @@ Completed:
 Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 
-Recommended next issue: add offline trust-root distribution automation.
+Recommended next issue: delivered below as offline trust-root distribution automation.
+
+## Offline Trust-Root Distribution Automation
+
+Status: complete for the current evidence-integrity slice.
+
+Completed:
+- Added `cavra evidence trust-distribution` for exporting public trust-root distribution packages.
+- Generated `evidence-trust-roots.json`, `trust-root-distribution-manifest.json`, `trust-root-distribution.md`, and `checksums.txt`.
+- Added distribution metadata for environment, distribution ID, approved channels, active/retired/revoked key IDs, and operator steps.
+- Added checksum-protected offline operator handoff guidance for CI, reviewers, API services, audit tooling, and restricted networks.
+- Updated README, CLI docs, evidence trust-root docs, roadmap docs, and wiki source.
+- Added function and CLI tests for trust-root distribution package export.
+
+Validation:
+- `python3 -m pytest tests/test_evidence.py::test_export_trust_root_distribution_creates_offline_artifacts tests/test_cli.py::test_trust_distribution_cli_exports_offline_package -q` passed locally.
+- `python3 -m ruff check src/cavra/evidence.py src/cavra/cli.py tests/test_evidence.py tests/test_cli.py` passed locally.
+
+Recommended next issue: add signed installer metadata for packaged deployment targets.
