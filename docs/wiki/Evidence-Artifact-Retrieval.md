@@ -39,6 +39,7 @@ Promotion requests require `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RE
 - As a release manager, I can create a signed promotion approval request from a governed rollout evidence record.
 - As a release manager, I can record approved promotion execution from a governed rollout evidence record.
 - As an auditor, I can search promotion execution records and inspect rollback evidence links.
+- As an auditor, I can inspect rollback execution records and promotion audit exports for SIEM and ITSM systems.
 - As a platform engineer, I can expose evidence from a controlled root without granting broad filesystem access.
 
 ## Enterprise Value

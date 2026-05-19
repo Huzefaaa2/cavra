@@ -7,13 +7,16 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from cavra.approvals import ApprovalStore
+from cavra.approvals import ApprovalStore, create_approval_request
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
 from cavra.release import (
+    build_managed_endpoint_rollout_rollback_execution_metadata,
     capture_managed_endpoint_rollout_evidence,
+    create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
+    export_rollout_promotion_execution_audit,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_managed_endpoint_rollout_evidence,
@@ -494,6 +497,145 @@ def test_managed_endpoint_rollout_promotion_execution_requires_approved_request(
     assert metadata["rollout_status"] == "promoted"
     assert metadata["target_ring"] == "production"
     assert metadata["rollback_evidence_refs"]
+
+
+def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        rollout_ring="pilot",
+        status="staged",
+        change_record="CHG-123",
+    )
+    request_result = create_managed_endpoint_rollout_promotion_request(
+        rollout_dir,
+        output_dir=tmp_path / "promotion-request",
+        target_ring="production",
+        signing_key_pem=private_key.read_text(encoding="utf-8"),
+    )
+    approval_store = ApprovalStore(tmp_path / "approvals.json")
+    approval_store.upsert(request_result.approval)
+    approved_promotion = approval_store.decide(
+        request_result.approval["approval_id"],
+        state="approved",
+        actor="cab@example.com",
+        reason="Validated staged rollout evidence.",
+    )
+    promotion = create_managed_endpoint_rollout_promotion_execution(
+        request_result.request,
+        approved_promotion,
+        output_dir=tmp_path / "promotion-execution",
+        executed_by="release-manager",
+    )
+    rollback_decision = {
+        "decision_id": "rollback-decision",
+        "session_id": promotion.execution["rollout_id"],
+        "correlation_id": promotion.execution["execution_id"],
+        "action_type": "release_rollback_endpoint_rollout",
+        "target": promotion.execution["rollout_id"],
+        "decision": "require_approval",
+        "severity": "high",
+        "rule_id": "release.rollout.rollback.require_approval",
+        "reason": "Rollback requires approved change control.",
+        "actor": "release-manager",
+        "metadata": {
+            "promotion_execution_id": promotion.execution["execution_id"],
+            "target_ring": "production",
+        },
+    }
+    rollback_approval = create_approval_request(rollback_decision, approver_group="Change Advisory Board")
+    approval_store.upsert(rollback_approval)
+    approved_rollback = approval_store.decide(
+        rollback_approval["approval_id"],
+        state="approved",
+        actor="cab@example.com",
+        reason="Rollback approved.",
+    )
+
+    result = create_managed_endpoint_rollout_rollback_execution(
+        promotion.execution,
+        approved_rollback,
+        output_dir=tmp_path / "rollback-execution",
+        executed_by="release-manager",
+        rollback_reason="Production validation failed.",
+    )
+
+    assert result.valid
+    assert result.rollback["schema_version"] == "cavra.go-runtime.endpoint-rollout-rollback-execution.v1"
+    assert result.rollback["ring_rollback"] == {
+        "from": "production",
+        "to": "pilot",
+        "previous_rollout_status": "promoted",
+        "new_rollout_status": "rolled_back",
+    }
+    assert result.rollback["rollback_evidence_refs"] == promotion.execution["rollback_evidence_refs"]
+    assert set(result.files) == {"rollout-rollback-execution.json", "rollout-rollback-execution.md"}
+    metadata = build_managed_endpoint_rollout_rollback_execution_metadata(result.rollback)
+    assert metadata["metadata_kind"] == "rollout-rollback-execution"
+    assert metadata["rollback_execution_status"] == "executed"
+    assert metadata["promotion_execution_id"] == promotion.execution["execution_id"]
+
+    export_result = export_rollout_promotion_execution_audit(
+        promotion.execution,
+        tmp_path / "audit-export",
+        provider="all",
+        itsm_project_key="CAVRA",
+    )
+    exported_names = {path.name for path in export_result.files}
+    assert "promotion-execution-audit-event.json" in exported_names
+    assert "splunk-hec-events.json" in exported_names
+    assert "jira-issue.json" in exported_names
+    audit_event = json.loads((tmp_path / "audit-export" / "promotion-execution-audit-event.json").read_text(encoding="utf-8"))
+    assert audit_event["event_type"] == "cavra.rollout_promotion_execution"
+    assert audit_event["rollback_reference_count"] > 0
+
+    metadata_json = tmp_path / "rollback-metadata.json"
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "execute-rollout-rollback",
+            str(tmp_path / "promotion-execution" / "rollout-promotion-execution.json"),
+            "--approval-store",
+            str(tmp_path / "approvals.json"),
+            "--approval-id",
+            approved_rollback["approval_id"],
+            "--output",
+            str(tmp_path / "cli-rollback-execution"),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    assert cli_result.exit_code == 0
+    payload = json.loads(cli_result.output)
+    assert payload["valid"] is True
+    assert payload["rollback"]["approval"]["state"] == "approved"
+    assert str(metadata_json) in payload["indexed_metadata_stores"]
+
+    export_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "export-promotion-audit",
+            str(tmp_path / "promotion-execution" / "rollout-promotion-execution.json"),
+            "--output",
+            str(tmp_path / "cli-audit-export"),
+            "--provider",
+            "jira",
+            "--json",
+        ],
+    )
+    assert export_cli.exit_code == 0
+    assert "jira-issue.json" in export_cli.output
 
 
 def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:

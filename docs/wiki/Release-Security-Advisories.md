@@ -20,6 +20,8 @@ Every security advisory or security-impacting release note should include:
 - signed rollout promotion approval requests with `cavra release request-rollout-promotion`;
 - approved promotion execution records with `cavra release execute-rollout-promotion`;
 - promotion execution search and audit drill-downs through `/promotion-executions`;
+- approved rollback execution records with `cavra release execute-rollout-rollback`;
+- SIEM and ITSM promotion audit exports with `cavra release export-promotion-audit`;
 - rollout evidence search filters and governed rollout artifact downloads through `cavra evidence search` and the `/evidence` API;
 - SBOM, installer metadata, managed endpoint deployment manifest, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
 
@@ -58,4 +60,4 @@ Before publishing a Go runtime package:
 
 ## Enterprise Challenge Solved
 
-Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
+Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.

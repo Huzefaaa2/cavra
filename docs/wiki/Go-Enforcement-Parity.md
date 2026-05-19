@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records, and continue broadening approval-route parity as new policy packs are added.
+Add connector delivery for promotion audit exports and rollback execution records with retry evidence, and continue broadening approval-route parity as new policy packs are added.
