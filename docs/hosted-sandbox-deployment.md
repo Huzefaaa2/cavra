@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add rollout evidence capture for managed endpoint deployments.
+1. Add rollout evidence verification and evidence-store indexing for managed endpoint deployments.

@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add rollout evidence capture for managed endpoint deployments.
+Add rollout evidence verification and evidence-store indexing for managed endpoint deployments.
