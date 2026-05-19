@@ -64,6 +64,7 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    capture_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_go_airgap_bundle,
@@ -1402,6 +1403,64 @@ def smoke_installers(
             console.print(f"  target: {target}")
         for target in result.executed_targets:
             console.print(f"  executed: {target}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("capture-rollout")
+def capture_rollout(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for rollout evidence artifacts.")] = Path(
+        ".cavra/release/rollout"
+    ),
+    deployment_id: Annotated[Optional[list[str]], typer.Option(help="Endpoint deployment target ID. Repeatable.")] = None,
+    environment: Annotated[str, typer.Option(help="Target environment label.")] = "production",
+    rollout_id: Annotated[Optional[str], typer.Option(help="Explicit rollout ID.")] = None,
+    rollout_ring: Annotated[str, typer.Option(help="Rollout ring, such as staging, pilot, or production.")] = "staging",
+    status: Annotated[str, typer.Option(help="planned, staged, succeeded, failed, or rolled_back.")] = "planned",
+    actor: Annotated[str, typer.Option(help="Operator or automation identity capturing the rollout evidence.")] = "release-manager",
+    change_record: Annotated[str, typer.Option(help="Change ticket or release approval reference.")] = "unassigned",
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for release artifacts.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable evidence output."),
+) -> None:
+    """Capture rollout evidence for managed endpoint deployment targets."""
+    result = capture_managed_endpoint_rollout_evidence(
+        package_dir,
+        output,
+        deployment_ids=deployment_id,
+        environment=environment,
+        rollout_id=rollout_id,
+        rollout_ring=rollout_ring,
+        status=status,
+        actor=actor,
+        change_record=change_record,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint rollout evidence")
+        if result.rollout_id:
+            console.print(f"  rollout: {result.rollout_id}")
+        for target in result.deployment_targets:
+            console.print(f"  target: {target}")
+        for file in result.files:
+            console.print(f"  file: {file}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

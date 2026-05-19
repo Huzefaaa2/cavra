@@ -478,4 +478,22 @@ Completed:
 Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 
-Recommended next issue: add rollout evidence capture for managed endpoint deployments.
+Recommended next issue: delivered below as managed endpoint rollout evidence capture.
+
+## Managed Endpoint Rollout Evidence Capture
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra release capture-rollout` for capturing rollout evidence from signed Go runtime packages.
+- Reused release package verification before writing rollout artifacts.
+- Selected approved deployment targets from `cavra-runtime.endpoint-deployment.json`.
+- Generated `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and rollout `checksums.txt`.
+- Captured rollout ID, ring, status, actor, change record, release metadata, source artifact checksums, selected deployment targets, rollback steps, and package verification results.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for selected-target rollout evidence capture, CLI JSON output, and unknown target rejection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+
+Recommended next issue: add rollout evidence verification and evidence-store indexing for managed endpoint deployments.

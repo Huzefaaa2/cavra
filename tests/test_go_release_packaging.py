@@ -10,6 +10,7 @@ from typer.testing import CliRunner
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
 from cavra.release import (
+    capture_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_go_airgap_bundle,
@@ -208,6 +209,78 @@ def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, m
     cli_result = runner.invoke(app, ["release", "smoke-installers", str(dist), "--skip-execution", "--json"])
     assert cli_result.exit_code == 0
     assert json.loads(cli_result.output)["valid"] is True
+
+
+def test_managed_endpoint_rollout_evidence_captures_selected_targets(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    output = tmp_path / "rollout"
+
+    result = capture_managed_endpoint_rollout_evidence(
+        dist,
+        output,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        rollout_ring="pilot",
+        status="staged",
+        actor="release-agent",
+        change_record="CHG-123",
+    )
+
+    assert result.valid
+    assert result.rollout_id == "chg-123-v0.1.0-test"
+    assert result.deployment_targets == ["github-actions-linux-amd64-runner"]
+    assert set(result.files) == {
+        "managed-endpoint-rollout-evidence.json",
+        "managed-endpoint-rollout-evidence.md",
+        "checksums.txt",
+    }
+    evidence = json.loads((output / "managed-endpoint-rollout-evidence.json").read_text(encoding="utf-8"))
+    assert evidence["schema_version"] == "cavra.go-runtime.endpoint-rollout-evidence.v1"
+    assert evidence["status"] == "staged"
+    assert evidence["change_record"] == "CHG-123"
+    assert evidence["deployment_targets"][0]["id"] == "github-actions-linux-amd64-runner"
+    assert "release-evidence.json" in evidence["source_artifacts"]["release_evidence"]["path"]
+    assert "managed-endpoint-rollout-evidence.json" in (output / "checksums.txt").read_text(encoding="utf-8")
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "capture-rollout",
+            str(dist),
+            "--output",
+            str(tmp_path / "cli-rollout"),
+            "--deployment-id",
+            "github-actions-linux-amd64-runner",
+            "--rollout-id",
+            "chg-456-v0.1.0-test",
+            "--change-record",
+            "CHG-456",
+            "--json",
+        ],
+    )
+    assert cli_result.exit_code == 0
+    assert json.loads(cli_result.output)["valid"] is True
+
+
+def test_managed_endpoint_rollout_evidence_rejects_unknown_target(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    result = capture_managed_endpoint_rollout_evidence(
+        dist,
+        tmp_path / "rollout",
+        deployment_ids=["unknown-target"],
+    )
+
+    assert not result.valid
+    assert any("unknown endpoint deployment target: unknown-target" in error for error in result.errors)
 
 
 def test_airgap_bundle_verifier_accepts_signed_zip_and_rejects_missing_bootstrap(tmp_path: Path, monkeypatch) -> None:

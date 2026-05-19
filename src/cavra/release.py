@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -111,6 +112,30 @@ class InstallerSmokeValidationResult:
             "warnings": self.warnings,
             "verified_targets": self.verified_targets,
             "executed_targets": self.executed_targets,
+            "package_verification": self.package_verification,
+        }
+
+
+@dataclass(frozen=True)
+class ManagedEndpointRolloutEvidenceResult:
+    output_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    rollout_id: str | None = None
+    deployment_targets: list[str] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
+    package_verification: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "output_dir": str(self.output_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "rollout_id": self.rollout_id,
+            "deployment_targets": self.deployment_targets,
+            "files": self.files,
             "package_verification": self.package_verification,
         }
 
@@ -522,6 +547,143 @@ def smoke_test_go_installers(
     )
 
 
+def capture_managed_endpoint_rollout_evidence(
+    package_dir: Path,
+    output_dir: Path,
+    *,
+    deployment_ids: list[str] | None = None,
+    environment: str = "production",
+    rollout_id: str | None = None,
+    rollout_ring: str = "staging",
+    status: str = "planned",
+    actor: str = "release-manager",
+    change_record: str = "unassigned",
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+) -> ManagedEndpointRolloutEvidenceResult:
+    package_dir = package_dir.resolve()
+    output_dir = output_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    package_result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors.extend(package_result.errors)
+    warnings.extend(package_result.warnings)
+    if status not in {"planned", "staged", "succeeded", "failed", "rolled_back"}:
+        errors.append(f"unsupported rollout status: {status}")
+
+    endpoint_deployment_path = package_dir / "cavra-runtime.endpoint-deployment.json"
+    release_evidence_path = package_dir / "release-evidence.json"
+    endpoint_deployment: dict[str, Any] = {}
+    release_evidence: dict[str, Any] = {}
+    if endpoint_deployment_path.exists():
+        try:
+            endpoint_deployment = json.loads(endpoint_deployment_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid endpoint deployment JSON: {exc}")
+    else:
+        errors.append("missing cavra-runtime.endpoint-deployment.json")
+    if release_evidence_path.exists():
+        try:
+            release_evidence = json.loads(release_evidence_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid release-evidence.json: {exc}")
+    else:
+        errors.append("missing release-evidence.json")
+
+    deployment_targets = endpoint_deployment.get("deployment_targets", [])
+    if not isinstance(deployment_targets, list) or not deployment_targets:
+        errors.append("endpoint deployment metadata has no deployment_targets")
+        deployment_targets = []
+    requested_ids = set(deployment_ids or [])
+    selected_targets = [
+        target
+        for target in deployment_targets
+        if isinstance(target, dict) and (not requested_ids or str(target.get("id", "")) in requested_ids)
+    ]
+    selected_ids = {str(target.get("id", "")) for target in selected_targets}
+    missing_ids = sorted(requested_ids - selected_ids)
+    errors.extend(f"unknown endpoint deployment target: {deployment_id}" for deployment_id in missing_ids)
+    if not selected_targets and not errors:
+        errors.append("no endpoint deployment targets selected")
+
+    if errors:
+        return ManagedEndpointRolloutEvidenceResult(
+            output_dir=output_dir,
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            rollout_id=rollout_id,
+            package_verification=package_result.to_dict(),
+        )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    resolved_rollout_id = rollout_id or _default_rollout_id(environment, release_evidence)
+    evidence_path = output_dir / "managed-endpoint-rollout-evidence.json"
+    summary_path = output_dir / "managed-endpoint-rollout-evidence.md"
+    checksums_path = output_dir / "checksums.txt"
+    now = datetime.now(timezone.utc).isoformat()
+    selected_payloads = [_rollout_target_payload(target) for target in selected_targets]
+    payload = {
+        "schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "rollout_id": resolved_rollout_id,
+        "environment": environment,
+        "rollout_ring": rollout_ring,
+        "status": status,
+        "actor": actor,
+        "change_record": change_record,
+        "created_at": now,
+        "package_dir": str(package_dir),
+        "release": {
+            "version": release_evidence.get("version"),
+            "commit": release_evidence.get("commit"),
+            "ref": release_evidence.get("ref"),
+            "repository": endpoint_deployment.get("repository") or release_evidence.get("repository"),
+        },
+        "source_artifacts": {
+            "endpoint_deployment": {
+                "path": "cavra-runtime.endpoint-deployment.json",
+                "sha256": sha256_file(endpoint_deployment_path),
+            },
+            "release_evidence": {
+                "path": "release-evidence.json",
+                "sha256": sha256_file(release_evidence_path),
+            },
+        },
+        "deployment_targets": selected_payloads,
+        "controls": [
+            "signed-package-verified-before-rollout",
+            "endpoint-deployment-manifest-reviewed",
+            "rollout-change-record-linked",
+            "rollback-plan-captured",
+            "rollout-evidence-checksummed",
+        ],
+        "package_verification": package_result.to_dict(),
+    }
+    _write_release_json(evidence_path, payload)
+    summary_path.write_text(_rollout_markdown_summary(payload), encoding="utf-8")
+    checksum_lines = [
+        f"{sha256_file(evidence_path)}  {evidence_path.name}",
+        f"{sha256_file(summary_path)}  {summary_path.name}",
+    ]
+    checksums_path.write_text("\n".join(checksum_lines) + "\n", encoding="utf-8")
+    files = [evidence_path.name, summary_path.name, checksums_path.name]
+    return ManagedEndpointRolloutEvidenceResult(
+        output_dir=output_dir,
+        valid=True,
+        warnings=warnings,
+        rollout_id=resolved_rollout_id,
+        deployment_targets=sorted(str(target["id"]) for target in selected_payloads),
+        files=files,
+        package_verification=package_result.to_dict(),
+    )
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -741,6 +903,64 @@ def verify_managed_endpoint_deployment(
             raise ReleaseVerificationError(f"endpoint deployment target is missing smoke installer guidance: {deployment_id}")
         verified.append(deployment_id)
     return sorted(verified)
+
+
+def _write_release_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _default_rollout_id(environment: str, release_evidence: dict[str, Any]) -> str:
+    version = str(release_evidence.get("version") or "unknown").replace("/", "-")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    return f"{environment}-{version}-{timestamp}"
+
+
+def _rollout_target_payload(target: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": target.get("id"),
+        "surface": target.get("surface"),
+        "platform": target.get("platform"),
+        "installer_target": target.get("installer_target"),
+        "binary": target.get("binary"),
+        "binary_sha256": target.get("binary_sha256"),
+        "deployment_channel": target.get("deployment_channel"),
+        "management_tool": target.get("management_tool"),
+        "install_path": target.get("install_path"),
+        "rollout_gate": target.get("rollout_gate"),
+        "verification_commands": target.get("verification_commands", []),
+        "rollback_steps": target.get("rollback_steps", []),
+        "evidence_required": target.get("evidence_required", []),
+    }
+
+
+def _rollout_markdown_summary(payload: dict[str, Any]) -> str:
+    release = payload["release"]
+    lines = [
+        "# CAVRA Managed Endpoint Rollout Evidence",
+        "",
+        f"Rollout ID: `{payload['rollout_id']}`",
+        f"Environment: `{payload['environment']}`",
+        f"Ring: `{payload['rollout_ring']}`",
+        f"Status: `{payload['status']}`",
+        f"Change record: `{payload['change_record']}`",
+        f"Version: `{release.get('version')}`",
+        f"Commit: `{release.get('commit')}`",
+        "",
+        "## Deployment Targets",
+        "",
+    ]
+    for target in payload["deployment_targets"]:
+        lines.append(
+            f"- `{target['id']}` `{target['surface']}` `{target['installer_target']}` via `{target['deployment_channel']}`"
+        )
+    lines.extend(["", "## Controls", ""])
+    for control in payload["controls"]:
+        lines.append(f"- `{control}`")
+    lines.extend(["", "## Source Artifacts", ""])
+    for artifact in payload["source_artifacts"].values():
+        lines.append(f"- `{artifact['path']}` `{artifact['sha256']}`")
+    return "\n".join(lines) + "\n"
 
 
 def _verify_extracted_airgap_package(

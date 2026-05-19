@@ -89,6 +89,19 @@ jq '.deployment_targets[] | {id, surface, platform, installer_target, deployment
 
 `cavra release verify-go-package` also requires `cavra-runtime.endpoint-deployment.json`. The verifier checks that each deployment target maps back to signed installer metadata, references an existing binary digest, and includes package verification plus installer smoke-test commands before rollout.
 
+Capture rollout evidence when a package is approved for a managed endpoint channel:
+
+```bash
+cavra release capture-rollout \
+  go/cavra-runtime/dist/go-runtime-v0.1.0 \
+  --deployment-id github-actions-linux-amd64-runner \
+  --rollout-ring pilot \
+  --status staged \
+  --change-record CHG-123
+```
+
+The command verifies the package first, selects one or more deployment targets from `cavra-runtime.endpoint-deployment.json`, and writes `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt` for the rollout change record.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -125,13 +138,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a platform engineer, I can compare the current approved package with a release candidate before promoting it to developers or CI runners.
 - As an endpoint engineering owner, I can approve signed installer metadata before placing CAVRA binaries on managed developer workstations.
 - As an endpoint engineering owner, I can map signed runtime binaries to approved CI runner and workstation deployment channels before rollout.
+- As an endpoint engineering owner, I can capture rollout evidence for approved endpoint channels and preserve it with a change record.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add rollout evidence capture for managed endpoint deployments.
+1. Add rollout evidence verification and evidence-store indexing for managed endpoint deployments.
