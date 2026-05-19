@@ -13,6 +13,7 @@ from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
+    verify_managed_endpoint_rollout_evidence,
     verify_go_airgap_bundle,
     verify_go_release_package,
 )
@@ -264,6 +265,84 @@ def test_managed_endpoint_rollout_evidence_captures_selected_targets(tmp_path: P
     )
     assert cli_result.exit_code == 0
     assert json.loads(cli_result.output)["valid"] is True
+
+
+def test_managed_endpoint_rollout_evidence_verifies_and_indexes_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        rollout_ring="pilot",
+        status="staged",
+        actor="release-agent",
+        change_record="CHG-123",
+    )
+
+    result = verify_managed_endpoint_rollout_evidence(rollout_dir)
+
+    assert result.valid
+    assert result.rollout_id == "chg-123-v0.1.0-test"
+    assert result.verified_artifacts == [
+        "managed-endpoint-rollout-evidence.json",
+        "managed-endpoint-rollout-evidence.md",
+    ]
+    assert result.metadata["metadata_kind"] == "managed-endpoint-rollout"
+    assert result.metadata["session_id"] == "chg-123-v0.1.0-test"
+    assert result.metadata["deployment_targets"] == ["github-actions-linux-amd64-runner"]
+
+    metadata_json = tmp_path / "metadata.json"
+    sqlite = tmp_path / "metadata.db"
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "verify-rollout",
+            str(rollout_dir),
+            "--metadata-json",
+            str(metadata_json),
+            "--sqlite",
+            str(sqlite),
+            "--json",
+        ],
+    )
+
+    assert cli_result.exit_code == 0
+    payload = json.loads(cli_result.output)
+    assert payload["valid"] is True
+    assert str(metadata_json) in payload["indexed_metadata_stores"]
+    assert json.loads(metadata_json.read_text(encoding="utf-8"))["items"][0]["session_id"] == "chg-123-v0.1.0-test"
+
+
+def test_managed_endpoint_rollout_evidence_rejects_checksum_tampering(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+    )
+
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    evidence["status"] = "succeeded"
+    evidence_path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+
+    result = verify_managed_endpoint_rollout_evidence(rollout_dir)
+
+    assert not result.valid
+    assert any("rollout checksum mismatch" in error for error in result.errors)
 
 
 def test_managed_endpoint_rollout_evidence_rejects_unknown_target(tmp_path: Path, monkeypatch) -> None:

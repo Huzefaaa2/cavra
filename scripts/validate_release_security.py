@@ -23,6 +23,7 @@ REQUIRED_TEXT = {
         "cavra release validate-upgrade",
         "cavra release smoke-installers",
         "cavra release capture-rollout",
+        "cavra release verify-rollout",
     ],
     "scripts/package_go_release.py": [
         "https://in-toto.io/Statement/v1",
@@ -39,6 +40,7 @@ REQUIRED_TEXT = {
         "verify_go_installer_metadata",
         "verify_managed_endpoint_deployment",
         "capture_managed_endpoint_rollout_evidence",
+        "verify_managed_endpoint_rollout_evidence",
         "smoke_test_go_installers",
         "verify_offline_trust_bootstrap",
         "https://slsa.dev/provenance/v1",
@@ -49,6 +51,7 @@ REQUIRED_TEXT = {
         "validate-upgrade",
         "smoke-installers",
         "capture-rollout",
+        "verify-rollout",
     ],
     ".github/workflows/go-release.yml": [
         "id-token: write",

@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add rollout evidence verification and evidence-store indexing for managed endpoint deployments and continue broadening approval-route parity as new policy packs are added.
+Add rollout evidence search filters and console/API views for managed endpoint deployments and continue broadening approval-route parity as new policy packs are added.

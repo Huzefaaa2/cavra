@@ -140,6 +140,32 @@ class ManagedEndpointRolloutEvidenceResult:
         }
 
 
+@dataclass(frozen=True)
+class ManagedEndpointRolloutVerificationResult:
+    rollout_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    rollout_id: str | None = None
+    verified_artifacts: list[str] = field(default_factory=list)
+    deployment_targets: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] | None = None
+    package_verification: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "rollout_dir": str(self.rollout_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "rollout_id": self.rollout_id,
+            "verified_artifacts": self.verified_artifacts,
+            "deployment_targets": self.deployment_targets,
+            "metadata": self.metadata,
+            "package_verification": self.package_verification,
+        }
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -684,6 +710,152 @@ def capture_managed_endpoint_rollout_evidence(
     )
 
 
+def verify_managed_endpoint_rollout_evidence(
+    rollout_dir: Path,
+    *,
+    package_dir: Path | None = None,
+    require_package_verification: bool = True,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+) -> ManagedEndpointRolloutVerificationResult:
+    rollout_dir = rollout_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    verified_artifacts: list[str] = []
+    package_result: ReleaseVerificationResult | None = None
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    checksums_path = rollout_dir / "checksums.txt"
+    payload: dict[str, Any] = {}
+
+    if not rollout_dir.exists() or not rollout_dir.is_dir():
+        return ManagedEndpointRolloutVerificationResult(
+            rollout_dir=rollout_dir,
+            valid=False,
+            errors=[f"rollout evidence directory does not exist: {rollout_dir}"],
+        )
+    if not evidence_path.exists():
+        errors.append("missing managed-endpoint-rollout-evidence.json")
+    else:
+        try:
+            payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid rollout evidence JSON: {exc}")
+        else:
+            if payload.get("schema_version") != "cavra.go-runtime.endpoint-rollout-evidence.v1":
+                errors.append("rollout evidence has an invalid schema_version")
+            if not payload.get("rollout_id"):
+                errors.append("rollout evidence is missing rollout_id")
+            if not payload.get("change_record"):
+                errors.append("rollout evidence is missing change_record")
+            if payload.get("status") not in {"planned", "staged", "succeeded", "failed", "rolled_back"}:
+                errors.append("rollout evidence has an invalid status")
+
+    if not checksums_path.exists():
+        errors.append("missing checksums.txt")
+    else:
+        try:
+            checksums = _parse_checksums(checksums_path)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+            checksums = {}
+        for relative_path, expected_sha256 in checksums.items():
+            artifact_path = _safe_package_path(rollout_dir, relative_path)
+            if artifact_path is None:
+                errors.append(f"rollout checksum path escapes directory: {relative_path}")
+                continue
+            if not artifact_path.exists() or not artifact_path.is_file():
+                errors.append(f"rollout checksum artifact is missing: {relative_path}")
+                continue
+            if sha256_file(artifact_path) != expected_sha256:
+                errors.append(f"rollout checksum mismatch for {relative_path}")
+            else:
+                verified_artifacts.append(relative_path)
+
+    if payload:
+        deployment_targets = payload.get("deployment_targets", [])
+        if not isinstance(deployment_targets, list) or not deployment_targets:
+            errors.append("rollout evidence has no deployment_targets")
+        controls = payload.get("controls", [])
+        if not isinstance(controls, list) or "rollout-evidence-checksummed" not in controls:
+            errors.append("rollout evidence is missing checksum control")
+
+        resolved_package_dir = package_dir.resolve() if package_dir else _rollout_package_dir(payload)
+        if resolved_package_dir:
+            source_artifacts = payload.get("source_artifacts", {})
+            if isinstance(source_artifacts, dict):
+                for artifact_name, artifact in source_artifacts.items():
+                    if not isinstance(artifact, dict):
+                        errors.append(f"rollout source artifact is invalid: {artifact_name}")
+                        continue
+                    relative_path = str(artifact.get("path", ""))
+                    expected_sha256 = str(artifact.get("sha256", "")).lower()
+                    artifact_path = _safe_package_path(resolved_package_dir, relative_path)
+                    if artifact_path is None or not artifact_path.exists() or not artifact_path.is_file():
+                        errors.append(f"rollout source artifact is missing: {relative_path}")
+                        continue
+                    if sha256_file(artifact_path) != expected_sha256:
+                        errors.append(f"rollout source artifact checksum mismatch: {relative_path}")
+            else:
+                errors.append("rollout evidence source_artifacts must be an object")
+            if require_package_verification:
+                package_result = verify_go_release_package(
+                    resolved_package_dir,
+                    require_signatures=require_signatures,
+                    require_provenance=require_provenance,
+                )
+                errors.extend(f"release package: {error}" for error in package_result.errors)
+                warnings.extend(f"release package: {warning}" for warning in package_result.warnings)
+        elif require_package_verification:
+            errors.append("rollout evidence package_dir is missing or invalid")
+
+    metadata = build_managed_endpoint_rollout_metadata(rollout_dir, payload) if payload else None
+    return ManagedEndpointRolloutVerificationResult(
+        rollout_dir=rollout_dir,
+        valid=not errors,
+        errors=errors,
+        warnings=warnings,
+        rollout_id=str(payload.get("rollout_id")) if payload.get("rollout_id") else None,
+        verified_artifacts=sorted(verified_artifacts),
+        deployment_targets=sorted(
+            str(target.get("id"))
+            for target in payload.get("deployment_targets", [])
+            if isinstance(target, dict) and target.get("id")
+        ),
+        metadata=metadata,
+        package_verification=package_result.to_dict() if package_result else None,
+    )
+
+
+def build_managed_endpoint_rollout_metadata(rollout_dir: Path, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    rollout_dir = rollout_dir.resolve()
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    data = payload or json.loads(evidence_path.read_text(encoding="utf-8"))
+    rollout_id = str(data.get("rollout_id") or "")
+    targets = [target for target in data.get("deployment_targets", []) if isinstance(target, dict)]
+    release = data.get("release", {}) if isinstance(data.get("release"), dict) else {}
+    return {
+        "schema_version": "cavra.evidence.metadata.v1",
+        "product": "CAVRA",
+        "session_id": rollout_id,
+        "bundle_dir": str(rollout_dir),
+        "created_at": data.get("created_at"),
+        "signer": data.get("actor"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "managed-endpoint-rollout",
+        "rollout_id": rollout_id,
+        "environment": data.get("environment"),
+        "rollout_ring": data.get("rollout_ring"),
+        "rollout_status": data.get("status"),
+        "change_record": data.get("change_record"),
+        "release": release,
+        "deployment_target_count": len(targets),
+        "deployment_targets": sorted(str(target.get("id")) for target in targets if target.get("id")),
+        "artifact_sha256": sha256_file(evidence_path) if evidence_path.exists() else None,
+    }
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -908,6 +1080,16 @@ def verify_managed_endpoint_deployment(
 def _write_release_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _rollout_package_dir(payload: dict[str, Any]) -> Path | None:
+    raw_package_dir = payload.get("package_dir")
+    if not isinstance(raw_package_dir, str) or not raw_package_dir:
+        return None
+    package_dir = Path(raw_package_dir).expanduser().resolve()
+    if not package_dir.exists() or not package_dir.is_dir():
+        return None
+    return package_dir
 
 
 def _default_rollout_id(environment: str, release_evidence: dict[str, Any]) -> str:
