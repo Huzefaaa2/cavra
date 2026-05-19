@@ -40,7 +40,15 @@ from cavra.evidence import (
     generate_ed25519_keypair,
     verify_evidence_bundle,
 )
-from cavra.integrations import CommandInterceptor, deliver_connector_event, export_connector_delivery_result, load_connector_config
+from cavra.integrations import (
+    CommandInterceptor,
+    build_connector_delivery_dashboard,
+    build_connector_delivery_metadata,
+    deliver_connector_event,
+    export_connector_delivery_result,
+    filter_connector_delivery_history,
+    load_connector_config,
+)
 from cavra.operations import (
     backup_persistent_api_stores,
     export_persistent_api_retention_plan,
@@ -1820,6 +1828,8 @@ def deliver_promotion_audit(
     provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, slack, teams, jira, or servicenow.")] = "all",
     retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
     timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
 ) -> None:
     """Deliver a rollout promotion audit event through configured connectors."""
@@ -1837,11 +1847,21 @@ def deliver_promotion_audit(
     except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_connector_delivery(
+        result,
+        path,
+        source="release_governance_promotion",
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = result | {"delivery_evidence": str(path), "metadata": metadata, "indexed_metadata_stores": indexed}
     if json_output:
-        _print_json(result | {"delivery_evidence": str(path)})
+        _print_json(payload)
     else:
         console.print(JSON(json.dumps(result, indent=2)))
         console.print(f"[green]promotion audit connector delivery evidence exported[/green] {path}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
 
 
 @release_app.command("deliver-rollback-execution")
@@ -1854,6 +1874,8 @@ def deliver_rollback_execution(
     provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, slack, teams, jira, or servicenow.")] = "all",
     retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
     timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
 ) -> None:
     """Deliver a rollout rollback execution event through configured connectors."""
@@ -1871,11 +1893,87 @@ def deliver_rollback_execution(
     except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_connector_delivery(
+        result,
+        path,
+        source="release_governance_rollback",
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = result | {"delivery_evidence": str(path), "metadata": metadata, "indexed_metadata_stores": indexed}
     if json_output:
-        _print_json(result | {"delivery_evidence": str(path)})
+        _print_json(payload)
     else:
         console.print(JSON(json.dumps(result, indent=2)))
         console.print(f"[green]rollback execution connector delivery evidence exported[/green] {path}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+
+
+@release_app.command("connector-delivery-history")
+def connector_delivery_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    provider: Annotated[Optional[str], typer.Option(help="Filter by connector provider.")] = None,
+    event_type: Annotated[Optional[str], typer.Option(help="Filter by delivered event type.")] = None,
+    event_id: Annotated[Optional[str], typer.Option(help="Filter by source promotion or rollback ID.")] = None,
+    success: Annotated[Optional[bool], typer.Option(help="Filter successful or failed delivery batches.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show persisted release governance connector delivery history."""
+    items = _load_release_connector_delivery_items(metadata_json=metadata_json, sqlite=sqlite)
+    result = filter_connector_delivery_history(
+        items,
+        provider=provider,
+        event_type=event_type,
+        event_id=event_id,
+        success=success,
+        limit=limit,
+        offset=offset,
+    )
+    _print_json(result)
+
+
+@release_app.command("connector-delivery-dashboard")
+def connector_delivery_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize release governance connector delivery health and alerts."""
+    items = _load_release_connector_delivery_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_connector_delivery_dashboard(items))
+
+
+def _index_release_connector_delivery(
+    result: dict,
+    delivery_evidence: Path,
+    *,
+    source: str,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> tuple[dict, list[str]]:
+    metadata = build_connector_delivery_metadata(result, delivery_evidence=delivery_evidence, source=source)
+    indexed: list[str] = []
+    if metadata_json:
+        EvidenceMetadataStore(metadata_json).upsert(metadata)
+        indexed.append(str(metadata_json))
+    if sqlite:
+        SQLiteEvidenceMetadataStore(sqlite).upsert(metadata)
+        indexed.append(str(sqlite))
+    return metadata, indexed
+
+
+def _load_release_connector_delivery_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(metadata_kind="release-connector-delivery", limit=500)["items"]
+    return []
 
 
 def _load_release_approval(

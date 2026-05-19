@@ -28,7 +28,15 @@ from cavra.evidence import (
     list_evidence_artifacts,
     load_evidence_artifact,
 )
-from cavra.integrations import IntegrationStore, SQLiteIntegrationStore, deliver_connector_event, load_connector_config
+from cavra.integrations import (
+    IntegrationStore,
+    SQLiteIntegrationStore,
+    build_connector_delivery_dashboard,
+    build_connector_delivery_metadata,
+    deliver_connector_event,
+    filter_connector_delivery_history,
+    load_connector_config,
+)
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
 from cavra.policy_authoring import (
@@ -181,6 +189,8 @@ def create_app():
                 "promotion_execution_rollback": "/promotion-executions/{execution_id}/rollback-execution",
                 "rollback_execution": "/rollback-executions/{rollback_id}",
                 "rollback_execution_deliver": "/rollback-executions/{rollback_id}/deliver",
+                "release_connector_deliveries": "/release-connector-deliveries",
+                "release_connector_delivery_dashboard": "/release-connector-deliveries/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -906,13 +916,17 @@ def create_app():
         if not isinstance(execution, dict):
             raise HTTPException(status_code=400, detail="promotion execution metadata is missing execution payload")
         try:
-            return deliver_connector_event(
+            result = deliver_connector_event(
                 build_rollout_promotion_execution_audit_event(execution),
                 connector_config,
                 provider=payload.get("provider", "all"),
                 retries=int(payload.get("retries", 2)),
                 timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
             )
+            metadata = evidence_store.upsert(
+                build_connector_delivery_metadata(result, source="release_governance_promotion")
+            )
+            return result | {"metadata": metadata}
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -964,15 +978,54 @@ def create_app():
         if not isinstance(rollback, dict):
             raise HTTPException(status_code=400, detail="rollback execution metadata is missing rollback payload")
         try:
-            return deliver_connector_event(
+            result = deliver_connector_event(
                 build_rollout_rollback_execution_audit_event(rollback),
                 connector_config,
                 provider=payload.get("provider", "all"),
                 retries=int(payload.get("retries", 2)),
                 timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
             )
+            metadata = evidence_store.upsert(
+                build_connector_delivery_metadata(result, source="release_governance_rollback")
+            )
+            return result | {"metadata": metadata}
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/release-connector-deliveries")
+    def release_connector_delivery_index(
+        provider: Optional[str] = None,
+        event_type: Optional[str] = None,
+        event_id: Optional[str] = None,
+        success: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="release-connector-delivery",
+            limit=500,
+            offset=0,
+        )
+        return filter_connector_delivery_history(
+            result["items"],
+            provider=provider,
+            event_type=event_type,
+            event_id=event_id,
+            success=success,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/release-connector-deliveries/dashboard")
+    def release_connector_delivery_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="release-connector-delivery",
+            limit=500,
+            offset=0,
+        )
+        return build_connector_delivery_dashboard(result["items"])
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:

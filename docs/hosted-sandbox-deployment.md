@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add persisted delivery history views and alerting dashboards for release governance connectors.
+1. Add release package channel manifests and updater policy for managed developer workstations.

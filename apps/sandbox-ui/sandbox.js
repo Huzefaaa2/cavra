@@ -158,6 +158,35 @@ const rolloutArtifactCatalog = [
 const rolloutPromotionRequests = new Map();
 let evidenceMetadataCache = [];
 
+const releaseConnectorDeliveryCatalog = [
+  {
+    session_id: "rcd-rpe-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "release-connector-delivery",
+    created_at: "2026-05-19T00:10:00+00:00",
+    event_id: "rpe-prod-v0.2.0-rc.1",
+    event_type: "cavra.rollout_promotion_execution",
+    delivery_success: true,
+    providers: ["splunk", "jira"],
+    failed_providers: [],
+    attempt_count: 2,
+    max_attempt_count: 1,
+    delivery_evidence: ".cavra/release/promotion-audit-deliveries/rpe-prod-v0.2.0-rc.1-connector-delivery.json"
+  },
+  {
+    session_id: "rcd-rre-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "release-connector-delivery",
+    created_at: "2026-05-19T00:20:00+00:00",
+    event_id: "rre-prod-v0.2.0-rc.1",
+    event_type: "cavra.rollout_rollback_execution",
+    delivery_success: false,
+    providers: ["webhook"],
+    failed_providers: ["webhook"],
+    attempt_count: 2,
+    max_attempt_count: 2,
+    delivery_evidence: ".cavra/release/rollback-deliveries/rre-prod-v0.2.0-rc.1-connector-delivery.json"
+  }
+];
+
 const releaseNoteCatalog = [
   {
     title: "Backend-Driven Sandbox Runs",
@@ -697,6 +726,35 @@ async function loadEvidenceArtifacts(sessionId) {
   }
 }
 
+async function loadReleaseConnectorDeliveries() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      provider: document.querySelector("#filterReleaseDeliveryProvider")?.value.trim(),
+      event_type: document.querySelector("#filterReleaseDeliveryEvent")?.value,
+      success: document.querySelector("#filterReleaseDeliverySuccess")?.value,
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/release-connector-deliveries", params));
+    if (!response.ok) throw new Error("Release connector delivery API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return filterReleaseConnectorDeliveries(releaseConnectorDeliveryCatalog);
+  }
+}
+
+async function loadReleaseConnectorDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/release-connector-deliveries/dashboard"));
+    if (!response.ok) throw new Error("Release connector delivery dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleReleaseConnectorDashboard(filterReleaseConnectorDeliveries(releaseConnectorDeliveryCatalog));
+  }
+}
+
 async function loadSessions() {
   await loadConsoleConfig();
   try {
@@ -1199,6 +1257,16 @@ function filterEvidence(items) {
     .slice(0, limit);
 }
 
+function filterReleaseConnectorDeliveries(items) {
+  const provider = document.querySelector("#filterReleaseDeliveryProvider")?.value.trim().toLowerCase();
+  const eventType = document.querySelector("#filterReleaseDeliveryEvent")?.value;
+  const success = document.querySelector("#filterReleaseDeliverySuccess")?.value;
+  return items
+    .filter((item) => !provider || (item.providers || []).some((value) => String(value).toLowerCase().includes(provider)))
+    .filter((item) => !eventType || item.event_type === eventType)
+    .filter((item) => success === "" || Boolean(item.delivery_success) === (success === "true"));
+}
+
 function filterSessions(items) {
   const repository = document.querySelector("#filterActivityRepository").value.trim().toLowerCase();
   const agent = document.querySelector("#filterActivityAgent").value.trim().toLowerCase();
@@ -1423,6 +1491,72 @@ function renderDemoMetrics(metrics) {
   `;
 }
 
+function renderReleaseConnectorDeliveries(items, dashboard) {
+  const rows = document.querySelector("#releaseDeliveryRows");
+  const panel = document.querySelector("#releaseDeliveryDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  const alerts = Array.isArray(dashboard.alerts) ? dashboard.alerts : [];
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Deliveries</span>
+      <strong>${formatMetricNumber(dashboard.total_deliveries)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Failed</span>
+      <strong class="${Number(dashboard.failed_deliveries || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_deliveries)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Success Rate</span>
+      <strong>${Math.round(Number(dashboard.success_rate || 0) * 100)}%</strong>
+    </div>
+    <div class="release-delivery-alerts">
+      <strong>Alerts</strong>
+      <ul>${alerts.map((item) => `<li><span class="${riskClass(item.severity)}">${escapeHtml(item.severity)}</span> ${escapeHtml(item.message || item.event_id || "delivery alert")}</li>`).join("") || "<li class=\"allow\">No active release connector delivery alerts.</li>"}</ul>
+    </div>
+  `;
+  for (const item of items) {
+    const providerText = formatList(item.providers);
+    const status = item.delivery_success ? "success" : "failed";
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.session_id || "delivery")}</td>
+        <td>${escapeHtml(item.event_id || "unknown")}</td>
+        <td>${escapeHtml(item.event_type || "cavra.connector.event")}</td>
+        <td>${escapeHtml(providerText)}</td>
+        <td class="${item.delivery_success ? "allow" : "block"}">${escapeHtml(status)}</td>
+        <td>${Number(item.attempt_count || 0)}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
+function sampleReleaseConnectorDashboard(items) {
+  const failed = items.filter((item) => !item.delivery_success);
+  const alerts = failed.map((item) => ({
+    severity: item.event_type === "cavra.rollout_rollback_execution" ? "critical" : "warning",
+    event_id: item.event_id,
+    event_type: item.event_type,
+    failed_providers: item.failed_providers || [],
+    message: `Release connector delivery failed for ${item.event_id}.`
+  }));
+  return {
+    schema_version: "cavra.release.connector_delivery_dashboard.v1",
+    product: "CAVRA",
+    alert_level: alerts.some((item) => item.severity === "critical") ? "critical" : alerts.length ? "warning" : "healthy",
+    total_deliveries: items.length,
+    successful_deliveries: items.length - failed.length,
+    failed_deliveries: failed.length,
+    success_rate: items.length ? (items.length - failed.length) / items.length : 0,
+    alerts
+  };
+}
+
 function renderActivityRows(sessions, decisions) {
   const sessionRows = document.querySelector("#sessionRows");
   const decisionRows = document.querySelector("#decisionRows");
@@ -1633,7 +1767,7 @@ function renderIntegrationRows(integrations) {
 
 function riskClass(value) {
   if (value === "critical" || value === "high" || value === "blocked" || value === "denied" || value === "strict" || value === "failed" || value === "disabled") return "block";
-  if (value === "medium" || value === "experimental" || value === "pending" || value === "planned" || value === "audit_only" || value === "degraded" || value === "not_checked" || value === "configured") return "require_approval";
+  if (value === "medium" || value === "warning" || value === "experimental" || value === "pending" || value === "planned" || value === "audit_only" || value === "degraded" || value === "not_checked" || value === "configured") return "require_approval";
   return "allow";
 }
 
@@ -1813,6 +1947,11 @@ async function refreshEvidence() {
   const items = filterEvidence(await loadEvidenceMetadata());
   evidenceMetadataCache = items;
   renderEvidenceRows(items);
+}
+
+async function refreshReleaseDelivery() {
+  const [items, dashboard] = await Promise.all([loadReleaseConnectorDeliveries(), loadReleaseConnectorDashboard()]);
+  renderReleaseConnectorDeliveries(items, dashboard);
 }
 
 async function showEvidenceArtifacts(sessionId) {
@@ -2157,6 +2296,7 @@ async function verifyAttestation() {
 
 document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
+document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -2229,6 +2369,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
 });
 refreshEvidence();
 renderReleaseNotes();
+refreshReleaseDelivery();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

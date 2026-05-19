@@ -642,6 +642,7 @@ def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path:
         json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
         encoding="utf-8",
     )
+    delivery_metadata = tmp_path / "delivery-metadata.json"
     promotion_delivery = runner.invoke(
         app,
         [
@@ -658,6 +659,8 @@ def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path:
             "0.1",
             "--output",
             str(tmp_path / "promotion-delivery"),
+            "--metadata-json",
+            str(delivery_metadata),
             "--json",
         ],
     )
@@ -677,6 +680,8 @@ def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path:
             "0.1",
             "--output",
             str(tmp_path / "rollback-delivery"),
+            "--metadata-json",
+            str(delivery_metadata),
             "--json",
         ],
     )
@@ -685,10 +690,37 @@ def test_managed_endpoint_rollout_rollback_execution_and_audit_exports(tmp_path:
     assert promotion_delivery_payload["event_id"] == promotion.execution["execution_id"]
     assert promotion_delivery_payload["deliveries"][0]["attempt_count"] == 2
     assert promotion_delivery_payload["deliveries"][0]["request"]["url"].endswith("?REDACTED")
+    assert promotion_delivery_payload["metadata"]["metadata_kind"] == "release-connector-delivery"
+    assert str(delivery_metadata) in promotion_delivery_payload["indexed_metadata_stores"]
     assert rollback_delivery.exit_code == 0
     rollback_delivery_payload = json.loads(rollback_delivery.output)
     assert rollback_delivery_payload["event_id"] == result.rollback["rollback_id"]
     assert rollback_delivery_payload["deliveries"][0]["attempt_count"] == 2
+    history = runner.invoke(
+        app,
+        [
+            "release",
+            "connector-delivery-history",
+            "--metadata-json",
+            str(delivery_metadata),
+            "--provider",
+            "webhook",
+            "--no-success",
+        ],
+    )
+    dashboard = runner.invoke(
+        app,
+        [
+            "release",
+            "connector-delivery-dashboard",
+            "--metadata-json",
+            str(delivery_metadata),
+        ],
+    )
+    assert history.exit_code == 0
+    assert json.loads(history.output)["total"] == 2
+    assert dashboard.exit_code == 0
+    assert json.loads(dashboard.output)["alert_level"] == "critical"
 
 
 def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:
