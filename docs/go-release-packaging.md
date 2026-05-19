@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -59,6 +59,16 @@ gh attestation verify go/cavra-runtime/dist/cavra-go-runtime-v0.1.0.zip \
   --repo Huzefaaa2/cavra
 ```
 
+Validate a release-candidate upgrade before promotion:
+
+```bash
+cavra release validate-upgrade \
+  go/cavra-runtime/dist/go-runtime-v0.1.0 \
+  go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1
+```
+
+The upgrade validator verifies both packages, rejects rollback versions, detects removed release controls, and flags missing Go runtime binary targets across Linux, macOS, and Windows packages.
+
 For unsigned dry-run artifacts only:
 
 ```bash
@@ -80,14 +90,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a release manager, I can publish Go runtime binaries with checksums, SBOM, SLSA provenance, signatures, keyless attestations, and evidence.
 - As a security engineer, I can verify that binaries map to a specific commit, ref, workflow identity, and dependency set.
 - As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
+- As a platform engineer, I can compare the current approved package with a release candidate before promoting it to developers or CI runners.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add release-candidate upgrade validation.
-2. Add offline trust-root distribution automation.
-3. Add signed installer metadata for packaged deployment targets.
+1. Add offline trust-root distribution automation.
+2. Add signed installer metadata for packaged deployment targets.

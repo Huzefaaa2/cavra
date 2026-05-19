@@ -62,7 +62,7 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
-from cavra.release import verify_go_airgap_bundle, verify_go_release_package
+from cavra.release import validate_go_release_upgrade, verify_go_airgap_bundle, verify_go_release_package
 from cavra.runtime import RuntimeGuard
 
 console = Console()
@@ -1275,6 +1275,54 @@ def verify_airgap_bundle(
             console.print(f"  bundle member: {member}")
         for item in result.verified_bootstrap:
             console.print(f"  offline bootstrap: {item}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("validate-upgrade")
+def validate_upgrade(
+    previous_package_dir: Annotated[Path, typer.Argument(help="Previously approved Go release package directory.")],
+    candidate_package_dir: Annotated[Path, typer.Argument(help="Candidate Go release package directory.")],
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for both release packages.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for both release packages.",
+    ),
+    allow_same_version: bool = typer.Option(
+        False,
+        "--allow-same-version",
+        help="Allow rebuilt release candidates with the same semantic version.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable validation output."),
+) -> None:
+    """Validate a Go runtime release-candidate upgrade before promotion."""
+    result = validate_go_release_upgrade(
+        previous_package_dir,
+        candidate_package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+        allow_same_version=allow_same_version,
+    )
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status}[/] release upgrade")
+        console.print(f"  previous: {result.previous_version or 'unknown'}")
+        console.print(f"  candidate: {result.candidate_version or 'unknown'}")
+        for binary in result.artifact_changes.get("added_binaries", []):
+            console.print(f"  added binary: {binary}")
+        for control in result.control_changes.get("added", []):
+            console.print(f"  added control: {control}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

@@ -387,4 +387,22 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py scripts/package_go_release.py tests/test_go_release_packaging.py` passed locally.
 
-Recommended next issue: add release-candidate upgrade validation and offline trust-root distribution automation.
+Recommended next issue: delivered below as release-candidate upgrade validation.
+
+## Release-Candidate Upgrade Validation
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra release validate-upgrade` for comparing a previously approved Go release package with a candidate package.
+- Reused package verification so both previous and candidate releases must pass checksum, provenance, and detached-signature validation.
+- Added rollback protection for semantic versions.
+- Added regression checks for removed release artifact kinds, release controls, and Go runtime binary targets.
+- Added JSON output for CI gates and human-readable output for release managers.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for valid release-candidate upgrades, rollback rejection, and missing target detection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+
+Recommended next issue: add offline trust-root distribution automation.

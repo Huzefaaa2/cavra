@@ -9,7 +9,7 @@ from typer.testing import CliRunner
 
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
-from cavra.release import verify_go_airgap_bundle, verify_go_release_package
+from cavra.release import validate_go_release_upgrade, verify_go_airgap_bundle, verify_go_release_package
 
 runner = CliRunner()
 
@@ -198,6 +198,35 @@ def test_airgap_bundle_verifier_rejects_unsafe_zip_members(tmp_path: Path) -> No
     assert any("unsafe archive member path" in error for error in result.errors)
 
 
+def test_release_candidate_upgrade_validation_rejects_regressions(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+
+    previous = _package_go_runtime(tmp_path, "v0.1.0", "abc123")
+    candidate = _package_go_runtime(tmp_path, "v0.2.0-rc.1", "def456")
+
+    valid_result = validate_go_release_upgrade(previous, candidate)
+    assert valid_result.valid
+    assert valid_result.previous_version == "v0.1.0"
+    assert valid_result.candidate_version == "v0.2.0-rc.1"
+    assert not valid_result.artifact_changes["removed_binaries"]
+    cli_result = runner.invoke(app, ["release", "validate-upgrade", str(previous), str(candidate), "--json"])
+    assert cli_result.exit_code == 0
+    assert json.loads(cli_result.output)["valid"] is True
+
+    rollback = _package_go_runtime(tmp_path, "v0.0.9", "ghi789")
+    invalid_result = validate_go_release_upgrade(previous, rollback)
+    assert not invalid_result.valid
+    assert any("older than previous version" in error for error in invalid_result.errors)
+
+    reduced_candidate = _package_go_runtime(tmp_path, "v0.2.0-rc.2", "jkl012", targets=("linux_amd64",))
+    candidate_regression = validate_go_release_upgrade(previous, reduced_candidate)
+    assert not candidate_regression.valid
+    assert any("removed Go runtime binary target: linux_arm64" in error for error in candidate_regression.errors)
+
+
 def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     text = Path(".github/workflows/go-release.yml").read_text(encoding="utf-8")
 
@@ -212,6 +241,37 @@ def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     assert "--signing-required" in text
     assert "gh release upload" in text
     assert "actions/upload-artifact@v4" in text
+
+
+def _package_go_runtime(root: Path, version: str, commit: str, *, targets: tuple[str, ...] = ("linux_amd64", "linux_arm64")) -> Path:
+    dist = root / f"go-runtime-{version}"
+    bin_dir = dist / "bin"
+    bin_dir.mkdir(parents=True)
+    for target in targets:
+        (bin_dir / f"cavra-runtime_{version}_{target}").write_bytes(f"{version}-{target}".encode("utf-8"))
+    (dist / "go-modules.json").write_text(
+        json.dumps({"Path": "github.com/Huzefaaa2/cavra/go/cavra-runtime", "Version": "main"}) + "\n",
+        encoding="utf-8",
+    )
+    subprocess.run(
+        [
+            "python3",
+            "scripts/package_go_release.py",
+            "--dist",
+            str(dist),
+            "--version",
+            version,
+            "--commit",
+            commit,
+            "--ref",
+            f"refs/tags/{version}",
+            "--event",
+            "release",
+            "--signing-required",
+        ],
+        check=True,
+    )
+    return dist
 
 
 def _zip_package(package_dir: Path, bundle: Path) -> None:

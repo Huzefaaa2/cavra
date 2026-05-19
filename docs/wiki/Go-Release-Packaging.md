@@ -47,8 +47,8 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add release-candidate upgrade validation and offline trust-root distribution automation.
+Add offline trust-root distribution automation.
