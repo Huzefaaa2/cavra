@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add governed download APIs and integrity verification for
-endpoint-management export bundle artifacts.
+Add endpoint-management export publication records and connector delivery to
+Jamf, Intune, and Linux fleet managers.

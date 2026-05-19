@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add governed download APIs and integrity verification for endpoint-management export bundle artifacts.
+4. Add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.

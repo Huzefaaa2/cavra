@@ -773,4 +773,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports tests/test_api.py::test_api_release_channel_and_endpoint_export_history -q` passed locally.
 
-Recommended next issue: add governed download APIs and integrity verification for endpoint-management export bundle artifacts.
+Recommended next issue: delivered below as governed endpoint export artifact downloads.
+
+## Governed Endpoint Export Artifact Downloads
+
+Status: complete for the current endpoint export artifact retrieval slice.
+
+Completed:
+- Added an endpoint-management export artifact allowlist for manifest JSON, summary Markdown, Jamf policy JSON, Intune app JSON, Linux fleet manifest JSON, Linux install script, and `checksums.txt`.
+- Enforced that endpoint export `bundle_dir` values must resolve inside `CAVRA_EVIDENCE_ARTIFACT_ROOT`.
+- Added endpoint export artifact integrity status with verified, missing, unchecked, and checksum-mismatched files.
+- Added checksum verification before provider files are served from the API.
+- Added `/endpoint-management-exports/{export_id}/artifacts`, `/endpoint-management-exports/{export_id}/artifacts/{artifact_name}`, and `/endpoint-management-exports/{export_id}/artifact-bundle`.
+- Updated the Evidence Console with endpoint export artifact inspection, download readiness, integrity details, and governed download links.
+- Updated README, API docs, Go release packaging docs, release advisory docs, roadmap docs, and wiki source.
+- Added API tests for successful artifact listing, provider file downloads, bundle downloads, unsupported artifact rejection, tamper detection, and checksum-enforced download blocking.
+
+Validation:
+- `python3 -m ruff check src/cavra/evidence.py src/cavra/api.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_api.py::test_api_serves_endpoint_management_export_artifacts_with_integrity -q` passed locally.
+
+Recommended next issue: add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.

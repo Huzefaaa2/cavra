@@ -532,6 +532,85 @@ def test_api_release_channel_and_endpoint_export_history(monkeypatch, tmp_path) 
     assert dashboard.json()["pending_approval_exports"] == 1
 
 
+def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    artifact_root = tmp_path / "artifacts"
+    export_dir = artifact_root / "eme_stable_1"
+    export_dir.mkdir(parents=True)
+    manifest_path = export_dir / "endpoint-management-export-manifest.json"
+    summary_path = export_dir / "endpoint-management-export-manifest.md"
+    jamf_path = export_dir / "jamf-policy.json"
+    linux_path = export_dir / "linux-fleet-manifest.json"
+    manifest_path.write_text(
+        json.dumps({"schema_version": "cavra.endpoint-management-export.v1", "channel": "stable"}),
+        encoding="utf-8",
+    )
+    summary_path.write_text("# Endpoint Export\n", encoding="utf-8")
+    jamf_path.write_text(json.dumps({"schema_version": "cavra.endpoint-management.jamf.v1"}), encoding="utf-8")
+    linux_path.write_text(json.dumps({"schema_version": "cavra.endpoint-management.linux.v1"}), encoding="utf-8")
+    (export_dir / "checksums.txt").write_text(
+        "\n".join(
+            [
+                f"{sha256_file(manifest_path)}  endpoint-management-export-manifest.json",
+                f"{sha256_file(summary_path)}  endpoint-management-export-manifest.md",
+                f"{sha256_file(jamf_path)}  jamf-policy.json",
+                f"{sha256_file(linux_path)}  linux-fleet-manifest.json",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(artifact_root))
+    client = TestClient(create_app())
+    client.post(
+        "/evidence",
+        json={
+            "session_id": "eme_stable_1",
+            "metadata_kind": "endpoint-management-export",
+            "export_id": "eme_stable_1",
+            "bundle_dir": str(export_dir),
+            "channel": "stable",
+            "providers": ["jamf", "linux"],
+            "files": [
+                "endpoint-management-export-manifest.json",
+                "endpoint-management-export-manifest.md",
+                "jamf-policy.json",
+                "linux-fleet-manifest.json",
+                "checksums.txt",
+            ],
+        },
+    )
+
+    listing = client.get("/endpoint-management-exports/eme_stable_1/artifacts")
+    artifact = client.get("/endpoint-management-exports/eme_stable_1/artifacts/jamf-policy.json")
+    bundle = client.get("/endpoint-management-exports/eme_stable_1/artifact-bundle")
+    rejected = client.get("/endpoint-management-exports/eme_stable_1/artifacts/intune-win32-app.json")
+    jamf_sha256 = sha256_file(jamf_path)
+    jamf_path.write_text(json.dumps({"tampered": True}), encoding="utf-8")
+    tampered_listing = client.get("/endpoint-management-exports/eme_stable_1/artifacts")
+    tampered_download = client.get("/endpoint-management-exports/eme_stable_1/artifacts/jamf-policy.json")
+
+    assert listing.status_code == 200
+    assert listing.json()["metadata_kind"] == "endpoint-management-export"
+    assert listing.json()["artifact_count"] == 5
+    assert listing.json()["endpoint_management_export_integrity"]["status"] == "verified"
+    assert listing.json()["download_readiness"]["status"] == "ready"
+    assert artifact.status_code == 200
+    assert artifact.headers["content-type"].startswith("application/json")
+    assert artifact.headers["x-cavra-artifact-kind"] == "jamf-policy"
+    assert artifact.headers["x-cavra-artifact-sha256"] == jamf_sha256
+    assert artifact.json()["schema_version"] == "cavra.endpoint-management.jamf.v1"
+    assert bundle.status_code == 200
+    assert bundle.content.startswith(b"PK")
+    assert bundle.headers["x-cavra-artifact-count"] == "5"
+    assert rejected.status_code == 400
+    assert tampered_listing.status_code == 200
+    assert tampered_listing.json()["endpoint_management_export_integrity"]["status"] == "failed"
+    assert tampered_download.status_code == 400
+    assert "checksum verification failed" in tampered_download.json()["detail"]
+
+
 def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)
