@@ -535,6 +535,7 @@ def test_api_release_channel_and_endpoint_export_history(monkeypatch, tmp_path) 
 def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())
     desired_manifest = {
         "schema_version": "cavra.go-runtime.endpoint-deployment.v1",
@@ -574,6 +575,21 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     history = client.get("/endpoint-reconciliations", params={"drift_status": "drift_detected"})
     dashboard = client.get("/endpoint-reconciliations/dashboard")
+    remediation_request = client.post(
+        f"/endpoint-reconciliations/{response.json()['reconciliation_id']}/remediation-request",
+        json={"strategy": "rollback", "requested_by": "release-agent"},
+    )
+    approval_id = remediation_request.json()["approval"]["approval_id"]
+    approval = client.post(
+        f"/approvals/{approval_id}/approve",
+        json={"actor": "endpoint-cab", "reason": "Reviewed endpoint drift remediation"},
+    )
+    remediation_execution = client.post(
+        f"/endpoint-remediations/{remediation_request.json()['request']['request_id']}/execute",
+        json={"approval_id": approval_id, "executed_by": "release-agent"},
+    )
+    remediation_history = client.get("/endpoint-remediations")
+    remediation_dashboard = client.get("/endpoint-remediations/dashboard")
     config = client.get("/console/config").json()
 
     assert response.status_code == 200
@@ -583,7 +599,18 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert history.json()["total"] == 1
     assert dashboard.status_code == 200
     assert dashboard.json()["alert_level"] == "critical"
+    assert remediation_request.status_code == 200
+    assert remediation_request.json()["metadata"]["metadata_kind"] == "endpoint-drift-remediation-request"
+    assert remediation_request.json()["request"]["actions"][0]["action_type"] == "rollback_runtime"
+    assert approval.status_code == 200
+    assert remediation_execution.status_code == 200
+    assert remediation_execution.json()["metadata"]["metadata_kind"] == "endpoint-drift-remediation-execution"
+    assert remediation_history.status_code == 200
+    assert remediation_history.json()["total"] == 2
+    assert remediation_dashboard.status_code == 200
+    assert remediation_dashboard.json()["execution_count"] == 1
     assert config["endpoints"]["endpoint_reconciliation_dashboard"] == "/endpoint-reconciliations/dashboard"
+    assert config["endpoints"]["endpoint_remediation_dashboard"] == "/endpoint-remediations/dashboard"
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:

@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint drift remediation plans with approval-bound republish and rollback workflows.
+1. Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.

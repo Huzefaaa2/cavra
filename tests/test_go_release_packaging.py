@@ -11,6 +11,9 @@ from cavra.approvals import ApprovalStore, create_approval_request
 from cavra.cli import app
 from cavra.evidence import EvidenceMetadataStore, generate_ed25519_keypair
 from cavra.release import (
+    build_endpoint_drift_remediation_dashboard,
+    build_endpoint_drift_remediation_execution_metadata,
+    build_endpoint_drift_remediation_request_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -18,10 +21,13 @@ from cavra.release import (
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
+    create_endpoint_drift_remediation_request,
     create_release_channel_promotion_request,
+    execute_endpoint_drift_remediation,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_managed_endpoint_reconciliation_history,
+    filter_endpoint_drift_remediation_history,
     reconcile_managed_endpoint_deployment,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -531,6 +537,143 @@ def test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata(tmp_
     assert json.loads(history_cli.output)["total"] == 1
     assert dashboard_cli.exit_code == 0
     assert json.loads(dashboard_cli.output)["drifted_endpoint_count"] == 1
+
+
+def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.2.0-rc.1", "abc123", targets=("linux_amd64",))
+    desired_manifest = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    target = desired_manifest["deployment_targets"][0]
+    observed = {
+        "schema_version": "cavra.endpoint-observations.v1",
+        "observed_at": "2026-05-19T00:00:00+00:00",
+        "channel": "stable",
+        "endpoints": [
+            {
+                "endpoint_id": "runner-2",
+                "deployment_target": target["id"],
+                "installed_version": "v0.1.0",
+                "binary_sha256": "bad",
+                "last_seen_at": "2026-05-19T00:00:00+00:00",
+            }
+        ],
+    }
+    reconciliation = reconcile_managed_endpoint_deployment(
+        desired_manifest,
+        observed,
+        package_dir=dist,
+        output_dir=tmp_path / "reconciliation",
+        stale_after_hours=24,
+    )
+    request_result = create_endpoint_drift_remediation_request(
+        reconciliation.report or {},
+        output_dir=tmp_path / "remediation-request",
+        strategy="rollback",
+    )
+
+    assert request_result.valid
+    assert request_result.approval is not None
+    assert request_result.request is not None
+    assert request_result.approval["state"] == "pending"
+    assert request_result.approval["decision"]["action_type"] == "endpoint_drift_remediation"
+    assert any(action["action_type"] == "rollback_runtime" for action in request_result.request["actions"])
+    assert "endpoint-remediation-request.json" in request_result.files
+
+    pending_execution = execute_endpoint_drift_remediation(request_result.request, request_result.approval)
+    assert not pending_execution.valid
+    assert "endpoint drift remediation requires an approved approval record" in pending_execution.errors
+
+    approval_store = ApprovalStore(tmp_path / "approvals.json")
+    approval_store.upsert(request_result.approval)
+    approved = approval_store.decide(
+        request_result.approval["approval_id"],
+        state="approved",
+        actor="endpoint-cab",
+        reason="Drift remediation reviewed",
+    )
+    execution_result = execute_endpoint_drift_remediation(
+        request_result.request,
+        approved,
+        output_dir=tmp_path / "remediation-execution",
+    )
+    request_metadata = build_endpoint_drift_remediation_request_metadata(request_result.request)
+    execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
+    history = filter_endpoint_drift_remediation_history(
+        [request_metadata, execution_metadata],
+        reconciliation_id=reconciliation.reconciliation_id,
+    )
+    dashboard = build_endpoint_drift_remediation_dashboard([request_metadata, execution_metadata])
+
+    assert execution_result.valid
+    assert execution_result.execution is not None
+    assert execution_result.execution["approval"]["state"] == "approved"
+    assert execution_result.execution["action_results"][0]["status"] == "queued_for_private_connector_or_manual_execution"
+    assert execution_metadata["metadata_kind"] == "endpoint-drift-remediation-execution"
+    assert history["total"] == 2
+    assert dashboard["execution_count"] == 1
+
+    report_path = tmp_path / "reconciliation" / "managed-endpoint-reconciliation.json"
+    metadata_json = tmp_path / "metadata.json"
+    approval_json = tmp_path / "cli-approvals.json"
+    request_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "request-endpoint-remediation",
+            str(report_path),
+            "--output",
+            str(tmp_path / "cli-remediation-request"),
+            "--approval-store",
+            str(approval_json),
+            "--metadata-json",
+            str(metadata_json),
+            "--strategy",
+            "republish",
+            "--json",
+        ],
+    )
+    assert request_cli.exit_code == 0
+    request_payload = json.loads(request_cli.output)
+    cli_approval = ApprovalStore(approval_json).decide(
+        request_payload["approval"]["approval_id"],
+        state="approved",
+        actor="endpoint-cab",
+        reason="Approved republish remediation",
+    )
+    assert cli_approval["state"] == "approved"
+    execution_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "execute-endpoint-remediation",
+            str(tmp_path / "cli-remediation-request" / "endpoint-remediation-request.json"),
+            "--approval-store",
+            str(approval_json),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-history", "--metadata-json", str(metadata_json)],
+    )
+    dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-dashboard", "--metadata-json", str(metadata_json)],
+    )
+    assert execution_cli.exit_code == 0
+    assert json.loads(execution_cli.output)["execution"]["execution_status"] == "recorded"
+    assert history_cli.exit_code == 0
+    assert json.loads(history_cli.output)["total"] == 2
+    assert dashboard_cli.exit_code == 0
+    assert json.loads(dashboard_cli.output)["request_count"] == 1
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

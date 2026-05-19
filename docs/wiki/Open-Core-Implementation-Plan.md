@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint drift remediation plans with approval-bound republish and rollback
-workflows.
+Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux
+fleet managers, and EDR sources.

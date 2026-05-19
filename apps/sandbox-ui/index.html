@@ -392,6 +392,38 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Drift Remediation</h2>
+            <p>Track approval-bound remediation requests and recorded republish, rollback, inventory refresh, or review actions.</p>
+          </div>
+          <button id="refreshEndpointRemediation">Refresh</button>
+        </div>
+        <div id="endpointRemediationDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Type <select id="filterEndpointRemediationKind"><option value="">Any</option><option value="endpoint-drift-remediation-request">Request</option><option value="endpoint-drift-remediation-execution">Execution</option></select></label>
+          <label>Approval <select id="filterEndpointRemediationApproval"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
+          <label>Reconciliation <input id="filterEndpointRemediationReconciliation" placeholder="mer_" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Remediation</th>
+                <th>Reconciliation</th>
+                <th>Type</th>
+                <th>Strategy</th>
+                <th>Actions</th>
+                <th>Status</th>
+                <th>Approval</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="endpointRemediationRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>
