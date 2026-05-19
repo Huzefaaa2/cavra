@@ -278,6 +278,62 @@ def test_evidence_artifact_root_lists_and_loads_allowed_files(tmp_path: Path) ->
     assert archive_payload.startswith(b"PK")
 
 
+def test_evidence_artifact_root_lists_and_loads_rollout_files(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    rollout_dir = root / "rollout-1"
+    rollout_dir.mkdir(parents=True)
+    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+        json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
+        encoding="utf-8",
+    )
+    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text("abc  managed-endpoint-rollout-evidence.json\n", encoding="utf-8")
+    metadata = {
+        "session_id": "rollout-1",
+        "metadata_kind": "managed-endpoint-rollout",
+        "bundle_dir": str(rollout_dir),
+    }
+
+    listing = list_evidence_artifacts(root, "rollout-1", metadata=metadata)
+    artifact_metadata, payload = load_evidence_artifact(
+        root,
+        "rollout-1",
+        "managed-endpoint-rollout-evidence.json",
+        metadata=metadata,
+    )
+    archive_metadata, archive_payload = build_evidence_artifact_archive(root, "rollout-1", metadata=metadata)
+
+    assert listing["metadata_kind"] == "managed-endpoint-rollout"
+    assert listing["artifact_count"] == 3
+    assert [item["artifact"] for item in listing["artifacts"]] == [
+        "managed-endpoint-rollout-evidence.json",
+        "managed-endpoint-rollout-evidence.md",
+        "checksums.txt",
+    ]
+    assert artifact_metadata["kind"] == "rollout-evidence"
+    assert b"rollout-1" in payload
+    assert archive_metadata["artifact_count"] == 3
+    assert archive_payload.startswith(b"PK")
+
+
+def test_evidence_artifact_root_rejects_rollout_bundle_outside_root(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    outside = tmp_path / "outside-rollout"
+    outside.mkdir()
+    metadata = {
+        "session_id": "rollout-1",
+        "metadata_kind": "managed-endpoint-rollout",
+        "bundle_dir": str(outside),
+    }
+
+    try:
+        list_evidence_artifacts(root, "rollout-1", metadata=metadata)
+    except EvidenceArtifactError as exc:
+        assert "outside artifact root" in str(exc)
+    else:
+        raise AssertionError("expected outside rollout bundle to fail")
+
+
 def test_evidence_artifact_root_rejects_unsafe_paths(tmp_path: Path) -> None:
     root = tmp_path / "artifacts"
     create_evidence_bundle(_decisions(), root / "pytest", session_id="pytest")
@@ -309,6 +365,44 @@ def test_sqlite_evidence_metadata_store_searches_with_pagination(tmp_path: Path)
     assert signed_by_docs["items"][0]["session_id"] == "second"
     assert first_page["limit"] == 1
     assert len(first_page["items"]) == 1
+
+
+def test_sqlite_evidence_metadata_store_filters_rollout_metadata(tmp_path: Path) -> None:
+    store = SQLiteEvidenceMetadataStore(tmp_path / "metadata.db")
+    store.upsert(
+        {
+            "session_id": "rollout-1",
+            "created_at": "2026-05-19T00:00:00Z",
+            "signer": "release-agent",
+            "decision_count": 0,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "staged",
+            "environment": "production",
+            "deployment_targets": ["github-actions-linux-amd64-runner"],
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "session-1",
+            "created_at": "2026-05-19T00:01:00Z",
+            "signer": "security",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+
+    result = store.search(
+        metadata_kind="managed-endpoint-rollout",
+        rollout_status="staged",
+        environment="production",
+        deployment_target="github-actions-linux-amd64-runner",
+    )
+
+    assert result["total"] == 1
+    assert result["items"][0]["session_id"] == "rollout-1"
 
 
 def test_export_attestation_verification(tmp_path: Path) -> None:

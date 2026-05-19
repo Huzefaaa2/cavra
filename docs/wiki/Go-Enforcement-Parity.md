@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add rollout evidence search filters and console/API views for managed endpoint deployments and continue broadening approval-route parity as new policy packs are added.
+Add rollout artifact integrity status and promotion readiness indicators to the console evidence view and continue broadening approval-route parity as new policy packs are added.

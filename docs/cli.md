@@ -39,6 +39,7 @@ cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidenc
 cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
+cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind managed-endpoint-rollout --rollout-status staged --environment production --deployment-target github-actions-linux-amd64-runner
 cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-v0.1.0.zip
 cavra release validate-upgrade go/cavra-runtime/dist/go-runtime-v0.1.0 go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1
 cavra release smoke-installers go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --json

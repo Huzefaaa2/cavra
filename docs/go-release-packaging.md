@@ -113,6 +113,29 @@ cavra release verify-rollout \
 
 The verifier checks rollout artifact checksums, source package artifact checksums, release package verification results, deployment targets, rollout status, and required rollout controls before indexing rollout metadata by `rollout_id`.
 
+Search rollout evidence from the CLI, API, or hosted console:
+
+```bash
+cavra evidence search \
+  --sqlite .cavra/evidence/metadata.db \
+  --metadata-kind managed-endpoint-rollout \
+  --rollout-status staged \
+  --environment production \
+  --deployment-target github-actions-linux-amd64-runner
+```
+
+The `/evidence` API and console Evidence Search view support the same rollout metadata filters for `metadata_kind`, `rollout_status`, `environment`, and `deployment_target`.
+
+Download governed rollout evidence artifacts from the same evidence API after configuring `CAVRA_EVIDENCE_ARTIFACT_ROOT` to contain the indexed rollout directory:
+
+```bash
+curl http://127.0.0.1:8000/evidence/chg-123-v0.1.0/artifacts
+curl -OJ http://127.0.0.1:8000/evidence/chg-123-v0.1.0/artifacts/managed-endpoint-rollout-evidence.json
+curl -OJ http://127.0.0.1:8000/evidence/chg-123-v0.1.0/artifact-bundle
+```
+
+Rollout artifact retrieval only serves `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt`, and the rollout `bundle_dir` must resolve inside the configured artifact root.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -151,13 +174,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an endpoint engineering owner, I can map signed runtime binaries to approved CI runner and workstation deployment channels before rollout.
 - As an endpoint engineering owner, I can capture rollout evidence for approved endpoint channels and preserve it with a change record.
 - As an endpoint engineering owner, I can verify captured rollout evidence and index it for API or console retrieval.
+- As an endpoint engineering owner, I can search rollout evidence by environment, status, and deployment target from the CLI, API, or console.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add rollout evidence search filters and console/API views for managed endpoint deployments.
+1. Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.

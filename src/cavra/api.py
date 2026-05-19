@@ -784,6 +784,10 @@ def create_app():
         signer: Optional[str] = None,
         min_blocked: Optional[int] = None,
         has_approvals: Optional[bool] = None,
+        metadata_kind: Optional[str] = None,
+        rollout_status: Optional[str] = None,
+        environment: Optional[str] = None,
+        deployment_target: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ):
@@ -793,6 +797,10 @@ def create_app():
                 signer=signer,
                 min_blocked=min_blocked,
                 has_approvals=has_approvals,
+                metadata_kind=metadata_kind,
+                rollout_status=rollout_status,
+                environment=environment,
+                deployment_target=deployment_target,
                 limit=limit,
                 offset=offset,
             )
@@ -802,6 +810,10 @@ def create_app():
             signer=signer,
             min_blocked=min_blocked,
             has_approvals=has_approvals,
+            metadata_kind=metadata_kind,
+            rollout_status=rollout_status,
+            environment=environment,
+            deployment_target=deployment_target,
             limit=limit,
             offset=offset,
         )
@@ -815,13 +827,14 @@ def create_app():
 
     @app.get("/evidence/{session_id}/artifacts")
     def evidence_artifact_index(session_id: str) -> dict:
-        _get_evidence_metadata_or_404(evidence_store, session_id)
+        metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
         root = _configured_artifact_root(evidence_artifact_root)
         encoded_session_id = quote(session_id, safe="")
         try:
             return list_evidence_artifacts(
                 root,
                 session_id,
+                metadata=metadata,
                 base_path=f"/evidence/{encoded_session_id}/artifacts",
                 bundle_path=f"/evidence/{encoded_session_id}/artifact-bundle",
             )
@@ -830,39 +843,39 @@ def create_app():
 
     @app.get("/evidence/{session_id}/artifact-bundle")
     def evidence_artifact_bundle(session_id: str):
-        _get_evidence_metadata_or_404(evidence_store, session_id)
+        metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
         root = _configured_artifact_root(evidence_artifact_root)
         try:
-            metadata, payload = build_evidence_artifact_archive(root, session_id)
+            artifact_metadata, payload = build_evidence_artifact_archive(root, session_id, metadata=metadata)
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail="evidence artifacts not found") from exc
         except EvidenceArtifactError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return Response(
             payload,
-            media_type=metadata["media_type"],
+            media_type=artifact_metadata["media_type"],
             headers={
-                "content-disposition": f'attachment; filename="{metadata["artifact"]}"',
-                "x-cavra-artifact-sha256": str(metadata["sha256"]),
+                "content-disposition": f'attachment; filename="{artifact_metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(artifact_metadata["sha256"]),
             },
         )
 
     @app.get("/evidence/{session_id}/artifacts/{artifact_name}")
     def evidence_artifact(session_id: str, artifact_name: str):
-        _get_evidence_metadata_or_404(evidence_store, session_id)
+        metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
         root = _configured_artifact_root(evidence_artifact_root)
         try:
-            metadata, payload = load_evidence_artifact(root, session_id, artifact_name)
+            artifact_metadata, payload = load_evidence_artifact(root, session_id, artifact_name, metadata=metadata)
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail="evidence artifact not found") from exc
         except EvidenceArtifactError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return Response(
             payload,
-            media_type=metadata["media_type"],
+            media_type=artifact_metadata["media_type"],
             headers={
-                "content-disposition": f'attachment; filename="{metadata["artifact"]}"',
-                "x-cavra-artifact-sha256": str(metadata["sha256"]),
+                "content-disposition": f'attachment; filename="{artifact_metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(artifact_metadata["sha256"]),
             },
         )
 
@@ -972,6 +985,10 @@ def _filter_json_evidence(
     signer: Optional[str] = None,
     min_blocked: Optional[int] = None,
     has_approvals: Optional[bool] = None,
+    metadata_kind: Optional[str] = None,
+    rollout_status: Optional[str] = None,
+    environment: Optional[str] = None,
+    deployment_target: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, object]:
@@ -989,6 +1006,18 @@ def _filter_json_evidence(
             item
             for item in filtered
             if (int(item.get("approval_required_count", 0)) > 0) is has_approvals
+        ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if rollout_status:
+        filtered = [item for item in filtered if item.get("rollout_status") == rollout_status]
+    if environment:
+        filtered = [item for item in filtered if item.get("environment") == environment]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if deployment_target in {str(target) for target in item.get("deployment_targets", [])}
         ]
     return {
         "items": filtered[offset : offset + limit],
