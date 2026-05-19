@@ -46,6 +46,8 @@ Or from the CLI:
 
 ```bash
 cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra/connectors.json --provider splunk
+cavra release deliver-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json --config .cavra/connectors.json --provider webhook --retries 1
+cavra release deliver-rollback-execution .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json --config .cavra/connectors.json --provider webhook --retries 1
 ```
 
 ## User Stories
@@ -53,6 +55,7 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra
 - As a platform engineer, I can see which enterprise systems CAVRA is configured to use.
 - As a SOC lead, I can track SIEM connector status and ownership.
 - As a SOC lead, I can deliver CAVRA evidence events into SIEM, ITSM, and ChatOps systems with credential-redacted delivery records.
+- As a release manager, I can deliver promotion audit and rollback execution records through owned connectors with retry evidence.
 - As an auditor, I can confirm that enterprise integration records have owners, health state, and evidence references.
 
 ## Enterprise Challenge Solved

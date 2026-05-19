@@ -137,6 +137,24 @@ cavra release execute-rollout-rollback \
 
 The audit export writes normalized CAVRA, Splunk, Sentinel, Datadog, webhook, Jira, and ServiceNow-shaped payloads. Rollback execution requires an approved `release_rollback_endpoint_rollout` approval bound to the promotion execution and preserves rollback evidence references for audit.
 
+Deliver promotion audit and rollback execution records through configured connectors:
+
+```bash
+cavra release deliver-promotion-audit \
+  .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
+
+cavra release deliver-rollback-execution \
+  .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
+```
+
+Release connector delivery uses the same redacted `cavra.connector.delivery.v1` evidence as the enterprise connector layer and records event ID, provider, success state, status code, attempt count, redacted request metadata, and errors.
+
 Verify an unsigned dry-run package:
 
 ```bash
@@ -159,12 +177,13 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 - As an auditor, I can search promotion execution records and inspect rollback evidence links.
 - As an incident commander, I can record an approved rollback execution tied to the original promotion execution.
 - As an auditor, I can export promotion execution audit payloads for SIEM and ITSM systems.
+- As a SOC analyst, I can deliver promotion audit and rollback execution records through configured connectors with retry evidence.
 - As an auditor, I can run a local verifier before approving runtime distribution.
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, console/API views, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, console/API views, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add connector delivery for promotion audit exports and rollback execution records with retry evidence.
+Add persisted delivery history views and alerting dashboards for release governance connectors.

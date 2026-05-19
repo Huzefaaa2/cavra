@@ -66,6 +66,8 @@ from cavra.registry import (
 from cavra.release import (
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
+    build_rollout_promotion_execution_audit_event,
+    build_rollout_rollback_execution_audit_event,
     create_managed_endpoint_rollout_rollback_execution,
     capture_managed_endpoint_rollout_evidence,
     create_managed_endpoint_rollout_promotion_request,
@@ -1806,6 +1808,74 @@ def export_promotion_audit(
         console.print(f"[green]promotion audit exported[/green] {result.output_dir}")
         for path in result.files:
             console.print(f"  {path.name}")
+
+
+@release_app.command("deliver-promotion-audit")
+def deliver_promotion_audit(
+    promotion_execution: Annotated[Path, typer.Argument(help="Approved rollout promotion execution JSON.")],
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for connector delivery evidence.")] = Path(
+        ".cavra/release/promotion-audit-deliveries"
+    ),
+    provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
+) -> None:
+    """Deliver a rollout promotion audit event through configured connectors."""
+    try:
+        execution_payload = json.loads(promotion_execution.read_text(encoding="utf-8"))
+        event = build_rollout_promotion_execution_audit_event(execution_payload)
+        result = deliver_connector_event(
+            event,
+            load_connector_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_connector_delivery_result(result, output)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if json_output:
+        _print_json(result | {"delivery_evidence": str(path)})
+    else:
+        console.print(JSON(json.dumps(result, indent=2)))
+        console.print(f"[green]promotion audit connector delivery evidence exported[/green] {path}")
+
+
+@release_app.command("deliver-rollback-execution")
+def deliver_rollback_execution(
+    rollback_execution: Annotated[Path, typer.Argument(help="Approved rollout rollback execution JSON.")],
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for connector delivery evidence.")] = Path(
+        ".cavra/release/rollback-deliveries"
+    ),
+    provider: Annotated[str, typer.Option(help="all, splunk, sentinel, datadog, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
+) -> None:
+    """Deliver a rollout rollback execution event through configured connectors."""
+    try:
+        rollback_payload = json.loads(rollback_execution.read_text(encoding="utf-8"))
+        event = build_rollout_rollback_execution_audit_event(rollback_payload)
+        result = deliver_connector_event(
+            event,
+            load_connector_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_connector_delivery_result(result, output)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if json_output:
+        _print_json(result | {"delivery_evidence": str(path)})
+    else:
+        console.print(JSON(json.dumps(result, indent=2)))
+        console.print(f"[green]rollback execution connector delivery evidence exported[/green] {path}")
 
 
 def _load_release_approval(

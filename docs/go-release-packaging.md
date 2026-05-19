@@ -199,6 +199,24 @@ cavra release execute-rollout-rollback \
 
 Rollback execution requires an approved rollback approval whose decision authorizes `release_rollback_endpoint_rollout`, binds to the promotion execution ID, and preserves rollback evidence references from the governed rollout target. The API exposes the same workflow through `POST /promotion-executions/{execution_id}/rollback-execution` and returns rollback audit metadata retrievable from `/rollback-executions/{rollback_id}`.
 
+Deliver promotion audit and rollback execution records through configured connectors:
+
+```bash
+cavra release deliver-promotion-audit \
+  .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
+
+cavra release deliver-rollback-execution \
+  .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json \
+  --config .cavra/connectors.json \
+  --provider webhook \
+  --retries 1
+```
+
+Connector delivery reuses the enterprise connector layer for Splunk, Sentinel, Datadog, webhook, Slack, Teams, Jira, and ServiceNow. The CLI writes `cavra.connector.delivery.v1` evidence with event ID, provider, success state, status code, attempt count, redacted URL and headers, and delivery errors. The API exposes the same delivery path through `POST /promotion-executions/{execution_id}/audit-export/deliver` and `POST /rollback-executions/{rollback_id}/deliver`.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -243,13 +261,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a release manager, I can search promotion executions and open audit details with approval, request, rollout, change, and rollback evidence links.
 - As a release manager, I can export promotion execution audit records to SIEM and ITSM payloads without hand-translating CAVRA evidence.
 - As an incident commander, I can record an approved rollback execution tied to the original promotion execution and rollback evidence.
+- As a SOC analyst, I can deliver promotion audit and rollback execution records through configured connectors with retry evidence.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add connector delivery for promotion audit exports and rollback execution records with retry evidence.
+1. Add persisted delivery history views and alerting dashboards for release governance connectors.

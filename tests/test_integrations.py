@@ -174,6 +174,7 @@ def test_deliver_connector_event_redacts_credentials_and_exports(monkeypatch, tm
     output = export_connector_delivery_result(result, tmp_path)
 
     assert result["success"] is True
+    assert result["event_id"] == "session-1"
     assert result["deliveries"][0]["request"]["headers"]["authorization"] == "REDACTED"
     assert result["deliveries"][0]["request"]["url"].endswith("?REDACTED")
     assert calls[0][0]["body"]["fields"]["labels"][0] == "cavra"

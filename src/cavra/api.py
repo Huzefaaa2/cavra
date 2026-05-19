@@ -52,6 +52,7 @@ from cavra.release import (
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
+    build_rollout_rollback_execution_audit_event,
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
@@ -176,8 +177,10 @@ def create_app():
                 "promotion_executions": "/promotion-executions",
                 "promotion_execution": "/promotion-executions/{execution_id}",
                 "promotion_execution_audit_export": "/promotion-executions/{execution_id}/audit-export",
+                "promotion_execution_audit_deliver": "/promotion-executions/{execution_id}/audit-export/deliver",
                 "promotion_execution_rollback": "/promotion-executions/{execution_id}/rollback-execution",
                 "rollback_execution": "/rollback-executions/{rollback_id}",
+                "rollback_execution_deliver": "/rollback-executions/{rollback_id}/deliver",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -892,6 +895,27 @@ def create_app():
             "event": build_rollout_promotion_execution_audit_event(execution),
         }
 
+    @app.post("/promotion-executions/{execution_id}/audit-export/deliver")
+    def promotion_execution_audit_deliver(execution_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        item = evidence_store.get(execution_id)
+        if item is None or item.get("metadata_kind") != "rollout-promotion-execution":
+            raise HTTPException(status_code=404, detail="promotion execution not found")
+        execution = item.get("execution")
+        if not isinstance(execution, dict):
+            raise HTTPException(status_code=400, detail="promotion execution metadata is missing execution payload")
+        try:
+            return deliver_connector_event(
+                build_rollout_promotion_execution_audit_event(execution),
+                connector_config,
+                provider=payload.get("provider", "all"),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     @app.post("/promotion-executions/{execution_id}/rollback-execution")
     def promotion_execution_rollback(execution_id: str, payload: dict) -> dict:
         item = evidence_store.get(execution_id)
@@ -928,6 +952,27 @@ def create_app():
         if item is None or item.get("metadata_kind") != "rollout-rollback-execution":
             raise HTTPException(status_code=404, detail="rollback execution not found")
         return item
+
+    @app.post("/rollback-executions/{rollback_id}/deliver")
+    def rollback_execution_deliver(rollback_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        item = evidence_store.get(rollback_id)
+        if item is None or item.get("metadata_kind") != "rollout-rollback-execution":
+            raise HTTPException(status_code=404, detail="rollback execution not found")
+        rollback = item.get("rollback")
+        if not isinstance(rollback, dict):
+            raise HTTPException(status_code=400, detail="rollback execution metadata is missing rollback payload")
+        try:
+            return deliver_connector_event(
+                build_rollout_rollback_execution_audit_event(rollback),
+                connector_config,
+                provider=payload.get("provider", "all"),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:

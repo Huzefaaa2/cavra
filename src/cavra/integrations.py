@@ -380,6 +380,7 @@ def deliver_connector_event(
         "schema_version": "cavra.connector.delivery.v1",
         "product": "CAVRA",
         "event_type": event.get("event_type", "cavra.connector.event"),
+        "event_id": _event_identity(event),
         "session_id": event.get("session_id"),
         "generated_at": utc_now(),
         "success": all(item["success"] for item in deliveries),
@@ -389,10 +390,17 @@ def deliver_connector_event(
 
 def export_connector_delivery_result(result: dict[str, Any], output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
-    event_id = str(result.get("session_id") or result.get("event_type") or "connector").replace("/", "-")
+    event_id = str(result.get("event_id") or result.get("session_id") or result.get("event_type") or "connector").replace("/", "-")
     path = output_dir / f"{event_id}-connector-delivery.json"
     path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
+
+
+def _event_identity(event: dict[str, Any]) -> str | None:
+    for key in ("session_id", "execution_id", "rollback_id", "approval_id", "request_id", "event_id"):
+        if event.get(key):
+            return str(event[key])
+    return str(event.get("event_type")) if event.get("event_type") else None
 
 
 def _optional_filter_params(*values: str | None) -> list[Any]:

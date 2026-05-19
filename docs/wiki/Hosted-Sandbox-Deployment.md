@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add connector delivery for promotion audit exports and rollback execution records with retry evidence.
+Add persisted delivery history views and alerting dashboards for release governance connectors.
