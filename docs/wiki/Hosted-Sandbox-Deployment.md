@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add release-candidate upgrade validation and offline trust-root distribution automation.
+Add offline trust-root distribution automation.

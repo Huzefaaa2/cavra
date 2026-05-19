@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import re
 import tempfile
 import zipfile
 from dataclasses import dataclass, field
@@ -57,6 +58,36 @@ class AirgapBundleVerificationResult:
             "verified_members": self.verified_members,
             "verified_bootstrap": self.verified_bootstrap,
             "release_verification": self.release_verification,
+        }
+
+
+@dataclass(frozen=True)
+class ReleaseUpgradeValidationResult:
+    previous_package_dir: Path
+    candidate_package_dir: Path
+    valid: bool
+    previous_version: str | None = None
+    candidate_version: str | None = None
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    verified_previous: dict[str, Any] | None = None
+    verified_candidate: dict[str, Any] | None = None
+    artifact_changes: dict[str, list[str]] = field(default_factory=dict)
+    control_changes: dict[str, list[str]] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "previous_package_dir": str(self.previous_package_dir),
+            "candidate_package_dir": str(self.candidate_package_dir),
+            "valid": self.valid,
+            "previous_version": self.previous_version,
+            "candidate_version": self.candidate_version,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "verified_previous": self.verified_previous,
+            "verified_candidate": self.verified_candidate,
+            "artifact_changes": self.artifact_changes,
+            "control_changes": self.control_changes,
         }
 
 
@@ -270,6 +301,103 @@ def verify_go_airgap_bundle(
     )
 
 
+def validate_go_release_upgrade(
+    previous_package_dir: Path,
+    candidate_package_dir: Path,
+    *,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+    allow_same_version: bool = False,
+) -> ReleaseUpgradeValidationResult:
+    previous_package_dir = previous_package_dir.resolve()
+    candidate_package_dir = candidate_package_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    previous_result = verify_go_release_package(
+        previous_package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    candidate_result = verify_go_release_package(
+        candidate_package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors.extend(f"previous package: {error}" for error in previous_result.errors)
+    errors.extend(f"candidate package: {error}" for error in candidate_result.errors)
+    warnings.extend(f"previous package: {warning}" for warning in previous_result.warnings)
+    warnings.extend(f"candidate package: {warning}" for warning in candidate_result.warnings)
+
+    previous_evidence = _load_release_evidence(previous_package_dir, errors, "previous")
+    candidate_evidence = _load_release_evidence(candidate_package_dir, errors, "candidate")
+    previous_version = _evidence_string(previous_evidence, "version")
+    candidate_version = _evidence_string(candidate_evidence, "version")
+
+    if previous_version and candidate_version:
+        comparison = _compare_release_versions(candidate_version, previous_version)
+        if comparison is None:
+            warnings.append(
+                f"could not parse release versions for ordering: previous={previous_version}, candidate={candidate_version}"
+            )
+        elif comparison < 0:
+            errors.append(f"candidate version {candidate_version} is older than previous version {previous_version}")
+        elif comparison == 0 and not allow_same_version:
+            errors.append(
+                f"candidate version {candidate_version} must be newer than previous version {previous_version}"
+            )
+
+    previous_artifacts = _artifact_map(previous_evidence)
+    candidate_artifacts = _artifact_map(candidate_evidence)
+    previous_kinds = set(previous_artifacts)
+    candidate_kinds = set(candidate_artifacts)
+    removed_kinds = sorted(previous_kinds - candidate_kinds)
+    added_kinds = sorted(candidate_kinds - previous_kinds)
+    if removed_kinds:
+        errors.extend(f"candidate removed release artifact kind: {kind}" for kind in removed_kinds)
+
+    previous_binaries = _binary_targets(previous_artifacts.get("go-binary", []), previous_version)
+    candidate_binaries = _binary_targets(candidate_artifacts.get("go-binary", []), candidate_version)
+    missing_binaries = sorted(set(previous_binaries) - set(candidate_binaries))
+    added_binaries = sorted(set(candidate_binaries) - set(previous_binaries))
+    if missing_binaries:
+        errors.extend(f"candidate removed Go runtime binary target: {binary}" for binary in missing_binaries)
+
+    previous_controls = _evidence_list(previous_evidence, "controls")
+    candidate_controls = _evidence_list(candidate_evidence, "controls")
+    removed_controls = sorted(set(previous_controls) - set(candidate_controls))
+    added_controls = sorted(set(candidate_controls) - set(previous_controls))
+    if removed_controls:
+        errors.extend(f"candidate removed release control: {control}" for control in removed_controls)
+
+    previous_commit = _evidence_string(previous_evidence, "commit")
+    candidate_commit = _evidence_string(candidate_evidence, "commit")
+    if previous_commit and candidate_commit and previous_commit == candidate_commit:
+        warnings.append("candidate package uses the same commit as the previous package")
+
+    return ReleaseUpgradeValidationResult(
+        previous_package_dir=previous_package_dir,
+        candidate_package_dir=candidate_package_dir,
+        valid=not errors,
+        previous_version=previous_version,
+        candidate_version=candidate_version,
+        errors=errors,
+        warnings=warnings,
+        verified_previous=previous_result.to_dict(),
+        verified_candidate=candidate_result.to_dict(),
+        artifact_changes={
+            "added_kinds": added_kinds,
+            "removed_kinds": removed_kinds,
+            "added_binaries": added_binaries,
+            "removed_binaries": missing_binaries,
+        },
+        control_changes={
+            "added": added_controls,
+            "removed": removed_controls,
+        },
+    )
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -471,3 +599,100 @@ def _unsafe_zip_member(name: str) -> bool:
         return True
     parts = Path(name).parts
     return any(part == ".." for part in parts)
+
+
+def _load_release_evidence(package_dir: Path, errors: list[str], label: str) -> dict[str, Any]:
+    evidence_path = package_dir / "release-evidence.json"
+    if not evidence_path.exists():
+        errors.append(f"{label} package is missing release-evidence.json")
+        return {}
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"{label} package has invalid release-evidence.json: {exc}")
+        return {}
+    if not isinstance(evidence, dict):
+        errors.append(f"{label} package release-evidence.json must contain an object")
+        return {}
+    if evidence.get("schema_version") != "cavra.go-release.evidence.v1":
+        errors.append(f"{label} package release-evidence.json has an invalid schema_version")
+    return evidence
+
+
+def _evidence_string(evidence: dict[str, Any], key: str) -> str | None:
+    value = evidence.get(key)
+    return value if isinstance(value, str) and value else None
+
+
+def _evidence_list(evidence: dict[str, Any], key: str) -> list[str]:
+    values = evidence.get(key)
+    if not isinstance(values, list):
+        return []
+    return sorted(str(value) for value in values if isinstance(value, str) and value)
+
+
+def _artifact_map(evidence: dict[str, Any]) -> dict[str, list[str]]:
+    artifacts: dict[str, list[str]] = {}
+    for artifact in evidence.get("artifacts", []):
+        if not isinstance(artifact, dict):
+            continue
+        kind = artifact.get("kind")
+        relative_path = artifact.get("relative_path")
+        if isinstance(kind, str) and kind and isinstance(relative_path, str) and relative_path:
+            artifacts.setdefault(kind, []).append(relative_path)
+    return {kind: sorted(paths) for kind, paths in artifacts.items()}
+
+
+def _binary_targets(paths: list[str], version: str | None) -> list[str]:
+    targets: list[str] = []
+    for path in paths:
+        name = Path(path).name
+        suffix = ".exe" if name.endswith(".exe") else ""
+        stem = name.removesuffix(suffix)
+        prefix = f"cavra-runtime_{version}_" if version else ""
+        if prefix and stem.startswith(prefix):
+            targets.append(stem.removeprefix(prefix) + suffix)
+        else:
+            targets.append(path)
+    return sorted(targets)
+
+
+_SEMVER_PATTERN = re.compile(r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<pre>[0-9A-Za-z.-]+))?(?:\+.*)?$")
+
+
+def _compare_release_versions(candidate: str, previous: str) -> int | None:
+    candidate_match = _SEMVER_PATTERN.match(candidate)
+    previous_match = _SEMVER_PATTERN.match(previous)
+    if not candidate_match or not previous_match:
+        return None
+    candidate_core = tuple(int(candidate_match.group(part)) for part in ("major", "minor", "patch"))
+    previous_core = tuple(int(previous_match.group(part)) for part in ("major", "minor", "patch"))
+    if candidate_core > previous_core:
+        return 1
+    if candidate_core < previous_core:
+        return -1
+    candidate_pre = candidate_match.group("pre") or ""
+    previous_pre = previous_match.group("pre") or ""
+    if candidate_pre == previous_pre:
+        return 0
+    if not candidate_pre:
+        return 1
+    if not previous_pre:
+        return -1
+    candidate_parts = _pre_release_parts(candidate_pre)
+    previous_parts = _pre_release_parts(previous_pre)
+    if candidate_parts > previous_parts:
+        return 1
+    if candidate_parts < previous_parts:
+        return -1
+    return 0
+
+
+def _pre_release_parts(value: str) -> tuple[tuple[int, int | str], ...]:
+    parts: list[tuple[int, int | str]] = []
+    for part in value.split("."):
+        if part.isdigit():
+            parts.append((0, int(part)))
+        else:
+            parts.append((1, part))
+    return tuple(parts)

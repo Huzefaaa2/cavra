@@ -16,7 +16,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
 - Go decisions now emit runtime evidence metadata: decision ID, correlation ID, timestamp, and `evidence://...` references.
-- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, detached signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, and release evidence.
+- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, detached signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 
@@ -72,10 +72,9 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
 - Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
 - It exposes an initial Unix-socket daemon transport using the generated request and response types.
-- It does not yet include release-candidate upgrade validation or signed installer metadata for packaged deployment targets.
+- It does not yet include signed installer metadata for packaged deployment targets.
 
 ## Next Recommended Work
 
-1. Add release-candidate upgrade validation.
-2. Add offline trust-root distribution automation.
-3. Continue broadening approval-route parity as new policy packs are added.
+1. Add offline trust-root distribution automation.
+2. Continue broadening approval-route parity as new policy packs are added.
