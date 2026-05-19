@@ -30,8 +30,10 @@ commercial policy pack source, customer templates, or customer data.
 2. Release connector observability: persisted delivery history views and
    alerting dashboards for release governance connectors. Delivered.
 3. Community packaging hardening: public artifact signing, release channel
-   manifests, managed workstation updater policy, Community release notes, and
-   install smoke tests. Delivered for channel and updater governance.
+   manifests, managed workstation updater policy, release-channel promotion
+   approvals, endpoint-management export bundles, Community release notes, and
+   install smoke tests. Delivered for channel, updater, and endpoint export
+   governance.
 4. Private Enterprise bootstrap: create `cavra-enterprise`, implement private
    package `cavra_enterprise`, and wire private plugin manifests.
 5. Trial distribution: private Docker image or binary, trial license service,
@@ -41,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add release-channel promotion approvals and endpoint-management export bundles
-for Jamf, Intune, and Linux fleet managers.
+Add API and console views for release-channel promotion requests and
+endpoint-management export bundle history.
