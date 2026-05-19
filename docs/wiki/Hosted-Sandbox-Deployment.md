@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add approved promotion execution records for endpoint rollout ring advancement.
+Add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.

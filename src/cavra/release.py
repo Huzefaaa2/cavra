@@ -193,6 +193,26 @@ class ManagedEndpointRolloutPromotionRequestResult:
         }
 
 
+@dataclass(frozen=True)
+class ManagedEndpointRolloutPromotionExecutionResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    rollout_id: str | None = None
+    execution: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "rollout_id": self.rollout_id,
+            "execution": self.execution,
+            "files": self.files,
+        }
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -1015,6 +1035,121 @@ def create_managed_endpoint_rollout_promotion_request(
     )
 
 
+def create_managed_endpoint_rollout_promotion_execution(
+    promotion_request: dict[str, Any],
+    approval: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    executed_by: str = "release-manager",
+    execution_environment: str | None = None,
+    notes: str | None = None,
+) -> ManagedEndpointRolloutPromotionExecutionResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if promotion_request.get("schema_version") != "cavra.go-runtime.endpoint-rollout-promotion-request.v1":
+        errors.append("promotion request has an invalid schema_version")
+    try:
+        verify_rollout_promotion_request_signature(promotion_request)
+    except (ReleaseVerificationError, RuntimeError) as exc:
+        errors.append(str(exc))
+    approval_id = str(approval.get("approval_id") or "")
+    request_approval = promotion_request.get("approval", {})
+    request_approval_id = str(request_approval.get("approval_id") if isinstance(request_approval, dict) else "")
+    if not approval_id:
+        errors.append("approval record must include approval_id")
+    if request_approval_id and approval_id and request_approval_id != approval_id:
+        errors.append("approval record does not match promotion request approval_id")
+    if approval.get("state") != "approved":
+        errors.append("rollout promotion execution requires an approved approval record")
+    if approval.get("decision_id") != f"{promotion_request.get('request_id')}:decision":
+        errors.append("approval decision_id does not match promotion request")
+    if approval.get("session_id") != promotion_request.get("rollout_id"):
+        errors.append("approval session_id does not match rollout_id")
+    decision = approval.get("decision", {})
+    if not isinstance(decision, dict):
+        errors.append("approval decision payload is invalid")
+        decision = {}
+    if decision.get("action_type") != "release_promote_endpoint_rollout":
+        errors.append("approval decision action_type does not authorize rollout promotion")
+    metadata = decision.get("metadata", {}) if isinstance(decision.get("metadata"), dict) else {}
+    if metadata.get("target_ring") and metadata.get("target_ring") != promotion_request.get("target_ring"):
+        errors.append("approval target ring does not match promotion request")
+    if metadata.get("current_ring") and metadata.get("current_ring") != promotion_request.get("current_ring"):
+        errors.append("approval current ring does not match promotion request")
+    rollout_id = str(promotion_request.get("rollout_id") or "")
+    if errors:
+        return ManagedEndpointRolloutPromotionExecutionResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            rollout_id=rollout_id or None,
+        )
+
+    request_canonical = json.dumps(promotion_request, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    request_sha256 = hashlib.sha256(request_canonical).hexdigest()
+    execution_id = _promotion_execution_id(str(promotion_request.get("request_id")), approval_id)
+    execution = {
+        "schema_version": "cavra.go-runtime.endpoint-rollout-promotion-execution.v1",
+        "product": "CAVRA",
+        "execution_id": execution_id,
+        "request_id": promotion_request.get("request_id"),
+        "approval_id": approval_id,
+        "rollout_id": rollout_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "executed_by": executed_by,
+        "execution_environment": execution_environment or promotion_request.get("environment"),
+        "execution_status": "executed",
+        "change_record": promotion_request.get("change_record"),
+        "release": promotion_request.get("release", {}),
+        "deployment_targets": sorted(str(target) for target in promotion_request.get("deployment_targets", [])),
+        "ring_advancement": {
+            "from": promotion_request.get("current_ring"),
+            "to": promotion_request.get("target_ring"),
+            "previous_rollout_status": promotion_request.get("rollout_status"),
+            "new_rollout_status": "promoted",
+        },
+        "approval": {
+            "approval_id": approval_id,
+            "state": approval.get("state"),
+            "approver_group": approval.get("approver_group"),
+            "decided_by": approval.get("decided_by"),
+            "decided_at": approval.get("decided_at"),
+            "decision_reason": approval.get("decision_reason"),
+        },
+        "controls": [
+            "promotion-request-signature-verified",
+            "approval-state-approved",
+            "approval-bound-to-rollout",
+            "ring-advancement-recorded",
+        ],
+        "request_sha256": request_sha256,
+        "evidence_refs": [
+            f"rollout://{rollout_id}",
+            f"promotion-request://{promotion_request.get('request_id')}",
+            f"approval://{approval_id}",
+            f"change://{promotion_request.get('change_record', 'unassigned')}",
+        ],
+    }
+    if notes:
+        execution["notes"] = notes
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        execution_path = output_dir / "rollout-promotion-execution.json"
+        summary_path = output_dir / "rollout-promotion-execution.md"
+        _write_release_json(execution_path, execution)
+        summary_path.write_text(_promotion_execution_markdown_summary(execution), encoding="utf-8")
+        files = [execution_path.name, summary_path.name]
+    return ManagedEndpointRolloutPromotionExecutionResult(
+        valid=True,
+        warnings=warnings,
+        rollout_id=rollout_id,
+        execution=execution,
+        files=files,
+    )
+
+
 def _verify_airgap_bootstrap(package_dir: Path | None, require_bootstrap: bool) -> list[str]:
     bootstrap_path = package_dir / "offline-trust-root-bootstrap.json" if package_dir else None
     if bootstrap_path and bootstrap_path.exists():
@@ -1309,6 +1444,11 @@ def _promotion_request_id(rollout_id: str, target_ring: str) -> str:
     return f"rpr_{digest}"
 
 
+def _promotion_execution_id(request_id: str, approval_id: str) -> str:
+    digest = hashlib.sha256(f"{request_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
+    return f"rpe_{digest}"
+
+
 def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *, signer: str) -> dict[str, Any]:
     try:
         from cryptography.hazmat.primitives import serialization
@@ -1402,6 +1542,35 @@ def _promotion_request_markdown_summary(payload: dict[str, Any]) -> str:
             f"Payload SHA-256: `{payload.get('signature', {}).get('payload_sha256')}`",
         ]
     )
+    return "\n".join(lines) + "\n"
+
+
+def _promotion_execution_markdown_summary(payload: dict[str, Any]) -> str:
+    release = payload.get("release", {})
+    ring = payload.get("ring_advancement", {})
+    approval = payload.get("approval", {})
+    lines = [
+        "# CAVRA Rollout Promotion Execution",
+        "",
+        f"Execution ID: `{payload.get('execution_id')}`",
+        f"Request ID: `{payload.get('request_id')}`",
+        f"Approval ID: `{payload.get('approval_id')}`",
+        f"Rollout ID: `{payload.get('rollout_id')}`",
+        f"Version: `{release.get('version')}`",
+        f"Ring advancement: `{ring.get('from')}` -> `{ring.get('to')}`",
+        f"Execution status: `{payload.get('execution_status')}`",
+        f"Executed by: `{payload.get('executed_by')}`",
+        f"Approved by: `{approval.get('decided_by')}`",
+        "",
+        "## Controls",
+        "",
+    ]
+    for control in payload.get("controls", []):
+        lines.append(f"- `{control}`")
+    lines.extend(["", "## Deployment Targets", ""])
+    for target in payload.get("deployment_targets", []):
+        lines.append(f"- `{target}`")
+    lines.extend(["", "## Evidence", "", f"Promotion request SHA-256: `{payload.get('request_sha256')}`"])
     return "\n".join(lines) + "\n"
 
 

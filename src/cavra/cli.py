@@ -66,6 +66,7 @@ from cavra.registry import (
 from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
     create_managed_endpoint_rollout_promotion_request,
+    create_managed_endpoint_rollout_promotion_execution,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -1620,6 +1621,86 @@ def request_rollout_promotion(
             console.print(f"  [red]error:[/] {error}")
     if not result.valid:
         raise typer.Exit(code=1)
+
+
+@release_app.command("execute-rollout-promotion")
+def execute_rollout_promotion(
+    promotion_request: Annotated[Path, typer.Argument(help="Signed rollout promotion request JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for promotion execution artifacts.")] = Path(
+        ".cavra/release/rollout-promotion-execution"
+    ),
+    approval_json: Annotated[Optional[Path], typer.Option(help="Approved approval JSON file.")] = None,
+    approval_store: Annotated[Optional[Path], typer.Option(help="JSON approval store containing the approved record.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="SQLite approval store containing the approved record.")] = None,
+    approval_id: Annotated[Optional[str], typer.Option(help="Approval ID. Defaults to the request approval_id.")] = None,
+    executed_by: Annotated[str, typer.Option(help="Actor or automation identity executing promotion.")] = "release-manager",
+    execution_environment: Annotated[Optional[str], typer.Option(help="Environment recorded on the execution artifact.")] = None,
+    notes: Annotated[Optional[str], typer.Option(help="Optional execution note.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable promotion execution output."),
+) -> None:
+    """Record an approved endpoint rollout ring promotion execution."""
+    try:
+        request_payload = json.loads(promotion_request.read_text(encoding="utf-8"))
+        selected_approval_id = approval_id or request_payload.get("approval", {}).get("approval_id")
+        approval = _load_release_approval(
+            selected_approval_id,
+            approval_json=approval_json,
+            approval_store=approval_store,
+            approval_sqlite=approval_sqlite,
+        )
+        result = create_managed_endpoint_rollout_promotion_execution(
+            request_payload,
+            approval,
+            output_dir=output,
+            executed_by=executed_by,
+            execution_environment=execution_environment,
+            notes=notes,
+        )
+    except (OSError, json.JSONDecodeError, KeyError, ValueError, RuntimeError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    payload = result.to_dict()
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] rollout promotion execution")
+        if result.rollout_id:
+            console.print(f"  rollout: {result.rollout_id}")
+        if result.execution:
+            console.print(f"  execution: {result.execution['execution_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+def _load_release_approval(
+    approval_id: str | None,
+    *,
+    approval_json: Path | None = None,
+    approval_store: Path | None = None,
+    approval_sqlite: Path | None = None,
+) -> dict:
+    if approval_json:
+        return json.loads(approval_json.read_text(encoding="utf-8"))
+    if not approval_id:
+        raise ValueError("approval_id is required unless --approval-json is provided")
+    if approval_store:
+        approval = ApprovalStore(approval_store).get(approval_id)
+        if approval is None:
+            raise KeyError(f"approval not found: {approval_id}")
+        return approval
+    if approval_sqlite:
+        approval = SQLiteApprovalStore(approval_sqlite).get(approval_id)
+        if approval is None:
+            raise KeyError(f"approval not found: {approval_id}")
+        return approval
+    raise ValueError("provide --approval-json, --approval-store, or --approval-sqlite")
 
 
 def _print_json(payload: object) -> None:

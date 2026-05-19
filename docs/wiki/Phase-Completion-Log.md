@@ -592,4 +592,25 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add approved promotion execution records for endpoint rollout ring advancement.
+Recommended next issue: delivered below as approved promotion execution records.
+
+## Approved Rollout Promotion Execution Records
+
+Status: complete for the current release-integrity and ring-advancement slice.
+
+Completed:
+- Added approved rollout promotion execution record generation for signed promotion requests.
+- Added `cavra release execute-rollout-promotion` with JSON and Markdown execution artifacts.
+- Required the signed promotion request to verify before execution can be recorded.
+- Required the approval record to be `approved` and bound to the rollout, request, decision, and target ring.
+- Added `POST /evidence/{session_id}/promotion-execution` for API-backed promotion execution recording from indexed rollout evidence.
+- Added console promotion execution recording from the rollout artifact panel.
+- Updated README, CLI docs, API docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit, CLI, and API tests for approved promotion execution records.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_promotion_execution_requires_approved_request tests/test_api.py::test_api_creates_signed_rollout_promotion_approval -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.
