@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add Go runtime installer smoke validation for packaged deployment targets.
+Add managed endpoint deployment manifests for CI runners and developer workstations.

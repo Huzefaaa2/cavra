@@ -441,4 +441,24 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 - `python3 -m ruff check scripts/package_go_release.py src/cavra/release.py tests/test_go_release_packaging.py` passed locally.
 
-Recommended next issue: add Go runtime installer smoke validation for packaged deployment targets.
+Recommended next issue: delivered below as Go runtime installer smoke validation.
+
+## Go Runtime Installer Smoke Validation
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra release smoke-installers` for validating Go runtime installer metadata.
+- Reused signed release package verification before installer smoke checks.
+- Added static validation for every installer target, binary path, install command, install path, and checksum metadata.
+- Added native runtime execution smoke testing when the current OS and architecture match a packaged target.
+- Added `--skip-execution` for cross-compiled package validation on nonmatching hosts.
+- Removed Terraform-specific product-boundary positioning from README and wiki white paper source.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for signed installer smoke validation.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py scripts/package_go_release.py` passed locally.
+
+Recommended next issue: add managed endpoint deployment manifests for CI runners and developer workstations.

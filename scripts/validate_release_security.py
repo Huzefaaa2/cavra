@@ -21,6 +21,7 @@ REQUIRED_TEXT = {
         "gh attestation verify",
         "cavra release verify-airgap-bundle",
         "cavra release validate-upgrade",
+        "cavra release smoke-installers",
     ],
     "scripts/package_go_release.py": [
         "https://in-toto.io/Statement/v1",
@@ -34,6 +35,7 @@ REQUIRED_TEXT = {
         "verify_go_airgap_bundle",
         "validate_go_release_upgrade",
         "verify_go_installer_metadata",
+        "smoke_test_go_installers",
         "verify_offline_trust_bootstrap",
         "https://slsa.dev/provenance/v1",
     ],
@@ -41,6 +43,7 @@ REQUIRED_TEXT = {
         "--allow-missing-provenance",
         "verify-airgap-bundle",
         "validate-upgrade",
+        "smoke-installers",
     ],
     ".github/workflows/go-release.yml": [
         "id-token: write",

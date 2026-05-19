@@ -18,15 +18,13 @@ Enterprises need a decision point between AI coding agents and meaningful engine
 - Shell commands.
 - Git operations.
 - MCP tool calls.
-- Terraform/OpenTofu.
+- Infrastructure-as-code tools.
 - Kubernetes.
 - AWS, Azure, and GCP CLI operations.
 - CI/CD workflows.
 - PR attestation.
 - Evidence generation.
 - Approval routing.
-
-Terraform/OpenTofu is one supported control surface, not the product boundary.
 
 ## Core Decisions
 
