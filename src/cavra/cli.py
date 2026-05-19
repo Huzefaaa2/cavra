@@ -81,6 +81,8 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
     export_rollout_promotion_execution_audit,
+    load_release_channel_manifest,
+    load_workstation_updater_policy,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -1442,6 +1444,60 @@ def smoke_installers(
             console.print(f"  [red]error:[/] {error}")
     if not result.valid:
         raise typer.Exit(code=1)
+
+
+@release_app.command("channel-manifest")
+def channel_manifest(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    channel: Annotated[Optional[str], typer.Option(help="Optional channel to inspect, such as stable, beta, or canary.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable channel output."),
+) -> None:
+    """Inspect release package channel metadata for managed workstations."""
+    path = package_dir / "cavra-runtime.channels.json"
+    try:
+        payload = load_release_channel_manifest(path)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if channel:
+        channels = [item for item in payload.get("channels", []) if isinstance(item, dict) and item.get("channel") == channel]
+        if not channels:
+            console.print(f"[red]release channel not found: {channel}[/red]")
+            raise typer.Exit(code=1)
+        payload = payload | {"channels": channels}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(f"[green]release channels[/green] {path}")
+        for item in payload.get("channels", []):
+            console.print(
+                f"  {item.get('channel')}: {item.get('version')} "
+                f"targets={len(item.get('workstation_targets', []))} auto_update={item.get('auto_update')}"
+            )
+
+
+@release_app.command("updater-policy")
+def updater_policy(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable updater policy output."),
+) -> None:
+    """Inspect managed workstation updater policy for a release package."""
+    path = package_dir / "cavra-runtime.updater-policy.json"
+    try:
+        payload = load_workstation_updater_policy(path)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(f"[green]updater policy[/green] {path}")
+        console.print(f"  default_auto_update: {payload.get('default_auto_update')}")
+        for item in payload.get("policies", []):
+            console.print(
+                f"  {item.get('channel')}: approval={item.get('approval_required')} "
+                f"rings={len(item.get('rollout_rings', []))}"
+            )
 
 
 @release_app.command("capture-rollout")

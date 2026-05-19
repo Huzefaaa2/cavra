@@ -14,6 +14,8 @@ Every security advisory or security-impacting release note should include:
 - fixed commit, pull request, and release asset links;
 - verification steps, including `cavra release verify-go-package`;
 - release-candidate upgrade validation with `cavra release validate-upgrade`;
+- release channel review with `cavra release channel-manifest`;
+- managed workstation updater policy review with `cavra release updater-policy`;
 - installer smoke validation with `cavra release smoke-installers`;
 - rollout evidence capture with `cavra release capture-rollout`;
 - rollout evidence verification and indexing with `cavra release verify-rollout`;
@@ -25,7 +27,7 @@ Every security advisory or security-impacting release note should include:
 - connector delivery for promotion audit and rollback execution records with `cavra release deliver-promotion-audit` and `cavra release deliver-rollback-execution`;
 - persisted connector delivery history and dashboard alerts with `cavra release connector-delivery-history` and `cavra release connector-delivery-dashboard`;
 - rollout evidence search filters and governed rollout artifact downloads through `cavra evidence search` and the `/evidence` API;
-- SBOM, installer metadata, managed endpoint deployment manifest, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
+- SBOM, installer metadata, managed endpoint deployment manifest, release channel manifest, updater policy, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
 
 ## Go Runtime Release Gate
 
@@ -130,4 +132,4 @@ cavra evidence search \
 
 ## Enterprise Challenge Solved
 
-Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
+Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.

@@ -71,11 +71,15 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
     installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
     endpoint_deployment = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    channels = json.loads((dist / "cavra-runtime.channels.json").read_text(encoding="utf-8"))
+    updater_policy = json.loads((dist / "cavra-runtime.updater-policy.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
     assert "cavra-runtime.endpoint-deployment.json" in checksums
     assert "cavra-runtime.installers.json" in checksums
+    assert "cavra-runtime.channels.json" in checksums
+    assert "cavra-runtime.updater-policy.json" in checksums
     assert "cavra-runtime.provenance.intoto.json" in checksums
     assert "offline-trust-root-bootstrap.json" in checksums
     assert sbom["spdxVersion"] == "SPDX-2.3"
@@ -87,6 +91,8 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert bootstrap["mode"] == "air_gapped"
     assert "cavra-runtime.endpoint-deployment.json" in bootstrap["required_files"]
     assert "cavra-runtime.installers.json" in bootstrap["required_files"]
+    assert "cavra-runtime.channels.json" in bootstrap["required_files"]
+    assert "cavra-runtime.updater-policy.json" in bootstrap["required_files"]
     assert "cavra release verify-airgap-bundle cavra-go-runtime-v0.1.0-test.zip" in bootstrap["verification_commands"]
     assert installers["schema_version"] == "cavra.go-runtime.installers.v1"
     assert installers["targets"][0]["target"] == "linux/amd64"
@@ -99,6 +105,14 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
         "cavra release smoke-installers" in command
         for command in endpoint_deployment["deployment_targets"][0]["verification_commands"]
     )
+    assert channels["schema_version"] == "cavra.go-runtime.channels.v1"
+    assert channels["updater_policy"] == "cavra-runtime.updater-policy.json"
+    assert channels["channels"][0]["auto_update"] is False
+    assert channels["channels"][0]["approval_required"] is True
+    assert channels["channels"][0]["workstation_targets"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
+    assert updater_policy["schema_version"] == "cavra.go-runtime.updater-policy.v1"
+    assert updater_policy["default_auto_update"] is False
+    assert updater_policy["policies"][0]["rollback"]["required"] is True
     assert evidence["schema_version"] == "cavra.go-release.evidence.v1"
     assert evidence["dry_run"] is True
     assert evidence["signature_count"] == 0
@@ -106,6 +120,8 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
         "go-binary",
         "managed-endpoint-deployment",
         "installer-metadata",
+        "release-channel-manifest",
+        "updater-policy",
         "sbom",
         "offline-trust-bootstrap",
         "slsa-provenance",
@@ -159,12 +175,24 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "cavra-runtime.installers.json" in valid_result.verified_artifacts
     assert "cavra-runtime.installers.json" in valid_result.verified_provenance
     assert "cavra-runtime.installers.json" in valid_result.verified_signatures
+    assert "cavra-runtime.channels.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.channels.json" in valid_result.verified_provenance
+    assert "cavra-runtime.channels.json" in valid_result.verified_signatures
+    assert "cavra-runtime.updater-policy.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.updater-policy.json" in valid_result.verified_provenance
+    assert "cavra-runtime.updater-policy.json" in valid_result.verified_signatures
     assert "cavra-runtime.provenance.intoto.json" in valid_result.verified_signatures
     assert "offline-trust-root-bootstrap.json" in valid_result.verified_signatures
     assert "release-evidence.json" in valid_result.verified_signatures
     cli_result = runner.invoke(app, ["release", "verify-go-package", str(dist), "--json"])
     assert cli_result.exit_code == 0
     assert json.loads(cli_result.output)["valid"] is True
+    channel_cli = runner.invoke(app, ["release", "channel-manifest", str(dist), "--channel", "stable", "--json"])
+    policy_cli = runner.invoke(app, ["release", "updater-policy", str(dist), "--json"])
+    assert channel_cli.exit_code == 0
+    assert json.loads(channel_cli.output)["channels"][0]["channel"] == "stable"
+    assert policy_cli.exit_code == 0
+    assert json.loads(policy_cli.output)["default_auto_update"] is False
 
     binary.write_bytes(b"tampered-binary")
 
@@ -201,6 +229,22 @@ def test_go_release_verifier_rejects_missing_endpoint_deployment_metadata(tmp_pa
     invalid_result = verify_go_release_package(dist)
     assert not invalid_result.valid
     assert any("missing cavra-runtime.endpoint-deployment.json" in error for error in invalid_result.errors)
+
+
+def test_go_release_verifier_rejects_missing_channel_and_updater_policy(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    (dist / "cavra-runtime.channels.json").unlink()
+    (dist / "cavra-runtime.updater-policy.json").unlink()
+
+    invalid_result = verify_go_release_package(dist)
+    assert not invalid_result.valid
+    assert any("missing cavra-runtime.channels.json" in error for error in invalid_result.errors)
+    assert any("missing cavra-runtime.updater-policy.json" in error for error in invalid_result.errors)
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

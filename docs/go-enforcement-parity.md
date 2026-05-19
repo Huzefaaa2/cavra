@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add release package channel manifests and updater policy for managed developer workstations.
+1. Add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.
 2. Continue broadening approval-route parity as new policy packs are added.

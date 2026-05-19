@@ -336,6 +336,19 @@ def verify_go_release_package(
         except ReleaseVerificationError as exc:
             errors.append(str(exc))
 
+    channel_manifest_path = package_dir / "cavra-runtime.channels.json"
+    updater_policy_path = package_dir / "cavra-runtime.updater-policy.json"
+    if not channel_manifest_path.exists():
+        errors.append("missing cavra-runtime.channels.json")
+    if not updater_policy_path.exists():
+        errors.append("missing cavra-runtime.updater-policy.json")
+    if channel_manifest_path.exists() and updater_policy_path.exists():
+        try:
+            verify_release_channel_manifest(channel_manifest_path, package_dir, expected_checksums, evidence)
+            verify_workstation_updater_policy(updater_policy_path, channel_manifest_path, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     provenance_path = package_dir / "cavra-runtime.provenance.intoto.json"
     if require_provenance and not provenance_path.exists():
         errors.append("missing cavra-runtime.provenance.intoto.json")
@@ -1714,6 +1727,130 @@ def verify_managed_endpoint_deployment(
             raise ReleaseVerificationError(f"endpoint deployment target is missing smoke installer guidance: {deployment_id}")
         verified.append(deployment_id)
     return sorted(verified)
+
+
+def verify_release_channel_manifest(
+    channel_manifest_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    payload = load_release_channel_manifest(channel_manifest_path)
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("channel manifest version does not match release evidence")
+    if payload.get("source_metadata") != "cavra-runtime.endpoint-deployment.json":
+        raise ReleaseVerificationError("channel manifest must reference cavra-runtime.endpoint-deployment.json")
+    if payload.get("updater_policy") != "cavra-runtime.updater-policy.json":
+        raise ReleaseVerificationError("channel manifest must reference cavra-runtime.updater-policy.json")
+    channels = payload.get("channels")
+    if not isinstance(channels, list) or not channels:
+        raise ReleaseVerificationError("channel manifest has no channels")
+    verified_channels: list[str] = []
+    seen: set[str] = set()
+    for channel in channels:
+        if not isinstance(channel, dict):
+            raise ReleaseVerificationError("channel manifest channel is invalid")
+        channel_name = str(channel.get("channel", ""))
+        if not channel_name or channel_name in seen:
+            raise ReleaseVerificationError(f"channel manifest channel is missing or duplicated: {channel_name or 'unknown'}")
+        seen.add(channel_name)
+        if channel.get("auto_update") is not False or channel.get("approval_required") is not True:
+            raise ReleaseVerificationError(f"channel {channel_name} must require approval and disable auto_update")
+        controls = channel.get("controls")
+        if not isinstance(controls, list) or "verify-go-package-before-channel-publish" not in controls:
+            raise ReleaseVerificationError(f"channel {channel_name} is missing package verification controls")
+        targets = channel.get("workstation_targets")
+        if not isinstance(targets, list) or not targets:
+            raise ReleaseVerificationError(f"channel {channel_name} has no workstation targets")
+        commands = "\n".join(str(command) for command in channel.get("verification_commands", []))
+        if "cavra release verify-go-package" not in commands:
+            raise ReleaseVerificationError(f"channel {channel_name} is missing package verification command")
+        if "cavra release smoke-installers" not in commands:
+            raise ReleaseVerificationError(f"channel {channel_name} is missing installer smoke command")
+        for target in targets:
+            if not isinstance(target, dict):
+                raise ReleaseVerificationError(f"channel {channel_name} workstation target is invalid")
+            binary = str(target.get("binary", ""))
+            binary_path = _safe_package_path(package_dir, binary)
+            if binary_path is None or not binary_path.exists() or not binary_path.is_file():
+                raise ReleaseVerificationError(f"channel {channel_name} binary is missing: {binary}")
+            expected_sha256 = str(target.get("binary_sha256", "")).lower()
+            if sha256_file(binary_path) != expected_sha256:
+                raise ReleaseVerificationError(f"channel {channel_name} digest mismatch for {binary}")
+            checksum_sha256 = expected_checksums.get(binary)
+            if checksum_sha256 and checksum_sha256 != expected_sha256:
+                raise ReleaseVerificationError(f"channel {channel_name} disagrees with checksums.txt: {binary}")
+            required_fields = ("id", "platform", "installer_target", "deployment_channel", "management_tool")
+            if any(not target.get(field) for field in required_fields):
+                raise ReleaseVerificationError(f"channel {channel_name} target is missing deployment guidance")
+        verified_channels.append(channel_name)
+    return sorted(verified_channels)
+
+
+def verify_workstation_updater_policy(
+    updater_policy_path: Path,
+    channel_manifest_path: Path,
+    evidence: dict[str, Any],
+) -> list[str]:
+    policy = load_workstation_updater_policy(updater_policy_path)
+    channel_manifest = load_release_channel_manifest(channel_manifest_path)
+    if evidence and policy.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("updater policy version does not match release evidence")
+    if policy.get("source_channel_manifest") != "cavra-runtime.channels.json":
+        raise ReleaseVerificationError("updater policy must reference cavra-runtime.channels.json")
+    if policy.get("default_auto_update") is not False:
+        raise ReleaseVerificationError("updater policy must disable default_auto_update")
+    controls = policy.get("controls")
+    if not isinstance(controls, list) or "manual-approval-before-auto-update" not in controls:
+        raise ReleaseVerificationError("updater policy is missing manual approval control")
+    policies = policy.get("policies")
+    if not isinstance(policies, list) or not policies:
+        raise ReleaseVerificationError("updater policy has no channel policies")
+    manifest_channels = {
+        str(channel.get("channel"))
+        for channel in channel_manifest.get("channels", [])
+        if isinstance(channel, dict) and channel.get("channel")
+    }
+    policy_channels = {str(item.get("channel")) for item in policies if isinstance(item, dict) and item.get("channel")}
+    if policy_channels != manifest_channels:
+        raise ReleaseVerificationError("updater policy channels must match channel manifest channels")
+    verified: list[str] = []
+    for item in policies:
+        if not isinstance(item, dict):
+            raise ReleaseVerificationError("updater channel policy is invalid")
+        channel = str(item.get("channel", ""))
+        if channel not in manifest_channels:
+            raise ReleaseVerificationError(f"updater policy references unknown channel: {channel or 'unknown'}")
+        if item.get("auto_update") is not False or item.get("approval_required") is not True:
+            raise ReleaseVerificationError(f"updater policy channel {channel} must require approval and disable auto_update")
+        rings = item.get("rollout_rings")
+        if not isinstance(rings, list) or not rings:
+            raise ReleaseVerificationError(f"updater policy channel {channel} has no rollout rings")
+        rollback = item.get("rollback")
+        if not isinstance(rollback, dict) or rollback.get("required") is not True:
+            raise ReleaseVerificationError(f"updater policy channel {channel} must require rollback")
+        verified.append(channel)
+    return sorted(verified)
+
+
+def load_release_channel_manifest(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid channel manifest JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.channels.v1":
+        raise ReleaseVerificationError("channel manifest has an invalid schema_version")
+    return payload
+
+
+def load_workstation_updater_policy(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid updater policy JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.updater-policy.v1":
+        raise ReleaseVerificationError("updater policy has an invalid schema_version")
+    return payload
 
 
 def _write_release_json(path: Path, payload: dict[str, Any]) -> Path:
