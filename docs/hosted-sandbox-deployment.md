@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add governed rollout evidence artifact retrieval for managed endpoint deployment records.
+1. Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.

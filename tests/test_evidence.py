@@ -278,6 +278,62 @@ def test_evidence_artifact_root_lists_and_loads_allowed_files(tmp_path: Path) ->
     assert archive_payload.startswith(b"PK")
 
 
+def test_evidence_artifact_root_lists_and_loads_rollout_files(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    rollout_dir = root / "rollout-1"
+    rollout_dir.mkdir(parents=True)
+    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+        json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
+        encoding="utf-8",
+    )
+    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text("abc  managed-endpoint-rollout-evidence.json\n", encoding="utf-8")
+    metadata = {
+        "session_id": "rollout-1",
+        "metadata_kind": "managed-endpoint-rollout",
+        "bundle_dir": str(rollout_dir),
+    }
+
+    listing = list_evidence_artifacts(root, "rollout-1", metadata=metadata)
+    artifact_metadata, payload = load_evidence_artifact(
+        root,
+        "rollout-1",
+        "managed-endpoint-rollout-evidence.json",
+        metadata=metadata,
+    )
+    archive_metadata, archive_payload = build_evidence_artifact_archive(root, "rollout-1", metadata=metadata)
+
+    assert listing["metadata_kind"] == "managed-endpoint-rollout"
+    assert listing["artifact_count"] == 3
+    assert [item["artifact"] for item in listing["artifacts"]] == [
+        "managed-endpoint-rollout-evidence.json",
+        "managed-endpoint-rollout-evidence.md",
+        "checksums.txt",
+    ]
+    assert artifact_metadata["kind"] == "rollout-evidence"
+    assert b"rollout-1" in payload
+    assert archive_metadata["artifact_count"] == 3
+    assert archive_payload.startswith(b"PK")
+
+
+def test_evidence_artifact_root_rejects_rollout_bundle_outside_root(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    outside = tmp_path / "outside-rollout"
+    outside.mkdir()
+    metadata = {
+        "session_id": "rollout-1",
+        "metadata_kind": "managed-endpoint-rollout",
+        "bundle_dir": str(outside),
+    }
+
+    try:
+        list_evidence_artifacts(root, "rollout-1", metadata=metadata)
+    except EvidenceArtifactError as exc:
+        assert "outside artifact root" in str(exc)
+    else:
+        raise AssertionError("expected outside rollout bundle to fail")
+
+
 def test_evidence_artifact_root_rejects_unsafe_paths(tmp_path: Path) -> None:
     root = tmp_path / "artifacts"
     create_evidence_bundle(_decisions(), root / "pytest", session_id="pytest")

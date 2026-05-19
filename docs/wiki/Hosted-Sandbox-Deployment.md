@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add governed rollout evidence artifact retrieval for managed endpoint deployment records.
+Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.

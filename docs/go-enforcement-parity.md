@@ -16,7 +16,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
 - Go decisions now emit runtime evidence metadata: decision ID, correlation ID, timestamp, and `evidence://...` references.
-- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, installer smoke validation, detached signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+- `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact retrieval, installer smoke validation, detached signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 
@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add governed rollout evidence artifact retrieval for managed endpoint deployment records.
+1. Add rollout artifact integrity status and promotion readiness indicators to the console evidence view.
 2. Continue broadening approval-route parity as new policy packs are added.

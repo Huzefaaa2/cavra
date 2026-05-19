@@ -1,6 +1,6 @@
 # Evidence Artifact Retrieval
 
-CAVRA can expose read-only evidence bundle artifacts for indexed sessions through a governed artifact root. This gives reviewers and auditors direct access to attestations, manifests, evidence JSON, SIEM events, retention policy files, and a downloadable ZIP bundle without allowing arbitrary server-side file reads.
+CAVRA can expose read-only evidence artifacts for indexed sessions and managed endpoint rollout records through a governed artifact root. This gives reviewers and auditors direct access to attestations, manifests, evidence JSON, SIEM events, retention policy files, rollout evidence, and downloadable ZIP bundles without allowing arbitrary server-side file reads.
 
 ## Configuration
 
@@ -25,6 +25,16 @@ Each indexed session maps to one directory:
     retention-policy.json
 ```
 
+Managed endpoint rollout records use the same endpoints, but their metadata can point to a verified rollout evidence directory under the configured root:
+
+```text
+.cavra/evidence/artifacts/
+  rollout-1/
+    managed-endpoint-rollout-evidence.json
+    managed-endpoint-rollout-evidence.md
+    checksums.txt
+```
+
 The session must also exist in evidence metadata through `POST /evidence`, `cavra evidence index`, or the SQLite metadata store.
 
 ## API
@@ -35,18 +45,22 @@ The session must also exist in evidence metadata through `POST /evidence`, `cavr
 
 Downloads include `x-cavra-artifact-sha256` so clients can log or verify the returned payload.
 
+For metadata records with `metadata_kind=managed-endpoint-rollout`, CAVRA serves only the rollout allowlist: `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt`.
+
 ## Security Boundary
 
 - The API never accepts arbitrary bundle paths.
 - Artifact retrieval is disabled unless `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured.
 - A metadata record is required before artifacts are served.
 - Only known bundle filenames are downloadable.
-- Session IDs and artifact paths are resolved under the configured root and traversal is rejected.
+- Session IDs, rollout `bundle_dir` values, and artifact paths are resolved under the configured root and traversal is rejected.
+- Rollout metadata cannot expose a directory outside `CAVRA_EVIDENCE_ARTIFACT_ROOT`.
 
 ## User Stories
 
 - As an auditor, I can download the manifest and evidence bundle for a reviewed AI-agent session.
 - As a pull request reviewer, I can retrieve the PR attestation from the same console used for evidence search.
+- As an endpoint engineering owner, I can retrieve verified rollout evidence and checksums for a managed endpoint deployment record.
 - As a platform engineer, I can expose artifact downloads from a controlled evidence root without granting the API broad filesystem access.
 
 ## Enterprise Value

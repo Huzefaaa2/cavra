@@ -65,6 +65,25 @@ EVIDENCE_ARTIFACTS: dict[str, dict[str, str]] = {
 }
 
 
+ROLLOUT_EVIDENCE_ARTIFACTS: dict[str, dict[str, str]] = {
+    "managed-endpoint-rollout-evidence.json": {
+        "kind": "rollout-evidence",
+        "media_type": "application/json",
+        "description": "Verified managed endpoint rollout evidence payload.",
+    },
+    "managed-endpoint-rollout-evidence.md": {
+        "kind": "rollout-summary",
+        "media_type": "text/markdown",
+        "description": "Reviewer-ready managed endpoint rollout evidence summary.",
+    },
+    "checksums.txt": {
+        "kind": "rollout-checksums",
+        "media_type": "text/plain",
+        "description": "Checksums for allowlisted managed endpoint rollout evidence files.",
+    },
+}
+
+
 class EvidenceArtifactError(ValueError):
     pass
 
@@ -880,12 +899,14 @@ def list_evidence_artifacts(
     artifact_root: Path,
     session_id: str,
     *,
+    metadata: dict[str, Any] | None = None,
     base_path: str = "",
     bundle_path: str = "",
 ) -> dict[str, Any]:
-    session_dir = _session_artifact_dir(artifact_root, session_id)
+    session_dir = _evidence_artifact_dir(artifact_root, session_id, metadata)
+    descriptors = _evidence_artifact_descriptors(metadata)
     artifacts = []
-    for artifact_name, descriptor in EVIDENCE_ARTIFACTS.items():
+    for artifact_name, descriptor in descriptors.items():
         path = session_dir / artifact_name
         if not path.exists() or not path.is_file():
             continue
@@ -904,6 +925,7 @@ def list_evidence_artifacts(
         "schema_version": "cavra.evidence.artifacts.v1",
         "product": "CAVRA",
         "session_id": session_id,
+        "metadata_kind": (metadata or {}).get("metadata_kind", "session"),
         "artifact_root_configured": True,
         "artifact_count": len(artifacts),
         "artifacts": artifacts,
@@ -911,14 +933,21 @@ def list_evidence_artifacts(
     }
 
 
-def load_evidence_artifact(artifact_root: Path, session_id: str, artifact_name: str) -> tuple[dict[str, Any], bytes]:
-    if artifact_name not in EVIDENCE_ARTIFACTS:
+def load_evidence_artifact(
+    artifact_root: Path,
+    session_id: str,
+    artifact_name: str,
+    *,
+    metadata: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], bytes]:
+    descriptors = _evidence_artifact_descriptors(metadata)
+    if artifact_name not in descriptors:
         raise EvidenceArtifactError("unsupported evidence artifact")
-    session_dir = _session_artifact_dir(artifact_root, session_id)
+    session_dir = _evidence_artifact_dir(artifact_root, session_id, metadata)
     path = _resolve_session_artifact(session_dir, artifact_name)
     if not path.exists() or not path.is_file():
         raise FileNotFoundError(f"evidence artifact not found: {artifact_name}")
-    descriptor = EVIDENCE_ARTIFACTS[artifact_name]
+    descriptor = descriptors[artifact_name]
     metadata = {
         "artifact": artifact_name,
         "kind": descriptor["kind"],
@@ -930,11 +959,16 @@ def load_evidence_artifact(artifact_root: Path, session_id: str, artifact_name: 
     return metadata, path.read_bytes()
 
 
-def build_evidence_artifact_archive(artifact_root: Path, session_id: str) -> tuple[dict[str, Any], bytes]:
-    listing = list_evidence_artifacts(artifact_root, session_id)
+def build_evidence_artifact_archive(
+    artifact_root: Path,
+    session_id: str,
+    *,
+    metadata: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], bytes]:
+    listing = list_evidence_artifacts(artifact_root, session_id, metadata=metadata)
     if not listing["artifacts"]:
         raise FileNotFoundError(f"no evidence artifacts found for session: {session_id}")
-    session_dir = _session_artifact_dir(artifact_root, session_id)
+    session_dir = _evidence_artifact_dir(artifact_root, session_id, metadata)
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
         for item in listing["artifacts"]:
@@ -953,14 +987,38 @@ def build_evidence_artifact_archive(artifact_root: Path, session_id: str) -> tup
     return metadata, payload
 
 
+def _evidence_artifact_descriptors(metadata: dict[str, Any] | None) -> dict[str, dict[str, str]]:
+    if (metadata or {}).get("metadata_kind") == "managed-endpoint-rollout":
+        return ROLLOUT_EVIDENCE_ARTIFACTS
+    return EVIDENCE_ARTIFACTS
+
+
+def _evidence_artifact_dir(artifact_root: Path, session_id: str, metadata: dict[str, Any] | None) -> Path:
+    _validate_evidence_session_id(session_id)
+    if (metadata or {}).get("metadata_kind") != "managed-endpoint-rollout":
+        return _session_artifact_dir(artifact_root, session_id)
+    bundle_dir = str((metadata or {}).get("bundle_dir") or "")
+    if not bundle_dir:
+        return _session_artifact_dir(artifact_root, session_id)
+    root = artifact_root.resolve()
+    rollout_dir = Path(bundle_dir).resolve()
+    if not rollout_dir.is_relative_to(root):
+        raise EvidenceArtifactError("rollout evidence directory is outside artifact root")
+    return rollout_dir
+
+
 def _session_artifact_dir(artifact_root: Path, session_id: str) -> Path:
-    if not session_id or session_id in {".", ".."} or "/" in session_id or "\\" in session_id:
-        raise EvidenceArtifactError("invalid evidence session ID")
+    _validate_evidence_session_id(session_id)
     root = artifact_root.resolve()
     session_dir = (root / session_id).resolve()
     if not session_dir.is_relative_to(root):
         raise EvidenceArtifactError("evidence session escapes artifact root")
     return session_dir
+
+
+def _validate_evidence_session_id(session_id: str) -> None:
+    if not session_id or session_id in {".", ".."} or "/" in session_id or "\\" in session_id:
+        raise EvidenceArtifactError("invalid evidence session ID")
 
 
 def _resolve_session_artifact(session_dir: Path, artifact_name: str) -> Path:

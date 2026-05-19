@@ -17,7 +17,7 @@ Every security advisory or security-impacting release note should include:
 - installer smoke validation with `cavra release smoke-installers`;
 - rollout evidence capture with `cavra release capture-rollout`;
 - rollout evidence verification and indexing with `cavra release verify-rollout`;
-- rollout evidence search filters through `cavra evidence search` and the `/evidence` API;
+- rollout evidence search filters and governed rollout artifact downloads through `cavra evidence search` and the `/evidence` API;
 - SBOM, installer metadata, managed endpoint deployment manifest, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
 
 ## Go Runtime Release Gate
@@ -123,4 +123,4 @@ cavra evidence search \
 
 ## Enterprise Challenge Solved
 
-Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
+Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, managed endpoint deployment manifests, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters, governed rollout artifact downloads, console/API views, installer smoke validation, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.

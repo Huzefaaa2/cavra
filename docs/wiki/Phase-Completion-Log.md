@@ -531,4 +531,22 @@ Completed:
 Validation:
 - `python3 -m pytest tests/test_api.py::test_api_filters_json_rollout_evidence_metadata tests/test_api.py::test_api_filters_sqlite_rollout_evidence_metadata tests/test_evidence.py::test_sqlite_evidence_metadata_store_filters_rollout_metadata -q` passed locally.
 
-Recommended next issue: add governed rollout evidence artifact retrieval for managed endpoint deployment records.
+Recommended next issue: delivered below as governed rollout evidence artifact retrieval.
+
+## Governed Rollout Evidence Artifact Retrieval
+
+Status: complete for the current release-integrity and audit-retrieval slice.
+
+Completed:
+- Added a rollout-specific artifact allowlist for `managed-endpoint-rollout-evidence.json`, `managed-endpoint-rollout-evidence.md`, and `checksums.txt`.
+- Extended existing evidence artifact list, download, and ZIP bundle helpers to support indexed `metadata_kind=managed-endpoint-rollout` records.
+- Enforced that rollout `bundle_dir` values must resolve inside `CAVRA_EVIDENCE_ARTIFACT_ROOT`.
+- Reused the existing `/evidence/{session_id}/artifacts`, `/evidence/{session_id}/artifacts/{artifact_name}`, and `/evidence/{session_id}/artifact-bundle` endpoints for rollout records.
+- Updated README, evidence artifact retrieval docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit and API tests for rollout artifact listing, download, bundle creation, unsupported artifact rejection, and outside-root rejection.
+
+Validation:
+- `python3 -m pytest tests/test_evidence.py::test_evidence_artifact_root_lists_and_loads_rollout_files tests/test_evidence.py::test_evidence_artifact_root_rejects_rollout_bundle_outside_root tests/test_api.py::test_api_serves_configured_rollout_evidence_artifacts -q` passed locally.
+- `python3 -m ruff check src/cavra/evidence.py src/cavra/api.py tests/test_evidence.py tests/test_api.py` passed locally.
+
+Recommended next issue: add rollout artifact integrity status and promotion readiness indicators to the console evidence view.

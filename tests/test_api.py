@@ -172,6 +172,48 @@ def test_api_serves_configured_evidence_artifacts(monkeypatch, tmp_path) -> None
     assert config["endpoints"]["evidence_artifact_bundle"] == "/evidence/{session_id}/artifact-bundle"
 
 
+def test_api_serves_configured_rollout_evidence_artifacts(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    artifact_root = tmp_path / "artifacts"
+    rollout_dir = artifact_root / "rollout-1"
+    rollout_dir.mkdir(parents=True)
+    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+        json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
+        encoding="utf-8",
+    )
+    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text("abc  managed-endpoint-rollout-evidence.json\n", encoding="utf-8")
+    monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(artifact_root))
+    client = TestClient(create_app())
+    client.post(
+        "/evidence",
+        json={
+            "session_id": "rollout-1",
+            "metadata_kind": "managed-endpoint-rollout",
+            "bundle_dir": str(rollout_dir),
+            "rollout_status": "staged",
+            "environment": "production",
+        },
+    )
+
+    listing = client.get("/evidence/rollout-1/artifacts")
+    evidence = client.get("/evidence/rollout-1/artifacts/managed-endpoint-rollout-evidence.json")
+    bundle = client.get("/evidence/rollout-1/artifact-bundle")
+    rejected = client.get("/evidence/rollout-1/artifacts/evidence.json")
+
+    assert listing.status_code == 200
+    assert listing.json()["metadata_kind"] == "managed-endpoint-rollout"
+    assert listing.json()["artifact_count"] == 3
+    assert listing.json()["artifacts"][0]["artifact"] == "managed-endpoint-rollout-evidence.json"
+    assert evidence.status_code == 200
+    assert evidence.headers["content-type"].startswith("application/json")
+    assert evidence.json()["rollout_id"] == "rollout-1"
+    assert bundle.status_code == 200
+    assert bundle.content.startswith(b"PK")
+    assert rejected.status_code == 400
+
+
 def test_api_evidence_artifacts_require_configured_root(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.delenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", raising=False)
