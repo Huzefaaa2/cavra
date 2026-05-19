@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -14,6 +14,7 @@ The workflow:
 - Exports Go module metadata with `go list -m -json all`.
 - Generates `cavra-runtime.sbom.spdx.json`.
 - Generates `cavra-runtime.installers.json` with per-platform install metadata, binary checksums, install paths, and verification commands.
+- Generates `cavra-runtime.endpoint-deployment.json` with approved CI runner and developer workstation deployment targets.
 - Generates `cavra-runtime.provenance.intoto.json` using an in-toto Statement and SLSA provenance predicate.
 - Generates `offline-trust-root-bootstrap.json` with offline operator notes and verification commands.
 - Generates `checksums.txt`.
@@ -79,6 +80,15 @@ jq '.targets[] | {target, binary, install_path, binary_sha256}' \
 
 `cavra release verify-go-package` requires `cavra-runtime.installers.json`, checks every referenced binary digest, confirms checksum guidance, and verifies the metadata through checksums, SLSA provenance, and detached signatures.
 
+Inspect managed endpoint deployment guidance before publishing binaries into runner images, Jamf, Intune, Linux endpoint management, or restricted workstation channels:
+
+```bash
+jq '.deployment_targets[] | {id, surface, platform, installer_target, deployment_channel}' \
+  go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.endpoint-deployment.json
+```
+
+`cavra release verify-go-package` also requires `cavra-runtime.endpoint-deployment.json`. The verifier checks that each deployment target maps back to signed installer metadata, references an existing binary digest, and includes package verification plus installer smoke-test commands before rollout.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -114,13 +124,14 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
 - As a platform engineer, I can compare the current approved package with a release candidate before promoting it to developers or CI runners.
 - As an endpoint engineering owner, I can approve signed installer metadata before placing CAVRA binaries on managed developer workstations.
+- As an endpoint engineering owner, I can map signed runtime binaries to approved CI runner and workstation deployment channels before rollout.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add managed endpoint deployment manifests for CI runners and developer workstations.
+1. Add rollout evidence capture for managed endpoint deployments.

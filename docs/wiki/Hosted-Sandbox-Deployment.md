@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add managed endpoint deployment manifests for CI runners and developer workstations.
+Add rollout evidence capture for managed endpoint deployments.

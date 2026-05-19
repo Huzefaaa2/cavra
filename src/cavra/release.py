@@ -197,6 +197,15 @@ def verify_go_release_package(
         except ReleaseVerificationError as exc:
             errors.append(str(exc))
 
+    endpoint_deployment_path = package_dir / "cavra-runtime.endpoint-deployment.json"
+    if not endpoint_deployment_path.exists():
+        errors.append("missing cavra-runtime.endpoint-deployment.json")
+    else:
+        try:
+            verify_managed_endpoint_deployment(endpoint_deployment_path, package_dir, expected_checksums, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     provenance_path = package_dir / "cavra-runtime.provenance.intoto.json"
     if require_provenance and not provenance_path.exists():
         errors.append("missing cavra-runtime.provenance.intoto.json")
@@ -654,6 +663,83 @@ def verify_go_installer_metadata(
         if "sha256sum -c checksums.txt" not in str(target.get("verification_command", "")):
             raise ReleaseVerificationError(f"installer metadata target is missing checksum verification guidance: {target_name}")
         verified.append(binary)
+    return sorted(verified)
+
+
+def verify_managed_endpoint_deployment(
+    endpoint_deployment_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    try:
+        payload = json.loads(endpoint_deployment_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid endpoint deployment JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.endpoint-deployment.v1":
+        raise ReleaseVerificationError("endpoint deployment metadata has an invalid schema_version")
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("endpoint deployment version does not match release evidence")
+    if payload.get("source_metadata") != "cavra-runtime.installers.json":
+        raise ReleaseVerificationError("endpoint deployment metadata must reference cavra-runtime.installers.json")
+
+    installers_path = package_dir / "cavra-runtime.installers.json"
+    try:
+        installers = json.loads(installers_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise ReleaseVerificationError("endpoint deployment metadata cannot load installer metadata") from exc
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid installer metadata JSON for endpoint deployment: {exc}") from exc
+    installer_targets = {
+        str(target.get("target")): target
+        for target in installers.get("targets", [])
+        if isinstance(target, dict) and target.get("target")
+    }
+
+    deployment_targets = payload.get("deployment_targets")
+    if not isinstance(deployment_targets, list) or not deployment_targets:
+        raise ReleaseVerificationError("endpoint deployment metadata has no deployment_targets")
+    controls = payload.get("controls")
+    if not isinstance(controls, list) or "smoke-installers-before-rollout" not in controls:
+        raise ReleaseVerificationError("endpoint deployment metadata is missing smoke installer rollout control")
+
+    verified: list[str] = []
+    seen_ids: set[str] = set()
+    for deployment in deployment_targets:
+        if not isinstance(deployment, dict):
+            raise ReleaseVerificationError("endpoint deployment target is invalid")
+        deployment_id = str(deployment.get("id", ""))
+        if not deployment_id or deployment_id in seen_ids:
+            raise ReleaseVerificationError(f"endpoint deployment target is missing or duplicated: {deployment_id or 'unknown'}")
+        seen_ids.add(deployment_id)
+        installer_target = str(deployment.get("installer_target", ""))
+        installer = installer_targets.get(installer_target)
+        if not installer:
+            raise ReleaseVerificationError(f"endpoint deployment target references unknown installer target: {installer_target}")
+        binary = str(deployment.get("binary", ""))
+        if binary != installer.get("binary"):
+            raise ReleaseVerificationError(f"endpoint deployment binary does not match installer metadata: {deployment_id}")
+        binary_path = _safe_package_path(package_dir, binary)
+        if binary_path is None or not binary_path.exists() or not binary_path.is_file():
+            raise ReleaseVerificationError(f"endpoint deployment binary is missing: {binary}")
+        expected_sha256 = str(deployment.get("binary_sha256", "")).lower()
+        if sha256_file(binary_path) != expected_sha256:
+            raise ReleaseVerificationError(f"endpoint deployment digest mismatch for {binary}")
+        checksum_sha256 = expected_checksums.get(binary)
+        if checksum_sha256 and checksum_sha256 != expected_sha256:
+            raise ReleaseVerificationError(f"endpoint deployment disagrees with checksums.txt: {binary}")
+        required_fields = ("surface", "platform", "deployment_channel", "management_tool", "install_path", "install_command")
+        if any(not deployment.get(field) for field in required_fields):
+            raise ReleaseVerificationError(f"endpoint deployment target is missing deployment guidance: {deployment_id}")
+        commands = deployment.get("verification_commands")
+        if not isinstance(commands, list) or not commands:
+            raise ReleaseVerificationError(f"endpoint deployment target is missing verification commands: {deployment_id}")
+        command_text = "\n".join(str(command) for command in commands)
+        if "cavra release verify-go-package" not in command_text:
+            raise ReleaseVerificationError(f"endpoint deployment target is missing package verification guidance: {deployment_id}")
+        if "cavra release smoke-installers" not in command_text:
+            raise ReleaseVerificationError(f"endpoint deployment target is missing smoke installer guidance: {deployment_id}")
+        verified.append(deployment_id)
     return sorted(verified)
 
 

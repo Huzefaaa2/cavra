@@ -461,4 +461,21 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py scripts/package_go_release.py` passed locally.
 
-Recommended next issue: add managed endpoint deployment manifests for CI runners and developer workstations.
+Recommended next issue: delivered below as managed endpoint deployment manifests.
+
+## Managed Endpoint Deployment Manifests
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra-runtime.endpoint-deployment.json` to Go runtime release packages.
+- Recorded approved deployment targets for CI runners and developer workstations, including platform, endpoint channel, installer target, binary path, install command, rollout gate, rollback steps, and evidence requirements.
+- Added endpoint deployment metadata to checksums, SLSA provenance subjects, release evidence, offline trust bootstrap required files, and detached signature coverage.
+- Updated release package verification to require and validate endpoint deployment metadata before package approval.
+- Updated README, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for endpoint deployment manifest generation, signature/provenance coverage, and missing metadata rejection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+
+Recommended next issue: add rollout evidence capture for managed endpoint deployments.

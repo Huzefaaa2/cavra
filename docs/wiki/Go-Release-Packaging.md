@@ -9,6 +9,7 @@ CAVRA now includes a release packaging workflow for the Go enforcement-plane run
 - `checksums.txt`.
 - SPDX-style SBOM: `cavra-runtime.sbom.spdx.json`.
 - SLSA provenance: `cavra-runtime.provenance.intoto.json`.
+- Managed endpoint deployment manifest: `cavra-runtime.endpoint-deployment.json`.
 - Release evidence: `release-evidence.json` and `release-evidence.md`.
 - Detached Ed25519 signature JSON files when `CAVRA_GO_RELEASE_SIGNING_KEY` is configured.
 - Required signing for real release events and non-dry-run manual packaging.
@@ -32,6 +33,15 @@ Verify a signed package:
 cavra release verify-go-package go/cavra-runtime/dist/go-runtime-v0.1.0
 ```
 
+Inspect managed endpoint deployment guidance:
+
+```bash
+jq '.deployment_targets[] | {id, surface, platform, installer_target}' \
+  go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.endpoint-deployment.json
+```
+
+The endpoint deployment manifest maps signed runtime binaries to approved CI runner and developer workstation channels. Package verification requires the manifest and validates its binary references, rollout controls, and installer smoke-test guidance before approval.
+
 Verify an unsigned dry-run package:
 
 ```bash
@@ -43,12 +53,13 @@ cavra release verify-go-package go/cavra-runtime/dist/go-runtime-dry-run --allow
 - As a release manager, I can publish Go binaries with release evidence, provenance, and GitHub keyless attestations.
 - As a security engineer, I can validate checksums, SBOM metadata, SLSA provenance, detached signatures, and `gh attestation verify` results.
 - As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
+- As an endpoint engineering owner, I can approve deployment channels for CI runners and developer workstations before rollout.
 - As an auditor, I can run a local verifier before approving runtime distribution.
 
 ## Enterprise Challenge Solved
 
-Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
+Signed Go release packaging gives regulated teams an auditable path from source commit to binary artifact before CAVRA is distributed to local developer machines, CI runners, or restricted environments. Release attachment, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, installer smoke validation, GitHub OIDC-backed keyless attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and CLI verification reduce manual release-review steps.
 
 ## Next
 
-Add managed endpoint deployment manifests for CI runners and developer workstations.
+Add rollout evidence capture for managed endpoint deployments.
