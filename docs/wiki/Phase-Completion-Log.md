@@ -673,4 +673,25 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_rollback_execution_and_audit_exports tests/test_api.py::test_api_creates_signed_rollout_promotion_approval tests/test_integrations.py::test_deliver_connector_event_redacts_credentials_and_exports -q` passed locally.
 - `python3 -m ruff check src/cavra/integrations.py src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py tests/test_integrations.py` passed locally.
 
+Recommended next issue: delivered below as open-core edition boundaries and commercialization foundation.
+
+## Open-Core Edition Boundaries And Commercialization Foundation
+
+Status: complete for the current open-core foundation slice.
+
+Completed:
+- Replanned CAVRA as a public Community Edition with private Enterprise, Trial, and SaaS implementation boundaries.
+- Added public-safe edition detection, Enterprise dynamic hooks, licensing placeholders, trial mode, feature registry, and plugin runtime interfaces.
+- Added Community starter policies, Community Docker files, Community CI and release workflows, and boundary validation script.
+- Added `enterprise/README.md` with explicit warning that Enterprise source belongs in the private `cavra-enterprise` repository.
+- Added public Enterprise documentation, trial documentation, SaaS Control Plane design, open-core model, plugin architecture, migration report, and private repo plan.
+- Updated README, root legal/community files, and wiki source with the open-core model.
+- Added tests for Community mode, Enterprise feature blocking, feature registry behavior, plugin edition rejection, trial license placeholder loading, and boundary validation failures.
+
+Validation:
+- `bash scripts/validate-boundaries.sh .` passed.
+- `python3 -m pytest tests/test_open_core_model.py -q` passed with 6 tests.
+- `python3 -m ruff check src tests` passed.
+- `python3 -m pytest -q` passed with 191 tests and 4 skipped.
+
 Recommended next issue: add persisted delivery history views and alerting dashboards for release governance connectors.
