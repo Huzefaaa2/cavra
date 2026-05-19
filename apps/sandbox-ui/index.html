@@ -516,6 +516,36 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Handoff Status</h2>
+            <p>Track ITSM, ChatOps, and private connector callback status for remediation handoffs.</p>
+          </div>
+          <button id="refreshEndpointRemediationHandoffStatus">Refresh</button>
+        </div>
+        <div id="endpointRemediationHandoffStatusDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <select id="filterEndpointRemediationHandoffStatusProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="private_queue">Private queue</option></select></label>
+          <label>Status <select id="filterEndpointRemediationHandoffStatusState"><option value="">Any</option><option value="queued">Queued</option><option value="delivered">Delivered</option><option value="acknowledged">Acknowledged</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option><option value="failed">Failed</option></select></label>
+          <label>Handoff <input id="filterEndpointRemediationHandoffStatusId" placeholder="erh_" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Handoff</th>
+                <th>Provider</th>
+                <th>State</th>
+                <th>External Ref</th>
+                <th>Recorded</th>
+              </tr>
+            </thead>
+            <tbody id="endpointRemediationHandoffStatusRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

@@ -452,6 +452,30 @@ class EndpointRemediationHandoffResult:
 
 
 @dataclass(frozen=True)
+class EndpointRemediationHandoffStatusResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    status_id: str | None = None
+    handoff_id: str | None = None
+    provider: str | None = None
+    status: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "status_id": self.status_id,
+            "handoff_id": self.handoff_id,
+            "provider": self.provider,
+            "status": self.status,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class EndpointDriftRemediationExecutionResult:
     valid: bool
     errors: list[str] = field(default_factory=list)
@@ -3098,6 +3122,162 @@ def build_endpoint_remediation_handoff_metadata(
     return metadata
 
 
+def record_endpoint_remediation_handoff_status(
+    handoff: dict[str, Any],
+    *,
+    provider: str,
+    status: str,
+    external_ref: str | None = None,
+    external_url: str | None = None,
+    callback_payload: dict[str, Any] | None = None,
+    recorded_by: str = "release-manager",
+    notes: str | None = None,
+    output_dir: Path | None = None,
+) -> EndpointRemediationHandoffStatusResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if handoff.get("schema_version") != "cavra.endpoint-remediation-handoff.v1":
+        errors.append("handoff has an invalid schema_version")
+    handoff_id = str(handoff.get("handoff_id") or "")
+    request_id = str(handoff.get("request_id") or "")
+    reconciliation_id = str(handoff.get("reconciliation_id") or "")
+    provider_key = str(provider).strip().lower().replace("-", "_")
+    allowed_providers = set(_normalize_endpoint_remediation_handoff_providers(["all"]))
+    if not handoff_id:
+        errors.append("handoff must include handoff_id")
+    if provider_key not in allowed_providers:
+        errors.append("provider must be one of: jira, servicenow, slack, teams, private_queue")
+    if provider_key and provider_key not in {str(value) for value in handoff.get("providers", [])}:
+        errors.append("provider is not present in the handoff package")
+    status_key = str(status).strip().lower().replace("-", "_")
+    allowed_statuses = {
+        "queued",
+        "delivered",
+        "acknowledged",
+        "in_progress",
+        "blocked",
+        "completed",
+        "failed",
+        "cancelled",
+    }
+    if status_key not in allowed_statuses:
+        errors.append("status must be one of: queued, delivered, acknowledged, in_progress, blocked, completed, failed, cancelled")
+    payload = callback_payload if isinstance(callback_payload, dict) else {}
+    if callback_payload and not isinstance(callback_payload, dict):
+        warnings.append("callback_payload ignored because it is not a JSON object")
+    if errors:
+        return EndpointRemediationHandoffStatusResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            handoff_id=handoff_id or None,
+            provider=provider_key or None,
+        )
+    recorded_at = datetime.now(timezone.utc).isoformat()
+    status_id = _endpoint_remediation_handoff_status_id(
+        handoff_id,
+        provider_key,
+        status_key,
+        external_ref,
+        recorded_at,
+    )
+    status_record = {
+        "schema_version": "cavra.endpoint-remediation-handoff-status.v1",
+        "product": "CAVRA",
+        "status_id": status_id,
+        "handoff_id": handoff_id,
+        "request_id": request_id,
+        "reconciliation_id": reconciliation_id,
+        "provider": provider_key,
+        "status": status_key,
+        "recorded_at": recorded_at,
+        "recorded_by": recorded_by,
+        "external_ref": external_ref,
+        "external_url": external_url,
+        "notes": notes,
+        "approval_id": handoff.get("approval_id"),
+        "approval_state": handoff.get("approval_state"),
+        "action_count": handoff.get("action_count", 0),
+        "delivery_mode": handoff.get("delivery_mode"),
+        "release": handoff.get("release", {}),
+        "channel": handoff.get("channel"),
+        "callback_payload": _redact_endpoint_handoff_callback_payload(payload),
+        "controls": [
+            "status-derived-from-provider-callback-or-operator-update",
+            "external-reference-preserved-for-audit-correlation",
+            "public-status-record-contains-no-connector-credentials",
+            "endpoint-mutation-remains-private-connector-responsibility",
+        ],
+        "evidence_refs": [
+            f"endpoint-remediation-handoff://{handoff_id}",
+            f"endpoint-remediation-request://{request_id}",
+            f"endpoint-reconciliation://{reconciliation_id}",
+            *([f"approval://{handoff.get('approval_id')}"] if handoff.get("approval_id") else []),
+            *([f"external://{provider_key}/{external_ref}"] if external_ref else []),
+        ],
+        "handoff_sha256": hashlib.sha256(
+            json.dumps(handoff, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+        ).hexdigest(),
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        status_path = output_dir / "endpoint-remediation-handoff-status.json"
+        summary_path = output_dir / "endpoint-remediation-handoff-status.md"
+        _write_release_json(status_path, status_record)
+        summary_path.write_text(_endpoint_remediation_handoff_status_markdown_summary(status_record), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in [status_path, summary_path]) + "\n",
+            encoding="utf-8",
+        )
+        files = [status_path.name, summary_path.name, checksums_path.name]
+    return EndpointRemediationHandoffStatusResult(
+        valid=True,
+        warnings=warnings,
+        status_id=status_id,
+        handoff_id=handoff_id,
+        provider=provider_key,
+        status=status_record,
+        files=files,
+    )
+
+
+def build_endpoint_remediation_handoff_status_metadata(
+    status: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    metadata = {
+        "session_id": status.get("status_id"),
+        "created_at": status.get("recorded_at"),
+        "signer": status.get("recorded_by", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 1 if status.get("status") in {"blocked", "failed"} else 0,
+        "approval_required_count": 1 if status.get("approval_state") == "pending" else 0,
+        "metadata_kind": "endpoint-remediation-handoff-status",
+        "status_id": status.get("status_id"),
+        "handoff_id": status.get("handoff_id"),
+        "request_id": status.get("request_id"),
+        "reconciliation_id": status.get("reconciliation_id"),
+        "provider": status.get("provider"),
+        "handoff_status": status.get("status"),
+        "external_ref": status.get("external_ref"),
+        "external_url": status.get("external_url"),
+        "approval_id": status.get("approval_id"),
+        "approval_state": status.get("approval_state"),
+        "action_count": status.get("action_count", 0),
+        "release": status.get("release", {}),
+        "channel": status.get("channel"),
+        "status_record": status,
+        "evidence_refs": status.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
 def filter_endpoint_remediation_handoff_history(
     items: list[dict[str, Any]],
     *,
@@ -3127,6 +3307,84 @@ def filter_endpoint_remediation_handoff_history(
         "total": len(filtered),
         "limit": limit,
         "offset": offset,
+    }
+
+
+def filter_endpoint_remediation_handoff_status_history(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    handoff_status: str | None = None,
+    handoff_id: str | None = None,
+    request_id: str | None = None,
+    external_ref: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-remediation-handoff-status"]
+    if provider:
+        filtered = [item for item in filtered if item.get("provider") == provider]
+    if handoff_status:
+        status_key = handoff_status.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("handoff_status") == status_key]
+    if handoff_id:
+        filtered = [item for item in filtered if item.get("handoff_id") == handoff_id]
+    if request_id:
+        filtered = [item for item in filtered if item.get("request_id") == request_id]
+    if external_ref:
+        filtered = [item for item in filtered if item.get("external_ref") == external_ref]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_handoff_status.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_handoff_status_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_handoff_status_history(items, limit=500)["items"]
+    providers: dict[str, int] = {}
+    statuses: dict[str, int] = {}
+    latest_by_handoff_provider: dict[str, dict[str, Any]] = {}
+    for item in history:
+        provider = str(item.get("provider") or "unknown")
+        status = str(item.get("handoff_status") or "unknown")
+        providers[provider] = providers.get(provider, 0) + 1
+        statuses[status] = statuses.get(status, 0) + 1
+        key = f"{item.get('handoff_id')}::{provider}"
+        current = latest_by_handoff_provider.get(key)
+        if current is None or str(item.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_by_handoff_provider[key] = item
+    latest_statuses = list(latest_by_handoff_provider.values())
+    failed = [item for item in latest_statuses if item.get("handoff_status") == "failed"]
+    blocked = [item for item in latest_statuses if item.get("handoff_status") == "blocked"]
+    completed = [item for item in latest_statuses if item.get("handoff_status") == "completed"]
+    in_progress = [
+        item
+        for item in latest_statuses
+        if item.get("handoff_status") in {"queued", "delivered", "acknowledged", "in_progress"}
+    ]
+    alert_level = "critical" if failed or blocked else "warning" if in_progress else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_handoff_status.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "status_event_count": len(history),
+        "tracked_handoff_provider_count": len(latest_by_handoff_provider),
+        "completed_count": len(completed),
+        "in_progress_count": len(in_progress),
+        "blocked_count": len(blocked),
+        "failed_count": len(failed),
+        "provider_count": len(providers),
+        "providers": providers,
+        "statuses": statuses,
+        "latest": history[:10],
     }
 
 
@@ -4210,6 +4468,26 @@ def _endpoint_remediation_handoff_id(request_id: str, providers: list[str], requ
     return f"erh_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
 
 
+def _endpoint_remediation_handoff_status_id(
+    handoff_id: str,
+    provider: str,
+    status: str,
+    external_ref: str | None,
+    recorded_at: str,
+) -> str:
+    material = json.dumps(
+        {
+            "handoff_id": handoff_id,
+            "provider": provider,
+            "status": status,
+            "external_ref": external_ref,
+            "recorded_at": recorded_at,
+        },
+        sort_keys=True,
+    )
+    return f"erhs_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
 def _endpoint_inventory_freshness_report_id(
     items: list[dict[str, Any]],
     *,
@@ -4700,6 +4978,40 @@ def _endpoint_remediation_handoff_markdown_summary(handoff: dict[str, Any]) -> s
     for control in handoff.get("controls", []):
         lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
+
+
+def _endpoint_remediation_handoff_status_markdown_summary(status: dict[str, Any]) -> str:
+    lines = [
+        "# Endpoint Remediation Handoff Status",
+        "",
+        f"- Status ID: `{status.get('status_id')}`",
+        f"- Handoff ID: `{status.get('handoff_id')}`",
+        f"- Request ID: `{status.get('request_id')}`",
+        f"- Provider: `{status.get('provider')}`",
+        f"- Status: `{status.get('status')}`",
+        f"- External reference: `{status.get('external_ref') or 'n/a'}`",
+        f"- Recorded by: `{status.get('recorded_by')}`",
+        "",
+        "## Controls",
+    ]
+    for control in status.get("controls", []):
+        lines.append(f"- `{control}`")
+    return "\n".join(lines) + "\n"
+
+
+def _redact_endpoint_handoff_callback_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    sensitive_markers = ("authorization", "token", "secret", "password", "api_key", "apikey", "webhook")
+
+    def redact(value: Any, key: str = "") -> Any:
+        if any(marker in key.lower() for marker in sensitive_markers):
+            return "[redacted]"
+        if isinstance(value, dict):
+            return {str(child_key): redact(child_value, str(child_key)) for child_key, child_value in value.items()}
+        if isinstance(value, list):
+            return [redact(item, key) for item in value]
+        return value
+
+    return redact(payload)
 
 
 def _normalize_endpoint_remediation_handoff_providers(providers: list[str] | None) -> list[str]:

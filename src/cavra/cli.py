@@ -85,6 +85,8 @@ from cavra.release import (
     build_endpoint_remediation_handoff,
     build_endpoint_remediation_handoff_dashboard,
     build_endpoint_remediation_handoff_metadata,
+    build_endpoint_remediation_handoff_status_dashboard,
+    build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_inventory_ingestion_dashboard,
     build_endpoint_inventory_ingestion_metadata,
     build_endpoint_reconciliation_automation_dashboard,
@@ -107,6 +109,7 @@ from cavra.release import (
     export_rollout_promotion_execution_audit,
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
+    filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
@@ -117,6 +120,7 @@ from cavra.release import (
     load_release_channel_manifest,
     load_workstation_updater_policy,
     reconcile_managed_endpoint_deployment,
+    record_endpoint_remediation_handoff_status,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -2841,6 +2845,82 @@ def export_endpoint_remediation_handoff(
         raise typer.Exit(code=1)
 
 
+@release_app.command("record-endpoint-remediation-handoff-status")
+def record_endpoint_remediation_handoff_status_command(
+    handoff_json: Annotated[Path, typer.Argument(help="Endpoint remediation handoff JSON.")],
+    provider: Annotated[str, typer.Option(help="Handoff provider reporting status.")] = "private_queue",
+    status: Annotated[
+        str,
+        typer.Option(help="Status: queued, delivered, acknowledged, in_progress, blocked, completed, failed, cancelled."),
+    ] = "delivered",
+    output: Annotated[Path, typer.Option(help="Output directory for handoff status artifacts.")] = Path(
+        ".cavra/release/endpoint-remediation-handoff-status"
+    ),
+    external_ref: Annotated[Optional[str], typer.Option(help="External ticket, message, or queue job reference.")] = None,
+    external_url: Annotated[Optional[str], typer.Option(help="External URL for the ticket, message, or queue job.")] = None,
+    callback_json: Annotated[Optional[Path], typer.Option(help="Optional callback payload JSON to preserve with redaction.")] = None,
+    recorded_by: Annotated[str, typer.Option(help="Actor or automation identity recording status.")] = "release-manager",
+    notes: Annotated[Optional[str], typer.Option(help="Optional status note.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index status.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index status.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable status output."),
+) -> None:
+    """Record public-safe provider status for an endpoint remediation handoff."""
+    try:
+        handoff = json.loads(handoff_json.read_text(encoding="utf-8"))
+        if not isinstance(handoff, dict):
+            raise ValueError("handoff must be a JSON object")
+        callback_payload = None
+        if callback_json:
+            callback_payload = json.loads(callback_json.read_text(encoding="utf-8"))
+            if not isinstance(callback_payload, dict):
+                raise ValueError("callback payload must be a JSON object")
+        result = record_endpoint_remediation_handoff_status(
+            handoff,
+            provider=provider,
+            status=status,
+            external_ref=external_ref,
+            external_url=external_url,
+            callback_payload=callback_payload,
+            recorded_by=recorded_by,
+            notes=notes,
+            output_dir=output,
+        )
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    indexed: list[str] = []
+    metadata = None
+    if result.valid and result.status:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_remediation_handoff_status_metadata(result.status, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint remediation handoff status")
+        if result.status_id:
+            console.print(f"  status: {result.status_id}")
+        if result.handoff_id:
+            console.print(f"  handoff: {result.handoff_id}")
+        if result.provider:
+            console.print(f"  provider: {result.provider}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
 @release_app.command("execute-endpoint-remediation")
 def execute_endpoint_remediation(
     remediation_request: Annotated[Path, typer.Argument(help="Endpoint remediation request JSON.")],
@@ -2948,6 +3028,44 @@ def endpoint_remediation_handoff_dashboard(
     """Summarize endpoint remediation handoff packages by provider and approval state."""
     items = _load_endpoint_remediation_handoff_items(metadata_json=metadata_json, sqlite=sqlite)
     _print_json(build_endpoint_remediation_handoff_dashboard(items))
+
+
+@release_app.command("endpoint-remediation-handoff-status-history")
+def endpoint_remediation_handoff_status_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    provider: Annotated[Optional[str], typer.Option(help="Filter by provider.")] = None,
+    handoff_status: Annotated[Optional[str], typer.Option(help="Filter by handoff status.")] = None,
+    handoff_id: Annotated[Optional[str], typer.Option(help="Filter by handoff ID.")] = None,
+    request_id: Annotated[Optional[str], typer.Option(help="Filter by remediation request ID.")] = None,
+    external_ref: Annotated[Optional[str], typer.Option(help="Filter by external reference.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint remediation handoff status history."""
+    items = _load_endpoint_remediation_handoff_status_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_handoff_status_history(
+            items,
+            provider=provider,
+            handoff_status=handoff_status,
+            handoff_id=handoff_id,
+            request_id=request_id,
+            external_ref=external_ref,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-handoff-status-dashboard")
+def endpoint_remediation_handoff_status_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint remediation handoff status callbacks by provider and state."""
+    items = _load_endpoint_remediation_handoff_status_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_handoff_status_dashboard(items))
 
 
 @release_app.command("endpoint-remediation-history")
@@ -3138,6 +3256,21 @@ def _load_endpoint_remediation_handoff_items(
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(
             metadata_kind="endpoint-remediation-handoff",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_endpoint_remediation_handoff_status_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-remediation-handoff-status",
             limit=500,
         )["items"]
     return []
