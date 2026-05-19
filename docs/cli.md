@@ -46,7 +46,8 @@ cavra release smoke-installers go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --js
 cavra release capture-rollout go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --deployment-id github-actions-linux-amd64-runner --change-record CHG-123 --json
 cavra release verify-rollout .cavra/release/rollout --metadata-json .cavra/evidence/metadata.json --sqlite .cavra/evidence/metadata.db --json
 cavra release request-rollout-promotion .cavra/release/rollout --target-ring production --approval-store .cavra/api/approvals.json --json
-cavra release execute-rollout-promotion .cavra/release/rollout-promotion/rollout-promotion-approval-request.json --approval-store .cavra/api/approvals.json --json
+cavra release execute-rollout-promotion .cavra/release/rollout-promotion/rollout-promotion-approval-request.json --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
+cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind rollout-promotion-execution --rollout-status promoted --target-ring production --approval-state approved --promotion-execution-status executed --deployment-target github-actions-linux-amd64-runner
 ```
 
 `cavra evidence verify-attestation` exits with a nonzero status when `pr-attestation.md` is missing or does not match the bundle evidence, so CI/CD systems can use it as a required merge check.

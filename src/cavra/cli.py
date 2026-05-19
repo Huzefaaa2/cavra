@@ -64,6 +64,7 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_managed_endpoint_rollout_promotion_execution_metadata,
     capture_managed_endpoint_rollout_evidence,
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
@@ -675,6 +676,9 @@ def search_evidence(
     rollout_status: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by status.")] = None,
     environment: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by environment.")] = None,
     deployment_target: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by deployment target ID.")] = None,
+    target_ring: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by target ring.")] = None,
+    approval_state: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by approval state.")] = None,
+    promotion_execution_status: Annotated[Optional[str], typer.Option(help="Filter rollout promotion executions by execution status.")] = None,
     limit: Annotated[int, typer.Option(help="Page size.")] = 50,
     offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
 ) -> None:
@@ -688,6 +692,9 @@ def search_evidence(
         rollout_status=rollout_status,
         environment=environment,
         deployment_target=deployment_target,
+        target_ring=target_ring,
+        approval_state=approval_state,
+        promotion_execution_status=promotion_execution_status,
         limit=limit,
         offset=offset,
     )
@@ -1636,6 +1643,8 @@ def execute_rollout_promotion(
     executed_by: Annotated[str, typer.Option(help="Actor or automation identity executing promotion.")] = "release-manager",
     execution_environment: Annotated[Optional[str], typer.Option(help="Environment recorded on the execution artifact.")] = None,
     notes: Annotated[Optional[str], typer.Option(help="Optional execution note.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index the execution.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index the execution.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print machine-readable promotion execution output."),
 ) -> None:
     """Record an approved endpoint rollout ring promotion execution."""
@@ -1659,7 +1668,16 @@ def execute_rollout_promotion(
     except (OSError, json.JSONDecodeError, KeyError, ValueError, RuntimeError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    payload = result.to_dict()
+    indexed: list[str] = []
+    if result.valid and result.execution:
+        metadata = build_managed_endpoint_rollout_promotion_execution_metadata(result.execution, bundle_dir=output)
+        if metadata_json:
+            EvidenceMetadataStore(metadata_json).upsert(metadata)
+            indexed.append(str(metadata_json))
+        if sqlite:
+            SQLiteEvidenceMetadataStore(sqlite).upsert(metadata)
+            indexed.append(str(sqlite))
+    payload = result.to_dict() | {"indexed_metadata_stores": indexed}
     if json_output:
         _print_json(payload)
     else:
@@ -1671,6 +1689,8 @@ def execute_rollout_promotion(
             console.print(f"  execution: {result.execution['execution_id']}")
         for file in result.files:
             console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

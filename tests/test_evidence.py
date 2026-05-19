@@ -452,6 +452,57 @@ def test_sqlite_evidence_metadata_store_filters_rollout_metadata(tmp_path: Path)
     assert result["items"][0]["session_id"] == "rollout-1"
 
 
+def test_sqlite_evidence_metadata_store_filters_promotion_execution_metadata(tmp_path: Path) -> None:
+    store = SQLiteEvidenceMetadataStore(tmp_path / "metadata.db")
+    store.upsert(
+        {
+            "session_id": "rpe-1",
+            "created_at": "2026-05-19T00:00:00Z",
+            "signer": "release-manager",
+            "decision_count": 0,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+            "metadata_kind": "rollout-promotion-execution",
+            "rollout_id": "rollout-1",
+            "rollout_status": "promoted",
+            "promotion_execution_status": "executed",
+            "environment": "production",
+            "target_ring": "production",
+            "approval_state": "approved",
+            "deployment_targets": ["github-actions-linux-amd64-runner"],
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "rpe-2",
+            "created_at": "2026-05-19T00:01:00Z",
+            "signer": "release-manager",
+            "decision_count": 0,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+            "metadata_kind": "rollout-promotion-execution",
+            "rollout_status": "blocked",
+            "promotion_execution_status": "rejected",
+            "environment": "staging",
+            "target_ring": "staging",
+            "approval_state": "denied",
+            "deployment_targets": ["linux-systemd-amd64-workstation"],
+        }
+    )
+
+    result = store.search(
+        metadata_kind="rollout-promotion-execution",
+        rollout_status="promoted",
+        promotion_execution_status="executed",
+        target_ring="production",
+        approval_state="approved",
+        deployment_target="github-actions-linux-amd64-runner",
+    )
+
+    assert result["total"] == 1
+    assert result["items"][0]["session_id"] == "rpe-1"
+
+
 def test_export_attestation_verification(tmp_path: Path) -> None:
     bundle_dir = tmp_path / "bundle"
     output_dir = tmp_path / "attestation"

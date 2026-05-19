@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.
+1. Add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.

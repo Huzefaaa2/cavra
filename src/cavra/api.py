@@ -49,6 +49,7 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_managed_endpoint_rollout_promotion_execution_metadata,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
 )
@@ -169,6 +170,8 @@ def create_app():
                 "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
                 "evidence_rollout_promotion_request": "/evidence/{session_id}/promotion-request",
                 "evidence_rollout_promotion_execution": "/evidence/{session_id}/promotion-execution",
+                "promotion_executions": "/promotion-executions",
+                "promotion_execution": "/promotion-executions/{execution_id}",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -794,6 +797,9 @@ def create_app():
         rollout_status: Optional[str] = None,
         environment: Optional[str] = None,
         deployment_target: Optional[str] = None,
+        target_ring: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        promotion_execution_status: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ):
@@ -807,6 +813,9 @@ def create_app():
                 rollout_status=rollout_status,
                 environment=environment,
                 deployment_target=deployment_target,
+                target_ring=target_ring,
+                approval_state=approval_state,
+                promotion_execution_status=promotion_execution_status,
                 limit=limit,
                 offset=offset,
             )
@@ -820,9 +829,46 @@ def create_app():
             rollout_status=rollout_status,
             environment=environment,
             deployment_target=deployment_target,
+            target_ring=target_ring,
+            approval_state=approval_state,
+            promotion_execution_status=promotion_execution_status,
             limit=limit,
             offset=offset,
         )
+
+    @app.get("/promotion-executions")
+    def promotion_execution_index(
+        rollout_id: Optional[str] = None,
+        target_ring: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        deployment_target: Optional[str] = None,
+        promotion_execution_status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="rollout-promotion-execution",
+            deployment_target=deployment_target,
+            target_ring=target_ring,
+            approval_state=approval_state,
+            promotion_execution_status=promotion_execution_status,
+            limit=500,
+            offset=0,
+        )
+        items = result["items"]
+        if rollout_id:
+            items = [item for item in items if item.get("rollout_id") == rollout_id]
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
+        return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
+
+    @app.get("/promotion-executions/{execution_id}")
+    def promotion_execution_detail(execution_id: str) -> dict:
+        item = evidence_store.get(execution_id)
+        if item is None or item.get("metadata_kind") != "rollout-promotion-execution":
+            raise HTTPException(status_code=404, detail="promotion execution not found")
+        return item
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:
@@ -913,7 +959,10 @@ def create_app():
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         if not result.valid:
             raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
-        return result.to_dict()
+        metadata = None
+        if result.execution:
+            metadata = evidence_store.upsert(build_managed_endpoint_rollout_promotion_execution_metadata(result.execution))
+        return result.to_dict() | {"metadata": metadata}
 
     @app.get("/evidence/{session_id}/artifact-bundle")
     def evidence_artifact_bundle(session_id: str):
@@ -1063,6 +1112,9 @@ def _filter_json_evidence(
     rollout_status: Optional[str] = None,
     environment: Optional[str] = None,
     deployment_target: Optional[str] = None,
+    target_ring: Optional[str] = None,
+    approval_state: Optional[str] = None,
+    promotion_execution_status: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, object]:
@@ -1093,12 +1145,31 @@ def _filter_json_evidence(
             for item in filtered
             if deployment_target in {str(target) for target in item.get("deployment_targets", [])}
         ]
+    if target_ring:
+        filtered = [item for item in filtered if item.get("target_ring") == target_ring]
+    if approval_state:
+        filtered = [item for item in filtered if item.get("approval_state") == approval_state]
+    if promotion_execution_status:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("promotion_execution_status") == promotion_execution_status
+        ]
     return {
         "items": filtered[offset : offset + limit],
         "total": len(filtered),
         "limit": limit,
         "offset": offset,
     }
+
+
+def _search_evidence_metadata(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+    **filters: object,
+) -> dict:
+    if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+        return evidence_store.search(**filters)
+    return _filter_json_evidence(evidence_store.list(), **filters)
 
 
 def _configured_artifact_root(root: Path | None) -> Path:

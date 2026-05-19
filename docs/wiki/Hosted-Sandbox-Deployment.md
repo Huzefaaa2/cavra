@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance.
+Add approved rollback execution workflows and SIEM/ITSM audit export for promotion execution records.
