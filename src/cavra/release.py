@@ -164,6 +164,15 @@ def verify_go_release_package(
     if missing_from_checksums:
         errors.extend(f"evidence artifact missing from checksums.txt: {path}" for path in missing_from_checksums)
 
+    installer_metadata_path = package_dir / "cavra-runtime.installers.json"
+    if not installer_metadata_path.exists():
+        errors.append("missing cavra-runtime.installers.json")
+    else:
+        try:
+            verify_go_installer_metadata(installer_metadata_path, package_dir, expected_checksums, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     provenance_path = package_dir / "cavra-runtime.provenance.intoto.json"
     if require_provenance and not provenance_path.exists():
         errors.append("missing cavra-runtime.provenance.intoto.json")
@@ -495,6 +504,51 @@ def verify_go_release_provenance(
             raise ReleaseVerificationError(f"SLSA provenance subject disagrees with checksums.txt: {name}")
         verified_subjects.append(name)
     return verified_subjects
+
+
+def verify_go_installer_metadata(
+    installer_metadata_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    try:
+        payload = json.loads(installer_metadata_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid installer metadata JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.installers.v1":
+        raise ReleaseVerificationError("installer metadata has an invalid schema_version")
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("installer metadata version does not match release evidence")
+    targets = payload.get("targets")
+    if not isinstance(targets, list) or not targets:
+        raise ReleaseVerificationError("installer metadata has no targets")
+    verified: list[str] = []
+    seen_targets: set[str] = set()
+    for target in targets:
+        if not isinstance(target, dict):
+            raise ReleaseVerificationError("installer metadata target is invalid")
+        target_name = str(target.get("target", ""))
+        if not target_name or target_name in seen_targets:
+            raise ReleaseVerificationError(f"installer metadata target is missing or duplicated: {target_name or 'unknown'}")
+        seen_targets.add(target_name)
+        binary = str(target.get("binary", ""))
+        binary_path = _safe_package_path(package_dir, binary)
+        if binary_path is None or not binary_path.exists() or not binary_path.is_file():
+            raise ReleaseVerificationError(f"installer metadata binary is missing: {binary}")
+        actual_sha256 = sha256_file(binary_path)
+        expected_sha256 = str(target.get("binary_sha256", "")).lower()
+        if actual_sha256 != expected_sha256:
+            raise ReleaseVerificationError(f"installer metadata digest mismatch for {binary}")
+        checksum_sha256 = expected_checksums.get(binary)
+        if checksum_sha256 and checksum_sha256 != expected_sha256:
+            raise ReleaseVerificationError(f"installer metadata disagrees with checksums.txt: {binary}")
+        if not target.get("install_path") or not target.get("install_method"):
+            raise ReleaseVerificationError(f"installer metadata target is missing install guidance: {target_name}")
+        if "sha256sum -c checksums.txt" not in str(target.get("verification_command", "")):
+            raise ReleaseVerificationError(f"installer metadata target is missing checksum verification guidance: {target_name}")
+        verified.append(binary)
+    return sorted(verified)
 
 
 def _verify_extracted_airgap_package(

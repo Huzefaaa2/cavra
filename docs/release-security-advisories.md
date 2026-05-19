@@ -14,7 +14,7 @@ Every security advisory or security-impacting release note should include:
 - fixed commit, pull request, and release asset links;
 - verification steps, including `cavra release verify-go-package`;
 - release-candidate upgrade validation with `cavra release validate-upgrade`;
-- SBOM, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
+- SBOM, installer metadata, checksum, detached signature, GitHub keyless attestation, and SLSA provenance references.
 
 ## Go Runtime Release Gate
 
@@ -24,6 +24,7 @@ Before publishing a Go runtime package:
 2. Require `CAVRA_GO_RELEASE_SIGNING_KEY` for production releases.
 3. Confirm the package contains:
    - `checksums.txt`;
+   - `cavra-runtime.installers.json`;
    - `cavra-runtime.sbom.spdx.json`;
    - `cavra-runtime.provenance.intoto.json`;
    - detached `*.sig.json` files;
@@ -59,7 +60,7 @@ cavra release validate-upgrade \
 ```
 
 8. Attach `cavra-go-runtime-<version>.zip` and `github-keyless-attestation.json` to the GitHub Release.
-9. Link the release asset, keyless attestation, offline bootstrap manifest, upgrade validation result, and provenance statement from the advisory.
+9. Link the release asset, keyless attestation, installer metadata, offline bootstrap manifest, upgrade validation result, and provenance statement from the advisory.
 
 ## User Stories
 
@@ -67,8 +68,9 @@ cavra release validate-upgrade \
 - As a platform owner, I can block runtime rollout until verification succeeds.
 - As an enterprise architect, I can verify an air-gapped runtime bundle before restricted-network transfer.
 - As a release manager, I can reject rollback versions or missing runtime targets before promoting a release candidate.
+- As an endpoint engineering owner, I can approve signed install paths and platform targets before managed rollout.
 - As an auditor, I can prove that security releases follow the same evidence path as normal releases.
 
 ## Enterprise Challenge Solved
 
-Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
+Enterprises need vulnerability response and release integrity in the same operating model. CAVRA advisories tie security fixes to signed, keyless-attested, provenance-backed artifacts, signed installer metadata, and release-candidate upgrade checks so regulated teams can approve upgrades with less manual evidence collection.
