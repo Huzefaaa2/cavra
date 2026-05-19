@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation delivery handoff packages for ITSM, ChatOps, and
-private endpoint connector queues.
+Add closed-loop endpoint remediation handoff status reconciliation from ITSM,
+ChatOps, and private endpoint connector callbacks.

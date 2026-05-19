@@ -428,6 +428,30 @@ class EndpointDriftRemediationRequestResult:
 
 
 @dataclass(frozen=True)
+class EndpointRemediationHandoffResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    handoff_id: str | None = None
+    request_id: str | None = None
+    providers: list[str] = field(default_factory=list)
+    handoff: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "handoff_id": self.handoff_id,
+            "request_id": self.request_id,
+            "providers": self.providers,
+            "handoff": self.handoff,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class EndpointDriftRemediationExecutionResult:
     valid: bool
     errors: list[str] = field(default_factory=list)
@@ -2896,6 +2920,113 @@ def execute_endpoint_drift_remediation(
     )
 
 
+def build_endpoint_remediation_handoff(
+    remediation_request: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    providers: list[str] | None = None,
+    requested_by: str = "release-manager",
+    delivery_mode: str = "manual",
+) -> EndpointRemediationHandoffResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if remediation_request.get("schema_version") != "cavra.endpoint-drift-remediation-request.v1":
+        errors.append("remediation request has an invalid schema_version")
+    request_id = str(remediation_request.get("request_id") or "")
+    reconciliation_id = str(remediation_request.get("reconciliation_id") or "")
+    if not request_id:
+        errors.append("remediation request must include request_id")
+    if not reconciliation_id:
+        errors.append("remediation request must include reconciliation_id")
+    selected_providers = _normalize_endpoint_remediation_handoff_providers(providers)
+    if not selected_providers:
+        errors.append("provider must be one of: jira, servicenow, slack, teams, private_queue, all")
+    actions = [item for item in remediation_request.get("actions", []) if isinstance(item, dict)]
+    if not actions:
+        warnings.append("remediation request contains no actions")
+    if errors:
+        return EndpointRemediationHandoffResult(
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            request_id=request_id or None,
+            providers=selected_providers,
+        )
+    created_at = datetime.now(timezone.utc).isoformat()
+    approval = remediation_request.get("approval", {}) if isinstance(remediation_request.get("approval"), dict) else {}
+    request_canonical = json.dumps(remediation_request, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    request_sha256 = hashlib.sha256(request_canonical).hexdigest()
+    handoff_id = _endpoint_remediation_handoff_id(request_id, selected_providers, request_sha256)
+    provider_payloads = {
+        provider: _endpoint_remediation_provider_payload(provider, remediation_request, actions, handoff_id=handoff_id)
+        for provider in selected_providers
+    }
+    handoff = {
+        "schema_version": "cavra.endpoint-remediation-handoff.v1",
+        "product": "CAVRA",
+        "handoff_id": handoff_id,
+        "request_id": request_id,
+        "reconciliation_id": reconciliation_id,
+        "created_at": created_at,
+        "requested_by": requested_by,
+        "delivery_mode": delivery_mode,
+        "providers": selected_providers,
+        "provider_count": len(selected_providers),
+        "action_count": len(actions),
+        "approval_id": approval.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "approval_required": approval.get("state") != "approved",
+        "release": remediation_request.get("release", {}),
+        "channel": remediation_request.get("channel"),
+        "strategy": remediation_request.get("strategy"),
+        "alert_level": remediation_request.get("alert_level"),
+        "summary": remediation_request.get("summary", {}),
+        "payloads": provider_payloads,
+        "controls": [
+            "handoff-payloads-derived-from-remediation-request",
+            "approval-id-preserved-for-downstream-gates",
+            "public-package-contains-no-connector-credentials",
+            "private-connectors-required-for-endpoint-mutation",
+        ],
+        "evidence_refs": [
+            f"endpoint-remediation-request://{request_id}",
+            f"endpoint-reconciliation://{reconciliation_id}",
+            *([f"approval://{approval.get('approval_id')}"] if approval.get("approval_id") else []),
+        ],
+        "request_sha256": request_sha256,
+        "remediation_request": remediation_request,
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        handoff_path = output_dir / "endpoint-remediation-handoff.json"
+        summary_path = output_dir / "endpoint-remediation-handoff.md"
+        _write_release_json(handoff_path, handoff)
+        summary_path.write_text(_endpoint_remediation_handoff_markdown_summary(handoff), encoding="utf-8")
+        provider_paths: list[Path] = []
+        for provider, payload in provider_payloads.items():
+            provider_path = output_dir / f"{provider.replace('_', '-')}-handoff.json"
+            _write_release_json(provider_path, payload)
+            provider_paths.append(provider_path)
+        checksums_path = output_dir / "checksums.txt"
+        checksum_targets = [handoff_path, summary_path, *provider_paths]
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in checksum_targets) + "\n",
+            encoding="utf-8",
+        )
+        files = [handoff_path.name, summary_path.name, *[path.name for path in provider_paths], checksums_path.name]
+    return EndpointRemediationHandoffResult(
+        valid=True,
+        warnings=warnings,
+        handoff_id=handoff_id,
+        request_id=request_id,
+        providers=selected_providers,
+        handoff=handoff,
+        files=files,
+    )
+
+
 def build_endpoint_drift_remediation_request_metadata(
     request: dict[str, Any],
     *,
@@ -2931,6 +3062,95 @@ def build_endpoint_drift_remediation_request_metadata(
     if bundle_dir:
         metadata["bundle_dir"] = str(bundle_dir)
     return metadata
+
+
+def build_endpoint_remediation_handoff_metadata(
+    handoff: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    metadata = {
+        "session_id": handoff.get("handoff_id"),
+        "created_at": handoff.get("created_at"),
+        "signer": handoff.get("requested_by", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 1 if handoff.get("approval_required") else 0,
+        "metadata_kind": "endpoint-remediation-handoff",
+        "handoff_id": handoff.get("handoff_id"),
+        "request_id": handoff.get("request_id"),
+        "reconciliation_id": handoff.get("reconciliation_id"),
+        "approval_id": handoff.get("approval_id"),
+        "approval_state": handoff.get("approval_state"),
+        "providers": handoff.get("providers", []),
+        "provider_count": handoff.get("provider_count", 0),
+        "action_count": handoff.get("action_count", 0),
+        "strategy": handoff.get("strategy"),
+        "alert_level": handoff.get("alert_level"),
+        "release": handoff.get("release", {}),
+        "channel": handoff.get("channel"),
+        "delivery_mode": handoff.get("delivery_mode"),
+        "handoff": handoff,
+        "evidence_refs": handoff.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_remediation_handoff_history(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    approval_state: str | None = None,
+    request_id: str | None = None,
+    reconciliation_id: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-remediation-handoff"]
+    if provider:
+        filtered = [item for item in filtered if provider in {str(value) for value in item.get("providers", [])}]
+    if approval_state:
+        filtered = [item for item in filtered if item.get("approval_state") == approval_state]
+    if request_id:
+        filtered = [item for item in filtered if item.get("request_id") == request_id]
+    if reconciliation_id:
+        filtered = [item for item in filtered if item.get("reconciliation_id") == reconciliation_id]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_handoff.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_handoff_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_handoff_history(items, limit=500)["items"]
+    providers: dict[str, int] = {}
+    for item in history:
+        for provider in item.get("providers", []):
+            provider_key = str(provider)
+            providers[provider_key] = providers.get(provider_key, 0) + 1
+    pending = [item for item in history if item.get("approval_state") == "pending"]
+    alert_level = "warning" if pending else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_handoff.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "handoff_count": len(history),
+        "pending_approval_count": len(pending),
+        "provider_count": len(providers),
+        "action_count": sum(int(item.get("action_count") or 0) for item in history),
+        "providers": providers,
+        "latest": history[:10],
+    }
 
 
 def build_endpoint_reconciliation_automation_metadata(
@@ -3982,6 +4202,14 @@ def _endpoint_remediation_execution_id(request_id: str, approval_id: str) -> str
     return f"ere_{digest}"
 
 
+def _endpoint_remediation_handoff_id(request_id: str, providers: list[str], request_sha256: str) -> str:
+    material = json.dumps(
+        {"request_id": request_id, "providers": sorted(providers), "request_sha256": request_sha256},
+        sort_keys=True,
+    )
+    return f"erh_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
 def _endpoint_inventory_freshness_report_id(
     items: list[dict[str, Any]],
     *,
@@ -4454,6 +4682,141 @@ def _endpoint_reconciliation_automation_markdown_summary(automation: dict[str, A
     for control in automation.get("controls", []):
         lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
+
+
+def _endpoint_remediation_handoff_markdown_summary(handoff: dict[str, Any]) -> str:
+    lines = [
+        "# Endpoint Remediation Handoff",
+        "",
+        f"- Handoff ID: `{handoff.get('handoff_id')}`",
+        f"- Request ID: `{handoff.get('request_id')}`",
+        f"- Reconciliation ID: `{handoff.get('reconciliation_id')}`",
+        f"- Approval: `{handoff.get('approval_id') or 'n/a'}` `{handoff.get('approval_state') or 'unknown'}`",
+        f"- Providers: `{', '.join(handoff.get('providers', []))}`",
+        f"- Actions: {handoff.get('action_count', 0)}",
+        "",
+        "## Controls",
+    ]
+    for control in handoff.get("controls", []):
+        lines.append(f"- `{control}`")
+    return "\n".join(lines) + "\n"
+
+
+def _normalize_endpoint_remediation_handoff_providers(providers: list[str] | None) -> list[str]:
+    allowed = {"jira", "servicenow", "slack", "teams", "private_queue"}
+    selected: set[str] = set()
+    for provider in providers or ["all"]:
+        for raw in str(provider).split(","):
+            value = raw.strip().lower().replace("-", "_")
+            if not value:
+                continue
+            if value == "all":
+                selected.update(allowed)
+            elif value in allowed:
+                selected.add(value)
+    return sorted(selected)
+
+
+def _endpoint_remediation_provider_payload(
+    provider: str,
+    remediation_request: dict[str, Any],
+    actions: list[dict[str, Any]],
+    *,
+    handoff_id: str,
+) -> dict[str, Any]:
+    request_id = str(remediation_request.get("request_id") or "")
+    reconciliation_id = str(remediation_request.get("reconciliation_id") or "")
+    approval = remediation_request.get("approval", {}) if isinstance(remediation_request.get("approval"), dict) else {}
+    summary = remediation_request.get("summary", {}) if isinstance(remediation_request.get("summary"), dict) else {}
+    base = {
+        "schema_version": f"cavra.endpoint-remediation-handoff.{provider}.v1",
+        "product": "CAVRA",
+        "handoff_id": handoff_id,
+        "provider": provider,
+        "request_id": request_id,
+        "reconciliation_id": reconciliation_id,
+        "approval_id": approval.get("approval_id"),
+        "approval_state": approval.get("state"),
+        "action_count": len(actions),
+        "strategy": remediation_request.get("strategy"),
+        "release": remediation_request.get("release", {}),
+        "channel": remediation_request.get("channel"),
+        "summary": summary,
+        "actions": actions,
+        "execution_guard": {
+            "requires_approved_approval": True,
+            "approval_id": approval.get("approval_id"),
+            "private_connector_must_recheck_approval": True,
+        },
+    }
+    title = f"CAVRA endpoint remediation {request_id}"
+    text = (
+        f"CAVRA detected endpoint drift for reconciliation {reconciliation_id}. "
+        f"{len(actions)} remediation actions are prepared. Approval {approval.get('approval_id')} is {approval.get('state')}."
+    )
+    if provider == "jira":
+        return base | {
+            "issue": {
+                "project": {"key": "CAVRA"},
+                "issuetype": {"name": "Task"},
+                "summary": title,
+                "description": text,
+                "labels": ["cavra", "endpoint-remediation", str(remediation_request.get("strategy") or "mixed")],
+            }
+        }
+    if provider == "servicenow":
+        return base | {
+            "change_request": {
+                "short_description": title,
+                "description": text,
+                "category": "software",
+                "subcategory": "endpoint_runtime",
+                "impact": "2" if remediation_request.get("alert_level") == "critical" else "3",
+                "urgency": "2",
+                "correlation_id": handoff_id,
+                "u_cavra_request_id": request_id,
+                "u_cavra_approval_id": approval.get("approval_id"),
+            }
+        }
+    if provider == "slack":
+        return base | {
+            "message": {
+                "text": title,
+                "blocks": [
+                    {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*\n{text}"}},
+                    {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Handoff `{handoff_id}`"}]},
+                ],
+            }
+        }
+    if provider == "teams":
+        return base | {
+            "message_card": {
+                "@type": "MessageCard",
+                "@context": "https://schema.org/extensions",
+                "summary": title,
+                "themeColor": "D97706" if remediation_request.get("alert_level") == "warning" else "DC2626",
+                "title": title,
+                "text": text,
+            }
+        }
+    return base | {
+        "queue_event": {
+            "event_type": "cavra.endpoint_remediation_handoff",
+            "dedupe_key": handoff_id,
+            "status": "ready_for_private_connector",
+            "work_items": [
+                {
+                    "action_id": action.get("action_id"),
+                    "action_type": action.get("action_type"),
+                    "provider": action.get("provider"),
+                    "deployment_target": action.get("deployment_target"),
+                    "endpoint_id": action.get("endpoint_id"),
+                    "requires_approval_id": approval.get("approval_id"),
+                }
+                for action in actions
+            ],
+        }
+    }
 
 
 def _endpoint_drift_remediation_actions(report: dict[str, Any], *, strategy: str) -> list[dict[str, Any]]:

@@ -486,6 +486,36 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Remediation Handoffs</h2>
+            <p>Package approved or pending remediation plans for ITSM, ChatOps, and private endpoint connector queues.</p>
+          </div>
+          <button id="refreshEndpointRemediationHandoff">Refresh</button>
+        </div>
+        <div id="endpointRemediationHandoffDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <select id="filterEndpointRemediationHandoffProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="private_queue">Private queue</option></select></label>
+          <label>Approval <select id="filterEndpointRemediationHandoffApproval"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
+          <label>Request <input id="filterEndpointRemediationHandoffRequest" placeholder="err_" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Handoff</th>
+                <th>Request</th>
+                <th>Providers</th>
+                <th>Actions</th>
+                <th>Approval</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="endpointRemediationHandoffRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

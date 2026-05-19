@@ -65,6 +65,9 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_remediation_handoff,
+    build_endpoint_remediation_handoff_dashboard,
+    build_endpoint_remediation_handoff_metadata,
     build_endpoint_inventory_freshness_dashboard,
     build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -83,6 +86,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     execute_endpoint_drift_remediation,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_remediation_handoff_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
@@ -245,6 +249,9 @@ def create_app():
                 "endpoint_remediation_execute": "/endpoint-remediations/{request_id}/execute",
                 "endpoint_remediations": "/endpoint-remediations",
                 "endpoint_remediation_dashboard": "/endpoint-remediations/dashboard",
+                "endpoint_remediation_handoff": "/endpoint-remediations/{request_id}/handoff",
+                "endpoint_remediation_handoffs": "/endpoint-remediation-handoffs",
+                "endpoint_remediation_handoff_dashboard": "/endpoint-remediation-handoffs/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1562,6 +1569,64 @@ def create_app():
         if result.execution:
             metadata = evidence_store.upsert(build_endpoint_drift_remediation_execution_metadata(result.execution))
         return result.to_dict() | {"metadata": metadata}
+
+    @app.post("/endpoint-remediations/{request_id}/handoff")
+    def endpoint_remediation_handoff(request_id: str, payload: dict) -> dict:
+        item = evidence_store.get(request_id)
+        if item is None or item.get("metadata_kind") != "endpoint-drift-remediation-request":
+            raise HTTPException(status_code=404, detail="endpoint remediation request not found")
+        request_payload = item.get("request")
+        if not isinstance(request_payload, dict):
+            raise HTTPException(status_code=400, detail="remediation metadata is missing request payload")
+        raw_providers = payload.get("providers", payload.get("provider", "all"))
+        providers = raw_providers if isinstance(raw_providers, list) else [str(raw_providers)]
+        result = build_endpoint_remediation_handoff(
+            request_payload,
+            providers=[str(provider) for provider in providers],
+            requested_by=payload.get("requested_by", "console"),
+            delivery_mode=payload.get("delivery_mode", "manual"),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = None
+        if result.handoff:
+            metadata = evidence_store.upsert(build_endpoint_remediation_handoff_metadata(result.handoff))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-remediation-handoffs")
+    def endpoint_remediation_handoff_index(
+        provider: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        request_id: Optional[str] = None,
+        reconciliation_id: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_remediation_handoff_history(
+            result["items"],
+            provider=provider,
+            approval_state=approval_state,
+            request_id=request_id,
+            reconciliation_id=reconciliation_id,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-handoffs/dashboard")
+    def endpoint_remediation_handoff_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_remediation_handoff_dashboard(result["items"])
 
     @app.get("/endpoint-remediations")
     def endpoint_remediation_index(
