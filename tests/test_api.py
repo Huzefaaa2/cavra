@@ -64,6 +64,38 @@ def test_api_filters_json_evidence_metadata(monkeypatch, tmp_path) -> None:
     assert response.json()["items"][0]["session_id"] == "blocked-session"
 
 
+def test_api_filters_json_rollout_evidence_metadata(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+    client.post(
+        "/evidence",
+        json={
+            "session_id": "rollout-1",
+            "signer": "release-agent",
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "staged",
+            "environment": "production",
+            "deployment_targets": ["github-actions-linux-amd64-runner"],
+        },
+    )
+    client.post("/evidence", json={"session_id": "regular-session", "signer": "security"})
+
+    response = client.get(
+        "/evidence",
+        params={
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "staged",
+            "environment": "production",
+            "deployment_target": "github-actions-linux-amd64-runner",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["session_id"] == "rollout-1"
+
+
 def test_api_searches_sqlite_evidence_metadata(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_DB", str(tmp_path / "metadata.db"))
     client = TestClient(create_app())
@@ -75,6 +107,36 @@ def test_api_searches_sqlite_evidence_metadata(monkeypatch, tmp_path) -> None:
     assert response.status_code == 200
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["session_id"] == "blocked-session"
+
+
+def test_api_filters_sqlite_rollout_evidence_metadata(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_DB", str(tmp_path / "metadata.db"))
+    client = TestClient(create_app())
+    client.post(
+        "/evidence",
+        json={
+            "session_id": "rollout-1",
+            "signer": "release-agent",
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "succeeded",
+            "environment": "production",
+            "deployment_targets": ["windows-intune-amd64-workstation"],
+        },
+    )
+    client.post("/evidence", json={"session_id": "regular-session", "signer": "security"})
+
+    response = client.get(
+        "/evidence",
+        params={
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "succeeded",
+            "deployment_target": "windows-intune-amd64-workstation",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["session_id"] == "rollout-1"
 
 
 def test_api_serves_configured_evidence_artifacts(monkeypatch, tmp_path) -> None:

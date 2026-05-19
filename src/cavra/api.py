@@ -784,6 +784,10 @@ def create_app():
         signer: Optional[str] = None,
         min_blocked: Optional[int] = None,
         has_approvals: Optional[bool] = None,
+        metadata_kind: Optional[str] = None,
+        rollout_status: Optional[str] = None,
+        environment: Optional[str] = None,
+        deployment_target: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ):
@@ -793,6 +797,10 @@ def create_app():
                 signer=signer,
                 min_blocked=min_blocked,
                 has_approvals=has_approvals,
+                metadata_kind=metadata_kind,
+                rollout_status=rollout_status,
+                environment=environment,
+                deployment_target=deployment_target,
                 limit=limit,
                 offset=offset,
             )
@@ -802,6 +810,10 @@ def create_app():
             signer=signer,
             min_blocked=min_blocked,
             has_approvals=has_approvals,
+            metadata_kind=metadata_kind,
+            rollout_status=rollout_status,
+            environment=environment,
+            deployment_target=deployment_target,
             limit=limit,
             offset=offset,
         )
@@ -972,6 +984,10 @@ def _filter_json_evidence(
     signer: Optional[str] = None,
     min_blocked: Optional[int] = None,
     has_approvals: Optional[bool] = None,
+    metadata_kind: Optional[str] = None,
+    rollout_status: Optional[str] = None,
+    environment: Optional[str] = None,
+    deployment_target: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, object]:
@@ -989,6 +1005,18 @@ def _filter_json_evidence(
             item
             for item in filtered
             if (int(item.get("approval_required_count", 0)) > 0) is has_approvals
+        ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if rollout_status:
+        filtered = [item for item in filtered if item.get("rollout_status") == rollout_status]
+    if environment:
+        filtered = [item for item in filtered if item.get("environment") == environment]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if deployment_target in {str(target) for target in item.get("deployment_targets", [])}
         ]
     return {
         "items": filtered[offset : offset + limit],

@@ -669,6 +669,10 @@ def search_evidence(
     signer: Annotated[Optional[str], typer.Option(help="Filter by signer.")] = None,
     min_blocked: Annotated[Optional[int], typer.Option(help="Minimum blocked decision count.")] = None,
     has_approvals: Annotated[Optional[bool], typer.Option(help="Filter sessions with approval-required decisions.")] = None,
+    metadata_kind: Annotated[Optional[str], typer.Option(help="Filter by metadata kind, such as managed-endpoint-rollout.")] = None,
+    rollout_status: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by status.")] = None,
+    environment: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by environment.")] = None,
+    deployment_target: Annotated[Optional[str], typer.Option(help="Filter managed endpoint rollout evidence by deployment target ID.")] = None,
     limit: Annotated[int, typer.Option(help="Page size.")] = 50,
     offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
 ) -> None:
@@ -678,6 +682,10 @@ def search_evidence(
         signer=signer,
         min_blocked=min_blocked,
         has_approvals=has_approvals,
+        metadata_kind=metadata_kind,
+        rollout_status=rollout_status,
+        environment=environment,
+        deployment_target=deployment_target,
         limit=limit,
         offset=offset,
     )

@@ -311,6 +311,44 @@ def test_sqlite_evidence_metadata_store_searches_with_pagination(tmp_path: Path)
     assert len(first_page["items"]) == 1
 
 
+def test_sqlite_evidence_metadata_store_filters_rollout_metadata(tmp_path: Path) -> None:
+    store = SQLiteEvidenceMetadataStore(tmp_path / "metadata.db")
+    store.upsert(
+        {
+            "session_id": "rollout-1",
+            "created_at": "2026-05-19T00:00:00Z",
+            "signer": "release-agent",
+            "decision_count": 0,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+            "metadata_kind": "managed-endpoint-rollout",
+            "rollout_status": "staged",
+            "environment": "production",
+            "deployment_targets": ["github-actions-linux-amd64-runner"],
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "session-1",
+            "created_at": "2026-05-19T00:01:00Z",
+            "signer": "security",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+
+    result = store.search(
+        metadata_kind="managed-endpoint-rollout",
+        rollout_status="staged",
+        environment="production",
+        deployment_target="github-actions-linux-amd64-runner",
+    )
+
+    assert result["total"] == 1
+    assert result["items"][0]["session_id"] == "rollout-1"
+
+
 def test_export_attestation_verification(tmp_path: Path) -> None:
     bundle_dir = tmp_path / "bundle"
     output_dir = tmp_path / "attestation"

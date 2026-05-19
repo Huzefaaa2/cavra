@@ -41,6 +41,24 @@ const evidenceCatalog = [
     decisions: scenario.slice(0, 5).map(eventPayload),
     attestation_targets: scenario.slice(0, 5).map((row) => row[1]),
     artifact_count: 7
+  },
+  {
+    session_id: "prod-v0.2.0-rc.1-rollout",
+    signer: "release-agent",
+    metadata_kind: "managed-endpoint-rollout",
+    rollout_status: "staged",
+    rollout_ring: "pilot",
+    environment: "production",
+    change_record: "CHG-123",
+    deployment_targets: ["github-actions-linux-amd64-runner", "linux-systemd-amd64-workstation"],
+    release: { version: "v0.2.0-rc.1", commit: "sample" },
+    decision_count: 0,
+    blocked_count: 0,
+    approval_required_count: 0,
+    retention: { retention_days: 2555, retain_until: "2033-05-15T00:00:00Z" },
+    decisions: [],
+    attestation_targets: [],
+    artifact_count: 3
   }
 ];
 
@@ -541,6 +559,10 @@ async function loadEvidenceMetadata() {
   try {
     const params = {
       signer: document.querySelector("#filterSigner")?.value.trim(),
+      metadata_kind: document.querySelector("#filterMetadataKind")?.value,
+      rollout_status: document.querySelector("#filterRolloutStatus")?.value,
+      environment: document.querySelector("#filterEnvironment")?.value.trim(),
+      deployment_target: document.querySelector("#filterDeploymentTarget")?.value.trim(),
       min_blocked: document.querySelector("#filterBlocked")?.value || 0,
       has_approvals: document.querySelector("#filterApprovals")?.value,
       limit: document.querySelector("#filterLimit")?.value || 10
@@ -1056,11 +1078,19 @@ async function loadMcpClassifications() {
 }
 
 function filterEvidence(items) {
+  const metadataKind = document.querySelector("#filterMetadataKind")?.value;
+  const rolloutStatus = document.querySelector("#filterRolloutStatus")?.value;
+  const environment = document.querySelector("#filterEnvironment")?.value.trim().toLowerCase();
+  const deploymentTarget = document.querySelector("#filterDeploymentTarget")?.value.trim().toLowerCase();
   const signer = document.querySelector("#filterSigner").value.trim().toLowerCase();
   const minBlocked = Number(document.querySelector("#filterBlocked").value || 0);
   const approvalValue = document.querySelector("#filterApprovals").value;
   const limit = Number(document.querySelector("#filterLimit").value || 10);
   return items
+    .filter((item) => !metadataKind || item.metadata_kind === metadataKind)
+    .filter((item) => !rolloutStatus || item.rollout_status === rolloutStatus)
+    .filter((item) => !environment || String(item.environment || "").toLowerCase().includes(environment))
+    .filter((item) => !deploymentTarget || (item.deployment_targets || []).some((target) => String(target).toLowerCase().includes(deploymentTarget)))
     .filter((item) => !signer || String(item.signer || "").toLowerCase().includes(signer))
     .filter((item) => Number(item.blocked_count || 0) >= minBlocked)
     .filter((item) => approvalValue === "" || (Number(item.approval_required_count || 0) > 0) === (approvalValue === "true"))
@@ -1153,10 +1183,16 @@ function renderEvidenceRows(items) {
   rows.innerHTML = "";
   sessionSelect.innerHTML = "";
   for (const item of items) {
+    const kind = item.metadata_kind === "managed-endpoint-rollout" ? "Endpoint rollout" : "Session";
+    const rollout = item.metadata_kind === "managed-endpoint-rollout"
+      ? `${item.environment || "environment"} / ${item.rollout_status || "unknown"}`
+      : "n/a";
     rows.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${escapeHtml(item.session_id || "unknown")}</td>
+        <td>${escapeHtml(kind)}</td>
         <td>${escapeHtml(item.signer || "local")}</td>
+        <td>${escapeHtml(rollout)}</td>
         <td>${item.decision_count || 0}</td>
         <td class="${Number(item.blocked_count || 0) > 0 ? "block" : "allow"}">${item.blocked_count || 0}</td>
         <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>

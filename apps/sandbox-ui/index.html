@@ -245,7 +245,7 @@
         <div class="console-header">
           <div>
             <h2>Evidence Search</h2>
-            <p>Filter persisted evidence metadata by signer, risk, approval state, and page size.</p>
+            <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>
           <div class="console-actions">
             <span id="apiStatus">API: loading</span>
@@ -254,6 +254,10 @@
         </div>
         <div class="search-controls">
           <label>Signer <input id="filterSigner" placeholder="security" /></label>
+          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option></select></label>
+          <label>Rollout status <select id="filterRolloutStatus"><option value="">Any</option><option value="planned">Planned</option><option value="staged">Staged</option><option value="succeeded">Succeeded</option><option value="failed">Failed</option><option value="rolled_back">Rolled back</option></select></label>
+          <label>Environment <input id="filterEnvironment" placeholder="production" /></label>
+          <label>Deployment target <input id="filterDeploymentTarget" placeholder="github-actions-linux-amd64-runner" /></label>
           <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="1" /></label>
           <label>Approval required <select id="filterApprovals"><option value="">Any</option><option value="true">Yes</option><option value="false">No</option></select></label>
           <label>Limit <input id="filterLimit" type="number" min="1" max="50" value="10" /></label>
@@ -263,7 +267,9 @@
             <thead>
               <tr>
                 <th>Session</th>
+                <th>Kind</th>
                 <th>Signer</th>
+                <th>Rollout</th>
                 <th>Decisions</th>
                 <th>Blocked</th>
                 <th>Approvals</th>

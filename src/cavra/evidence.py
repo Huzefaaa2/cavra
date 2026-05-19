@@ -1076,6 +1076,10 @@ class SQLiteEvidenceMetadataStore:
         signer: str | None = None,
         min_blocked: int | None = None,
         has_approvals: bool | None = None,
+        metadata_kind: str | None = None,
+        rollout_status: str | None = None,
+        environment: str | None = None,
+        deployment_target: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1095,26 +1099,71 @@ class SQLiteEvidenceMetadataStore:
         if has_approvals is not None:
             clauses.append("approval_required_count > 0" if has_approvals else "approval_required_count = 0")
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        payload_filters = any([metadata_kind, rollout_status, environment, deployment_target])
         with self._connect() as connection:
-            total = connection.execute(
-                f"SELECT COUNT(*) AS count FROM evidence_metadata {where}",
-                params,
-            ).fetchone()["count"]
-            rows = connection.execute(
-                f"""
-                SELECT payload FROM evidence_metadata
-                {where}
-                ORDER BY created_at DESC, session_id ASC
-                LIMIT ? OFFSET ?
-                """,
-                [*params, limit, offset],
-            ).fetchall()
+            if payload_filters:
+                rows = connection.execute(
+                    f"""
+                    SELECT payload FROM evidence_metadata
+                    {where}
+                    ORDER BY created_at DESC, session_id ASC
+                    """,
+                    params,
+                ).fetchall()
+                filtered = _filter_evidence_metadata_payloads(
+                    [json.loads(row["payload"]) for row in rows],
+                    metadata_kind=metadata_kind,
+                    rollout_status=rollout_status,
+                    environment=environment,
+                    deployment_target=deployment_target,
+                )
+                total = len(filtered)
+                items = filtered[offset : offset + limit]
+            else:
+                total = connection.execute(
+                    f"SELECT COUNT(*) AS count FROM evidence_metadata {where}",
+                    params,
+                ).fetchone()["count"]
+                rows = connection.execute(
+                    f"""
+                    SELECT payload FROM evidence_metadata
+                    {where}
+                    ORDER BY created_at DESC, session_id ASC
+                    LIMIT ? OFFSET ?
+                    """,
+                    [*params, limit, offset],
+                ).fetchall()
+                items = [json.loads(row["payload"]) for row in rows]
         return {
-            "items": [json.loads(row["payload"]) for row in rows],
+            "items": items,
             "total": total,
             "limit": limit,
             "offset": offset,
         }
+
+
+def _filter_evidence_metadata_payloads(
+    items: list[dict[str, Any]],
+    *,
+    metadata_kind: str | None = None,
+    rollout_status: str | None = None,
+    environment: str | None = None,
+    deployment_target: str | None = None,
+) -> list[dict[str, Any]]:
+    filtered = items
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if rollout_status:
+        filtered = [item for item in filtered if item.get("rollout_status") == rollout_status]
+    if environment:
+        filtered = [item for item in filtered if item.get("environment") == environment]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if deployment_target in {str(target) for target in item.get("deployment_targets", [])}
+        ]
+    return filtered
 
 
 def apply_sqlite_migrations(database_path: Path, migrations_dir: Path) -> dict[str, Any]:
