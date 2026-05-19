@@ -753,4 +753,24 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports -q` passed locally.
 
-Recommended next issue: add API and console views for release-channel promotion requests and endpoint-management export bundle history.
+Recommended next issue: delivered below as release channel publishing history views.
+
+## Release Channel Publishing History Views
+
+Status: complete for the current release channel visibility slice.
+
+Completed:
+- Added release metadata builders for `release-channel-promotion-request` and `endpoint-management-export` records.
+- Added optional JSON and SQLite evidence metadata indexing to `cavra release request-channel-promotion` and `cavra release export-endpoint-management`.
+- Added `/release-channel-promotions` and `/release-channel-promotions/{request_id}` API endpoints for channel, target ring, approval state, and approval ID history views.
+- Added `/endpoint-management-exports`, `/endpoint-management-exports/{export_id}`, and `/endpoint-management-exports/dashboard` API endpoints for provider, channel, approval, file, and dashboard summaries.
+- Updated the Evidence Console with a Release Channel Publishing panel that combines promotion request rows, endpoint export rows, provider metrics, and pending approval indicators.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, and wiki source.
+- Added tests for CLI metadata indexing and API history/dashboard retrieval.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports tests/test_api.py::test_api_release_channel_and_endpoint_export_history -q` passed locally.
+
+Recommended next issue: add governed download APIs and integrity verification for endpoint-management export bundle artifacts.

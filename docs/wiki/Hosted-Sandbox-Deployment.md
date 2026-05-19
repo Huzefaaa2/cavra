@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add API and console views for release-channel promotion requests and endpoint-management export bundle history.
+1. Add governed download APIs and integrity verification for endpoint-management export bundle artifacts.

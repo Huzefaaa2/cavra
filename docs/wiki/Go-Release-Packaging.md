@@ -114,10 +114,11 @@ cavra release request-channel-promotion \
   go/cavra-runtime/dist/go-runtime-v0.1.0 \
   --channel stable \
   --target-ring enterprise \
-  --approval-store .cavra/api/approvals.json
+  --approval-store .cavra/api/approvals.json \
+  --metadata-json .cavra/evidence/metadata.json
 ```
 
-The request verifies the signed package, binds the selected release channel to `cavra-runtime.channels.json` and `cavra-runtime.updater-policy.json`, signs the request payload, and creates a pending approval for endpoint change control.
+The request verifies the signed package, binds the selected release channel to `cavra-runtime.channels.json` and `cavra-runtime.updater-policy.json`, signs the request payload, creates a pending approval for endpoint change control, and can index `metadata_kind=release-channel-promotion-request` into the JSON or SQLite evidence metadata store.
 
 Export endpoint-management bundles for Jamf, Intune, and Linux fleet tooling:
 
@@ -126,10 +127,11 @@ cavra release export-endpoint-management \
   go/cavra-runtime/dist/go-runtime-v0.1.0 \
   --channel stable \
   --provider all \
-  --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json
+  --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json \
+  --metadata-json .cavra/evidence/metadata.json
 ```
 
-The export writes `jamf-policy.json`, `intune-win32-app.json`, `linux-fleet-manifest.json`, `linux-install-cavra-runtime.sh`, `endpoint-management-export-manifest.json`, and `checksums.txt` when matching workstation targets exist in the channel manifest. The bundle keeps promotion approval IDs, package verification results, endpoint target digests, rollback requirements, and staged rollout policy together for endpoint engineering review.
+The export writes `jamf-policy.json`, `intune-win32-app.json`, `linux-fleet-manifest.json`, `linux-install-cavra-runtime.sh`, `endpoint-management-export-manifest.json`, and `checksums.txt` when matching workstation targets exist in the channel manifest. The bundle keeps promotion approval IDs, package verification results, endpoint target digests, rollback requirements, and staged rollout policy together for endpoint engineering review. When `--metadata-json` or `--sqlite` is supplied, CAVRA also indexes `metadata_kind=endpoint-management-export` so release managers can audit which endpoint tooling received which release channel export.
 
 Capture rollout evidence when a package is approved for a managed endpoint channel:
 
@@ -275,6 +277,14 @@ cavra release connector-delivery-dashboard \
 
 The API exposes the same delivery path through `POST /promotion-executions/{execution_id}/audit-export/deliver` and `POST /rollback-executions/{rollback_id}/deliver`. API deliveries are persisted into the active evidence metadata store. `/release-connector-deliveries` returns delivery history filters by provider, event type, source event ID, and success state. `/release-connector-deliveries/dashboard` summarizes total delivery batches, failed providers, success rate, and critical rollback-delivery alerts. The Evidence Console includes a Release Connector Delivery panel for release managers, SOC analysts, and auditors.
 
+## Release Channel And Endpoint Export History
+
+The same evidence metadata store now acts as the operational history for channel publishing. `/release-channel-promotions` returns indexed channel promotion requests filtered by channel, target ring, approval state, and approval ID. `/release-channel-promotions/{request_id}` returns the signed request metadata, approval link, target ring, deployment targets, and audit links for review.
+
+Endpoint-management exports are available from `/endpoint-management-exports` with channel, provider, approval ID, and promotion request filters. `/endpoint-management-exports/{export_id}` returns the export manifest metadata, provider list, file list, release identity, and approval binding. `/endpoint-management-exports/dashboard` summarizes export counts, pending approvals, provider coverage, channel coverage, and latest indexed export records.
+
+The Evidence Console includes a Release Channel Publishing panel that combines promotion request rows, endpoint export rows, provider metrics, and pending approval indicators. This gives release managers, endpoint engineering owners, and auditors a single view of whether a runtime channel was approved before Jamf, Intune, or Linux fleet artifacts were generated.
+
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
 ```bash
@@ -328,11 +338,13 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 - As a release manager, I can review persisted connector delivery history after promotion and rollback audit events are sent.
 - As a SOC analyst, I can see dashboard alerts when release governance delivery to SIEM, ITSM, ChatOps, or webhook targets fails.
+- As a release manager, I can review channel promotion request history and endpoint-management export history from the API or Evidence Console.
+- As an auditor, I can confirm that endpoint export bundles were generated from an approved channel promotion request before publication.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add API and console views for release-channel promotion requests and endpoint-management export bundle history.
+1. Add governed download APIs and integrity verification for endpoint-management export bundle artifacts.

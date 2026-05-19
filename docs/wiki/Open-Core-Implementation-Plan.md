@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add API and console views for release-channel promotion requests and
-endpoint-management export bundle history.
+Add governed download APIs and integrity verification for
+endpoint-management export bundle artifacts.

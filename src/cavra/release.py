@@ -1431,6 +1431,131 @@ def export_endpoint_management_bundles(
     )
 
 
+def build_release_channel_promotion_request_metadata(
+    request: dict[str, Any],
+    *,
+    package_dir: Path | None = None,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    approval = request.get("approval", {}) if isinstance(request.get("approval"), dict) else {}
+    signature = request.get("signature", {}) if isinstance(request.get("signature"), dict) else {}
+    release = request.get("release", {}) if isinstance(request.get("release"), dict) else {}
+    targets = [target for target in request.get("workstation_targets", []) if isinstance(target, dict)]
+    approval_id = approval.get("approval_id")
+    metadata = {
+        "session_id": request.get("request_id"),
+        "created_at": request.get("created_at"),
+        "signer": signature.get("signer", "release-manager"),
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 1,
+        "metadata_kind": "release-channel-promotion-request",
+        "request_id": request.get("request_id"),
+        "channel": request.get("channel"),
+        "target_ring": request.get("target_ring"),
+        "approval_id": approval_id,
+        "approval_state": approval.get("state"),
+        "release": release,
+        "deployment_targets": sorted(str(target.get("id")) for target in targets if target.get("id")),
+        "endpoint_management_tools": sorted(
+            {str(target.get("management_tool")) for target in targets if target.get("management_tool")}
+        ),
+        "controls": request.get("controls", []),
+        "evidence_refs": [
+            "artifact://cavra-runtime.channels.json",
+            "artifact://cavra-runtime.updater-policy.json",
+            f"approval://{approval_id}",
+        ],
+        "audit_links": {
+            "channel_manifest": "artifact://cavra-runtime.channels.json",
+            "updater_policy": "artifact://cavra-runtime.updater-policy.json",
+            "approval": f"approval://{approval_id}",
+        },
+        "request": request,
+    }
+    if package_dir:
+        metadata["package_dir"] = str(package_dir)
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def build_endpoint_management_export_metadata(
+    manifest: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    approval = manifest.get("approval", {}) if isinstance(manifest.get("approval"), dict) else {}
+    release = manifest.get("release", {}) if isinstance(manifest.get("release"), dict) else {}
+    channel = str(manifest.get("channel") or "unknown")
+    version = str(release.get("version") or "unknown")
+    providers = sorted(str(provider) for provider in manifest.get("providers", []) if isinstance(provider, str))
+    approval_id = approval.get("approval_id")
+    request_id = approval.get("request_id")
+    digest_material = f"{channel}:{version}:{','.join(providers)}:{approval_id}"
+    digest = hashlib.sha256(digest_material.encode("utf-8")).hexdigest()[:12]
+    export_id = f"eme_{digest}"
+    metadata = {
+        "session_id": export_id,
+        "created_at": manifest.get("created_at"),
+        "signer": "release-manager",
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 1 if approval.get("required") else 0,
+        "metadata_kind": "endpoint-management-export",
+        "export_id": export_id,
+        "channel": channel,
+        "provider": manifest.get("provider"),
+        "providers": providers,
+        "approval_id": approval_id,
+        "approval_state": "pending" if approval.get("required") and approval.get("approval_id") else None,
+        "request_id": request_id,
+        "release": release,
+        "files": manifest.get("files", []),
+        "controls": manifest.get("controls", []),
+        "package_dir": manifest.get("package_dir"),
+        "evidence_refs": [
+            f"release-channel-promotion://{request_id}",
+            f"approval://{approval_id}",
+        ],
+        "audit_links": {
+            "channel_promotion_request": f"release-channel-promotion://{request_id}",
+            "approval": f"approval://{approval_id}",
+        },
+        "manifest": manifest,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def build_endpoint_management_export_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    provider_counts: dict[str, int] = {}
+    channel_counts: dict[str, int] = {}
+    pending_approval = 0
+    file_count = 0
+    for item in items:
+        for provider in item.get("providers", []) or []:
+            provider_key = str(provider)
+            provider_counts[provider_key] = provider_counts.get(provider_key, 0) + 1
+        channel = str(item.get("channel") or "unknown")
+        channel_counts[channel] = channel_counts.get(channel, 0) + 1
+        file_count += len(item.get("files", []) or [])
+        if item.get("approval_required_count") and item.get("approval_state") != "approved":
+            pending_approval += 1
+    return {
+        "schema_version": "cavra.endpoint_management.export_dashboard.v1",
+        "product": "CAVRA",
+        "total_exports": len(items),
+        "pending_approval_exports": pending_approval,
+        "total_files": file_count,
+        "providers": provider_counts,
+        "channels": channel_counts,
+        "alert_level": "warning" if pending_approval else "healthy",
+        "latest": items[:10],
+    }
+
+
 def create_managed_endpoint_rollout_promotion_execution(
     promotion_request: dict[str, Any],
     approval: dict[str, Any],

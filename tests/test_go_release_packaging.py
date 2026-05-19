@@ -9,7 +9,7 @@ from typer.testing import CliRunner
 
 from cavra.approvals import ApprovalStore, create_approval_request
 from cavra.cli import app
-from cavra.evidence import generate_ed25519_keypair
+from cavra.evidence import EvidenceMetadataStore, generate_ed25519_keypair
 from cavra.release import (
     build_managed_endpoint_rollout_rollback_execution_metadata,
     capture_managed_endpoint_rollout_evidence,
@@ -313,6 +313,7 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
     assert linux["schema_version"] == "cavra.endpoint-management.linux.v1"
 
     approval_json = tmp_path / "channel-approvals.json"
+    metadata_json = tmp_path / "release-metadata.json"
     cli_request = runner.invoke(
         app,
         [
@@ -325,12 +326,16 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
             "stable",
             "--approval-store",
             str(approval_json),
+            "--metadata-json",
+            str(metadata_json),
             "--json",
         ],
     )
     assert cli_request.exit_code == 0
     request_payload = json.loads(cli_request.output)
     assert request_payload["valid"] is True
+    assert request_payload["metadata"]["metadata_kind"] == "release-channel-promotion-request"
+    assert request_payload["indexed_metadata_stores"] == [str(metadata_json)]
     assert json.loads(approval_json.read_text(encoding="utf-8"))["items"][0]["state"] == "pending"
 
     cli_export = runner.invoke(
@@ -347,6 +352,8 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
             "jamf",
             "--promotion-request",
             str(tmp_path / "cli-channel-promotion" / "release-channel-promotion-request.json"),
+            "--metadata-json",
+            str(metadata_json),
             "--json",
         ],
     )
@@ -355,6 +362,12 @@ def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, 
     assert export_payload["valid"] is True
     assert export_payload["providers"] == ["jamf"]
     assert "jamf-policy.json" in export_payload["files"]
+    assert export_payload["metadata"]["metadata_kind"] == "endpoint-management-export"
+    indexed_metadata = EvidenceMetadataStore(metadata_json).list()
+    assert {item["metadata_kind"] for item in indexed_metadata} == {
+        "release-channel-promotion-request",
+        "endpoint-management-export",
+    }
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

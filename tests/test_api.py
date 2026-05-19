@@ -464,6 +464,74 @@ def test_api_evidence_artifacts_require_configured_root(monkeypatch, tmp_path) -
     assert config["evidence_artifacts"] == "disabled"
 
 
+def test_api_release_channel_and_endpoint_export_history(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+    promotion_metadata = {
+        "session_id": "rcp_stable_1",
+        "created_at": "2026-05-19T00:00:00+00:00",
+        "signer": "release-manager",
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 1,
+        "metadata_kind": "release-channel-promotion-request",
+        "request_id": "rcp_stable_1",
+        "channel": "stable",
+        "target_ring": "enterprise",
+        "approval_id": "apr_channel",
+        "approval_state": "pending",
+        "deployment_targets": ["linux-systemd-amd64-workstation"],
+        "endpoint_management_tools": ["linux"],
+        "request": {"request_id": "rcp_stable_1", "channel": "stable"},
+    }
+    export_metadata = {
+        "session_id": "eme_stable_1",
+        "created_at": "2026-05-19T00:05:00+00:00",
+        "signer": "release-manager",
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 1,
+        "metadata_kind": "endpoint-management-export",
+        "export_id": "eme_stable_1",
+        "channel": "stable",
+        "provider": "all",
+        "providers": ["jamf", "linux"],
+        "approval_id": "apr_channel",
+        "approval_state": "pending",
+        "request_id": "rcp_stable_1",
+        "files": ["jamf-policy.json", "linux-fleet-manifest.json"],
+        "manifest": {"channel": "stable", "providers": ["jamf", "linux"]},
+    }
+    client.post("/evidence", json=promotion_metadata)
+    client.post("/evidence", json=export_metadata)
+
+    config = client.get("/console/config").json()
+    promotions = client.get(
+        "/release-channel-promotions",
+        params={"channel": "stable", "target_ring": "enterprise", "approval_state": "pending"},
+    )
+    promotion_detail = client.get("/release-channel-promotions/rcp_stable_1")
+    exports = client.get("/endpoint-management-exports", params={"channel": "stable", "provider": "jamf"})
+    export_detail = client.get("/endpoint-management-exports/eme_stable_1")
+    dashboard = client.get("/endpoint-management-exports/dashboard")
+
+    assert config["endpoints"]["release_channel_promotions"] == "/release-channel-promotions"
+    assert config["endpoints"]["endpoint_management_export_dashboard"] == "/endpoint-management-exports/dashboard"
+    assert promotions.status_code == 200
+    assert promotions.json()["total"] == 1
+    assert promotion_detail.status_code == 200
+    assert promotion_detail.json()["approval_id"] == "apr_channel"
+    assert exports.status_code == 200
+    assert exports.json()["items"][0]["export_id"] == "eme_stable_1"
+    assert export_detail.status_code == 200
+    assert export_detail.json()["providers"] == ["jamf", "linux"]
+    assert dashboard.status_code == 200
+    assert dashboard.json()["total_exports"] == 1
+    assert dashboard.json()["providers"]["jamf"] == 1
+    assert dashboard.json()["pending_approval_exports"] == 1
+
+
 def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)

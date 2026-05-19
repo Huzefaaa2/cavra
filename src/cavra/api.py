@@ -57,6 +57,7 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    build_endpoint_management_export_dashboard,
     build_managed_endpoint_rollout_rollback_execution_metadata,
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
@@ -191,6 +192,11 @@ def create_app():
                 "rollback_execution_deliver": "/rollback-executions/{rollback_id}/deliver",
                 "release_connector_deliveries": "/release-connector-deliveries",
                 "release_connector_delivery_dashboard": "/release-connector-deliveries/dashboard",
+                "release_channel_promotions": "/release-channel-promotions",
+                "release_channel_promotion": "/release-channel-promotions/{request_id}",
+                "endpoint_management_exports": "/endpoint-management-exports",
+                "endpoint_management_export": "/endpoint-management-exports/{export_id}",
+                "endpoint_management_export_dashboard": "/endpoint-management-exports/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1026,6 +1032,84 @@ def create_app():
             offset=0,
         )
         return build_connector_delivery_dashboard(result["items"])
+
+    @app.get("/release-channel-promotions")
+    def release_channel_promotion_index(
+        channel: Optional[str] = None,
+        target_ring: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        approval_id: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="release-channel-promotion-request",
+            target_ring=target_ring,
+            approval_state=approval_state,
+            limit=500,
+            offset=0,
+        )
+        items = result["items"]
+        if channel:
+            items = [item for item in items if item.get("channel") == channel]
+        if approval_id:
+            items = [item for item in items if item.get("approval_id") == approval_id]
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
+        return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
+
+    @app.get("/release-channel-promotions/{request_id}")
+    def release_channel_promotion_detail(request_id: str) -> dict:
+        item = evidence_store.get(request_id)
+        if item is None or item.get("metadata_kind") != "release-channel-promotion-request":
+            raise HTTPException(status_code=404, detail="release channel promotion request not found")
+        return item
+
+    @app.get("/endpoint-management-exports")
+    def endpoint_management_export_index(
+        channel: Optional[str] = None,
+        provider: Optional[str] = None,
+        approval_id: Optional[str] = None,
+        request_id: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-management-export",
+            limit=500,
+            offset=0,
+        )
+        items = result["items"]
+        if channel:
+            items = [item for item in items if item.get("channel") == channel]
+        if provider:
+            items = [item for item in items if provider in (item.get("providers", []) or [])]
+        if approval_id:
+            items = [item for item in items if item.get("approval_id") == approval_id]
+        if request_id:
+            items = [item for item in items if item.get("request_id") == request_id]
+        limit = max(1, min(limit, 500))
+        offset = max(0, offset)
+        return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
+
+    @app.get("/endpoint-management-exports/dashboard")
+    def endpoint_management_export_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-management-export",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_management_export_dashboard(result["items"])
+
+    @app.get("/endpoint-management-exports/{export_id}")
+    def endpoint_management_export_detail(export_id: str) -> dict:
+        item = evidence_store.get(export_id)
+        if item is None or item.get("metadata_kind") != "endpoint-management-export":
+            raise HTTPException(status_code=404, detail="endpoint management export not found")
+        return item
 
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:

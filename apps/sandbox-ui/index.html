@@ -66,6 +66,58 @@
       <section class="console release-delivery-console">
         <div class="console-header">
           <div>
+            <h2>Release Channel Publishing</h2>
+            <p>Track channel promotion requests, approval state, and endpoint-management export bundles for managed workstation releases.</p>
+          </div>
+          <button id="refreshReleaseChannels">Refresh</button>
+        </div>
+        <div id="releaseChannelDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Channel <input id="filterReleaseChannel" placeholder="stable" /></label>
+          <label>Provider <input id="filterEndpointExportProvider" placeholder="jamf" /></label>
+        </div>
+        <div class="activity-grid">
+          <div>
+            <h3>Promotion Requests</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request</th>
+                    <th>Channel</th>
+                    <th>Ring</th>
+                    <th>Approval</th>
+                    <th>Targets</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody id="releaseChannelRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Endpoint Exports</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Export</th>
+                    <th>Channel</th>
+                    <th>Providers</th>
+                    <th>Approval</th>
+                    <th>Files</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointExportRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="console release-delivery-console">
+        <div class="console-header">
+          <div>
             <h2>Release Connector Delivery</h2>
             <p>Review persisted SIEM, ITSM, ChatOps, and webhook delivery history for promotion and rollback governance events.</p>
           </div>
