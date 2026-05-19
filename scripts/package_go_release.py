@@ -74,6 +74,12 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     endpoint_deployment = dist / "cavra-runtime.endpoint-deployment.json"
     if endpoint_deployment.exists():
         artifacts.append(_artifact(dist, endpoint_deployment, "managed-endpoint-deployment"))
+    channels = dist / "cavra-runtime.channels.json"
+    if channels.exists():
+        artifacts.append(_artifact(dist, channels, "release-channel-manifest"))
+    updater_policy = dist / "cavra-runtime.updater-policy.json"
+    if updater_policy.exists():
+        artifacts.append(_artifact(dist, updater_policy, "updater-policy"))
     for path in sorted(dist.glob("*.spdx.json")):
         artifacts.append(_artifact(dist, path, "sbom"))
     bootstrap = dist / "offline-trust-root-bootstrap.json"
@@ -179,6 +185,8 @@ def write_offline_trust_bootstrap(
                 "checksums.txt",
                 "cavra-runtime.endpoint-deployment.json",
                 "cavra-runtime.installers.json",
+                "cavra-runtime.channels.json",
+                "cavra-runtime.updater-policy.json",
                 "cavra-runtime.sbom.spdx.json",
                 "cavra-runtime.provenance.intoto.json",
                 "release-evidence.json",
@@ -362,6 +370,152 @@ def write_managed_endpoint_deployment(dist: Path, *, version: str, commit: str, 
             ],
         },
     )
+
+
+def write_release_channels_and_updater_policy(dist: Path, *, version: str, commit: str, repository: str) -> tuple[Path, Path]:
+    generated_at = datetime.now(timezone.utc).isoformat()
+    endpoint_deployment = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    workstation_targets = [
+        target
+        for target in endpoint_deployment.get("deployment_targets", [])
+        if isinstance(target, dict) and target.get("surface") == "developer-workstation"
+    ]
+    if not workstation_targets:
+        workstation_targets = [
+            target
+            for target in endpoint_deployment.get("deployment_targets", [])
+            if isinstance(target, dict) and target.get("surface") != "ci-runner"
+        ]
+    channels = [_channel_manifest(channel, version, commit, workstation_targets) for channel in _release_channels()]
+    updater_policy = {
+        "schema_version": "cavra.go-runtime.updater-policy.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "version": version,
+        "commit": commit,
+        "repository": repository,
+        "generated_at": generated_at,
+        "source_channel_manifest": "cavra-runtime.channels.json",
+        "default_auto_update": False,
+        "controls": [
+            "manual-approval-before-auto-update",
+            "verify-go-package-before-update",
+            "smoke-installers-before-update",
+            "staged-workstation-rollout",
+            "rollback-package-required",
+            "evidence-retention-required",
+        ],
+        "policies": [
+            _updater_channel_policy("canary", max_first_ring_percent=2, soak_hours=4),
+            _updater_channel_policy("beta", max_first_ring_percent=10, soak_hours=24),
+            _updater_channel_policy("stable", max_first_ring_percent=25, soak_hours=48),
+        ],
+        "operator_steps": [
+            "Verify the release package before publishing a channel manifest.",
+            "Approve the channel update in change control before enabling endpoint management rollout.",
+            "Roll out canary or beta before stable unless emergency change control approves a direct stable release.",
+            "Retain channel manifest, updater policy, delivery evidence, and rollback package references with the release change.",
+        ],
+    }
+    updater_policy_path = write_json(dist / "cavra-runtime.updater-policy.json", updater_policy)
+    channel_manifest_path = write_json(
+        dist / "cavra-runtime.channels.json",
+        {
+            "schema_version": "cavra.go-runtime.channels.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "repository": repository,
+            "generated_at": generated_at,
+            "source_metadata": "cavra-runtime.endpoint-deployment.json",
+            "updater_policy": "cavra-runtime.updater-policy.json",
+            "channels": channels,
+            "operator_notes": [
+                "Publish channel manifests only after package verification and change approval.",
+                "Managed workstation updaters must not auto-apply CAVRA runtime changes without this policy and approval evidence.",
+                "Each channel references signed package artifacts and rollback requirements.",
+            ],
+        },
+    )
+    return channel_manifest_path, updater_policy_path
+
+
+def _release_channels() -> list[dict[str, Any]]:
+    return [
+        {"channel": "canary", "ring_order": ["security-pilot"], "recommended": False},
+        {"channel": "beta", "ring_order": ["platform-pilot", "engineering-pilot"], "recommended": False},
+        {"channel": "stable", "ring_order": ["pilot", "broad", "enterprise"], "recommended": True},
+    ]
+
+
+def _channel_manifest(channel: dict[str, Any], version: str, commit: str, targets: list[dict[str, Any]]) -> dict[str, Any]:
+    channel_name = str(channel["channel"])
+    return {
+        "channel": channel_name,
+        "version": version,
+        "commit": commit,
+        "recommended": bool(channel.get("recommended")),
+        "ring_order": channel.get("ring_order", []),
+        "auto_update": False,
+        "approval_required": True,
+        "updater_policy_ref": f"cavra-runtime.updater-policy.json#{channel_name}",
+        "controls": [
+            "verify-go-package-before-channel-publish",
+            "smoke-installers-before-channel-publish",
+            "approval-required-before-workstation-update",
+            "rollback-package-reference-required",
+        ],
+        "workstation_targets": [
+            {
+                "id": target.get("id"),
+                "platform": target.get("platform"),
+                "os": target.get("os"),
+                "arch": target.get("arch"),
+                "installer_target": target.get("installer_target"),
+                "binary": target.get("binary"),
+                "binary_sha256": target.get("binary_sha256"),
+                "deployment_channel": target.get("deployment_channel"),
+                "management_tool": target.get("management_tool"),
+            }
+            for target in targets
+        ],
+        "verification_commands": [
+            "cavra release verify-go-package .",
+            "cavra release smoke-installers . --skip-execution",
+            f"cavra release channel-manifest . --channel {channel_name}",
+        ],
+        "rollback": {
+            "required": True,
+            "strategy": "restore-previous-signed-package",
+            "approval": "release_rollback_endpoint_rollout",
+        },
+    }
+
+
+def _updater_channel_policy(channel: str, *, max_first_ring_percent: int, soak_hours: int) -> dict[str, Any]:
+    return {
+        "channel": channel,
+        "auto_update": False,
+        "approval_required": True,
+        "minimum_approval": "change-approved",
+        "rollout_rings": [
+            {"ring": "pilot", "max_percentage": max_first_ring_percent, "soak_hours": soak_hours},
+            {"ring": "broad", "max_percentage": 50, "soak_hours": soak_hours * 2},
+            {"ring": "enterprise", "max_percentage": 100, "soak_hours": soak_hours * 3},
+        ],
+        "hold_conditions": [
+            "package verification failed",
+            "installer smoke validation failed",
+            "rollback package unavailable",
+            "critical connector delivery alert active",
+        ],
+        "rollback": {
+            "required": True,
+            "max_minutes_to_pause": 15,
+            "evidence": ["rollback execution record", "previous signed package verification"],
+        },
+    }
 
 
 def _endpoint_deployment_templates() -> list[dict[str, str]]:
@@ -585,6 +739,8 @@ def write_evidence(
             "ed25519-detached-signatures",
             "signed-installer-metadata",
             "managed-endpoint-deployment-manifests",
+            "release-channel-manifests",
+            "managed-workstation-updater-policy",
             "release-evidence-manifest",
         ],
     }
@@ -627,6 +783,7 @@ def package_release(args: argparse.Namespace) -> None:
     write_spdx_sbom(dist, args.version, args.commit, modules)
     write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_managed_endpoint_deployment(dist, version=args.version, commit=args.commit, repository=args.repository)
+    write_release_channels_and_updater_policy(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_offline_trust_bootstrap(
         dist,
         version=args.version,

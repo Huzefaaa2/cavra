@@ -715,4 +715,23 @@ Validation:
 - `python3 -m ruff check src/cavra/integrations.py src/cavra/api.py src/cavra/cli.py tests/test_integrations.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add release package channel manifests and updater policy for managed developer workstations.
+Recommended next issue: delivered below as release channel manifests and managed workstation updater policy.
+
+## Release Channel Manifests And Managed Workstation Updater Policy
+
+Status: complete for the current release package channel governance slice.
+
+Completed:
+- Added `cavra-runtime.channels.json` to Go runtime release packages with canary, beta, and stable channel metadata.
+- Added `cavra-runtime.updater-policy.json` with manual approval requirements, staged rollout rings, hold conditions, and rollback requirements.
+- Extended release checksums, release evidence, provenance inputs, and offline bootstrap required files to include the channel manifest and updater policy.
+- Extended `cavra release verify-go-package` to reject packages missing channel or updater policy artifacts and to validate approval, no-auto-update, workstation target, rollback, and verification-command controls.
+- Added `cavra release channel-manifest` and `cavra release updater-policy` commands for release managers and endpoint owners to inspect generated artifacts.
+- Updated README, CLI docs, release packaging docs, roadmap docs, release advisory docs, and wiki source.
+- Added tests for package generation, verifier acceptance, CLI inspection, artifact signing coverage, and missing channel/updater rejection.
+
+Validation:
+- `python3 -m ruff check scripts/package_go_release.py src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_go_release_packaging.py::test_go_release_verifier_accepts_signed_package_and_rejects_tampering tests/test_go_release_packaging.py::test_go_release_verifier_rejects_missing_channel_and_updater_policy -q` passed locally.
+
+Recommended next issue: add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.

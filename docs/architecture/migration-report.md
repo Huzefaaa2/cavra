@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add release package channel manifests and updater policy for managed developer workstations.
+4. Add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.

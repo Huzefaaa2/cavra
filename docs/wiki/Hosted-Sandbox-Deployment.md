@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add release package channel manifests and updater policy for managed developer workstations.
+1. Add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.
