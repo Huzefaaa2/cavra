@@ -298,6 +298,17 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert client.get("/approvals", params={"state": "pending"}).json()["items"][0]["approval_id"] == approval["approval_id"]
     assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_request"] == "/evidence/{session_id}/promotion-request"
 
+    rejected = client.post(
+        "/evidence/rollout-1/promotion-request",
+        json={
+            "package_dir": str(tmp_path / "outside-package"),
+            "require_package_verification": False,
+            "require_signatures": False,
+            "require_provenance": False,
+        },
+    )
+    assert rejected.status_code == 400
+
 
 def test_api_evidence_artifacts_require_configured_root(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)

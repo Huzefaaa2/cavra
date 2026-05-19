@@ -849,9 +849,10 @@ def create_app():
         if metadata.get("metadata_kind") != "managed-endpoint-rollout":
             raise HTTPException(status_code=400, detail="promotion requests require managed endpoint rollout metadata")
         root = _configured_artifact_root(evidence_artifact_root)
-        rollout_dir = Path(str(metadata.get("bundle_dir") or "")).resolve()
-        if not rollout_dir.is_relative_to(root.resolve()):
-            raise HTTPException(status_code=400, detail="rollout evidence directory is outside artifact root")
+        rollout_dir = _resolve_under_artifact_root(root, metadata.get("bundle_dir"), "rollout evidence directory")
+        package_dir = None
+        if payload.get("package_dir"):
+            package_dir = _resolve_under_artifact_root(root, payload.get("package_dir"), "release package directory")
         signing_key_pem = os.environ.get("CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY") or os.environ.get("CAVRA_GO_RELEASE_SIGNING_KEY")
         try:
             result = create_managed_endpoint_rollout_promotion_request(
@@ -863,7 +864,7 @@ def create_app():
                 ttl_hours=int(payload.get("ttl_hours", 24)),
                 signing_key_pem=signing_key_pem,
                 signer=payload.get("signer", "release-manager"),
-                package_dir=Path(payload["package_dir"]) if payload.get("package_dir") else None,
+                package_dir=package_dir,
                 require_package_verification=bool(payload.get("require_package_verification", True)),
                 require_signatures=bool(payload.get("require_signatures", True)),
                 require_provenance=bool(payload.get("require_provenance", True)),
@@ -1065,7 +1066,16 @@ def _filter_json_evidence(
 def _configured_artifact_root(root: Path | None) -> Path:
     if root is None:
         raise HTTPException(status_code=400, detail="evidence artifact root is not configured")
-    return root
+    return root.resolve()
+
+
+def _resolve_under_artifact_root(root: Path, path_value: object, label: str) -> Path:
+    artifact_path = Path(str(path_value or "")).resolve()
+    try:
+        artifact_path.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"{label} is outside artifact root") from exc
+    return artifact_path
 
 
 def _get_evidence_metadata_or_404(
