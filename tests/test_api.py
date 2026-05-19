@@ -550,11 +550,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
             }
         ],
     }
-    observed_inventory = {
-        "schema_version": "cavra.endpoint-observations.v1",
+    linux_inventory = {
+        "schema_version": "linux.fleet.inventory.v1",
         "observed_at": "2026-05-19T00:00:00+00:00",
-        "channel": "stable",
-        "endpoints": [
+        "hosts": [
             {
                 "endpoint_id": "workstation-1",
                 "deployment_target": "linux-systemd-amd64-workstation",
@@ -565,14 +564,20 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         ],
     }
 
+    inventory_response = client.post(
+        "/endpoint-inventory/ingest",
+        json={"provider": "linux", "inventory": linux_inventory, "channel": "stable"},
+    )
     response = client.post(
         "/endpoint-deployment/reconcile",
         json={
             "desired_manifest": desired_manifest,
-            "observed_inventory": observed_inventory,
+            "observed_inventory": inventory_response.json()["inventory"],
             "stale_after_hours": 24,
         },
     )
+    inventory_history = client.get("/endpoint-inventory-ingestions", params={"provider": "linux"})
+    inventory_dashboard = client.get("/endpoint-inventory-ingestions/dashboard")
     history = client.get("/endpoint-reconciliations", params={"drift_status": "drift_detected"})
     dashboard = client.get("/endpoint-reconciliations/dashboard")
     remediation_request = client.post(
@@ -593,6 +598,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     config = client.get("/console/config").json()
 
     assert response.status_code == 200
+    assert inventory_response.status_code == 200
+    assert inventory_response.json()["metadata"]["metadata_kind"] == "endpoint-inventory-ingestion"
+    assert inventory_history.status_code == 200
+    assert inventory_history.json()["total"] == 1
+    assert inventory_dashboard.status_code == 200
+    assert inventory_dashboard.json()["providers"][0]["provider"] == "linux"
     assert response.json()["drift_status"] == "drift_detected"
     assert response.json()["metadata"]["metadata_kind"] == "managed-endpoint-reconciliation"
     assert history.status_code == 200
@@ -609,6 +620,7 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert remediation_history.json()["total"] == 2
     assert remediation_dashboard.status_code == 200
     assert remediation_dashboard.json()["execution_count"] == 1
+    assert config["endpoints"]["endpoint_inventory_dashboard"] == "/endpoint-inventory-ingestions/dashboard"
     assert config["endpoints"]["endpoint_reconciliation_dashboard"] == "/endpoint-reconciliations/dashboard"
     assert config["endpoints"]["endpoint_remediation_dashboard"] == "/endpoint-remediations/dashboard"
 

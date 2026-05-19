@@ -262,6 +262,37 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Inventory Ingestion</h2>
+            <p>Normalize Jamf, Intune, Linux fleet, and EDR exports into reconciliation-ready endpoint observations.</p>
+          </div>
+          <button id="refreshEndpointInventory">Refresh</button>
+        </div>
+        <div id="endpointInventoryDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <select id="filterEndpointInventoryProvider"><option value="">Any</option><option value="jamf">Jamf</option><option value="intune">Intune</option><option value="linux">Linux</option><option value="edr">EDR</option></select></label>
+          <label>Channel <input id="filterEndpointInventoryChannel" placeholder="stable" /></label>
+          <label>Target <input id="filterEndpointInventoryTarget" placeholder="linux-systemd" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Inventory</th>
+                <th>Provider</th>
+                <th>Channel</th>
+                <th>Endpoints</th>
+                <th>Targets</th>
+                <th>Missing</th>
+                <th>Observed</th>
+              </tr>
+            </thead>
+            <tbody id="endpointInventoryRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Policy Authoring and Rollout Changes</h2>
             <p>Create safe policy drafts, review rollout change plans, and apply rollout transitions.</p>
           </div>

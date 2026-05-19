@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux
-fleet managers, and EDR sources.
+Add endpoint inventory freshness SLA alerts and reconciliation automation that
+can open remediation requests from new ingestions.

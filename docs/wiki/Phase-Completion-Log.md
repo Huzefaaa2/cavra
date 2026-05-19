@@ -860,4 +860,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.
+Recommended next issue: delivered below as endpoint inventory ingestion for Jamf, Intune, Linux fleet, and EDR exports.
+
+## Endpoint Inventory Ingestion
+
+Status: complete for the current public-safe endpoint inventory ingestion slice.
+
+Completed:
+- Added provider inventory normalization for Jamf, Intune, Linux fleet, and EDR export payloads.
+- Emitted canonical `cavra.endpoint-observations.v1` inventory files that can feed managed endpoint reconciliation directly.
+- Added ingestion evidence records indexed as `metadata_kind=endpoint-inventory-ingestion`.
+- Added `cavra release ingest-endpoint-inventory`, `endpoint-inventory-history`, and `endpoint-inventory-dashboard`.
+- Added `POST /endpoint-inventory/ingest`, `/endpoint-inventory-ingestions`, and `/endpoint-inventory-ingestions/dashboard`.
+- Updated the Evidence Console with an Endpoint Inventory Ingestion panel for provider, channel, target, endpoint, and missing-target coverage.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for provider export normalization, CLI metadata indexing, API ingestion history/dashboard retrieval, and reconciliation using normalized inventory.
+
+Validation:
+- `python3 -m py_compile src/cavra/release.py src/cavra/cli.py src/cavra/api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_inventory_ingestion_normalizes_provider_exports_and_indexes_metadata tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.

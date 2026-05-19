@@ -207,6 +207,9 @@ cavra release updater-policy go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1
 cavra release request-channel-promotion go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json
 cavra release export-endpoint-management go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --provider all --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json --metadata-json .cavra/evidence/metadata.json
 cavra release deliver-endpoint-export .cavra/release/endpoint-management-export/endpoint-management-export-manifest.json --config .cavra/connectors.json --provider jamf --metadata-json .cavra/evidence/metadata.json
+cavra release ingest-endpoint-inventory .cavra/release/jamf-inventory.json --provider jamf --channel stable --metadata-json .cavra/evidence/metadata.json
+cavra release endpoint-inventory-history --metadata-json .cavra/evidence/metadata.json --provider jamf
+cavra release endpoint-inventory-dashboard --metadata-json .cavra/evidence/metadata.json
 cavra release reconcile-endpoint-deployment go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 .cavra/release/observed-endpoints.json --metadata-json .cavra/evidence/metadata.json
 cavra release capture-rollout go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --deployment-id github-actions-linux-amd64-runner --change-record CHG-123
 cavra release verify-rollout .cavra/release/rollout --metadata-json .cavra/evidence/metadata.json --sqlite .cavra/evidence/metadata.db
@@ -343,7 +346,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.
+- Add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.
 
 ## User stories and enterprise value
 
