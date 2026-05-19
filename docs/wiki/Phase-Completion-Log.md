@@ -882,3 +882,26 @@ Validation:
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_inventory_ingestion_normalizes_provider_exports_and_indexes_metadata tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
 Recommended next issue: add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.
+
+## Endpoint Inventory Freshness And Reconciliation Automation
+
+Status: complete for the current public-safe endpoint inventory SLA and automation slice.
+
+Completed:
+- Added endpoint inventory freshness SLA reports with warning and critical age thresholds by provider, channel, and deployment target.
+- Indexed freshness reports as `metadata_kind=endpoint-inventory-freshness-report`.
+- Added `cavra release endpoint-inventory-freshness`, `endpoint-inventory-freshness-history`, and `endpoint-inventory-freshness-dashboard`.
+- Added reconciliation automation from indexed inventory ingestions that compares the normalized inventory with a signed desired endpoint deployment manifest.
+- Added `metadata_kind=endpoint-reconciliation-automation` records and automatic pending remediation request creation when drift is detected.
+- Added `cavra release automate-endpoint-reconciliation`, `endpoint-reconciliation-automation-history`, and `endpoint-reconciliation-automation-dashboard`.
+- Added `POST /endpoint-inventory/freshness-report`, `/endpoint-inventory-freshness`, `/endpoint-inventory-freshness/dashboard`, `POST /endpoint-inventory-ingestions/{inventory_id}/reconcile`, `/endpoint-reconciliation-automations`, and `/endpoint-reconciliation-automations/dashboard`.
+- Updated the Evidence Console with an Endpoint Inventory Freshness panel for report status, warning counts, critical counts, and alert details.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for freshness SLA evaluation, CLI metadata indexing, API freshness endpoints, and automated reconciliation with pending remediation approvals.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_inventory_freshness_and_automation_open_remediation tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint remediation delivery handoff packages for ITSM, ChatOps, and private endpoint connector queues.

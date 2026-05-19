@@ -293,6 +293,37 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Endpoint Inventory Freshness</h2>
+            <p>Track provider, channel, and deployment-target inventory age against endpoint-management SLA thresholds.</p>
+          </div>
+          <button id="refreshEndpointInventoryFreshness">Refresh</button>
+        </div>
+        <div id="endpointInventoryFreshnessDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Alert <select id="filterEndpointInventoryFreshnessAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
+          <label>Provider <select id="filterEndpointInventoryFreshnessProvider"><option value="">Any</option><option value="jamf">Jamf</option><option value="intune">Intune</option><option value="linux">Linux</option><option value="edr">EDR</option></select></label>
+          <label>Channel <input id="filterEndpointInventoryFreshnessChannel" placeholder="stable" /></label>
+          <label>Target <input id="filterEndpointInventoryFreshnessTarget" placeholder="linux-systemd" /></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Report</th>
+                <th>Alert</th>
+                <th>Warnings</th>
+                <th>Critical</th>
+                <th>Alerts</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="endpointInventoryFreshnessRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Policy Authoring and Rollout Changes</h2>
             <p>Create safe policy drafts, review rollout change plans, and apply rollout transitions.</p>
           </div>

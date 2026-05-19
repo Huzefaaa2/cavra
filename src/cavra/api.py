@@ -57,6 +57,7 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_dashboard,
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
@@ -64,8 +65,12 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_inventory_freshness_dashboard,
+    build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
     build_endpoint_inventory_ingestion_metadata,
+    build_endpoint_reconciliation_automation_dashboard,
+    build_endpoint_reconciliation_automation_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -78,9 +83,12 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     execute_endpoint_drift_remediation,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
+    filter_endpoint_reconciliation_automation_history,
     filter_managed_endpoint_reconciliation_history,
+    evaluate_endpoint_inventory_freshness,
     ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
 )
@@ -224,9 +232,15 @@ def create_app():
                 "endpoint_inventory_ingest": "/endpoint-inventory/ingest",
                 "endpoint_inventory_ingestions": "/endpoint-inventory-ingestions",
                 "endpoint_inventory_dashboard": "/endpoint-inventory-ingestions/dashboard",
+                "endpoint_inventory_freshness_report": "/endpoint-inventory/freshness-report",
+                "endpoint_inventory_freshness": "/endpoint-inventory-freshness",
+                "endpoint_inventory_freshness_dashboard": "/endpoint-inventory-freshness/dashboard",
                 "endpoint_deployment_reconcile": "/endpoint-deployment/reconcile",
                 "endpoint_reconciliations": "/endpoint-reconciliations",
                 "endpoint_reconciliation_dashboard": "/endpoint-reconciliations/dashboard",
+                "endpoint_inventory_reconcile": "/endpoint-inventory-ingestions/{inventory_id}/reconcile",
+                "endpoint_reconciliation_automations": "/endpoint-reconciliation-automations",
+                "endpoint_reconciliation_automation_dashboard": "/endpoint-reconciliation-automations/dashboard",
                 "endpoint_remediation_request": "/endpoint-reconciliations/{reconciliation_id}/remediation-request",
                 "endpoint_remediation_execute": "/endpoint-remediations/{request_id}/execute",
                 "endpoint_remediations": "/endpoint-remediations",
@@ -1323,6 +1337,62 @@ def create_app():
         )
         return build_endpoint_inventory_ingestion_dashboard(result["items"])
 
+    @app.post("/endpoint-inventory/freshness-report")
+    def endpoint_inventory_freshness_report(payload: dict) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-inventory-ingestion",
+            limit=500,
+            offset=0,
+        )
+        freshness = evaluate_endpoint_inventory_freshness(
+            result["items"],
+            provider=payload.get("provider"),
+            channel=payload.get("channel"),
+            deployment_target=payload.get("deployment_target"),
+            max_age_hours=int(payload.get("max_age_hours", 24)),
+            critical_age_hours=int(payload.get("critical_age_hours", 48)),
+        )
+        if not freshness.valid or freshness.report is None:
+            raise HTTPException(status_code=400, detail={"errors": freshness.errors, "warnings": freshness.warnings})
+        metadata = evidence_store.upsert(build_endpoint_inventory_freshness_metadata(freshness.report))
+        return freshness.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-inventory-freshness")
+    def endpoint_inventory_freshness_index(
+        alert_level: Optional[str] = None,
+        provider: Optional[str] = None,
+        channel: Optional[str] = None,
+        deployment_target: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-inventory-freshness-report",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_inventory_freshness_history(
+            result["items"],
+            alert_level=alert_level,
+            provider=provider,
+            channel=channel,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-inventory-freshness/dashboard")
+    def endpoint_inventory_freshness_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-inventory-freshness-report",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_inventory_freshness_dashboard(result["items"])
+
     @app.post("/endpoint-deployment/reconcile")
     def endpoint_deployment_reconcile(payload: dict) -> dict:
         desired_manifest = payload.get("desired_manifest")
@@ -1372,6 +1442,71 @@ def create_app():
             offset=0,
         )
         return build_managed_endpoint_reconciliation_dashboard(result["items"])
+
+    @app.post("/endpoint-inventory-ingestions/{inventory_id}/reconcile")
+    def endpoint_inventory_ingestion_reconcile(inventory_id: str, payload: dict) -> dict:
+        item = evidence_store.get(inventory_id)
+        if item is None or item.get("metadata_kind") != "endpoint-inventory-ingestion":
+            raise HTTPException(status_code=404, detail="endpoint inventory ingestion not found")
+        desired_manifest = payload.get("desired_manifest")
+        if not isinstance(desired_manifest, dict):
+            raise HTTPException(status_code=400, detail="desired_manifest is required")
+        result = automate_endpoint_reconciliation_from_ingestion(
+            desired_manifest,
+            item,
+            stale_after_hours=int(payload.get("stale_after_hours", 24)),
+            remediation_strategy=payload.get("remediation_strategy", payload.get("strategy", "mixed")),
+            requested_by=payload.get("requested_by", "console"),
+            approver_group=payload.get("approver_group", "Endpoint Change Advisory Board"),
+            ttl_hours=int(payload.get("ttl_hours", 24)),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        if result.reconciliation:
+            evidence_store.upsert(build_managed_endpoint_reconciliation_metadata(result.reconciliation))
+        if result.approval:
+            approval_store.upsert(result.approval)
+        if result.remediation_request:
+            evidence_store.upsert(build_endpoint_drift_remediation_request_metadata(result.remediation_request))
+        metadata = None
+        if result.automation:
+            metadata = evidence_store.upsert(build_endpoint_reconciliation_automation_metadata(result.automation))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-reconciliation-automations")
+    def endpoint_reconciliation_automation_index(
+        drift_status: Optional[str] = None,
+        alert_level: Optional[str] = None,
+        approval_state: Optional[str] = None,
+        provider: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-reconciliation-automation",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_reconciliation_automation_history(
+            result["items"],
+            drift_status=drift_status,
+            alert_level=alert_level,
+            approval_state=approval_state,
+            provider=provider,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-reconciliation-automations/dashboard")
+    def endpoint_reconciliation_automation_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-reconciliation-automation",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_reconciliation_automation_dashboard(result["items"])
 
     @app.post("/endpoint-reconciliations/{reconciliation_id}/remediation-request")
     def endpoint_reconciliation_remediation_request(reconciliation_id: str, payload: dict) -> dict:

@@ -330,6 +330,28 @@ class EndpointInventoryIngestionResult:
 
 
 @dataclass(frozen=True)
+class EndpointInventoryFreshnessResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    report_id: str | None = None
+    alert_level: str | None = None
+    report: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "report_id": self.report_id,
+            "alert_level": self.alert_level,
+            "report": self.report,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class ManagedEndpointReconciliationResult:
     package_dir: Path | None
     valid: bool
@@ -349,6 +371,36 @@ class ManagedEndpointReconciliationResult:
             "reconciliation_id": self.reconciliation_id,
             "drift_status": self.drift_status,
             "report": self.report,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
+class EndpointReconciliationAutomationResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    automation_id: str | None = None
+    reconciliation_id: str | None = None
+    request_id: str | None = None
+    automation: dict[str, Any] | None = None
+    reconciliation: dict[str, Any] | None = None
+    remediation_request: dict[str, Any] | None = None
+    approval: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "automation_id": self.automation_id,
+            "reconciliation_id": self.reconciliation_id,
+            "request_id": self.request_id,
+            "automation": self.automation,
+            "reconciliation": self.reconciliation,
+            "remediation_request": self.remediation_request,
+            "approval": self.approval,
             "files": self.files,
         }
 
@@ -2054,6 +2106,268 @@ def build_endpoint_inventory_ingestion_dashboard(items: list[dict[str, Any]]) ->
     }
 
 
+def evaluate_endpoint_inventory_freshness(
+    ingestion_items: list[dict[str, Any]],
+    *,
+    output_dir: Path | None = None,
+    provider: str | None = None,
+    channel: str | None = None,
+    deployment_target: str | None = None,
+    max_age_hours: int = 24,
+    critical_age_hours: int = 48,
+    now: datetime | None = None,
+) -> EndpointInventoryFreshnessResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    max_age_hours = max(1, max_age_hours)
+    critical_age_hours = max(max_age_hours, critical_age_hours)
+    now = now or datetime.now(timezone.utc)
+    history = filter_endpoint_inventory_ingestion_history(
+        ingestion_items,
+        provider=provider,
+        channel=channel,
+        deployment_target=deployment_target,
+        limit=500,
+    )["items"]
+    latest_by_scope: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for item in history:
+        provider_key = str(item.get("provider") or "unknown")
+        channel_key = str(item.get("channel") or "unassigned")
+        targets = [str(value) for value in item.get("deployment_targets", [])] or ["unknown-target"]
+        for target in targets:
+            scope = (provider_key, channel_key, target)
+            previous = latest_by_scope.get(scope)
+            if previous is None or str(item.get("observed_at") or "") > str(previous.get("observed_at") or ""):
+                latest_by_scope[scope] = item
+    alerts: list[dict[str, Any]] = []
+    latest_ingestions: list[dict[str, Any]] = []
+    for scope, item in sorted(latest_by_scope.items()):
+        provider_key, channel_key, target = scope
+        observed_at = str(item.get("observed_at") or item.get("created_at") or "")
+        observed = _parse_release_datetime(observed_at)
+        age_hours = None
+        severity = "healthy"
+        if observed is None:
+            severity = "warning"
+            message = f"Endpoint inventory timestamp is invalid for {provider_key}/{channel_key}/{target}."
+        else:
+            age_hours = round(max(0.0, (now - observed).total_seconds() / 3600), 2)
+            if age_hours >= critical_age_hours:
+                severity = "critical"
+            elif age_hours >= max_age_hours:
+                severity = "warning"
+            message = (
+                f"Latest endpoint inventory for {provider_key}/{channel_key}/{target} is {age_hours}h old."
+                if severity != "healthy"
+                else f"Latest endpoint inventory for {provider_key}/{channel_key}/{target} is within SLA."
+            )
+        latest_entry = {
+            "inventory_id": item.get("inventory_id"),
+            "provider": provider_key,
+            "channel": channel_key,
+            "deployment_target": target,
+            "observed_at": observed_at,
+            "age_hours": age_hours,
+            "severity": severity,
+            "endpoint_count": item.get("endpoint_count", 0),
+            "missing_target_count": item.get("missing_target_count", 0),
+        }
+        latest_ingestions.append(latest_entry)
+        if severity in {"warning", "critical"}:
+            alerts.append(
+                {
+                    "severity": severity,
+                    "inventory_id": item.get("inventory_id"),
+                    "provider": provider_key,
+                    "channel": channel_key,
+                    "deployment_target": target,
+                    "observed_at": observed_at,
+                    "age_hours": age_hours,
+                    "message": message,
+                }
+            )
+        if int(item.get("missing_target_count") or 0) > 0:
+            alerts.append(
+                {
+                    "severity": "warning",
+                    "inventory_id": item.get("inventory_id"),
+                    "provider": provider_key,
+                    "channel": channel_key,
+                    "deployment_target": target,
+                    "message": f"Endpoint inventory {item.get('inventory_id')} includes endpoints with missing deployment targets.",
+                }
+            )
+    if not latest_by_scope:
+        warnings.append("no endpoint inventory ingestion records matched the freshness scope")
+    critical_count = sum(1 for item in alerts if item.get("severity") == "critical")
+    warning_count = sum(1 for item in alerts if item.get("severity") == "warning")
+    alert_level = "critical" if critical_count else "warning" if warning_count else "healthy"
+    created_at = now.isoformat()
+    report = {
+        "schema_version": "cavra.endpoint-inventory-freshness.v1",
+        "product": "CAVRA",
+        "report_id": _endpoint_inventory_freshness_report_id(
+            history,
+            provider=provider,
+            channel=channel,
+            deployment_target=deployment_target,
+            max_age_hours=max_age_hours,
+            critical_age_hours=critical_age_hours,
+            created_at=created_at,
+        ),
+        "created_at": created_at,
+        "alert_level": alert_level,
+        "max_age_hours": max_age_hours,
+        "critical_age_hours": critical_age_hours,
+        "scope": {
+            "provider": provider,
+            "channel": channel,
+            "deployment_target": deployment_target,
+        },
+        "summary": {
+            "scope_count": len(latest_by_scope),
+            "ingestion_count": len(history),
+            "healthy_count": sum(1 for item in latest_ingestions if item.get("severity") == "healthy"),
+            "warning_count": warning_count,
+            "critical_count": critical_count,
+            "missing_target_count": sum(int(item.get("missing_target_count") or 0) for item in history),
+        },
+        "latest_ingestions": latest_ingestions,
+        "alerts": alerts,
+        "controls": [
+            "endpoint-inventory-age-compared-to-sla",
+            "latest-ingestion-selected-by-provider-channel-target",
+            "public-safe-alert-metadata-only",
+            "private-connectors-required-for-source-refresh",
+        ],
+        "warnings": warnings,
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        report_path = output_dir / "endpoint-inventory-freshness.json"
+        summary_path = output_dir / "endpoint-inventory-freshness.md"
+        _write_release_json(report_path, report)
+        summary_path.write_text(_endpoint_inventory_freshness_markdown_summary(report), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in [report_path, summary_path]) + "\n",
+            encoding="utf-8",
+        )
+        files = [report_path.name, summary_path.name, checksums_path.name]
+    return EndpointInventoryFreshnessResult(
+        valid=not errors,
+        errors=errors,
+        warnings=warnings,
+        report_id=report["report_id"],
+        alert_level=alert_level,
+        report=report,
+        files=files,
+    )
+
+
+def build_endpoint_inventory_freshness_metadata(
+    report: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    summary = report.get("summary", {}) if isinstance(report.get("summary"), dict) else {}
+    metadata = {
+        "session_id": report.get("report_id"),
+        "created_at": report.get("created_at"),
+        "signer": "endpoint-inventory-freshness",
+        "decision_count": 0,
+        "blocked_count": int(summary.get("critical_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-inventory-freshness-report",
+        "report_id": report.get("report_id"),
+        "alert_level": report.get("alert_level"),
+        "max_age_hours": report.get("max_age_hours"),
+        "critical_age_hours": report.get("critical_age_hours"),
+        "scope": report.get("scope", {}),
+        "summary": summary,
+        "alert_count": len(report.get("alerts", [])),
+        "warning_count": summary.get("warning_count", 0),
+        "critical_count": summary.get("critical_count", 0),
+        "latest_ingestions": report.get("latest_ingestions", []),
+        "alerts": report.get("alerts", []),
+        "report": report,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_inventory_freshness_history(
+    items: list[dict[str, Any]],
+    *,
+    alert_level: str | None = None,
+    provider: str | None = None,
+    channel: str | None = None,
+    deployment_target: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-inventory-freshness-report"]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if provider:
+        filtered = [
+            item
+            for item in filtered
+            if any(entry.get("provider") == provider for entry in item.get("latest_ingestions", []))
+        ]
+    if channel:
+        filtered = [
+            item
+            for item in filtered
+            if any(entry.get("channel") == channel for entry in item.get("latest_ingestions", []))
+        ]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if any(entry.get("deployment_target") == deployment_target for entry in item.get("latest_ingestions", []))
+        ]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_inventory_freshness.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_inventory_freshness_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_inventory_freshness_history(items, limit=500)["items"]
+    critical = sum(int(item.get("critical_count") or 0) for item in history)
+    warning = sum(int(item.get("warning_count") or 0) for item in history)
+    alerts = [
+        alert
+        for item in history
+        for alert in item.get("alerts", [])
+        if isinstance(alert, dict)
+    ]
+    alert_level = "critical" if critical else "warning" if warning else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_inventory_freshness.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "report_count": len(history),
+        "warning_count": warning,
+        "critical_count": critical,
+        "alert_count": len(alerts),
+        "alerts": alerts[:25],
+        "latest": history[:10],
+    }
+
+
 def reconcile_managed_endpoint_deployment(
     desired_manifest: dict[str, Any],
     observed_inventory: dict[str, Any],
@@ -2339,6 +2653,136 @@ def create_endpoint_drift_remediation_request(
     )
 
 
+def automate_endpoint_reconciliation_from_ingestion(
+    desired_manifest: dict[str, Any],
+    ingestion_record: dict[str, Any],
+    *,
+    package_dir: Path | None = None,
+    output_dir: Path | None = None,
+    stale_after_hours: int = 24,
+    require_package_verification: bool = False,
+    remediation_strategy: str = "mixed",
+    requested_by: str = "release-agent",
+    approver_group: str = "Endpoint Change Advisory Board",
+    ttl_hours: int = 24,
+) -> EndpointReconciliationAutomationResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    observed_inventory = _inventory_from_ingestion_record(ingestion_record)
+    if observed_inventory is None:
+        errors.append("ingestion record must be endpoint-inventory-ingestion metadata, ingestion payload, or endpoint observations")
+    if errors:
+        return EndpointReconciliationAutomationResult(valid=False, errors=errors, warnings=warnings)
+    reconciliation_output = output_dir / "reconciliation" if output_dir else None
+    reconciliation = reconcile_managed_endpoint_deployment(
+        desired_manifest,
+        observed_inventory,
+        package_dir=package_dir,
+        output_dir=reconciliation_output,
+        stale_after_hours=stale_after_hours,
+        require_package_verification=require_package_verification,
+    )
+    if not reconciliation.valid or reconciliation.report is None:
+        return EndpointReconciliationAutomationResult(
+            valid=False,
+            errors=reconciliation.errors,
+            warnings=[*warnings, *reconciliation.warnings],
+            reconciliation_id=reconciliation.reconciliation_id,
+            reconciliation=reconciliation.report,
+        )
+    remediation_result = None
+    if reconciliation.drift_status == "drift_detected":
+        remediation_output = output_dir / "remediation-request" if output_dir else None
+        remediation_result = create_endpoint_drift_remediation_request(
+            reconciliation.report,
+            output_dir=remediation_output,
+            strategy=remediation_strategy,
+            requested_by=requested_by,
+            approver_group=approver_group,
+            ttl_hours=ttl_hours,
+        )
+        if not remediation_result.valid:
+            errors.extend(remediation_result.errors)
+            warnings.extend(remediation_result.warnings)
+    created_at = datetime.now(timezone.utc).isoformat()
+    automation_id = _endpoint_reconciliation_automation_id(
+        desired_manifest,
+        ingestion_record,
+        reconciliation.report,
+        remediation_result.request if remediation_result else None,
+    )
+    automation = {
+        "schema_version": "cavra.endpoint-reconciliation-automation.v1",
+        "product": "CAVRA",
+        "automation_id": automation_id,
+        "created_at": created_at,
+        "requested_by": requested_by,
+        "reconciliation_id": reconciliation.reconciliation_id,
+        "drift_status": reconciliation.drift_status,
+        "alert_level": reconciliation.report.get("alert_level"),
+        "release": reconciliation.report.get("release", {}),
+        "channel": reconciliation.report.get("channel"),
+        "inventory_id": ingestion_record.get("inventory_id") or ingestion_record.get("session_id"),
+        "provider": ingestion_record.get("provider") or observed_inventory.get("provider"),
+        "observed_at": observed_inventory.get("observed_at"),
+        "remediation_request_id": remediation_result.request.get("request_id") if remediation_result and remediation_result.request else None,
+        "approval_id": remediation_result.approval.get("approval_id") if remediation_result and remediation_result.approval else None,
+        "approval_state": remediation_result.approval.get("state") if remediation_result and remediation_result.approval else None,
+        "summary": reconciliation.report.get("summary", {}),
+        "controls": [
+            "inventory-ingestion-reconciled-against-signed-manifest",
+            "drift-opens-approval-bound-remediation-request",
+            "automation-records-governance-evidence-only",
+            "private-connectors-required-for-endpoint-mutation",
+        ],
+        "evidence_refs": [
+            f"endpoint-reconciliation://{reconciliation.reconciliation_id}",
+            *(
+                [f"endpoint-remediation-request://{remediation_result.request['request_id']}"]
+                if remediation_result and remediation_result.request
+                else []
+            ),
+            *([f"approval://{remediation_result.approval['approval_id']}"] if remediation_result and remediation_result.approval else []),
+        ],
+        "reconciliation_report": reconciliation.report,
+        "remediation_request": remediation_result.request if remediation_result else None,
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        automation_path = output_dir / "endpoint-reconciliation-automation.json"
+        summary_path = output_dir / "endpoint-reconciliation-automation.md"
+        _write_release_json(automation_path, automation)
+        summary_path.write_text(_endpoint_reconciliation_automation_markdown_summary(automation), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksum_targets = [automation_path, summary_path]
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in checksum_targets) + "\n",
+            encoding="utf-8",
+        )
+        files = [
+            "endpoint-reconciliation-automation.json",
+            "endpoint-reconciliation-automation.md",
+            "checksums.txt",
+            *[f"reconciliation/{item}" for item in reconciliation.files],
+            *([f"remediation-request/{item}" for item in remediation_result.files] if remediation_result else []),
+        ]
+    return EndpointReconciliationAutomationResult(
+        valid=not errors,
+        errors=errors,
+        warnings=warnings,
+        automation_id=automation_id,
+        reconciliation_id=reconciliation.reconciliation_id,
+        request_id=automation.get("remediation_request_id"),
+        automation=automation,
+        reconciliation=reconciliation.report,
+        remediation_request=remediation_result.request if remediation_result else None,
+        approval=remediation_result.approval if remediation_result else None,
+        files=files,
+    )
+
+
 def execute_endpoint_drift_remediation(
     remediation_request: dict[str, Any],
     approval: dict[str, Any],
@@ -2487,6 +2931,92 @@ def build_endpoint_drift_remediation_request_metadata(
     if bundle_dir:
         metadata["bundle_dir"] = str(bundle_dir)
     return metadata
+
+
+def build_endpoint_reconciliation_automation_metadata(
+    automation: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    summary = automation.get("summary", {}) if isinstance(automation.get("summary"), dict) else {}
+    metadata = {
+        "session_id": automation.get("automation_id"),
+        "created_at": automation.get("created_at"),
+        "signer": automation.get("requested_by", "release-agent"),
+        "decision_count": 1 if automation.get("approval_id") else 0,
+        "blocked_count": int(summary.get("drifted_endpoint_count") or 0) + int(summary.get("missing_target_count") or 0),
+        "approval_required_count": 1 if automation.get("approval_state") == "pending" else 0,
+        "metadata_kind": "endpoint-reconciliation-automation",
+        "automation_id": automation.get("automation_id"),
+        "reconciliation_id": automation.get("reconciliation_id"),
+        "request_id": automation.get("remediation_request_id"),
+        "approval_id": automation.get("approval_id"),
+        "approval_state": automation.get("approval_state"),
+        "drift_status": automation.get("drift_status"),
+        "alert_level": automation.get("alert_level"),
+        "release": automation.get("release", {}),
+        "channel": automation.get("channel"),
+        "inventory_id": automation.get("inventory_id"),
+        "provider": automation.get("provider"),
+        "observed_at": automation.get("observed_at"),
+        "summary": summary,
+        "automation": automation,
+        "evidence_refs": automation.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_reconciliation_automation_history(
+    items: list[dict[str, Any]],
+    *,
+    drift_status: str | None = None,
+    alert_level: str | None = None,
+    approval_state: str | None = None,
+    provider: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-reconciliation-automation"]
+    if drift_status:
+        filtered = [item for item in filtered if item.get("drift_status") == drift_status]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if approval_state:
+        filtered = [item for item in filtered if item.get("approval_state") == approval_state]
+    if provider:
+        filtered = [item for item in filtered if item.get("provider") == provider]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_reconciliation_automation.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_reconciliation_automation_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_reconciliation_automation_history(items, limit=500)["items"]
+    pending = [item for item in history if item.get("approval_state") == "pending"]
+    critical = [item for item in history if item.get("alert_level") == "critical"]
+    warning = [item for item in history if item.get("alert_level") == "warning"]
+    alert_level = "critical" if critical or pending else "warning" if warning else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_reconciliation_automation.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "automation_count": len(history),
+        "pending_approval_count": len(pending),
+        "drift_detected_count": sum(1 for item in history if item.get("drift_status") == "drift_detected"),
+        "request_count": sum(1 for item in history if item.get("request_id")),
+        "latest": history[:10],
+    }
 
 
 def build_endpoint_drift_remediation_execution_metadata(
@@ -3452,6 +3982,54 @@ def _endpoint_remediation_execution_id(request_id: str, approval_id: str) -> str
     return f"ere_{digest}"
 
 
+def _endpoint_inventory_freshness_report_id(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None,
+    channel: str | None,
+    deployment_target: str | None,
+    max_age_hours: int,
+    critical_age_hours: int,
+    created_at: str,
+) -> str:
+    material = json.dumps(
+        {
+            "scope": {
+                "provider": provider,
+                "channel": channel,
+                "deployment_target": deployment_target,
+            },
+            "max_age_hours": max_age_hours,
+            "critical_age_hours": critical_age_hours,
+            "created_at": created_at,
+            "inventory_ids": sorted(str(item.get("inventory_id") or item.get("session_id")) for item in items),
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return f"eif_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_reconciliation_automation_id(
+    desired_manifest: dict[str, Any],
+    ingestion_record: dict[str, Any],
+    reconciliation_report: dict[str, Any],
+    remediation_request: dict[str, Any] | None,
+) -> str:
+    material = json.dumps(
+        {
+            "version": desired_manifest.get("version"),
+            "commit": desired_manifest.get("commit"),
+            "inventory_id": ingestion_record.get("inventory_id") or ingestion_record.get("session_id"),
+            "reconciliation_id": reconciliation_report.get("reconciliation_id"),
+            "request_id": remediation_request.get("request_id") if remediation_request else None,
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return f"era_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
 def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[dict[str, Any]]:
     refs: list[dict[str, Any]] = []
     if not isinstance(deployment_targets, list):
@@ -3625,6 +4203,32 @@ def _endpoint_inventory_ingestion_markdown_summary(ingestion: dict[str, Any]) ->
     return "\n".join(lines) + "\n"
 
 
+def _endpoint_inventory_freshness_markdown_summary(report: dict[str, Any]) -> str:
+    summary = report.get("summary", {}) if isinstance(report.get("summary"), dict) else {}
+    lines = [
+        "# Endpoint Inventory Freshness",
+        "",
+        f"- Report ID: `{report.get('report_id')}`",
+        f"- Alert level: `{report.get('alert_level')}`",
+        f"- Warning SLA hours: {report.get('max_age_hours')}",
+        f"- Critical SLA hours: {report.get('critical_age_hours')}",
+        f"- Ingestion records: {summary.get('ingestion_count', 0)}",
+        f"- Warning alerts: {summary.get('warning_count', 0)}",
+        f"- Critical alerts: {summary.get('critical_count', 0)}",
+        "",
+        "## Alerts",
+    ]
+    alerts = [item for item in report.get("alerts", []) if isinstance(item, dict)]
+    if not alerts:
+        lines.append("- No endpoint inventory freshness alerts.")
+    for alert in alerts:
+        lines.append(
+            f"- `{alert.get('severity')}` `{alert.get('provider')}` `{alert.get('channel')}` "
+            f"`{alert.get('deployment_target')}` - {alert.get('message')}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _managed_endpoint_reconciliation_report(
     desired_manifest: dict[str, Any],
     observed_inventory: dict[str, Any],
@@ -3769,13 +4373,38 @@ def _managed_endpoint_reconciliation_id(
 def _endpoint_observation_is_stale(last_seen_at: str, *, now: datetime, stale_after_hours: int) -> bool:
     if not last_seen_at:
         return False
-    try:
-        observed = datetime.fromisoformat(last_seen_at.replace("Z", "+00:00"))
-    except ValueError:
+    observed = _parse_release_datetime(last_seen_at)
+    if observed is None:
         return True
-    if observed.tzinfo is None:
-        observed = observed.replace(tzinfo=timezone.utc)
     return (now - observed).total_seconds() > stale_after_hours * 3600
+
+
+def _parse_release_datetime(raw: object) -> datetime | None:
+    if raw in (None, ""):
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _inventory_from_ingestion_record(record: dict[str, Any]) -> dict[str, Any] | None:
+    if record.get("schema_version") == "cavra.endpoint-observations.v1":
+        return record
+    if record.get("schema_version") == "cavra.endpoint-inventory-ingestion.v1":
+        inventory = record.get("inventory")
+        return inventory if isinstance(inventory, dict) else None
+    if record.get("metadata_kind") == "endpoint-inventory-ingestion":
+        inventory = record.get("inventory")
+        if isinstance(inventory, dict):
+            return inventory
+        ingestion = record.get("ingestion")
+        if isinstance(ingestion, dict) and isinstance(ingestion.get("inventory"), dict):
+            return ingestion["inventory"]
+    return None
 
 
 def _managed_endpoint_reconciliation_markdown_summary(report: dict[str, Any]) -> str:
@@ -3803,6 +4432,27 @@ def _managed_endpoint_reconciliation_markdown_summary(report: dict[str, Any]) ->
             f"- `{item.get('severity')}` `{item.get('type')}` target `{item.get('deployment_target')}` "
             f"endpoint `{item.get('endpoint_id', 'n/a')}`: {item.get('message')}"
         )
+    return "\n".join(lines) + "\n"
+
+
+def _endpoint_reconciliation_automation_markdown_summary(automation: dict[str, Any]) -> str:
+    summary = automation.get("summary", {}) if isinstance(automation.get("summary"), dict) else {}
+    lines = [
+        "# Endpoint Reconciliation Automation",
+        "",
+        f"- Automation ID: `{automation.get('automation_id')}`",
+        f"- Reconciliation ID: `{automation.get('reconciliation_id')}`",
+        f"- Drift status: `{automation.get('drift_status')}`",
+        f"- Alert level: `{automation.get('alert_level')}`",
+        f"- Remediation request: `{automation.get('remediation_request_id') or 'not required'}`",
+        f"- Approval: `{automation.get('approval_id') or 'not required'}`",
+        f"- Drifted endpoints: {summary.get('drifted_endpoint_count', 0)}",
+        f"- Missing targets: {summary.get('missing_target_count', 0)}",
+        "",
+        "## Controls",
+    ]
+    for control in automation.get("controls", []):
+        lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
 
 

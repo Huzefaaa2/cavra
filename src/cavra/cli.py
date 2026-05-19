@@ -72,7 +72,10 @@ from cavra.registry import (
     default_mcp_tool_classifications,
 )
 from cavra.release import (
+    automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_metadata,
+    build_endpoint_inventory_freshness_dashboard,
+    build_endpoint_inventory_freshness_metadata,
     build_endpoint_management_publication_dashboard,
     build_endpoint_management_publication_event,
     build_endpoint_management_publication_metadata,
@@ -81,6 +84,8 @@ from cavra.release import (
     build_endpoint_drift_remediation_request_metadata,
     build_endpoint_inventory_ingestion_dashboard,
     build_endpoint_inventory_ingestion_metadata,
+    build_endpoint_reconciliation_automation_dashboard,
+    build_endpoint_reconciliation_automation_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -98,9 +103,12 @@ from cavra.release import (
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
+    filter_endpoint_reconciliation_automation_history,
     filter_managed_endpoint_reconciliation_history,
+    evaluate_endpoint_inventory_freshness,
     ingest_endpoint_inventory,
     load_release_channel_manifest,
     load_workstation_updater_policy,
@@ -2471,6 +2479,232 @@ def endpoint_inventory_dashboard(
     _print_json(build_endpoint_inventory_ingestion_dashboard(items))
 
 
+@release_app.command("endpoint-inventory-freshness")
+def endpoint_inventory_freshness(
+    output: Annotated[Path, typer.Option(help="Output directory for endpoint inventory freshness artifacts.")] = Path(
+        ".cavra/release/endpoint-inventory-freshness"
+    ),
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    provider: Annotated[Optional[str], typer.Option(help="Filter by inventory provider.")] = None,
+    channel: Annotated[Optional[str], typer.Option(help="Filter by release channel.")] = None,
+    deployment_target: Annotated[Optional[str], typer.Option(help="Filter by deployment target ID.")] = None,
+    max_age_hours: Annotated[int, typer.Option(help="Warning SLA threshold in hours.")] = 24,
+    critical_age_hours: Annotated[int, typer.Option(help="Critical SLA threshold in hours.")] = 48,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable freshness report output."),
+) -> None:
+    """Create an endpoint inventory freshness SLA report from indexed ingestions."""
+    items = _load_endpoint_inventory_ingestion_items(metadata_json=metadata_json, sqlite=sqlite)
+    result = evaluate_endpoint_inventory_freshness(
+        items,
+        output_dir=output,
+        provider=provider,
+        channel=channel,
+        deployment_target=deployment_target,
+        max_age_hours=max_age_hours,
+        critical_age_hours=critical_age_hours,
+    )
+    metadata = None
+    indexed: list[str] = []
+    if result.valid and result.report:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_inventory_freshness_metadata(result.report, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(f"[{'green' if result.valid else 'red'}]{result.alert_level or 'invalid'}[/] endpoint inventory freshness")
+        if result.report_id:
+            console.print(f"  report: {result.report_id}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("endpoint-inventory-freshness-history")
+def endpoint_inventory_freshness_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    alert_level: Annotated[Optional[str], typer.Option(help="Filter by alert level.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by inventory provider.")] = None,
+    channel: Annotated[Optional[str], typer.Option(help="Filter by release channel.")] = None,
+    deployment_target: Annotated[Optional[str], typer.Option(help="Filter by deployment target ID.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint inventory freshness report history."""
+    items = _load_endpoint_inventory_freshness_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_inventory_freshness_history(
+            items,
+            alert_level=alert_level,
+            provider=provider,
+            channel=channel,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-inventory-freshness-dashboard")
+def endpoint_inventory_freshness_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint inventory freshness SLA alerts."""
+    items = _load_endpoint_inventory_freshness_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_inventory_freshness_dashboard(items))
+
+
+@release_app.command("automate-endpoint-reconciliation")
+def automate_endpoint_reconciliation(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory containing cavra-runtime.endpoint-deployment.json.")],
+    inventory_ingestion: Annotated[Path, typer.Argument(help="Endpoint inventory ingestion metadata or observations JSON.")],
+    output: Annotated[Path, typer.Option(help="Output directory for automation artifacts.")] = Path(
+        ".cavra/release/endpoint-reconciliation-automation"
+    ),
+    stale_after_hours: Annotated[int, typer.Option(help="Hours after which endpoint observations are stale.")] = 24,
+    remediation_strategy: Annotated[str, typer.Option(help="Remediation strategy: mixed, republish, or rollback.")] = "mixed",
+    requested_by: Annotated[str, typer.Option(help="Actor or automation identity requesting remediation.")] = "release-agent",
+    approver_group: Annotated[str, typer.Option(help="Approval group for remediation review.")] = "Endpoint Change Advisory Board",
+    ttl_hours: Annotated[int, typer.Option(help="Approval request time to live in hours.")] = 24,
+    approval_store: Annotated[Optional[Path], typer.Option(help="Optional JSON approval store to upsert generated approval.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval store to upsert generated approval.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index automation records.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index automation records.")] = None,
+    require_package_verification: bool = typer.Option(
+        False,
+        "--require-package-verification/--skip-package-verification",
+        help="Verify the Go release package before reconciling observed endpoints.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable automation output."),
+) -> None:
+    """Reconcile a fresh inventory ingestion and open remediation when drift is detected."""
+    try:
+        desired_manifest = json.loads((package_dir / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+        ingestion = json.loads(inventory_ingestion.read_text(encoding="utf-8"))
+        if not isinstance(desired_manifest, dict) or not isinstance(ingestion, dict):
+            raise ValueError("desired manifest and inventory ingestion must be JSON objects")
+        result = automate_endpoint_reconciliation_from_ingestion(
+            desired_manifest,
+            ingestion,
+            package_dir=package_dir,
+            output_dir=output,
+            stale_after_hours=stale_after_hours,
+            require_package_verification=require_package_verification,
+            remediation_strategy=remediation_strategy,
+            requested_by=requested_by,
+            approver_group=approver_group,
+            ttl_hours=ttl_hours,
+        )
+    except (OSError, json.JSONDecodeError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    persisted: list[str] = []
+    if result.valid and result.approval:
+        if approval_store:
+            ApprovalStore(approval_store).upsert(result.approval)
+            persisted.append(str(approval_store))
+        if approval_sqlite:
+            SQLiteApprovalStore(approval_sqlite).upsert(result.approval)
+            persisted.append(str(approval_sqlite))
+    indexed: list[str] = []
+    metadata: dict | None = None
+    if result.valid and result.reconciliation:
+        _, reconciliation_indexed = _index_release_metadata(
+            build_managed_endpoint_reconciliation_metadata(result.reconciliation, bundle_dir=output / "reconciliation"),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(reconciliation_indexed)
+    if result.valid and result.remediation_request:
+        _, request_indexed = _index_release_metadata(
+            build_endpoint_drift_remediation_request_metadata(result.remediation_request, bundle_dir=output / "remediation-request"),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(request_indexed)
+    if result.valid and result.automation:
+        metadata, automation_indexed = _index_release_metadata(
+            build_endpoint_reconciliation_automation_metadata(result.automation, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(automation_indexed)
+    payload = result.to_dict() | {
+        "approval_stores": persisted,
+        "metadata": metadata,
+        "indexed_metadata_stores": sorted(set(indexed)),
+    }
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(f"[{'green' if result.valid else 'red'}]{result.automation.get('alert_level') if result.automation else 'invalid'}[/] endpoint reconciliation automation")
+        if result.automation_id:
+            console.print(f"  automation: {result.automation_id}")
+        if result.reconciliation_id:
+            console.print(f"  reconciliation: {result.reconciliation_id}")
+        if result.request_id:
+            console.print(f"  remediation request: {result.request_id}")
+        for store in persisted:
+            console.print(f"  approval store: {store}")
+        for store in sorted(set(indexed)):
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("endpoint-reconciliation-automation-history")
+def endpoint_reconciliation_automation_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    drift_status: Annotated[Optional[str], typer.Option(help="Filter by drift status.")] = None,
+    alert_level: Annotated[Optional[str], typer.Option(help="Filter by alert level.")] = None,
+    approval_state: Annotated[Optional[str], typer.Option(help="Filter by approval state.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by inventory provider.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint reconciliation automation history."""
+    items = _load_endpoint_reconciliation_automation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_reconciliation_automation_history(
+            items,
+            drift_status=drift_status,
+            alert_level=alert_level,
+            approval_state=approval_state,
+            provider=provider,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-reconciliation-automation-dashboard")
+def endpoint_reconciliation_automation_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint reconciliation automations and pending remediation approvals."""
+    items = _load_endpoint_reconciliation_automation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_reconciliation_automation_dashboard(items))
+
+
 @release_app.command("request-endpoint-remediation")
 def request_endpoint_remediation(
     reconciliation_report: Annotated[Path, typer.Argument(help="Managed endpoint reconciliation report JSON.")],
@@ -2739,6 +2973,36 @@ def _load_endpoint_inventory_ingestion_items(
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(
             metadata_kind="endpoint-inventory-ingestion",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_endpoint_inventory_freshness_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-inventory-freshness-report",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_endpoint_reconciliation_automation_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-reconciliation-automation",
             limit=500,
         )["items"]
     return []

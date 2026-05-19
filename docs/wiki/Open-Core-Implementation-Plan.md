@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint inventory freshness SLA alerts and reconciliation automation that
-can open remediation requests from new ingestions.
+Add endpoint remediation delivery handoff packages for ITSM, ChatOps, and
+private endpoint connector queues.

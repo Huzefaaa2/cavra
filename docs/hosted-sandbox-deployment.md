@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.
+1. Add endpoint remediation delivery handoff packages for ITSM, ChatOps, and private endpoint connector queues.

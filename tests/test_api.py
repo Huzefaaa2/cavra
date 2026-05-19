@@ -578,6 +578,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     inventory_history = client.get("/endpoint-inventory-ingestions", params={"provider": "linux"})
     inventory_dashboard = client.get("/endpoint-inventory-ingestions/dashboard")
+    freshness_report = client.post(
+        "/endpoint-inventory/freshness-report",
+        json={"provider": "linux", "channel": "stable", "max_age_hours": 1, "critical_age_hours": 1},
+    )
+    freshness_history = client.get("/endpoint-inventory-freshness", params={"provider": "linux"})
+    freshness_dashboard = client.get("/endpoint-inventory-freshness/dashboard")
     history = client.get("/endpoint-reconciliations", params={"drift_status": "drift_detected"})
     dashboard = client.get("/endpoint-reconciliations/dashboard")
     remediation_request = client.post(
@@ -595,6 +601,16 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     remediation_history = client.get("/endpoint-remediations")
     remediation_dashboard = client.get("/endpoint-remediations/dashboard")
+    automation = client.post(
+        f"/endpoint-inventory-ingestions/{inventory_response.json()['inventory_id']}/reconcile",
+        json={
+            "desired_manifest": desired_manifest,
+            "remediation_strategy": "rollback",
+            "requested_by": "release-agent",
+        },
+    )
+    automation_history = client.get("/endpoint-reconciliation-automations")
+    automation_dashboard = client.get("/endpoint-reconciliation-automations/dashboard")
     config = client.get("/console/config").json()
 
     assert response.status_code == 200
@@ -604,6 +620,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert inventory_history.json()["total"] == 1
     assert inventory_dashboard.status_code == 200
     assert inventory_dashboard.json()["providers"][0]["provider"] == "linux"
+    assert freshness_report.status_code == 200
+    assert freshness_report.json()["metadata"]["metadata_kind"] == "endpoint-inventory-freshness-report"
+    assert freshness_history.status_code == 200
+    assert freshness_history.json()["total"] == 1
+    assert freshness_dashboard.status_code == 200
+    assert freshness_dashboard.json()["report_count"] == 1
     assert response.json()["drift_status"] == "drift_detected"
     assert response.json()["metadata"]["metadata_kind"] == "managed-endpoint-reconciliation"
     assert history.status_code == 200
@@ -620,8 +642,17 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert remediation_history.json()["total"] == 2
     assert remediation_dashboard.status_code == 200
     assert remediation_dashboard.json()["execution_count"] == 1
+    assert automation.status_code == 200
+    assert automation.json()["metadata"]["metadata_kind"] == "endpoint-reconciliation-automation"
+    assert automation.json()["approval"]["state"] == "pending"
+    assert automation_history.status_code == 200
+    assert automation_history.json()["total"] == 1
+    assert automation_dashboard.status_code == 200
+    assert automation_dashboard.json()["pending_approval_count"] == 1
     assert config["endpoints"]["endpoint_inventory_dashboard"] == "/endpoint-inventory-ingestions/dashboard"
+    assert config["endpoints"]["endpoint_inventory_freshness_dashboard"] == "/endpoint-inventory-freshness/dashboard"
     assert config["endpoints"]["endpoint_reconciliation_dashboard"] == "/endpoint-reconciliations/dashboard"
+    assert config["endpoints"]["endpoint_reconciliation_automation_dashboard"] == "/endpoint-reconciliation-automations/dashboard"
     assert config["endpoints"]["endpoint_remediation_dashboard"] == "/endpoint-remediations/dashboard"
 
 
