@@ -68,6 +68,9 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     for path in sorted((dist / "bin").glob("*")):
         if path.is_file():
             artifacts.append(_artifact(dist, path, "go-binary"))
+    installer_metadata = dist / "cavra-runtime.installers.json"
+    if installer_metadata.exists():
+        artifacts.append(_artifact(dist, installer_metadata, "installer-metadata"))
     for path in sorted(dist.glob("*.spdx.json")):
         artifacts.append(_artifact(dist, path, "sbom"))
     bootstrap = dist / "offline-trust-root-bootstrap.json"
@@ -171,6 +174,7 @@ def write_offline_trust_bootstrap(
             "signature_key_id": key_id,
             "required_files": [
                 "checksums.txt",
+                "cavra-runtime.installers.json",
                 "cavra-runtime.sbom.spdx.json",
                 "cavra-runtime.provenance.intoto.json",
                 "release-evidence.json",
@@ -188,6 +192,67 @@ def write_offline_trust_bootstrap(
             ],
         },
     )
+
+
+def write_installer_metadata(dist: Path, *, version: str, commit: str, repository: str) -> Path:
+    generated_at = datetime.now(timezone.utc).isoformat()
+    targets: list[dict[str, Any]] = []
+    for binary in sorted((dist / "bin").glob("*")):
+        if not binary.is_file():
+            continue
+        target = _binary_target(binary.name)
+        install_path = (
+            "%ProgramFiles%\\CAVRA\\cavra-runtime.exe"
+            if target["os"] == "windows"
+            else "/usr/local/bin/cavra-runtime"
+        )
+        install_command = (
+            f'copy /Y "{binary.name}" "{install_path}"'
+            if target["os"] == "windows"
+            else f"install -m 0755 {binary.name} {install_path}"
+        )
+        targets.append(
+            {
+                "target": f"{target['os']}/{target['arch']}",
+                "os": target["os"],
+                "arch": target["arch"],
+                "binary": binary.relative_to(dist).as_posix(),
+                "binary_sha256": sha256_file(binary),
+                "size_bytes": binary.stat().st_size,
+                "install_method": "manual-binary",
+                "install_path": install_path,
+                "install_command": install_command,
+                "verification_command": "sha256sum -c checksums.txt",
+            }
+        )
+    return write_json(
+        dist / "cavra-runtime.installers.json",
+        {
+            "schema_version": "cavra.go-runtime.installers.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "repository": repository,
+            "generated_at": generated_at,
+            "targets": targets,
+            "operator_notes": [
+                "Verify this installer metadata through checksums, SLSA provenance, and detached signatures before installation.",
+                "Install only the binary matching the target operating system and architecture.",
+                "Preserve this metadata with the change record for developer workstations, CI runners, and restricted networks.",
+            ],
+        },
+    )
+
+
+def _binary_target(name: str) -> dict[str, str]:
+    stem = name.removesuffix(".exe")
+    if not stem.startswith("cavra-runtime_"):
+        return {"os": "unknown", "arch": "unknown"}
+    parts = stem.removeprefix("cavra-runtime_").rsplit("_", 2)
+    if len(parts) != 3:
+        return {"os": "unknown", "arch": "unknown"}
+    return {"os": parts[1], "arch": parts[2]}
 
 
 def write_checksums(dist: Path, artifacts: list[Artifact]) -> Path:
@@ -338,6 +403,7 @@ def write_evidence(
             "spdx-sbom",
             "slsa-provenance",
             "ed25519-detached-signatures",
+            "signed-installer-metadata",
             "release-evidence-manifest",
         ],
     }
@@ -386,6 +452,7 @@ def package_release(args: argparse.Namespace) -> None:
         repository=args.repository,
         key_id=args.key_id,
     )
+    write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
     artifacts = collect_artifacts(dist)
     provenance = write_slsa_provenance(
         dist,

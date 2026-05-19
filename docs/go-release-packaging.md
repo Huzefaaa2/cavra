@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -13,6 +13,7 @@ The workflow:
 - Uses `go build -trimpath -ldflags="-s -w"` for reproducible, stripped binaries.
 - Exports Go module metadata with `go list -m -json all`.
 - Generates `cavra-runtime.sbom.spdx.json`.
+- Generates `cavra-runtime.installers.json` with per-platform install metadata, binary checksums, install paths, and verification commands.
 - Generates `cavra-runtime.provenance.intoto.json` using an in-toto Statement and SLSA provenance predicate.
 - Generates `offline-trust-root-bootstrap.json` with offline operator notes and verification commands.
 - Generates `checksums.txt`.
@@ -69,6 +70,15 @@ cavra release validate-upgrade \
 
 The upgrade validator verifies both packages, rejects rollback versions, detects removed release controls, and flags missing Go runtime binary targets across Linux, macOS, and Windows packages.
 
+Inspect signed installer metadata before deploying to developer workstations, CI runners, or restricted networks:
+
+```bash
+jq '.targets[] | {target, binary, install_path, binary_sha256}' \
+  go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.installers.json
+```
+
+`cavra release verify-go-package` requires `cavra-runtime.installers.json`, checks every referenced binary digest, confirms checksum guidance, and verifies the metadata through checksums, SLSA provenance, and detached signatures.
+
 For unsigned dry-run artifacts only:
 
 ```bash
@@ -91,12 +101,13 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a security engineer, I can verify that binaries map to a specific commit, ref, workflow identity, and dependency set.
 - As an enterprise architect, I can verify an air-gapped runtime zip before restricted-network transfer.
 - As a platform engineer, I can compare the current approved package with a release candidate before promoting it to developers or CI runners.
+- As an endpoint engineering owner, I can approve signed installer metadata before placing CAVRA binaries on managed developer workstations.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add signed installer metadata for packaged deployment targets.
+1. Add Go runtime installer smoke validation for packaged deployment targets.

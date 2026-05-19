@@ -423,4 +423,22 @@ Validation:
 - `python3 -m pytest tests/test_evidence.py::test_export_trust_root_distribution_creates_offline_artifacts tests/test_cli.py::test_trust_distribution_cli_exports_offline_package -q` passed locally.
 - `python3 -m ruff check src/cavra/evidence.py src/cavra/cli.py tests/test_evidence.py tests/test_cli.py` passed locally.
 
-Recommended next issue: add signed installer metadata for packaged deployment targets.
+Recommended next issue: delivered below as signed installer metadata.
+
+## Signed Installer Metadata
+
+Status: complete for the current release-integrity slice.
+
+Completed:
+- Added `cavra-runtime.installers.json` to Go runtime release packages.
+- Recorded per-target binary path, operating system, architecture, install path, install method, checksum, and verification command.
+- Added installer metadata to checksums, SLSA provenance subjects, release evidence, offline trust bootstrap required files, and detached signature coverage.
+- Updated release package verification to require and validate installer metadata before package approval.
+- Updated README, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added tests for installer metadata generation, signature/provenance coverage, and missing metadata rejection.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q` passed locally.
+- `python3 -m ruff check scripts/package_go_release.py src/cavra/release.py tests/test_go_release_packaging.py` passed locally.
+
+Recommended next issue: add Go runtime installer smoke validation for packaged deployment targets.

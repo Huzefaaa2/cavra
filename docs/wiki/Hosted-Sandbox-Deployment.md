@@ -42,4 +42,4 @@ The hosted sandbox shortens enterprise review by giving security, platform, and 
 
 ## Next
 
-Add signed installer metadata for packaged deployment targets.
+Add Go runtime installer smoke validation for packaged deployment targets.

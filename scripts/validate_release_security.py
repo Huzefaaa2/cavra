@@ -27,11 +27,13 @@ REQUIRED_TEXT = {
         "https://slsa.dev/provenance/v1",
         "cavra-runtime.provenance.intoto.json",
         "offline-trust-root-bootstrap.json",
+        "cavra-runtime.installers.json",
     ],
     "src/cavra/release.py": [
         "verify_go_release_provenance",
         "verify_go_airgap_bundle",
         "validate_go_release_upgrade",
+        "verify_go_installer_metadata",
         "verify_offline_trust_bootstrap",
         "https://slsa.dev/provenance/v1",
     ],

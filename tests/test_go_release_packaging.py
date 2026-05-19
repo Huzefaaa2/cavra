@@ -55,9 +55,11 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     evidence = json.loads((dist / "release-evidence.json").read_text(encoding="utf-8"))
     provenance = json.loads((dist / "cavra-runtime.provenance.intoto.json").read_text(encoding="utf-8"))
     bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
+    installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
+    assert "cavra-runtime.installers.json" in checksums
     assert "cavra-runtime.provenance.intoto.json" in checksums
     assert "offline-trust-root-bootstrap.json" in checksums
     assert sbom["spdxVersion"] == "SPDX-2.3"
@@ -67,12 +69,18 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert provenance["predicate"]["buildDefinition"]["externalParameters"]["version"] == "v0.1.0-test"
     assert bootstrap["schema_version"] == "cavra.offline-trust-bootstrap.v1"
     assert bootstrap["mode"] == "air_gapped"
+    assert "cavra-runtime.installers.json" in bootstrap["required_files"]
     assert "cavra release verify-airgap-bundle cavra-go-runtime-v0.1.0-test.zip" in bootstrap["verification_commands"]
+    assert installers["schema_version"] == "cavra.go-runtime.installers.v1"
+    assert installers["targets"][0]["target"] == "linux/amd64"
+    assert installers["targets"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
+    assert installers["targets"][0]["verification_command"] == "sha256sum -c checksums.txt"
     assert evidence["schema_version"] == "cavra.go-release.evidence.v1"
     assert evidence["dry_run"] is True
     assert evidence["signature_count"] == 0
     assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {
         "go-binary",
+        "installer-metadata",
         "sbom",
         "offline-trust-bootstrap",
         "slsa-provenance",
@@ -120,6 +128,9 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_artifacts
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_provenance
     assert "bin/cavra-runtime_test_linux_amd64" in valid_result.verified_signatures
+    assert "cavra-runtime.installers.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.installers.json" in valid_result.verified_provenance
+    assert "cavra-runtime.installers.json" in valid_result.verified_signatures
     assert "cavra-runtime.provenance.intoto.json" in valid_result.verified_signatures
     assert "offline-trust-root-bootstrap.json" in valid_result.verified_signatures
     assert "release-evidence.json" in valid_result.verified_signatures
@@ -134,6 +145,20 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert any("checksum mismatch" in error for error in invalid_result.errors)
     cli_invalid_result = runner.invoke(app, ["release", "verify-go-package", str(dist)])
     assert cli_invalid_result.exit_code == 1
+
+
+def test_go_release_verifier_rejects_missing_installer_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    (dist / "cavra-runtime.installers.json").unlink()
+
+    invalid_result = verify_go_release_package(dist)
+    assert not invalid_result.valid
+    assert any("missing cavra-runtime.installers.json" in error for error in invalid_result.errors)
 
 
 def test_airgap_bundle_verifier_accepts_signed_zip_and_rejects_missing_bootstrap(tmp_path: Path, monkeypatch) -> None:
