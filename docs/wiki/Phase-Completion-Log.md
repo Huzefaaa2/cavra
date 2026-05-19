@@ -734,4 +734,23 @@ Validation:
 - `python3 -m ruff check scripts/package_go_release.py src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_go_release_packaging.py::test_go_release_verifier_accepts_signed_package_and_rejects_tampering tests/test_go_release_packaging.py::test_go_release_verifier_rejects_missing_channel_and_updater_policy -q` passed locally.
 
-Recommended next issue: add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.
+Recommended next issue: delivered below as release-channel promotion approvals and endpoint-management export bundles.
+
+## Release-Channel Promotion Approvals And Endpoint-Management Export Bundles
+
+Status: complete for the current release channel publication slice.
+
+Completed:
+- Added signed `release-channel-promotion-request.json` artifacts for canary, beta, and stable channel promotion approval workflows.
+- Bound channel promotion requests to `cavra-runtime.channels.json`, `cavra-runtime.updater-policy.json`, release evidence, signed package verification, and endpoint change approval records.
+- Added `cavra release request-channel-promotion` with optional JSON and SQLite approval-store persistence.
+- Added `cavra release export-endpoint-management` for Jamf, Intune, and Linux fleet export bundles.
+- Generated provider artifacts including `jamf-policy.json`, `intune-win32-app.json`, `linux-fleet-manifest.json`, `linux-install-cavra-runtime.sh`, export manifest, Markdown summary, and checksums.
+- Added signature verification for release-channel promotion requests and tests for provider bundle generation.
+- Updated README, CLI docs, Go release packaging docs, release advisory docs, roadmap docs, and wiki source.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py tests/test_go_release_packaging.py` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_release_channel_promotion_request_and_endpoint_exports -q` passed locally.
+
+Recommended next issue: add API and console views for release-channel promotion requests and endpoint-management export bundle history.

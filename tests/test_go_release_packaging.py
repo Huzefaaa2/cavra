@@ -16,12 +16,15 @@ from cavra.release import (
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
+    create_release_channel_promotion_request,
+    export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     smoke_test_go_installers,
     validate_go_release_upgrade,
     verify_managed_endpoint_rollout_evidence,
     verify_go_airgap_bundle,
     verify_go_release_package,
+    verify_release_channel_promotion_request_signature,
     verify_rollout_promotion_request_signature,
 )
 
@@ -245,6 +248,113 @@ def test_go_release_verifier_rejects_missing_channel_and_updater_policy(tmp_path
     assert not invalid_result.valid
     assert any("missing cavra-runtime.channels.json" in error for error in invalid_result.errors)
     assert any("missing cavra-runtime.updater-policy.json" in error for error in invalid_result.errors)
+
+
+def test_release_channel_promotion_request_and_endpoint_exports(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(
+        tmp_path,
+        "v0.1.0-test",
+        "abc123",
+        targets=("linux_amd64", "darwin_arm64", "windows_amd64"),
+    )
+
+    request = create_release_channel_promotion_request(
+        dist,
+        output_dir=tmp_path / "channel-promotion",
+        channel="stable",
+        target_ring="enterprise",
+        requested_by="release-manager",
+        signing_key_pem=private_key.read_text(encoding="utf-8"),
+    )
+
+    assert request.valid
+    assert request.channel == "stable"
+    assert request.approval["state"] == "pending"
+    assert request.approval["decision"]["action_type"] == "release_promote_channel_manifest"
+    assert request.request["channel_manifest"]["channel"]["channel"] == "stable"
+    assert request.request["updater_policy"]["policy"]["channel"] == "stable"
+    assert {target["management_tool"] for target in request.request["workstation_targets"]} >= {
+        "Jamf Pro",
+        "Microsoft Intune",
+        "Linux endpoint management",
+    }
+    verify_release_channel_promotion_request_signature(request.request)
+    assert set(request.files) == {"release-channel-promotion-request.json", "release-channel-promotion-request.md"}
+
+    export = export_endpoint_management_bundles(
+        dist,
+        tmp_path / "endpoint-export",
+        channel="stable",
+        provider="all",
+        promotion_request=request.request,
+    )
+
+    assert export.valid
+    assert export.providers == ["intune", "jamf", "linux"]
+    assert set(export.files) >= {
+        "endpoint-management-export-manifest.json",
+        "endpoint-management-export-manifest.md",
+        "checksums.txt",
+        "jamf-policy.json",
+        "intune-win32-app.json",
+        "linux-fleet-manifest.json",
+        "linux-install-cavra-runtime.sh",
+    }
+    assert export.manifest["approval"]["approval_id"] == request.approval["approval_id"]
+    jamf = json.loads((tmp_path / "endpoint-export" / "jamf-policy.json").read_text(encoding="utf-8"))
+    intune = json.loads((tmp_path / "endpoint-export" / "intune-win32-app.json").read_text(encoding="utf-8"))
+    linux = json.loads((tmp_path / "endpoint-export" / "linux-fleet-manifest.json").read_text(encoding="utf-8"))
+    assert jamf["schema_version"] == "cavra.endpoint-management.jamf.v1"
+    assert intune["schema_version"] == "cavra.endpoint-management.intune.v1"
+    assert linux["schema_version"] == "cavra.endpoint-management.linux.v1"
+
+    approval_json = tmp_path / "channel-approvals.json"
+    cli_request = runner.invoke(
+        app,
+        [
+            "release",
+            "request-channel-promotion",
+            str(dist),
+            "--output",
+            str(tmp_path / "cli-channel-promotion"),
+            "--channel",
+            "stable",
+            "--approval-store",
+            str(approval_json),
+            "--json",
+        ],
+    )
+    assert cli_request.exit_code == 0
+    request_payload = json.loads(cli_request.output)
+    assert request_payload["valid"] is True
+    assert json.loads(approval_json.read_text(encoding="utf-8"))["items"][0]["state"] == "pending"
+
+    cli_export = runner.invoke(
+        app,
+        [
+            "release",
+            "export-endpoint-management",
+            str(dist),
+            "--output",
+            str(tmp_path / "cli-endpoint-export"),
+            "--channel",
+            "stable",
+            "--provider",
+            "jamf",
+            "--promotion-request",
+            str(tmp_path / "cli-channel-promotion" / "release-channel-promotion-request.json"),
+            "--json",
+        ],
+    )
+    assert cli_export.exit_code == 0
+    export_payload = json.loads(cli_export.output)
+    assert export_payload["valid"] is True
+    assert export_payload["providers"] == ["jamf"]
+    assert "jamf-policy.json" in export_payload["files"]
 
 
 def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:

@@ -78,8 +78,10 @@ from cavra.release import (
     build_rollout_rollback_execution_audit_event,
     create_managed_endpoint_rollout_rollback_execution,
     capture_managed_endpoint_rollout_evidence,
+    create_release_channel_promotion_request,
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
+    export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     load_release_channel_manifest,
     load_workstation_updater_policy,
@@ -1498,6 +1500,135 @@ def updater_policy(
                 f"  {item.get('channel')}: approval={item.get('approval_required')} "
                 f"rings={len(item.get('rollout_rings', []))}"
             )
+
+
+@release_app.command("request-channel-promotion")
+def request_channel_promotion(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for signed channel promotion request artifacts.")] = Path(
+        ".cavra/release/channel-promotion"
+    ),
+    channel: Annotated[str, typer.Option(help="Release channel to promote, such as stable, beta, or canary.")] = "stable",
+    target_ring: Annotated[str, typer.Option(help="Endpoint rollout ring to publish into.")] = "enterprise",
+    requested_by: Annotated[str, typer.Option(help="Actor or automation identity requesting promotion.")] = "release-manager",
+    approver_group: Annotated[str, typer.Option(help="Approval group for channel promotion review.")] = "Endpoint Change Advisory Board",
+    ttl_hours: Annotated[int, typer.Option(help="Approval request time to live in hours.")] = 24,
+    signing_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 private key PEM path. Defaults to CAVRA_RELEASE_CHANNEL_SIGNING_KEY or CAVRA_GO_RELEASE_SIGNING_KEY.")] = None,
+    signer: Annotated[str, typer.Option(help="Signer identity recorded in the channel promotion request signature.")] = "release-manager",
+    approval_store: Annotated[Optional[Path], typer.Option(help="Optional JSON approval store to upsert the generated approval.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval store to upsert the generated approval.")] = None,
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for referenced release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for referenced release artifacts.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable channel promotion output."),
+) -> None:
+    """Create a signed approval request for release channel promotion."""
+    signing_key_pem = signing_key.read_text(encoding="utf-8") if signing_key else None
+    try:
+        result = create_release_channel_promotion_request(
+            package_dir,
+            output_dir=output,
+            channel=channel,
+            target_ring=target_ring,
+            requested_by=requested_by,
+            approver_group=approver_group,
+            ttl_hours=ttl_hours,
+            signing_key_pem=signing_key_pem,
+            signer=signer,
+            require_signatures=require_signatures,
+            require_provenance=require_provenance,
+        )
+    except RuntimeError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    persisted: list[str] = []
+    if result.valid and result.approval:
+        if approval_store:
+            ApprovalStore(approval_store).upsert(result.approval)
+            persisted.append(str(approval_store))
+        if approval_sqlite:
+            SQLiteApprovalStore(approval_sqlite).upsert(result.approval)
+            persisted.append(str(approval_sqlite))
+    payload = result.to_dict() | {"approval_stores": persisted}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] release channel promotion request")
+        if result.channel:
+            console.print(f"  channel: {result.channel}")
+        if result.approval:
+            console.print(f"  approval: {result.approval['approval_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in persisted:
+            console.print(f"  approval store: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("export-endpoint-management")
+def export_endpoint_management(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for endpoint-management export artifacts.")] = Path(
+        ".cavra/release/endpoint-management-export"
+    ),
+    channel: Annotated[str, typer.Option(help="Release channel to export, such as stable, beta, or canary.")] = "stable",
+    provider: Annotated[str, typer.Option(help="all, jamf, intune, or linux.")] = "all",
+    promotion_request: Annotated[Optional[Path], typer.Option(help="Optional signed release channel promotion request JSON to link.")] = None,
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for referenced release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for referenced release artifacts.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable endpoint export output."),
+) -> None:
+    """Export Jamf, Intune, and Linux endpoint-management bundles for a release channel."""
+    try:
+        promotion_payload = json.loads(promotion_request.read_text(encoding="utf-8")) if promotion_request else None
+        result = export_endpoint_management_bundles(
+            package_dir,
+            output,
+            channel=channel,
+            provider=provider,
+            promotion_request=promotion_payload,
+            require_signatures=require_signatures,
+            require_provenance=require_provenance,
+        )
+    except (OSError, json.JSONDecodeError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint-management export")
+        for provider_name in result.providers:
+            console.print(f"  provider: {provider_name}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
 
 
 @release_app.command("capture-rollout")

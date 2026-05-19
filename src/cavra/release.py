@@ -234,6 +234,56 @@ class ManagedEndpointRolloutRollbackExecutionResult:
 
 
 @dataclass(frozen=True)
+class ReleaseChannelPromotionRequestResult:
+    package_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    channel: str | None = None
+    request: dict[str, Any] | None = None
+    approval: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "package_dir": str(self.package_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "channel": self.channel,
+            "request": self.request,
+            "approval": self.approval,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
+class EndpointManagementExportResult:
+    package_dir: Path
+    output_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    channel: str | None = None
+    providers: list[str] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
+    manifest: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "package_dir": str(self.package_dir),
+            "output_dir": str(self.output_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "channel": self.channel,
+            "providers": self.providers,
+            "files": self.files,
+            "manifest": self.manifest,
+        }
+
+
+@dataclass(frozen=True)
 class ReleaseAuditExportResult:
     output_dir: Path
     files: list[Path]
@@ -1082,6 +1132,305 @@ def create_managed_endpoint_rollout_promotion_request(
     )
 
 
+def create_release_channel_promotion_request(
+    package_dir: Path,
+    *,
+    output_dir: Path | None = None,
+    channel: str = "stable",
+    target_ring: str = "enterprise",
+    requested_by: str = "release-manager",
+    approver_group: str = "Endpoint Change Advisory Board",
+    ttl_hours: int = 24,
+    signing_key_pem: str | None = None,
+    signer: str = "release-manager",
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+) -> ReleaseChannelPromotionRequestResult:
+    package_dir = package_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    package_result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors.extend(package_result.errors)
+    warnings.extend(package_result.warnings)
+    channel_manifest_path = package_dir / "cavra-runtime.channels.json"
+    updater_policy_path = package_dir / "cavra-runtime.updater-policy.json"
+    release_evidence_path = package_dir / "release-evidence.json"
+    try:
+        channel_manifest = load_release_channel_manifest(channel_manifest_path)
+        channel_payload = _select_release_channel(channel_manifest, channel)
+    except (OSError, ReleaseVerificationError, ValueError) as exc:
+        errors.append(str(exc))
+        channel_manifest = {}
+        channel_payload = {}
+    try:
+        updater_policy = load_workstation_updater_policy(updater_policy_path)
+        channel_policy = _select_updater_channel_policy(updater_policy, channel)
+    except (OSError, ReleaseVerificationError, ValueError) as exc:
+        errors.append(str(exc))
+        updater_policy = {}
+        channel_policy = {}
+    try:
+        release_evidence = json.loads(release_evidence_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        errors.append(f"missing release-evidence.json: {exc}")
+        release_evidence = {}
+    except json.JSONDecodeError as exc:
+        errors.append(f"invalid release-evidence.json: {exc}")
+        release_evidence = {}
+    if channel_payload and channel_payload.get("approval_required") is not True:
+        errors.append(f"release channel {channel} must require approval before promotion")
+    if channel_payload and channel_payload.get("auto_update") is not False:
+        errors.append(f"release channel {channel} must disable auto_update before promotion")
+    if channel_policy and channel_policy.get("approval_required") is not True:
+        errors.append(f"updater policy channel {channel} must require approval before promotion")
+    signing_key_pem = signing_key_pem or os.environ.get("CAVRA_RELEASE_CHANNEL_SIGNING_KEY") or os.environ.get(
+        "CAVRA_GO_RELEASE_SIGNING_KEY"
+    )
+    if not signing_key_pem:
+        errors.append("release channel promotion request signing key is required")
+    if errors:
+        return ReleaseChannelPromotionRequestResult(
+            package_dir=package_dir,
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            channel=channel,
+        )
+
+    request_id = _release_channel_promotion_id(channel, str(release_evidence.get("version")), target_ring)
+    workstation_targets = [
+        target for target in channel_payload.get("workstation_targets", []) if isinstance(target, dict)
+    ]
+    decision = {
+        "decision_id": f"{request_id}:decision",
+        "session_id": f"release-channel:{channel}:{release_evidence.get('version')}",
+        "correlation_id": request_id,
+        "action_type": "release_promote_channel_manifest",
+        "target": f"{channel}->{target_ring}",
+        "decision": "require_approval",
+        "severity": "high",
+        "rule_id": "release.channel.promotion.require_approval",
+        "reason": "Release channel promotion requires signed package verification and endpoint change approval.",
+        "actor": requested_by,
+        "policy_pack": "cavra-release-integrity",
+        "repository": release_evidence.get("repository") or channel_manifest.get("repository"),
+        "evidence_refs": [
+            "artifact://cavra-runtime.channels.json",
+            "artifact://cavra-runtime.updater-policy.json",
+            "artifact://release-evidence.json",
+        ],
+        "metadata": {
+            "channel": channel,
+            "target_ring": target_ring,
+            "version": release_evidence.get("version"),
+            "commit": release_evidence.get("commit"),
+            "workstation_targets": sorted(str(target.get("id")) for target in workstation_targets if target.get("id")),
+            "updater_policy_controls": channel_policy.get("hold_conditions", []),
+            "package_verification": package_result.to_dict(),
+        },
+    }
+    approval = create_approval_request(
+        decision,
+        approver_group=approver_group,
+        requested_by=requested_by,
+        ttl_hours=ttl_hours,
+    )
+    request_payload = {
+        "schema_version": "cavra.go-runtime.release-channel-promotion-request.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "request_id": request_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "channel": channel,
+        "target_ring": target_ring,
+        "release": {
+            "version": release_evidence.get("version") or channel_manifest.get("version"),
+            "commit": release_evidence.get("commit") or channel_manifest.get("commit"),
+            "ref": release_evidence.get("ref"),
+            "repository": release_evidence.get("repository") or channel_manifest.get("repository"),
+        },
+        "channel_manifest": {
+            "path": "cavra-runtime.channels.json",
+            "sha256": sha256_file(channel_manifest_path),
+            "channel": channel_payload,
+        },
+        "updater_policy": {
+            "path": "cavra-runtime.updater-policy.json",
+            "sha256": sha256_file(updater_policy_path),
+            "policy": channel_policy,
+        },
+        "workstation_targets": workstation_targets,
+        "controls": [
+            "release-package-verified",
+            "channel-manifest-approval-required",
+            "updater-policy-approval-required",
+            "endpoint-export-bundle-required-before-publish",
+            "rollback-package-reference-required",
+        ],
+        "approval": approval,
+    }
+    request_payload["signature"] = _sign_json_payload_ed25519(
+        request_payload,
+        signing_key_pem,
+        signer=signer,
+        signature_schema="cavra.release-channel-promotion.signature.v1",
+    )
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        request_path = output_dir / "release-channel-promotion-request.json"
+        summary_path = output_dir / "release-channel-promotion-request.md"
+        _write_release_json(request_path, request_payload)
+        summary_path.write_text(_release_channel_promotion_markdown_summary(request_payload), encoding="utf-8")
+        files = [request_path.name, summary_path.name]
+    return ReleaseChannelPromotionRequestResult(
+        package_dir=package_dir,
+        valid=True,
+        warnings=warnings,
+        channel=channel,
+        request=request_payload,
+        approval=approval,
+        files=files,
+    )
+
+
+def export_endpoint_management_bundles(
+    package_dir: Path,
+    output_dir: Path,
+    *,
+    channel: str = "stable",
+    provider: str = "all",
+    promotion_request: dict[str, Any] | None = None,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+) -> EndpointManagementExportResult:
+    package_dir = package_dir.resolve()
+    output_dir = output_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    package_result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors.extend(package_result.errors)
+    warnings.extend(package_result.warnings)
+    try:
+        channel_manifest = load_release_channel_manifest(package_dir / "cavra-runtime.channels.json")
+        channel_payload = _select_release_channel(channel_manifest, channel)
+    except (OSError, ReleaseVerificationError, ValueError) as exc:
+        errors.append(str(exc))
+        channel_manifest = {}
+        channel_payload = {}
+    try:
+        updater_policy = load_workstation_updater_policy(package_dir / "cavra-runtime.updater-policy.json")
+        channel_policy = _select_updater_channel_policy(updater_policy, channel)
+    except (OSError, ReleaseVerificationError, ValueError) as exc:
+        errors.append(str(exc))
+        channel_policy = {}
+    if promotion_request:
+        try:
+            verify_release_channel_promotion_request_signature(promotion_request)
+        except (ReleaseVerificationError, RuntimeError) as exc:
+            errors.append(str(exc))
+        if promotion_request.get("channel") != channel:
+            errors.append("promotion request channel does not match export channel")
+    selected_providers = _endpoint_export_providers(provider)
+    if not selected_providers:
+        errors.append(f"unsupported endpoint-management export provider: {provider}")
+    workstation_targets = [
+        target for target in channel_payload.get("workstation_targets", []) if isinstance(target, dict)
+    ]
+    if not workstation_targets and not errors:
+        errors.append(f"release channel {channel} has no workstation targets")
+    if errors:
+        return EndpointManagementExportResult(
+            package_dir=package_dir,
+            output_dir=output_dir,
+            valid=False,
+            errors=errors,
+            warnings=warnings,
+            channel=channel,
+            providers=selected_providers,
+        )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    files: list[Path] = []
+    provider_targets: dict[str, list[dict[str, Any]]] = {name: [] for name in selected_providers}
+    for target in workstation_targets:
+        provider_name = _endpoint_provider_for_target(target)
+        if provider_name not in provider_targets:
+            continue
+        provider_targets[provider_name].append(target)
+    for provider_name, targets in provider_targets.items():
+        if not targets:
+            continue
+        if provider_name == "jamf":
+            files.extend(_write_jamf_export(output_dir, channel, targets, channel_policy))
+        elif provider_name == "intune":
+            files.extend(_write_intune_export(output_dir, channel, targets, channel_policy))
+        elif provider_name == "linux":
+            files.extend(_write_linux_export(output_dir, channel, targets, channel_policy))
+    manifest = {
+        "schema_version": "cavra.endpoint-management-export.v1",
+        "product": "CAVRA",
+        "component": "go-enforcement-plane",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "channel": channel,
+        "provider": provider,
+        "providers": sorted(provider for provider, targets in provider_targets.items() if targets),
+        "package_dir": str(package_dir),
+        "release": {
+            "version": channel_manifest.get("version"),
+            "commit": channel_manifest.get("commit"),
+            "repository": channel_manifest.get("repository"),
+        },
+        "approval": {
+            "required": True,
+            "request_id": promotion_request.get("request_id") if promotion_request else None,
+            "approval_id": (
+                promotion_request.get("approval", {}).get("approval_id")
+                if isinstance(promotion_request.get("approval") if promotion_request else None, dict)
+                else None
+            ),
+        },
+        "controls": [
+            "release-package-verified-before-export",
+            "channel-promotion-approval-required-before-publish",
+            "endpoint-tool-import-review-required",
+            "rollback-package-reference-required",
+        ],
+        "package_verification": package_result.to_dict(),
+        "files": [path.name for path in files],
+    }
+    manifest_path = output_dir / "endpoint-management-export-manifest.json"
+    summary_path = output_dir / "endpoint-management-export-manifest.md"
+    _write_release_json(manifest_path, manifest)
+    summary_path.write_text(_endpoint_export_markdown_summary(manifest), encoding="utf-8")
+    files.extend([manifest_path, summary_path])
+    checksums_path = output_dir / "checksums.txt"
+    checksums_path.write_text(
+        "\n".join(f"{sha256_file(path)}  {path.name}" for path in sorted(files)) + "\n",
+        encoding="utf-8",
+    )
+    files.append(checksums_path)
+    return EndpointManagementExportResult(
+        package_dir=package_dir,
+        output_dir=output_dir,
+        valid=True,
+        warnings=warnings,
+        channel=channel,
+        providers=manifest["providers"],
+        files=[path.name for path in files],
+        manifest=manifest,
+    )
+
+
 def create_managed_endpoint_rollout_promotion_execution(
     promotion_request: dict[str, Any],
     approval: dict[str, Any],
@@ -1927,6 +2276,11 @@ def _promotion_request_id(rollout_id: str, target_ring: str) -> str:
     return f"rpr_{digest}"
 
 
+def _release_channel_promotion_id(channel: str, version: str, target_ring: str) -> str:
+    digest = hashlib.sha256(f"{channel}:{version}:{target_ring}".encode("utf-8")).hexdigest()[:12]
+    return f"rcp_{digest}"
+
+
 def _promotion_execution_id(request_id: str, approval_id: str) -> str:
     digest = hashlib.sha256(f"{request_id}:{approval_id}".encode("utf-8")).hexdigest()[:12]
     return f"rpe_{digest}"
@@ -1956,7 +2310,164 @@ def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[di
     return refs
 
 
-def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *, signer: str) -> dict[str, Any]:
+def _select_release_channel(channel_manifest: dict[str, Any], channel: str) -> dict[str, Any]:
+    for item in channel_manifest.get("channels", []):
+        if isinstance(item, dict) and item.get("channel") == channel:
+            return item
+    raise ReleaseVerificationError(f"release channel not found: {channel}")
+
+
+def _select_updater_channel_policy(updater_policy: dict[str, Any], channel: str) -> dict[str, Any]:
+    for item in updater_policy.get("policies", []):
+        if isinstance(item, dict) and item.get("channel") == channel:
+            return item
+    raise ReleaseVerificationError(f"updater policy channel not found: {channel}")
+
+
+def _endpoint_export_providers(provider: str) -> list[str]:
+    providers = {"jamf", "intune", "linux"}
+    if provider == "all":
+        return sorted(providers)
+    normalized = provider.lower()
+    return [normalized] if normalized in providers else []
+
+
+def _endpoint_provider_for_target(target: dict[str, Any]) -> str:
+    management_tool = str(target.get("management_tool", "")).lower()
+    deployment_channel = str(target.get("deployment_channel", "")).lower()
+    os_name = str(target.get("os", "")).lower()
+    if "jamf" in management_tool or "jamf" in deployment_channel:
+        return "jamf"
+    if "intune" in management_tool or "intune" in deployment_channel:
+        return "intune"
+    if os_name == "linux" or "linux" in management_tool:
+        return "linux"
+    return "unknown"
+
+
+def _write_jamf_export(
+    output_dir: Path,
+    channel: str,
+    targets: list[dict[str, Any]],
+    channel_policy: dict[str, Any],
+) -> list[Path]:
+    payload = {
+        "schema_version": "cavra.endpoint-management.jamf.v1",
+        "provider": "jamf",
+        "channel": channel,
+        "policy_name": f"CAVRA Go Runtime {channel}",
+        "trigger": f"cavra-runtime-{channel}",
+        "approval_required": True,
+        "rollback_required": True,
+        "soak_hours": _first_ring_soak_hours(channel_policy),
+        "targets": [_endpoint_target_export(target) for target in targets],
+        "install_script": [
+            "#!/bin/bash",
+            "set -euo pipefail",
+            "install -m 0755 cavra-runtime /usr/local/bin/cavra-runtime",
+            "sha256sum -c checksums.txt",
+        ],
+    }
+    path = output_dir / "jamf-policy.json"
+    _write_release_json(path, payload)
+    return [path]
+
+
+def _write_intune_export(
+    output_dir: Path,
+    channel: str,
+    targets: list[dict[str, Any]],
+    channel_policy: dict[str, Any],
+) -> list[Path]:
+    payload = {
+        "schema_version": "cavra.endpoint-management.intune.v1",
+        "provider": "intune",
+        "channel": channel,
+        "display_name": f"CAVRA Go Runtime {channel}",
+        "install_behavior": "system",
+        "approval_required": True,
+        "rollback_required": True,
+        "soak_hours": _first_ring_soak_hours(channel_policy),
+        "targets": [_endpoint_target_export(target) for target in targets],
+        "install_command": "powershell.exe -ExecutionPolicy Bypass -File install-cavra-runtime.ps1",
+        "uninstall_command": "powershell.exe -ExecutionPolicy Bypass -File rollback-cavra-runtime.ps1",
+        "detection_rule": {
+            "type": "file_sha256",
+            "path": "%ProgramFiles%\\CAVRA\\cavra-runtime.exe",
+            "sha256_values": sorted(str(target.get("binary_sha256")) for target in targets if target.get("binary_sha256")),
+        },
+    }
+    path = output_dir / "intune-win32-app.json"
+    _write_release_json(path, payload)
+    return [path]
+
+
+def _write_linux_export(
+    output_dir: Path,
+    channel: str,
+    targets: list[dict[str, Any]],
+    channel_policy: dict[str, Any],
+) -> list[Path]:
+    manifest = {
+        "schema_version": "cavra.endpoint-management.linux.v1",
+        "provider": "linux",
+        "channel": channel,
+        "approval_required": True,
+        "rollback_required": True,
+        "soak_hours": _first_ring_soak_hours(channel_policy),
+        "targets": [_endpoint_target_export(target) for target in targets],
+    }
+    manifest_path = output_dir / "linux-fleet-manifest.json"
+    script_path = output_dir / "linux-install-cavra-runtime.sh"
+    _write_release_json(manifest_path, manifest)
+    script_path.write_text(
+        "\n".join(
+            [
+                "#!/bin/sh",
+                "set -eu",
+                "install -m 0755 cavra-runtime /usr/local/bin/cavra-runtime",
+                "sha256sum -c checksums.txt",
+                "systemctl restart cavra-runtime.service 2>/dev/null || true",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return [manifest_path, script_path]
+
+
+def _endpoint_target_export(target: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": target.get("id"),
+        "platform": target.get("platform"),
+        "os": target.get("os"),
+        "arch": target.get("arch"),
+        "installer_target": target.get("installer_target"),
+        "binary": target.get("binary"),
+        "binary_sha256": target.get("binary_sha256"),
+        "deployment_channel": target.get("deployment_channel"),
+        "management_tool": target.get("management_tool"),
+    }
+
+
+def _first_ring_soak_hours(channel_policy: dict[str, Any]) -> int | None:
+    rings = channel_policy.get("rollout_rings")
+    if not isinstance(rings, list) or not rings:
+        return None
+    first = rings[0]
+    if not isinstance(first, dict):
+        return None
+    value = first.get("soak_hours")
+    return int(value) if isinstance(value, int) else None
+
+
+def _sign_json_payload_ed25519(
+    payload: dict[str, Any],
+    private_key_pem: str,
+    *,
+    signer: str,
+    signature_schema: str = "cavra.rollout-promotion.signature.v1",
+) -> dict[str, Any]:
     try:
         from cryptography.hazmat.primitives import serialization
     except ImportError as exc:  # pragma: no cover
@@ -1971,7 +2482,7 @@ def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *,
     )
     public_key_sha256 = hashlib.sha256(public_key).hexdigest()
     return {
-        "schema_version": "cavra.rollout-promotion.signature.v1",
+        "schema_version": signature_schema,
         "algorithm": "Ed25519",
         "signer": signer,
         "key_id": public_key_sha256[:16],
@@ -1983,36 +2494,52 @@ def _sign_json_payload_ed25519(payload: dict[str, Any], private_key_pem: str, *,
 
 
 def verify_rollout_promotion_request_signature(payload: dict[str, Any]) -> None:
+    _verify_json_payload_ed25519(
+        payload,
+        expected_schema="cavra.rollout-promotion.signature.v1",
+        label="rollout promotion request",
+    )
+
+
+def verify_release_channel_promotion_request_signature(payload: dict[str, Any]) -> None:
+    _verify_json_payload_ed25519(
+        payload,
+        expected_schema="cavra.release-channel-promotion.signature.v1",
+        label="release channel promotion request",
+    )
+
+
+def _verify_json_payload_ed25519(payload: dict[str, Any], *, expected_schema: str, label: str) -> None:
     try:
         from cryptography.exceptions import InvalidSignature
         from cryptography.hazmat.primitives import serialization
     except ImportError as exc:  # pragma: no cover
-        raise RuntimeError("Install cryptography to verify rollout promotion request signatures.") from exc
+        raise RuntimeError(f"Install cryptography to verify {label} signatures.") from exc
     signature = payload.get("signature")
     if not isinstance(signature, dict):
-        raise ReleaseVerificationError("rollout promotion request is missing signature")
-    if signature.get("schema_version") != "cavra.rollout-promotion.signature.v1":
-        raise ReleaseVerificationError("rollout promotion request signature has an invalid schema_version")
+        raise ReleaseVerificationError(f"{label} is missing signature")
+    if signature.get("schema_version") != expected_schema:
+        raise ReleaseVerificationError(f"{label} signature has an invalid schema_version")
     if signature.get("algorithm") != "Ed25519":
-        raise ReleaseVerificationError("rollout promotion request signature must use Ed25519")
+        raise ReleaseVerificationError(f"{label} signature must use Ed25519")
     public_key_pem = str(signature.get("public_key_pem", "")).encode("utf-8")
     if not public_key_pem:
-        raise ReleaseVerificationError("rollout promotion request signature is missing public_key_pem")
+        raise ReleaseVerificationError(f"{label} signature is missing public_key_pem")
     if hashlib.sha256(public_key_pem).hexdigest() != signature.get("public_key_sha256"):
-        raise ReleaseVerificationError("rollout promotion request public key fingerprint mismatch")
+        raise ReleaseVerificationError(f"{label} public key fingerprint mismatch")
     unsigned = {key: value for key, value in payload.items() if key != "signature"}
     canonical = json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
     if hashlib.sha256(canonical).hexdigest() != signature.get("payload_sha256"):
-        raise ReleaseVerificationError("rollout promotion request payload digest mismatch")
+        raise ReleaseVerificationError(f"{label} payload digest mismatch")
     try:
         value = base64.b64decode(str(signature.get("value", "")), validate=True)
     except ValueError as exc:
-        raise ReleaseVerificationError("rollout promotion request signature has invalid base64") from exc
+        raise ReleaseVerificationError(f"{label} signature has invalid base64") from exc
     public_key = serialization.load_pem_public_key(public_key_pem)
     try:
         public_key.verify(value, canonical)
     except InvalidSignature as exc:
-        raise ReleaseVerificationError("rollout promotion request signature is invalid") from exc
+        raise ReleaseVerificationError(f"{label} signature is invalid") from exc
 
 
 def _promotion_request_markdown_summary(payload: dict[str, Any]) -> str:
@@ -2049,6 +2576,75 @@ def _promotion_request_markdown_summary(payload: dict[str, Any]) -> str:
             f"Payload SHA-256: `{payload.get('signature', {}).get('payload_sha256')}`",
         ]
     )
+    return "\n".join(lines) + "\n"
+
+
+def _release_channel_promotion_markdown_summary(payload: dict[str, Any]) -> str:
+    approval = payload.get("approval", {})
+    release = payload.get("release", {})
+    channel_manifest = payload.get("channel_manifest", {})
+    updater_policy = payload.get("updater_policy", {})
+    lines = [
+        "# CAVRA Release Channel Promotion Request",
+        "",
+        f"Request ID: `{payload.get('request_id')}`",
+        f"Channel: `{payload.get('channel')}`",
+        f"Target ring: `{payload.get('target_ring')}`",
+        f"Version: `{release.get('version')}`",
+        f"Commit: `{release.get('commit')}`",
+        f"Approval ID: `{approval.get('approval_id')}`",
+        f"Approver group: `{approval.get('approver_group')}`",
+        "",
+        "## Source Artifacts",
+        "",
+        f"- `{channel_manifest.get('path')}` `{channel_manifest.get('sha256')}`",
+        f"- `{updater_policy.get('path')}` `{updater_policy.get('sha256')}`",
+        "",
+        "## Workstation Targets",
+        "",
+    ]
+    for target in payload.get("workstation_targets", []):
+        if isinstance(target, dict):
+            lines.append(f"- `{target.get('id')}` `{target.get('management_tool')}` `{target.get('binary')}`")
+    lines.extend(["", "## Controls", ""])
+    for control in payload.get("controls", []):
+        lines.append(f"- `{control}`")
+    lines.extend(
+        [
+            "",
+            "## Signature",
+            "",
+            f"Algorithm: `{payload.get('signature', {}).get('algorithm')}`",
+            f"Signer: `{payload.get('signature', {}).get('signer')}`",
+            f"Payload SHA-256: `{payload.get('signature', {}).get('payload_sha256')}`",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _endpoint_export_markdown_summary(payload: dict[str, Any]) -> str:
+    release = payload.get("release", {})
+    approval = payload.get("approval", {})
+    lines = [
+        "# CAVRA Endpoint Management Export Bundle",
+        "",
+        f"Channel: `{payload.get('channel')}`",
+        f"Version: `{release.get('version')}`",
+        f"Commit: `{release.get('commit')}`",
+        f"Approval required: `{approval.get('required')}`",
+        f"Approval ID: `{approval.get('approval_id') or 'not-linked'}`",
+        "",
+        "## Providers",
+        "",
+    ]
+    for provider in payload.get("providers", []):
+        lines.append(f"- `{provider}`")
+    lines.extend(["", "## Files", ""])
+    for filename in payload.get("files", []):
+        lines.append(f"- `{filename}`")
+    lines.extend(["", "## Controls", ""])
+    for control in payload.get("controls", []):
+        lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
 
 

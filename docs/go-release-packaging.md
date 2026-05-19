@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -106,6 +106,30 @@ jq '.channels[] | {channel, version, auto_update, approval_required}' \
 ```
 
 `cavra release verify-go-package` requires `cavra-runtime.channels.json` and `cavra-runtime.updater-policy.json`. The verifier checks that each channel disables automatic updates, requires approval, maps to signed workstation binaries, includes package and smoke validation commands, and references a policy that defines staged rollout rings, hold conditions, and rollback requirements.
+
+Create a signed release-channel promotion request before endpoint teams publish a channel to managed developer workstations:
+
+```bash
+cavra release request-channel-promotion \
+  go/cavra-runtime/dist/go-runtime-v0.1.0 \
+  --channel stable \
+  --target-ring enterprise \
+  --approval-store .cavra/api/approvals.json
+```
+
+The request verifies the signed package, binds the selected release channel to `cavra-runtime.channels.json` and `cavra-runtime.updater-policy.json`, signs the request payload, and creates a pending approval for endpoint change control.
+
+Export endpoint-management bundles for Jamf, Intune, and Linux fleet tooling:
+
+```bash
+cavra release export-endpoint-management \
+  go/cavra-runtime/dist/go-runtime-v0.1.0 \
+  --channel stable \
+  --provider all \
+  --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json
+```
+
+The export writes `jamf-policy.json`, `intune-win32-app.json`, `linux-fleet-manifest.json`, `linux-install-cavra-runtime.sh`, `endpoint-management-export-manifest.json`, and `checksums.txt` when matching workstation targets exist in the channel manifest. The bundle keeps promotion approval IDs, package verification results, endpoint target digests, rollback requirements, and staged rollout policy together for endpoint engineering review.
 
 Capture rollout evidence when a package is approved for a managed endpoint channel:
 
@@ -289,6 +313,8 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an endpoint engineering owner, I can map signed runtime binaries to approved CI runner and workstation deployment channels before rollout.
 - As an endpoint engineering owner, I can publish canary, beta, and stable channel manifests that require approval before workstation updates.
 - As an endpoint engineering owner, I can enforce updater policy with staged rings, hold conditions, and rollback package requirements.
+- As an endpoint engineering owner, I can create a signed release-channel promotion request before publishing managed workstation updates.
+- As an endpoint engineering owner, I can export Jamf, Intune, and Linux fleet import bundles from the approved release channel metadata.
 - As an endpoint engineering owner, I can capture rollout evidence for approved endpoint channels and preserve it with a change record.
 - As an endpoint engineering owner, I can verify captured rollout evidence and index it for API or console retrieval.
 - As an endpoint engineering owner, I can search rollout evidence by environment, status, and deployment target from the CLI, API, or console.
@@ -305,8 +331,8 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact downloads, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.
+1. Add API and console views for release-channel promotion requests and endpoint-management export bundle history.

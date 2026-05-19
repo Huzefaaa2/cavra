@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add release-channel promotion approvals and endpoint-management export bundles for Jamf, Intune, and Linux fleet managers.
+1. Add API and console views for release-channel promotion requests and endpoint-management export bundle history.
