@@ -19,6 +19,7 @@ from cavra.evidence import (
     generate_ed25519_keypair,
     list_evidence_artifacts,
     load_evidence_artifact,
+    sha256_file,
     verify_evidence_bundle,
 )
 from cavra.runtime import RuntimeGuard
@@ -282,16 +283,28 @@ def test_evidence_artifact_root_lists_and_loads_rollout_files(tmp_path: Path) ->
     root = tmp_path / "artifacts"
     rollout_dir = root / "rollout-1"
     rollout_dir.mkdir(parents=True)
-    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+    evidence_path = rollout_dir / "managed-endpoint-rollout-evidence.json"
+    summary_path = rollout_dir / "managed-endpoint-rollout-evidence.md"
+    evidence_path.write_text(
         json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
         encoding="utf-8",
     )
-    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
-    (rollout_dir / "checksums.txt").write_text("abc  managed-endpoint-rollout-evidence.json\n", encoding="utf-8")
+    summary_path.write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text(
+        "\n".join(
+            [
+                f"{sha256_file(evidence_path)}  managed-endpoint-rollout-evidence.json",
+                f"{sha256_file(summary_path)}  managed-endpoint-rollout-evidence.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     metadata = {
         "session_id": "rollout-1",
         "metadata_kind": "managed-endpoint-rollout",
         "bundle_dir": str(rollout_dir),
+        "rollout_status": "staged",
     }
 
     listing = list_evidence_artifacts(root, "rollout-1", metadata=metadata)
@@ -305,6 +318,8 @@ def test_evidence_artifact_root_lists_and_loads_rollout_files(tmp_path: Path) ->
 
     assert listing["metadata_kind"] == "managed-endpoint-rollout"
     assert listing["artifact_count"] == 3
+    assert listing["rollout_artifact_integrity"]["status"] == "verified"
+    assert listing["promotion_readiness"]["status"] == "ready"
     assert [item["artifact"] for item in listing["artifacts"]] == [
         "managed-endpoint-rollout-evidence.json",
         "managed-endpoint-rollout-evidence.md",
@@ -314,6 +329,38 @@ def test_evidence_artifact_root_lists_and_loads_rollout_files(tmp_path: Path) ->
     assert b"rollout-1" in payload
     assert archive_metadata["artifact_count"] == 3
     assert archive_payload.startswith(b"PK")
+
+
+def test_evidence_artifact_root_reports_rollout_integrity_failures(tmp_path: Path) -> None:
+    root = tmp_path / "artifacts"
+    rollout_dir = root / "rollout-1"
+    rollout_dir.mkdir(parents=True)
+    (rollout_dir / "managed-endpoint-rollout-evidence.json").write_text(
+        json.dumps({"schema_version": "cavra.go-runtime.endpoint-rollout-evidence.v1", "rollout_id": "rollout-1"}),
+        encoding="utf-8",
+    )
+    (rollout_dir / "managed-endpoint-rollout-evidence.md").write_text("# Rollout\n", encoding="utf-8")
+    (rollout_dir / "checksums.txt").write_text(
+        "0" * 64 + "  managed-endpoint-rollout-evidence.json\n",
+        encoding="utf-8",
+    )
+    metadata = {
+        "session_id": "rollout-1",
+        "metadata_kind": "managed-endpoint-rollout",
+        "bundle_dir": str(rollout_dir),
+        "rollout_status": "staged",
+    }
+
+    listing = list_evidence_artifacts(root, "rollout-1", metadata=metadata)
+
+    assert listing["rollout_artifact_integrity"]["status"] == "failed"
+    assert listing["rollout_artifact_integrity"]["checksum_mismatches"] == [
+        "managed-endpoint-rollout-evidence.json"
+    ]
+    assert listing["rollout_artifact_integrity"]["unchecked_artifacts"] == [
+        "managed-endpoint-rollout-evidence.md"
+    ]
+    assert listing["promotion_readiness"]["status"] == "blocked"
 
 
 def test_evidence_artifact_root_rejects_rollout_bundle_outside_root(tmp_path: Path) -> None:

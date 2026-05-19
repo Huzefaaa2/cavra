@@ -930,6 +930,7 @@ def list_evidence_artifacts(
         "artifact_count": len(artifacts),
         "artifacts": artifacts,
         "bundle_download_url": bundle_path,
+        **_rollout_artifact_status(session_dir, metadata, artifacts),
     }
 
 
@@ -1005,6 +1006,96 @@ def _evidence_artifact_dir(artifact_root: Path, session_id: str, metadata: dict[
     if not rollout_dir.is_relative_to(root):
         raise EvidenceArtifactError("rollout evidence directory is outside artifact root")
     return rollout_dir
+
+
+def _rollout_artifact_status(
+    session_dir: Path,
+    metadata: dict[str, Any] | None,
+    artifacts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if (metadata or {}).get("metadata_kind") != "managed-endpoint-rollout":
+        return {}
+    artifact_names = {str(item["artifact"]) for item in artifacts}
+    checksum_path = session_dir / "checksums.txt"
+    checksum_entries, checksum_errors = _read_artifact_checksums(checksum_path)
+    verified_artifacts: list[str] = []
+    checksum_mismatches: list[str] = []
+    unchecked_artifacts: list[str] = []
+    expected_artifacts = sorted(ROLLOUT_EVIDENCE_ARTIFACTS)
+    missing_artifacts = sorted(name for name in expected_artifacts if name not in artifact_names)
+    for artifact_name in expected_artifacts:
+        if artifact_name == "checksums.txt" or artifact_name not in artifact_names:
+            continue
+        expected_sha256 = checksum_entries.get(artifact_name)
+        if not expected_sha256:
+            unchecked_artifacts.append(artifact_name)
+            continue
+        actual_sha256 = sha256_file(session_dir / artifact_name)
+        if actual_sha256 == expected_sha256:
+            verified_artifacts.append(artifact_name)
+        else:
+            checksum_mismatches.append(artifact_name)
+    if checksum_errors or checksum_mismatches:
+        integrity_status = "failed"
+    elif missing_artifacts or unchecked_artifacts:
+        integrity_status = "incomplete"
+    else:
+        integrity_status = "verified"
+    return {
+        "rollout_artifact_integrity": {
+            "status": integrity_status,
+            "verified_artifacts": sorted(verified_artifacts),
+            "missing_artifacts": missing_artifacts,
+            "unchecked_artifacts": sorted(unchecked_artifacts),
+            "checksum_mismatches": sorted(checksum_mismatches),
+            "checksum_errors": checksum_errors,
+        },
+        "promotion_readiness": _rollout_promotion_readiness(metadata or {}, integrity_status),
+    }
+
+
+def _read_artifact_checksums(path: Path) -> tuple[dict[str, str], list[str]]:
+    if not path.exists() or not path.is_file():
+        return {}, ["missing checksums.txt"]
+    entries: dict[str, str] = {}
+    errors: list[str] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        parts = line.split()
+        if len(parts) < 2 or len(parts[0]) != 64:
+            errors.append(f"invalid checksum line {line_number}")
+            continue
+        entries[parts[-1]] = parts[0].lower()
+    return entries, errors
+
+
+def _rollout_promotion_readiness(metadata: dict[str, Any], integrity_status: str) -> dict[str, str]:
+    rollout_status = str(metadata.get("rollout_status") or "unknown")
+    if integrity_status != "verified":
+        return {
+            "status": "blocked",
+            "rationale": "Rollout artifact checksums must verify before promotion.",
+        }
+    if rollout_status in {"failed", "rolled_back"}:
+        return {
+            "status": "blocked",
+            "rationale": f"Rollout status is {rollout_status}.",
+        }
+    if rollout_status == "planned":
+        return {
+            "status": "review",
+            "rationale": "Rollout is planned and needs staged execution evidence before promotion.",
+        }
+    if rollout_status in {"staged", "succeeded"}:
+        return {
+            "status": "ready",
+            "rationale": "Rollout evidence is checksum-verified and the rollout state can proceed.",
+        }
+    return {
+        "status": "review",
+        "rationale": "Rollout status is not recognized for automatic promotion readiness.",
+    }
 
 
 def _session_artifact_dir(artifact_root: Path, session_id: str) -> Path:

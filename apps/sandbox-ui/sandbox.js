@@ -52,6 +52,10 @@ const evidenceCatalog = [
     change_record: "CHG-123",
     deployment_targets: ["github-actions-linux-amd64-runner", "linux-systemd-amd64-workstation"],
     release: { version: "v0.2.0-rc.1", commit: "sample" },
+    promotion_readiness: {
+      status: "ready",
+      rationale: "Rollout evidence is checksum-verified and the rollout state can proceed."
+    },
     decision_count: 0,
     blocked_count: 0,
     approval_required_count: 0,
@@ -70,6 +74,14 @@ const evidenceArtifactCatalog = [
   ["siem-event.json", "siem", "application/json", "SIEM-ready session event payload."],
   ["sandbox-run-summary.json", "summary", "application/json", "Compact session summary."],
   ["retention-policy.json", "retention", "application/json", "Retention, legal hold, and disposition policy."]
+].map(([artifact, kind, media_type, description]) => ({
+  artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
+}));
+
+const rolloutArtifactCatalog = [
+  ["managed-endpoint-rollout-evidence.json", "rollout-evidence", "application/json", "Verified managed endpoint rollout evidence payload."],
+  ["managed-endpoint-rollout-evidence.md", "rollout-summary", "text/markdown", "Reviewer-ready managed endpoint rollout evidence summary."],
+  ["checksums.txt", "rollout-checksums", "text/plain", "Checksums for managed endpoint rollout evidence files."]
 ].map(([artifact, kind, media_type, description]) => ({
   artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
 }));
@@ -583,13 +595,31 @@ async function loadEvidenceArtifacts(sessionId) {
     if (!response.ok) throw new Error("Evidence artifact API unavailable");
     return await response.json();
   } catch {
+    const metadata = evidenceCatalog.find((item) => item.session_id === sessionId) || {};
+    const isRollout = metadata.metadata_kind === "managed-endpoint-rollout";
+    const artifacts = isRollout ? rolloutArtifactCatalog : evidenceArtifactCatalog;
     return {
       schema_version: "cavra.evidence.artifacts.v1",
       product: "CAVRA",
       session_id: sessionId,
+      metadata_kind: metadata.metadata_kind || "session",
       artifact_root_configured: false,
-      artifact_count: evidenceArtifactCatalog.length,
-      artifacts: evidenceArtifactCatalog.map((item) => ({ ...item, download_url: "" })),
+      artifact_count: artifacts.length,
+      artifacts: artifacts.map((item) => ({ ...item, download_url: "" })),
+      ...(isRollout ? {
+        rollout_artifact_integrity: {
+          status: "verified",
+          verified_artifacts: ["managed-endpoint-rollout-evidence.json", "managed-endpoint-rollout-evidence.md"],
+          missing_artifacts: [],
+          unchecked_artifacts: [],
+          checksum_mismatches: [],
+          checksum_errors: []
+        },
+        promotion_readiness: metadata.promotion_readiness || {
+          status: "ready",
+          rationale: "Sample rollout evidence is checksum-verified and ready for promotion review."
+        }
+      } : {}),
       bundle_download_url: ""
     };
   }
@@ -1187,6 +1217,7 @@ function renderEvidenceRows(items) {
     const rollout = item.metadata_kind === "managed-endpoint-rollout"
       ? `${item.environment || "environment"} / ${item.rollout_status || "unknown"}`
       : "n/a";
+    const readiness = evidenceReadiness(item);
     rows.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${escapeHtml(item.session_id || "unknown")}</td>
@@ -1197,6 +1228,7 @@ function renderEvidenceRows(items) {
         <td class="${Number(item.blocked_count || 0) > 0 ? "block" : "allow"}">${item.blocked_count || 0}</td>
         <td class="${Number(item.approval_required_count || 0) > 0 ? "require_approval" : "allow"}">${item.approval_required_count || 0}</td>
         <td>${item.retention?.retention_days || "n/a"} days</td>
+        <td class="${escapeHtml(readiness.className)}">${escapeHtml(readiness.label)}</td>
         <td><button class="evidenceArtifactAction secondary" data-session="${escapeHtml(item.session_id || "")}">Artifacts</button></td>
       </tr>
     `);
@@ -1208,13 +1240,30 @@ function renderEvidenceArtifacts(payload) {
   const panel = document.querySelector("#evidenceArtifacts");
   const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
   const bundleHref = payload.bundle_download_url ? apiUrl(payload.bundle_download_url) : "";
+  const readiness = payload.promotion_readiness || {};
+  const integrity = payload.rollout_artifact_integrity || {};
+  const isRollout = payload.metadata_kind === "managed-endpoint-rollout";
   panel.innerHTML = `
     <dl>
       <dt>Session</dt><dd>${escapeHtml(payload.session_id || "unknown")}</dd>
       <dt>Artifact root</dt><dd class="${payload.artifact_root_configured ? "allow" : "require_approval"}">${payload.artifact_root_configured ? "configured" : "sample or disabled"}</dd>
       <dt>Artifacts</dt><dd>${Number(payload.artifact_count || artifacts.length || 0)}</dd>
       <dt>Bundle</dt><dd>${bundleHref ? `<a href="${escapeHtml(bundleHref)}">Download bundle</a>` : "not available from sample data"}</dd>
+      ${isRollout ? `
+        <dt>Integrity</dt><dd class="${escapeHtml(statusClass(integrity.status))}">${escapeHtml(integrity.status || "unknown")}</dd>
+        <dt>Readiness</dt><dd class="${escapeHtml(statusClass(readiness.status))}">${escapeHtml(readiness.status || "review")}</dd>
+        <dt>Rationale</dt><dd>${escapeHtml(readiness.rationale || "Review rollout artifact integrity before promotion.")}</dd>
+      ` : ""}
     </dl>
+    ${isRollout ? `
+      <h3>Rollout Controls</h3>
+      <ul>
+        <li>Verified: ${escapeHtml(formatList(integrity.verified_artifacts))}</li>
+        <li>Missing: ${escapeHtml(formatList(integrity.missing_artifacts))}</li>
+        <li>Unchecked: ${escapeHtml(formatList(integrity.unchecked_artifacts))}</li>
+        <li>Mismatched: ${escapeHtml(formatList(integrity.checksum_mismatches))}</li>
+      </ul>
+    ` : ""}
     <h3>Bundle Files</h3>
     <ul>${artifacts.map((item) => {
       const href = item.download_url ? apiUrl(item.download_url) : "";
@@ -1223,6 +1272,26 @@ function renderEvidenceArtifacts(payload) {
       return `<li>${href ? `<a href="${escapeHtml(href)}">${escapeHtml(label)}</a>` : escapeHtml(label)}${escapeHtml(suffix)}<br><small>${escapeHtml(item.description || "")}</small></li>`;
     }).join("") || "<li>n/a</li>"}</ul>
   `;
+}
+
+function evidenceReadiness(item) {
+  if (item.metadata_kind !== "managed-endpoint-rollout") {
+    return { label: "n/a", className: "" };
+  }
+  const status = item.promotion_readiness?.status || (
+    ["failed", "rolled_back"].includes(item.rollout_status) ? "blocked" : item.rollout_status === "planned" ? "review" : "review"
+  );
+  return { label: status, className: statusClass(status) };
+}
+
+function statusClass(status) {
+  if (["ready", "verified", "succeeded"].includes(status)) return "allow";
+  if (["blocked", "failed"].includes(status)) return "block";
+  return "require_approval";
+}
+
+function formatList(items) {
+  return Array.isArray(items) && items.length ? items.join(", ") : "none";
 }
 
 function renderReleaseNotes() {
