@@ -258,6 +258,37 @@ const endpointReconciliationCatalog = [
   }
 ];
 
+const endpointInventoryCatalog = [
+  {
+    session_id: "eii-linux-stable-sample",
+    metadata_kind: "endpoint-inventory-ingestion",
+    inventory_id: "eii-linux-stable-sample",
+    provider: "linux",
+    channel: "stable",
+    created_at: "2026-05-19T00:20:00+00:00",
+    observed_at: "2026-05-19T00:19:00+00:00",
+    endpoint_count: 2,
+    deployment_targets: ["linux-systemd-amd64-workstation"],
+    missing_target_count: 0,
+    version_count: 2,
+    checksum_count: 2
+  },
+  {
+    session_id: "eii-jamf-stable-sample",
+    metadata_kind: "endpoint-inventory-ingestion",
+    inventory_id: "eii-jamf-stable-sample",
+    provider: "jamf",
+    channel: "stable",
+    created_at: "2026-05-19T00:24:00+00:00",
+    observed_at: "2026-05-19T00:22:00+00:00",
+    endpoint_count: 1,
+    deployment_targets: ["macos-jamf-arm64-workstation"],
+    missing_target_count: 0,
+    version_count: 1,
+    checksum_count: 1
+  }
+];
+
 const endpointRemediationCatalog = [
   {
     session_id: "err-prod-v0-2-0-rc-1-sample",
@@ -985,6 +1016,43 @@ async function loadEndpointReconciliationDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointReconciliationDashboard(filterEndpointReconciliations(endpointReconciliationCatalog));
+  }
+}
+
+async function loadEndpointInventoryIngestions() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      provider: document.querySelector("#filterEndpointInventoryProvider")?.value,
+      channel: document.querySelector("#filterEndpointInventoryChannel")?.value.trim(),
+      deployment_target: document.querySelector("#filterEndpointInventoryTarget")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-inventory-ingestions", params));
+    if (!response.ok) throw new Error("Endpoint inventory ingestion API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return endpointInventoryCatalog.filter((item) => {
+      const provider = document.querySelector("#filterEndpointInventoryProvider")?.value;
+      const channel = document.querySelector("#filterEndpointInventoryChannel")?.value.trim();
+      const target = document.querySelector("#filterEndpointInventoryTarget")?.value.trim();
+      if (provider && item.provider !== provider) return false;
+      if (channel && item.channel !== channel) return false;
+      if (target && !(item.deployment_targets || []).includes(target)) return false;
+      return true;
+    });
+  }
+}
+
+async function loadEndpointInventoryDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-inventory-ingestions/dashboard"));
+    if (!response.ok) throw new Error("Endpoint inventory dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointInventoryDashboard(endpointInventoryCatalog);
   }
 }
 
@@ -1905,6 +1973,44 @@ function renderEndpointPublicationDeliveries(items, dashboard) {
   }
 }
 
+function renderEndpointInventoryIngestions(items, dashboard) {
+  const rows = document.querySelector("#endpointInventoryRows");
+  const panel = document.querySelector("#endpointInventoryDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Ingestions</span>
+      <strong>${formatMetricNumber(dashboard.total_ingestions)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Endpoints</span>
+      <strong>${formatMetricNumber(dashboard.endpoint_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Missing Targets</span>
+      <strong class="${Number(dashboard.missing_target_count || 0) ? "warn" : "allow"}">${formatMetricNumber(dashboard.missing_target_count)}</strong>
+    </div>
+  `;
+  for (const item of items) {
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.inventory_id || item.session_id || "inventory")}</td>
+        <td>${escapeHtml(item.provider || "unknown")}</td>
+        <td>${escapeHtml(item.channel || "unknown")}</td>
+        <td>${Number(item.endpoint_count || 0)}</td>
+        <td>${escapeHtml(formatList(item.deployment_targets))}</td>
+        <td class="${Number(item.missing_target_count || 0) ? "warn" : "allow"}">${Number(item.missing_target_count || 0)}</td>
+        <td>${escapeHtml(String(item.observed_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderEndpointReconciliations(items, dashboard) {
   const rows = document.querySelector("#endpointReconciliationRows");
   const panel = document.querySelector("#endpointReconciliationDashboard");
@@ -2151,6 +2257,29 @@ function sampleEndpointReconciliationDashboard(items) {
     missing_target_count: missing,
     stale_endpoint_count: stale,
     alerts,
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointInventoryDashboard(items) {
+  const providerMap = new Map();
+  for (const item of items) {
+    const provider = item.provider || "unknown";
+    const current = providerMap.get(provider) || { provider, ingestions: 0, endpoint_count: 0, missing_target_count: 0 };
+    current.ingestions += 1;
+    current.endpoint_count += Number(item.endpoint_count || 0);
+    current.missing_target_count += Number(item.missing_target_count || 0);
+    providerMap.set(provider, current);
+  }
+  const missing = items.reduce((total, item) => total + Number(item.missing_target_count || 0), 0);
+  return {
+    schema_version: "cavra.endpoint_inventory_ingestion.dashboard.v1",
+    product: "CAVRA",
+    alert_level: missing ? "warning" : "healthy",
+    total_ingestions: items.length,
+    endpoint_count: items.reduce((total, item) => total + Number(item.endpoint_count || 0), 0),
+    missing_target_count: missing,
+    providers: Array.from(providerMap.values()).sort((a, b) => a.provider.localeCompare(b.provider)),
     latest: items.slice(0, 10)
   };
 }
@@ -2595,6 +2724,11 @@ async function refreshEndpointPublicationDelivery() {
   renderEndpointPublicationDeliveries(items, dashboard);
 }
 
+async function refreshEndpointInventory() {
+  const [items, dashboard] = await Promise.all([loadEndpointInventoryIngestions(), loadEndpointInventoryDashboard()]);
+  renderEndpointInventoryIngestions(items, dashboard);
+}
+
 async function refreshEndpointReconciliation() {
   const [items, dashboard] = await Promise.all([loadEndpointReconciliations(), loadEndpointReconciliationDashboard()]);
   renderEndpointReconciliations(items, dashboard);
@@ -2962,6 +3096,7 @@ document.querySelector("#runScenario").addEventListener("click", runScenario);
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
 document.querySelector("#refreshEndpointPublicationDelivery").addEventListener("click", refreshEndpointPublicationDelivery);
+document.querySelector("#refreshEndpointInventory").addEventListener("click", refreshEndpointInventory);
 document.querySelector("#refreshEndpointReconciliation").addEventListener("click", refreshEndpointReconciliation);
 document.querySelector("#refreshEndpointRemediation").addEventListener("click", refreshEndpointRemediation);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
@@ -3046,6 +3181,7 @@ renderReleaseNotes();
 refreshReleaseChannels();
 refreshReleaseDelivery();
 refreshEndpointPublicationDelivery();
+refreshEndpointInventory();
 refreshEndpointReconciliation();
 refreshEndpointRemediation();
 refreshDemoMetrics();

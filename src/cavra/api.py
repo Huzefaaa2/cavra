@@ -64,6 +64,8 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_inventory_ingestion_dashboard,
+    build_endpoint_inventory_ingestion_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -76,8 +78,10 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     execute_endpoint_drift_remediation,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
     filter_managed_endpoint_reconciliation_history,
+    ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
 )
 from cavra.runtime import RuntimeGuard
@@ -217,6 +221,9 @@ def create_app():
                 "endpoint_management_export_publish": "/endpoint-management-exports/{export_id}/publish",
                 "endpoint_management_publications": "/endpoint-management-publications",
                 "endpoint_management_publication_dashboard": "/endpoint-management-publications/dashboard",
+                "endpoint_inventory_ingest": "/endpoint-inventory/ingest",
+                "endpoint_inventory_ingestions": "/endpoint-inventory-ingestions",
+                "endpoint_inventory_dashboard": "/endpoint-inventory-ingestions/dashboard",
                 "endpoint_deployment_reconcile": "/endpoint-deployment/reconcile",
                 "endpoint_reconciliations": "/endpoint-reconciliations",
                 "endpoint_reconciliation_dashboard": "/endpoint-reconciliations/dashboard",
@@ -1264,6 +1271,57 @@ def create_app():
             offset=0,
         )
         return build_endpoint_management_publication_dashboard(result["items"])
+
+    @app.post("/endpoint-inventory/ingest")
+    def endpoint_inventory_ingest(payload: dict) -> dict:
+        provider = payload.get("provider")
+        inventory = payload.get("inventory") or payload.get("payload")
+        if not provider or not isinstance(inventory, dict):
+            raise HTTPException(status_code=400, detail="provider and inventory object are required")
+        result = ingest_endpoint_inventory(
+            str(provider),
+            inventory,
+            channel=payload.get("channel"),
+            observed_at=payload.get("observed_at"),
+            source=payload.get("source"),
+        )
+        if not result.valid or result.ingestion is None:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = evidence_store.upsert(build_endpoint_inventory_ingestion_metadata(result.ingestion))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-inventory-ingestions")
+    def endpoint_inventory_ingestion_index(
+        provider: Optional[str] = None,
+        channel: Optional[str] = None,
+        deployment_target: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-inventory-ingestion",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_inventory_ingestion_history(
+            result["items"],
+            provider=provider,
+            channel=channel,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-inventory-ingestions/dashboard")
+    def endpoint_inventory_ingestion_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-inventory-ingestion",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_inventory_ingestion_dashboard(result["items"])
 
     @app.post("/endpoint-deployment/reconcile")
     def endpoint_deployment_reconcile(payload: dict) -> dict:

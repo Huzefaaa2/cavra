@@ -14,6 +14,8 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_inventory_ingestion_dashboard,
+    build_endpoint_inventory_ingestion_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -28,6 +30,8 @@ from cavra.release import (
     export_rollout_promotion_execution_audit,
     filter_managed_endpoint_reconciliation_history,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_inventory_ingestion_history,
+    ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -537,6 +541,88 @@ def test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata(tmp_
     assert json.loads(history_cli.output)["total"] == 1
     assert dashboard_cli.exit_code == 0
     assert json.loads(dashboard_cli.output)["drifted_endpoint_count"] == 1
+
+
+def test_endpoint_inventory_ingestion_normalizes_provider_exports_and_indexes_metadata(tmp_path: Path) -> None:
+    jamf_export = {
+        "schema_version": "jamf.computer-inventory.export.v1",
+        "channel": "stable",
+        "computers": [
+            {
+                "id": "jamf-1",
+                "name": "macbook-1",
+                "serialNumber": "JAMF123",
+                "policy_name": "macos-jamf-arm64-workstation",
+                "cavra": {
+                    "runtime_version": "v0.2.0-rc.1",
+                    "runtime_sha256": "good",
+                    "last_seen_at": "2026-05-19T00:00:00+00:00",
+                },
+            }
+        ],
+    }
+    result = ingest_endpoint_inventory(
+        "jamf",
+        jamf_export,
+        output_dir=tmp_path / "inventory",
+        channel="stable",
+    )
+    metadata = build_endpoint_inventory_ingestion_metadata(result.ingestion or {}, bundle_dir=tmp_path / "inventory")
+    history = filter_endpoint_inventory_ingestion_history(
+        [metadata],
+        provider="jamf",
+        deployment_target="macos-jamf-arm64-workstation",
+    )
+    dashboard = build_endpoint_inventory_ingestion_dashboard([metadata])
+
+    assert result.valid
+    assert result.inventory_id
+    assert result.inventory is not None
+    assert result.inventory["schema_version"] == "cavra.endpoint-observations.v1"
+    assert result.inventory["endpoints"][0]["endpoint_id"] == "jamf-1"
+    assert result.inventory["endpoints"][0]["deployment_target"] == "macos-jamf-arm64-workstation"
+    assert result.inventory["endpoints"][0]["installed_version"] == "v0.2.0-rc.1"
+    assert "endpoint-inventory.json" in result.files
+    assert metadata["metadata_kind"] == "endpoint-inventory-ingestion"
+    assert history["total"] == 1
+    assert dashboard["providers"][0]["provider"] == "jamf"
+
+    source = tmp_path / "jamf-export.json"
+    source.write_text(json.dumps(jamf_export), encoding="utf-8")
+    metadata_json = tmp_path / "inventory-metadata.json"
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "ingest-endpoint-inventory",
+            str(source),
+            "--provider",
+            "jamf",
+            "--channel",
+            "stable",
+            "--output",
+            str(tmp_path / "cli-inventory"),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-inventory-history", "--metadata-json", str(metadata_json), "--provider", "jamf"],
+    )
+    dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-inventory-dashboard", "--metadata-json", str(metadata_json)],
+    )
+    assert cli_result.exit_code == 0
+    cli_payload = json.loads(cli_result.output)
+    assert cli_payload["metadata"]["metadata_kind"] == "endpoint-inventory-ingestion"
+    assert cli_payload["inventory"]["endpoints"][0]["binary_sha256"] == "good"
+    assert history_cli.exit_code == 0
+    assert json.loads(history_cli.output)["total"] == 1
+    assert dashboard_cli.exit_code == 0
+    assert json.loads(dashboard_cli.output)["endpoint_count"] == 1
 
 
 def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(

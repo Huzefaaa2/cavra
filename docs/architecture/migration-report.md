@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.
+4. Add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.

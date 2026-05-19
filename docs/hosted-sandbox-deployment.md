@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add automated endpoint inventory ingestion connectors for Jamf, Intune, Linux fleet managers, and EDR sources.
+1. Add endpoint inventory freshness SLA alerts and reconciliation automation that can open remediation requests from new ingestions.

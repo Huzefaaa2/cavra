@@ -79,6 +79,8 @@ from cavra.release import (
     build_endpoint_drift_remediation_dashboard,
     build_endpoint_drift_remediation_execution_metadata,
     build_endpoint_drift_remediation_request_metadata,
+    build_endpoint_inventory_ingestion_dashboard,
+    build_endpoint_inventory_ingestion_metadata,
     build_managed_endpoint_reconciliation_dashboard,
     build_managed_endpoint_reconciliation_metadata,
     build_managed_endpoint_rollout_rollback_execution_metadata,
@@ -96,8 +98,10 @@ from cavra.release import (
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_endpoint_drift_remediation_history,
+    filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
     filter_managed_endpoint_reconciliation_history,
+    ingest_endpoint_inventory,
     load_release_channel_manifest,
     load_workstation_updater_policy,
     reconcile_managed_endpoint_deployment,
@@ -1743,6 +1747,65 @@ def deliver_endpoint_export(
             console.print(f"  indexed: {store}")
 
 
+@release_app.command("ingest-endpoint-inventory")
+def ingest_endpoint_inventory_command(
+    source_inventory: Annotated[Path, typer.Argument(help="Provider endpoint inventory export JSON file.")],
+    provider: Annotated[str, typer.Option(help="Inventory provider: jamf, intune, linux, or edr.")] = "linux",
+    output: Annotated[Path, typer.Option(help="Output directory for normalized inventory artifacts.")] = Path(
+        ".cavra/release/endpoint-inventory"
+    ),
+    channel: Annotated[Optional[str], typer.Option(help="Optional release channel for the observed inventory.")] = None,
+    observed_at: Annotated[Optional[str], typer.Option(help="Override observed timestamp for normalized inventory.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index ingestion history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index ingestion history.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable ingestion output."),
+) -> None:
+    """Normalize provider endpoint inventory exports into CAVRA endpoint observations."""
+    try:
+        payload = json.loads(source_inventory.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("source inventory must be a JSON object")
+        result = ingest_endpoint_inventory(
+            provider,
+            payload,
+            output_dir=output,
+            channel=channel,
+            observed_at=observed_at,
+            source=str(source_inventory),
+        )
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata = None
+    indexed: list[str] = []
+    if result.valid and result.ingestion:
+        metadata, indexed = _index_release_metadata(
+            build_endpoint_inventory_ingestion_metadata(result.ingestion, bundle_dir=output),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+    payload = result.to_dict() | {"metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] endpoint inventory ingestion")
+        if result.inventory_id:
+            console.print(f"  inventory: {result.inventory_id}")
+        if result.provider:
+            console.print(f"  provider: {result.provider}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in indexed:
+            console.print(f"  indexed metadata: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
 @release_app.command("reconcile-endpoint-deployment")
 def reconcile_endpoint_deployment(
     package_dir: Annotated[Path, typer.Argument(help="Go release package directory containing cavra-runtime.endpoint-deployment.json.")],
@@ -2374,6 +2437,40 @@ def endpoint_reconciliation_dashboard(
     _print_json(build_managed_endpoint_reconciliation_dashboard(items))
 
 
+@release_app.command("endpoint-inventory-history")
+def endpoint_inventory_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    provider: Annotated[Optional[str], typer.Option(help="Filter by inventory provider.")] = None,
+    channel: Annotated[Optional[str], typer.Option(help="Filter by release channel.")] = None,
+    deployment_target: Annotated[Optional[str], typer.Option(help="Filter by deployment target ID.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint inventory ingestion history."""
+    items = _load_endpoint_inventory_ingestion_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_inventory_ingestion_history(
+            items,
+            provider=provider,
+            channel=channel,
+            deployment_target=deployment_target,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-inventory-dashboard")
+def endpoint_inventory_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize normalized endpoint inventory coverage by provider."""
+    items = _load_endpoint_inventory_ingestion_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_inventory_ingestion_dashboard(items))
+
+
 @release_app.command("request-endpoint-remediation")
 def request_endpoint_remediation(
     reconciliation_report: Annotated[Path, typer.Argument(help="Managed endpoint reconciliation report JSON.")],
@@ -2627,6 +2724,21 @@ def _load_managed_endpoint_reconciliation_items(
     if sqlite:
         return SQLiteEvidenceMetadataStore(sqlite).search(
             metadata_kind="managed-endpoint-reconciliation",
+            limit=500,
+        )["items"]
+    return []
+
+
+def _load_endpoint_inventory_ingestion_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-inventory-ingestion",
             limit=500,
         )["items"]
     return []

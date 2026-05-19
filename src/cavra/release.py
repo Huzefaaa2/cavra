@@ -306,6 +306,30 @@ class EndpointManagementPublicationEventResult:
 
 
 @dataclass(frozen=True)
+class EndpointInventoryIngestionResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    inventory_id: str | None = None
+    provider: str | None = None
+    inventory: dict[str, Any] | None = None
+    ingestion: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "inventory_id": self.inventory_id,
+            "provider": self.provider,
+            "inventory": self.inventory,
+            "ingestion": self.ingestion,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class ManagedEndpointReconciliationResult:
     package_dir: Path | None
     valid: bool
@@ -1845,6 +1869,191 @@ def build_endpoint_management_publication_dashboard(items: list[dict[str, Any]])
     }
 
 
+def ingest_endpoint_inventory(
+    provider: str,
+    inventory_payload: dict[str, Any],
+    *,
+    output_dir: Path | None = None,
+    channel: str | None = None,
+    observed_at: str | None = None,
+    source: str | None = None,
+) -> EndpointInventoryIngestionResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    provider = provider.lower().strip()
+    if provider not in {"jamf", "intune", "linux", "edr"}:
+        errors.append("provider must be one of: jamf, intune, linux, edr")
+    if not isinstance(inventory_payload, dict):
+        errors.append("inventory payload must be a JSON object")
+    if errors:
+        return EndpointInventoryIngestionResult(valid=False, errors=errors, warnings=warnings, provider=provider)
+
+    raw_items = _endpoint_inventory_source_items(provider, inventory_payload)
+    if not raw_items:
+        warnings.append(f"no endpoint records found for provider {provider}")
+    normalized: list[dict[str, Any]] = []
+    for index, item in enumerate(raw_items, start=1):
+        endpoint = _normalize_endpoint_inventory_item(provider, item, index=index)
+        normalized.append(endpoint)
+        if endpoint.get("deployment_target") == "unknown-target":
+            warnings.append(f"endpoint {endpoint['endpoint_id']} did not include a deployment target")
+    created_at = datetime.now(timezone.utc).isoformat()
+    observed_at = observed_at or str(inventory_payload.get("observed_at") or inventory_payload.get("generated_at") or created_at)
+    inventory = {
+        "schema_version": "cavra.endpoint-observations.v1",
+        "product": "CAVRA",
+        "provider": provider,
+        "channel": channel or inventory_payload.get("channel"),
+        "observed_at": observed_at,
+        "endpoints": normalized,
+        "source": source,
+    }
+    inventory_id = _endpoint_inventory_ingestion_id(provider, inventory)
+    ingestion = {
+        "schema_version": "cavra.endpoint-inventory-ingestion.v1",
+        "product": "CAVRA",
+        "inventory_id": inventory_id,
+        "provider": provider,
+        "created_at": created_at,
+        "observed_at": observed_at,
+        "channel": inventory.get("channel"),
+        "source": source,
+        "source_schema_version": inventory_payload.get("schema_version"),
+        "endpoint_count": len(normalized),
+        "deployment_targets": sorted({str(item.get("deployment_target")) for item in normalized if item.get("deployment_target")}),
+        "missing_target_count": sum(1 for item in normalized if item.get("deployment_target") == "unknown-target"),
+        "version_count": sum(1 for item in normalized if item.get("installed_version")),
+        "checksum_count": sum(1 for item in normalized if item.get("binary_sha256")),
+        "inventory": inventory,
+        "controls": [
+            "provider-export-normalized",
+            "no-connector-credentials-stored",
+            "canonical-endpoint-observation-schema-emitted",
+            "reconciliation-ready-inventory-generated",
+        ],
+        "warnings": warnings,
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        inventory_path = output_dir / "endpoint-inventory.json"
+        ingestion_path = output_dir / "endpoint-inventory-ingestion.json"
+        summary_path = output_dir / "endpoint-inventory-ingestion.md"
+        _write_release_json(inventory_path, inventory)
+        _write_release_json(ingestion_path, ingestion)
+        summary_path.write_text(_endpoint_inventory_ingestion_markdown_summary(ingestion), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksums_path.write_text(
+            "\n".join(
+                f"{sha256_file(path)}  {path.name}" for path in [inventory_path, ingestion_path, summary_path]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        files = [inventory_path.name, ingestion_path.name, summary_path.name, checksums_path.name]
+    return EndpointInventoryIngestionResult(
+        valid=True,
+        warnings=warnings,
+        inventory_id=inventory_id,
+        provider=provider,
+        inventory=inventory,
+        ingestion=ingestion,
+        files=files,
+    )
+
+
+def build_endpoint_inventory_ingestion_metadata(
+    ingestion: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    metadata = {
+        "session_id": ingestion.get("inventory_id"),
+        "created_at": ingestion.get("created_at"),
+        "signer": "endpoint-inventory-ingestion",
+        "decision_count": 0,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-inventory-ingestion",
+        "inventory_id": ingestion.get("inventory_id"),
+        "provider": ingestion.get("provider"),
+        "channel": ingestion.get("channel"),
+        "observed_at": ingestion.get("observed_at"),
+        "endpoint_count": ingestion.get("endpoint_count", 0),
+        "deployment_targets": ingestion.get("deployment_targets", []),
+        "missing_target_count": ingestion.get("missing_target_count", 0),
+        "version_count": ingestion.get("version_count", 0),
+        "checksum_count": ingestion.get("checksum_count", 0),
+        "warnings": ingestion.get("warnings", []),
+        "inventory": ingestion.get("inventory", {}),
+        "ingestion": ingestion,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_inventory_ingestion_history(
+    items: list[dict[str, Any]],
+    *,
+    provider: str | None = None,
+    channel: str | None = None,
+    deployment_target: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-inventory-ingestion"]
+    if provider:
+        filtered = [item for item in filtered if item.get("provider") == provider]
+    if channel:
+        filtered = [item for item in filtered if item.get("channel") == channel]
+    if deployment_target:
+        filtered = [
+            item
+            for item in filtered
+            if deployment_target in {str(value) for value in item.get("deployment_targets", [])}
+        ]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_inventory_ingestion.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_inventory_ingestion_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_inventory_ingestion_history(items, limit=500)["items"]
+    providers: dict[str, dict[str, Any]] = {}
+    for item in history:
+        provider = str(item.get("provider") or "unknown")
+        summary = providers.setdefault(
+            provider,
+            {"provider": provider, "ingestions": 0, "endpoint_count": 0, "missing_target_count": 0, "last_observed_at": None},
+        )
+        summary["ingestions"] += 1
+        summary["endpoint_count"] += int(item.get("endpoint_count") or 0)
+        summary["missing_target_count"] += int(item.get("missing_target_count") or 0)
+        summary["last_observed_at"] = max(str(summary.get("last_observed_at") or ""), str(item.get("observed_at") or ""))
+    missing = sum(int(item.get("missing_target_count") or 0) for item in history)
+    return {
+        "schema_version": "cavra.endpoint_inventory_ingestion.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": "warning" if missing else "healthy",
+        "total_ingestions": len(history),
+        "endpoint_count": sum(int(item.get("endpoint_count") or 0) for item in history),
+        "missing_target_count": missing,
+        "providers": sorted(providers.values(), key=lambda item: item["provider"]),
+        "latest": history[:10],
+    }
+
+
 def reconcile_managed_endpoint_deployment(
     desired_manifest: dict[str, Any],
     observed_inventory: dict[str, Any],
@@ -3260,6 +3469,160 @@ def _rollback_evidence_refs(rollout_id: str, deployment_targets: Any) -> list[di
                 }
             )
     return refs
+
+
+def _endpoint_inventory_source_items(provider: str, payload: dict[str, Any]) -> list[dict[str, Any]]:
+    provider_keys = {
+        "jamf": ("computers", "devices", "endpoints", "items", "results"),
+        "intune": ("devices", "managedDevices", "value", "endpoints", "items"),
+        "linux": ("endpoints", "hosts", "nodes", "items", "devices"),
+        "edr": ("assets", "devices", "endpoints", "hosts", "items", "resources"),
+    }
+    for key in provider_keys.get(provider, ()):
+        value = payload.get(key)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+    if payload.get("schema_version") == "cavra.endpoint-observations.v1":
+        endpoints = payload.get("endpoints", [])
+        return [item for item in endpoints if isinstance(item, dict)]
+    return []
+
+
+def _normalize_endpoint_inventory_item(provider: str, item: dict[str, Any], *, index: int) -> dict[str, Any]:
+    runtime = item.get("cavra") if isinstance(item.get("cavra"), dict) else {}
+    if not runtime and isinstance(item.get("runtime"), dict):
+        runtime = item["runtime"]
+    endpoint_id = _first_endpoint_value(
+        item,
+        runtime,
+        "endpoint_id",
+        "device_id",
+        "deviceId",
+        "id",
+        "udid",
+        "serial_number",
+        "serialNumber",
+        "computer_id",
+        "hostname",
+        "name",
+        "deviceName",
+        default=f"{provider}-endpoint-{index}",
+    )
+    deployment_target = _first_endpoint_value(
+        item,
+        runtime,
+        "deployment_target",
+        "target_id",
+        "target",
+        "assignment",
+        "policy_name",
+        "policyName",
+        "smart_group",
+        "group",
+        "collection",
+        "deploymentGroup",
+        default="unknown-target",
+    )
+    installed_version = _first_endpoint_value(
+        item,
+        runtime,
+        "installed_version",
+        "runtime_version",
+        "cavra_version",
+        "version",
+        "app_version",
+        "applicationVersion",
+        "detectedVersion",
+    )
+    binary_sha256 = _first_endpoint_value(
+        item,
+        runtime,
+        "binary_sha256",
+        "installed_binary_sha256",
+        "runtime_sha256",
+        "cavra_sha256",
+        "sha256",
+        "checksum",
+        "fileHash",
+    )
+    last_seen_at = _first_endpoint_value(
+        item,
+        runtime,
+        "last_seen_at",
+        "lastSeen",
+        "last_contact_time",
+        "lastContactTime",
+        "lastCheckInDateTime",
+        "report_date",
+        "updated_at",
+        "check_in_time",
+    )
+    normalized = {
+        "endpoint_id": str(endpoint_id),
+        "deployment_target": str(deployment_target),
+        "installed_version": installed_version,
+        "binary_sha256": binary_sha256,
+        "last_seen_at": last_seen_at,
+        "provider": provider,
+        "hostname": _first_endpoint_value(item, runtime, "hostname", "computerName", "deviceName", "name"),
+        "serial_number": _first_endpoint_value(item, runtime, "serial_number", "serialNumber", "serial"),
+        "os": _first_endpoint_value(item, runtime, "os", "operatingSystem", "platform"),
+        "management_state": _first_endpoint_value(item, runtime, "management_state", "managed", "complianceState", "status"),
+    }
+    return {key: value for key, value in normalized.items() if value is not None}
+
+
+def _first_endpoint_value(
+    item: dict[str, Any],
+    runtime: dict[str, Any],
+    *keys: str,
+    default: Any = None,
+) -> Any:
+    for key in keys:
+        for source in (item, runtime):
+            value = source.get(key)
+            if value not in (None, ""):
+                return value
+    return default
+
+
+def _endpoint_inventory_ingestion_id(provider: str, inventory: dict[str, Any]) -> str:
+    material = json.dumps(
+        {
+            "provider": provider,
+            "channel": inventory.get("channel"),
+            "observed_at": inventory.get("observed_at"),
+            "endpoints": inventory.get("endpoints", []),
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return f"eii_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _endpoint_inventory_ingestion_markdown_summary(ingestion: dict[str, Any]) -> str:
+    lines = [
+        "# Endpoint Inventory Ingestion",
+        "",
+        f"- Inventory ID: `{ingestion.get('inventory_id')}`",
+        f"- Provider: `{ingestion.get('provider')}`",
+        f"- Channel: `{ingestion.get('channel') or 'n/a'}`",
+        f"- Observed at: `{ingestion.get('observed_at')}`",
+        f"- Endpoints: {ingestion.get('endpoint_count', 0)}",
+        f"- Missing targets: {ingestion.get('missing_target_count', 0)}",
+        "",
+        "## Deployment Targets",
+    ]
+    targets = ingestion.get("deployment_targets", [])
+    if not targets:
+        lines.append("- No deployment targets reported.")
+    for target in targets:
+        lines.append(f"- `{target}`")
+    warnings = ingestion.get("warnings", [])
+    if warnings:
+        lines.extend(["", "## Warnings"])
+        lines.extend(f"- {warning}" for warning in warnings)
+    return "\n".join(lines) + "\n"
 
 
 def _managed_endpoint_reconciliation_report(
