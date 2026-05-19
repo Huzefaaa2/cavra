@@ -1,0 +1,8 @@
+{
+  "name": "sample-community-plugin",
+  "version": "0.1.0",
+  "edition_required": "community",
+  "entrypoint": "cavra.runtime:RuntimeGuard",
+  "permissions": ["policy:evaluate"],
+  "description": "Safe sample manifest showing the public plugin format."
+}

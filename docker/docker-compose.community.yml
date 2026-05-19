@@ -1,0 +1,8 @@
+services:
+  cavra-community:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.community
+    environment:
+      CAVRA_EDITION: community
+    command: ["policy", "list"]

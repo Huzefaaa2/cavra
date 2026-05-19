@@ -13,6 +13,42 @@ CAVRA is a runtime governance and authority layer for AI coding agents. It contr
 
 CAVRA sits between AI coding agents and meaningful engineering actions. It evaluates file access, shell commands, Git operations, MCP tool calls, infrastructure changes, approvals, and evidence generation before an agent acts.
 
+## Editions and Open-Core Model
+
+This public repository is the CAVRA Community Edition and public product landing repository. Enterprise source code is maintained separately in a private repository and is not part of this public Community Edition.
+
+Community Edition is free to use and includes core local governance, CLI execution, starter policies, public examples, GitHub Action support, evidence formats, and public plugin interfaces. Community runs without a license key.
+
+Enterprise Edition is a paid extension model for SSO, RBAC, private policy packs, central dashboards, compliance reports, organization-wide enforcement, drift monitoring, AI remediation, and SaaS Control Plane integration. Public code exposes only safe hooks for future private modules such as the `cavra_enterprise` package.
+
+Trial Edition should be distributed as a private binary, private Docker image, or hosted SaaS trial. This repository includes trial instructions and public-safe placeholder license interfaces only.
+
+| Feature | Community | Enterprise |
+| --- | --- | --- |
+| Local scan | Yes | Yes |
+| CLI | Yes | Yes |
+| Starter policies | Yes | Yes |
+| GitHub Action | Yes | Yes |
+| SSO | No | Yes |
+| RBAC | No | Yes |
+| Audit exports | No | Yes |
+| Compliance reports | No | Yes |
+| Private policy packs | No | Yes |
+| Central dashboard | No | Yes |
+| Drift monitoring | No | Yes |
+| AI remediation | No | Yes |
+| SaaS control plane | No | Yes |
+
+Open-core architecture and boundaries:
+
+- [Open-core model](docs/architecture/open-core-model.md)
+- [Edition boundaries](docs/architecture/edition-boundaries.md)
+- [Plugin architecture](docs/architecture/plugin-architecture.md)
+- [SaaS Control Plane design](docs/architecture/saas-control-plane.md)
+- [Enterprise features](docs/enterprise/features.md)
+- [Enterprise trial](docs/enterprise/trial.md)
+- [Private Enterprise repo plan](docs/architecture/private-enterprise-repo-plan.md)
+
 ## Why CAVRA exists
 
 AI coding agents now inspect repositories, modify code, invoke tools, run shell commands, touch infrastructure, open pull requests, and interact with enterprise workflows. Traditional controls often arrive after the code changed or after a pull request exists. CAVRA makes pre-action enforcement the control point.
@@ -70,6 +106,19 @@ cavra policy list
 cavra policy test
 cavra evaluate read_file .env --json
 ```
+
+Community Docker:
+
+```bash
+docker compose -f docker/docker-compose.community.yml up --build
+```
+
+Trial access:
+
+- Trial source code is not public.
+- Trial artifacts should be distributed as private Docker images, binaries, or hosted SaaS access.
+- Trial license validation must be implemented by the private Enterprise/SaaS license service.
+- See [docs/enterprise/trial.md](docs/enterprise/trial.md).
 
 ## Claude Code quickstart
 
@@ -331,7 +380,12 @@ The wiki white paper explains why CAVRA exists, how pre-action enforcement works
 
 ## Contributing
 
-Contributions should preserve CAVRA’s pre-action enforcement model, open evidence format, policy-as-code approach, and self-hosted enterprise deployment path.
+Contributions should preserve CAVRA’s pre-action enforcement model, open evidence format, policy-as-code approach, and open-core boundaries. Do not submit Enterprise source code, private policy packs, license-server logic, customer material, or secrets to this public repository.
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Code of conduct](CODE_OF_CONDUCT.md)
+- [Boundary validation](scripts/validate-boundaries.sh)
 
 ## License
 

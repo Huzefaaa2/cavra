@@ -8,6 +8,12 @@ Before the agent acts, CAVRA decides.
 
 This wiki is the operating manual for CAVRA as an enterprise AI-agent runtime governance platform. It explains the product thesis, architecture, roadmap, user stories, enterprise challenges, controls, evidence model, and implementation phases.
 
+CAVRA is now planned as an open-core product. The public repository is the
+Community Edition and product landing repo; Enterprise source, paid policy
+packs, SaaS backend, and license service implementation must live in private
+repositories. Start with the [Open-Core Implementation Plan](Open-Core-Implementation-Plan),
+[Edition Boundaries](Edition-Boundaries), and [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan).
+
 ## Current Phase Status
 
 Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA identity, CLI, MCP server, Claude Code setup, policy packs, runtime decisions, Docker validation, API contract, sandbox, and enterprise documentation.
@@ -33,6 +39,9 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 ## Primary Pages
 
 - White Paper: `White-Paper.md`
+- Open-Core Implementation Plan: `Open-Core-Implementation-Plan.md`
+- Edition Boundaries: `Edition-Boundaries.md`
+- Private Enterprise Repo Plan: `Private-Enterprise-Repo-Plan.md`
 - Production Roadmap: `Production-Roadmap.md`
 - Go Release Packaging: `Go-Release-Packaging.md`
 - Vulnerability Disclosure: `Vulnerability-Disclosure.md`

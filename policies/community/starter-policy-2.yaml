@@ -1,0 +1,13 @@
+metadata:
+  id: cavra-community-ci-starter
+  title: CAVRA Community CI Starter Policy
+  version: 0.1.0
+filesystem:
+  require_approval_write:
+    - ".github/workflows/**"
+commands:
+  allow:
+    - "pytest"
+    - "ruff check"
+git:
+  require_pr_attestation: true

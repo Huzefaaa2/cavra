@@ -1,0 +1,14 @@
+metadata:
+  id: cavra-community-starter
+  title: CAVRA Community Starter Policy
+  version: 0.1.0
+filesystem:
+  block_read:
+    - ".env"
+    - "**/secrets.*"
+commands:
+  block:
+    - "terraform apply -auto-approve"
+git:
+  block_push_branches:
+    - main
