@@ -603,10 +603,22 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         f"/endpoint-remediations/{remediation_request.json()['request']['request_id']}/handoff",
         json={"providers": ["jira", "private_queue"], "requested_by": "release-agent"},
     )
+    handoff_status = client.post(
+        f"/endpoint-remediation-handoffs/{remediation_handoff.json()['handoff']['handoff_id']}/status",
+        json={
+            "provider": "private_queue",
+            "status": "completed",
+            "external_ref": "queue-job-789",
+            "callback_payload": {"result": "ok", "secret": "hidden"},
+            "recorded_by": "release-agent",
+        },
+    )
     remediation_history = client.get("/endpoint-remediations")
     remediation_dashboard = client.get("/endpoint-remediations/dashboard")
     handoff_history = client.get("/endpoint-remediation-handoffs", params={"provider": "private_queue"})
     handoff_dashboard = client.get("/endpoint-remediation-handoffs/dashboard")
+    handoff_status_history = client.get("/endpoint-remediation-handoff-statuses", params={"provider": "private_queue"})
+    handoff_status_dashboard = client.get("/endpoint-remediation-handoff-statuses/dashboard")
     automation = client.post(
         f"/endpoint-inventory-ingestions/{inventory_response.json()['inventory_id']}/reconcile",
         json={
@@ -647,6 +659,9 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert remediation_handoff.status_code == 200
     assert remediation_handoff.json()["metadata"]["metadata_kind"] == "endpoint-remediation-handoff"
     assert remediation_handoff.json()["handoff"]["payloads"]["private_queue"]["queue_event"]["status"] == "ready_for_private_connector"
+    assert handoff_status.status_code == 200
+    assert handoff_status.json()["metadata"]["metadata_kind"] == "endpoint-remediation-handoff-status"
+    assert handoff_status.json()["status"]["callback_payload"]["secret"] == "[redacted]"
     assert remediation_history.status_code == 200
     assert remediation_history.json()["total"] == 2
     assert remediation_dashboard.status_code == 200
@@ -655,6 +670,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert handoff_history.json()["total"] == 1
     assert handoff_dashboard.status_code == 200
     assert handoff_dashboard.json()["provider_count"] == 2
+    assert handoff_status_history.status_code == 200
+    assert handoff_status_history.json()["total"] == 1
+    assert handoff_status_dashboard.status_code == 200
+    assert handoff_status_dashboard.json()["completed_count"] == 1
     assert automation.status_code == 200
     assert automation.json()["metadata"]["metadata_kind"] == "endpoint-reconciliation-automation"
     assert automation.json()["approval"]["state"] == "pending"
@@ -668,6 +687,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert config["endpoints"]["endpoint_reconciliation_automation_dashboard"] == "/endpoint-reconciliation-automations/dashboard"
     assert config["endpoints"]["endpoint_remediation_dashboard"] == "/endpoint-remediations/dashboard"
     assert config["endpoints"]["endpoint_remediation_handoff_dashboard"] == "/endpoint-remediation-handoffs/dashboard"
+    assert (
+        config["endpoints"]["endpoint_remediation_handoff_status_dashboard"]
+        == "/endpoint-remediation-handoff-statuses/dashboard"
+    )
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:

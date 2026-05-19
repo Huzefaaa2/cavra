@@ -925,4 +925,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add closed-loop endpoint remediation handoff status reconciliation from ITSM, ChatOps, and private endpoint connector callbacks.
+Recommended next issue: delivered below as closed-loop endpoint remediation handoff status reconciliation.
+
+## Endpoint Remediation Handoff Status Reconciliation
+
+Status: complete for the current public-safe handoff status reconciliation slice.
+
+Completed:
+- Added provider status records for Jira, ServiceNow, Slack, Teams, and private connector queue handoffs.
+- Preserved handoff ID, request ID, reconciliation ID, provider, external reference, external URL, status, operator notes, approval context, and redacted callback payloads.
+- Added credential redaction for callback payload keys such as tokens, secrets, passwords, API keys, authorization headers, and webhook values.
+- Added `cavra release record-endpoint-remediation-handoff-status`, `endpoint-remediation-handoff-status-history`, and `endpoint-remediation-handoff-status-dashboard`.
+- Added `POST /endpoint-remediation-handoffs/{handoff_id}/status`, `/endpoint-remediation-handoff-statuses`, and `/endpoint-remediation-handoff-statuses/dashboard`.
+- Updated the Evidence Console with an Endpoint Handoff Status panel for provider state, external references, completed counts, blocked counts, and status event history.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for callback redaction, status artifact generation, CLI metadata indexing, API status creation, and status dashboard history.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint remediation SLA breach, escalation, and executive release governance reporting.

@@ -368,6 +368,24 @@ const endpointRemediationHandoffCatalog = [
   }
 ];
 
+const endpointRemediationHandoffStatusCatalog = [
+  {
+    session_id: "erhs-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-remediation-handoff-status",
+    status_id: "erhs-prod-v0-2-0-rc-1-sample",
+    handoff_id: "erh-prod-v0-2-0-rc-1-sample",
+    request_id: "err-prod-v0-2-0-rc-1-sample",
+    reconciliation_id: "mer-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T00:48:00+00:00",
+    provider: "private_queue",
+    handoff_status: "completed",
+    external_ref: "queue-job-123",
+    approval_id: "apr_endpoint_remediation_sample",
+    approval_state: "approved",
+    action_count: 2
+  }
+];
+
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
     schema_version: "cavra.evidence.artifacts.v1",
@@ -1219,6 +1237,43 @@ async function loadEndpointRemediationHandoffDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointRemediationHandoffDashboard(endpointRemediationHandoffCatalog);
+  }
+}
+
+async function loadEndpointRemediationHandoffStatuses() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      provider: document.querySelector("#filterEndpointRemediationHandoffStatusProvider")?.value,
+      handoff_status: document.querySelector("#filterEndpointRemediationHandoffStatusState")?.value,
+      handoff_id: document.querySelector("#filterEndpointRemediationHandoffStatusId")?.value.trim(),
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-remediation-handoff-statuses", params));
+    if (!response.ok) throw new Error("Endpoint remediation handoff status API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return endpointRemediationHandoffStatusCatalog.filter((item) => {
+      const provider = document.querySelector("#filterEndpointRemediationHandoffStatusProvider")?.value;
+      const status = document.querySelector("#filterEndpointRemediationHandoffStatusState")?.value;
+      const handoff = document.querySelector("#filterEndpointRemediationHandoffStatusId")?.value.trim();
+      if (provider && item.provider !== provider) return false;
+      if (status && item.handoff_status !== status) return false;
+      if (handoff && item.handoff_id !== handoff) return false;
+      return true;
+    });
+  }
+}
+
+async function loadEndpointRemediationHandoffStatusDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-handoff-statuses/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation handoff status dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointRemediationHandoffStatusDashboard(endpointRemediationHandoffStatusCatalog);
   }
 }
 
@@ -2312,6 +2367,48 @@ function renderEndpointRemediationHandoffs(items, dashboard) {
   }
 }
 
+function renderEndpointRemediationHandoffStatuses(items, dashboard) {
+  const rows = document.querySelector("#endpointRemediationHandoffStatusRows");
+  const panel = document.querySelector("#endpointRemediationHandoffStatusDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Events</span>
+      <strong>${formatMetricNumber(dashboard.status_event_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Tracked</span>
+      <strong>${formatMetricNumber(dashboard.tracked_handoff_provider_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Completed</span>
+      <strong class="allow">${formatMetricNumber(dashboard.completed_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Blocked</span>
+      <strong class="${Number(dashboard.blocked_count || 0) || Number(dashboard.failed_count || 0) ? "block" : "allow"}">${formatMetricNumber(Number(dashboard.blocked_count || 0) + Number(dashboard.failed_count || 0))}</strong>
+    </div>
+  `;
+  for (const item of items) {
+    const state = item.handoff_status || "unknown";
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.status_id || item.session_id || "status")}</td>
+        <td>${escapeHtml(item.handoff_id || "unknown")}</td>
+        <td>${escapeHtml(item.provider || "unknown")}</td>
+        <td class="${state === "completed" ? "allow" : state === "blocked" || state === "failed" ? "block" : "warn"}">${escapeHtml(state)}</td>
+        <td>${escapeHtml(item.external_ref || "n/a")}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -2547,6 +2644,36 @@ function sampleEndpointRemediationHandoffDashboard(items) {
     provider_count: Object.keys(providers).length,
     action_count: items.reduce((total, item) => total + Number(item.action_count || 0), 0),
     providers,
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointRemediationHandoffStatusDashboard(items) {
+  const providers = {};
+  const statuses = {};
+  const latest = {};
+  for (const item of items) {
+    providers[item.provider] = (providers[item.provider] || 0) + 1;
+    statuses[item.handoff_status] = (statuses[item.handoff_status] || 0) + 1;
+    latest[`${item.handoff_id}:${item.provider}`] = item;
+  }
+  const latestItems = Object.values(latest);
+  const blocked = latestItems.filter((item) => item.handoff_status === "blocked");
+  const failed = latestItems.filter((item) => item.handoff_status === "failed");
+  const inProgress = latestItems.filter((item) => ["queued", "delivered", "acknowledged", "in_progress"].includes(item.handoff_status));
+  return {
+    schema_version: "cavra.endpoint_remediation_handoff_status.dashboard.v1",
+    product: "CAVRA",
+    alert_level: blocked.length || failed.length ? "critical" : inProgress.length ? "warning" : "healthy",
+    status_event_count: items.length,
+    tracked_handoff_provider_count: latestItems.length,
+    completed_count: latestItems.filter((item) => item.handoff_status === "completed").length,
+    in_progress_count: inProgress.length,
+    blocked_count: blocked.length,
+    failed_count: failed.length,
+    provider_count: Object.keys(providers).length,
+    providers,
+    statuses,
     latest: items.slice(0, 10)
   };
 }
@@ -3005,6 +3132,14 @@ async function refreshEndpointRemediationHandoff() {
   renderEndpointRemediationHandoffs(items, dashboard);
 }
 
+async function refreshEndpointRemediationHandoffStatus() {
+  const [items, dashboard] = await Promise.all([
+    loadEndpointRemediationHandoffStatuses(),
+    loadEndpointRemediationHandoffStatusDashboard()
+  ]);
+  renderEndpointRemediationHandoffStatuses(items, dashboard);
+}
+
 async function refreshReleaseChannels() {
   const [promotions, exports, dashboard] = await Promise.all([
     loadReleaseChannelPromotions(),
@@ -3367,6 +3502,7 @@ document.querySelector("#refreshEndpointInventoryFreshness").addEventListener("c
 document.querySelector("#refreshEndpointReconciliation").addEventListener("click", refreshEndpointReconciliation);
 document.querySelector("#refreshEndpointRemediation").addEventListener("click", refreshEndpointRemediation);
 document.querySelector("#refreshEndpointRemediationHandoff").addEventListener("click", refreshEndpointRemediationHandoff);
+document.querySelector("#refreshEndpointRemediationHandoffStatus").addEventListener("click", refreshEndpointRemediationHandoffStatus);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -3454,6 +3590,7 @@ refreshEndpointInventoryFreshness();
 refreshEndpointReconciliation();
 refreshEndpointRemediation();
 refreshEndpointRemediationHandoff();
+refreshEndpointRemediationHandoffStatus();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

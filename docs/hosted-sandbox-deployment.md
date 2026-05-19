@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add closed-loop endpoint remediation handoff status reconciliation from ITSM, ChatOps, and private endpoint connector callbacks.
+1. Add endpoint remediation SLA breach, escalation, and executive release governance reporting.

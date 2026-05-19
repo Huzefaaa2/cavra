@@ -68,6 +68,8 @@ from cavra.release import (
     build_endpoint_remediation_handoff,
     build_endpoint_remediation_handoff_dashboard,
     build_endpoint_remediation_handoff_metadata,
+    build_endpoint_remediation_handoff_status_dashboard,
+    build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_inventory_freshness_dashboard,
     build_endpoint_inventory_freshness_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -87,6 +89,7 @@ from cavra.release import (
     execute_endpoint_drift_remediation,
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
+    filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_management_publication_history,
@@ -95,6 +98,7 @@ from cavra.release import (
     evaluate_endpoint_inventory_freshness,
     ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
+    record_endpoint_remediation_handoff_status,
 )
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import (
@@ -252,6 +256,9 @@ def create_app():
                 "endpoint_remediation_handoff": "/endpoint-remediations/{request_id}/handoff",
                 "endpoint_remediation_handoffs": "/endpoint-remediation-handoffs",
                 "endpoint_remediation_handoff_dashboard": "/endpoint-remediation-handoffs/dashboard",
+                "endpoint_remediation_handoff_status": "/endpoint-remediation-handoffs/{handoff_id}/status",
+                "endpoint_remediation_handoff_statuses": "/endpoint-remediation-handoff-statuses",
+                "endpoint_remediation_handoff_status_dashboard": "/endpoint-remediation-handoff-statuses/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1627,6 +1634,75 @@ def create_app():
             offset=0,
         )
         return build_endpoint_remediation_handoff_dashboard(result["items"])
+
+    @app.post("/endpoint-remediation-handoffs/{handoff_id}/status")
+    def endpoint_remediation_handoff_status(handoff_id: str, payload: dict) -> dict:
+        item = evidence_store.get(handoff_id)
+        if item is None or item.get("metadata_kind") != "endpoint-remediation-handoff":
+            raise HTTPException(status_code=404, detail="endpoint remediation handoff not found")
+        handoff_payload = item.get("handoff")
+        if not isinstance(handoff_payload, dict):
+            raise HTTPException(status_code=400, detail="handoff metadata is missing handoff payload")
+        provider = payload.get("provider")
+        status = payload.get("status")
+        if not provider or not status:
+            raise HTTPException(status_code=400, detail="provider and status are required")
+        callback_payload = payload.get("callback_payload")
+        if callback_payload is not None and not isinstance(callback_payload, dict):
+            raise HTTPException(status_code=400, detail="callback_payload must be an object")
+        result = record_endpoint_remediation_handoff_status(
+            handoff_payload,
+            provider=str(provider),
+            status=str(status),
+            external_ref=payload.get("external_ref"),
+            external_url=payload.get("external_url"),
+            callback_payload=callback_payload,
+            recorded_by=payload.get("recorded_by", "console"),
+            notes=payload.get("notes"),
+        )
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        metadata = None
+        if result.status:
+            metadata = evidence_store.upsert(build_endpoint_remediation_handoff_status_metadata(result.status))
+        return result.to_dict() | {"metadata": metadata}
+
+    @app.get("/endpoint-remediation-handoff-statuses")
+    def endpoint_remediation_handoff_status_index(
+        provider: Optional[str] = None,
+        handoff_status: Optional[str] = None,
+        handoff_id: Optional[str] = None,
+        request_id: Optional[str] = None,
+        external_ref: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff-status",
+            limit=500,
+            offset=0,
+        )
+        return filter_endpoint_remediation_handoff_status_history(
+            result["items"],
+            provider=provider,
+            handoff_status=handoff_status,
+            handoff_id=handoff_id,
+            request_id=request_id,
+            external_ref=external_ref,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-handoff-statuses/dashboard")
+    def endpoint_remediation_handoff_status_dashboard() -> dict:
+        result = _search_evidence_metadata(
+            evidence_store,
+            metadata_kind="endpoint-remediation-handoff-status",
+            limit=500,
+            offset=0,
+        )
+        return build_endpoint_remediation_handoff_status_dashboard(result["items"])
 
     @app.get("/endpoint-remediations")
     def endpoint_remediation_index(

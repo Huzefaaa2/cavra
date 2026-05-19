@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add closed-loop endpoint remediation handoff status reconciliation from ITSM,
-ChatOps, and private endpoint connector callbacks.
+Add endpoint remediation SLA breach, escalation, and executive release
+governance reporting.
