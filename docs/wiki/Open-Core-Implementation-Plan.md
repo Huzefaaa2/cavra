@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation SLA breach, escalation, and executive release
-governance reporting.
+Add endpoint remediation SLA notification delivery through configured ITSM,
+ChatOps, and release governance connectors.

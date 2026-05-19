@@ -946,4 +946,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add endpoint remediation SLA breach, escalation, and executive release governance reporting.
+Recommended next issue: delivered below as endpoint remediation SLA breach, escalation, and executive release governance reporting.
+
+## Endpoint Remediation SLA And Executive Reporting
+
+Status: complete for the current public-safe SLA and executive reporting slice.
+
+Completed:
+- Added endpoint remediation SLA reports that combine handoff packages with provider callback or operator status records.
+- Tracked every handoff-provider pair with warning and critical age thresholds, latest status, external reference, SLA state, severity, and recommended action.
+- Added public-safe escalation payloads for Slack, Teams, Jira-style tasks, and executive summaries without connector credentials.
+- Added `cavra release endpoint-remediation-sla-report`, `endpoint-remediation-sla-history`, and `endpoint-remediation-sla-dashboard`.
+- Added `POST /endpoint-remediation-sla/report`, `/endpoint-remediation-sla-reports`, and `/endpoint-remediation-sla-reports/dashboard`.
+- Updated the Evidence Console with an Endpoint Remediation SLA panel for report alert level, tracked items, completed counts, at-risk counts, and breached counts.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for breached SLA reports, escalation payloads, CLI metadata indexing, API report creation, and SLA dashboard history.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.

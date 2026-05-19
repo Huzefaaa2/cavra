@@ -386,6 +386,22 @@ const endpointRemediationHandoffStatusCatalog = [
   }
 ];
 
+const endpointRemediationSlaCatalog = [
+  {
+    session_id: "ersla-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-remediation-sla-report",
+    report_id: "ersla-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T01:00:00+00:00",
+    alert_level: "healthy",
+    tracked_work_item_count: 1,
+    completed_count: 1,
+    at_risk_count: 0,
+    breached_count: 0,
+    completion_rate: 1,
+    escalation_count: 0
+  }
+];
+
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
     schema_version: "cavra.evidence.artifacts.v1",
@@ -1274,6 +1290,40 @@ async function loadEndpointRemediationHandoffStatusDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointRemediationHandoffStatusDashboard(endpointRemediationHandoffStatusCatalog);
+  }
+}
+
+async function loadEndpointRemediationSlaReports() {
+  await loadConsoleConfig();
+  try {
+    const params = {
+      alert_level: document.querySelector("#filterEndpointRemediationSlaAlert")?.value,
+      min_breached: document.querySelector("#filterEndpointRemediationSlaBreached")?.value,
+      limit: 25
+    };
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-reports", params));
+    if (!response.ok) throw new Error("Endpoint remediation SLA report API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return endpointRemediationSlaCatalog.filter((item) => {
+      const alert = document.querySelector("#filterEndpointRemediationSlaAlert")?.value;
+      const minBreached = Number(document.querySelector("#filterEndpointRemediationSlaBreached")?.value || 0);
+      if (alert && item.alert_level !== alert) return false;
+      if (Number(item.breached_count || 0) < minBreached) return false;
+      return true;
+    });
+  }
+}
+
+async function loadEndpointRemediationSlaDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-reports/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation SLA dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return sampleEndpointRemediationSlaDashboard(endpointRemediationSlaCatalog);
   }
 }
 
@@ -2409,6 +2459,48 @@ function renderEndpointRemediationHandoffStatuses(items, dashboard) {
   }
 }
 
+function renderEndpointRemediationSlaReports(items, dashboard) {
+  const rows = document.querySelector("#endpointRemediationSlaRows");
+  const panel = document.querySelector("#endpointRemediationSlaDashboard");
+  if (!rows || !panel) return;
+  rows.innerHTML = "";
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(dashboard.alert_level)}">${escapeHtml(dashboard.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Reports</span>
+      <strong>${formatMetricNumber(dashboard.report_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Tracked</span>
+      <strong>${formatMetricNumber(dashboard.tracked_work_item_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>At Risk</span>
+      <strong class="${Number(dashboard.at_risk_count || 0) ? "warn" : "allow"}">${formatMetricNumber(dashboard.at_risk_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Breached</span>
+      <strong class="${Number(dashboard.breached_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.breached_count)}</strong>
+    </div>
+  `;
+  for (const item of items) {
+    rows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.report_id || item.session_id || "report")}</td>
+        <td class="${riskClass(item.alert_level)}">${escapeHtml(item.alert_level || "unknown")}</td>
+        <td>${formatMetricNumber(item.tracked_work_item_count)}</td>
+        <td>${formatMetricNumber(item.completed_count)}</td>
+        <td>${formatMetricNumber(item.at_risk_count)}</td>
+        <td>${formatMetricNumber(item.breached_count)}</td>
+        <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+      </tr>
+    `);
+  }
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -2674,6 +2766,26 @@ function sampleEndpointRemediationHandoffStatusDashboard(items) {
     provider_count: Object.keys(providers).length,
     providers,
     statuses,
+    latest: items.slice(0, 10)
+  };
+}
+
+function sampleEndpointRemediationSlaDashboard(items) {
+  const latest = items[0] || {};
+  return {
+    schema_version: "cavra.endpoint_remediation_sla_report.dashboard.v1",
+    product: "CAVRA",
+    alert_level: latest.alert_level || "healthy",
+    report_count: items.length,
+    critical_report_count: items.filter((item) => item.alert_level === "critical").length,
+    warning_report_count: items.filter((item) => item.alert_level === "warning").length,
+    latest_report_id: latest.report_id,
+    tracked_work_item_count: latest.tracked_work_item_count || 0,
+    completed_count: latest.completed_count || 0,
+    at_risk_count: latest.at_risk_count || 0,
+    breached_count: latest.breached_count || 0,
+    completion_rate: latest.completion_rate || 0,
+    escalation_count: latest.escalation_count || 0,
     latest: items.slice(0, 10)
   };
 }
@@ -3140,6 +3252,14 @@ async function refreshEndpointRemediationHandoffStatus() {
   renderEndpointRemediationHandoffStatuses(items, dashboard);
 }
 
+async function refreshEndpointRemediationSla() {
+  const [items, dashboard] = await Promise.all([
+    loadEndpointRemediationSlaReports(),
+    loadEndpointRemediationSlaDashboard()
+  ]);
+  renderEndpointRemediationSlaReports(items, dashboard);
+}
+
 async function refreshReleaseChannels() {
   const [promotions, exports, dashboard] = await Promise.all([
     loadReleaseChannelPromotions(),
@@ -3503,6 +3623,7 @@ document.querySelector("#refreshEndpointReconciliation").addEventListener("click
 document.querySelector("#refreshEndpointRemediation").addEventListener("click", refreshEndpointRemediation);
 document.querySelector("#refreshEndpointRemediationHandoff").addEventListener("click", refreshEndpointRemediationHandoff);
 document.querySelector("#refreshEndpointRemediationHandoffStatus").addEventListener("click", refreshEndpointRemediationHandoffStatus);
+document.querySelector("#refreshEndpointRemediationSla").addEventListener("click", refreshEndpointRemediationSla);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -3591,6 +3712,7 @@ refreshEndpointReconciliation();
 refreshEndpointRemediation();
 refreshEndpointRemediationHandoff();
 refreshEndpointRemediationHandoffStatus();
+refreshEndpointRemediationSla();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

@@ -476,6 +476,26 @@ class EndpointRemediationHandoffStatusResult:
 
 
 @dataclass(frozen=True)
+class EndpointRemediationSlaReportResult:
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    report_id: str | None = None
+    report: dict[str, Any] | None = None
+    files: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "report_id": self.report_id,
+            "report": self.report,
+            "files": self.files,
+        }
+
+
+@dataclass(frozen=True)
 class EndpointDriftRemediationExecutionResult:
     valid: bool
     errors: list[str] = field(default_factory=list)
@@ -3388,6 +3408,242 @@ def build_endpoint_remediation_handoff_status_dashboard(items: list[dict[str, An
     }
 
 
+def build_endpoint_remediation_sla_report(
+    handoff_items: list[dict[str, Any]],
+    status_items: list[dict[str, Any]],
+    *,
+    warning_hours: int = 24,
+    critical_hours: int = 48,
+    generated_by: str = "release-manager",
+    output_dir: Path | None = None,
+    now: datetime | None = None,
+) -> EndpointRemediationSlaReportResult:
+    errors: list[str] = []
+    warnings: list[str] = []
+    warning_hours = max(1, int(warning_hours))
+    critical_hours = max(1, int(critical_hours))
+    if warning_hours > critical_hours:
+        errors.append("warning_hours must be less than or equal to critical_hours")
+    handoffs = [item for item in handoff_items if item.get("metadata_kind") == "endpoint-remediation-handoff"]
+    statuses = [item for item in status_items if item.get("metadata_kind") == "endpoint-remediation-handoff-status"]
+    if not handoffs:
+        warnings.append("no endpoint remediation handoff metadata found")
+    if errors:
+        return EndpointRemediationSlaReportResult(valid=False, errors=errors, warnings=warnings)
+    now = now or datetime.now(timezone.utc)
+    latest_status: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in statuses:
+        handoff_id = str(item.get("handoff_id") or "")
+        provider = str(item.get("provider") or "")
+        if not handoff_id or not provider:
+            continue
+        key = (handoff_id, provider)
+        current = latest_status.get(key)
+        if current is None or str(item.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_status[key] = item
+    work_items: list[dict[str, Any]] = []
+    for handoff_item in handoffs:
+        handoff_id = str(handoff_item.get("handoff_id") or handoff_item.get("session_id") or "")
+        created_at = _parse_release_datetime(handoff_item.get("created_at")) or now
+        providers = [str(provider) for provider in handoff_item.get("providers", [])]
+        for provider in providers:
+            status_item = latest_status.get((handoff_id, provider))
+            state = str(status_item.get("handoff_status") if status_item else "not_started")
+            status_at = _parse_release_datetime(status_item.get("created_at")) if status_item else None
+            terminal = state in {"completed", "cancelled"}
+            end_at = status_at if terminal and status_at else now
+            age_hours = max(0.0, (end_at - created_at).total_seconds() / 3600)
+            severity = "healthy"
+            sla_state = "met"
+            if state in {"failed", "blocked"}:
+                severity = "critical"
+                sla_state = "breached"
+            elif not terminal and age_hours >= critical_hours:
+                severity = "critical"
+                sla_state = "breached"
+            elif not terminal and age_hours >= warning_hours:
+                severity = "warning"
+                sla_state = "at_risk"
+            overdue_hours = 0.0
+            if sla_state == "breached":
+                overdue_hours = max(0.0, age_hours - critical_hours)
+            elif sla_state == "at_risk":
+                overdue_hours = max(0.0, age_hours - warning_hours)
+            work_items.append(
+                {
+                    "handoff_id": handoff_id,
+                    "request_id": handoff_item.get("request_id"),
+                    "reconciliation_id": handoff_item.get("reconciliation_id"),
+                    "provider": provider,
+                    "status": state,
+                    "severity": severity,
+                    "sla_state": sla_state,
+                    "age_hours": round(age_hours, 2),
+                    "overdue_hours": round(overdue_hours, 2),
+                    "warning_hours": warning_hours,
+                    "critical_hours": critical_hours,
+                    "created_at": handoff_item.get("created_at"),
+                    "latest_status_at": status_item.get("created_at") if status_item else None,
+                    "external_ref": status_item.get("external_ref") if status_item else None,
+                    "external_url": status_item.get("external_url") if status_item else None,
+                    "approval_id": handoff_item.get("approval_id"),
+                    "approval_state": handoff_item.get("approval_state"),
+                    "action_count": handoff_item.get("action_count", 0),
+                    "release": handoff_item.get("release", {}),
+                    "channel": handoff_item.get("channel"),
+                    "recommended_action": _endpoint_remediation_sla_recommended_action(state, severity),
+                }
+            )
+    breached = [item for item in work_items if item["sla_state"] == "breached"]
+    at_risk = [item for item in work_items if item["sla_state"] == "at_risk"]
+    completed = [item for item in work_items if item["status"] == "completed"]
+    alert_level = "critical" if breached else "warning" if at_risk else "healthy"
+    generated_at = now.isoformat()
+    report_id = _endpoint_remediation_sla_report_id(generated_at, warning_hours, critical_hours, work_items)
+    escalations = [_endpoint_remediation_sla_escalation(item) for item in [*breached, *at_risk]]
+    report = {
+        "schema_version": "cavra.endpoint-remediation-sla-report.v1",
+        "product": "CAVRA",
+        "report_id": report_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "warning_hours": warning_hours,
+        "critical_hours": critical_hours,
+        "alert_level": alert_level,
+        "executive_summary": {
+            "tracked_work_item_count": len(work_items),
+            "completed_count": len(completed),
+            "at_risk_count": len(at_risk),
+            "breached_count": len(breached),
+            "completion_rate": round((len(completed) / len(work_items)) if work_items else 0.0, 4),
+            "critical_provider_count": len({item["provider"] for item in breached}),
+            "release_channels": sorted({str(item.get("channel")) for item in work_items if item.get("channel")}),
+        },
+        "work_items": sorted(work_items, key=lambda item: (item["severity"], item["age_hours"]), reverse=True),
+        "escalations": escalations,
+        "escalation_payloads": _endpoint_remediation_sla_escalation_payloads(report_id, escalations),
+        "controls": [
+            "sla-report-derived-from-public-handoff-and-status-metadata",
+            "escalation-payloads-contain-no-connector-credentials",
+            "executive-summary-avoids-private-endpoint-mutation-details",
+            "private-connectors-remain-responsible-for-endpoint-changes",
+        ],
+        "evidence_refs": [
+            *[f"endpoint-remediation-handoff://{item.get('handoff_id')}" for item in handoffs if item.get("handoff_id")],
+            *[
+                f"endpoint-remediation-handoff-status://{item.get('status_id')}"
+                for item in statuses
+                if item.get("status_id")
+            ],
+        ],
+    }
+    files: list[str] = []
+    if output_dir:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        report_path = output_dir / "endpoint-remediation-sla-report.json"
+        summary_path = output_dir / "endpoint-remediation-sla-report.md"
+        _write_release_json(report_path, report)
+        summary_path.write_text(_endpoint_remediation_sla_report_markdown_summary(report), encoding="utf-8")
+        checksums_path = output_dir / "checksums.txt"
+        checksums_path.write_text(
+            "\n".join(f"{sha256_file(path)}  {path.name}" for path in [report_path, summary_path]) + "\n",
+            encoding="utf-8",
+        )
+        files = [report_path.name, summary_path.name, checksums_path.name]
+    return EndpointRemediationSlaReportResult(
+        valid=True,
+        warnings=warnings,
+        report_id=report_id,
+        report=report,
+        files=files,
+    )
+
+
+def build_endpoint_remediation_sla_report_metadata(
+    report: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    metadata = {
+        "session_id": report.get("report_id"),
+        "created_at": report.get("generated_at"),
+        "signer": report.get("generated_by", "release-manager"),
+        "decision_count": int(summary.get("tracked_work_item_count") or 0),
+        "blocked_count": int(summary.get("breached_count") or 0),
+        "approval_required_count": int(summary.get("at_risk_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-report",
+        "report_id": report.get("report_id"),
+        "alert_level": report.get("alert_level"),
+        "warning_hours": report.get("warning_hours"),
+        "critical_hours": report.get("critical_hours"),
+        "tracked_work_item_count": summary.get("tracked_work_item_count", 0),
+        "completed_count": summary.get("completed_count", 0),
+        "at_risk_count": summary.get("at_risk_count", 0),
+        "breached_count": summary.get("breached_count", 0),
+        "completion_rate": summary.get("completion_rate", 0),
+        "critical_provider_count": summary.get("critical_provider_count", 0),
+        "release_channels": summary.get("release_channels", []),
+        "escalation_count": len(report.get("escalations", [])),
+        "report": report,
+        "evidence_refs": report.get("evidence_refs", []),
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def filter_endpoint_remediation_sla_report_history(
+    items: list[dict[str, Any]],
+    *,
+    alert_level: str | None = None,
+    min_breached: int | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [item for item in items if item.get("metadata_kind") == "endpoint-remediation-sla-report"]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if min_breached is not None:
+        filtered = [item for item in filtered if int(item.get("breached_count") or 0) >= min_breached]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla_report.history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_report_history(items, limit=500)["items"]
+    latest = history[0] if history else {}
+    critical_reports = [item for item in history if item.get("alert_level") == "critical"]
+    warning_reports = [item for item in history if item.get("alert_level") == "warning"]
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla_report.dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": latest.get("alert_level", "healthy"),
+        "report_count": len(history),
+        "critical_report_count": len(critical_reports),
+        "warning_report_count": len(warning_reports),
+        "latest_report_id": latest.get("report_id"),
+        "tracked_work_item_count": latest.get("tracked_work_item_count", 0),
+        "completed_count": latest.get("completed_count", 0),
+        "at_risk_count": latest.get("at_risk_count", 0),
+        "breached_count": latest.get("breached_count", 0),
+        "completion_rate": latest.get("completion_rate", 0),
+        "escalation_count": latest.get("escalation_count", 0),
+        "latest": history[:10],
+    }
+
+
 def build_endpoint_remediation_handoff_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
     history = filter_endpoint_remediation_handoff_history(items, limit=500)["items"]
     providers: dict[str, int] = {}
@@ -4488,6 +4744,33 @@ def _endpoint_remediation_handoff_status_id(
     return f"erhs_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
 
 
+def _endpoint_remediation_sla_report_id(
+    generated_at: str,
+    warning_hours: int,
+    critical_hours: int,
+    work_items: list[dict[str, Any]],
+) -> str:
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "warning_hours": warning_hours,
+            "critical_hours": critical_hours,
+            "work_items": [
+                {
+                    "handoff_id": item.get("handoff_id"),
+                    "provider": item.get("provider"),
+                    "status": item.get("status"),
+                    "severity": item.get("severity"),
+                }
+                for item in work_items
+            ],
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return f"ersla_{hashlib.sha256(material.encode('utf-8')).hexdigest()[:12]}"
+
+
 def _endpoint_inventory_freshness_report_id(
     items: list[dict[str, Any]],
     *,
@@ -5012,6 +5295,107 @@ def _redact_endpoint_handoff_callback_payload(payload: dict[str, Any]) -> dict[s
         return value
 
     return redact(payload)
+
+
+def _endpoint_remediation_sla_recommended_action(status: str, severity: str) -> str:
+    if status == "not_started":
+        return "Confirm that the handoff was accepted by the provider or private connector queue."
+    if status in {"failed", "blocked"}:
+        return "Escalate to endpoint operations and release governance for manual recovery review."
+    if severity == "critical":
+        return "Escalate overdue remediation to the release owner and change advisory board."
+    if severity == "warning":
+        return "Notify provider owner before the remediation handoff breaches SLA."
+    if status == "completed":
+        return "Retain completion evidence with the release governance record."
+    return "Continue monitoring provider callback status."
+
+
+def _endpoint_remediation_sla_escalation(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "severity": item.get("severity"),
+        "handoff_id": item.get("handoff_id"),
+        "request_id": item.get("request_id"),
+        "provider": item.get("provider"),
+        "status": item.get("status"),
+        "age_hours": item.get("age_hours"),
+        "overdue_hours": item.get("overdue_hours"),
+        "external_ref": item.get("external_ref"),
+        "external_url": item.get("external_url"),
+        "recommended_action": item.get("recommended_action"),
+    }
+
+
+def _endpoint_remediation_sla_escalation_payloads(
+    report_id: str,
+    escalations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    critical_count = len([item for item in escalations if item.get("severity") == "critical"])
+    warning_count = len([item for item in escalations if item.get("severity") == "warning"])
+    title = f"CAVRA endpoint remediation SLA report {report_id}"
+    text = f"{critical_count} breached and {warning_count} at-risk endpoint remediation handoffs require review."
+    return {
+        "slack": {
+            "text": title,
+            "blocks": [
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*\n{text}"}},
+                {"type": "context", "elements": [{"type": "mrkdwn", "text": "Generated from public CAVRA evidence metadata."}]},
+            ],
+        },
+        "teams": {
+            "@type": "MessageCard",
+            "@context": "https://schema.org/extensions",
+            "summary": title,
+            "themeColor": "DC2626" if critical_count else "D97706",
+            "title": title,
+            "text": text,
+        },
+        "jira": {
+            "issue": {
+                "project": {"key": "CAVRA"},
+                "issuetype": {"name": "Task"},
+                "summary": title,
+                "description": text,
+                "labels": ["cavra", "endpoint-remediation", "sla"],
+            }
+        },
+        "executive_summary": {
+            "report_id": report_id,
+            "critical_count": critical_count,
+            "warning_count": warning_count,
+            "message": text,
+        },
+    }
+
+
+def _endpoint_remediation_sla_report_markdown_summary(report: dict[str, Any]) -> str:
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    lines = [
+        "# Endpoint Remediation SLA Report",
+        "",
+        f"- Report ID: `{report.get('report_id')}`",
+        f"- Alert level: `{report.get('alert_level')}`",
+        f"- Tracked work items: {summary.get('tracked_work_item_count', 0)}",
+        f"- Completed: {summary.get('completed_count', 0)}",
+        f"- At risk: {summary.get('at_risk_count', 0)}",
+        f"- Breached: {summary.get('breached_count', 0)}",
+        "",
+        "## Escalations",
+    ]
+    escalations = report.get("escalations", [])
+    if not escalations:
+        lines.append("- No SLA escalations.")
+    for item in escalations:
+        lines.append(
+            "- "
+            f"`{item.get('severity')}` `{item.get('provider')}` `{item.get('handoff_id')}` "
+            f"{item.get('recommended_action')}"
+        )
+    lines.append("")
+    lines.append("## Controls")
+    for control in report.get("controls", []):
+        lines.append(f"- `{control}`")
+    return "\n".join(lines) + "\n"
 
 
 def _normalize_endpoint_remediation_handoff_providers(providers: list[str] | None) -> list[str]:
