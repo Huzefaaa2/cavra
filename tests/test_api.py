@@ -297,6 +297,27 @@ def test_api_creates_signed_rollout_promotion_approval(monkeypatch, tmp_path) ->
     assert approval["state"] == "pending"
     assert client.get("/approvals", params={"state": "pending"}).json()["items"][0]["approval_id"] == approval["approval_id"]
     assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_request"] == "/evidence/{session_id}/promotion-request"
+    assert client.get("/console/config").json()["endpoints"]["evidence_rollout_promotion_execution"] == "/evidence/{session_id}/promotion-execution"
+
+    pending_execution = client.post(
+        "/evidence/rollout-1/promotion-execution",
+        json={"request": response.json()["request"], "approval_id": approval["approval_id"], "executed_by": "release-manager"},
+    )
+    assert pending_execution.status_code == 400
+
+    approved = client.post(
+        f"/approvals/{approval['approval_id']}/approve",
+        json={"actor": "cab@example.com", "reason": "Approved production ring promotion."},
+    )
+    execution = client.post(
+        "/evidence/rollout-1/promotion-execution",
+        json={"request": response.json()["request"], "approval_id": approval["approval_id"], "executed_by": "release-manager"},
+    )
+    assert approved.status_code == 200
+    assert execution.status_code == 200
+    assert execution.json()["valid"] is True
+    assert execution.json()["execution"]["ring_advancement"]["to"] == "production"
+    assert execution.json()["execution"]["approval"]["state"] == "approved"
 
     rejected = client.post(
         "/evidence/rollout-1/promotion-request",

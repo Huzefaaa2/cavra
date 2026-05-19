@@ -7,10 +7,12 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
+from cavra.approvals import ApprovalStore
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
 from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
+    create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -406,6 +408,82 @@ def test_managed_endpoint_rollout_promotion_request_is_signed_and_persisted(tmp_
     assert payload["valid"] is True
     assert payload["request"]["signature"]["algorithm"] == "Ed25519"
     assert json.loads(approval_json.read_text(encoding="utf-8"))["items"][0]["state"] == "pending"
+
+
+def test_managed_endpoint_rollout_promotion_execution_requires_approved_request(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+    rollout_dir = tmp_path / "rollout"
+    capture_managed_endpoint_rollout_evidence(
+        dist,
+        rollout_dir,
+        deployment_ids=["github-actions-linux-amd64-runner"],
+        rollout_id="chg-123-v0.1.0-test",
+        rollout_ring="pilot",
+        status="staged",
+        change_record="CHG-123",
+    )
+    request_result = create_managed_endpoint_rollout_promotion_request(
+        rollout_dir,
+        output_dir=tmp_path / "promotion-request",
+        target_ring="production",
+        signing_key_pem=private_key.read_text(encoding="utf-8"),
+    )
+    pending_result = create_managed_endpoint_rollout_promotion_execution(
+        request_result.request,
+        request_result.approval,
+        output_dir=tmp_path / "pending-execution",
+    )
+    assert not pending_result.valid
+    assert "rollout promotion execution requires an approved approval record" in pending_result.errors
+
+    approval_store = ApprovalStore(tmp_path / "approvals.json")
+    approval_store.upsert(request_result.approval)
+    approved = approval_store.decide(
+        request_result.approval["approval_id"],
+        state="approved",
+        actor="cab@example.com",
+        reason="Validated staged rollout evidence.",
+    )
+    result = create_managed_endpoint_rollout_promotion_execution(
+        request_result.request,
+        approved,
+        output_dir=tmp_path / "promotion-execution",
+        executed_by="release-manager",
+    )
+
+    assert result.valid
+    assert result.execution["schema_version"] == "cavra.go-runtime.endpoint-rollout-promotion-execution.v1"
+    assert result.execution["ring_advancement"] == {
+        "from": "pilot",
+        "to": "production",
+        "previous_rollout_status": "staged",
+        "new_rollout_status": "promoted",
+    }
+    assert "promotion-request-signature-verified" in result.execution["controls"]
+    assert set(result.files) == {"rollout-promotion-execution.json", "rollout-promotion-execution.md"}
+
+    cli_result = runner.invoke(
+        app,
+        [
+            "release",
+            "execute-rollout-promotion",
+            str(tmp_path / "promotion-request" / "rollout-promotion-approval-request.json"),
+            "--approval-store",
+            str(tmp_path / "approvals.json"),
+            "--output",
+            str(tmp_path / "cli-promotion-execution"),
+            "--json",
+        ],
+    )
+
+    assert cli_result.exit_code == 0
+    payload = json.loads(cli_result.output)
+    assert payload["valid"] is True
+    assert payload["execution"]["approval"]["state"] == "approved"
 
 
 def test_managed_endpoint_rollout_promotion_request_requires_ready_rollout(tmp_path: Path, monkeypatch) -> None:

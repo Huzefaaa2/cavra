@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add approved promotion execution records for endpoint rollout ring advancement and continue broadening approval-route parity as new policy packs are added.
+Add promotion execution search, audit drill-downs, and rollback evidence links for endpoint rollout governance, and continue broadening approval-route parity as new policy packs are added.

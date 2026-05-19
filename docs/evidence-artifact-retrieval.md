@@ -68,6 +68,7 @@ Promotion requests require `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RE
 - As an endpoint engineering owner, I can retrieve verified rollout evidence and checksums for a managed endpoint deployment record.
 - As a release manager, I can see whether rollout artifacts are checksum-verified and ready for promotion review.
 - As a release manager, I can create a signed promotion approval request from the same governed rollout evidence record.
+- As a release manager, I can record the approved promotion execution against the same governed rollout evidence record.
 - As a platform engineer, I can expose artifact downloads from a controlled evidence root without granting the API broad filesystem access.
 
 ## Enterprise Value

@@ -86,6 +86,8 @@ const rolloutArtifactCatalog = [
   artifact, kind, media_type, description, bytes: 1024, sha256: "sample"
 }));
 
+const rolloutPromotionRequests = new Map();
+
 const releaseNoteCatalog = [
   {
     title: "Backend-Driven Sandbox Runs",
@@ -1265,6 +1267,7 @@ function renderEvidenceArtifacts(payload) {
       </ul>
       <div class="artifact-actions">
         <button class="rolloutPromotionRequestAction" data-session="${escapeHtml(payload.session_id || "")}">Request Promotion Approval</button>
+        <button class="rolloutPromotionExecutionAction" data-session="${escapeHtml(payload.session_id || "")}">Record Promotion Execution</button>
         <span id="rolloutPromotionStatus" class="status-line"></span>
       </div>
     ` : ""}
@@ -1756,6 +1759,7 @@ async function requestRolloutPromotionApproval(sessionId) {
     });
     if (!response.ok) throw new Error("Promotion approval API unavailable");
     const result = await response.json();
+    if (result.request) rolloutPromotionRequests.set(sessionId, result.request);
     if (status) {
       status.textContent = `Signed promotion approval requested: ${result.approval?.approval_id || "pending"}`;
       status.className = "status-line ok";
@@ -1783,6 +1787,18 @@ async function requestRolloutPromotionApproval(sessionId) {
       evidence_refs: [`approval://rollout/${Date.now()}`, `evidence://${sessionId}/managed-endpoint-rollout-evidence.json`],
       history: [{ event: "requested", actor: "console", timestamp: new Date().toISOString(), reason: "Sample signed promotion request." }]
     };
+    rolloutPromotionRequests.set(sessionId, {
+      schema_version: "cavra.go-runtime.endpoint-rollout-promotion-request.v1",
+      request_id: approval.decision_id.replace(":decision", ""),
+      rollout_id: sessionId,
+      current_ring: "pilot",
+      target_ring: "production",
+      rollout_status: "staged",
+      change_record: "CHG-123",
+      release: { version: "v0.2.0-rc.1" },
+      deployment_targets: ["github-actions-linux-amd64-runner"],
+      approval
+    });
     approvalCatalog.unshift(approval);
     if (status) {
       status.textContent = `Sample promotion approval requested: ${approval.approval_id}`;
@@ -1791,6 +1807,38 @@ async function requestRolloutPromotionApproval(sessionId) {
     renderApprovalDetail(approval);
   }
   await refreshApprovals();
+}
+
+async function recordRolloutPromotionExecution(sessionId) {
+  const status = document.querySelector("#rolloutPromotionStatus");
+  const request = rolloutPromotionRequests.get(sessionId);
+  if (status) {
+    status.textContent = "Recording approved promotion execution...";
+    status.className = "status-line require_approval";
+  }
+  try {
+    if (!request) throw new Error("Promotion request is required before execution");
+    const response = await fetch(apiUrl(`/evidence/${encodeURIComponent(sessionId)}/promotion-execution`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        request,
+        approval_id: request.approval?.approval_id,
+        executed_by: "console"
+      })
+    });
+    if (!response.ok) throw new Error("Promotion execution API unavailable");
+    const result = await response.json();
+    if (status) {
+      status.textContent = `Promotion execution recorded: ${result.execution?.execution_id || "recorded"}`;
+      status.className = "status-line ok";
+    }
+  } catch {
+    if (status) {
+      status.textContent = `Sample promotion execution recorded for ${sessionId}`;
+      status.className = "status-line ok";
+    }
+  }
 }
 
 async function refreshActivity() {
@@ -2006,8 +2054,9 @@ document.querySelector("#evidenceRows").addEventListener("click", async (event) 
 document.querySelector("#evidenceArtifacts").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
   const promotionButton = event.target.closest(".rolloutPromotionRequestAction");
-  if (!promotionButton) return;
-  await requestRolloutPromotionApproval(promotionButton.dataset.session);
+  const executionButton = event.target.closest(".rolloutPromotionExecutionAction");
+  if (promotionButton) await requestRolloutPromotionApproval(promotionButton.dataset.session);
+  if (executionButton) await recordRolloutPromotionExecution(executionButton.dataset.session);
 });
 document.querySelector("#rolloutRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;

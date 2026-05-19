@@ -48,7 +48,10 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
-from cavra.release import create_managed_endpoint_rollout_promotion_request
+from cavra.release import (
+    create_managed_endpoint_rollout_promotion_execution,
+    create_managed_endpoint_rollout_promotion_request,
+)
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import (
     compliance_mapping,
@@ -165,6 +168,7 @@ def create_app():
                 "evidence_artifact": "/evidence/{session_id}/artifacts/{artifact_name}",
                 "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
                 "evidence_rollout_promotion_request": "/evidence/{session_id}/promotion-request",
+                "evidence_rollout_promotion_execution": "/evidence/{session_id}/promotion-execution",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -875,6 +879,40 @@ def create_app():
             raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
         if result.approval:
             approval_store.upsert(result.approval)
+        return result.to_dict()
+
+    @app.post("/evidence/{session_id}/promotion-execution")
+    def evidence_rollout_promotion_execution(session_id: str, payload: dict) -> dict:
+        metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
+        if metadata.get("metadata_kind") != "managed-endpoint-rollout":
+            raise HTTPException(status_code=400, detail="promotion executions require managed endpoint rollout metadata")
+        request_payload = payload.get("request")
+        if not isinstance(request_payload, dict):
+            raise HTTPException(status_code=400, detail="promotion execution requires request payload")
+        if request_payload.get("rollout_id") != session_id:
+            raise HTTPException(status_code=400, detail="promotion request rollout_id does not match evidence session")
+        request_approval = request_payload.get("approval", {})
+        approval_id = payload.get("approval_id") or (
+            request_approval.get("approval_id") if isinstance(request_approval, dict) else None
+        )
+        if not approval_id:
+            raise HTTPException(status_code=400, detail="promotion execution requires approval_id")
+        approval = approval_store.get(str(approval_id))
+        if approval is None:
+            raise HTTPException(status_code=404, detail="approval not found")
+        try:
+            result = create_managed_endpoint_rollout_promotion_execution(
+                request_payload,
+                approval,
+                output_dir=None,
+                executed_by=payload.get("executed_by", "console"),
+                execution_environment=payload.get("execution_environment"),
+                notes=payload.get("notes"),
+            )
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
         return result.to_dict()
 
     @app.get("/evidence/{session_id}/artifact-bundle")
