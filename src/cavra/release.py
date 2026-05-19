@@ -3,7 +3,9 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import platform
 import re
+import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass, field
@@ -88,6 +90,28 @@ class ReleaseUpgradeValidationResult:
             "verified_candidate": self.verified_candidate,
             "artifact_changes": self.artifact_changes,
             "control_changes": self.control_changes,
+        }
+
+
+@dataclass(frozen=True)
+class InstallerSmokeValidationResult:
+    package_dir: Path
+    valid: bool
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    verified_targets: list[str] = field(default_factory=list)
+    executed_targets: list[str] = field(default_factory=list)
+    package_verification: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "package_dir": str(self.package_dir),
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "verified_targets": self.verified_targets,
+            "executed_targets": self.executed_targets,
+            "package_verification": self.package_verification,
         }
 
 
@@ -404,6 +428,88 @@ def validate_go_release_upgrade(
             "added": added_controls,
             "removed": removed_controls,
         },
+    )
+
+
+def smoke_test_go_installers(
+    package_dir: Path,
+    *,
+    require_signatures: bool = True,
+    require_provenance: bool = True,
+    execute_native: bool = True,
+    timeout_seconds: float = 5.0,
+) -> InstallerSmokeValidationResult:
+    package_dir = package_dir.resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    verified_targets: list[str] = []
+    executed_targets: list[str] = []
+
+    package_result = verify_go_release_package(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+    )
+    errors.extend(package_result.errors)
+    warnings.extend(package_result.warnings)
+
+    installer_metadata_path = package_dir / "cavra-runtime.installers.json"
+    metadata: dict[str, Any] = {}
+    if installer_metadata_path.exists():
+        try:
+            metadata = json.loads(installer_metadata_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid installer metadata JSON: {exc}")
+    else:
+        errors.append("missing cavra-runtime.installers.json")
+
+    targets = metadata.get("targets", [])
+    if isinstance(targets, list):
+        for target in targets:
+            if not isinstance(target, dict):
+                errors.append("installer smoke target is invalid")
+                continue
+            target_name = str(target.get("target", ""))
+            binary = str(target.get("binary", ""))
+            binary_path = _safe_package_path(package_dir, binary)
+            if not target_name:
+                errors.append("installer smoke target is missing target name")
+                continue
+            if binary_path is None or not binary_path.exists():
+                errors.append(f"installer smoke binary is missing: {binary}")
+                continue
+            if not target.get("install_path") or not target.get("install_command"):
+                errors.append(f"installer smoke target is missing install command guidance: {target_name}")
+                continue
+            verified_targets.append(target_name)
+    elif metadata:
+        errors.append("installer metadata targets must be a list")
+
+    if execute_native and isinstance(targets, list):
+        native_target = _current_installer_target()
+        native = next((target for target in targets if isinstance(target, dict) and target.get("target") == native_target), None)
+        if native is None:
+            warnings.append(f"no installer metadata target matches current platform: {native_target}")
+        else:
+            binary_path = _safe_package_path(package_dir, str(native.get("binary", "")))
+            if binary_path is None or not binary_path.exists():
+                errors.append(f"native installer smoke binary is missing for {native_target}")
+            else:
+                try:
+                    _execute_go_runtime_smoke(binary_path, timeout_seconds=timeout_seconds)
+                except ReleaseVerificationError as exc:
+                    errors.append(str(exc))
+                else:
+                    executed_targets.append(native_target)
+
+    return InstallerSmokeValidationResult(
+        package_dir=package_dir,
+        valid=not errors,
+        errors=errors,
+        warnings=warnings,
+        verified_targets=sorted(set(verified_targets)),
+        executed_targets=sorted(set(executed_targets)),
+        package_verification=package_result.to_dict(),
     )
 
 
@@ -750,3 +856,47 @@ def _pre_release_parts(value: str) -> tuple[tuple[int, int | str], ...]:
         else:
             parts.append((1, part))
     return tuple(parts)
+
+
+def _current_installer_target() -> str:
+    system = platform.system().lower()
+    os_name = {"darwin": "darwin", "linux": "linux", "windows": "windows"}.get(system, system)
+    machine = platform.machine().lower()
+    arch = {
+        "x86_64": "amd64",
+        "amd64": "amd64",
+        "aarch64": "arm64",
+        "arm64": "arm64",
+    }.get(machine, machine)
+    return f"{os_name}/{arch}"
+
+
+def _execute_go_runtime_smoke(binary_path: Path, *, timeout_seconds: float) -> None:
+    request = {
+        "session_id": "installer-smoke",
+        "action_type": "git_operation",
+        "operation": "status",
+        "target": "feature/installer-smoke",
+    }
+    try:
+        completed = subprocess.run(
+            [str(binary_path)],
+            input=json.dumps(request),
+            text=True,
+            capture_output=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except OSError as exc:
+        raise ReleaseVerificationError(f"installer smoke execution failed for {binary_path.name}: {exc}") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise ReleaseVerificationError(f"installer smoke execution timed out for {binary_path.name}") from exc
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip()
+        raise ReleaseVerificationError(f"installer smoke execution failed for {binary_path.name}: {stderr or completed.returncode}")
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"installer smoke output is not valid JSON for {binary_path.name}: {exc}") from exc
+    if payload.get("decision") not in {"allow", "block", "require_approval", "warn", "audit_only", "allow_with_attestation"}:
+        raise ReleaseVerificationError(f"installer smoke output has an invalid decision for {binary_path.name}")

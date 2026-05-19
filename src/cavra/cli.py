@@ -63,7 +63,12 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
-from cavra.release import validate_go_release_upgrade, verify_go_airgap_bundle, verify_go_release_package
+from cavra.release import (
+    smoke_test_go_installers,
+    validate_go_release_upgrade,
+    verify_go_airgap_bundle,
+    verify_go_release_package,
+)
 from cavra.runtime import RuntimeGuard
 
 console = Console()
@@ -1351,6 +1356,52 @@ def validate_upgrade(
             console.print(f"  added binary: {binary}")
         for control in result.control_changes.get("added", []):
             console.print(f"  added control: {control}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("smoke-installers")
+def smoke_installers(
+    package_dir: Annotated[Path, typer.Argument(help="Go release package directory.")],
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for release artifacts.",
+    ),
+    execute_native: bool = typer.Option(
+        True,
+        "--execute-native/--skip-execution",
+        help="Execute the packaged binary matching the current OS and architecture.",
+    ),
+    timeout_seconds: float = typer.Option(5.0, "--timeout-seconds", help="Native binary smoke-test timeout."),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable validation output."),
+) -> None:
+    """Smoke-test Go runtime installer metadata and the native packaged binary."""
+    result = smoke_test_go_installers(
+        package_dir,
+        require_signatures=require_signatures,
+        require_provenance=require_provenance,
+        execute_native=execute_native,
+        timeout_seconds=timeout_seconds,
+    )
+    if json_output:
+        _print_json(result.to_dict())
+    else:
+        status = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status}[/] installer smoke validation")
+        for target in result.verified_targets:
+            console.print(f"  target: {target}")
+        for target in result.executed_targets:
+            console.print(f"  executed: {target}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

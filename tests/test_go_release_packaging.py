@@ -9,7 +9,12 @@ from typer.testing import CliRunner
 
 from cavra.cli import app
 from cavra.evidence import generate_ed25519_keypair
-from cavra.release import validate_go_release_upgrade, verify_go_airgap_bundle, verify_go_release_package
+from cavra.release import (
+    smoke_test_go_installers,
+    validate_go_release_upgrade,
+    verify_go_airgap_bundle,
+    verify_go_release_package,
+)
 
 runner = CliRunner()
 
@@ -159,6 +164,22 @@ def test_go_release_verifier_rejects_missing_installer_metadata(tmp_path: Path, 
     invalid_result = verify_go_release_package(dist)
     assert not invalid_result.valid
     assert any("missing cavra-runtime.installers.json" in error for error in invalid_result.errors)
+
+
+def test_go_installer_smoke_validation_accepts_signed_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    valid_result = smoke_test_go_installers(dist, execute_native=False)
+
+    assert valid_result.valid
+    assert valid_result.verified_targets == ["linux/amd64", "linux/arm64"]
+    cli_result = runner.invoke(app, ["release", "smoke-installers", str(dist), "--skip-execution", "--json"])
+    assert cli_result.exit_code == 0
+    assert json.loads(cli_result.output)["valid"] is True
 
 
 def test_airgap_bundle_verifier_accepts_signed_zip_and_rejects_missing_bootstrap(tmp_path: Path, monkeypatch) -> None:

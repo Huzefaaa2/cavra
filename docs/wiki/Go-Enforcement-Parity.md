@@ -46,4 +46,4 @@ Large engineering fleets need fast enforcement, but regulated environments need 
 
 ## Next
 
-Add Go runtime installer smoke validation for packaged deployment targets and continue broadening approval-route parity as new policy packs are added.
+Add managed endpoint deployment manifests for CI runners and developer workstations and continue broadening approval-route parity as new policy packs are added.

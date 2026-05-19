@@ -14,7 +14,7 @@ History-preserving migration branch also exists at `productize-cavra`, but GitHu
 
 ## Product identity
 
-Visible identity is CAVRA. Tagline: Before the agent acts, CAVRA decides. Terraform/OpenTofu is documented as one supported control surface, not the product boundary.
+Visible identity is CAVRA. Tagline: Before the agent acts, CAVRA decides. CAVRA is documented as a runtime authority layer for autonomous engineering actions across code, tools, cloud, CI/CD, and governed enterprise workflows.
 
 ## Implemented and preserved features
 

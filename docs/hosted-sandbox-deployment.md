@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add Go runtime installer smoke validation for packaged deployment targets.
+1. Add managed endpoint deployment manifests for CI runners and developer workstations.
