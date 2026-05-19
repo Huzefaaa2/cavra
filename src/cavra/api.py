@@ -48,6 +48,7 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
+from cavra.release import create_managed_endpoint_rollout_promotion_request
 from cavra.runtime import RuntimeGuard
 from cavra.sandbox import (
     compliance_mapping,
@@ -163,6 +164,7 @@ def create_app():
                 "evidence_artifacts": "/evidence/{session_id}/artifacts",
                 "evidence_artifact": "/evidence/{session_id}/artifacts/{artifact_name}",
                 "evidence_artifact_bundle": "/evidence/{session_id}/artifact-bundle",
+                "evidence_rollout_promotion_request": "/evidence/{session_id}/promotion-request",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -841,6 +843,40 @@ def create_app():
         except EvidenceArtifactError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    @app.post("/evidence/{session_id}/promotion-request")
+    def evidence_rollout_promotion_request(session_id: str, payload: dict) -> dict:
+        metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
+        if metadata.get("metadata_kind") != "managed-endpoint-rollout":
+            raise HTTPException(status_code=400, detail="promotion requests require managed endpoint rollout metadata")
+        root = _configured_artifact_root(evidence_artifact_root)
+        rollout_dir = _resolve_under_artifact_root(root, metadata.get("bundle_dir"), "rollout evidence directory")
+        package_dir = None
+        if payload.get("package_dir"):
+            package_dir = _resolve_under_artifact_root(root, payload.get("package_dir"), "release package directory")
+        signing_key_pem = os.environ.get("CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY") or os.environ.get("CAVRA_GO_RELEASE_SIGNING_KEY")
+        try:
+            result = create_managed_endpoint_rollout_promotion_request(
+                rollout_dir,
+                output_dir=None,
+                target_ring=payload.get("target_ring", "production"),
+                requested_by=payload.get("requested_by", "console"),
+                approver_group=payload.get("approver_group", "Change Advisory Board"),
+                ttl_hours=int(payload.get("ttl_hours", 24)),
+                signing_key_pem=signing_key_pem,
+                signer=payload.get("signer", "release-manager"),
+                package_dir=package_dir,
+                require_package_verification=bool(payload.get("require_package_verification", True)),
+                require_signatures=bool(payload.get("require_signatures", True)),
+                require_provenance=bool(payload.get("require_provenance", True)),
+            )
+        except (RuntimeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if not result.valid:
+            raise HTTPException(status_code=400, detail={"errors": result.errors, "warnings": result.warnings})
+        if result.approval:
+            approval_store.upsert(result.approval)
+        return result.to_dict()
+
     @app.get("/evidence/{session_id}/artifact-bundle")
     def evidence_artifact_bundle(session_id: str):
         metadata = _get_evidence_metadata_or_404(evidence_store, session_id)
@@ -1030,7 +1066,16 @@ def _filter_json_evidence(
 def _configured_artifact_root(root: Path | None) -> Path:
     if root is None:
         raise HTTPException(status_code=400, detail="evidence artifact root is not configured")
-    return root
+    return root.resolve()
+
+
+def _resolve_under_artifact_root(root: Path, path_value: object, label: str) -> Path:
+    artifact_path = Path(str(path_value or "")).resolve()
+    try:
+        artifact_path.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"{label} is outside artifact root") from exc
+    return artifact_path
 
 
 def _get_evidence_metadata_or_404(

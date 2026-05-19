@@ -570,4 +570,26 @@ Validation:
 - `python3 -m ruff check src/cavra/evidence.py src/cavra/api.py tests/test_evidence.py tests/test_api.py` passed locally.
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 
-Recommended next issue: add signed promotion approval requests for endpoint rollout readiness.
+Recommended next issue: delivered below as signed promotion approval requests.
+
+## Signed Rollout Promotion Approval Requests
+
+Status: complete for the current release-integrity and approval-gating slice.
+
+Completed:
+- Added signed rollout promotion approval request generation for managed endpoint rollout evidence.
+- Added `cavra release request-rollout-promotion` with JSON and Markdown request artifacts.
+- Required valid staged or succeeded rollout evidence before a promotion request can be generated.
+- Signed promotion request payloads with Ed25519 using `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RELEASE_SIGNING_KEY`.
+- Added optional JSON and SQLite approval store persistence for generated pending approvals.
+- Added `POST /evidence/{session_id}/promotion-request` for API-backed promotion approval creation from indexed rollout evidence.
+- Added console promotion approval request action from the rollout artifact panel.
+- Updated README, CLI docs, release packaging docs, advisory docs, roadmap docs, and wiki source.
+- Added unit, CLI, and API tests for signed promotion approval requests.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_managed_endpoint_rollout_promotion_request_is_signed_and_persisted tests/test_go_release_packaging.py::test_managed_endpoint_rollout_promotion_request_requires_ready_rollout tests/test_api.py::test_api_creates_signed_rollout_promotion_approval -q` passed locally.
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+
+Recommended next issue: add approved promotion execution records for endpoint rollout ring advancement.

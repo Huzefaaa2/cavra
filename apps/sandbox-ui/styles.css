@@ -83,6 +83,7 @@ tr:last-child td { border-bottom: 0; }
 .detail-panel dd { margin: 0; overflow-wrap: anywhere; }
 .detail-panel h3 { margin: 14px 0 8px; font-size: 15px; }
 .detail-panel ul { margin: 0; padding-left: 18px; }
+.artifact-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }

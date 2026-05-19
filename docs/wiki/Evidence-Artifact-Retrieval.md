@@ -7,6 +7,7 @@ CAVRA exposes read-only evidence artifacts for indexed sessions and managed endp
 - `GET /evidence/{session_id}/artifacts`
 - `GET /evidence/{session_id}/artifacts/{artifact_name}`
 - `GET /evidence/{session_id}/artifact-bundle`
+- `POST /evidence/{session_id}/promotion-request`
 
 ## How It Works
 
@@ -17,6 +18,8 @@ For `metadata_kind=managed-endpoint-rollout`, the API serves only `managed-endpo
 Downloads include `x-cavra-artifact-sha256` for audit logging and client-side verification.
 
 Rollout artifact listings include checksum integrity and promotion readiness. The console shows whether rollout evidence is verified, incomplete, blocked, or ready before a release owner promotes to the next deployment ring.
+
+Promotion requests require `CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY` or `CAVRA_GO_RELEASE_SIGNING_KEY`, re-verify rollout evidence, and persist a pending approval in the configured approval store.
 
 ## Security Boundary
 
@@ -33,6 +36,7 @@ Rollout artifact listings include checksum integrity and promotion readiness. Th
 - As a reviewer, I can retrieve the PR attestation directly from the console.
 - As an endpoint engineering owner, I can download verified rollout evidence and checksums for a managed endpoint deployment record.
 - As a release manager, I can see rollout artifact integrity and promotion readiness before approving the next ring.
+- As a release manager, I can create a signed promotion approval request from a governed rollout evidence record.
 - As a platform engineer, I can expose evidence from a controlled root without granting broad filesystem access.
 
 ## Enterprise Value

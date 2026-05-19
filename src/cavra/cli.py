@@ -65,6 +65,7 @@ from cavra.registry import (
 )
 from cavra.release import (
     capture_managed_endpoint_rollout_evidence,
+    create_managed_endpoint_rollout_promotion_request,
     verify_managed_endpoint_rollout_evidence,
     smoke_test_go_installers,
     validate_go_release_upgrade,
@@ -1531,6 +1532,88 @@ def verify_rollout(
             console.print(f"  target: {target}")
         for store in indexed:
             console.print(f"  indexed: {store}")
+        for warning in result.warnings:
+            console.print(f"  [yellow]warning:[/] {warning}")
+        for error in result.errors:
+            console.print(f"  [red]error:[/] {error}")
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("request-rollout-promotion")
+def request_rollout_promotion(
+    rollout_dir: Annotated[Path, typer.Argument(help="Managed endpoint rollout evidence directory.")],
+    output: Annotated[Path, typer.Option(help="Output directory for signed promotion request artifacts.")] = Path(
+        ".cavra/release/rollout-promotion"
+    ),
+    target_ring: Annotated[str, typer.Option(help="Target rollout ring to promote into.")] = "production",
+    requested_by: Annotated[str, typer.Option(help="Actor or automation identity requesting promotion.")] = "release-manager",
+    approver_group: Annotated[str, typer.Option(help="Approval group for promotion review.")] = "Change Advisory Board",
+    ttl_hours: Annotated[int, typer.Option(help="Approval request time to live in hours.")] = 24,
+    signing_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 private key PEM path. Defaults to CAVRA_ROLLOUT_PROMOTION_SIGNING_KEY or CAVRA_GO_RELEASE_SIGNING_KEY.")] = None,
+    signer: Annotated[str, typer.Option(help="Signer identity recorded in the promotion request signature.")] = "release-manager",
+    package_dir: Annotated[Optional[Path], typer.Option(help="Override Go release package directory for source artifact verification.")] = None,
+    approval_store: Annotated[Optional[Path], typer.Option(help="Optional JSON approval store to upsert the generated approval.")] = None,
+    approval_sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite approval store to upsert the generated approval.")] = None,
+    require_package_verification: bool = typer.Option(
+        True,
+        "--require-package-verification/--skip-package-verification",
+        help="Verify the referenced release package while preparing the promotion request.",
+    ),
+    require_signatures: bool = typer.Option(
+        True,
+        "--require-signatures/--allow-unsigned",
+        help="Require detached Ed25519 signatures for referenced release artifacts.",
+    ),
+    require_provenance: bool = typer.Option(
+        True,
+        "--require-provenance/--allow-missing-provenance",
+        help="Require SLSA provenance for referenced release artifacts.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable promotion request output."),
+) -> None:
+    """Create a signed approval request for endpoint rollout promotion."""
+    signing_key_pem = signing_key.read_text(encoding="utf-8") if signing_key else None
+    try:
+        result = create_managed_endpoint_rollout_promotion_request(
+            rollout_dir,
+            output_dir=output,
+            target_ring=target_ring,
+            requested_by=requested_by,
+            approver_group=approver_group,
+            ttl_hours=ttl_hours,
+            signing_key_pem=signing_key_pem,
+            signer=signer,
+            package_dir=package_dir,
+            require_package_verification=require_package_verification,
+            require_signatures=require_signatures,
+            require_provenance=require_provenance,
+        )
+    except RuntimeError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    persisted: list[str] = []
+    if result.valid and result.approval:
+        if approval_store:
+            ApprovalStore(approval_store).upsert(result.approval)
+            persisted.append(str(approval_store))
+        if approval_sqlite:
+            SQLiteApprovalStore(approval_sqlite).upsert(result.approval)
+            persisted.append(str(approval_sqlite))
+    payload = result.to_dict() | {"approval_stores": persisted}
+    if json_output:
+        _print_json(payload)
+    else:
+        status_text = "valid" if result.valid else "invalid"
+        console.print(f"[{'green' if result.valid else 'red'}]{status_text}[/] rollout promotion request")
+        if result.rollout_id:
+            console.print(f"  rollout: {result.rollout_id}")
+        if result.approval:
+            console.print(f"  approval: {result.approval['approval_id']}")
+        for file in result.files:
+            console.print(f"  file: {file}")
+        for store in persisted:
+            console.print(f"  approval store: {store}")
         for warning in result.warnings:
             console.print(f"  [yellow]warning:[/] {warning}")
         for error in result.errors:

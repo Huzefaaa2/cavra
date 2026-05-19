@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add signed promotion approval requests for endpoint rollout readiness.
+1. Add approved promotion execution records for endpoint rollout ring advancement.
