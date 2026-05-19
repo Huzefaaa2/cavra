@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add governed download APIs and integrity verification for endpoint-management export bundle artifacts.
+1. Add endpoint-management export publication records and connector delivery to Jamf, Intune, and Linux fleet managers.
 2. Continue broadening approval-route parity as new policy packs are added.

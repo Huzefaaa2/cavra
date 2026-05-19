@@ -197,6 +197,9 @@ def create_app():
                 "endpoint_management_exports": "/endpoint-management-exports",
                 "endpoint_management_export": "/endpoint-management-exports/{export_id}",
                 "endpoint_management_export_dashboard": "/endpoint-management-exports/dashboard",
+                "endpoint_management_export_artifacts": "/endpoint-management-exports/{export_id}/artifacts",
+                "endpoint_management_export_artifact": "/endpoint-management-exports/{export_id}/artifacts/{artifact_name}",
+                "endpoint_management_export_artifact_bundle": "/endpoint-management-exports/{export_id}/artifact-bundle",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
                 "policy_pack_catalog": "/policy-pack-catalog",
@@ -1111,6 +1114,62 @@ def create_app():
             raise HTTPException(status_code=404, detail="endpoint management export not found")
         return item
 
+    @app.get("/endpoint-management-exports/{export_id}/artifacts")
+    def endpoint_management_export_artifact_index(export_id: str) -> dict:
+        metadata = _get_endpoint_management_export_or_404(evidence_store, export_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        encoded_export_id = quote(export_id, safe="")
+        try:
+            return list_evidence_artifacts(
+                root,
+                export_id,
+                metadata=metadata,
+                base_path=f"/endpoint-management-exports/{encoded_export_id}/artifacts",
+                bundle_path=f"/endpoint-management-exports/{encoded_export_id}/artifact-bundle",
+            )
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/endpoint-management-exports/{export_id}/artifact-bundle")
+    def endpoint_management_export_artifact_bundle(export_id: str):
+        metadata = _get_endpoint_management_export_or_404(evidence_store, export_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        try:
+            artifact_metadata, payload = build_evidence_artifact_archive(root, export_id, metadata=metadata)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="endpoint management export artifacts not found") from exc
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return Response(
+            payload,
+            media_type=artifact_metadata["media_type"],
+            headers={
+                "content-disposition": f'attachment; filename="{artifact_metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(artifact_metadata["sha256"]),
+                "x-cavra-artifact-count": str(artifact_metadata["artifact_count"]),
+            },
+        )
+
+    @app.get("/endpoint-management-exports/{export_id}/artifacts/{artifact_name}")
+    def endpoint_management_export_artifact(export_id: str, artifact_name: str):
+        metadata = _get_endpoint_management_export_or_404(evidence_store, export_id)
+        root = _configured_artifact_root(evidence_artifact_root)
+        try:
+            artifact_metadata, payload = load_evidence_artifact(root, export_id, artifact_name, metadata=metadata)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="endpoint management export artifact not found") from exc
+        except EvidenceArtifactError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return Response(
+            payload,
+            media_type=artifact_metadata["media_type"],
+            headers={
+                "content-disposition": f'attachment; filename="{artifact_metadata["artifact"]}"',
+                "x-cavra-artifact-sha256": str(artifact_metadata["sha256"]),
+                "x-cavra-artifact-kind": str(artifact_metadata["kind"]),
+            },
+        )
+
     @app.post("/evidence")
     def upsert_evidence_metadata(payload: dict) -> dict:
         try:
@@ -1442,6 +1501,16 @@ def _get_evidence_metadata_or_404(
     item = evidence_store.get(session_id)
     if item is None:
         raise HTTPException(status_code=404, detail="evidence metadata not found")
+    return item
+
+
+def _get_endpoint_management_export_or_404(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+    export_id: str,
+) -> dict:
+    item = evidence_store.get(export_id)
+    if item is None or item.get("metadata_kind") != "endpoint-management-export":
+        raise HTTPException(status_code=404, detail="endpoint management export not found")
     return item
 
 

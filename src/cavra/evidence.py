@@ -84,6 +84,45 @@ ROLLOUT_EVIDENCE_ARTIFACTS: dict[str, dict[str, str]] = {
 }
 
 
+ENDPOINT_MANAGEMENT_EXPORT_ARTIFACTS: dict[str, dict[str, str]] = {
+    "endpoint-management-export-manifest.json": {
+        "kind": "endpoint-export-manifest",
+        "media_type": "application/json",
+        "description": "Endpoint-management export manifest with release, provider, approval, and file metadata.",
+    },
+    "endpoint-management-export-manifest.md": {
+        "kind": "endpoint-export-summary",
+        "media_type": "text/markdown",
+        "description": "Reviewer-ready endpoint-management export summary.",
+    },
+    "jamf-policy.json": {
+        "kind": "jamf-policy",
+        "media_type": "application/json",
+        "description": "Jamf import policy for managed CAVRA runtime rollout.",
+    },
+    "intune-win32-app.json": {
+        "kind": "intune-win32-app",
+        "media_type": "application/json",
+        "description": "Microsoft Intune Win32 app import metadata for managed CAVRA runtime rollout.",
+    },
+    "linux-fleet-manifest.json": {
+        "kind": "linux-fleet-manifest",
+        "media_type": "application/json",
+        "description": "Linux fleet management manifest for managed CAVRA runtime rollout.",
+    },
+    "linux-install-cavra-runtime.sh": {
+        "kind": "linux-install-script",
+        "media_type": "text/x-shellscript",
+        "description": "Linux install script for managed CAVRA runtime rollout.",
+    },
+    "checksums.txt": {
+        "kind": "endpoint-export-checksums",
+        "media_type": "text/plain",
+        "description": "Checksums for allowlisted endpoint-management export files.",
+    },
+}
+
+
 class EvidenceArtifactError(ValueError):
     pass
 
@@ -931,6 +970,7 @@ def list_evidence_artifacts(
         "artifacts": artifacts,
         "bundle_download_url": bundle_path,
         **_rollout_artifact_status(session_dir, metadata, artifacts),
+        **_endpoint_management_export_artifact_status(session_dir, metadata, artifacts),
     }
 
 
@@ -948,6 +988,7 @@ def load_evidence_artifact(
     path = _resolve_session_artifact(session_dir, artifact_name)
     if not path.exists() or not path.is_file():
         raise FileNotFoundError(f"evidence artifact not found: {artifact_name}")
+    _verify_endpoint_management_export_artifact(session_dir, artifact_name, metadata)
     descriptor = descriptors[artifact_name]
     metadata = {
         "artifact": artifact_name,
@@ -974,6 +1015,7 @@ def build_evidence_artifact_archive(
     with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
         for item in listing["artifacts"]:
             artifact_name = item["artifact"]
+            _verify_endpoint_management_export_artifact(session_dir, artifact_name, metadata)
             archive.write(_resolve_session_artifact(session_dir, artifact_name), arcname=artifact_name)
     payload = buffer.getvalue()
     metadata = {
@@ -991,21 +1033,25 @@ def build_evidence_artifact_archive(
 def _evidence_artifact_descriptors(metadata: dict[str, Any] | None) -> dict[str, dict[str, str]]:
     if (metadata or {}).get("metadata_kind") == "managed-endpoint-rollout":
         return ROLLOUT_EVIDENCE_ARTIFACTS
+    if (metadata or {}).get("metadata_kind") == "endpoint-management-export":
+        return _endpoint_management_export_descriptors(metadata or {})
     return EVIDENCE_ARTIFACTS
 
 
 def _evidence_artifact_dir(artifact_root: Path, session_id: str, metadata: dict[str, Any] | None) -> Path:
     _validate_evidence_session_id(session_id)
-    if (metadata or {}).get("metadata_kind") != "managed-endpoint-rollout":
+    metadata_kind = (metadata or {}).get("metadata_kind")
+    if metadata_kind not in {"managed-endpoint-rollout", "endpoint-management-export"}:
         return _session_artifact_dir(artifact_root, session_id)
     bundle_dir = str((metadata or {}).get("bundle_dir") or "")
     if not bundle_dir:
         return _session_artifact_dir(artifact_root, session_id)
     root = artifact_root.resolve()
-    rollout_dir = Path(bundle_dir).resolve()
-    if not rollout_dir.is_relative_to(root):
-        raise EvidenceArtifactError("rollout evidence directory is outside artifact root")
-    return rollout_dir
+    artifact_dir = Path(bundle_dir).resolve()
+    if not artifact_dir.is_relative_to(root):
+        label = "endpoint-management export" if metadata_kind == "endpoint-management-export" else "rollout evidence"
+        raise EvidenceArtifactError(f"{label} directory is outside artifact root")
+    return artifact_dir
 
 
 def _rollout_artifact_status(
@@ -1052,6 +1098,95 @@ def _rollout_artifact_status(
         },
         "promotion_readiness": _rollout_promotion_readiness(metadata or {}, integrity_status),
     }
+
+
+def _endpoint_management_export_descriptors(metadata: dict[str, Any]) -> dict[str, dict[str, str]]:
+    files = metadata.get("files", [])
+    allowed_files = {str(item) for item in files if isinstance(item, str)}
+    if not allowed_files:
+        manifest = metadata.get("manifest", {})
+        manifest_files = manifest.get("files", []) if isinstance(manifest, dict) else []
+        allowed_files = {str(item) for item in manifest_files if isinstance(item, str)}
+    allowed_files.add("checksums.txt")
+    return {
+        artifact_name: descriptor
+        for artifact_name, descriptor in ENDPOINT_MANAGEMENT_EXPORT_ARTIFACTS.items()
+        if artifact_name in allowed_files
+    }
+
+
+def _endpoint_management_export_artifact_status(
+    session_dir: Path,
+    metadata: dict[str, Any] | None,
+    artifacts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if (metadata or {}).get("metadata_kind") != "endpoint-management-export":
+        return {}
+    artifact_names = {str(item["artifact"]) for item in artifacts}
+    descriptors = _endpoint_management_export_descriptors(metadata or {})
+    checksum_path = session_dir / "checksums.txt"
+    checksum_entries, checksum_errors = _read_artifact_checksums(checksum_path)
+    verified_artifacts: list[str] = []
+    checksum_mismatches: list[str] = []
+    unchecked_artifacts: list[str] = []
+    expected_artifacts = sorted(descriptors)
+    missing_artifacts = sorted(name for name in expected_artifacts if name not in artifact_names)
+    for artifact_name in expected_artifacts:
+        if artifact_name == "checksums.txt" or artifact_name not in artifact_names:
+            continue
+        expected_sha256 = checksum_entries.get(artifact_name)
+        if not expected_sha256:
+            unchecked_artifacts.append(artifact_name)
+            continue
+        actual_sha256 = sha256_file(session_dir / artifact_name)
+        if actual_sha256 == expected_sha256:
+            verified_artifacts.append(artifact_name)
+        else:
+            checksum_mismatches.append(artifact_name)
+    if checksum_errors or checksum_mismatches:
+        integrity_status = "failed"
+    elif missing_artifacts or unchecked_artifacts:
+        integrity_status = "incomplete"
+    else:
+        integrity_status = "verified"
+    return {
+        "endpoint_management_export_integrity": {
+            "status": integrity_status,
+            "verified_artifacts": sorted(verified_artifacts),
+            "missing_artifacts": missing_artifacts,
+            "unchecked_artifacts": sorted(unchecked_artifacts),
+            "checksum_mismatches": sorted(checksum_mismatches),
+            "checksum_errors": checksum_errors,
+        },
+        "download_readiness": {
+            "status": "ready" if integrity_status == "verified" else "blocked",
+            "rationale": (
+                "Endpoint-management export artifacts are checksum-verified and ready for governed download."
+                if integrity_status == "verified"
+                else "Endpoint-management export artifact checksums must verify before download."
+            ),
+        },
+    }
+
+
+def _verify_endpoint_management_export_artifact(
+    session_dir: Path,
+    artifact_name: str,
+    metadata: dict[str, Any] | None,
+) -> None:
+    if (metadata or {}).get("metadata_kind") != "endpoint-management-export":
+        return
+    if artifact_name == "checksums.txt":
+        return
+    checksum_entries, checksum_errors = _read_artifact_checksums(session_dir / "checksums.txt")
+    if checksum_errors:
+        raise EvidenceArtifactError("endpoint-management export checksums are invalid")
+    expected_sha256 = checksum_entries.get(artifact_name)
+    if not expected_sha256:
+        raise EvidenceArtifactError("endpoint-management export artifact is missing checksum coverage")
+    actual_sha256 = sha256_file(session_dir / artifact_name)
+    if actual_sha256 != expected_sha256:
+        raise EvidenceArtifactError("endpoint-management export artifact checksum verification failed")
 
 
 def _read_artifact_checksums(path: Path) -> tuple[dict[str, str], list[str]]:

@@ -220,6 +220,38 @@ const endpointManagementExportCatalog = [
   }
 ];
 
+const endpointManagementExportArtifactCatalog = {
+  "eme-stable-v0.2.0-rc.1": {
+    schema_version: "cavra.evidence.artifacts.v1",
+    product: "CAVRA",
+    session_id: "eme-stable-v0.2.0-rc.1",
+    metadata_kind: "endpoint-management-export",
+    artifact_root_configured: false,
+    artifact_count: 4,
+    endpoint_management_export_integrity: {
+      status: "verified",
+      verified_artifacts: ["endpoint-management-export-manifest.json", "jamf-policy.json", "linux-fleet-manifest.json"],
+      missing_artifacts: [],
+      unchecked_artifacts: [],
+      checksum_mismatches: [],
+      checksum_errors: []
+    },
+    download_readiness: {
+      status: "ready",
+      rationale: "Sample endpoint-management export artifacts are checksum-verified and ready for review."
+    },
+    artifacts: [
+      ["endpoint-management-export-manifest.json", "endpoint-export-manifest", "application/json", "Endpoint export manifest with release and approval metadata."],
+      ["jamf-policy.json", "jamf-policy", "application/json", "Jamf import policy for managed runtime rollout."],
+      ["linux-fleet-manifest.json", "linux-fleet-manifest", "application/json", "Linux fleet manifest for managed runtime rollout."],
+      ["checksums.txt", "endpoint-export-checksums", "text/plain", "Checksums for endpoint-management export files."]
+    ].map(([artifact, kind, media_type, description]) => ({
+      artifact, kind, media_type, description, bytes: 1024, sha256: "sample", download_url: ""
+    })),
+    bundle_download_url: ""
+  }
+};
+
 const releaseNoteCatalog = [
   {
     title: "Backend-Driven Sandbox Runs",
@@ -829,6 +861,28 @@ async function loadEndpointManagementExportDashboard() {
     return await response.json();
   } catch {
     return sampleEndpointManagementExportDashboard(filterEndpointManagementExports(endpointManagementExportCatalog));
+  }
+}
+
+async function loadEndpointManagementExportArtifacts(exportId) {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(`/endpoint-management-exports/${encodeURIComponent(exportId)}/artifacts`));
+    if (!response.ok) throw new Error("Endpoint management export artifact API unavailable");
+    return await response.json();
+  } catch {
+    return endpointManagementExportArtifactCatalog[exportId] || {
+      schema_version: "cavra.evidence.artifacts.v1",
+      product: "CAVRA",
+      session_id: exportId,
+      metadata_kind: "endpoint-management-export",
+      artifact_root_configured: false,
+      artifact_count: 0,
+      artifacts: [],
+      bundle_download_url: "",
+      endpoint_management_export_integrity: { status: "incomplete" },
+      download_readiness: { status: "blocked", rationale: "Endpoint export artifacts are not available from sample data." }
+    };
   }
 }
 
@@ -1676,9 +1730,43 @@ function renderReleaseChannelPublishing(promotions, exports, dashboard) {
         <td class="${item.approval_state === "approved" ? "allow" : "require_approval"}">${escapeHtml(item.approval_id || "required")} / ${escapeHtml(item.approval_state || "pending")}</td>
         <td>${Number((item.files || []).length)}</td>
         <td>${escapeHtml(String(item.created_at || "").slice(0, 19))}</td>
+        <td><button class="endpointExportArtifactAction secondary" data-export="${escapeHtml(item.export_id || item.session_id || "")}">Artifacts</button></td>
       </tr>
     `);
   }
+}
+
+function renderEndpointExportArtifacts(payload) {
+  const panel = document.querySelector("#endpointExportArtifacts");
+  if (!panel) return;
+  const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
+  const integrity = payload.endpoint_management_export_integrity || {};
+  const readiness = payload.download_readiness || {};
+  const bundleHref = payload.bundle_download_url ? apiUrl(payload.bundle_download_url) : "";
+  panel.innerHTML = `
+    <dl>
+      <dt>Export</dt><dd>${escapeHtml(payload.session_id || "unknown")}</dd>
+      <dt>Artifact root</dt><dd class="${payload.artifact_root_configured ? "allow" : "require_approval"}">${payload.artifact_root_configured ? "configured" : "sample or disabled"}</dd>
+      <dt>Integrity</dt><dd class="${escapeHtml(statusClass(integrity.status))}">${escapeHtml(integrity.status || "unknown")}</dd>
+      <dt>Readiness</dt><dd class="${escapeHtml(statusClass(readiness.status))}">${escapeHtml(readiness.status || "blocked")}</dd>
+      <dt>Bundle</dt><dd>${bundleHref ? `<a href="${escapeHtml(bundleHref)}">Download bundle</a>` : "not available from sample data"}</dd>
+      <dt>Rationale</dt><dd>${escapeHtml(readiness.rationale || "Verify endpoint-management export checksums before download.")}</dd>
+    </dl>
+    <h3>Integrity</h3>
+    <ul>
+      <li>Verified: ${escapeHtml(formatList(integrity.verified_artifacts))}</li>
+      <li>Missing: ${escapeHtml(formatList(integrity.missing_artifacts))}</li>
+      <li>Unchecked: ${escapeHtml(formatList(integrity.unchecked_artifacts))}</li>
+      <li>Mismatched: ${escapeHtml(formatList(integrity.checksum_mismatches))}</li>
+    </ul>
+    <h3>Bundle Files</h3>
+    <ul>${artifacts.map((item) => {
+      const href = item.download_url ? apiUrl(item.download_url) : "";
+      const label = `${item.artifact} (${item.kind || item.media_type || "artifact"})`;
+      const suffix = item.bytes ? ` - ${Number(item.bytes)} bytes` : "";
+      return `<li>${href ? `<a href="${escapeHtml(href)}">${escapeHtml(label)}</a>` : escapeHtml(label)}${escapeHtml(suffix)}<br><small>${escapeHtml(item.description || "")}</small></li>`;
+    }).join("") || "<li>No endpoint export artifacts available.</li>"}</ul>
+  `;
 }
 
 function sampleEndpointManagementExportDashboard(items) {
@@ -2132,6 +2220,10 @@ async function refreshReleaseChannels() {
   renderReleaseChannelPublishing(promotions, exports, dashboard);
 }
 
+async function showEndpointExportArtifacts(exportId) {
+  renderEndpointExportArtifacts(await loadEndpointManagementExportArtifacts(exportId));
+}
+
 async function showEvidenceArtifacts(sessionId) {
   renderEvidenceArtifacts(await loadEvidenceArtifacts(sessionId));
 }
@@ -2530,6 +2622,12 @@ document.querySelector("#rolloutRows").addEventListener("click", async (event) =
   const detailButton = event.target.closest(".rolloutDetailAction");
   if (!detailButton) return;
   await showPolicyRolloutDetail(detailButton.dataset.id);
+});
+document.querySelector("#endpointExportRows").addEventListener("click", async (event) => {
+  if (!(event.target instanceof Element)) return;
+  const artifactButton = event.target.closest(".endpointExportArtifactAction");
+  if (!artifactButton) return;
+  await showEndpointExportArtifacts(artifactButton.dataset.export);
 });
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
