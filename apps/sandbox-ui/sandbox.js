@@ -1607,6 +1607,34 @@ async function loadEndpointRecurrenceAutomationDashboard() {
   }
 }
 
+async function loadEndpointRecurrenceAutomationHealth() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-recurrence-automations/health", {
+      expected_interval_minutes: 30,
+      stale_metadata_minutes: 120
+    }));
+    if (!response.ok) throw new Error("Endpoint remediation SLA escalation recurrence automation health API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "warning",
+      missed_run_count: 0,
+      failed_job_count: 0,
+      stale_metadata_count: 1,
+      connector_delivery_failure_count: 0,
+      latest_run_age_minutes: 45,
+      alerts: [
+        {
+          severity: "warning",
+          category: "stale_metadata",
+          message: "Sample recurrence metadata is ready for refresh."
+        }
+      ]
+    };
+  }
+}
+
 function selectedEndpointRecurrenceFilters() {
   return {
     owner: document.querySelector("#filterEndpointRecurrenceOwner")?.value.trim().toLowerCase() || "",
@@ -3029,7 +3057,7 @@ function endpointRecurrenceActionButtons(payloadId) {
   `;
 }
 
-function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard = {}, automationDashboard = {}) {
+function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard = {}, automationDashboard = {}, automationHealth = {}) {
   const panel = document.querySelector("#endpointRecurrenceOperationsDashboard");
   const retryRows = document.querySelector("#endpointRecurrenceRetryRows");
   const digestRows = document.querySelector("#endpointRecurrenceDigestRows");
@@ -3071,7 +3099,7 @@ function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressio
     const run = endpointRecurrenceAutomationPayload(item);
     return total + Number(run.summary?.suppression_event_count || item.suppression_event_count || 0);
   }, 0);
-  const status = automationDashboard.alert_level || dashboard.alert_level || (retryableCount || trendEventCount || automationRetryableCount ? "warning" : "healthy");
+  const status = automationHealth.alert_level || automationDashboard.alert_level || dashboard.alert_level || (retryableCount || trendEventCount || automationRetryableCount ? "warning" : "healthy");
 
   panel.innerHTML = `
     <div class="release-delivery-metric">
@@ -3145,6 +3173,30 @@ function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressio
     <div class="release-delivery-metric">
       <span>Worker Trend Events</span>
       <strong class="${automationTrendEventCount ? "require_approval" : "allow"}">${formatMetricNumber(automationDashboard.suppression_event_count ?? automationTrendEventCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Health</span>
+      <strong class="${riskClass(automationHealth.alert_level)}">${escapeHtml(automationHealth.alert_level || "unknown")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Missed Runs</span>
+      <strong class="${Number(automationHealth.missed_run_count || 0) ? "block" : "allow"}">${formatMetricNumber(automationHealth.missed_run_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Failed Jobs</span>
+      <strong class="${Number(automationHealth.failed_job_count || 0) ? "block" : "allow"}">${formatMetricNumber(automationHealth.failed_job_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Stale Metadata</span>
+      <strong class="${Number(automationHealth.stale_metadata_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(automationHealth.stale_metadata_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Connector Failures</span>
+      <strong class="${Number(automationHealth.connector_delivery_failure_count || 0) ? "block" : "allow"}">${formatMetricNumber(automationHealth.connector_delivery_failure_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Latest Age</span>
+      <strong>${automationHealth.latest_run_age_minutes === null || automationHealth.latest_run_age_minutes === undefined ? "none" : `${formatMetricNumber(automationHealth.latest_run_age_minutes)}m`}</strong>
     </div>
   `;
 
@@ -4015,15 +4067,16 @@ async function refreshEndpointRemediationSla() {
 }
 
 async function refreshEndpointRecurrenceOperations() {
-  const [retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard] = await Promise.all([
+  const [retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard, automationHealth] = await Promise.all([
     loadEndpointRecurrenceRetryPlans(),
     loadEndpointRecurrenceOwnerDigests(),
     loadEndpointRecurrenceSuppressionTrends(),
     loadEndpointRecurrenceAutomations(),
     loadEndpointRemediationSlaEscalationActionDashboard(),
-    loadEndpointRecurrenceAutomationDashboard()
+    loadEndpointRecurrenceAutomationDashboard(),
+    loadEndpointRecurrenceAutomationHealth()
   ]);
-  renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard);
+  renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard, automationHealth);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

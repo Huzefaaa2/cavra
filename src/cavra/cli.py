@@ -97,6 +97,7 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
@@ -4047,6 +4048,24 @@ def endpoint_remediation_sla_escalation_recurrence_automation_dashboard(
         sqlite=sqlite,
     )
     _print_json(build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard(items))
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation-health")
+def endpoint_remediation_sla_escalation_recurrence_automation_health(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    expected_interval_minutes: Annotated[int, typer.Option(help="Expected scheduler interval in minutes.")] = 30,
+    stale_metadata_minutes: Annotated[int, typer.Option(help="Age threshold for stale recurrence metadata.")] = 120,
+) -> None:
+    """Report missed recurrence automation runs, stale metadata, and delivery failures."""
+    items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health(
+            items,
+            expected_interval_minutes=expected_interval_minutes,
+            stale_metadata_minutes=stale_metadata_minutes,
+        )
+    )
 
 
 @release_app.command("endpoint-remediation-history")

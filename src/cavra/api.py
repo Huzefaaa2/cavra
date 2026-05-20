@@ -80,6 +80,7 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
@@ -317,6 +318,7 @@ def create_app():
                 "endpoint_remediation_sla_escalation_recurrence_automation": "/endpoint-remediation-sla-escalation-recurrences/automation-run",
                 "endpoint_remediation_sla_escalation_recurrence_automations": "/endpoint-remediation-sla-escalation-recurrence-automations",
                 "endpoint_remediation_sla_escalation_recurrence_automation_dashboard": "/endpoint-remediation-sla-escalation-recurrence-automations/dashboard",
+                "endpoint_remediation_sla_escalation_recurrence_automation_health": "/endpoint-remediation-sla-escalation-recurrence-automations/health",
                 "endpoint_remediation_sla_escalation_recurrences": "/endpoint-remediation-sla-escalation-recurrences",
                 "endpoint_remediation_sla_escalation_recurrence_dashboard": "/endpoint-remediation-sla-escalation-recurrences/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
@@ -2278,6 +2280,17 @@ def create_app():
     def endpoint_remediation_sla_escalation_recurrence_automation_dashboard() -> dict:
         return build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard(
             _endpoint_remediation_sla_escalation_recurrence_automation_items(evidence_store)
+        )
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrence-automations/health")
+    def endpoint_remediation_sla_escalation_recurrence_automation_health(
+        expected_interval_minutes: int = 30,
+        stale_metadata_minutes: int = 120,
+    ) -> dict:
+        return build_endpoint_remediation_sla_escalation_recurrence_automation_health(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store),
+            expected_interval_minutes=expected_interval_minutes,
+            stale_metadata_minutes=stale_metadata_minutes,
         )
 
     @app.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
