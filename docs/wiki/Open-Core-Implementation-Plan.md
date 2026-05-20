@@ -43,5 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation notification escalation ladders and owner-specific
-service-level objectives.
+Add endpoint remediation escalation delivery actions and owner review workflows.

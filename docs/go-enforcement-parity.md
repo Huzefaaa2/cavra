@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add endpoint remediation notification escalation ladders and owner-specific service-level objectives.
+1. Add endpoint remediation escalation delivery actions and owner review workflows.
 2. Continue broadening approval-route parity as new policy packs are added.

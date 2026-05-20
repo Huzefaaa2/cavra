@@ -88,6 +88,9 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_escalation_dashboard,
+    build_endpoint_remediation_sla_escalation_plan,
+    build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_notification_ack_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
@@ -119,6 +122,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
@@ -3337,6 +3341,72 @@ def endpoint_remediation_sla_notification_dashboard(
     _print_json(build_endpoint_remediation_sla_notification_dashboard(items))
 
 
+@release_app.command("endpoint-remediation-sla-escalation-plan")
+def endpoint_remediation_sla_escalation_plan(
+    slo_policy: Annotated[Optional[Path], typer.Option(help="Optional owner SLO and escalation ladder policy JSON/YAML.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to read notification metadata and index the plan.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to read notification metadata and index the plan.")] = Path(".cavra/evidence/metadata.db"),
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity generating the escalation plan.")] = "release-manager",
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable escalation plan output."),
+) -> None:
+    """Build owner-specific SLO and escalation-ladder status for SLA notifications."""
+    try:
+        policy = load_connector_config(slo_policy) if slo_policy else None
+        items = _load_endpoint_remediation_sla_notification_items(metadata_json=metadata_json, sqlite=sqlite)
+        plan = build_endpoint_remediation_sla_escalation_plan(items, policy=policy, generated_by=generated_by)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_plan_metadata(plan),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = {"plan": plan, "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+
+
+@release_app.command("endpoint-remediation-sla-escalation-history")
+def endpoint_remediation_sla_escalation_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    owner: Annotated[Optional[str], typer.Option(help="Filter by escalation owner.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by notification provider.")] = None,
+    alert_level: Annotated[Optional[str], typer.Option(help="Filter by alert level.")] = None,
+    active_only: Annotated[bool, typer.Option("--active-only", help="Only show plans with matching active escalations.")] = False,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint remediation SLA escalation plans."""
+    items = _load_endpoint_remediation_sla_escalation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_sla_escalation_history(
+            items,
+            owner=owner,
+            provider=provider,
+            alert_level=alert_level,
+            active_only=active_only,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-escalation-dashboard")
+def endpoint_remediation_sla_escalation_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint remediation SLA escalation ladders and owner SLOs."""
+    items = _load_endpoint_remediation_sla_escalation_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_sla_escalation_dashboard(items))
+
+
 @release_app.command("endpoint-remediation-history")
 def endpoint_remediation_history(
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
@@ -3573,6 +3643,21 @@ def _load_endpoint_remediation_sla_notification_items(
         acknowledgements = store.search(metadata_kind="endpoint-remediation-sla-notification-ack", limit=500)["items"]
         deliveries = store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [*plans, *acknowledgements, *deliveries]
+    return []
+
+
+def _load_endpoint_remediation_sla_escalation_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-remediation-sla-escalation-plan",
+            limit=500,
+        )["items"]
     return []
 
 

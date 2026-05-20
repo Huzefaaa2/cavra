@@ -631,11 +631,41 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     sla_delivery = client.post(
         f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/deliver",
-        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+        json={
+            "provider": "webhook",
+            "retries": 0,
+            "generated_by": "release-agent",
+            "routing_policy": {
+                "rules": [
+                    {
+                        "rule_id": "webhook-release-owner",
+                        "alert_levels": ["healthy", "warning", "critical"],
+                        "providers": ["webhook"],
+                        "owner": "release-governance",
+                        "acknowledgement_required": True,
+                    }
+                ]
+            },
+        },
     )
     sla_delivery_suppressed = client.post(
         f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/deliver",
-        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+        json={
+            "provider": "webhook",
+            "retries": 0,
+            "generated_by": "release-agent",
+            "routing_policy": {
+                "rules": [
+                    {
+                        "rule_id": "webhook-release-owner",
+                        "alert_levels": ["healthy", "warning", "critical"],
+                        "providers": ["webhook"],
+                        "owner": "release-governance",
+                        "acknowledgement_required": True,
+                    }
+                ]
+            },
+        },
     )
     sla_ack = client.post(
         f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/acknowledgements",
@@ -643,6 +673,25 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     sla_notification_history = client.get("/endpoint-remediation-sla-notifications")
     sla_notification_dashboard = client.get("/endpoint-remediation-sla-notifications/dashboard")
+    sla_escalation_plan = client.post(
+        "/endpoint-remediation-sla-notifications/escalation-plan",
+        json={
+            "generated_by": "release-agent",
+            "slo_policy": {
+                "default_slo": {"acknowledgement_minutes": 1, "resolution_minutes": 1},
+                "ladders": [
+                    {
+                        "level": "release-governance",
+                        "after_minutes": 0,
+                        "providers": ["webhook"],
+                        "action": "Escalate unresolved SLA notification to release governance.",
+                    }
+                ],
+            },
+        },
+    )
+    sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
+    sla_escalation_dashboard = client.get("/endpoint-remediation-sla-escalations/dashboard")
     sla_history = client.get("/endpoint-remediation-sla-reports")
     sla_dashboard = client.get("/endpoint-remediation-sla-reports/dashboard")
     automation = client.post(
@@ -716,6 +765,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_notification_history.json()["total"] >= 4
     assert sla_notification_dashboard.status_code == 200
     assert sla_notification_dashboard.json()["suppressed_provider_count"] >= 1
+    assert sla_escalation_plan.status_code == 200
+    assert sla_escalation_plan.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-escalation-plan"
+    assert sla_escalation_history.status_code == 200
+    assert sla_escalation_history.json()["total"] >= 1
+    assert sla_escalation_dashboard.status_code == 200
+    assert sla_escalation_dashboard.json()["active_escalation_count"] >= 1
     assert sla_history.status_code == 200
     assert sla_history.json()["total"] == 1
     assert sla_dashboard.status_code == 200
@@ -744,6 +799,15 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         == "/endpoint-remediation-sla-reports/{report_id}/acknowledgements"
     )
     assert config["endpoints"]["endpoint_remediation_sla_notifications"] == "/endpoint-remediation-sla-notifications"
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_plan"]
+        == "/endpoint-remediation-sla-notifications/escalation-plan"
+    )
+    assert config["endpoints"]["endpoint_remediation_sla_escalations"] == "/endpoint-remediation-sla-escalations"
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_dashboard"]
+        == "/endpoint-remediation-sla-escalations/dashboard"
+    )
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -22,6 +22,9 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_escalation_dashboard,
+    build_endpoint_remediation_sla_escalation_plan,
+    build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_notification_ack_metadata,
@@ -53,6 +56,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_ingestion_history,
@@ -931,6 +935,36 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     notification_dashboard = build_endpoint_remediation_sla_notification_dashboard(
         [notification_plan_metadata, acknowledgement_metadata]
     )
+    escalation_policy = {
+        "default_slo": {"acknowledgement_minutes": 30, "resolution_minutes": 180},
+        "owner_slos": {"release-cab": {"acknowledgement_minutes": 15, "resolution_minutes": 60}},
+        "ladders": [
+            {
+                "level": "owner",
+                "after_minutes": 20,
+                "providers": ["slack"],
+                "action": "Escalate to endpoint remediation owner.",
+            },
+            {
+                "level": "release-governance",
+                "after_minutes": 60,
+                "providers": ["jira"],
+                "action": "Escalate to release governance.",
+            },
+        ],
+    }
+    escalation_plan = build_endpoint_remediation_sla_escalation_plan(
+        [notification_plan_metadata, acknowledgement_metadata],
+        policy=escalation_policy,
+        now=datetime.fromisoformat(notification_plan["generated_at"]) + timedelta(minutes=75),
+    )
+    escalation_plan_metadata = build_endpoint_remediation_sla_escalation_plan_metadata(escalation_plan)
+    escalation_history = filter_endpoint_remediation_sla_escalation_history(
+        [escalation_plan_metadata],
+        owner="release-cab",
+        active_only=True,
+    )
+    escalation_dashboard = build_endpoint_remediation_sla_escalation_dashboard([escalation_plan_metadata])
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -977,6 +1011,11 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert acknowledgement_metadata["metadata_kind"] == "endpoint-remediation-sla-notification-ack"
     assert notification_history["total"] == 2
     assert notification_dashboard["outstanding_acknowledgement_count"] == 1
+    assert escalation_plan["active_escalation_count"] == 2
+    assert escalation_plan["owners"][0]["owner"] == "release-cab"
+    assert escalation_plan_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-plan"
+    assert escalation_history["total"] == 1
+    assert escalation_dashboard["active_escalation_count"] == 2
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -991,6 +1030,40 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     connector_config = tmp_path / "connectors.json"
     connector_config.write_text(
         json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+    routing_policy = tmp_path / "sla-notification-routing-policy.json"
+    routing_policy.write_text(
+        json.dumps(
+            {
+                "rules": [
+                    {
+                        "rule_id": "webhook-release-owner",
+                        "alert_levels": ["healthy", "warning", "critical"],
+                        "providers": ["webhook"],
+                        "owner": "release-governance",
+                        "acknowledgement_required": True,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    slo_policy = tmp_path / "sla-escalation-policy.json"
+    slo_policy.write_text(
+        json.dumps(
+            {
+                "default_slo": {"acknowledgement_minutes": 1, "resolution_minutes": 1},
+                "ladders": [
+                    {
+                        "level": "release-governance",
+                        "after_minutes": 0,
+                        "providers": ["webhook"],
+                        "action": "Escalate unresolved SLA notification to release governance.",
+                    }
+                ],
+            }
+        ),
         encoding="utf-8",
     )
     request_cli = runner.invoke(
@@ -1115,6 +1188,8 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             str(connector_config),
             "--provider",
             "webhook",
+            "--routing-policy",
+            str(routing_policy),
             "--retries",
             "0",
             "--metadata-json",
@@ -1132,6 +1207,8 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             str(connector_config),
             "--provider",
             "webhook",
+            "--routing-policy",
+            str(routing_policy),
             "--retries",
             "0",
             "--metadata-json",
@@ -1161,6 +1238,32 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     sla_notification_dashboard_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-notification-dashboard", "--metadata-json", str(metadata_json)],
+    )
+    sla_escalation_plan_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-plan",
+            "--slo-policy",
+            str(slo_policy),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_history_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-history",
+            "--metadata-json",
+            str(metadata_json),
+            "--active-only",
+        ],
+    )
+    sla_escalation_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-escalation-dashboard", "--metadata-json", str(metadata_json)],
     )
     sla_history_cli = runner.invoke(
         app,
@@ -1206,6 +1309,12 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert json.loads(sla_notification_history_cli.output)["total"] >= 4
     assert sla_notification_dashboard_cli.exit_code == 0
     assert json.loads(sla_notification_dashboard_cli.output)["suppressed_provider_count"] >= 1
+    assert sla_escalation_plan_cli.exit_code == 0
+    assert json.loads(sla_escalation_plan_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-sla-escalation-plan"
+    assert sla_escalation_history_cli.exit_code == 0
+    assert json.loads(sla_escalation_history_cli.output)["total"] >= 1
+    assert sla_escalation_dashboard_cli.exit_code == 0
+    assert json.loads(sla_escalation_dashboard_cli.output)["active_escalation_count"] >= 1
     assert sla_history_cli.exit_code == 0
     assert json.loads(sla_history_cli.output)["total"] == 1
     assert sla_dashboard_cli.exit_code == 0
