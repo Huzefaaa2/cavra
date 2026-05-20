@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.
+Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
