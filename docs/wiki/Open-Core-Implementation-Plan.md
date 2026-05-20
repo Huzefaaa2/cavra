@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
+Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.

@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
+1. Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.
 2. Continue broadening approval-route parity as new policy packs are added.
