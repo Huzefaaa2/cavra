@@ -101,6 +101,19 @@ cavra release endpoint-remediation-sla-escalation-recurrence-automation-history 
   --metadata-json .cavra/evidence/metadata.json
 ```
 
+## Health Reporting
+
+After the scheduler is running, monitor missed runs, stale metadata, failed job records, and owner digest connector failures:
+
+```bash
+cavra release endpoint-remediation-sla-escalation-recurrence-automation-health \
+  --metadata-json .cavra/evidence/metadata.json \
+  --expected-interval-minutes 30 \
+  --stale-metadata-minutes 120
+```
+
+The Evidence Console Recurrence Operations panel shows the same health status, missed-run count, failed-job count, stale metadata count, connector failure count, and latest-run age from `/endpoint-remediation-sla-escalation-recurrence-automations/health`.
+
 ## User Stories
 
 - As a release manager, I can schedule recurrence automation safely in dry-run mode before delivering owner digests.
@@ -113,4 +126,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.
+Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.

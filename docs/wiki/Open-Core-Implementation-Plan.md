@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.
+Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.

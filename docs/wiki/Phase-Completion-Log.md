@@ -1205,4 +1205,26 @@ Validation:
 - `git diff --check`
 - `python3 -m pytest -q`
 
-Recommended next issue: add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.
+Recommended next issue: delivered below as recurrence automation health reporting.
+
+## Phase 7 Recurrence Automation Health Reporting
+
+Status: complete for the current public-safe health reporting slice.
+
+Completed implementation:
+- Added recurrence automation health summaries for missed worker runs, failed run records, stale recurrence metadata, disabled schedules, and owner-digest connector delivery failures.
+- Added CLI command `cavra release endpoint-remediation-sla-escalation-recurrence-automation-health`.
+- Added API endpoint `/endpoint-remediation-sla-escalation-recurrence-automations/health` and console config discovery.
+- Updated the Evidence Console Recurrence Operations dashboard with health status, missed run, failed job, stale metadata, connector failure, and latest-run age cards.
+- Updated README, API/CLI references, roadmap docs, feature inventory, and wiki source.
+- Added tests for release-layer health summaries, CLI output, API endpoint discovery, and API health responses.
+
+Validation:
+- `python3 -m pytest -q tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift`
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+- `python3 -m pytest -q`
+
+Recommended next issue: add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.

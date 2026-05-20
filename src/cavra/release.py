@@ -5478,6 +5478,140 @@ def build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard(
     }
 
 
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health(
+    items: list[dict[str, Any]],
+    *,
+    expected_interval_minutes: int = 30,
+    stale_metadata_minutes: int = 120,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    expected_interval_minutes = max(1, int(expected_interval_minutes or 30))
+    stale_metadata_minutes = max(expected_interval_minutes, int(stale_metadata_minutes or expected_interval_minutes * 4))
+    missed_after_minutes = expected_interval_minutes * 2
+    runs = filter_endpoint_remediation_sla_escalation_recurrence_automation_history(items, limit=500)["items"]
+    latest_run = runs[0] if runs else {}
+    latest_run_at = _parse_release_datetime(latest_run.get("created_at") or latest_run.get("generated_at"))
+    latest_run_age_minutes = (
+        int((now - latest_run_at).total_seconds() // 60)
+        if latest_run_at is not None and now >= latest_run_at
+        else None
+    )
+    missed_run_count = 1 if latest_run_at is None or (latest_run_age_minutes or 0) > missed_after_minutes else 0
+    disabled_schedule_count = 0
+    failed_job_count = 0
+    for item in runs:
+        run = item.get("automation_run") if isinstance(item.get("automation_run"), dict) else item
+        schedule = run.get("schedule", {}) if isinstance(run.get("schedule"), dict) else {}
+        status = str(run.get("status") or item.get("status") or "").lower()
+        if schedule.get("enabled") is False:
+            disabled_schedule_count += 1
+        if status in {"failed", "error", "timeout", "cancelled"}:
+            failed_job_count += 1
+    metadata_kinds = {
+        "endpoint-remediation-sla-escalation-recurrence-plan": "recurrence_plan",
+        "endpoint-remediation-sla-escalation-recurrence-retry-plan": "retry_plan",
+        "endpoint-remediation-sla-escalation-owner-digest": "owner_digest",
+        "endpoint-remediation-sla-escalation-suppression-trend": "suppression_trend",
+    }
+    stale_metadata: list[dict[str, Any]] = []
+    for metadata_kind, label in metadata_kinds.items():
+        kind_items = [item for item in items if item.get("metadata_kind") == metadata_kind]
+        latest = max(kind_items, key=lambda item: str(item.get("created_at", "")), default={})
+        latest_at = _parse_release_datetime(latest.get("created_at"))
+        if latest_at is None:
+            stale_metadata.append({"kind": label, "metadata_kind": metadata_kind, "state": "missing", "age_minutes": None})
+            continue
+        age_minutes = int((now - latest_at).total_seconds() // 60) if now >= latest_at else 0
+        if age_minutes > stale_metadata_minutes:
+            stale_metadata.append(
+                {
+                    "kind": label,
+                    "metadata_kind": metadata_kind,
+                    "state": "stale",
+                    "age_minutes": age_minutes,
+                    "latest_id": latest.get("session_id") or latest.get("run_id"),
+                }
+            )
+    connector_failures = [
+        item
+        for item in items
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source") == "endpoint_remediation_sla_escalation_owner_digest"
+        and not item.get("delivery_success")
+    ]
+    alerts: list[dict[str, Any]] = []
+    if missed_run_count:
+        alerts.append(
+            {
+                "severity": "critical",
+                "category": "missed_run",
+                "message": "No recurrence automation worker run has completed inside the expected schedule window.",
+            }
+        )
+    if failed_job_count:
+        alerts.append(
+            {
+                "severity": "critical",
+                "category": "failed_job",
+                "message": f"{failed_job_count} recurrence automation worker runs reported a failed status.",
+            }
+        )
+    if connector_failures:
+        alerts.append(
+            {
+                "severity": "critical",
+                "category": "connector_failure",
+                "message": f"{len(connector_failures)} owner digest connector deliveries failed.",
+            }
+        )
+    if stale_metadata:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "stale_metadata",
+                "message": f"{len(stale_metadata)} recurrence metadata categories are missing or stale.",
+            }
+        )
+    if disabled_schedule_count:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "disabled_schedule",
+                "message": f"{disabled_schedule_count} recurrence automation runs reported disabled schedules.",
+            }
+        )
+    alert_level = "critical" if any(alert["severity"] == "critical" for alert in alerts) else "warning" if alerts else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health.v1",
+        "product": "CAVRA",
+        "generated_at": now.isoformat(),
+        "alert_level": alert_level,
+        "expected_interval_minutes": expected_interval_minutes,
+        "missed_after_minutes": missed_after_minutes,
+        "stale_metadata_minutes": stale_metadata_minutes,
+        "run_count": len(runs),
+        "missed_run_count": missed_run_count,
+        "failed_job_count": failed_job_count,
+        "disabled_schedule_count": disabled_schedule_count,
+        "stale_metadata_count": len(stale_metadata),
+        "connector_delivery_failure_count": len(connector_failures),
+        "latest_run_id": latest_run.get("run_id") or latest_run.get("session_id"),
+        "latest_run_at": latest_run_at.isoformat() if latest_run_at else None,
+        "latest_run_age_minutes": latest_run_age_minutes,
+        "stale_metadata": stale_metadata,
+        "failed_deliveries": connector_failures[:10],
+        "alerts": alerts,
+        "recommendations": [
+            "Verify the scheduler is enabled and running at the expected interval.",
+            "Review the latest dry-run payload before enabling guarded execute mode.",
+            "Check connector delivery evidence when owner digest delivery failures are reported.",
+            "Refresh recurrence plans, retry plans, owner digests, and suppression trends when metadata is stale.",
+        ],
+        "latest": runs[:10],
+    }
+
+
 def export_endpoint_remediation_sla_escalation_suppression_audit(
     recurrence_plan: dict[str, Any],
     output_dir: Path,

@@ -768,6 +768,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     sla_escalation_recurrence_automation_dashboard = client.get(
         "/endpoint-remediation-sla-escalation-recurrence-automations/dashboard"
     )
+    sla_escalation_recurrence_automation_health = client.get(
+        "/endpoint-remediation-sla-escalation-recurrence-automations/health",
+        params={"expected_interval_minutes": 30, "stale_metadata_minutes": 120},
+    )
     sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
     sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
@@ -896,6 +900,8 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_escalation_recurrence_automation_history.json()["total"] >= 1
     assert sla_escalation_recurrence_automation_dashboard.status_code == 200
     assert sla_escalation_recurrence_automation_dashboard.json()["run_count"] >= 1
+    assert sla_escalation_recurrence_automation_health.status_code == 200
+    assert "missed_run_count" in sla_escalation_recurrence_automation_health.json()
     assert sla_escalation_recurrence_history.status_code == 200
     assert sla_escalation_recurrence_history.json()["total"] >= 1
     assert sla_escalation_recurrence_dashboard.status_code == 200
@@ -985,6 +991,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automations"]
         == "/endpoint-remediation-sla-escalation-recurrence-automations"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation_health"]
+        == "/endpoint-remediation-sla-escalation-recurrence-automations/health"
     )
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]
