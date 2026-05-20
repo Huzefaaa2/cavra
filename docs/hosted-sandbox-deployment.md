@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
+1. Add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.
