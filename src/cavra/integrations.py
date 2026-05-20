@@ -374,7 +374,11 @@ def deliver_connector_event(
     sender: Any | None = None,
 ) -> dict[str, Any]:
     specs = build_connector_request_specs(event, config)
-    providers = set(specs) if provider == "all" else {provider}
+    providers = (
+        set(specs)
+        if provider == "all"
+        else {item.strip() for item in str(provider).split(",") if item.strip()}
+    )
     unknown = providers - set(specs)
     if unknown:
         raise ValueError(f"connector provider is not configured: {', '.join(sorted(unknown))}")

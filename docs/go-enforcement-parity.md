@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
+1. Add endpoint remediation notification escalation ladders and owner-specific service-level objectives.
 2. Continue broadening approval-route parity as new policy packs are added.

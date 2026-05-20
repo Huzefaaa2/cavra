@@ -457,7 +457,20 @@ cavra release endpoint-remediation-sla-report \
 cavra release deliver-endpoint-remediation-sla \
   .cavra/release/endpoint-remediation-sla/endpoint-remediation-sla-report.json \
   --config .cavra/connectors.json \
+  --routing-policy .cavra/sla-notification-policy.json \
   --provider all \
+  --metadata-json .cavra/evidence/metadata.json
+
+cavra release ack-endpoint-remediation-sla ersla_123 \
+  --provider slack \
+  --acknowledged-by release-manager \
+  --metadata-json .cavra/evidence/metadata.json
+
+cavra release endpoint-remediation-sla-notification-history \
+  --metadata-json .cavra/evidence/metadata.json \
+  --provider slack
+
+cavra release endpoint-remediation-sla-notification-dashboard \
   --metadata-json .cavra/evidence/metadata.json
 
 cavra release endpoint-remediation-sla-history \
@@ -468,7 +481,26 @@ cavra release endpoint-remediation-sla-dashboard \
   --metadata-json .cavra/evidence/metadata.json
 ```
 
-Remediation requests are indexed as `metadata_kind=endpoint-drift-remediation-request`; execution records are indexed as `metadata_kind=endpoint-drift-remediation-execution`; handoff packages are indexed as `metadata_kind=endpoint-remediation-handoff`; callback and operator status records are indexed as `metadata_kind=endpoint-remediation-handoff-status`; SLA reports are indexed as `metadata_kind=endpoint-remediation-sla-report`; notification delivery attempts are indexed as `metadata_kind=release-connector-delivery` with `connector_delivery_source=endpoint_remediation_sla_notification`. Community Edition records the governed plan, approval binding, handoff payloads, external status references, redacted provider callback evidence, SLA breach state, escalation payloads, executive release governance summaries, and redacted notification delivery evidence for Jira, ServiceNow, Slack, Teams, generic webhooks, and private connector queues. Actual endpoint mutation is intentionally left to private connector implementations or operator runbooks.
+Remediation requests are indexed as `metadata_kind=endpoint-drift-remediation-request`; execution records are indexed as `metadata_kind=endpoint-drift-remediation-execution`; handoff packages are indexed as `metadata_kind=endpoint-remediation-handoff`; callback and operator status records are indexed as `metadata_kind=endpoint-remediation-handoff-status`; SLA reports are indexed as `metadata_kind=endpoint-remediation-sla-report`; notification plans are indexed as `metadata_kind=endpoint-remediation-sla-notification-plan`; acknowledgements are indexed as `metadata_kind=endpoint-remediation-sla-notification-ack`; notification delivery attempts are indexed as `metadata_kind=release-connector-delivery` with `connector_delivery_source=endpoint_remediation_sla_notification`. Community Edition records the governed plan, approval binding, handoff payloads, external status references, redacted provider callback evidence, SLA breach state, escalation payloads, executive release governance summaries, routing policy decisions, duplicate suppression windows, acknowledgement evidence, and redacted notification delivery evidence for Jira, ServiceNow, Slack, Teams, generic webhooks, and private connector queues. Actual endpoint mutation is intentionally left to private connector implementations or operator runbooks.
+
+Routing policy files can be JSON or YAML:
+
+```json
+{
+  "default_providers": ["slack"],
+  "suppression_window_minutes": 120,
+  "rules": [
+    {
+      "rule_id": "critical-release-governance",
+      "alert_levels": ["critical"],
+      "providers": ["jira", "servicenow", "slack", "teams"],
+      "min_breached": 1,
+      "owner": "release-cab",
+      "acknowledgement_required": true
+    }
+  ]
+}
+```
 
 Smoke-test installer metadata and execute the native packaged runtime when the current OS and architecture are present:
 
@@ -536,11 +568,12 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As an endpoint operations lead, I can reconcile provider callback status, external ticket IDs, and completion evidence without exposing connector credentials.
 - As an executive release owner, I can review breached, at-risk, and completed endpoint remediation handoffs before approving release governance exceptions.
 - As a release manager, I can deliver SLA breach notifications to ITSM, ChatOps, and release governance connectors with redacted retry evidence.
+- As a release manager, I can route SLA notifications by severity and channel, suppress duplicate notifications, and track acknowledgement status.
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, duplicate suppression windows, acknowledgement tracking, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
+1. Add endpoint remediation notification escalation ladders and owner-specific service-level objectives.
