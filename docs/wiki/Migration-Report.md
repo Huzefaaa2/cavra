@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
+4. Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.

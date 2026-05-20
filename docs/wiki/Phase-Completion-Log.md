@@ -1113,4 +1113,26 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
 - `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
 
-Recommended next issue: surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
+Recommended next issue: delivered below as Evidence Console recurrence operations filters and export drill-downs.
+
+## Phase 7 Evidence Console Recurrence Operations
+
+Status: complete for the current recurrence operations console slice.
+
+Completed implementation:
+- Added a Recurrence Operations panel to the Evidence Console.
+- Added retry-plan, owner-digest, and suppression-trend tables backed by persisted `endpoint-remediation-sla-escalation-actions` metadata.
+- Added owner, provider, action, and suppression category filters.
+- Added dashboard counters for retry plans, retryable routes, waiting routes, suppressed routes, owner digests, unresolved owner routes, trend events, top suppression category, and failed deliveries.
+- Added JSON detail drill-downs and local export actions for retry plans, owner digests, and suppression trends.
+- Added public sample recurrence operations data so the static sandbox remains useful without a deployed API.
+- Updated README, sandbox docs, roadmap docs, and wiki source.
+
+Validation:
+- `node --check apps/sandbox-ui/sandbox.js`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+- `python3 -m pytest -q`
+
+Recommended next issue: add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.

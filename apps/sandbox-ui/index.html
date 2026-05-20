@@ -580,6 +580,80 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Recurrence Operations</h2>
+            <p>Inspect failed-batch retry plans, owner digests, and suppression trend evidence.</p>
+          </div>
+          <button id="refreshEndpointRecurrenceOperations">Refresh</button>
+        </div>
+        <div id="endpointRecurrenceOperationsDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Owner <input id="filterEndpointRecurrenceOwner" placeholder="release-governance" /></label>
+          <label>Provider <select id="filterEndpointRecurrenceProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="private_queue">Private queue</option></select></label>
+          <label>Action <select id="filterEndpointRecurrenceAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="retry">Retry</option><option value="wait">Wait</option><option value="suppress">Suppress</option></select></label>
+          <label>Category <select id="filterEndpointRecurrenceCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="maximum_recurrence">Maximum recurrence</option><option value="maximum_retry">Maximum retry</option><option value="recurrence_interval_wait">Interval wait</option><option value="owner_review">Owner review</option><option value="wait">Wait</option><option value="other">Other</option></select></label>
+        </div>
+        <div class="recurrence-grid">
+          <div>
+            <h3>Retry Plans</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Plan</th>
+                    <th>Alert</th>
+                    <th>Retry</th>
+                    <th>Waiting</th>
+                    <th>Suppressed</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointRecurrenceRetryRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Owner Digests</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Digest</th>
+                    <th>Owners</th>
+                    <th>Unresolved</th>
+                    <th>Retryable</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointRecurrenceDigestRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Suppression Trends</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trend</th>
+                    <th>Alert</th>
+                    <th>Events</th>
+                    <th>Top Category</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointRecurrenceTrendRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="endpointRecurrenceDetail" class="detail-panel">Select Details from a recurrence operations row.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

@@ -402,6 +402,147 @@ const endpointRemediationSlaCatalog = [
   }
 ];
 
+const endpointRecurrenceRetryPlanCatalog = [
+  {
+    session_id: "erslaescrtry-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-remediation-sla-escalation-recurrence-retry-plan",
+    retry_plan_id: "erslaescrtry-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T01:25:00+00:00",
+    alert_level: "critical",
+    retryable_count: 1,
+    waiting_count: 1,
+    suppressed_count: 0,
+    retry_plan: {
+      schema_version: "cavra.endpoint_remediation_sla.escalation_recurrence_retry_plan.v1",
+      product: "CAVRA",
+      retry_plan_id: "erslaescrtry-prod-v0-2-0-rc-1-sample",
+      generated_at: "2026-05-19T01:25:00+00:00",
+      generated_by: "release-manager",
+      alert_level: "critical",
+      decision_count: 2,
+      retryable_count: 1,
+      waiting_count: 1,
+      suppressed_count: 0,
+      max_retry_attempts: 3,
+      base_retry_delay_minutes: 15,
+      backoff_multiplier: 2,
+      retry_decisions: [
+        {
+          recurrence_plan_id: "erslaescr-prod-v0-2-0-rc-1-sample",
+          plan_id: "erslaesc-prod-v0-2-0-rc-1-sample",
+          provider: "webhook",
+          action: "retry",
+          reason: "failed recurrence delivery is eligible for retry",
+          retry_count: 1,
+          max_retry_attempts: 3,
+          retry_delay_minutes: 15,
+          latest_delivery_id: "rcd-prod-v0-2-0-rc-1-sample",
+          latest_delivery_at: "2026-05-19T01:08:00+00:00",
+          next_retry_at: "2026-05-19T01:23:00+00:00",
+          route_count: 1,
+          routes: [{ owner: "release-governance", provider: "webhook", route_key: "release-governance:webhook" }]
+        },
+        {
+          recurrence_plan_id: "erslaescr-prod-v0-2-0-rc-1-sample",
+          plan_id: "erslaesc-prod-v0-2-0-rc-1-sample",
+          provider: "slack",
+          action: "wait",
+          reason: "retry delay 30 minutes has not elapsed",
+          retry_count: 2,
+          max_retry_attempts: 3,
+          retry_delay_minutes: 30,
+          latest_delivery_id: "rcd-prod-v0-2-0-rc-1-slack-sample",
+          latest_delivery_at: "2026-05-19T01:18:00+00:00",
+          next_retry_at: "2026-05-19T01:48:00+00:00",
+          route_count: 1,
+          routes: [{ owner: "release-governance", provider: "slack", route_key: "release-governance:slack" }]
+        }
+      ]
+    }
+  }
+];
+
+const endpointRecurrenceOwnerDigestCatalog = [
+  {
+    session_id: "erslaescdigest-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-remediation-sla-escalation-owner-digest",
+    digest_id: "erslaescdigest-prod-v0-2-0-rc-1-sample",
+    recurrence_plan_id: "erslaescr-prod-v0-2-0-rc-1-sample",
+    retry_plan_id: "erslaescrtry-prod-v0-2-0-rc-1-sample",
+    plan_id: "erslaesc-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T01:30:00+00:00",
+    owner_count: 1,
+    unresolved_route_count: 2,
+    owner_digest: {
+      schema_version: "cavra.endpoint_remediation_sla.escalation_owner_digest.v1",
+      product: "CAVRA",
+      event_type: "cavra.endpoint_remediation_sla.escalation_owner_digest",
+      session_id: "erslaescdigest-prod-v0-2-0-rc-1-sample",
+      digest_id: "erslaescdigest-prod-v0-2-0-rc-1-sample",
+      recurrence_plan_id: "erslaescr-prod-v0-2-0-rc-1-sample",
+      retry_plan_id: "erslaescrtry-prod-v0-2-0-rc-1-sample",
+      plan_id: "erslaesc-prod-v0-2-0-rc-1-sample",
+      generated_at: "2026-05-19T01:30:00+00:00",
+      generated_by: "release-manager",
+      alert_level: "critical",
+      summary: {
+        owner_count: 1,
+        unresolved_route_count: 2,
+        retryable_count: 1,
+        waiting_retry_count: 1
+      },
+      owners: [
+        {
+          owner: "release-governance",
+          route_count: 1,
+          retry_count: 1,
+          providers: { slack: 1, webhook: 1 },
+          routes: [{ owner: "release-governance", provider: "slack", action: "wait", route_key: "release-governance:slack" }]
+        }
+      ]
+    }
+  }
+];
+
+const endpointRecurrenceSuppressionTrendCatalog = [
+  {
+    session_id: "erslaesctrend-prod-v0-2-0-rc-1-sample",
+    metadata_kind: "endpoint-remediation-sla-escalation-suppression-trend",
+    trend_id: "erslaesctrend-prod-v0-2-0-rc-1-sample",
+    created_at: "2026-05-19T01:35:00+00:00",
+    alert_level: "warning",
+    suppression_event_count: 3,
+    category_counts: {
+      maintenance_window: 1,
+      owner_calendar: 1,
+      recurrence_interval_wait: 1
+    },
+    suppression_trend: {
+      schema_version: "cavra.endpoint_remediation_sla.escalation_suppression_trend.v1",
+      product: "CAVRA",
+      trend_id: "erslaesctrend-prod-v0-2-0-rc-1-sample",
+      generated_at: "2026-05-19T01:35:00+00:00",
+      generated_by: "release-manager",
+      alert_level: "warning",
+      suppression_event_count: 3,
+      category_counts: {
+        maintenance_window: 1,
+        owner_calendar: 1,
+        recurrence_interval_wait: 1
+      },
+      owner_counts: { "release-governance": 3 },
+      provider_counts: { slack: 1, teams: 1, webhook: 1 },
+      latest_events: [
+        { created_at: "2026-05-19T01:32:00+00:00", category: "maintenance_window", owner: "release-governance", provider: "teams", action: "suppress", reason: "owner maintenance window is active" },
+        { created_at: "2026-05-19T01:20:00+00:00", category: "owner_calendar", owner: "release-governance", provider: "slack", action: "wait", reason: "owner calendar is unavailable" },
+        { created_at: "2026-05-19T01:10:00+00:00", category: "recurrence_interval_wait", owner: "release-governance", provider: "webhook", action: "wait", reason: "recurrence interval has not elapsed" }
+      ]
+    }
+  }
+];
+
+const endpointRecurrenceDetailPayloads = new Map();
+
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
     schema_version: "cavra.evidence.artifacts.v1",
@@ -1396,6 +1537,134 @@ async function loadEndpointRemediationSlaEscalationRecurrenceDashboard() {
       calendar_suppressed_count: 0
     };
   }
+}
+
+function selectedEndpointRecurrenceFilters() {
+  return {
+    owner: document.querySelector("#filterEndpointRecurrenceOwner")?.value.trim().toLowerCase() || "",
+    provider: document.querySelector("#filterEndpointRecurrenceProvider")?.value || "",
+    action: document.querySelector("#filterEndpointRecurrenceAction")?.value || "",
+    category: document.querySelector("#filterEndpointRecurrenceCategory")?.value || ""
+  };
+}
+
+function endpointRecurrenceRetryPlanPayload(item) {
+  return item?.retry_plan && typeof item.retry_plan === "object" ? item.retry_plan : item;
+}
+
+function endpointRecurrenceOwnerDigestPayload(item) {
+  return item?.owner_digest && typeof item.owner_digest === "object" ? item.owner_digest : item;
+}
+
+function endpointRecurrenceSuppressionTrendPayload(item) {
+  return item?.suppression_trend && typeof item.suppression_trend === "object" ? item.suppression_trend : item;
+}
+
+function endpointRecurrenceRetryDecisions(item) {
+  const plan = endpointRecurrenceRetryPlanPayload(item);
+  return Array.isArray(plan.retry_decisions) ? plan.retry_decisions : [];
+}
+
+function endpointRecurrenceOwnerRows(item) {
+  const digest = endpointRecurrenceOwnerDigestPayload(item);
+  return Array.isArray(digest.owners) ? digest.owners : [];
+}
+
+function endpointRecurrenceTrendRows(item) {
+  const trend = endpointRecurrenceSuppressionTrendPayload(item);
+  return Array.isArray(trend.latest_events) ? trend.latest_events : [];
+}
+
+function matchesEndpointRecurrenceOwner(owner, rows) {
+  if (!owner) return true;
+  return rows.some((row) => String(row.owner || "").toLowerCase().includes(owner));
+}
+
+function matchesEndpointRecurrenceProvider(provider, rows) {
+  if (!provider) return true;
+  return rows.some((row) => {
+    if (String(row.provider || "") === provider) return true;
+    if (Array.isArray(row.routes) && row.routes.some((route) => String(route.provider || "") === provider)) return true;
+    return row.providers && Object.prototype.hasOwnProperty.call(row.providers, provider);
+  });
+}
+
+function filterEndpointRecurrenceRetryPlans(items) {
+  const filters = selectedEndpointRecurrenceFilters();
+  return items.filter((item) => {
+    const decisions = endpointRecurrenceRetryDecisions(item);
+    if (!matchesEndpointRecurrenceOwner(filters.owner, decisions.flatMap((decision) => decision.routes || []))) return false;
+    if (!matchesEndpointRecurrenceProvider(filters.provider, decisions)) return false;
+    if (filters.action && !decisions.some((decision) => decision.action === filters.action)) return false;
+    if (filters.category && filters.category !== "maximum_retry") return false;
+    return true;
+  });
+}
+
+function filterEndpointRecurrenceOwnerDigests(items) {
+  const filters = selectedEndpointRecurrenceFilters();
+  return items.filter((item) => {
+    const owners = endpointRecurrenceOwnerRows(item);
+    if (!matchesEndpointRecurrenceOwner(filters.owner, owners)) return false;
+    if (!matchesEndpointRecurrenceProvider(filters.provider, owners)) return false;
+    if (filters.action && !owners.some((owner) => {
+      if (filters.action === "retry") return Number(owner.retry_count || 0) > 0;
+      return (owner.routes || []).some((route) => route.action === filters.action);
+    })) return false;
+    if (filters.category) return false;
+    return true;
+  });
+}
+
+function filterEndpointRecurrenceSuppressionTrends(items) {
+  const filters = selectedEndpointRecurrenceFilters();
+  return items.filter((item) => {
+    const rows = endpointRecurrenceTrendRows(item);
+    if (!matchesEndpointRecurrenceOwner(filters.owner, rows)) return false;
+    if (!matchesEndpointRecurrenceProvider(filters.provider, rows)) return false;
+    if (filters.action && !rows.some((row) => row.action === filters.action)) return false;
+    if (filters.category && !rows.some((row) => row.category === filters.category)) return false;
+    return true;
+  });
+}
+
+async function loadEndpointRecurrenceActionItems(metadataKind, sampleItems) {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-actions", {
+      metadata_kind: metadataKind,
+      limit: 50
+    }));
+    if (!response.ok) throw new Error("Endpoint recurrence operations API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return sampleItems;
+  }
+}
+
+async function loadEndpointRecurrenceRetryPlans() {
+  const items = await loadEndpointRecurrenceActionItems(
+    "endpoint-remediation-sla-escalation-recurrence-retry-plan",
+    endpointRecurrenceRetryPlanCatalog
+  );
+  return filterEndpointRecurrenceRetryPlans(items);
+}
+
+async function loadEndpointRecurrenceOwnerDigests() {
+  const items = await loadEndpointRecurrenceActionItems(
+    "endpoint-remediation-sla-escalation-owner-digest",
+    endpointRecurrenceOwnerDigestCatalog
+  );
+  return filterEndpointRecurrenceOwnerDigests(items);
+}
+
+async function loadEndpointRecurrenceSuppressionTrends() {
+  const items = await loadEndpointRecurrenceActionItems(
+    "endpoint-remediation-sla-escalation-suppression-trend",
+    endpointRecurrenceSuppressionTrendCatalog
+  );
+  return filterEndpointRecurrenceSuppressionTrends(items);
 }
 
 async function loadEndpointManagementExportArtifacts(exportId) {
@@ -2608,6 +2877,193 @@ function renderEndpointRemediationSlaReports(items, dashboard, notificationDashb
   }
 }
 
+function topEndpointRecurrenceTrendCategory(trends) {
+  const counts = {};
+  for (const item of trends) {
+    const trend = endpointRecurrenceSuppressionTrendPayload(item);
+    for (const [category, count] of Object.entries(trend.category_counts || {})) {
+      counts[category] = Number(counts[category] || 0) + Number(count || 0);
+    }
+  }
+  const [category] = Object.entries(counts).sort((left, right) => Number(right[1]) - Number(left[1]))[0] || [];
+  return category || "none";
+}
+
+function endpointRecurrencePayloadId(kind, index) {
+  return `${kind}:${index}`;
+}
+
+function endpointRecurrenceActionButtons(payloadId) {
+  return `
+    <div class="row-actions">
+      <button class="endpointRecurrenceDetailAction secondary" data-payload="${escapeHtml(payloadId)}">Details</button>
+      <button class="endpointRecurrenceExportAction secondary" data-payload="${escapeHtml(payloadId)}">Export</button>
+    </div>
+  `;
+}
+
+function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, dashboard = {}) {
+  const panel = document.querySelector("#endpointRecurrenceOperationsDashboard");
+  const retryRows = document.querySelector("#endpointRecurrenceRetryRows");
+  const digestRows = document.querySelector("#endpointRecurrenceDigestRows");
+  const trendRows = document.querySelector("#endpointRecurrenceTrendRows");
+  if (!panel || !retryRows || !digestRows || !trendRows) return;
+
+  endpointRecurrenceDetailPayloads.clear();
+  retryRows.innerHTML = "";
+  digestRows.innerHTML = "";
+  trendRows.innerHTML = "";
+
+  const retryableCount = retryPlans.reduce((total, item) => total + Number(endpointRecurrenceRetryPlanPayload(item).retryable_count || item.retryable_count || 0), 0);
+  const waitingCount = retryPlans.reduce((total, item) => total + Number(endpointRecurrenceRetryPlanPayload(item).waiting_count || item.waiting_count || 0), 0);
+  const suppressedCount = retryPlans.reduce((total, item) => total + Number(endpointRecurrenceRetryPlanPayload(item).suppressed_count || item.suppressed_count || 0), 0);
+  const unresolvedCount = ownerDigests.reduce((total, item) => {
+    const digest = endpointRecurrenceOwnerDigestPayload(item);
+    return total + Number(digest.summary?.unresolved_route_count || item.unresolved_route_count || 0);
+  }, 0);
+  const ownerCount = ownerDigests.reduce((owners, item) => {
+    for (const row of endpointRecurrenceOwnerRows(item)) {
+      if (row.owner) owners.add(row.owner);
+    }
+    return owners;
+  }, new Set()).size;
+  const trendEventCount = suppressionTrends.reduce((total, item) => total + Number(endpointRecurrenceSuppressionTrendPayload(item).suppression_event_count || item.suppression_event_count || 0), 0);
+  const status = dashboard.alert_level || (retryableCount || trendEventCount ? "warning" : "healthy");
+
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(status)}">${escapeHtml(status)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Retry Plans</span>
+      <strong>${formatMetricNumber(dashboard.recurrence_retry_plan_count || retryPlans.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Retryable</span>
+      <strong class="${retryableCount ? "block" : "allow"}">${formatMetricNumber(retryableCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Waiting</span>
+      <strong class="${waitingCount ? "require_approval" : "allow"}">${formatMetricNumber(waitingCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Suppressed</span>
+      <strong class="${suppressedCount ? "require_approval" : "allow"}">${formatMetricNumber(suppressedCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Owner Digests</span>
+      <strong>${formatMetricNumber(dashboard.owner_digest_count || ownerDigests.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Owners</span>
+      <strong>${formatMetricNumber(ownerCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Unresolved</span>
+      <strong class="${unresolvedCount ? "block" : "allow"}">${formatMetricNumber(unresolvedCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Trend Reports</span>
+      <strong>${formatMetricNumber(dashboard.suppression_trend_count || suppressionTrends.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Trend Events</span>
+      <strong class="${trendEventCount ? "require_approval" : "allow"}">${formatMetricNumber(trendEventCount)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Top Category</span>
+      <strong>${escapeHtml(topEndpointRecurrenceTrendCategory(suppressionTrends))}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Failed Deliveries</span>
+      <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || 0)}</strong>
+    </div>
+  `;
+
+  retryPlans.forEach((item, index) => {
+    const plan = endpointRecurrenceRetryPlanPayload(item);
+    const payloadId = endpointRecurrencePayloadId("retry", index);
+    endpointRecurrenceDetailPayloads.set(payloadId, { label: plan.retry_plan_id || item.retry_plan_id || "retry-plan", payload: plan });
+    retryRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(plan.retry_plan_id || item.retry_plan_id || item.session_id || "retry-plan")}</td>
+        <td class="${riskClass(plan.alert_level || item.alert_level)}">${escapeHtml(plan.alert_level || item.alert_level || "unknown")}</td>
+        <td>${formatMetricNumber(plan.retryable_count || item.retryable_count)}</td>
+        <td>${formatMetricNumber(plan.waiting_count || item.waiting_count)}</td>
+        <td>${formatMetricNumber(plan.suppressed_count || item.suppressed_count)}</td>
+        <td>${escapeHtml(String(plan.generated_at || item.created_at || "").slice(0, 19))}</td>
+        <td>${endpointRecurrenceActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!retryPlans.length) retryRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No retry plans match the current filters.</td></tr>`);
+
+  ownerDigests.forEach((item, index) => {
+    const digest = endpointRecurrenceOwnerDigestPayload(item);
+    const summary = digest.summary || {};
+    const payloadId = endpointRecurrencePayloadId("digest", index);
+    endpointRecurrenceDetailPayloads.set(payloadId, { label: digest.digest_id || item.digest_id || "owner-digest", payload: digest });
+    digestRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(digest.digest_id || item.digest_id || item.session_id || "owner-digest")}</td>
+        <td>${formatMetricNumber(summary.owner_count || item.owner_count)}</td>
+        <td class="${Number(summary.unresolved_route_count || item.unresolved_route_count || 0) ? "block" : "allow"}">${formatMetricNumber(summary.unresolved_route_count || item.unresolved_route_count)}</td>
+        <td>${formatMetricNumber(summary.retryable_count || item.retryable_count)}</td>
+        <td>${escapeHtml(String(digest.generated_at || item.created_at || "").slice(0, 19))}</td>
+        <td>${endpointRecurrenceActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!ownerDigests.length) digestRows.insertAdjacentHTML("beforeend", `<tr><td colspan="6">No owner digests match the current filters.</td></tr>`);
+
+  suppressionTrends.forEach((item, index) => {
+    const trend = endpointRecurrenceSuppressionTrendPayload(item);
+    const payloadId = endpointRecurrencePayloadId("trend", index);
+    endpointRecurrenceDetailPayloads.set(payloadId, { label: trend.trend_id || item.trend_id || "suppression-trend", payload: trend });
+    const [topCategory] = Object.entries(trend.category_counts || item.category_counts || {}).sort((left, right) => Number(right[1]) - Number(left[1]))[0] || [];
+    trendRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(trend.trend_id || item.trend_id || item.session_id || "suppression-trend")}</td>
+        <td class="${riskClass(trend.alert_level || item.alert_level)}">${escapeHtml(trend.alert_level || item.alert_level || "unknown")}</td>
+        <td>${formatMetricNumber(trend.suppression_event_count || item.suppression_event_count)}</td>
+        <td>${escapeHtml(topCategory || "none")}</td>
+        <td>${escapeHtml(String(trend.generated_at || item.created_at || "").slice(0, 19))}</td>
+        <td>${endpointRecurrenceActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!suppressionTrends.length) trendRows.insertAdjacentHTML("beforeend", `<tr><td colspan="6">No suppression trends match the current filters.</td></tr>`);
+}
+
+function showEndpointRecurrenceDetail(payloadId) {
+  const panel = document.querySelector("#endpointRecurrenceDetail");
+  const entry = endpointRecurrenceDetailPayloads.get(payloadId);
+  if (!panel || !entry) return;
+  panel.innerHTML = `
+    <dl>
+      <dt>Artifact</dt><dd>${escapeHtml(entry.label)}</dd>
+      <dt>Type</dt><dd>${escapeHtml(payloadId.split(":")[0])}</dd>
+    </dl>
+    <pre>${escapeHtml(JSON.stringify(entry.payload, null, 2))}</pre>
+  `;
+}
+
+function exportEndpointRecurrencePayload(payloadId) {
+  const entry = endpointRecurrenceDetailPayloads.get(payloadId);
+  if (!entry) return;
+  const fileName = `${String(entry.label || "cavra-recurrence-artifact").replace(/[^a-zA-Z0-9_.-]+/g, "-")}.json`;
+  const blob = new Blob([JSON.stringify(entry.payload, null, 2)], { type: "application/json" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(href);
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -3371,6 +3827,16 @@ async function refreshEndpointRemediationSla() {
   renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard, escalationRecurrenceDashboard);
 }
 
+async function refreshEndpointRecurrenceOperations() {
+  const [retryPlans, ownerDigests, suppressionTrends, dashboard] = await Promise.all([
+    loadEndpointRecurrenceRetryPlans(),
+    loadEndpointRecurrenceOwnerDigests(),
+    loadEndpointRecurrenceSuppressionTrends(),
+    loadEndpointRemediationSlaEscalationActionDashboard()
+  ]);
+  renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, dashboard);
+}
+
 async function deliverEndpointRemediationSlaNotification() {
   const status = document.querySelector("#endpointRemediationSlaDeliveryStatus");
   if (status) {
@@ -3772,7 +4238,12 @@ document.querySelector("#refreshEndpointRemediation").addEventListener("click", 
 document.querySelector("#refreshEndpointRemediationHandoff").addEventListener("click", refreshEndpointRemediationHandoff);
 document.querySelector("#refreshEndpointRemediationHandoffStatus").addEventListener("click", refreshEndpointRemediationHandoffStatus);
 document.querySelector("#refreshEndpointRemediationSla").addEventListener("click", refreshEndpointRemediationSla);
+document.querySelector("#refreshEndpointRecurrenceOperations").addEventListener("click", refreshEndpointRecurrenceOperations);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
+document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory").forEach((control) => {
+  control.addEventListener("input", refreshEndpointRecurrenceOperations);
+  control.addEventListener("change", refreshEndpointRecurrenceOperations);
+});
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);
@@ -3835,6 +4306,16 @@ document.querySelector("#endpointExportRows").addEventListener("click", async (e
   if (!artifactButton) return;
   await showEndpointExportArtifacts(artifactButton.dataset.export);
 });
+document.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) return;
+  const detailButton = event.target.closest(".endpointRecurrenceDetailAction");
+  if (detailButton) {
+    showEndpointRecurrenceDetail(detailButton.dataset.payload);
+    return;
+  }
+  const exportButton = event.target.closest(".endpointRecurrenceExportAction");
+  if (exportButton) exportEndpointRecurrencePayload(exportButton.dataset.payload);
+});
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
   const detailButton = event.target.closest(".approvalDetailAction");
@@ -3862,6 +4343,7 @@ refreshEndpointRemediation();
 refreshEndpointRemediationHandoff();
 refreshEndpointRemediationHandoffStatus();
 refreshEndpointRemediationSla();
+refreshEndpointRecurrenceOperations();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

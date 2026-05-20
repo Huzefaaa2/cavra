@@ -64,6 +64,9 @@ tr:last-child td { border-bottom: 0; }
 .row-actions { display: flex; gap: 8px; flex-wrap: wrap; min-width: 250px; }
 .row-actions button { padding: 7px 9px; font-size: 12px; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 420px); gap: 18px; }
+.recurrence-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 18px; }
+.recurrence-grid h3 { margin: 0 0 10px; }
+.recurrence-grid table { min-width: 760px; }
 .activity-console h3 { margin: 0 0 10px; }
 .activity-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; }
 .inventory-console h3 { margin: 0 0 10px; }
@@ -89,8 +92,9 @@ tr:last-child td { border-bottom: 0; }
 .detail-panel dd { margin: 0; overflow-wrap: anywhere; }
 .detail-panel h3 { margin: 14px 0 8px; font-size: 15px; }
 .detail-panel ul { margin: 0; padding-left: 18px; }
+.detail-panel pre { max-height: 420px; overflow: auto; border: 1px solid #2d3a40; border-radius: 8px; padding: 12px; background: #0f1418; }
 .artifact-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }
-@media (max-width: 900px) { .grid, .split, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 900px) { .grid, .split, .recurrence-grid, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
