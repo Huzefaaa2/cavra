@@ -31,6 +31,11 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_owner_digest_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_health,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
@@ -65,6 +70,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
     create_endpoint_drift_remediation_request,
+    acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert,
     acknowledge_endpoint_remediation_sla_notification,
     create_release_channel_promotion_request,
     execute_endpoint_drift_remediation,
@@ -78,6 +84,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history,
     filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
@@ -1130,6 +1137,78 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         stale_metadata_minutes=120,
         now=automation_now + timedelta(minutes=95),
     )
+    recurrence_automation_health_alert_plan = (
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan(
+            missed_recurrence_automation_health,
+            policy={
+                "default_providers": ["webhook"],
+                "suppression_window_minutes": 30,
+                "rules": [
+                    {
+                        "rule_id": "recurrence-automation-critical",
+                        "alert_levels": ["critical"],
+                        "providers": ["webhook"],
+                        "owner": "release-governance",
+                        "acknowledgement_required": True,
+                    }
+                ],
+            },
+            available_providers=["webhook"],
+            now=automation_now + timedelta(minutes=95),
+        )
+    )
+    recurrence_automation_health_alert_event = (
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event(
+            missed_recurrence_automation_health,
+        )
+    )
+    recurrence_automation_health_alert_plan_metadata = (
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata(
+            recurrence_automation_health_alert_plan
+        )
+    )
+    recurrence_automation_health_alert_ack = (
+        acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+            recurrence_automation_health_alert_plan["health_id"],
+            provider="webhook",
+            acknowledged_by="release-manager",
+            plan_id=recurrence_automation_health_alert_plan["plan_id"],
+        )
+    )
+    recurrence_automation_health_alert_ack_metadata = (
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata(
+            recurrence_automation_health_alert_ack
+        )
+    )
+    recurrence_automation_health_alert_delivery_metadata = {
+        "session_id": "health-alert-delivery-1",
+        "created_at": automation_now.isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "endpoint_remediation_sla_escalation_recurrence_automation_health_alert",
+        "event_id": recurrence_automation_health_alert_plan["health_id"],
+        "event_type": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert",
+        "delivery_success": False,
+        "providers": ["webhook"],
+        "failed_providers": ["webhook"],
+    }
+    recurrence_automation_health_alert_history = (
+        filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(
+            [
+                recurrence_automation_health_alert_plan_metadata,
+                recurrence_automation_health_alert_ack_metadata,
+                recurrence_automation_health_alert_delivery_metadata,
+            ],
+        )
+    )
+    recurrence_automation_health_alert_dashboard = (
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard(
+            [
+                recurrence_automation_health_alert_plan_metadata,
+                recurrence_automation_health_alert_ack_metadata,
+                recurrence_automation_health_alert_delivery_metadata,
+            ],
+        )
+    )
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -1221,6 +1300,19 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert missed_recurrence_automation_health["alert_level"] == "critical"
     assert missed_recurrence_automation_health["missed_run_count"] == 1
     assert missed_recurrence_automation_health["stale_metadata_count"] >= 1
+    assert recurrence_automation_health_alert_plan["selected_providers"] == ["webhook"]
+    assert recurrence_automation_health_alert_plan["acknowledgement_required_providers"] == ["webhook"]
+    assert recurrence_automation_health_alert_event["event_type"] == (
+        "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert"
+    )
+    assert recurrence_automation_health_alert_plan_metadata["metadata_kind"] == (
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan"
+    )
+    assert recurrence_automation_health_alert_ack_metadata["metadata_kind"] == (
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack"
+    )
+    assert recurrence_automation_health_alert_history["total"] == 3
+    assert recurrence_automation_health_alert_dashboard["failed_delivery_count"] == 1
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1657,6 +1749,65 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "120",
         ],
     )
+    health_alert_metadata_json = tmp_path / "health-alert-metadata.json"
+    sla_escalation_recurrence_automation_health_alert_delivery_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-remediation-sla-escalation-recurrence-automation-health-alert",
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--routing-policy",
+            str(routing_policy),
+            "--metadata-json",
+            str(health_alert_metadata_json),
+            "--json",
+        ],
+    )
+    health_alert_payload = (
+        json.loads(sla_escalation_recurrence_automation_health_alert_delivery_cli.output)
+        if sla_escalation_recurrence_automation_health_alert_delivery_cli.exit_code == 0
+        else {}
+    )
+    sla_escalation_recurrence_automation_health_alert_ack_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "ack-endpoint-remediation-sla-escalation-recurrence-automation-health-alert",
+            health_alert_payload.get("plan", {}).get("health_id", "erslah-missing"),
+            "--provider",
+            "webhook",
+            "--acknowledged-by",
+            "release-manager",
+            "--plan-id",
+            health_alert_payload.get("plan", {}).get("plan_id", ""),
+            "--metadata-json",
+            str(health_alert_metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_recurrence_automation_health_alert_history_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-history",
+            "--metadata-json",
+            str(health_alert_metadata_json),
+        ],
+    )
+    sla_escalation_recurrence_automation_health_alert_dashboard_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-dashboard",
+            "--metadata-json",
+            str(health_alert_metadata_json),
+        ],
+    )
     sla_escalation_recurrence_history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-escalation-recurrence-history", "--metadata-json", str(metadata_json)],
@@ -1776,6 +1927,22 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert json.loads(sla_escalation_recurrence_automation_dashboard_cli.output)["run_count"] >= 1
     assert sla_escalation_recurrence_automation_health_cli.exit_code == 0
     assert "missed_run_count" in json.loads(sla_escalation_recurrence_automation_health_cli.output)
+    assert sla_escalation_recurrence_automation_health_alert_delivery_cli.exit_code == 0
+    health_alert_delivery_payload = json.loads(sla_escalation_recurrence_automation_health_alert_delivery_cli.output)
+    assert health_alert_delivery_payload["plan_metadata"]["metadata_kind"] == (
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan"
+    )
+    assert health_alert_delivery_payload["metadata"]["connector_delivery_source"] == (
+        "endpoint_remediation_sla_escalation_recurrence_automation_health_alert"
+    )
+    assert sla_escalation_recurrence_automation_health_alert_ack_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_automation_health_alert_ack_cli.output)["metadata"]["metadata_kind"] == (
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack"
+    )
+    assert sla_escalation_recurrence_automation_health_alert_history_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_automation_health_alert_history_cli.output)["total"] >= 3
+    assert sla_escalation_recurrence_automation_health_alert_dashboard_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_automation_health_alert_dashboard_cli.output)["delivery_count"] >= 1
     assert sla_escalation_recurrence_history_cli.exit_code == 0
     assert json.loads(sla_escalation_recurrence_history_cli.output)["total"] >= 1
     assert sla_escalation_recurrence_dashboard_cli.exit_code == 0

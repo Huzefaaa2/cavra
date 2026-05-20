@@ -81,6 +81,11 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_health,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
@@ -112,6 +117,7 @@ from cavra.release import (
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
     build_rollout_rollback_execution_audit_event,
+    acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert,
     acknowledge_endpoint_remediation_sla_notification,
     create_endpoint_drift_remediation_request,
     create_managed_endpoint_rollout_rollback_execution,
@@ -123,6 +129,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history,
     filter_endpoint_remediation_sla_escalation_recurrence_automation_history,
     filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
@@ -319,6 +326,10 @@ def create_app():
                 "endpoint_remediation_sla_escalation_recurrence_automations": "/endpoint-remediation-sla-escalation-recurrence-automations",
                 "endpoint_remediation_sla_escalation_recurrence_automation_dashboard": "/endpoint-remediation-sla-escalation-recurrence-automations/dashboard",
                 "endpoint_remediation_sla_escalation_recurrence_automation_health": "/endpoint-remediation-sla-escalation-recurrence-automations/health",
+                "endpoint_remediation_sla_escalation_recurrence_automation_health_alert_deliver": "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/deliver",
+                "endpoint_remediation_sla_escalation_recurrence_automation_health_alert_acknowledge": "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/{health_id}/acknowledgements",
+                "endpoint_remediation_sla_escalation_recurrence_automation_health_alerts": "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts",
+                "endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard": "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard",
                 "endpoint_remediation_sla_escalation_recurrences": "/endpoint-remediation-sla-escalation-recurrences",
                 "endpoint_remediation_sla_escalation_recurrence_dashboard": "/endpoint-remediation-sla-escalation-recurrences/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
@@ -2293,6 +2304,125 @@ def create_app():
             stale_metadata_minutes=stale_metadata_minutes,
         )
 
+    @app.post("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/deliver")
+    def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_deliver(payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        try:
+            items = _endpoint_remediation_sla_escalation_action_items(evidence_store)
+            health = build_endpoint_remediation_sla_escalation_recurrence_automation_health(
+                items,
+                expected_interval_minutes=int(payload.get("expected_interval_minutes", 30)),
+                stale_metadata_minutes=int(payload.get("stale_metadata_minutes", 120)),
+            )
+            existing_deliveries = _search_evidence_metadata(
+                evidence_store,
+                metadata_kind="release-connector-delivery",
+                limit=500,
+                offset=0,
+            )["items"]
+            plan = build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan(
+                health,
+                policy=payload.get("routing_policy") if isinstance(payload.get("routing_policy"), dict) else None,
+                delivery_items=existing_deliveries,
+                requested_provider=payload.get("provider", "all"),
+                available_providers=_configured_connector_providers(connector_config),
+                generated_by=payload.get("generated_by", "console"),
+                suppression_window_minutes=payload.get("suppression_window_minutes"),
+                force=bool(payload.get("force", False)),
+            )
+            event = build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event(
+                health,
+                generated_by=payload.get("generated_by", "console"),
+                max_alerts=int(payload.get("max_alerts", 20)),
+            )
+            event["health_alert_plan"] = plan
+            plan_metadata = evidence_store.upsert(
+                build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata(plan)
+            )
+            result = None
+            metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="endpoint_remediation_sla_escalation_recurrence_automation_health_alert",
+                    )
+                )
+            return {
+                "health": health,
+                "plan": plan,
+                "delivery": result,
+                "plan_metadata": plan_metadata,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "event_id": plan.get("health_id"),
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/{health_id}/acknowledgements")
+    def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_acknowledge(
+        health_id: str,
+        payload: dict,
+    ) -> dict:
+        if not payload.get("provider"):
+            raise HTTPException(status_code=400, detail="provider is required")
+        if not payload.get("acknowledged_by"):
+            raise HTTPException(status_code=400, detail="acknowledged_by is required")
+        try:
+            acknowledgement = acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+                health_id,
+                provider=payload["provider"],
+                acknowledged_by=payload["acknowledged_by"],
+                acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+                plan_id=payload.get("plan_id"),
+            )
+            metadata = evidence_store.upsert(
+                build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata(
+                    acknowledgement
+                )
+            )
+            return {"acknowledgement": acknowledgement, "metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts")
+    def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_index(
+        health_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        metadata_kind: Optional[str] = None,
+        acknowledgement_state: Optional[str] = None,
+        suppressed: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store),
+            health_id=health_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            suppressed=suppressed,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard")
+    def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard() -> dict:
+        return build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store)
+        )
+
     @app.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     def endpoint_remediation_sla_escalation_recurrence_dashboard() -> dict:
         return build_endpoint_remediation_sla_escalation_recurrence_dashboard(
@@ -2715,6 +2845,14 @@ def _endpoint_remediation_sla_escalation_action_items(
             metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-run",
             limit=500,
         )["items"]
+        health_alert_plans = evidence_store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan",
+            limit=500,
+        )["items"]
+        health_alert_acks = evidence_store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack",
+            limit=500,
+        )["items"]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [
             *plans,
@@ -2725,6 +2863,8 @@ def _endpoint_remediation_sla_escalation_action_items(
             *owner_digests,
             *suppression_trends,
             *automation_runs,
+            *health_alert_plans,
+            *health_alert_acks,
             *deliveries,
         ]
     return evidence_store.list()

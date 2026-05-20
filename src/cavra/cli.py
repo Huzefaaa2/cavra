@@ -98,6 +98,11 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_automation_health,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run,
     build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
@@ -133,6 +138,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
     create_endpoint_drift_remediation_request,
+    acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert,
     acknowledge_endpoint_remediation_sla_notification,
     execute_endpoint_drift_remediation,
     export_endpoint_remediation_sla_escalation_suppression_audit,
@@ -143,6 +149,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history,
     filter_endpoint_remediation_sla_escalation_recurrence_automation_history,
     filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
@@ -4068,6 +4075,180 @@ def endpoint_remediation_sla_escalation_recurrence_automation_health(
     )
 
 
+@release_app.command("deliver-endpoint-remediation-sla-escalation-recurrence-automation-health-alert")
+def deliver_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for connector delivery evidence.")] = Path(
+        ".cavra/release/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts"
+    ),
+    provider: Annotated[str, typer.Option(help="all, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity delivering the alert.")] = "release-manager",
+    routing_policy: Annotated[Optional[Path], typer.Option(help="Optional health alert routing policy JSON/YAML.")] = None,
+    suppression_window_minutes: Annotated[Optional[int], typer.Option(help="Override duplicate suppression window in minutes.")] = None,
+    expected_interval_minutes: Annotated[int, typer.Option(help="Expected scheduler interval in minutes.")] = 30,
+    stale_metadata_minutes: Annotated[int, typer.Option(help="Age threshold for stale recurrence metadata.")] = 120,
+    force: Annotated[bool, typer.Option("--force", help="Bypass duplicate suppression and deliver selected providers.")] = False,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
+) -> None:
+    """Deliver recurrence automation health alerts through configured release connectors."""
+    try:
+        connector_config = load_connector_config(config)
+        policy = load_connector_config(routing_policy) if routing_policy else None
+        items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+        health = build_endpoint_remediation_sla_escalation_recurrence_automation_health(
+            items,
+            expected_interval_minutes=expected_interval_minutes,
+            stale_metadata_minutes=stale_metadata_minutes,
+        )
+        plan = build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan(
+            health,
+            policy=policy,
+            delivery_items=items,
+            requested_provider=provider,
+            available_providers=_configured_connector_providers(connector_config),
+            generated_by=generated_by,
+            suppression_window_minutes=suppression_window_minutes,
+            force=force,
+        )
+        event = build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event(
+            health,
+            generated_by=generated_by,
+        )
+        event["health_alert_plan"] = plan
+        result = None
+        path = None
+        if plan["selected_providers"]:
+            result = deliver_connector_event(
+                event,
+                connector_config,
+                provider=",".join(plan["selected_providers"]),
+                retries=retries,
+                timeout_seconds=timeout_seconds,
+            )
+            path = export_connector_delivery_result(result, output)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    plan_metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata(plan),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    metadata = None
+    if result is not None and path is not None:
+        metadata, delivery_indexed = _index_release_connector_delivery(
+            result,
+            path,
+            source="endpoint_remediation_sla_escalation_recurrence_automation_health_alert",
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(delivery_indexed)
+    payload = {
+        "health": health,
+        "plan": plan,
+        "delivery": result,
+        "delivery_evidence": str(path) if path else None,
+        "plan_metadata": plan_metadata,
+        "metadata": metadata,
+        "indexed_metadata_stores": indexed,
+    }
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+        if path:
+            console.print(f"[green]recurrence automation health alert delivery evidence exported[/green] {path}")
+        else:
+            console.print("[yellow]recurrence automation health alert suppressed; no connector delivery attempted[/yellow]")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+
+
+@release_app.command("ack-endpoint-remediation-sla-escalation-recurrence-automation-health-alert")
+def ack_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+    health_id: Annotated[str, typer.Argument(help="Recurrence automation health alert ID.")],
+    provider: Annotated[str, typer.Option(help="Notification provider being acknowledged.")] = "",
+    acknowledged_by: Annotated[str, typer.Option(help="Actor or automation identity acknowledging the alert.")] = "",
+    acknowledgement_state: Annotated[str, typer.Option(help="acknowledged, dismissed, escalated, or resolved.")] = "acknowledged",
+    external_ref: Annotated[Optional[str], typer.Option(help="Optional external ticket, channel, or review reference.")] = None,
+    notes: Annotated[Optional[str], typer.Option(help="Optional acknowledgement notes.")] = None,
+    plan_id: Annotated[Optional[str], typer.Option(help="Optional health alert plan ID.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index acknowledgement.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index acknowledgement.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable acknowledgement output."),
+) -> None:
+    """Record acknowledgement for a recurrence automation health alert."""
+    if not provider or not acknowledged_by:
+        console.print("[red]--provider and --acknowledged-by are required[/red]")
+        raise typer.Exit(code=2)
+    try:
+        acknowledgement = acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+            health_id,
+            provider=provider,
+            acknowledged_by=acknowledged_by,
+            acknowledgement_state=acknowledgement_state,
+            external_ref=external_ref,
+            notes=notes,
+            plan_id=plan_id,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata(acknowledgement),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = {"acknowledgement": acknowledgement, "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation-health-alert-history")
+def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    health_id: Annotated[Optional[str], typer.Option(help="Filter by recurrence automation health alert ID.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by notification provider.")] = None,
+    metadata_kind: Annotated[Optional[str], typer.Option(help="Filter by alert plan, acknowledgement, or delivery metadata kind.")] = None,
+    acknowledgement_state: Annotated[Optional[str], typer.Option(help="Filter acknowledgement state.")] = None,
+    suppressed: Annotated[Optional[bool], typer.Option(help="Filter alert plans with suppressed providers.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show recurrence automation health alert plans, deliveries, and acknowledgements."""
+    items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(
+            items,
+            health_id=health_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            suppressed=suppressed,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation-health-alert-dashboard")
+def endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize recurrence automation health alert delivery and acknowledgements."""
+    items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard(items))
+
+
 @release_app.command("endpoint-remediation-history")
 def endpoint_remediation_history(
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
@@ -4354,6 +4535,14 @@ def _load_endpoint_remediation_sla_escalation_action_items(
             metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-run",
             limit=500,
         )["items"]
+        health_alert_plans = store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan",
+            limit=500,
+        )["items"]
+        health_alert_acks = store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack",
+            limit=500,
+        )["items"]
         deliveries = store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [
             *plans,
@@ -4364,6 +4553,8 @@ def _load_endpoint_remediation_sla_escalation_action_items(
             *owner_digests,
             *suppression_trends,
             *automation_runs,
+            *health_alert_plans,
+            *health_alert_acks,
             *deliveries,
         ]
     return []
