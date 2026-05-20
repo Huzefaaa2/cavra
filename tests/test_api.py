@@ -734,6 +734,25 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     sla_escalation_suppression_audit = client.get(
         f"/endpoint-remediation-sla-escalation-recurrences/{sla_escalation_recurrence_plan.json()['plan']['recurrence_plan_id']}/suppression-audit"
     )
+    sla_escalation_recurrence_retry_plan = client.post(
+        "/endpoint-remediation-sla-escalation-recurrences/retry-plan",
+        json={
+            "generated_by": "release-agent",
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 1, "backoff_multiplier": 1},
+        },
+    )
+    sla_escalation_owner_digest = client.post(
+        f"/endpoint-remediation-sla-escalation-recurrences/{sla_escalation_recurrence_plan.json()['plan']['recurrence_plan_id']}/owner-digest",
+        json={
+            "retry_plan_id": sla_escalation_recurrence_retry_plan.json()["plan"]["retry_plan_id"],
+            "provider": "webhook",
+            "retries": 0,
+            "generated_by": "release-agent",
+        },
+    )
+    sla_escalation_suppression_trends = client.get(
+        "/endpoint-remediation-sla-escalation-recurrences/suppression-trends"
+    )
     sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
     sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
@@ -837,6 +856,21 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         sla_escalation_suppression_audit.json()["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-suppression-audit"
     )
+    assert sla_escalation_recurrence_retry_plan.status_code == 200
+    assert (
+        sla_escalation_recurrence_retry_plan.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-retry-plan"
+    )
+    assert sla_escalation_owner_digest.status_code == 200
+    assert (
+        sla_escalation_owner_digest.json()["digest_metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-owner-digest"
+    )
+    assert sla_escalation_suppression_trends.status_code == 200
+    assert (
+        sla_escalation_suppression_trends.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-suppression-trend"
+    )
     assert sla_escalation_recurrence_history.status_code == 200
     assert sla_escalation_recurrence_history.json()["total"] >= 1
     assert sla_escalation_recurrence_dashboard.status_code == 200
@@ -906,6 +940,18 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_suppression_audit"]
         == "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/suppression-audit"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_retry_plan"]
+        == "/endpoint-remediation-sla-escalation-recurrences/retry-plan"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_owner_digest"]
+        == "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/owner-digest"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_suppression_trends"]
+        == "/endpoint-remediation-sla-escalation-recurrences/suppression-trends"
     )
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]

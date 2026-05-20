@@ -4461,6 +4461,9 @@ def filter_endpoint_remediation_sla_escalation_action_history(
         "endpoint-remediation-sla-escalation-review",
         "endpoint-remediation-sla-escalation-recurrence-plan",
         "endpoint-remediation-sla-escalation-suppression-audit",
+        "endpoint-remediation-sla-escalation-recurrence-retry-plan",
+        "endpoint-remediation-sla-escalation-owner-digest",
+        "endpoint-remediation-sla-escalation-suppression-trend",
         "release-connector-delivery",
     }
     filtered = [
@@ -4473,6 +4476,7 @@ def filter_endpoint_remediation_sla_escalation_action_history(
             in {
                 "endpoint_remediation_sla_escalation_delivery",
                 "endpoint_remediation_sla_escalation_recurrence_delivery",
+                "endpoint_remediation_sla_escalation_owner_digest",
             }
         )
     ]
@@ -4528,6 +4532,15 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
     suppression_audits = [
         item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-suppression-audit"
     ]
+    retry_plans = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-retry-plan"
+    ]
+    owner_digests = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-owner-digest"
+    ]
+    suppression_trends = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-suppression-trend"
+    ]
     failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
     unresolved_reviews = [item for item in reviews if item.get("review_state") in {"accepted", "deferred", "escalated"}]
     active_escalation_count = 0
@@ -4551,6 +4564,9 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
         "recurrence_plan_count": len(recurrences),
         "recurrence_suppressed_count": sum(int(item.get("suppressed_route_count") or 0) for item in recurrences),
         "suppression_audit_count": len(suppression_audits),
+        "recurrence_retry_plan_count": len(retry_plans),
+        "owner_digest_count": len(owner_digests),
+        "suppression_trend_count": len(suppression_trends),
         "active_escalation_count": active_escalation_count,
         "owner_count": len(owners),
         "latest": history[:10],
@@ -4945,6 +4961,326 @@ def build_endpoint_remediation_sla_escalation_suppression_audit_metadata(
     if bundle_dir:
         metadata["bundle_dir"] = str(bundle_dir)
     return metadata
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_retry_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-manager",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Plan safe retries for failed recurrence delivery batches."""
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    max_retry_attempts = max(1, int(policy.get("max_retry_attempts", policy.get("max_retries", 3)) or 3))
+    retry_delay_minutes = max(1, int(policy.get("retry_delay_minutes", policy.get("delay_minutes", 15)) or 15))
+    backoff_multiplier = max(1.0, float(policy.get("backoff_multiplier", policy.get("multiplier", 2.0)) or 2.0))
+    history = filter_endpoint_remediation_sla_escalation_action_history(items, limit=500)["items"]
+    recurrence_by_id = _endpoint_remediation_sla_recurrence_plan_by_id(history)
+    failed_deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source") == "endpoint_remediation_sla_escalation_recurrence_delivery"
+        and not item.get("delivery_success")
+    ]
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for item in failed_deliveries:
+        recurrence_plan_id = str(item.get("event_id") or item.get("session_id") or "")
+        if not recurrence_plan_id:
+            continue
+        failed_providers = [str(provider) for provider in item.get("failed_providers", []) if provider]
+        if not failed_providers:
+            failed_providers = [str(provider) for provider in item.get("providers", []) if provider]
+        for provider in failed_providers:
+            grouped.setdefault((recurrence_plan_id, provider), []).append(item)
+
+    retry_decisions: list[dict[str, Any]] = []
+    for (recurrence_plan_id, provider), failures in sorted(grouped.items()):
+        failures = sorted(failures, key=lambda item: str(item.get("created_at", "")), reverse=True)
+        latest = failures[0]
+        retry_count = len(failures)
+        delay = retry_delay_minutes * (backoff_multiplier ** max(0, retry_count - 1))
+        latest_at = _parse_release_datetime(latest.get("created_at"))
+        next_retry_at = (latest_at + timedelta(minutes=delay)).isoformat() if latest_at else now.isoformat()
+        action = "retry"
+        reason = "failed recurrence delivery is eligible for retry"
+        if retry_count >= max_retry_attempts:
+            action = "suppress"
+            reason = f"maximum retry attempts {max_retry_attempts} reached"
+        elif latest_at is not None and now < latest_at + timedelta(minutes=delay):
+            action = "wait"
+            reason = f"retry delay {int(delay)} minutes has not elapsed"
+        source_plan = recurrence_by_id.get(recurrence_plan_id, {})
+        matching_routes = _endpoint_remediation_sla_routes_for_provider(source_plan, provider)
+        retry_decisions.append(
+            {
+                "recurrence_plan_id": recurrence_plan_id,
+                "plan_id": source_plan.get("plan_id") or latest.get("plan_id"),
+                "provider": provider,
+                "action": action,
+                "reason": reason,
+                "retry_count": retry_count,
+                "max_retry_attempts": max_retry_attempts,
+                "retry_delay_minutes": int(delay),
+                "latest_delivery_id": latest.get("session_id"),
+                "latest_delivery_at": latest.get("created_at"),
+                "next_retry_at": next_retry_at,
+                "failed_status_codes": latest.get("status_codes", []),
+                "route_count": len(matching_routes),
+                "routes": matching_routes,
+            }
+        )
+
+    retryable = [item for item in retry_decisions if item["action"] == "retry"]
+    waiting = [item for item in retry_decisions if item["action"] == "wait"]
+    suppressed = [item for item in retry_decisions if item["action"] == "suppress"]
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "retry_decisions": retry_decisions,
+        },
+        sort_keys=True,
+    )
+    retry_plan_id = f"erslaescrtry-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_retry_plan.v1",
+        "product": "CAVRA",
+        "retry_plan_id": retry_plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if retryable else "warning" if waiting else "healthy",
+        "decision_count": len(retry_decisions),
+        "retryable_count": len(retryable),
+        "waiting_count": len(waiting),
+        "suppressed_count": len(suppressed),
+        "max_retry_attempts": max_retry_attempts,
+        "base_retry_delay_minutes": retry_delay_minutes,
+        "backoff_multiplier": backoff_multiplier,
+        "retry_decisions": retry_decisions,
+        "controls": [
+            "retry-plan-derived-from-redacted-recurrence-delivery-metadata",
+            "retry-policy-contains-no-provider-credentials",
+            "failed-provider-selection-preserves-delivery-evidence",
+            "public-retry-plan-does-not-perform-endpoint-mutation",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("retry_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-manager"),
+        "decision_count": int(plan.get("decision_count") or 0),
+        "blocked_count": int(plan.get("suppressed_count") or 0),
+        "approval_required_count": int(plan.get("retryable_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-escalation-recurrence-retry-plan",
+        "retry_plan_id": plan.get("retry_plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "retryable_count": plan.get("retryable_count", 0),
+        "waiting_count": plan.get("waiting_count", 0),
+        "suppressed_count": plan.get("suppressed_count", 0),
+        "retry_plan": plan,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_owner_digest_event(
+    recurrence_plan: dict[str, Any],
+    *,
+    retry_plan: dict[str, Any] | None = None,
+    generated_by: str = "release-manager",
+) -> dict[str, Any]:
+    """Build an owner digest event from unresolved recurrence and retry routes."""
+    decisions = recurrence_plan.get("route_decisions", []) if isinstance(recurrence_plan.get("route_decisions"), list) else []
+    unresolved = [
+        item
+        for item in decisions
+        if isinstance(item, dict) and item.get("action") in {"deliver", "wait"}
+    ]
+    retry_decisions = (
+        retry_plan.get("retry_decisions", [])
+        if isinstance(retry_plan, dict) and isinstance(retry_plan.get("retry_decisions"), list)
+        else []
+    )
+    owners: dict[str, dict[str, Any]] = {}
+    for route in unresolved:
+        owner = str(route.get("owner") or "release-governance")
+        provider = str(route.get("provider") or "unknown")
+        entry = owners.setdefault(owner, {"owner": owner, "route_count": 0, "providers": {}, "routes": []})
+        entry["route_count"] += 1
+        entry["providers"][provider] = int(entry["providers"].get(provider, 0)) + 1
+        entry["routes"].append(route)
+    for decision in retry_decisions:
+        if not isinstance(decision, dict) or decision.get("action") not in {"retry", "wait"}:
+            continue
+        for route in decision.get("routes", []) if isinstance(decision.get("routes"), list) else []:
+            owner = str(route.get("owner") or "release-governance")
+            provider = str(decision.get("provider") or route.get("provider") or "unknown")
+            entry = owners.setdefault(owner, {"owner": owner, "route_count": 0, "providers": {}, "routes": []})
+            entry.setdefault("retry_count", 0)
+            entry["retry_count"] = int(entry.get("retry_count") or 0) + 1
+            entry["providers"][provider] = int(entry["providers"].get(provider, 0)) + 1
+    owner_summaries = []
+    for owner, entry in sorted(owners.items()):
+        owner_summaries.append(
+            {
+                "owner": owner,
+                "route_count": int(entry.get("route_count") or 0),
+                "retry_count": int(entry.get("retry_count") or 0),
+                "providers": dict(sorted(entry.get("providers", {}).items())),
+                "routes": entry.get("routes", [])[:25],
+            }
+        )
+    recurrence_plan_id = str(recurrence_plan.get("recurrence_plan_id") or "endpoint-remediation-sla-recurrence")
+    generated_at = datetime.now(timezone.utc).isoformat()
+    digest_id = f"erslaescdigest-{hashlib.sha256(f'{recurrence_plan_id}|{generated_at}'.encode('utf-8')).hexdigest()[:16]}"
+    title = f"CAVRA endpoint remediation owner digest: {recurrence_plan_id}"
+    message = f"{len(unresolved)} unresolved recurrence routes across {len(owner_summaries)} owners."
+    description = _endpoint_remediation_sla_owner_digest_description(recurrence_plan_id, owner_summaries)
+    event = {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_owner_digest.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_remediation_sla.escalation_owner_digest",
+        "session_id": digest_id,
+        "digest_id": digest_id,
+        "recurrence_plan_id": recurrence_plan_id,
+        "retry_plan_id": retry_plan.get("retry_plan_id") if isinstance(retry_plan, dict) else None,
+        "plan_id": recurrence_plan.get("plan_id"),
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if unresolved else "healthy",
+        "blocked_count": len(unresolved),
+        "approval_required_count": len(unresolved),
+        "summary": {
+            "owner_count": len(owner_summaries),
+            "unresolved_route_count": len(unresolved),
+            "retryable_count": int(retry_plan.get("retryable_count") or 0) if isinstance(retry_plan, dict) else 0,
+            "waiting_retry_count": int(retry_plan.get("waiting_count") or 0) if isinstance(retry_plan, dict) else 0,
+        },
+        "owners": owner_summaries,
+        "controls": [
+            "owner-digest-derived-from-public-recurrence-and-retry-metadata",
+            "digest-notification-contains-no-provider-credentials",
+            "digest-routes-are-summary-only-and-do-not-mutate-endpoints",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": _endpoint_remediation_sla_owner_digest_slack_payload(title, message, owner_summaries),
+        "teams": _endpoint_remediation_sla_owner_digest_teams_payload(title, message, event["alert_level"], owner_summaries),
+        "jira": _endpoint_remediation_sla_jira_payload(title, description, event["alert_level"]),
+        "servicenow": _endpoint_remediation_sla_servicenow_payload(
+            title,
+            description,
+            digest_id,
+            event["alert_level"],
+        ),
+    }
+    return event
+
+
+def build_endpoint_remediation_sla_escalation_owner_digest_metadata(event: dict[str, Any]) -> dict[str, Any]:
+    summary = event.get("summary", {}) if isinstance(event.get("summary"), dict) else {}
+    return {
+        "session_id": event.get("digest_id") or event.get("session_id"),
+        "created_at": event.get("generated_at"),
+        "signer": event.get("generated_by", "release-manager"),
+        "decision_count": int(summary.get("unresolved_route_count") or 0),
+        "blocked_count": int(event.get("blocked_count") or 0),
+        "approval_required_count": int(event.get("approval_required_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-escalation-owner-digest",
+        "digest_id": event.get("digest_id"),
+        "recurrence_plan_id": event.get("recurrence_plan_id"),
+        "retry_plan_id": event.get("retry_plan_id"),
+        "plan_id": event.get("plan_id"),
+        "owner_count": summary.get("owner_count", 0),
+        "unresolved_route_count": summary.get("unresolved_route_count", 0),
+        "owner_digest": event,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_suppression_trends(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-manager",
+) -> dict[str, Any]:
+    """Summarize suppression and wait reasons across recurrence plans and audits."""
+    history = filter_endpoint_remediation_sla_escalation_action_history(items, limit=500)["items"]
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in history:
+        if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-plan":
+            plan = item.get("recurrence_plan") if isinstance(item.get("recurrence_plan"), dict) else item
+            created_at = str(item.get("created_at") or plan.get("generated_at") or "")
+            for decision in plan.get("route_decisions", []) if isinstance(plan.get("route_decisions"), list) else []:
+                if not isinstance(decision, dict) or decision.get("action") not in {"suppress", "wait"}:
+                    continue
+                key = f"{item.get('session_id')}|{decision.get('route_key')}|{decision.get('action')}"
+                if key in seen:
+                    continue
+                seen.add(key)
+                rows.append(_endpoint_remediation_sla_suppression_trend_row(decision, created_at))
+        elif item.get("metadata_kind") == "endpoint-remediation-sla-escalation-suppression-audit":
+            audit = item.get("suppression_audit") if isinstance(item.get("suppression_audit"), dict) else item
+            created_at = str(item.get("created_at") or audit.get("generated_at") or "")
+            for action, key_name in (("suppress", "suppressed_routes"), ("wait", "waiting_routes")):
+                for decision in audit.get(key_name, []) if isinstance(audit.get(key_name), list) else []:
+                    if not isinstance(decision, dict):
+                        continue
+                    key = f"{item.get('session_id')}|{decision.get('route_key')}|{action}"
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(_endpoint_remediation_sla_suppression_trend_row(decision | {"action": action}, created_at))
+
+    categories: dict[str, int] = {}
+    owners: dict[str, int] = {}
+    providers: dict[str, int] = {}
+    for row in rows:
+        categories[row["category"]] = categories.get(row["category"], 0) + 1
+        owners[row["owner"]] = owners.get(row["owner"], 0) + 1
+        providers[row["provider"]] = providers.get(row["provider"], 0) + 1
+    generated_at = datetime.now(timezone.utc).isoformat()
+    material = json.dumps({"generated_at": generated_at, "rows": rows}, sort_keys=True)
+    trend_id = f"erslaesctrend-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_suppression_trend.v1",
+        "product": "CAVRA",
+        "trend_id": trend_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "warning" if rows else "healthy",
+        "suppression_event_count": len(rows),
+        "category_counts": dict(sorted(categories.items())),
+        "owner_counts": dict(sorted(owners.items())),
+        "provider_counts": dict(sorted(providers.items())),
+        "latest_events": sorted(rows, key=lambda row: row.get("created_at", ""), reverse=True)[:25],
+        "controls": [
+            "suppression-trends-derived-from-public-recurrence-and-audit-metadata",
+            "trend-report-contains-no-connector-credentials",
+            "trend-report-does-not-perform-delivery-or-endpoint-mutation",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_suppression_trend_metadata(trend: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": trend.get("trend_id"),
+        "created_at": trend.get("generated_at"),
+        "signer": trend.get("generated_by", "release-manager"),
+        "decision_count": int(trend.get("suppression_event_count") or 0),
+        "blocked_count": int(trend.get("suppression_event_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-remediation-sla-escalation-suppression-trend",
+        "trend_id": trend.get("trend_id"),
+        "alert_level": trend.get("alert_level"),
+        "suppression_event_count": trend.get("suppression_event_count", 0),
+        "category_counts": trend.get("category_counts", {}),
+        "suppression_trend": trend,
+    }
 
 
 def export_endpoint_remediation_sla_escalation_suppression_audit(
@@ -7261,6 +7597,139 @@ def _endpoint_remediation_sla_recurrence_delivery_description(
         ]
     )
     return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_owner_digest_description(
+    recurrence_plan_id: str,
+    owners: list[dict[str, Any]],
+) -> str:
+    lines = [
+        f"CAVRA endpoint remediation owner digest for recurrence plan {recurrence_plan_id}.",
+        "",
+        "Owner summaries:",
+    ]
+    if not owners:
+        lines.append("- No unresolved recurrence routes.")
+    for item in owners:
+        providers = ", ".join(f"{provider}={count}" for provider, count in item.get("providers", {}).items())
+        lines.append(
+            "- "
+            f"owner={item.get('owner')} unresolved_routes={item.get('route_count', 0)} "
+            f"retry_routes={item.get('retry_count', 0)} providers={providers or 'none'}"
+        )
+    lines.extend(
+        [
+            "",
+            "This digest is generated from public CAVRA recurrence and retry metadata. Connector credentials and private endpoint mutation logic are not included.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_owner_digest_slack_payload(
+    title: str,
+    message: str,
+    owners: list[dict[str, Any]],
+) -> dict[str, Any]:
+    fields = []
+    for item in owners[:10]:
+        provider_text = ", ".join(f"{provider}: {count}" for provider, count in item.get("providers", {}).items())
+        fields.append(
+            {
+                "type": "mrkdwn",
+                "text": f"*{item.get('owner')}*\\nRoutes: {item.get('route_count', 0)}\\nRetries: {item.get('retry_count', 0)}\\n{provider_text}",
+            }
+        )
+    return {
+        "text": f"{title}\n{message}",
+        "blocks": [
+            {"type": "header", "text": {"type": "plain_text", "text": title[:150]}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+            {"type": "section", "fields": fields or [{"type": "mrkdwn", "text": "No unresolved recurrence routes."}]},
+        ],
+    }
+
+
+def _endpoint_remediation_sla_owner_digest_teams_payload(
+    title: str,
+    message: str,
+    alert_level: str,
+    owners: list[dict[str, Any]],
+) -> dict[str, Any]:
+    facts = [
+        {
+            "name": str(item.get("owner")),
+            "value": f"routes={item.get('route_count', 0)} retries={item.get('retry_count', 0)}",
+        }
+        for item in owners[:20]
+    ]
+    return {
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": title,
+        "themeColor": "DC2626" if alert_level == "critical" else "D97706" if alert_level == "warning" else "2E7D32",
+        "title": title,
+        "text": message,
+        "sections": [{"facts": facts or [{"name": "status", "value": "No unresolved recurrence routes."}]}],
+    }
+
+
+def _endpoint_remediation_sla_recurrence_plan_by_id(items: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    plans: dict[str, dict[str, Any]] = {}
+    for item in items:
+        if item.get("metadata_kind") != "endpoint-remediation-sla-escalation-recurrence-plan":
+            continue
+        plan = item.get("recurrence_plan") if isinstance(item.get("recurrence_plan"), dict) else item
+        recurrence_plan_id = str(plan.get("recurrence_plan_id") or item.get("recurrence_plan_id") or item.get("session_id") or "")
+        if recurrence_plan_id and recurrence_plan_id not in plans:
+            plans[recurrence_plan_id] = plan
+    return plans
+
+
+def _endpoint_remediation_sla_routes_for_provider(plan: dict[str, Any], provider: str) -> list[dict[str, Any]]:
+    decisions = plan.get("route_decisions", []) if isinstance(plan.get("route_decisions"), list) else []
+    return [
+        item
+        for item in decisions
+        if isinstance(item, dict)
+        and str(item.get("provider") or "").lower().replace("-", "_") == provider.lower().replace("-", "_")
+        and item.get("action") == "deliver"
+    ]
+
+
+def _endpoint_remediation_sla_suppression_trend_row(decision: dict[str, Any], created_at: str) -> dict[str, Any]:
+    reason = str(decision.get("reason") or "")
+    category = _endpoint_remediation_sla_suppression_category(decision)
+    return {
+        "created_at": created_at,
+        "route_key": decision.get("route_key"),
+        "plan_id": decision.get("plan_id"),
+        "report_id": decision.get("report_id"),
+        "owner": str(decision.get("owner") or "unknown"),
+        "provider": str(decision.get("provider") or "unknown"),
+        "action": decision.get("action"),
+        "category": category,
+        "reason": reason,
+    }
+
+
+def _endpoint_remediation_sla_suppression_category(decision: dict[str, Any]) -> str:
+    reason = str(decision.get("reason") or "").lower()
+    if decision.get("maintenance_window"):
+        return "maintenance_window"
+    if isinstance(decision.get("owner_availability"), dict) and not decision.get("owner_availability", {}).get("available", True):
+        return "owner_calendar"
+    if "maximum recurrence" in reason:
+        return "maximum_recurrence"
+    if "retry" in reason and "maximum" in reason:
+        return "maximum_retry"
+    if "interval" in reason:
+        return "recurrence_interval_wait"
+    if "review state" in reason or "resolved" in reason or "false_positive" in reason:
+        return "owner_review"
+    if decision.get("action") == "wait":
+        return "wait"
+    return "other"
 
 
 def _endpoint_remediation_sla_suppression_audit_markdown(audit: dict[str, Any]) -> str:

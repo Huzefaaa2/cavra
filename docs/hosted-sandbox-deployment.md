@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.
+1. Surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.

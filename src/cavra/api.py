@@ -74,15 +74,21 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_action_dashboard,
     build_endpoint_remediation_sla_escalation_delivery_event,
     build_endpoint_remediation_sla_escalation_dashboard,
+    build_endpoint_remediation_sla_escalation_owner_digest_event,
+    build_endpoint_remediation_sla_escalation_owner_digest_metadata,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
     build_endpoint_remediation_sla_escalation_recurrence_plan,
     build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_retry_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_escalation_suppression_audit,
     build_endpoint_remediation_sla_escalation_suppression_audit_metadata,
+    build_endpoint_remediation_sla_escalation_suppression_trends,
+    build_endpoint_remediation_sla_escalation_suppression_trend_metadata,
     build_endpoint_remediation_sla_notification_ack_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
@@ -301,6 +307,9 @@ def create_app():
                 "endpoint_remediation_sla_escalation_recurrence_plan": "/endpoint-remediation-sla-escalations/recurrence-plan",
                 "endpoint_remediation_sla_escalation_recurrence_deliver": "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/deliver",
                 "endpoint_remediation_sla_escalation_suppression_audit": "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/suppression-audit",
+                "endpoint_remediation_sla_escalation_recurrence_retry_plan": "/endpoint-remediation-sla-escalation-recurrences/retry-plan",
+                "endpoint_remediation_sla_escalation_owner_digest": "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/owner-digest",
+                "endpoint_remediation_sla_escalation_suppression_trends": "/endpoint-remediation-sla-escalation-recurrences/suppression-trends",
                 "endpoint_remediation_sla_escalation_recurrences": "/endpoint-remediation-sla-escalation-recurrences",
                 "endpoint_remediation_sla_escalation_recurrence_dashboard": "/endpoint-remediation-sla-escalation-recurrences/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
@@ -2114,6 +2123,78 @@ def create_app():
         metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_suppression_audit_metadata(audit))
         return {"audit": audit, "metadata": metadata}
 
+    @app.post("/endpoint-remediation-sla-escalation-recurrences/retry-plan")
+    def endpoint_remediation_sla_escalation_recurrence_retry_plan(payload: dict) -> dict:
+        try:
+            plan = build_endpoint_remediation_sla_escalation_recurrence_retry_plan(
+                _endpoint_remediation_sla_escalation_action_items(evidence_store),
+                policy=payload.get("retry_policy") if isinstance(payload.get("retry_policy"), dict) else None,
+                generated_by=payload.get("generated_by", "console"),
+            )
+            metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata(plan))
+            return {"plan": plan, "metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/owner-digest")
+    def endpoint_remediation_sla_escalation_owner_digest(recurrence_plan_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        item = evidence_store.get(recurrence_plan_id)
+        if item is None or item.get("metadata_kind") != "endpoint-remediation-sla-escalation-recurrence-plan":
+            raise HTTPException(status_code=404, detail="endpoint remediation SLA escalation recurrence plan not found")
+        recurrence_plan = item.get("recurrence_plan")
+        if not isinstance(recurrence_plan, dict):
+            raise HTTPException(status_code=400, detail="endpoint remediation SLA recurrence metadata is missing plan payload")
+        retry_plan = None
+        retry_plan_id = payload.get("retry_plan_id")
+        if retry_plan_id:
+            retry_item = evidence_store.get(str(retry_plan_id))
+            if retry_item is None or retry_item.get("metadata_kind") != "endpoint-remediation-sla-escalation-recurrence-retry-plan":
+                raise HTTPException(status_code=404, detail="endpoint remediation SLA recurrence retry plan not found")
+            retry_plan = retry_item.get("retry_plan")
+        try:
+            event = build_endpoint_remediation_sla_escalation_owner_digest_event(
+                recurrence_plan,
+                retry_plan=retry_plan if isinstance(retry_plan, dict) else None,
+                generated_by=payload.get("generated_by", "console"),
+            )
+            digest_metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_owner_digest_metadata(event))
+            result = None
+            delivery_metadata = None
+            if event["owners"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=payload.get("provider", "all"),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                delivery_metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="endpoint_remediation_sla_escalation_owner_digest",
+                    )
+                )
+            return {
+                "event": event,
+                "digest_metadata": digest_metadata,
+                "delivery": result,
+                "metadata": delivery_metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrences/suppression-trends")
+    def endpoint_remediation_sla_escalation_suppression_trends() -> dict:
+        trend = build_endpoint_remediation_sla_escalation_suppression_trends(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store),
+            generated_by="console",
+        )
+        metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_suppression_trend_metadata(trend))
+        return {"trend": trend, "metadata": metadata}
+
     @app.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     def endpoint_remediation_sla_escalation_recurrence_dashboard() -> dict:
         return build_endpoint_remediation_sla_escalation_recurrence_dashboard(
@@ -2520,8 +2601,29 @@ def _endpoint_remediation_sla_escalation_action_items(
             metadata_kind="endpoint-remediation-sla-escalation-suppression-audit",
             limit=500,
         )["items"]
+        retry_plans = evidence_store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-retry-plan",
+            limit=500,
+        )["items"]
+        owner_digests = evidence_store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-owner-digest",
+            limit=500,
+        )["items"]
+        suppression_trends = evidence_store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-suppression-trend",
+            limit=500,
+        )["items"]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
-        return [*plans, *reviews, *recurrences, *suppression_audits, *deliveries]
+        return [
+            *plans,
+            *reviews,
+            *recurrences,
+            *suppression_audits,
+            *retry_plans,
+            *owner_digests,
+            *suppression_trends,
+            *deliveries,
+        ]
     return evidence_store.list()
 
 

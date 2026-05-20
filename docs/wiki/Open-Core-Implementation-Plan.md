@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.
+Surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
