@@ -1,0 +1,111 @@
+name: CAVRA Recurrence Automation Worker
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      execute:
+        description: "Deliver owner digests through configured connectors. Scheduled runs always stay in dry-run mode."
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      provider:
+        description: "Connector provider for manual execute mode."
+        required: true
+        default: "all"
+        type: choice
+        options: ["all", "webhook", "slack", "teams", "jira", "servicenow"]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  recurrence-automation:
+    name: recurrence-automation
+    runs-on: ubuntu-latest
+    env:
+      CAVRA_METADATA_JSON: .cavra/evidence/metadata.json
+      CAVRA_METADATA_SQLITE: .cavra/evidence/metadata.db
+      CAVRA_OUTPUT_DIR: .cavra/release/endpoint-remediation-sla-escalation-recurrence-automation
+      CAVRA_SCHEDULE_INTERVAL_MINUTES: "30"
+      CAVRA_EXECUTE: ${{ github.event_name == 'workflow_dispatch' && inputs.execute == 'true' }}
+      CAVRA_PROVIDER: ${{ inputs.provider || 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CAVRA Community Edition
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Prepare public-safe recurrence inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$CAVRA_METADATA_JSON")" "$CAVRA_OUTPUT_DIR"
+          if [ ! -f "$CAVRA_METADATA_JSON" ]; then
+            printf '[]\n' > "$CAVRA_METADATA_JSON"
+          fi
+
+      - name: Materialize connector config for manual execute mode
+        if: ${{ env.CAVRA_EXECUTE == 'true' }}
+        env:
+          CAVRA_CONNECTORS_JSON: ${{ secrets.CAVRA_CONNECTORS_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "${CAVRA_CONNECTORS_JSON:-}"
+          umask 077
+          printf '%s' "$CAVRA_CONNECTORS_JSON" > .cavra/connectors.json
+
+      - name: Run recurrence automation in dry-run mode
+        if: ${{ env.CAVRA_EXECUTE != 'true' }}
+        run: |
+          set -euo pipefail
+          cavra release endpoint-remediation-sla-escalation-recurrence-automation \
+            --metadata-json "$CAVRA_METADATA_JSON" \
+            --sqlite "$CAVRA_METADATA_SQLITE" \
+            --output "$CAVRA_OUTPUT_DIR" \
+            --schedule-interval-minutes "$CAVRA_SCHEDULE_INTERVAL_MINUTES" \
+            --generated-by "github-actions:${GITHUB_WORKFLOW}" \
+            --dry-run \
+            --json | tee "$CAVRA_OUTPUT_DIR/automation-run.json"
+
+      - name: Run recurrence automation in guarded execute mode
+        if: ${{ env.CAVRA_EXECUTE == 'true' }}
+        run: |
+          set -euo pipefail
+          cavra release endpoint-remediation-sla-escalation-recurrence-automation \
+            --metadata-json "$CAVRA_METADATA_JSON" \
+            --sqlite "$CAVRA_METADATA_SQLITE" \
+            --config .cavra/connectors.json \
+            --provider "$CAVRA_PROVIDER" \
+            --output "$CAVRA_OUTPUT_DIR" \
+            --schedule-interval-minutes "$CAVRA_SCHEDULE_INTERVAL_MINUTES" \
+            --generated-by "github-actions:${GITHUB_WORKFLOW}" \
+            --execute \
+            --json | tee "$CAVRA_OUTPUT_DIR/automation-run.json"
+
+      - name: Summarize worker history
+        if: always()
+        run: |
+          set -euo pipefail
+          cavra release endpoint-remediation-sla-escalation-recurrence-automation-dashboard \
+            --metadata-json "$CAVRA_METADATA_JSON" \
+            --sqlite "$CAVRA_METADATA_SQLITE" | tee "$CAVRA_OUTPUT_DIR/dashboard.json"
+
+      - name: Upload recurrence automation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-recurrence-automation-evidence
+          path: |
+            .cavra/evidence/
+            .cavra/release/endpoint-remediation-sla-escalation-recurrence-automation/
+          if-no-files-found: warn

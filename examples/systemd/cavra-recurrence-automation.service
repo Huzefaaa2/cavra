@@ -1,0 +1,24 @@
+[Unit]
+Description=CAVRA recurrence automation worker
+Documentation=https://github.com/Huzefaaa2/cavra
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=cavra
+Group=cavra
+EnvironmentFile=-/etc/cavra/recurrence-automation.env
+StateDirectory=cavra
+ExecStartPre=/usr/bin/mkdir -p /var/lib/cavra/evidence /var/lib/cavra/release/endpoint-remediation-sla-escalation-recurrence-automation
+ExecStartPre=/bin/sh -c 'test -f "${CAVRA_METADATA_JSON:-/var/lib/cavra/evidence/metadata.json}" || printf "[]\\n" > "${CAVRA_METADATA_JSON:-/var/lib/cavra/evidence/metadata.json}"'
+ExecStart=/bin/sh -c 'set -eu; if [ "${CAVRA_RECURRENCE_EXECUTE:-false}" = "true" ]; then test -f "${CAVRA_CONNECTOR_CONFIG:-/etc/cavra/connectors.json}"; mode_flag="--execute --config ${CAVRA_CONNECTOR_CONFIG:-/etc/cavra/connectors.json} --provider ${CAVRA_RECURRENCE_PROVIDER:-all}"; else mode_flag="--dry-run"; fi; cavra release endpoint-remediation-sla-escalation-recurrence-automation --metadata-json "${CAVRA_METADATA_JSON:-/var/lib/cavra/evidence/metadata.json}" --sqlite "${CAVRA_METADATA_SQLITE:-/var/lib/cavra/evidence/metadata.db}" --output "${CAVRA_OUTPUT_DIR:-/var/lib/cavra/release/endpoint-remediation-sla-escalation-recurrence-automation}" --schedule-interval-minutes "${CAVRA_SCHEDULE_INTERVAL_MINUTES:-30}" --generated-by "systemd:cavra-recurrence-automation" $mode_flag --json; cavra release endpoint-remediation-sla-escalation-recurrence-automation-dashboard --metadata-json "${CAVRA_METADATA_JSON:-/var/lib/cavra/evidence/metadata.json}" --sqlite "${CAVRA_METADATA_SQLITE:-/var/lib/cavra/evidence/metadata.db}"'
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/cavra
+ReadOnlyPaths=/etc/cavra
+
+[Install]
+WantedBy=multi-user.target
