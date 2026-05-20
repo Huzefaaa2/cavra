@@ -71,9 +71,12 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_escalation_action_dashboard,
+    build_endpoint_remediation_sla_escalation_delivery_event,
     build_endpoint_remediation_sla_escalation_dashboard,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
+    build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_notification_ack_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
@@ -103,6 +106,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
+    filter_endpoint_remediation_sla_escalation_action_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
@@ -113,6 +117,7 @@ from cavra.release import (
     evaluate_endpoint_inventory_freshness,
     ingest_endpoint_inventory,
     reconcile_managed_endpoint_deployment,
+    review_endpoint_remediation_sla_escalation,
     record_endpoint_remediation_handoff_status,
 )
 from cavra.runtime import RuntimeGuard
@@ -280,8 +285,12 @@ def create_app():
                 "endpoint_remediation_sla_notifications": "/endpoint-remediation-sla-notifications",
                 "endpoint_remediation_sla_notification_dashboard": "/endpoint-remediation-sla-notifications/dashboard",
                 "endpoint_remediation_sla_escalation_plan": "/endpoint-remediation-sla-notifications/escalation-plan",
+                "endpoint_remediation_sla_escalation_deliver": "/endpoint-remediation-sla-escalations/{plan_id}/deliver",
+                "endpoint_remediation_sla_escalation_review": "/endpoint-remediation-sla-escalations/{plan_id}/reviews",
                 "endpoint_remediation_sla_escalations": "/endpoint-remediation-sla-escalations",
                 "endpoint_remediation_sla_escalation_dashboard": "/endpoint-remediation-sla-escalations/dashboard",
+                "endpoint_remediation_sla_escalation_actions": "/endpoint-remediation-sla-escalation-actions",
+                "endpoint_remediation_sla_escalation_action_dashboard": "/endpoint-remediation-sla-escalation-actions/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
@@ -1895,6 +1904,69 @@ def create_app():
         metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_plan_metadata(plan))
         return {"plan": plan, "metadata": metadata}
 
+    @app.post("/endpoint-remediation-sla-escalations/{plan_id}/deliver")
+    def endpoint_remediation_sla_escalation_deliver(plan_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        item = evidence_store.get(plan_id)
+        if item is None or item.get("metadata_kind") != "endpoint-remediation-sla-escalation-plan":
+            raise HTTPException(status_code=404, detail="endpoint remediation SLA escalation plan not found")
+        plan = item.get("escalation_plan")
+        if not isinstance(plan, dict):
+            raise HTTPException(status_code=400, detail="endpoint remediation SLA escalation metadata is missing plan payload")
+        try:
+            event = build_endpoint_remediation_sla_escalation_delivery_event(
+                plan,
+                generated_by=payload.get("generated_by", "console"),
+                max_routes=int(payload.get("max_routes", 20)),
+            )
+            result = None
+            metadata = None
+            if event["routes"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=payload.get("provider", "all"),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="endpoint_remediation_sla_escalation_delivery",
+                    )
+                )
+            return {
+                "event": event,
+                "delivery": result,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "event_id": plan_id,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/endpoint-remediation-sla-escalations/{plan_id}/reviews")
+    def endpoint_remediation_sla_escalation_review_endpoint(plan_id: str, payload: dict) -> dict:
+        for field in ("report_id", "provider", "owner", "reviewed_by"):
+            if not payload.get(field):
+                raise HTTPException(status_code=400, detail=f"{field} is required")
+        try:
+            review = review_endpoint_remediation_sla_escalation(
+                plan_id,
+                report_id=payload["report_id"],
+                provider=payload["provider"],
+                owner=payload["owner"],
+                reviewed_by=payload["reviewed_by"],
+                review_state=payload.get("review_state", "accepted"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+            )
+            metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_review_metadata(review))
+            return {"review": review, "metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     @app.get("/endpoint-remediation-sla-escalations")
     def endpoint_remediation_sla_escalation_index(
         owner: Optional[str] = None,
@@ -1918,6 +1990,33 @@ def create_app():
     def endpoint_remediation_sla_escalation_dashboard() -> dict:
         return build_endpoint_remediation_sla_escalation_dashboard(
             _endpoint_remediation_sla_escalation_items(evidence_store)
+        )
+
+    @app.get("/endpoint-remediation-sla-escalation-actions")
+    def endpoint_remediation_sla_escalation_action_index(
+        plan_id: Optional[str] = None,
+        owner: Optional[str] = None,
+        provider: Optional[str] = None,
+        metadata_kind: Optional[str] = None,
+        review_state: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return filter_endpoint_remediation_sla_escalation_action_history(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store),
+            plan_id=plan_id,
+            owner=owner,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            review_state=review_state,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-sla-escalation-actions/dashboard")
+    def endpoint_remediation_sla_escalation_action_dashboard() -> dict:
+        return build_endpoint_remediation_sla_escalation_action_dashboard(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store)
         )
 
     @app.get("/endpoint-remediation-sla-reports/dashboard")
@@ -2304,6 +2403,17 @@ def _endpoint_remediation_sla_escalation_items(
 ) -> list[dict]:
     if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
         return evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-plan", limit=500)["items"]
+    return evidence_store.list()
+
+
+def _endpoint_remediation_sla_escalation_action_items(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+) -> list[dict]:
+    if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+        plans = evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-plan", limit=500)["items"]
+        reviews = evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-review", limit=500)["items"]
+        deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
+        return [*plans, *reviews, *deliveries]
     return evidence_store.list()
 
 

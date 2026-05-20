@@ -1363,6 +1363,23 @@ async function loadEndpointRemediationSlaEscalationDashboard() {
   }
 }
 
+async function loadEndpointRemediationSlaEscalationActionDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-actions/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation SLA escalation action dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "healthy",
+      delivery_count: 0,
+      failed_delivery_count: 0,
+      owner_review_count: 0,
+      unresolved_review_count: 0
+    };
+  }
+}
+
 async function loadEndpointManagementExportArtifacts(exportId) {
   await loadConsoleConfig();
   try {
@@ -2495,7 +2512,7 @@ function renderEndpointRemediationHandoffStatuses(items, dashboard) {
   }
 }
 
-function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}, escalationDashboard = {}) {
+function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}, escalationDashboard = {}, escalationActionDashboard = {}) {
   const rows = document.querySelector("#endpointRemediationSlaRows");
   const panel = document.querySelector("#endpointRemediationSlaDashboard");
   if (!rows || !panel) return;
@@ -2540,6 +2557,14 @@ function renderEndpointRemediationSlaReports(items, dashboard, notificationDashb
     <div class="release-delivery-metric">
       <span>SLO Owners</span>
       <strong>${formatMetricNumber(escalationDashboard.owner_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Esc Deliveries</span>
+      <strong class="${Number(escalationActionDashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(escalationActionDashboard.delivery_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Owner Reviews</span>
+      <strong class="${Number(escalationActionDashboard.unresolved_review_count || 0) ? "warn" : "allow"}">${formatMetricNumber(escalationActionDashboard.owner_review_count)}</strong>
     </div>
   `;
   for (const item of items) {
@@ -3309,13 +3334,14 @@ async function refreshEndpointRemediationHandoffStatus() {
 }
 
 async function refreshEndpointRemediationSla() {
-  const [items, dashboard, notificationDashboard, escalationDashboard] = await Promise.all([
+  const [items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard] = await Promise.all([
     loadEndpointRemediationSlaReports(),
     loadEndpointRemediationSlaDashboard(),
     loadEndpointRemediationSlaNotificationDashboard(),
-    loadEndpointRemediationSlaEscalationDashboard()
+    loadEndpointRemediationSlaEscalationDashboard(),
+    loadEndpointRemediationSlaEscalationActionDashboard()
   ]);
-  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard);
+  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

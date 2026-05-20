@@ -690,6 +690,22 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
             },
         },
     )
+    sla_escalation_delivery = client.post(
+        f"/endpoint-remediation-sla-escalations/{sla_escalation_plan.json()['plan']['plan_id']}/deliver",
+        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+    )
+    sla_escalation_review = client.post(
+        f"/endpoint-remediation-sla-escalations/{sla_escalation_plan.json()['plan']['plan_id']}/reviews",
+        json={
+            "report_id": sla_report.json()["report_id"],
+            "provider": "webhook",
+            "owner": "release-governance",
+            "reviewed_by": "release-manager",
+            "review_state": "escalated",
+        },
+    )
+    sla_escalation_action_history = client.get("/endpoint-remediation-sla-escalation-actions")
+    sla_escalation_action_dashboard = client.get("/endpoint-remediation-sla-escalation-actions/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
     sla_escalation_dashboard = client.get("/endpoint-remediation-sla-escalations/dashboard")
     sla_history = client.get("/endpoint-remediation-sla-reports")
@@ -767,6 +783,15 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_notification_dashboard.json()["suppressed_provider_count"] >= 1
     assert sla_escalation_plan.status_code == 200
     assert sla_escalation_plan.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-escalation-plan"
+    assert sla_escalation_delivery.status_code == 200
+    assert sla_escalation_delivery.json()["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_escalation_delivery"
+    assert sla_escalation_delivery.json()["event"]["event_type"] == "cavra.endpoint_remediation_sla.escalation_delivery"
+    assert sla_escalation_review.status_code == 200
+    assert sla_escalation_review.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-escalation-review"
+    assert sla_escalation_action_history.status_code == 200
+    assert sla_escalation_action_history.json()["total"] >= 3
+    assert sla_escalation_action_dashboard.status_code == 200
+    assert sla_escalation_action_dashboard.json()["delivery_count"] >= 1
     assert sla_escalation_history.status_code == 200
     assert sla_escalation_history.json()["total"] >= 1
     assert sla_escalation_dashboard.status_code == 200
@@ -803,10 +828,23 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         config["endpoints"]["endpoint_remediation_sla_escalation_plan"]
         == "/endpoint-remediation-sla-notifications/escalation-plan"
     )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_deliver"]
+        == "/endpoint-remediation-sla-escalations/{plan_id}/deliver"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_review"]
+        == "/endpoint-remediation-sla-escalations/{plan_id}/reviews"
+    )
     assert config["endpoints"]["endpoint_remediation_sla_escalations"] == "/endpoint-remediation-sla-escalations"
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_dashboard"]
         == "/endpoint-remediation-sla-escalations/dashboard"
+    )
+    assert config["endpoints"]["endpoint_remediation_sla_escalation_actions"] == "/endpoint-remediation-sla-escalation-actions"
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_action_dashboard"]
+        == "/endpoint-remediation-sla-escalation-actions/dashboard"
     )
 
 

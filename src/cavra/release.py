@@ -4299,6 +4299,249 @@ def build_endpoint_remediation_sla_escalation_dashboard(items: list[dict[str, An
     }
 
 
+def build_endpoint_remediation_sla_escalation_delivery_event(
+    plan: dict[str, Any],
+    *,
+    generated_by: str = "release-manager",
+    max_routes: int = 20,
+) -> dict[str, Any]:
+    """Build a public-safe connector event for active endpoint remediation SLA escalations."""
+    max_routes = max(1, min(int(max_routes), 100))
+    route_statuses = plan.get("route_statuses", []) if isinstance(plan.get("route_statuses"), list) else []
+    active_routes = [item for item in route_statuses if isinstance(item, dict) and item.get("active_escalation")]
+    selected_routes = active_routes[:max_routes]
+    plan_id = str(plan.get("plan_id") or "endpoint-remediation-sla-escalation")
+    owner_count = len({str(item.get("owner")) for item in selected_routes if item.get("owner")})
+    provider_count = len({str(item.get("provider")) for item in selected_routes if item.get("provider")})
+    ack_breach_count = len([item for item in selected_routes if item.get("acknowledgement_slo_state") == "breached"])
+    resolution_breach_count = len([item for item in selected_routes if item.get("resolution_slo_state") == "breached"])
+    alert_level = "critical" if selected_routes else "healthy"
+    title = f"CAVRA endpoint remediation SLA escalation: {plan_id}"
+    message = (
+        f"{len(selected_routes)} active escalation routes across {owner_count} owners "
+        f"and {provider_count} providers require review."
+    )
+    description = _endpoint_remediation_sla_escalation_delivery_description(
+        plan_id,
+        selected_routes,
+        omitted_route_count=max(0, len(active_routes) - len(selected_routes)),
+    )
+    event = {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_delivery.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_remediation_sla.escalation_delivery",
+        "session_id": plan_id,
+        "plan_id": plan_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "source_plan_generated_at": plan.get("generated_at"),
+        "alert_level": alert_level,
+        "max_severity": "critical" if selected_routes else "low",
+        "blocked_count": len(selected_routes),
+        "approval_required_count": ack_breach_count + resolution_breach_count,
+        "decision_count": int(plan.get("route_count") or len(route_statuses)),
+        "summary": {
+            "route_count": int(plan.get("route_count") or len(route_statuses)),
+            "active_escalation_count": len(active_routes),
+            "selected_route_count": len(selected_routes),
+            "owner_count": owner_count,
+            "provider_count": provider_count,
+            "acknowledgement_breach_count": ack_breach_count,
+            "resolution_breach_count": resolution_breach_count,
+            "omitted_route_count": max(0, len(active_routes) - len(selected_routes)),
+        },
+        "routes": selected_routes,
+        "omitted_route_count": max(0, len(active_routes) - len(selected_routes)),
+        "controls": [
+            "escalation-delivery-derived-from-public-escalation-plan",
+            "connector-delivery-evidence-redacts-secrets",
+            "owner-review-records-close-the-loop-before-private-remediation",
+            "no-endpoint-mutation-performed-by-public-escalation-event",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": _endpoint_remediation_sla_escalation_slack_payload(title, message, selected_routes),
+        "teams": _endpoint_remediation_sla_escalation_teams_payload(title, message, alert_level, selected_routes),
+        "jira": _endpoint_remediation_sla_jira_payload(title, description, alert_level),
+        "servicenow": _endpoint_remediation_sla_servicenow_payload(title, description, plan_id, alert_level),
+    }
+    return event
+
+
+def review_endpoint_remediation_sla_escalation(
+    plan_id: str,
+    *,
+    report_id: str,
+    provider: str,
+    owner: str,
+    reviewed_by: str,
+    review_state: str = "accepted",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    state = review_state.strip().lower().replace("-", "_")
+    allowed = {"accepted", "deferred", "resolved", "false_positive", "escalated"}
+    if state not in allowed:
+        raise ValueError("review_state must be one of: accepted, deferred, resolved, false_positive, escalated")
+    normalized_provider = _normalize_endpoint_remediation_sla_notification_providers([provider])
+    if not normalized_provider:
+        raise ValueError("provider must be one of: webhook, slack, teams, jira, servicenow")
+    if not plan_id:
+        raise ValueError("plan_id is required")
+    if not report_id:
+        raise ValueError("report_id is required")
+    if not owner:
+        raise ValueError("owner is required")
+    if not reviewed_by:
+        raise ValueError("reviewed_by is required")
+    now = now or datetime.now(timezone.utc)
+    reviewed_at = now.isoformat()
+    provider = normalized_provider[0]
+    material = f"{plan_id}|{report_id}|{provider}|{owner}|{state}|{reviewed_by}|{reviewed_at}"
+    review_id = f"erslaescr-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_review.v1",
+        "product": "CAVRA",
+        "review_id": review_id,
+        "plan_id": plan_id,
+        "report_id": report_id,
+        "provider": provider,
+        "owner": owner,
+        "reviewed_by": reviewed_by,
+        "review_state": state,
+        "reviewed_at": reviewed_at,
+        "external_ref": external_ref,
+        "notes": notes,
+        "controls": [
+            "owner-review-records-audit-closure-only",
+            "no-provider-token-or-secret-stored",
+            "private-connectors-remain-responsible-for-ticket-chat-or-pager-side-effects",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_review_metadata(review: dict[str, Any]) -> dict[str, Any]:
+    unresolved = review.get("review_state") in {"accepted", "deferred", "escalated"}
+    return {
+        "session_id": review.get("review_id"),
+        "created_at": review.get("reviewed_at"),
+        "signer": review.get("reviewed_by", "release-manager"),
+        "decision_count": 1,
+        "blocked_count": 1 if review.get("review_state") == "escalated" else 0,
+        "approval_required_count": 1 if unresolved else 0,
+        "metadata_kind": "endpoint-remediation-sla-escalation-review",
+        "review_id": review.get("review_id"),
+        "plan_id": review.get("plan_id"),
+        "report_id": review.get("report_id"),
+        "provider": review.get("provider"),
+        "owner": review.get("owner"),
+        "review_state": review.get("review_state"),
+        "external_ref": review.get("external_ref"),
+        "review": review,
+    }
+
+
+def filter_endpoint_remediation_sla_escalation_action_history(
+    items: list[dict[str, Any]],
+    *,
+    plan_id: str | None = None,
+    owner: str | None = None,
+    provider: str | None = None,
+    metadata_kind: str | None = None,
+    review_state: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    allowed_kinds = {
+        "endpoint-remediation-sla-escalation-plan",
+        "endpoint-remediation-sla-escalation-review",
+        "release-connector-delivery",
+    }
+    filtered = [
+        item
+        for item in items
+        if item.get("metadata_kind") in allowed_kinds
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or item.get("connector_delivery_source") == "endpoint_remediation_sla_escalation_delivery"
+        )
+    ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if plan_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("plan_id") == plan_id
+            or item.get("event_id") == plan_id
+            or item.get("session_id") == plan_id
+        ]
+    if provider:
+        provider_key = provider.strip().lower().replace("-", "_")
+        filtered = [
+            item
+            for item in filtered
+            if item.get("provider") == provider_key
+            or provider_key in {str(value) for value in item.get("providers", [])}
+            or _endpoint_remediation_sla_escalation_item_has_route(item, provider=provider_key)
+        ]
+    if owner:
+        owner_key = owner.strip().lower()
+        filtered = [
+            item
+            for item in filtered
+            if str(item.get("owner", "")).lower() == owner_key
+            or _endpoint_remediation_sla_escalation_item_has_route(item, owner=owner_key)
+        ]
+    if review_state:
+        state = review_state.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("review_state") == state]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_action_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_escalation_action_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-plan"]
+    deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    reviews = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-review"]
+    failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    unresolved_reviews = [item for item in reviews if item.get("review_state") in {"accepted", "deferred", "escalated"}]
+    active_escalation_count = 0
+    owners: set[str] = set()
+    for item in plans:
+        plan = item.get("escalation_plan") if isinstance(item.get("escalation_plan"), dict) else item
+        routes = plan.get("route_statuses", []) if isinstance(plan.get("route_statuses"), list) else []
+        active_escalation_count += len([route for route in routes if route.get("active_escalation")])
+        owners.update(str(route.get("owner")) for route in routes if route.get("owner"))
+    alert_level = "critical" if failed_deliveries or active_escalation_count else "warning" if unresolved_reviews else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_action_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "plan_count": len(plans),
+        "delivery_count": len(deliveries),
+        "failed_delivery_count": len(failed_deliveries),
+        "owner_review_count": len(reviews),
+        "unresolved_review_count": len(unresolved_reviews),
+        "active_escalation_count": active_escalation_count,
+        "owner_count": len(owners),
+        "latest": history[:10],
+    }
+
+
 def filter_endpoint_remediation_sla_report_history(
     items: list[dict[str, Any]],
     *,
@@ -6343,6 +6586,115 @@ def _endpoint_remediation_sla_escalation_ladder_action(
     if acknowledgement_state == "at_risk" or resolution_state == "at_risk":
         return f"Warn {owner} that {provider} remediation notification is approaching SLO."
     return "No escalation required."
+
+
+def _endpoint_remediation_sla_escalation_item_has_route(
+    item: dict[str, Any],
+    *,
+    owner: str | None = None,
+    provider: str | None = None,
+) -> bool:
+    plan = item.get("escalation_plan") if isinstance(item.get("escalation_plan"), dict) else item
+    routes = plan.get("route_statuses", []) if isinstance(plan.get("route_statuses"), list) else []
+    for route in routes:
+        if not isinstance(route, dict):
+            continue
+        if owner and str(route.get("owner", "")).lower() != owner:
+            continue
+        if provider and str(route.get("provider", "")).lower() != provider:
+            continue
+        return True
+    return False
+
+
+def _endpoint_remediation_sla_escalation_delivery_description(
+    plan_id: str,
+    routes: list[dict[str, Any]],
+    *,
+    omitted_route_count: int,
+) -> str:
+    lines = [
+        f"CAVRA endpoint remediation SLA escalation plan {plan_id} has active owner review routes.",
+        "",
+        "Routes:",
+    ]
+    if not routes:
+        lines.append("- No active escalation routes.")
+    for item in routes:
+        lines.append(
+            "- "
+            f"owner={item.get('owner')} provider={item.get('provider')} report={item.get('report_id')} "
+            f"ack={item.get('acknowledgement_slo_state')} resolution={item.get('resolution_slo_state')} "
+            f"action={item.get('recommended_action')}"
+        )
+    if omitted_route_count:
+        lines.append(f"- {omitted_route_count} additional routes omitted from connector payload.")
+    lines.extend(
+        [
+            "",
+            "This escalation is generated from public CAVRA evidence metadata. Endpoint mutation and private connector execution remain outside the Community Edition repository.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_escalation_slack_payload(
+    title: str,
+    message: str,
+    routes: list[dict[str, Any]],
+) -> dict[str, Any]:
+    fields = [
+        {
+            "type": "mrkdwn",
+            "text": (
+                f"*{item.get('owner', 'owner')}* `{item.get('provider')}` "
+                f"`{item.get('report_id')}` {item.get('acknowledgement_slo_state')}/"
+                f"{item.get('resolution_slo_state')}"
+            ),
+        }
+        for item in routes[:8]
+    ]
+    blocks: list[dict[str, Any]] = [
+        {"type": "header", "text": {"type": "plain_text", "text": title[:150]}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+    ]
+    if fields:
+        blocks.append({"type": "section", "fields": fields})
+    blocks.append(
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": "Generated from public CAVRA endpoint remediation escalation evidence."}],
+        }
+    )
+    return {"text": title, "blocks": blocks}
+
+
+def _endpoint_remediation_sla_escalation_teams_payload(
+    title: str,
+    message: str,
+    alert_level: str,
+    routes: list[dict[str, Any]],
+) -> dict[str, Any]:
+    facts = [
+        {
+            "name": str(item.get("owner") or "owner"),
+            "value": f"{item.get('provider')} {item.get('report_id')} {item.get('recommended_action')}",
+        }
+        for item in routes[:8]
+    ]
+    return {
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": title,
+        "themeColor": "DC2626" if alert_level == "critical" else "2E7D32",
+        "sections": [
+            {
+                "activityTitle": title,
+                "activitySubtitle": message,
+                "facts": facts,
+            }
+        ],
+    }
 
 
 def _endpoint_remediation_sla_notification_description(

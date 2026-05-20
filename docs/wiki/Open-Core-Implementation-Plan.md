@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation escalation delivery actions and owner review workflows.
+Add endpoint remediation escalation recurrence policies, owner calendars, and maintenance-window suppression.
