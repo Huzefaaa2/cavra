@@ -261,3 +261,35 @@ def test_chatops_and_itsm_connectors_use_provider_payloads() -> None:
 
     assert specs["slack"]["body"]["text"] == "custom slack"
     assert specs["jira"]["body"]["fields"]["summary"] == "custom jira"
+
+
+def test_deliver_connector_event_accepts_comma_separated_providers() -> None:
+    calls = []
+
+    def sender(spec, *, timeout_seconds):
+        calls.append(spec["body"])
+        return {"status_code": 200}
+
+    result = deliver_connector_event(
+        {
+            "event_type": "cavra.endpoint_remediation_sla.notification",
+            "session_id": "ersla-123",
+            "provider_payloads": {
+                "slack": {"text": "custom slack"},
+                "webhook": {"event": "custom webhook"},
+            },
+        },
+        {
+            "connectors": {
+                "slack": {"url": "https://hooks.slack.com/services/test"},
+                "webhook": {"url": "https://webhook.example.test/cavra"},
+            }
+        },
+        provider="slack,webhook",
+        retries=0,
+        sender=sender,
+    )
+
+    assert result["success"] is True
+    assert [item["provider"] for item in result["deliveries"]] == ["slack", "webhook"]
+    assert calls == [{"text": "custom slack"}, {"event": "custom webhook"}]

@@ -1327,6 +1327,24 @@ async function loadEndpointRemediationSlaDashboard() {
   }
 }
 
+async function loadEndpointRemediationSlaNotificationDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-notifications/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation SLA notification dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "healthy",
+      plan_count: 0,
+      delivery_count: 0,
+      acknowledgement_count: 0,
+      outstanding_acknowledgement_count: 0,
+      suppressed_provider_count: 0
+    };
+  }
+}
+
 async function loadEndpointManagementExportArtifacts(exportId) {
   await loadConsoleConfig();
   try {
@@ -2459,7 +2477,7 @@ function renderEndpointRemediationHandoffStatuses(items, dashboard) {
   }
 }
 
-function renderEndpointRemediationSlaReports(items, dashboard) {
+function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}) {
   const rows = document.querySelector("#endpointRemediationSlaRows");
   const panel = document.querySelector("#endpointRemediationSlaDashboard");
   if (!rows || !panel) return;
@@ -2484,6 +2502,18 @@ function renderEndpointRemediationSlaReports(items, dashboard) {
     <div class="release-delivery-metric">
       <span>Breached</span>
       <strong class="${Number(dashboard.breached_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.breached_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Notifications</span>
+      <strong>${formatMetricNumber(notificationDashboard.delivery_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Outstanding Ack</span>
+      <strong class="${Number(notificationDashboard.outstanding_acknowledgement_count || 0) ? "block" : "allow"}">${formatMetricNumber(notificationDashboard.outstanding_acknowledgement_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Suppressed</span>
+      <strong class="${Number(notificationDashboard.suppressed_provider_count || 0) ? "warn" : "allow"}">${formatMetricNumber(notificationDashboard.suppressed_provider_count)}</strong>
     </div>
   `;
   for (const item of items) {
@@ -3253,11 +3283,12 @@ async function refreshEndpointRemediationHandoffStatus() {
 }
 
 async function refreshEndpointRemediationSla() {
-  const [items, dashboard] = await Promise.all([
+  const [items, dashboard, notificationDashboard] = await Promise.all([
     loadEndpointRemediationSlaReports(),
-    loadEndpointRemediationSlaDashboard()
+    loadEndpointRemediationSlaDashboard(),
+    loadEndpointRemediationSlaNotificationDashboard()
   ]);
-  renderEndpointRemediationSlaReports(items, dashboard);
+  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

@@ -988,4 +988,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_integrations.py::test_chatops_and_itsm_connectors_use_provider_payloads tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
+Recommended next issue: delivered below as endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
+
+## Endpoint Remediation SLA Notification Routing, Acknowledgements, and Suppression
+
+Status: complete for the current public-safe notification governance slice.
+
+Completed:
+- Added endpoint remediation SLA notification routing plans that select providers from policy rules, configured connectors, severity defaults, or operator-requested providers.
+- Added duplicate suppression windows based on prior notification delivery metadata so repeated SLA reports avoid noisy ITSM and ChatOps events.
+- Added acknowledgement records for `acknowledged`, `dismissed`, `escalated`, and `resolved` notification states.
+- Added CLI commands for notification acknowledgement, notification history, and notification dashboards.
+- Added API endpoints for notification acknowledgement, notification history, and notification dashboards.
+- Updated the Evidence Console endpoint remediation SLA panel with notification, outstanding acknowledgement, and suppression metrics.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added focused tests for routing policy selection, duplicate suppression, acknowledgements, CLI history and dashboards, API delivery indexing, and multi-provider connector delivery.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/integrations.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py tests/test_integrations.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_integrations.py::test_deliver_connector_event_accepts_comma_separated_providers tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q`
+
+Recommended next issue: add endpoint remediation notification escalation ladders and owner-specific service-level objectives.

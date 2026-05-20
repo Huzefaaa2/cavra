@@ -88,7 +88,11 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_ack_metadata,
+    build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
+    build_endpoint_remediation_sla_notification_plan,
+    build_endpoint_remediation_sla_notification_plan_metadata,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -108,12 +112,14 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_request,
     create_managed_endpoint_rollout_promotion_execution,
     create_endpoint_drift_remediation_request,
+    acknowledge_endpoint_remediation_sla_notification,
     execute_endpoint_drift_remediation,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
@@ -3142,6 +3148,9 @@ def deliver_endpoint_remediation_sla(
     retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
     timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
     generated_by: Annotated[str, typer.Option(help="Actor or automation identity delivering the notification.")] = "release-manager",
+    routing_policy: Annotated[Optional[Path], typer.Option(help="Optional SLA notification routing policy JSON/YAML.")] = None,
+    suppression_window_minutes: Annotated[Optional[int], typer.Option(help="Override duplicate suppression window in minutes.")] = None,
+    force: Annotated[bool, typer.Option("--force", help="Bypass duplicate suppression and deliver selected providers.")] = False,
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
     sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
@@ -3152,31 +3161,66 @@ def deliver_endpoint_remediation_sla(
         report = report_payload.get("report", report_payload)
         if not isinstance(report, dict):
             raise ValueError("endpoint remediation SLA report JSON must be an object")
-        event = build_endpoint_remediation_sla_notification_event(report, generated_by=generated_by)
-        result = deliver_connector_event(
-            event,
-            load_connector_config(config),
-            provider=provider,
-            retries=retries,
-            timeout_seconds=timeout_seconds,
+        connector_config = load_connector_config(config)
+        policy = load_connector_config(routing_policy) if routing_policy else None
+        existing_deliveries = _load_release_connector_delivery_items(metadata_json=metadata_json, sqlite=sqlite)
+        plan = build_endpoint_remediation_sla_notification_plan(
+            report,
+            policy=policy,
+            delivery_items=existing_deliveries,
+            requested_provider=provider,
+            available_providers=_configured_connector_providers(connector_config),
+            generated_by=generated_by,
+            suppression_window_minutes=suppression_window_minutes,
+            force=force,
         )
-        path = export_connector_delivery_result(result, output)
+        event = build_endpoint_remediation_sla_notification_event(report, generated_by=generated_by)
+        event["notification_plan"] = plan
+        result = None
+        path = None
+        if plan["selected_providers"]:
+            result = deliver_connector_event(
+                event,
+                connector_config,
+                provider=",".join(plan["selected_providers"]),
+                retries=retries,
+                timeout_seconds=timeout_seconds,
+            )
+            path = export_connector_delivery_result(result, output)
     except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    metadata, indexed = _index_release_connector_delivery(
-        result,
-        path,
-        source="endpoint_remediation_sla_notification",
+    plan_metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_notification_plan_metadata(plan),
         metadata_json=metadata_json,
         sqlite=sqlite,
     )
-    payload = result | {"delivery_evidence": str(path), "metadata": metadata, "indexed_metadata_stores": indexed}
+    metadata = None
+    if result is not None and path is not None:
+        metadata, delivery_indexed = _index_release_connector_delivery(
+            result,
+            path,
+            source="endpoint_remediation_sla_notification",
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(delivery_indexed)
+    payload = {
+        "plan": plan,
+        "delivery": result,
+        "delivery_evidence": str(path) if path else None,
+        "plan_metadata": plan_metadata,
+        "metadata": metadata,
+        "indexed_metadata_stores": indexed,
+    }
     if json_output:
         _print_json(payload)
     else:
-        console.print(JSON(json.dumps(result, indent=2)))
-        console.print(f"[green]endpoint remediation SLA notification delivery evidence exported[/green] {path}")
+        console.print(JSON(json.dumps(payload, indent=2)))
+        if path:
+            console.print(f"[green]endpoint remediation SLA notification delivery evidence exported[/green] {path}")
+        else:
+            console.print("[yellow]endpoint remediation SLA notification suppressed; no connector delivery attempted[/yellow]")
         for store in indexed:
             console.print(f"  indexed: {store}")
 
@@ -3211,6 +3255,86 @@ def endpoint_remediation_sla_dashboard(
     """Summarize endpoint remediation SLA reports for executive release governance."""
     items = _load_endpoint_remediation_sla_report_items(metadata_json=metadata_json, sqlite=sqlite)
     _print_json(build_endpoint_remediation_sla_dashboard(items))
+
+
+@release_app.command("ack-endpoint-remediation-sla")
+def ack_endpoint_remediation_sla(
+    report_id: Annotated[str, typer.Argument(help="Endpoint remediation SLA report ID.")],
+    provider: Annotated[str, typer.Option(help="Notification provider being acknowledged.")] = "",
+    acknowledged_by: Annotated[str, typer.Option(help="Actor or automation identity acknowledging the notification.")] = "",
+    acknowledgement_state: Annotated[str, typer.Option(help="acknowledged, dismissed, escalated, or resolved.")] = "acknowledged",
+    external_ref: Annotated[Optional[str], typer.Option(help="Optional external ticket, channel, or review reference.")] = None,
+    notes: Annotated[Optional[str], typer.Option(help="Optional acknowledgement notes.")] = None,
+    plan_id: Annotated[Optional[str], typer.Option(help="Optional notification plan ID.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index acknowledgement.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index acknowledgement.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable acknowledgement output."),
+) -> None:
+    """Record acknowledgement for an endpoint remediation SLA notification."""
+    if not provider or not acknowledged_by:
+        console.print("[red]--provider and --acknowledged-by are required[/red]")
+        raise typer.Exit(code=2)
+    try:
+        acknowledgement = acknowledge_endpoint_remediation_sla_notification(
+            report_id,
+            provider=provider,
+            acknowledged_by=acknowledged_by,
+            acknowledgement_state=acknowledgement_state,
+            external_ref=external_ref,
+            notes=notes,
+            plan_id=plan_id,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_notification_ack_metadata(acknowledgement),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = {"acknowledgement": acknowledgement, "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+
+
+@release_app.command("endpoint-remediation-sla-notification-history")
+def endpoint_remediation_sla_notification_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    report_id: Annotated[Optional[str], typer.Option(help="Filter by SLA report ID.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by notification provider.")] = None,
+    metadata_kind: Annotated[Optional[str], typer.Option(help="Filter by notification plan, acknowledgement, or delivery metadata kind.")] = None,
+    acknowledgement_state: Annotated[Optional[str], typer.Option(help="Filter acknowledgement state.")] = None,
+    suppressed: Annotated[Optional[bool], typer.Option(help="Filter notification plans with suppressed providers.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint remediation SLA notification plans, deliveries, and acknowledgements."""
+    items = _load_endpoint_remediation_sla_notification_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_sla_notification_history(
+            items,
+            report_id=report_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            suppressed=suppressed,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-notification-dashboard")
+def endpoint_remediation_sla_notification_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint remediation SLA notification routing and acknowledgements."""
+    items = _load_endpoint_remediation_sla_notification_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_sla_notification_dashboard(items))
 
 
 @release_app.command("endpoint-remediation-history")
@@ -3434,6 +3558,29 @@ def _load_endpoint_remediation_sla_report_items(
             limit=500,
         )["items"]
     return []
+
+
+def _load_endpoint_remediation_sla_notification_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        store = SQLiteEvidenceMetadataStore(sqlite)
+        plans = store.search(metadata_kind="endpoint-remediation-sla-notification-plan", limit=500)["items"]
+        acknowledgements = store.search(metadata_kind="endpoint-remediation-sla-notification-ack", limit=500)["items"]
+        deliveries = store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
+        return [*plans, *acknowledgements, *deliveries]
+    return []
+
+
+def _configured_connector_providers(config: dict) -> list[str]:
+    connectors = config.get("connectors", config.get("providers", config))
+    if not isinstance(connectors, dict):
+        return []
+    return sorted(str(provider) for provider in connectors)
 
 
 def _load_release_approval(

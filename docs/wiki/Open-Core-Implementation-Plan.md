@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation SLA notification routing policies, acknowledgement
-tracking, and duplicate suppression windows.
+Add endpoint remediation notification escalation ladders and owner-specific
+service-level objectives.

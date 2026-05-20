@@ -71,7 +71,11 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_ack_metadata,
+    build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
+    build_endpoint_remediation_sla_notification_plan,
+    build_endpoint_remediation_sla_notification_plan_metadata,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
@@ -86,6 +90,7 @@ from cavra.release import (
     build_managed_endpoint_rollout_promotion_execution_metadata,
     build_rollout_promotion_execution_audit_event,
     build_rollout_rollback_execution_audit_event,
+    acknowledge_endpoint_remediation_sla_notification,
     create_endpoint_drift_remediation_request,
     create_managed_endpoint_rollout_rollback_execution,
     create_managed_endpoint_rollout_promotion_execution,
@@ -94,6 +99,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
     filter_endpoint_inventory_ingestion_history,
@@ -266,6 +272,9 @@ def create_app():
                 "endpoint_remediation_handoff_status_dashboard": "/endpoint-remediation-handoff-statuses/dashboard",
                 "endpoint_remediation_sla_report": "/endpoint-remediation-sla/report",
                 "endpoint_remediation_sla_deliver": "/endpoint-remediation-sla-reports/{report_id}/deliver",
+                "endpoint_remediation_sla_acknowledge": "/endpoint-remediation-sla-reports/{report_id}/acknowledgements",
+                "endpoint_remediation_sla_notifications": "/endpoint-remediation-sla-notifications",
+                "endpoint_remediation_sla_notification_dashboard": "/endpoint-remediation-sla-notifications/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
@@ -1773,24 +1782,101 @@ def create_app():
         if not isinstance(report, dict):
             raise HTTPException(status_code=400, detail="endpoint remediation SLA metadata is missing report payload")
         try:
+            existing_deliveries = _search_evidence_metadata(
+                evidence_store,
+                metadata_kind="release-connector-delivery",
+                limit=500,
+                offset=0,
+            )["items"]
+            plan = build_endpoint_remediation_sla_notification_plan(
+                report,
+                policy=payload.get("routing_policy") if isinstance(payload.get("routing_policy"), dict) else None,
+                delivery_items=existing_deliveries,
+                requested_provider=payload.get("provider", "all"),
+                available_providers=_configured_connector_providers(connector_config),
+                generated_by=payload.get("generated_by", "console"),
+                suppression_window_minutes=payload.get("suppression_window_minutes"),
+                force=bool(payload.get("force", False)),
+            )
             event = build_endpoint_remediation_sla_notification_event(
                 report,
                 generated_by=payload.get("generated_by", "console"),
                 max_escalations=int(payload.get("max_escalations", 10)),
             )
-            result = deliver_connector_event(
-                event,
-                connector_config,
-                provider=payload.get("provider", "all"),
-                retries=int(payload.get("retries", 2)),
-                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
-            )
-            metadata = evidence_store.upsert(
-                build_connector_delivery_metadata(result, source="endpoint_remediation_sla_notification")
-            )
-            return result | {"metadata": metadata}
+            event["notification_plan"] = plan
+            plan_metadata = evidence_store.upsert(build_endpoint_remediation_sla_notification_plan_metadata(plan))
+            result = None
+            metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(result, source="endpoint_remediation_sla_notification")
+                )
+            return {
+                "plan": plan,
+                "delivery": result,
+                "plan_metadata": plan_metadata,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "event_id": report_id,
+            }
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/endpoint-remediation-sla-reports/{report_id}/acknowledgements")
+    def endpoint_remediation_sla_report_acknowledge(report_id: str, payload: dict) -> dict:
+        if not payload.get("provider"):
+            raise HTTPException(status_code=400, detail="provider is required")
+        if not payload.get("acknowledged_by"):
+            raise HTTPException(status_code=400, detail="acknowledged_by is required")
+        try:
+            acknowledgement = acknowledge_endpoint_remediation_sla_notification(
+                report_id,
+                provider=payload["provider"],
+                acknowledged_by=payload["acknowledged_by"],
+                acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+                plan_id=payload.get("plan_id"),
+            )
+            metadata = evidence_store.upsert(build_endpoint_remediation_sla_notification_ack_metadata(acknowledgement))
+            return {"acknowledgement": acknowledgement, "metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/endpoint-remediation-sla-notifications")
+    def endpoint_remediation_sla_notification_index(
+        report_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        metadata_kind: Optional[str] = None,
+        acknowledgement_state: Optional[str] = None,
+        suppressed: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        items = _endpoint_remediation_sla_notification_items(evidence_store)
+        return filter_endpoint_remediation_sla_notification_history(
+            items,
+            report_id=report_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            suppressed=suppressed,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-sla-notifications/dashboard")
+    def endpoint_remediation_sla_notification_dashboard() -> dict:
+        return build_endpoint_remediation_sla_notification_dashboard(
+            _endpoint_remediation_sla_notification_items(evidence_store)
+        )
 
     @app.get("/endpoint-remediation-sla-reports/dashboard")
     def endpoint_remediation_sla_report_dashboard() -> dict:
@@ -2156,6 +2242,26 @@ def _search_evidence_metadata(
     if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
         return evidence_store.search(**filters)
     return _filter_json_evidence(evidence_store.list(), **filters)
+
+
+def _endpoint_remediation_sla_notification_items(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+) -> list[dict]:
+    if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+        plans = evidence_store.search(metadata_kind="endpoint-remediation-sla-notification-plan", limit=500)["items"]
+        acknowledgements = evidence_store.search(metadata_kind="endpoint-remediation-sla-notification-ack", limit=500)[
+            "items"
+        ]
+        deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
+        return [*plans, *acknowledgements, *deliveries]
+    return evidence_store.list()
+
+
+def _configured_connector_providers(config: dict) -> list[str]:
+    connectors = config.get("connectors", config.get("providers", config))
+    if not isinstance(connectors, dict):
+        return []
+    return sorted(str(provider) for provider in connectors)
 
 
 def _configured_artifact_root(root: Path | None) -> Path:

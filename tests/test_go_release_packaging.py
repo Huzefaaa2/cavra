@@ -22,7 +22,11 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
+    build_endpoint_remediation_sla_notification_ack_metadata,
+    build_endpoint_remediation_sla_notification_plan,
+    build_endpoint_remediation_sla_notification_plan_metadata,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
@@ -39,6 +43,7 @@ from cavra.release import (
     create_managed_endpoint_rollout_promotion_execution,
     create_managed_endpoint_rollout_promotion_request,
     create_endpoint_drift_remediation_request,
+    acknowledge_endpoint_remediation_sla_notification,
     create_release_channel_promotion_request,
     execute_endpoint_drift_remediation,
     export_endpoint_management_bundles,
@@ -48,6 +53,7 @@ from cavra.release import (
     filter_endpoint_drift_remediation_history,
     filter_endpoint_remediation_handoff_history,
     filter_endpoint_remediation_handoff_status_history,
+    filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_ingestion_history,
     filter_endpoint_reconciliation_automation_history,
@@ -875,6 +881,56 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     )
     sla_metadata = build_endpoint_remediation_sla_report_metadata(sla_result.report or {})
     sla_event = build_endpoint_remediation_sla_notification_event(sla_result.report or {})
+    notification_policy = {
+        "default_providers": ["slack"],
+        "suppression_window_minutes": 120,
+        "rules": [
+            {
+                "rule_id": "critical-release-governance",
+                "alert_levels": ["critical"],
+                "providers": ["jira", "slack"],
+                "min_breached": 1,
+                "owner": "release-cab",
+                "acknowledgement_required": True,
+            }
+        ],
+    }
+    notification_plan = build_endpoint_remediation_sla_notification_plan(
+        sla_result.report or {},
+        policy=notification_policy,
+        available_providers=["jira", "slack", "webhook"],
+    )
+    notification_plan_metadata = build_endpoint_remediation_sla_notification_plan_metadata(notification_plan)
+    acknowledgement = acknowledge_endpoint_remediation_sla_notification(
+        sla_result.report["report_id"],
+        provider="slack",
+        acknowledged_by="release-manager",
+        plan_id=notification_plan["plan_id"],
+    )
+    acknowledgement_metadata = build_endpoint_remediation_sla_notification_ack_metadata(acknowledgement)
+    suppressed_plan = build_endpoint_remediation_sla_notification_plan(
+        sla_result.report or {},
+        policy=notification_policy,
+        delivery_items=[
+            {
+                "metadata_kind": "release-connector-delivery",
+                "connector_delivery_source": "endpoint_remediation_sla_notification",
+                "event_id": sla_result.report["report_id"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "delivery_success": True,
+                "providers": ["slack"],
+                "session_id": "rcd-slack-existing",
+            }
+        ],
+        available_providers=["jira", "slack", "webhook"],
+    )
+    notification_history = filter_endpoint_remediation_sla_notification_history(
+        [notification_plan_metadata, acknowledgement_metadata],
+        report_id=sla_result.report["report_id"],
+    )
+    notification_dashboard = build_endpoint_remediation_sla_notification_dashboard(
+        [notification_plan_metadata, acknowledgement_metadata]
+    )
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -914,6 +970,13 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert sla_event["event_type"] == "cavra.endpoint_remediation_sla.notification"
     assert sla_event["provider_payloads"]["slack"]["blocks"][0]["type"] == "header"
     assert sla_event["provider_payloads"]["servicenow"]["correlation_id"] == sla_result.report["report_id"]
+    assert notification_plan["selected_providers"] == ["jira", "slack"]
+    assert notification_plan["acknowledgement_required_providers"] == ["jira", "slack"]
+    assert suppressed_plan["selected_providers"] == ["jira"]
+    assert suppressed_plan["suppressed_providers"][0]["provider"] == "slack"
+    assert acknowledgement_metadata["metadata_kind"] == "endpoint-remediation-sla-notification-ack"
+    assert notification_history["total"] == 2
+    assert notification_dashboard["outstanding_acknowledgement_count"] == 1
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1059,6 +1122,46 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "--json",
         ],
     )
+    sla_delivery_suppressed_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-remediation-sla",
+            str(tmp_path / "cli-remediation-sla" / "endpoint-remediation-sla-report.json"),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_notification_ack_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "ack-endpoint-remediation-sla",
+            json.loads(sla_cli.output)["report_id"],
+            "--provider",
+            "webhook",
+            "--acknowledged-by",
+            "release-manager",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_notification_history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-notification-history", "--metadata-json", str(metadata_json)],
+    )
+    sla_notification_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-notification-dashboard", "--metadata-json", str(metadata_json)],
+    )
     sla_history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-history", "--metadata-json", str(metadata_json)],
@@ -1090,8 +1193,19 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert sla_cli.exit_code == 0
     assert json.loads(sla_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_delivery_cli.exit_code == 0
-    assert json.loads(sla_delivery_cli.output)["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_notification"
-    assert json.loads(sla_delivery_cli.output)["event_type"] == "cavra.endpoint_remediation_sla.notification"
+    sla_delivery_payload = json.loads(sla_delivery_cli.output)
+    assert sla_delivery_payload["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_notification"
+    assert sla_delivery_payload["delivery"]["event_type"] == "cavra.endpoint_remediation_sla.notification"
+    assert sla_delivery_payload["plan_metadata"]["metadata_kind"] == "endpoint-remediation-sla-notification-plan"
+    assert sla_delivery_suppressed_cli.exit_code == 0
+    assert json.loads(sla_delivery_suppressed_cli.output)["delivery"] is None
+    assert json.loads(sla_delivery_suppressed_cli.output)["plan"]["suppressed_providers"][0]["provider"] == "webhook"
+    assert sla_notification_ack_cli.exit_code == 0
+    assert json.loads(sla_notification_ack_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-sla-notification-ack"
+    assert sla_notification_history_cli.exit_code == 0
+    assert json.loads(sla_notification_history_cli.output)["total"] >= 4
+    assert sla_notification_dashboard_cli.exit_code == 0
+    assert json.loads(sla_notification_dashboard_cli.output)["suppressed_provider_count"] >= 1
     assert sla_history_cli.exit_code == 0
     assert json.loads(sla_history_cli.output)["total"] == 1
     assert sla_dashboard_cli.exit_code == 0

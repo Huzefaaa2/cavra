@@ -633,6 +633,16 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/deliver",
         json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
     )
+    sla_delivery_suppressed = client.post(
+        f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/deliver",
+        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+    )
+    sla_ack = client.post(
+        f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/acknowledgements",
+        json={"provider": "webhook", "acknowledged_by": "release-manager"},
+    )
+    sla_notification_history = client.get("/endpoint-remediation-sla-notifications")
+    sla_notification_dashboard = client.get("/endpoint-remediation-sla-notifications/dashboard")
     sla_history = client.get("/endpoint-remediation-sla-reports")
     sla_dashboard = client.get("/endpoint-remediation-sla-reports/dashboard")
     automation = client.post(
@@ -695,7 +705,17 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_report.json()["report"]["executive_summary"]["tracked_work_item_count"] == 2
     assert sla_delivery.status_code == 200
     assert sla_delivery.json()["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_notification"
-    assert sla_delivery.json()["event_type"] == "cavra.endpoint_remediation_sla.notification"
+    assert sla_delivery.json()["delivery"]["event_type"] == "cavra.endpoint_remediation_sla.notification"
+    assert sla_delivery.json()["plan_metadata"]["metadata_kind"] == "endpoint-remediation-sla-notification-plan"
+    assert sla_delivery_suppressed.status_code == 200
+    assert sla_delivery_suppressed.json()["delivery"] is None
+    assert sla_delivery_suppressed.json()["plan"]["suppressed_providers"][0]["provider"] == "webhook"
+    assert sla_ack.status_code == 200
+    assert sla_ack.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-notification-ack"
+    assert sla_notification_history.status_code == 200
+    assert sla_notification_history.json()["total"] >= 4
+    assert sla_notification_dashboard.status_code == 200
+    assert sla_notification_dashboard.json()["suppressed_provider_count"] >= 1
     assert sla_history.status_code == 200
     assert sla_history.json()["total"] == 1
     assert sla_dashboard.status_code == 200
@@ -719,6 +739,11 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     assert config["endpoints"]["endpoint_remediation_sla_dashboard"] == "/endpoint-remediation-sla-reports/dashboard"
     assert config["endpoints"]["endpoint_remediation_sla_deliver"] == "/endpoint-remediation-sla-reports/{report_id}/deliver"
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_acknowledge"]
+        == "/endpoint-remediation-sla-reports/{report_id}/acknowledgements"
+    )
+    assert config["endpoints"]["endpoint_remediation_sla_notifications"] == "/endpoint-remediation-sla-notifications"
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:

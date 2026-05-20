@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -3665,6 +3665,305 @@ def build_endpoint_remediation_sla_notification_event(
     return event
 
 
+def build_endpoint_remediation_sla_notification_plan(
+    report: dict[str, Any],
+    *,
+    policy: dict[str, Any] | None = None,
+    delivery_items: list[dict[str, Any]] | None = None,
+    requested_provider: str = "all",
+    available_providers: list[str] | None = None,
+    generated_by: str = "release-manager",
+    suppression_window_minutes: int | None = None,
+    force: bool = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Plan SLA notification routing and duplicate suppression from public metadata."""
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    report_id = str(report.get("report_id") or "endpoint-remediation-sla")
+    alert_level = str(report.get("alert_level") or "healthy")
+    available = _normalize_endpoint_remediation_sla_notification_providers(available_providers or [])
+    matched_rules = _endpoint_remediation_sla_matching_rules(report, policy)
+    eligible = _endpoint_remediation_sla_policy_providers(
+        report,
+        policy,
+        matched_rules,
+        requested_provider=requested_provider,
+        available_providers=available,
+    )
+    if not eligible:
+        eligible = available or ["webhook"]
+    window = _endpoint_remediation_sla_suppression_window(
+        policy,
+        matched_rules,
+        override=suppression_window_minutes,
+    )
+    delivery_items = delivery_items or []
+    suppressed = [] if force else _endpoint_remediation_sla_suppressed_providers(
+        report_id,
+        eligible,
+        delivery_items,
+        now=now,
+        suppression_window_minutes=window,
+    )
+    suppressed_names = {str(item["provider"]) for item in suppressed}
+    selected = [provider for provider in eligible if provider not in suppressed_names]
+    route_by_provider = _endpoint_remediation_sla_route_map(matched_rules)
+    routes = []
+    for provider in eligible:
+        route = route_by_provider.get(provider, {})
+        routes.append(
+            {
+                "provider": provider,
+                "selected": provider in selected,
+                "suppressed": provider in suppressed_names,
+                "rule_ids": route.get("rule_ids", []),
+                "owner": route.get("owner") or policy.get("owner") or "release-governance",
+                "acknowledgement_required": bool(route.get("acknowledgement_required", alert_level in {"critical", "warning"})),
+                "suppression_window_minutes": window,
+            }
+        )
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "report_id": report_id,
+            "generated_at": generated_at,
+            "eligible": eligible,
+            "selected": selected,
+            "suppressed": suppressed,
+        },
+        sort_keys=True,
+    )
+    plan_id = f"erslan-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.notification_plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "report_id": report_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "summary": {
+            "tracked_work_item_count": int(summary.get("tracked_work_item_count") or 0),
+            "completed_count": int(summary.get("completed_count") or 0),
+            "at_risk_count": int(summary.get("at_risk_count") or 0),
+            "breached_count": int(summary.get("breached_count") or 0),
+            "release_channels": summary.get("release_channels", []),
+        },
+        "requested_provider": requested_provider,
+        "eligible_providers": eligible,
+        "selected_providers": selected,
+        "suppressed_providers": suppressed,
+        "suppression_window_minutes": window,
+        "force": force,
+        "routes": routes,
+        "matched_rule_ids": [str(rule.get("rule_id") or rule.get("name")) for rule in matched_rules],
+        "acknowledgement_required_providers": [
+            route["provider"] for route in routes if route["selected"] and route["acknowledgement_required"]
+        ],
+        "controls": [
+            "routing-derived-from-public-sla-policy",
+            "duplicate-suppression-uses-redacted-delivery-metadata",
+            "acknowledgements-record-human-or-automation-review",
+            "no-connector-credentials-stored-in-plan",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_notification_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-manager"),
+        "decision_count": len(plan.get("eligible_providers", [])),
+        "blocked_count": len(plan.get("suppressed_providers", [])),
+        "approval_required_count": len(plan.get("acknowledgement_required_providers", [])),
+        "metadata_kind": "endpoint-remediation-sla-notification-plan",
+        "plan_id": plan.get("plan_id"),
+        "report_id": plan.get("report_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "suppressed_providers": [item.get("provider") for item in plan.get("suppressed_providers", [])],
+        "suppressed_provider_count": len(plan.get("suppressed_providers", [])),
+        "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
+        "suppression_window_minutes": plan.get("suppression_window_minutes"),
+        "notification_plan": plan,
+    }
+
+
+def acknowledge_endpoint_remediation_sla_notification(
+    report_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "acknowledged",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    plan_id: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    allowed = {"acknowledged", "dismissed", "escalated", "resolved"}
+    if state not in allowed:
+        raise ValueError("acknowledgement_state must be one of: acknowledged, dismissed, escalated, resolved")
+    normalized_provider = _normalize_endpoint_remediation_sla_notification_providers([provider])
+    if not normalized_provider:
+        raise ValueError("provider must be one of: webhook, slack, teams, jira, servicenow")
+    provider = normalized_provider[0]
+    now = now or datetime.now(timezone.utc)
+    acknowledged_at = now.isoformat()
+    material = f"{report_id}|{provider}|{state}|{acknowledged_by}|{acknowledged_at}"
+    ack_id = f"erslaack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.notification_ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": ack_id,
+        "report_id": report_id,
+        "plan_id": plan_id,
+        "provider": provider,
+        "acknowledgement_state": state,
+        "acknowledged_by": acknowledged_by,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref,
+        "notes": notes,
+        "controls": [
+            "acknowledgement-records-review-only",
+            "no-provider-token-or-secret-stored",
+            "endpoint-mutation-remains-private-connector-responsibility",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_notification_ack_metadata(acknowledgement: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": acknowledgement.get("acknowledgement_id"),
+        "created_at": acknowledgement.get("acknowledged_at"),
+        "signer": acknowledgement.get("acknowledged_by", "release-manager"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-remediation-sla-notification-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "report_id": acknowledgement.get("report_id"),
+        "plan_id": acknowledgement.get("plan_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "external_ref": acknowledgement.get("external_ref"),
+        "acknowledgement": acknowledgement,
+    }
+
+
+def filter_endpoint_remediation_sla_notification_history(
+    items: list[dict[str, Any]],
+    *,
+    report_id: str | None = None,
+    provider: str | None = None,
+    metadata_kind: str | None = None,
+    acknowledgement_state: str | None = None,
+    suppressed: bool | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    allowed_kinds = {
+        "endpoint-remediation-sla-notification-plan",
+        "endpoint-remediation-sla-notification-ack",
+        "release-connector-delivery",
+    }
+    filtered = [
+        item
+        for item in items
+        if item.get("metadata_kind") in allowed_kinds
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or item.get("connector_delivery_source") == "endpoint_remediation_sla_notification"
+        )
+    ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if report_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("report_id") == report_id or item.get("event_id") == report_id
+        ]
+    if provider:
+        provider_key = provider.strip().lower().replace("-", "_")
+        filtered = [
+            item
+            for item in filtered
+            if item.get("provider") == provider_key
+            or provider_key in {str(value) for value in item.get("providers", [])}
+            or provider_key in {str(value) for value in item.get("selected_providers", [])}
+            or provider_key in {str(value) for value in item.get("suppressed_providers", [])}
+        ]
+    if acknowledgement_state:
+        state = acknowledgement_state.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("acknowledgement_state") == state]
+    if suppressed is not None:
+        filtered = [
+            item
+            for item in filtered
+            if (len(item.get("suppressed_providers", [])) > 0) is suppressed
+        ]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.notification_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_notification_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_notification_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-notification-plan"]
+    deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    acknowledgements = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-notification-ack"
+    ]
+    latest_plan_by_report: dict[str, dict[str, Any]] = {}
+    for plan in plans:
+        report_id = str(plan.get("report_id") or "")
+        if not report_id:
+            continue
+        current = latest_plan_by_report.get(report_id)
+        if current is None or str(plan.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_plan_by_report[report_id] = plan
+    acknowledged = {
+        (str(item.get("report_id")), str(item.get("provider")))
+        for item in acknowledgements
+        if item.get("acknowledgement_state") in {"acknowledged", "resolved"}
+    }
+    outstanding = []
+    for plan in latest_plan_by_report.values():
+        for provider in plan.get("acknowledgement_required_providers", []):
+            key = (str(plan.get("report_id")), str(provider))
+            if key not in acknowledged:
+                outstanding.append({"report_id": key[0], "provider": key[1], "plan_id": plan.get("plan_id")})
+    failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    suppressed_count = sum(len(item.get("suppressed_providers", [])) for item in plans)
+    alert_level = "critical" if failed_deliveries or outstanding else "warning" if suppressed_count else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.notification_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "plan_count": len(plans),
+        "delivery_count": len(deliveries),
+        "failed_delivery_count": len(failed_deliveries),
+        "acknowledgement_count": len(acknowledgements),
+        "outstanding_acknowledgement_count": len(outstanding),
+        "suppressed_provider_count": suppressed_count,
+        "outstanding_acknowledgements": outstanding[:20],
+        "latest": history[:10],
+    }
+
+
 def filter_endpoint_remediation_sla_report_history(
     items: list[dict[str, Any]],
     *,
@@ -5467,6 +5766,144 @@ def _endpoint_remediation_sla_report_markdown_summary(report: dict[str, Any]) ->
     for control in report.get("controls", []):
         lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
+
+
+def _normalize_endpoint_remediation_sla_notification_providers(providers: list[str] | None) -> list[str]:
+    allowed = {"webhook", "slack", "teams", "jira", "servicenow"}
+    selected: set[str] = set()
+    for provider in providers or []:
+        for raw in str(provider).split(","):
+            value = raw.strip().lower().replace("-", "_")
+            if value in allowed:
+                selected.add(value)
+    return sorted(selected)
+
+
+def _endpoint_remediation_sla_matching_rules(report: dict[str, Any], policy: dict[str, Any]) -> list[dict[str, Any]]:
+    rules = policy.get("rules") or policy.get("notification_routing") or []
+    if not isinstance(rules, list):
+        return []
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    alert_level = str(report.get("alert_level") or "healthy")
+    release_channels = {str(channel) for channel in summary.get("release_channels", [])}
+    breached_count = int(summary.get("breached_count") or 0)
+    at_risk_count = int(summary.get("at_risk_count") or 0)
+    matched = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        alert_levels = {str(value) for value in rule.get("alert_levels", [])}
+        if alert_levels and alert_level not in alert_levels:
+            continue
+        channels = {str(value) for value in rule.get("channels", [])}
+        if channels and release_channels and not channels.intersection(release_channels):
+            continue
+        if breached_count < int(rule.get("min_breached", 0) or 0):
+            continue
+        if at_risk_count < int(rule.get("min_at_risk", 0) or 0):
+            continue
+        matched.append(rule)
+    return matched
+
+
+def _endpoint_remediation_sla_policy_providers(
+    report: dict[str, Any],
+    policy: dict[str, Any],
+    matched_rules: list[dict[str, Any]],
+    *,
+    requested_provider: str,
+    available_providers: list[str],
+) -> list[str]:
+    requested = requested_provider.strip().lower().replace("-", "_")
+    if requested != "all":
+        return _normalize_endpoint_remediation_sla_notification_providers([requested])
+    providers: list[str] = []
+    for rule in matched_rules:
+        providers.extend(_normalize_endpoint_remediation_sla_notification_providers(rule.get("providers", [])))
+    if not providers:
+        providers.extend(_normalize_endpoint_remediation_sla_notification_providers(policy.get("default_providers", [])))
+    if not providers:
+        providers.extend(available_providers)
+    if not providers:
+        alert_level = str(report.get("alert_level") or "healthy")
+        providers.extend(["jira", "servicenow", "slack", "teams"] if alert_level == "critical" else ["slack", "teams"])
+    return sorted(set(providers))
+
+
+def _endpoint_remediation_sla_suppression_window(
+    policy: dict[str, Any],
+    matched_rules: list[dict[str, Any]],
+    *,
+    override: int | None,
+) -> int:
+    if override is not None:
+        return max(0, int(override))
+    windows = [
+        int(rule.get("suppression_window_minutes"))
+        for rule in matched_rules
+        if rule.get("suppression_window_minutes") is not None
+    ]
+    if windows:
+        return max(0, max(windows))
+    return max(0, int(policy.get("suppression_window_minutes", 60) or 0))
+
+
+def _endpoint_remediation_sla_suppressed_providers(
+    report_id: str,
+    providers: list[str],
+    delivery_items: list[dict[str, Any]],
+    *,
+    now: datetime,
+    suppression_window_minutes: int,
+) -> list[dict[str, Any]]:
+    if suppression_window_minutes <= 0:
+        return []
+    cutoff = now - timedelta(minutes=suppression_window_minutes)
+    suppressed: list[dict[str, Any]] = []
+    for provider in providers:
+        latest: dict[str, Any] | None = None
+        for item in delivery_items:
+            if item.get("metadata_kind") != "release-connector-delivery":
+                continue
+            if item.get("connector_delivery_source") != "endpoint_remediation_sla_notification":
+                continue
+            if item.get("event_id") != report_id:
+                continue
+            if provider not in {str(value) for value in item.get("providers", [])}:
+                continue
+            created_at = _parse_release_datetime(item.get("created_at"))
+            if created_at is None or created_at < cutoff:
+                continue
+            if latest is None or str(item.get("created_at", "")) > str(latest.get("created_at", "")):
+                latest = item
+        if latest:
+            suppressed.append(
+                {
+                    "provider": provider,
+                    "last_delivery_at": latest.get("created_at"),
+                    "last_delivery_id": latest.get("session_id"),
+                    "reason": f"delivery exists within {suppression_window_minutes} minute suppression window",
+                }
+            )
+    return suppressed
+
+
+def _endpoint_remediation_sla_route_map(matched_rules: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    route_by_provider: dict[str, dict[str, Any]] = {}
+    for rule in matched_rules:
+        rule_id = str(rule.get("rule_id") or rule.get("name") or "unnamed")
+        owner = rule.get("owner")
+        ack_required = bool(rule.get("acknowledgement_required", rule.get("ack_required", True)))
+        for provider in _normalize_endpoint_remediation_sla_notification_providers(rule.get("providers", [])):
+            route = route_by_provider.setdefault(
+                provider,
+                {"rule_ids": [], "owner": owner, "acknowledgement_required": ack_required},
+            )
+            route["rule_ids"].append(rule_id)
+            if owner:
+                route["owner"] = owner
+            route["acknowledgement_required"] = route["acknowledgement_required"] or ack_required
+    return route_by_provider
 
 
 def _endpoint_remediation_sla_notification_description(
