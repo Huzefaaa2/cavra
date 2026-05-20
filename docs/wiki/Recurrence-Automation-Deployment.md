@@ -101,11 +101,49 @@ cavra release endpoint-remediation-sla-escalation-recurrence-automation-history 
   --metadata-json .cavra/evidence/metadata.json
 ```
 
+## Health Reporting
+
+After the scheduler is running, monitor missed runs, stale metadata, failed job records, and owner digest connector failures:
+
+```bash
+cavra release endpoint-remediation-sla-escalation-recurrence-automation-health \
+  --metadata-json .cavra/evidence/metadata.json \
+  --expected-interval-minutes 30 \
+  --stale-metadata-minutes 120
+```
+
+The Evidence Console Recurrence Operations panel shows the same health status, missed-run count, failed-job count, stale metadata count, connector failure count, and latest-run age from `/endpoint-remediation-sla-escalation-recurrence-automations/health`.
+
+## Health Alert Delivery
+
+Unhealthy recurrence automation status can now be routed to configured webhook, Slack, Teams, Jira, or ServiceNow connectors with duplicate suppression and acknowledgement tracking:
+
+```bash
+cavra release deliver-endpoint-remediation-sla-escalation-recurrence-automation-health-alert \
+  --config .cavra/connectors.json \
+  --provider all \
+  --metadata-json .cavra/evidence/metadata.json \
+  --json
+```
+
+Acknowledgements are indexed separately so release-governance owners can prove review without storing connector secrets:
+
+```bash
+cavra release ack-endpoint-remediation-sla-escalation-recurrence-automation-health-alert erslah_123 \
+  --provider slack \
+  --acknowledged-by release-manager \
+  --metadata-json .cavra/evidence/metadata.json \
+  --json
+```
+
+Use `endpoint-remediation-sla-escalation-recurrence-automation-health-alert-history` and `endpoint-remediation-sla-escalation-recurrence-automation-health-alert-dashboard` to inspect delivery attempts, duplicate suppression, failed providers, and outstanding acknowledgements.
+
 ## User Stories
 
 - As a release manager, I can schedule recurrence automation safely in dry-run mode before delivering owner digests.
 - As a platform engineer, I can deploy the worker to GitHub Actions, Kubernetes, or Linux hosts using public-safe templates.
 - As an auditor, I can inspect worker history, dry-run status, executed status, retryable routes, digests, and suppression events from persisted evidence.
+- As a release-governance owner, I can route unhealthy scheduler signals to ITSM or ChatOps and record acknowledgement evidence.
 
 ## Enterprise Challenge Solved
 
@@ -113,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.
+Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.

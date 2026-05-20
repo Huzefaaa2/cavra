@@ -5612,6 +5612,400 @@ def build_endpoint_remediation_sla_escalation_recurrence_automation_health(
     }
 
 
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_event(
+    health: dict[str, Any],
+    *,
+    generated_by: str = "release-manager",
+    max_alerts: int = 20,
+) -> dict[str, Any]:
+    """Build a public-safe connector event from recurrence automation health."""
+    max_alerts = max(1, min(int(max_alerts), 100))
+    alert_level = str(health.get("alert_level") or "healthy")
+    health_id = _endpoint_remediation_sla_recurrence_automation_health_id(health)
+    alerts = [item for item in health.get("alerts", []) if isinstance(item, dict)]
+    selected_alerts = alerts[:max_alerts]
+    title = f"CAVRA recurrence automation health {alert_level}: {health_id}"
+    message = (
+        f"{int(health.get('missed_run_count') or 0)} missed runs, "
+        f"{int(health.get('failed_job_count') or 0)} failed jobs, "
+        f"{int(health.get('stale_metadata_count') or 0)} stale metadata categories, and "
+        f"{int(health.get('connector_delivery_failure_count') or 0)} connector delivery failures."
+    )
+    description = _endpoint_remediation_sla_recurrence_automation_health_alert_description(
+        health_id,
+        health,
+        selected_alerts,
+        omitted_alert_count=max(0, len(alerts) - len(selected_alerts)),
+    )
+    event = {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert",
+        "session_id": health_id,
+        "health_id": health_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "source_health_generated_at": health.get("generated_at"),
+        "alert_level": alert_level,
+        "max_severity": "critical" if alert_level == "critical" else "warning" if alert_level == "warning" else "low",
+        "blocked_count": int(health.get("missed_run_count") or 0)
+        + int(health.get("failed_job_count") or 0)
+        + int(health.get("connector_delivery_failure_count") or 0),
+        "approval_required_count": len(selected_alerts),
+        "decision_count": int(health.get("run_count") or 0),
+        "summary": {
+            "run_count": int(health.get("run_count") or 0),
+            "missed_run_count": int(health.get("missed_run_count") or 0),
+            "failed_job_count": int(health.get("failed_job_count") or 0),
+            "disabled_schedule_count": int(health.get("disabled_schedule_count") or 0),
+            "stale_metadata_count": int(health.get("stale_metadata_count") or 0),
+            "connector_delivery_failure_count": int(health.get("connector_delivery_failure_count") or 0),
+            "latest_run_id": health.get("latest_run_id"),
+            "latest_run_age_minutes": health.get("latest_run_age_minutes"),
+            "omitted_alert_count": max(0, len(alerts) - len(selected_alerts)),
+        },
+        "alerts": selected_alerts,
+        "omitted_alert_count": max(0, len(alerts) - len(selected_alerts)),
+        "recommendations": health.get("recommendations", []),
+        "controls": [
+            "health-alert-derived-from-public-recurrence-automation-health",
+            "connector-delivery-evidence-redacts-secrets",
+            "acknowledgements-record-review-only",
+            "private-connectors-remain-responsible-for-ticket-or-chat-side-effects",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": _endpoint_remediation_sla_recurrence_automation_health_slack_payload(title, message, selected_alerts),
+        "teams": _endpoint_remediation_sla_recurrence_automation_health_teams_payload(
+            title,
+            message,
+            alert_level,
+            selected_alerts,
+        ),
+        "jira": _endpoint_remediation_sla_jira_payload(title, description, alert_level),
+        "servicenow": _endpoint_remediation_sla_servicenow_payload(title, description, health_id, alert_level),
+    }
+    return event
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan(
+    health: dict[str, Any],
+    *,
+    policy: dict[str, Any] | None = None,
+    delivery_items: list[dict[str, Any]] | None = None,
+    requested_provider: str = "all",
+    available_providers: list[str] | None = None,
+    generated_by: str = "release-manager",
+    suppression_window_minutes: int | None = None,
+    force: bool = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Plan recurrence automation health alert delivery and duplicate suppression."""
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    health_id = _endpoint_remediation_sla_recurrence_automation_health_id(health)
+    alert_level = str(health.get("alert_level") or "healthy")
+    available = _normalize_endpoint_remediation_sla_notification_providers(available_providers or [])
+    matched_rules = _endpoint_remediation_sla_recurrence_automation_health_matching_rules(health, policy)
+    eligible = _endpoint_remediation_sla_recurrence_automation_health_policy_providers(
+        health,
+        policy,
+        matched_rules,
+        requested_provider=requested_provider,
+        available_providers=available,
+    )
+    if not eligible:
+        eligible = available or ["webhook"]
+    window = _endpoint_remediation_sla_suppression_window(
+        policy,
+        matched_rules,
+        override=suppression_window_minutes,
+    )
+    delivery_items = delivery_items or []
+    suppressed = [] if force else _endpoint_remediation_sla_recurrence_automation_health_suppressed_providers(
+        health_id,
+        eligible,
+        delivery_items,
+        now=now,
+        suppression_window_minutes=window,
+    )
+    suppressed_names = {str(item["provider"]) for item in suppressed}
+    selected = [provider for provider in eligible if provider not in suppressed_names and alert_level != "healthy"]
+    route_by_provider = _endpoint_remediation_sla_route_map(matched_rules)
+    routes = []
+    for provider in eligible:
+        route = route_by_provider.get(provider, {})
+        routes.append(
+            {
+                "provider": provider,
+                "selected": provider in selected,
+                "suppressed": provider in suppressed_names,
+                "rule_ids": route.get("rule_ids", []),
+                "owner": route.get("owner") or policy.get("owner") or "release-governance",
+                "acknowledgement_required": bool(
+                    route.get("acknowledgement_required", alert_level in {"critical", "warning"})
+                ),
+                "suppression_window_minutes": window,
+            }
+        )
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "health_id": health_id,
+            "generated_at": generated_at,
+            "eligible": eligible,
+            "selected": selected,
+            "suppressed": suppressed,
+        },
+        sort_keys=True,
+    )
+    plan_id = f"erslahalert-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert_plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "health_id": health_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "source_health_generated_at": health.get("generated_at"),
+        "alert_level": alert_level,
+        "summary": {
+            "run_count": int(health.get("run_count") or 0),
+            "missed_run_count": int(health.get("missed_run_count") or 0),
+            "failed_job_count": int(health.get("failed_job_count") or 0),
+            "stale_metadata_count": int(health.get("stale_metadata_count") or 0),
+            "connector_delivery_failure_count": int(health.get("connector_delivery_failure_count") or 0),
+            "alert_count": len([item for item in health.get("alerts", []) if isinstance(item, dict)]),
+        },
+        "requested_provider": requested_provider,
+        "eligible_providers": eligible,
+        "selected_providers": selected,
+        "suppressed_providers": suppressed,
+        "suppression_window_minutes": window,
+        "force": force,
+        "routes": routes,
+        "matched_rule_ids": [str(rule.get("rule_id") or rule.get("name")) for rule in matched_rules],
+        "acknowledgement_required_providers": [
+            route["provider"] for route in routes if route["selected"] and route["acknowledgement_required"]
+        ],
+        "controls": [
+            "health-alert-routing-derived-from-public-health-metadata",
+            "duplicate-suppression-uses-redacted-delivery-metadata",
+            "acknowledgements-record-human-or-automation-review",
+            "no-connector-credentials-stored-in-health-alert-plan",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-manager"),
+        "decision_count": len(plan.get("eligible_providers", [])),
+        "blocked_count": len(plan.get("suppressed_providers", [])),
+        "approval_required_count": len(plan.get("acknowledgement_required_providers", [])),
+        "metadata_kind": "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan",
+        "plan_id": plan.get("plan_id"),
+        "health_id": plan.get("health_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "suppressed_providers": [item.get("provider") for item in plan.get("suppressed_providers", [])],
+        "suppressed_provider_count": len(plan.get("suppressed_providers", [])),
+        "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
+        "suppression_window_minutes": plan.get("suppression_window_minutes"),
+        "health_alert_plan": plan,
+    }
+
+
+def acknowledge_endpoint_remediation_sla_escalation_recurrence_automation_health_alert(
+    health_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "acknowledged",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    plan_id: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    allowed = {"acknowledged", "dismissed", "escalated", "resolved"}
+    if state not in allowed:
+        raise ValueError("acknowledgement_state must be one of: acknowledged, dismissed, escalated, resolved")
+    normalized_provider = _normalize_endpoint_remediation_sla_notification_providers([provider])
+    if not normalized_provider:
+        raise ValueError("provider must be one of: webhook, slack, teams, jira, servicenow")
+    provider = normalized_provider[0]
+    now = now or datetime.now(timezone.utc)
+    acknowledged_at = now.isoformat()
+    material = f"{health_id}|{provider}|{state}|{acknowledged_by}|{acknowledged_at}"
+    ack_id = f"erslahack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert_ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": ack_id,
+        "health_id": health_id,
+        "plan_id": plan_id,
+        "provider": provider,
+        "acknowledgement_state": state,
+        "acknowledged_by": acknowledged_by,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref,
+        "notes": notes,
+        "controls": [
+            "health-alert-acknowledgement-records-review-only",
+            "no-provider-token-or-secret-stored",
+            "recurrence-automation-recovery-remains-operator-or-private-connector-responsibility",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_ack_metadata(
+    acknowledgement: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": acknowledgement.get("acknowledgement_id"),
+        "created_at": acknowledgement.get("acknowledged_at"),
+        "signer": acknowledgement.get("acknowledged_by", "release-manager"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "health_id": acknowledgement.get("health_id"),
+        "plan_id": acknowledgement.get("plan_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "external_ref": acknowledgement.get("external_ref"),
+        "acknowledgement": acknowledgement,
+    }
+
+
+def filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(
+    items: list[dict[str, Any]],
+    *,
+    health_id: str | None = None,
+    provider: str | None = None,
+    metadata_kind: str | None = None,
+    acknowledgement_state: str | None = None,
+    suppressed: bool | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    allowed_kinds = {
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan",
+        "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack",
+        "release-connector-delivery",
+    }
+    filtered = [
+        item
+        for item in items
+        if item.get("metadata_kind") in allowed_kinds
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or item.get("connector_delivery_source")
+            == "endpoint_remediation_sla_escalation_recurrence_automation_health_alert"
+        )
+    ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if health_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("health_id") == health_id or item.get("event_id") == health_id or item.get("session_id") == health_id
+        ]
+    if provider:
+        provider_key = provider.strip().lower().replace("-", "_")
+        filtered = [
+            item
+            for item in filtered
+            if item.get("provider") == provider_key
+            or provider_key in {str(value) for value in item.get("providers", [])}
+            or provider_key in {str(value) for value in item.get("selected_providers", [])}
+            or provider_key in {str(value) for value in item.get("suppressed_providers", [])}
+        ]
+    if acknowledgement_state:
+        state = acknowledgement_state.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("acknowledgement_state") == state]
+    if suppressed is not None:
+        filtered = [
+            item
+            for item in filtered
+            if (len(item.get("suppressed_providers", [])) > 0) is suppressed
+        ]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard(
+    items: list[dict[str, Any]],
+) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_escalation_recurrence_automation_health_alert_history(items, limit=500)[
+        "items"
+    ]
+    plans = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan"
+    ]
+    deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    acknowledgements = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack"
+    ]
+    latest_plan_by_health: dict[str, dict[str, Any]] = {}
+    for plan in plans:
+        health_id = str(plan.get("health_id") or "")
+        if not health_id:
+            continue
+        current = latest_plan_by_health.get(health_id)
+        if current is None or str(plan.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_plan_by_health[health_id] = plan
+    acknowledged = {
+        (str(item.get("health_id")), str(item.get("provider")))
+        for item in acknowledgements
+        if item.get("acknowledgement_state") in {"acknowledged", "resolved"}
+    }
+    outstanding = []
+    for plan in latest_plan_by_health.values():
+        for provider in plan.get("acknowledgement_required_providers", []):
+            key = (str(plan.get("health_id")), str(provider))
+            if key not in acknowledged:
+                outstanding.append({"health_id": key[0], "provider": key[1], "plan_id": plan.get("plan_id")})
+    failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    suppressed_count = sum(len(item.get("suppressed_providers", [])) for item in plans)
+    alert_level = "critical" if failed_deliveries or outstanding else "warning" if suppressed_count else "healthy"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_automation_health_alert_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "plan_count": len(plans),
+        "delivery_count": len(deliveries),
+        "failed_delivery_count": len(failed_deliveries),
+        "acknowledgement_count": len(acknowledgements),
+        "outstanding_acknowledgement_count": len(outstanding),
+        "suppressed_provider_count": suppressed_count,
+        "outstanding_acknowledgements": outstanding[:20],
+        "latest": history[:10],
+    }
+
+
 def export_endpoint_remediation_sla_escalation_suppression_audit(
     recurrence_plan: dict[str, Any],
     output_dir: Path,
@@ -7490,6 +7884,41 @@ def _endpoint_remediation_sla_matching_rules(report: dict[str, Any], policy: dic
     return matched
 
 
+def _endpoint_remediation_sla_recurrence_automation_health_matching_rules(
+    health: dict[str, Any],
+    policy: dict[str, Any],
+) -> list[dict[str, Any]]:
+    rules = policy.get("rules") or policy.get("health_alert_routing") or policy.get("notification_routing") or []
+    if not isinstance(rules, list):
+        return []
+    alert_level = str(health.get("alert_level") or "healthy")
+    categories = {str(item.get("category")) for item in health.get("alerts", []) if isinstance(item, dict)}
+    missed = int(health.get("missed_run_count") or 0)
+    failed = int(health.get("failed_job_count") or 0)
+    stale = int(health.get("stale_metadata_count") or 0)
+    connector_failures = int(health.get("connector_delivery_failure_count") or 0)
+    matched = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        alert_levels = {str(value) for value in rule.get("alert_levels", [])}
+        if alert_levels and alert_level not in alert_levels:
+            continue
+        rule_categories = {str(value) for value in rule.get("categories", rule.get("alert_categories", []))}
+        if rule_categories and not rule_categories.intersection(categories):
+            continue
+        if missed < int(rule.get("min_missed_runs", 0) or 0):
+            continue
+        if failed < int(rule.get("min_failed_jobs", 0) or 0):
+            continue
+        if stale < int(rule.get("min_stale_metadata", 0) or 0):
+            continue
+        if connector_failures < int(rule.get("min_connector_failures", 0) or 0):
+            continue
+        matched.append(rule)
+    return matched
+
+
 def _endpoint_remediation_sla_policy_providers(
     report: dict[str, Any],
     policy: dict[str, Any],
@@ -7511,6 +7940,30 @@ def _endpoint_remediation_sla_policy_providers(
     if not providers:
         alert_level = str(report.get("alert_level") or "healthy")
         providers.extend(["jira", "servicenow", "slack", "teams"] if alert_level == "critical" else ["slack", "teams"])
+    return sorted(set(providers))
+
+
+def _endpoint_remediation_sla_recurrence_automation_health_policy_providers(
+    health: dict[str, Any],
+    policy: dict[str, Any],
+    matched_rules: list[dict[str, Any]],
+    *,
+    requested_provider: str,
+    available_providers: list[str],
+) -> list[str]:
+    requested = requested_provider.strip().lower().replace("-", "_")
+    if requested != "all":
+        return _normalize_endpoint_remediation_sla_notification_providers([requested])
+    providers: list[str] = []
+    for rule in matched_rules:
+        providers.extend(_normalize_endpoint_remediation_sla_notification_providers(rule.get("providers", [])))
+    if not providers:
+        providers.extend(_normalize_endpoint_remediation_sla_notification_providers(policy.get("default_providers", [])))
+    if not providers:
+        providers.extend(available_providers)
+    if not providers:
+        alert_level = str(health.get("alert_level") or "healthy")
+        providers.extend(["jira", "slack", "teams"] if alert_level == "critical" else ["slack", "teams"])
     return sorted(set(providers))
 
 
@@ -7552,6 +8005,49 @@ def _endpoint_remediation_sla_suppressed_providers(
             if item.get("connector_delivery_source") != "endpoint_remediation_sla_notification":
                 continue
             if item.get("event_id") != report_id:
+                continue
+            if provider not in {str(value) for value in item.get("providers", [])}:
+                continue
+            created_at = _parse_release_datetime(item.get("created_at"))
+            if created_at is None or created_at < cutoff:
+                continue
+            if latest is None or str(item.get("created_at", "")) > str(latest.get("created_at", "")):
+                latest = item
+        if latest:
+            suppressed.append(
+                {
+                    "provider": provider,
+                    "last_delivery_at": latest.get("created_at"),
+                    "last_delivery_id": latest.get("session_id"),
+                    "reason": f"delivery exists within {suppression_window_minutes} minute suppression window",
+                }
+            )
+    return suppressed
+
+
+def _endpoint_remediation_sla_recurrence_automation_health_suppressed_providers(
+    health_id: str,
+    providers: list[str],
+    delivery_items: list[dict[str, Any]],
+    *,
+    now: datetime,
+    suppression_window_minutes: int,
+) -> list[dict[str, Any]]:
+    if suppression_window_minutes <= 0:
+        return []
+    cutoff = now - timedelta(minutes=suppression_window_minutes)
+    suppressed: list[dict[str, Any]] = []
+    for provider in providers:
+        latest: dict[str, Any] | None = None
+        for item in delivery_items:
+            if item.get("metadata_kind") != "release-connector-delivery":
+                continue
+            if (
+                item.get("connector_delivery_source")
+                != "endpoint_remediation_sla_escalation_recurrence_automation_health_alert"
+            ):
+                continue
+            if item.get("event_id") != health_id:
                 continue
             if provider not in {str(value) for value in item.get("providers", [])}:
                 continue
@@ -7937,6 +8433,58 @@ def _endpoint_remediation_sla_recurrence_delivery_description(
     return "\n".join(lines)
 
 
+def _endpoint_remediation_sla_recurrence_automation_health_id(health: dict[str, Any]) -> str:
+    raw = str(health.get("health_id") or health.get("session_id") or "")
+    if raw:
+        return raw
+    material = json.dumps(
+        {
+            "generated_at": health.get("generated_at"),
+            "latest_run_id": health.get("latest_run_id"),
+            "alert_level": health.get("alert_level"),
+            "missed_run_count": health.get("missed_run_count"),
+            "failed_job_count": health.get("failed_job_count"),
+            "connector_delivery_failure_count": health.get("connector_delivery_failure_count"),
+        },
+        sort_keys=True,
+    )
+    return f"erslah-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+
+
+def _endpoint_remediation_sla_recurrence_automation_health_alert_description(
+    health_id: str,
+    health: dict[str, Any],
+    alerts: list[dict[str, Any]],
+    *,
+    omitted_alert_count: int,
+) -> str:
+    lines = [
+        f"CAVRA recurrence automation health alert {health_id} is {health.get('alert_level', 'unknown')}.",
+        "",
+        f"Expected interval minutes: {health.get('expected_interval_minutes', 0)}",
+        f"Missed runs: {health.get('missed_run_count', 0)}",
+        f"Failed jobs: {health.get('failed_job_count', 0)}",
+        f"Stale metadata categories: {health.get('stale_metadata_count', 0)}",
+        f"Connector delivery failures: {health.get('connector_delivery_failure_count', 0)}",
+        f"Latest run age minutes: {health.get('latest_run_age_minutes', 'none')}",
+        "",
+        "Alerts:",
+    ]
+    if not alerts:
+        lines.append("- No active recurrence automation health alerts.")
+    for item in alerts:
+        lines.append("- " f"{item.get('severity')} {item.get('category')}: {item.get('message')}")
+    if omitted_alert_count:
+        lines.append(f"- {omitted_alert_count} additional alerts omitted from this delivery payload.")
+    lines.extend(
+        [
+            "",
+            "This alert is generated from public CAVRA recurrence automation health metadata. Scheduler recovery, ticket creation, and private queue execution remain outside the Community Edition repository.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def _endpoint_remediation_sla_owner_digest_description(
     recurrence_plan_id: str,
     owners: list[dict[str, Any]],
@@ -8208,6 +8756,61 @@ def _endpoint_remediation_sla_escalation_teams_payload(
         "@context": "https://schema.org/extensions",
         "summary": title,
         "themeColor": "DC2626" if alert_level == "critical" else "2E7D32",
+        "sections": [
+            {
+                "activityTitle": title,
+                "activitySubtitle": message,
+                "facts": facts,
+            }
+        ],
+    }
+
+
+def _endpoint_remediation_sla_recurrence_automation_health_slack_payload(
+    title: str,
+    message: str,
+    alerts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    fields = [
+        {
+            "type": "mrkdwn",
+            "text": f"*{item.get('severity', 'unknown').title()}* `{item.get('category')}` {item.get('message')}",
+        }
+        for item in alerts[:8]
+    ]
+    blocks: list[dict[str, Any]] = [
+        {"type": "header", "text": {"type": "plain_text", "text": title[:150]}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+    ]
+    if fields:
+        blocks.append({"type": "section", "fields": fields})
+    blocks.append(
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": "Generated from public CAVRA recurrence automation health evidence."}],
+        }
+    )
+    return {"text": title, "blocks": blocks}
+
+
+def _endpoint_remediation_sla_recurrence_automation_health_teams_payload(
+    title: str,
+    message: str,
+    alert_level: str,
+    alerts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    facts = [
+        {
+            "name": str(item.get("category") or "alert"),
+            "value": f"{item.get('severity')} {item.get('message')}",
+        }
+        for item in alerts[:8]
+    ]
+    return {
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": title,
+        "themeColor": "DC2626" if alert_level == "critical" else "D97706" if alert_level == "warning" else "2E7D32",
         "sections": [
             {
                 "activityTitle": title,

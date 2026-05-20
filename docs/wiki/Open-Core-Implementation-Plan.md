@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.
+Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.

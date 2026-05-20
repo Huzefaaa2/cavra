@@ -581,7 +581,7 @@
         <div class="console-header">
           <div>
             <h2>Recurrence Operations</h2>
-            <p>Inspect failed-batch retry plans, owner digests, suppression trends, scheduled worker outcomes, and automation health.</p>
+            <p>Inspect failed-batch retry plans, owner digests, suppression trends, scheduled worker outcomes, automation health, and alert acknowledgements.</p>
           </div>
           <button id="refreshEndpointRecurrenceOperations">Refresh</button>
         </div>
@@ -665,6 +665,25 @@
                   </tr>
                 </thead>
                 <tbody id="endpointRecurrenceAutomationRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Health Alerts</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Record</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Provider</th>
+                    <th>Acks</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointRecurrenceHealthAlertRows"></tbody>
               </table>
             </div>
           </div>

@@ -1635,6 +1635,50 @@ async function loadEndpointRecurrenceAutomationHealth() {
   }
 }
 
+async function loadEndpointRecurrenceAutomationHealthAlerts() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts", { limit: 50 }));
+    if (!response.ok) throw new Error("Endpoint recurrence automation health alert API unavailable");
+    return (await response.json()).items || [];
+  } catch {
+    return [
+      {
+        metadata_kind: "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan",
+        session_id: "erslahalert-sample",
+        created_at: "2026-05-20T15:00:00+00:00",
+        alert_level: "warning",
+        selected_providers: ["webhook"],
+        acknowledgement_required_providers: ["webhook"],
+        health_alert_plan: {
+          health_id: "erslah-sample",
+          alert_level: "warning",
+          summary: { stale_metadata_count: 1, alert_count: 1 }
+        }
+      }
+    ];
+  }
+}
+
+async function loadEndpointRecurrenceAutomationHealthAlertDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard"));
+    if (!response.ok) throw new Error("Endpoint recurrence automation health alert dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "warning",
+      plan_count: 1,
+      delivery_count: 0,
+      failed_delivery_count: 0,
+      acknowledgement_count: 0,
+      outstanding_acknowledgement_count: 1,
+      suppressed_provider_count: 0
+    };
+  }
+}
+
 function selectedEndpointRecurrenceFilters() {
   return {
     owner: document.querySelector("#filterEndpointRecurrenceOwner")?.value.trim().toLowerCase() || "",
@@ -3057,19 +3101,31 @@ function endpointRecurrenceActionButtons(payloadId) {
   `;
 }
 
-function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard = {}, automationDashboard = {}, automationHealth = {}) {
+function renderEndpointRecurrenceOperations(
+  retryPlans,
+  ownerDigests,
+  suppressionTrends,
+  automationRuns,
+  dashboard = {},
+  automationDashboard = {},
+  automationHealth = {},
+  healthAlerts = [],
+  healthAlertDashboard = {}
+) {
   const panel = document.querySelector("#endpointRecurrenceOperationsDashboard");
   const retryRows = document.querySelector("#endpointRecurrenceRetryRows");
   const digestRows = document.querySelector("#endpointRecurrenceDigestRows");
   const trendRows = document.querySelector("#endpointRecurrenceTrendRows");
   const automationRows = document.querySelector("#endpointRecurrenceAutomationRows");
-  if (!panel || !retryRows || !digestRows || !trendRows || !automationRows) return;
+  const healthAlertRows = document.querySelector("#endpointRecurrenceHealthAlertRows");
+  if (!panel || !retryRows || !digestRows || !trendRows || !automationRows || !healthAlertRows) return;
 
   endpointRecurrenceDetailPayloads.clear();
   retryRows.innerHTML = "";
   digestRows.innerHTML = "";
   trendRows.innerHTML = "";
   automationRows.innerHTML = "";
+  healthAlertRows.innerHTML = "";
 
   const retryableCount = retryPlans.reduce((total, item) => total + Number(endpointRecurrenceRetryPlanPayload(item).retryable_count || item.retryable_count || 0), 0);
   const waitingCount = retryPlans.reduce((total, item) => total + Number(endpointRecurrenceRetryPlanPayload(item).waiting_count || item.waiting_count || 0), 0);
@@ -3198,6 +3254,22 @@ function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressio
       <span>Latest Age</span>
       <strong>${automationHealth.latest_run_age_minutes === null || automationHealth.latest_run_age_minutes === undefined ? "none" : `${formatMetricNumber(automationHealth.latest_run_age_minutes)}m`}</strong>
     </div>
+    <div class="release-delivery-metric">
+      <span>Alert Plans</span>
+      <strong>${formatMetricNumber(healthAlertDashboard.plan_count || healthAlerts.filter((item) => item.metadata_kind === "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Alert Deliveries</span>
+      <strong class="${Number(healthAlertDashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(healthAlertDashboard.delivery_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Alert Acks</span>
+      <strong>${formatMetricNumber(healthAlertDashboard.acknowledgement_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Outstanding Acks</span>
+      <strong class="${Number(healthAlertDashboard.outstanding_acknowledgement_count || 0) ? "block" : "allow"}">${formatMetricNumber(healthAlertDashboard.outstanding_acknowledgement_count || 0)}</strong>
+    </div>
   `;
 
   retryPlans.forEach((item, index) => {
@@ -3273,6 +3345,27 @@ function renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressio
     `);
   });
   if (!automationRuns.length) automationRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No worker runs match the current filters.</td></tr>`);
+
+  healthAlerts.forEach((item, index) => {
+    const payload = item.health_alert_plan || item.acknowledgement || item.delivery || item;
+    const payloadId = endpointRecurrencePayloadId("health-alert", index);
+    const provider = item.provider || (item.providers || item.selected_providers || [])[0] || "n/a";
+    const ackState = item.acknowledgement_state || (item.acknowledgement_required_providers || []).join(", ") || "n/a";
+    const kind = String(item.metadata_kind || "health-alert").replace("endpoint-remediation-sla-escalation-recurrence-automation-", "");
+    endpointRecurrenceDetailPayloads.set(payloadId, { label: item.session_id || item.plan_id || item.health_id || "health-alert", payload });
+    healthAlertRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.session_id || item.plan_id || item.health_id || item.event_id || "health-alert")}</td>
+        <td>${escapeHtml(kind)}</td>
+        <td class="${riskClass(item.alert_level || (item.delivery_success === false ? "critical" : "healthy"))}">${escapeHtml(item.alert_level || (item.delivery_success === false ? "failed" : item.acknowledgement_state || "indexed"))}</td>
+        <td>${escapeHtml(provider)}</td>
+        <td>${escapeHtml(ackState)}</td>
+        <td>${escapeHtml(String(item.created_at || payload.generated_at || "").slice(0, 19))}</td>
+        <td>${endpointRecurrenceActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!healthAlerts.length) healthAlertRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No health alert delivery or acknowledgement records indexed.</td></tr>`);
 }
 
 function showEndpointRecurrenceDetail(payloadId) {
@@ -4067,16 +4160,38 @@ async function refreshEndpointRemediationSla() {
 }
 
 async function refreshEndpointRecurrenceOperations() {
-  const [retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard, automationHealth] = await Promise.all([
+  const [
+    retryPlans,
+    ownerDigests,
+    suppressionTrends,
+    automationRuns,
+    dashboard,
+    automationDashboard,
+    automationHealth,
+    healthAlerts,
+    healthAlertDashboard
+  ] = await Promise.all([
     loadEndpointRecurrenceRetryPlans(),
     loadEndpointRecurrenceOwnerDigests(),
     loadEndpointRecurrenceSuppressionTrends(),
     loadEndpointRecurrenceAutomations(),
     loadEndpointRemediationSlaEscalationActionDashboard(),
     loadEndpointRecurrenceAutomationDashboard(),
-    loadEndpointRecurrenceAutomationHealth()
+    loadEndpointRecurrenceAutomationHealth(),
+    loadEndpointRecurrenceAutomationHealthAlerts(),
+    loadEndpointRecurrenceAutomationHealthAlertDashboard()
   ]);
-  renderEndpointRecurrenceOperations(retryPlans, ownerDigests, suppressionTrends, automationRuns, dashboard, automationDashboard, automationHealth);
+  renderEndpointRecurrenceOperations(
+    retryPlans,
+    ownerDigests,
+    suppressionTrends,
+    automationRuns,
+    dashboard,
+    automationDashboard,
+    automationHealth,
+    healthAlerts,
+    healthAlertDashboard
+  );
 }
 
 async function deliverEndpointRemediationSlaNotification() {

@@ -1227,4 +1227,24 @@ Validation:
 - `git diff --check`
 - `python3 -m pytest -q`
 
-Recommended next issue: add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.
+Recommended next issue: delivered below as recurrence automation health alert delivery and acknowledgements.
+
+## Phase 7 Recurrence Automation Health Alert Delivery
+
+Status: complete for the current public-safe health alert delivery and acknowledgement slice.
+
+Completed implementation:
+- Added recurrence automation health alert events, routing plans, duplicate suppression, and connector delivery metadata using the existing public-safe connector framework.
+- Added acknowledgement records for health alerts with provider, reviewer, state, external reference, and notes.
+- Added CLI commands for health alert delivery, acknowledgement, history, and dashboard views.
+- Added API endpoints for health alert delivery, acknowledgement, history, dashboard, and console config discovery.
+- Updated the Evidence Console Recurrence Operations panel with health alert plan, delivery, acknowledgement, and outstanding acknowledgement metrics plus detail drill-downs.
+- Updated README, API/CLI references, roadmap docs, deployment guidance, feature inventory, and wiki source.
+- Added tests for release-layer health alert plans, events, acknowledgements, delivery history, dashboards, CLI, and API coverage.
+
+Validation:
+- `python3 -m pytest -q tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift`
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+
+Recommended next issue: expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.

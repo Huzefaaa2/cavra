@@ -772,6 +772,43 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         "/endpoint-remediation-sla-escalation-recurrence-automations/health",
         params={"expected_interval_minutes": 30, "stale_metadata_minutes": 120},
     )
+    sla_escalation_recurrence_automation_health_alert_delivery = client.post(
+        "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/deliver",
+        json={
+            "provider": "webhook",
+            "retries": 0,
+            "generated_by": "release-agent",
+            "routing_policy": {
+                "rules": [
+                    {
+                        "rule_id": "webhook-recurrence-health",
+                        "alert_levels": ["warning", "critical"],
+                        "providers": ["webhook"],
+                        "owner": "release-governance",
+                        "acknowledgement_required": True,
+                    }
+                ]
+            },
+        },
+    )
+    health_alert_plan = sla_escalation_recurrence_automation_health_alert_delivery.json().get("plan", {})
+    sla_escalation_recurrence_automation_health_alert_ack = client.post(
+        (
+            "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/"
+            f"{health_alert_plan.get('health_id', 'erslah-missing')}/acknowledgements"
+        ),
+        json={
+            "provider": "webhook",
+            "acknowledged_by": "release-manager",
+            "plan_id": health_alert_plan.get("plan_id"),
+        },
+    )
+    sla_escalation_recurrence_automation_health_alert_history = client.get(
+        "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts"
+    )
+    sla_escalation_recurrence_automation_health_alert_dashboard = client.get(
+        "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard"
+    )
     sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
     sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
@@ -902,6 +939,20 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_escalation_recurrence_automation_dashboard.json()["run_count"] >= 1
     assert sla_escalation_recurrence_automation_health.status_code == 200
     assert "missed_run_count" in sla_escalation_recurrence_automation_health.json()
+    assert sla_escalation_recurrence_automation_health_alert_delivery.status_code == 200
+    assert (
+        sla_escalation_recurrence_automation_health_alert_delivery.json()["plan_metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-plan"
+    )
+    assert sla_escalation_recurrence_automation_health_alert_ack.status_code == 200
+    assert (
+        sla_escalation_recurrence_automation_health_alert_ack.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-automation-health-alert-ack"
+    )
+    assert sla_escalation_recurrence_automation_health_alert_history.status_code == 200
+    assert sla_escalation_recurrence_automation_health_alert_history.json()["total"] >= 2
+    assert sla_escalation_recurrence_automation_health_alert_dashboard.status_code == 200
+    assert "outstanding_acknowledgement_count" in sla_escalation_recurrence_automation_health_alert_dashboard.json()
     assert sla_escalation_recurrence_history.status_code == 200
     assert sla_escalation_recurrence_history.json()["total"] >= 1
     assert sla_escalation_recurrence_dashboard.status_code == 200
@@ -995,6 +1046,18 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation_health"]
         == "/endpoint-remediation-sla-escalation-recurrence-automations/health"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation_health_alert_deliver"]
+        == "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/deliver"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation_health_alerts"]
+        == "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation_health_alert_dashboard"]
+        == "/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard"
     )
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]

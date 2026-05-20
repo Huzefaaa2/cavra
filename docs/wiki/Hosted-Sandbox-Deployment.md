@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.
+1. Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.

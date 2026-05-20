@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add recurrence automation health alert delivery and acknowledgement workflows for ITSM, ChatOps, and release-governance owners.
+1. Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.
 2. Continue broadening approval-route parity as new policy packs are added.
