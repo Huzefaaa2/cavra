@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.
+1. Add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.
 2. Continue broadening approval-route parity as new policy packs are added.

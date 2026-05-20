@@ -1183,4 +1183,26 @@ Validation:
 - `git diff --check`
 - `python3 -m pytest -q`
 
-Recommended next issue: add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.
+Recommended next issue: delivered below as recurrence automation deployment templates.
+
+## Phase 7 Recurrence Automation Deployment Templates
+
+Status: complete for the current public-safe deployment-template slice.
+
+Completed implementation:
+- Added a GitHub Actions scheduled workflow template for dry-run recurrence automation and guarded manual execute mode.
+- Added a Kubernetes CronJob template with persistent worker state, optional connector config, non-root execution, and overlap prevention.
+- Added systemd service, timer, and environment examples for self-hosted Linux workers.
+- Added recurrence automation deployment documentation covering dry-run defaults, execute-mode gating, connector configuration, rollback, disable procedures, user stories, and enterprise value.
+- Added tests that validate template defaults, schedule intervals, guarded execute mode, and public-safe connector handling.
+- Updated README, roadmap docs, feature inventory, and wiki source.
+
+Validation:
+- `python3 -m pytest -q tests/test_recurrence_automation_deployment_templates.py`
+- `python3 -m ruff check src tests`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+- `python3 -m pytest -q`
+
+Recommended next issue: add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.

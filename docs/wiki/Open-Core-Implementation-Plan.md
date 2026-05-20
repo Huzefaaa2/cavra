@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.
+Add recurrence automation health reporting for missed runs, failed jobs, stale metadata, and connector delivery failures across CLI, API, and Evidence Console views.

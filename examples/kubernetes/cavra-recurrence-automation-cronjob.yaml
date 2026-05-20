@@ -1,0 +1,89 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cavra-recurrence-automation
+  labels:
+    app.kubernetes.io/name: cavra
+    app.kubernetes.io/component: recurrence-automation
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: cavra
+            app.kubernetes.io/component: recurrence-automation
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+          containers:
+            - name: cavra
+              image: ghcr.io/huzefaaa2/cavra-community:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: CAVRA_RECURRENCE_EXECUTE
+                  value: "false"
+                - name: CAVRA_RECURRENCE_PROVIDER
+                  value: "all"
+                - name: CAVRA_SCHEDULE_INTERVAL_MINUTES
+                  value: "30"
+                - name: CAVRA_METADATA_JSON
+                  value: /var/lib/cavra/evidence/metadata.json
+                - name: CAVRA_METADATA_SQLITE
+                  value: /var/lib/cavra/evidence/metadata.db
+                - name: CAVRA_OUTPUT_DIR
+                  value: /var/lib/cavra/release/endpoint-remediation-sla-escalation-recurrence-automation
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  mkdir -p "$(dirname "$CAVRA_METADATA_JSON")" "$CAVRA_OUTPUT_DIR"
+                  test -f "$CAVRA_METADATA_JSON" || printf '[]\n' > "$CAVRA_METADATA_JSON"
+                  if [ "${CAVRA_RECURRENCE_EXECUTE:-false}" = "true" ]; then
+                    test -f /etc/cavra/connectors/connectors.json
+                    mode_flag="--execute --config /etc/cavra/connectors/connectors.json --provider ${CAVRA_RECURRENCE_PROVIDER:-all}"
+                  else
+                    mode_flag="--dry-run"
+                  fi
+                  cavra release endpoint-remediation-sla-escalation-recurrence-automation \
+                    --metadata-json "$CAVRA_METADATA_JSON" \
+                    --sqlite "$CAVRA_METADATA_SQLITE" \
+                    --output "$CAVRA_OUTPUT_DIR" \
+                    --schedule-interval-minutes "$CAVRA_SCHEDULE_INTERVAL_MINUTES" \
+                    --generated-by "kubernetes:cronjob/cavra-recurrence-automation" \
+                    $mode_flag \
+                    --json
+                  cavra release endpoint-remediation-sla-escalation-recurrence-automation-dashboard \
+                    --metadata-json "$CAVRA_METADATA_JSON" \
+                    --sqlite "$CAVRA_METADATA_SQLITE"
+              volumeMounts:
+                - name: cavra-state
+                  mountPath: /var/lib/cavra
+                - name: connector-config
+                  mountPath: /etc/cavra/connectors
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+          volumes:
+            - name: cavra-state
+              persistentVolumeClaim:
+                claimName: cavra-state
+            - name: connector-config
+              secret:
+                secretName: cavra-connectors
+                optional: true
