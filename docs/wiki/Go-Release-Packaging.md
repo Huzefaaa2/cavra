@@ -699,4 +699,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
+1. Add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.

@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
+Add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.

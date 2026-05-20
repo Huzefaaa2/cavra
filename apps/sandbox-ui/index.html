@@ -581,7 +581,7 @@
         <div class="console-header">
           <div>
             <h2>Recurrence Operations</h2>
-            <p>Inspect failed-batch retry plans, owner digests, and suppression trend evidence.</p>
+            <p>Inspect failed-batch retry plans, owner digests, suppression trends, and scheduled worker outcomes.</p>
           </div>
           <button id="refreshEndpointRecurrenceOperations">Refresh</button>
         </div>
@@ -591,6 +591,7 @@
           <label>Provider <select id="filterEndpointRecurrenceProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="private_queue">Private queue</option></select></label>
           <label>Action <select id="filterEndpointRecurrenceAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="retry">Retry</option><option value="wait">Wait</option><option value="suppress">Suppress</option></select></label>
           <label>Category <select id="filterEndpointRecurrenceCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="maximum_recurrence">Maximum recurrence</option><option value="maximum_retry">Maximum retry</option><option value="recurrence_interval_wait">Interval wait</option><option value="owner_review">Owner review</option><option value="wait">Wait</option><option value="other">Other</option></select></label>
+          <label>Worker <select id="filterEndpointRecurrenceWorkerMode"><option value="">Any</option><option value="dry_run">Dry run</option><option value="executed">Executed</option></select></label>
         </div>
         <div class="recurrence-grid">
           <div>
@@ -645,6 +646,25 @@
                   </tr>
                 </thead>
                 <tbody id="endpointRecurrenceTrendRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Worker Runs</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Run</th>
+                    <th>Mode</th>
+                    <th>Retryable</th>
+                    <th>Digests</th>
+                    <th>Trend Events</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="endpointRecurrenceAutomationRows"></tbody>
               </table>
             </div>
           </div>

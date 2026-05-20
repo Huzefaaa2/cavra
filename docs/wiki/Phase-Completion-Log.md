@@ -1161,4 +1161,26 @@ Validation:
 - `git diff --check`
 - `python3 -m pytest -q`
 
-Recommended next issue: surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
+Recommended next issue: delivered below as Evidence Console recurrence automation worker history.
+
+## Phase 7 Evidence Console Recurrence Automation History
+
+Status: complete for the current console visibility slice.
+
+Completed implementation:
+- Added a Worker Runs table to the Evidence Console Recurrence Operations panel.
+- Added dry-run versus executed worker filtering.
+- Added dashboard cards for worker run count, dry-run count, executed count, worker retryable routes, worker digests, and worker trend events.
+- Added API-backed loading from `/endpoint-remediation-sla-escalation-recurrence-automations` and `/endpoint-remediation-sla-escalation-recurrence-automations/dashboard`.
+- Added static sample automation-run evidence so the hosted sandbox remains useful without a deployed API.
+- Added JSON detail drill-downs and local export actions for automation run payloads, follow-up actions, and skipped delivery reasons.
+- Updated README, sandbox docs, roadmap docs, feature inventory, and wiki source.
+
+Validation:
+- `node --check apps/sandbox-ui/sandbox.js`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+- `python3 -m pytest -q`
+
+Recommended next issue: add deployment templates for scheduled recurrence automation workers, including GitHub Actions cron, Kubernetes CronJob, systemd timer, and secrets-safe connector guidance.
