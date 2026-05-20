@@ -706,6 +706,29 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     )
     sla_escalation_action_history = client.get("/endpoint-remediation-sla-escalation-actions")
     sla_escalation_action_dashboard = client.get("/endpoint-remediation-sla-escalation-actions/dashboard")
+    sla_escalation_recurrence_plan = client.post(
+        "/endpoint-remediation-sla-escalations/recurrence-plan",
+        json={
+            "generated_by": "release-agent",
+            "recurrence_policy": {
+                "recurrence_interval_minutes": 30,
+                "max_recurrences_per_route": 3,
+                "owner_calendars": {
+                    "release-governance": {
+                        "business_hours": [
+                            {
+                                "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+                                "start": "00:00",
+                                "end": "23:59",
+                            }
+                        ]
+                    }
+                },
+            },
+        },
+    )
+    sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
+    sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
     sla_escalation_dashboard = client.get("/endpoint-remediation-sla-escalations/dashboard")
     sla_history = client.get("/endpoint-remediation-sla-reports")
@@ -792,6 +815,15 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_escalation_action_history.json()["total"] >= 3
     assert sla_escalation_action_dashboard.status_code == 200
     assert sla_escalation_action_dashboard.json()["delivery_count"] >= 1
+    assert sla_escalation_recurrence_plan.status_code == 200
+    assert (
+        sla_escalation_recurrence_plan.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-plan"
+    )
+    assert sla_escalation_recurrence_history.status_code == 200
+    assert sla_escalation_recurrence_history.json()["total"] >= 1
+    assert sla_escalation_recurrence_dashboard.status_code == 200
+    assert sla_escalation_recurrence_dashboard.json()["route_count"] >= 1
     assert sla_escalation_history.status_code == 200
     assert sla_escalation_history.json()["total"] >= 1
     assert sla_escalation_dashboard.status_code == 200
@@ -845,6 +877,18 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_action_dashboard"]
         == "/endpoint-remediation-sla-escalation-actions/dashboard"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_plan"]
+        == "/endpoint-remediation-sla-escalations/recurrence-plan"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]
+        == "/endpoint-remediation-sla-escalation-recurrences"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_dashboard"]
+        == "/endpoint-remediation-sla-escalation-recurrences/dashboard"
     )
 
 

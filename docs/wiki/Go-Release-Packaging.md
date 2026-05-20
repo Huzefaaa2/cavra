@@ -497,6 +497,17 @@ cavra release endpoint-remediation-sla-escalation-action-history \
 cavra release endpoint-remediation-sla-escalation-action-dashboard \
   --metadata-json .cavra/evidence/metadata.json
 
+cavra release endpoint-remediation-sla-escalation-recurrence-plan \
+  --recurrence-policy .cavra/sla-escalation-recurrence-policy.json \
+  --metadata-json .cavra/evidence/metadata.json
+
+cavra release endpoint-remediation-sla-escalation-recurrence-history \
+  --metadata-json .cavra/evidence/metadata.json \
+  --action suppress
+
+cavra release endpoint-remediation-sla-escalation-recurrence-dashboard \
+  --metadata-json .cavra/evidence/metadata.json
+
 cavra release endpoint-remediation-sla-escalation-history \
   --metadata-json .cavra/evidence/metadata.json \
   --active-only
@@ -512,7 +523,7 @@ cavra release endpoint-remediation-sla-dashboard \
   --metadata-json .cavra/evidence/metadata.json
 ```
 
-Remediation requests are indexed as `metadata_kind=endpoint-drift-remediation-request`; execution records are indexed as `metadata_kind=endpoint-drift-remediation-execution`; handoff packages are indexed as `metadata_kind=endpoint-remediation-handoff`; callback and operator status records are indexed as `metadata_kind=endpoint-remediation-handoff-status`; SLA reports are indexed as `metadata_kind=endpoint-remediation-sla-report`; notification plans are indexed as `metadata_kind=endpoint-remediation-sla-notification-plan`; acknowledgements are indexed as `metadata_kind=endpoint-remediation-sla-notification-ack`; escalation plans are indexed as `metadata_kind=endpoint-remediation-sla-escalation-plan`; escalation owner reviews are indexed as `metadata_kind=endpoint-remediation-sla-escalation-review`; notification delivery attempts are indexed as `metadata_kind=release-connector-delivery` with `connector_delivery_source=endpoint_remediation_sla_notification`; escalation delivery attempts use `connector_delivery_source=endpoint_remediation_sla_escalation_delivery`. Community Edition records the governed plan, approval binding, handoff payloads, external status references, redacted provider callback evidence, SLA breach state, escalation payloads, executive release governance summaries, routing policy decisions, duplicate suppression windows, acknowledgement evidence, owner-specific acknowledgement and resolution SLO state, escalation ladder state, escalation delivery evidence, owner review records, and redacted notification delivery evidence for Jira, ServiceNow, Slack, Teams, generic webhooks, and private connector queues. Actual endpoint mutation is intentionally left to private connector implementations or operator runbooks.
+Remediation requests are indexed as `metadata_kind=endpoint-drift-remediation-request`; execution records are indexed as `metadata_kind=endpoint-drift-remediation-execution`; handoff packages are indexed as `metadata_kind=endpoint-remediation-handoff`; callback and operator status records are indexed as `metadata_kind=endpoint-remediation-handoff-status`; SLA reports are indexed as `metadata_kind=endpoint-remediation-sla-report`; notification plans are indexed as `metadata_kind=endpoint-remediation-sla-notification-plan`; acknowledgements are indexed as `metadata_kind=endpoint-remediation-sla-notification-ack`; escalation plans are indexed as `metadata_kind=endpoint-remediation-sla-escalation-plan`; escalation owner reviews are indexed as `metadata_kind=endpoint-remediation-sla-escalation-review`; recurrence plans are indexed as `metadata_kind=endpoint-remediation-sla-escalation-recurrence-plan`; notification delivery attempts are indexed as `metadata_kind=release-connector-delivery` with `connector_delivery_source=endpoint_remediation_sla_notification`; escalation delivery attempts use `connector_delivery_source=endpoint_remediation_sla_escalation_delivery`. Community Edition records the governed plan, approval binding, handoff payloads, external status references, redacted provider callback evidence, SLA breach state, escalation payloads, executive release governance summaries, routing policy decisions, duplicate suppression windows, acknowledgement evidence, owner-specific acknowledgement and resolution SLO state, escalation ladder state, escalation delivery evidence, owner review records, recurrence intervals, maximum recurrence limits, owner calendar availability, maintenance-window suppression, and redacted notification delivery evidence for Jira, ServiceNow, Slack, Teams, generic webhooks, and private connector queues. Actual endpoint mutation is intentionally left to private connector implementations or operator runbooks.
 
 Routing policy files can be JSON or YAML:
 
@@ -555,6 +566,33 @@ Owner SLO and escalation policy files can also be JSON or YAML:
       "action": "Escalate unresolved endpoint remediation notification to release governance."
     }
   ]
+}
+```
+
+Escalation recurrence policy files are JSON or YAML and remain public-safe metadata:
+
+```json
+{
+  "recurrence_interval_minutes": 60,
+  "max_recurrences_per_route": 3,
+  "maintenance_windows": [
+    {
+      "window_id": "change-freeze",
+      "owners": ["release-governance"],
+      "providers": ["jira"],
+      "start_at": "2026-05-20T00:00:00+00:00",
+      "end_at": "2026-05-20T02:00:00+00:00",
+      "reason": "release change freeze"
+    }
+  ],
+  "owner_calendars": {
+    "release-governance": {
+      "business_hours": [
+        {"days": ["mon", "tue", "wed", "thu", "fri"], "start": "09:00", "end": "17:00"}
+      ],
+      "unavailable_windows": []
+    }
+  }
 }
 ```
 
@@ -629,8 +667,8 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, duplicate suppression windows, acknowledgement tracking, escalation ladders, owner-specific service-level objectives, escalation delivery actions, owner review workflows, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, duplicate suppression windows, acknowledgement tracking, escalation ladders, owner-specific service-level objectives, escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Add endpoint remediation escalation recurrence policies, owner calendars, and maintenance-window suppression.
+1. Add recurrence plan-driven escalation delivery batching and suppression audit exports.

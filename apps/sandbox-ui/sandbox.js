@@ -1380,6 +1380,24 @@ async function loadEndpointRemediationSlaEscalationActionDashboard() {
   }
 }
 
+async function loadEndpointRemediationSlaEscalationRecurrenceDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalation-recurrences/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation SLA escalation recurrence dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "healthy",
+      deliverable_route_count: 0,
+      waiting_route_count: 0,
+      suppressed_route_count: 0,
+      maintenance_suppressed_count: 0,
+      calendar_suppressed_count: 0
+    };
+  }
+}
+
 async function loadEndpointManagementExportArtifacts(exportId) {
   await loadConsoleConfig();
   try {
@@ -2512,7 +2530,7 @@ function renderEndpointRemediationHandoffStatuses(items, dashboard) {
   }
 }
 
-function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}, escalationDashboard = {}, escalationActionDashboard = {}) {
+function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}, escalationDashboard = {}, escalationActionDashboard = {}, escalationRecurrenceDashboard = {}) {
   const rows = document.querySelector("#endpointRemediationSlaRows");
   const panel = document.querySelector("#endpointRemediationSlaDashboard");
   if (!rows || !panel) return;
@@ -2565,6 +2583,14 @@ function renderEndpointRemediationSlaReports(items, dashboard, notificationDashb
     <div class="release-delivery-metric">
       <span>Owner Reviews</span>
       <strong class="${Number(escalationActionDashboard.unresolved_review_count || 0) ? "warn" : "allow"}">${formatMetricNumber(escalationActionDashboard.owner_review_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Recurrence Ready</span>
+      <strong class="${Number(escalationRecurrenceDashboard.deliverable_route_count || 0) ? "block" : "allow"}">${formatMetricNumber(escalationRecurrenceDashboard.deliverable_route_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Suppressed Routes</span>
+      <strong class="${Number(escalationRecurrenceDashboard.suppressed_route_count || 0) ? "warn" : "allow"}">${formatMetricNumber(escalationRecurrenceDashboard.suppressed_route_count)}</strong>
     </div>
   `;
   for (const item of items) {
@@ -3334,14 +3360,15 @@ async function refreshEndpointRemediationHandoffStatus() {
 }
 
 async function refreshEndpointRemediationSla() {
-  const [items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard] = await Promise.all([
+  const [items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard, escalationRecurrenceDashboard] = await Promise.all([
     loadEndpointRemediationSlaReports(),
     loadEndpointRemediationSlaDashboard(),
     loadEndpointRemediationSlaNotificationDashboard(),
     loadEndpointRemediationSlaEscalationDashboard(),
-    loadEndpointRemediationSlaEscalationActionDashboard()
+    loadEndpointRemediationSlaEscalationActionDashboard(),
+    loadEndpointRemediationSlaEscalationRecurrenceDashboard()
   ]);
-  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard);
+  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard, escalationActionDashboard, escalationRecurrenceDashboard);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

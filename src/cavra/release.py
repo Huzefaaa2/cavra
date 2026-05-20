@@ -4459,6 +4459,7 @@ def filter_endpoint_remediation_sla_escalation_action_history(
     allowed_kinds = {
         "endpoint-remediation-sla-escalation-plan",
         "endpoint-remediation-sla-escalation-review",
+        "endpoint-remediation-sla-escalation-recurrence-plan",
         "release-connector-delivery",
     }
     filtered = [
@@ -4516,6 +4517,9 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
     plans = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-plan"]
     deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
     reviews = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-review"]
+    recurrences = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-plan"
+    ]
     failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
     unresolved_reviews = [item for item in reviews if item.get("review_state") in {"accepted", "deferred", "escalated"}]
     active_escalation_count = 0
@@ -4536,8 +4540,244 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
         "failed_delivery_count": len(failed_deliveries),
         "owner_review_count": len(reviews),
         "unresolved_review_count": len(unresolved_reviews),
+        "recurrence_plan_count": len(recurrences),
+        "recurrence_suppressed_count": sum(int(item.get("suppressed_route_count") or 0) for item in recurrences),
         "active_escalation_count": active_escalation_count,
         "owner_count": len(owners),
+        "latest": history[:10],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-manager",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Plan recurring escalation follow-up with maintenance-window and owner-calendar suppression."""
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    history = filter_endpoint_remediation_sla_escalation_action_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-plan"]
+    latest_plan_metadata = plans[0] if plans else {}
+    latest_plan = (
+        latest_plan_metadata.get("escalation_plan")
+        if isinstance(latest_plan_metadata.get("escalation_plan"), dict)
+        else latest_plan_metadata
+    )
+    plan_id = str(latest_plan.get("plan_id") or latest_plan_metadata.get("plan_id") or "endpoint-remediation-sla-escalation")
+    route_statuses = latest_plan.get("route_statuses", []) if isinstance(latest_plan.get("route_statuses"), list) else []
+    active_routes = [route for route in route_statuses if isinstance(route, dict) and route.get("active_escalation")]
+    interval_minutes = max(
+        1,
+        int(policy.get("recurrence_interval_minutes", policy.get("default_recurrence_minutes", 60)) or 60),
+    )
+    max_recurrences = max(1, int(policy.get("max_recurrences_per_route", policy.get("max_recurrences", 3)) or 3))
+    deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source") == "endpoint_remediation_sla_escalation_delivery"
+        and item.get("event_id") == plan_id
+    ]
+    delivery_count = len(deliveries)
+    latest_delivery_at = _latest_release_created_at(deliveries)
+    recurrence_count = delivery_count
+    reviews = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-review"]
+    latest_review_by_route = _endpoint_remediation_sla_latest_review_by_route(reviews)
+    route_decisions: list[dict[str, Any]] = []
+    for route in active_routes:
+        owner = str(route.get("owner") or "release-governance")
+        provider = str(route.get("provider") or "")
+        report_id = str(route.get("report_id") or "")
+        route_plan_id = str(route.get("plan_id") or plan_id)
+        route_key = _endpoint_remediation_sla_route_key(route_plan_id, report_id, provider, owner)
+        latest_review = latest_review_by_route.get(route_key, {})
+        review_state = str(latest_review.get("review_state") or "")
+        maintenance_window = _endpoint_remediation_sla_matching_maintenance_window(
+            policy,
+            now=now,
+            plan_id=route_plan_id,
+            report_id=report_id,
+            provider=provider,
+            owner=owner,
+        )
+        owner_availability = _endpoint_remediation_sla_owner_availability(policy, owner, now=now)
+        next_delivery_at = (
+            (latest_delivery_at + timedelta(minutes=interval_minutes)).isoformat()
+            if latest_delivery_at is not None
+            else now.isoformat()
+        )
+        action = "deliver"
+        reason = "active escalation is ready for recurring delivery"
+        if review_state in {"resolved", "false_positive"}:
+            action = "suppress"
+            reason = f"owner review state is {review_state}"
+        elif maintenance_window:
+            action = "suppress"
+            reason = "matching maintenance window is active"
+        elif not owner_availability["available"]:
+            action = "suppress"
+            reason = owner_availability["reason"]
+        elif recurrence_count >= max_recurrences:
+            action = "suppress"
+            reason = f"maximum recurrence count {max_recurrences} reached"
+        elif latest_delivery_at is not None and now < latest_delivery_at + timedelta(minutes=interval_minutes):
+            action = "wait"
+            reason = f"recurrence interval {interval_minutes} minutes has not elapsed"
+        route_decisions.append(
+            {
+                "route_key": route_key,
+                "plan_id": route_plan_id,
+                "report_id": report_id,
+                "provider": provider,
+                "owner": owner,
+                "action": action,
+                "reason": reason,
+                "review_state": review_state or None,
+                "latest_review_id": latest_review.get("review_id"),
+                "recurrence_count": recurrence_count,
+                "max_recurrences": max_recurrences,
+                "recurrence_interval_minutes": interval_minutes,
+                "latest_delivery_at": latest_delivery_at.isoformat() if latest_delivery_at else None,
+                "next_delivery_at": next_delivery_at,
+                "maintenance_window": maintenance_window,
+                "owner_availability": owner_availability,
+                "recommended_action": route.get("recommended_action"),
+            }
+        )
+    deliverable = [item for item in route_decisions if item["action"] == "deliver"]
+    waiting = [item for item in route_decisions if item["action"] == "wait"]
+    suppressed = [item for item in route_decisions if item["action"] == "suppress"]
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "plan_id": plan_id,
+            "route_decisions": route_decisions,
+        },
+        sort_keys=True,
+    )
+    recurrence_plan_id = f"erslaescrp-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_plan.v1",
+        "product": "CAVRA",
+        "recurrence_plan_id": recurrence_plan_id,
+        "plan_id": plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if deliverable else "warning" if waiting else "healthy",
+        "route_count": len(route_decisions),
+        "deliverable_route_count": len(deliverable),
+        "waiting_route_count": len(waiting),
+        "suppressed_route_count": len(suppressed),
+        "maintenance_suppressed_count": len([item for item in suppressed if item.get("maintenance_window")]),
+        "calendar_suppressed_count": len(
+            [item for item in suppressed if not item.get("owner_availability", {}).get("available", True)]
+        ),
+        "recurrence_interval_minutes": interval_minutes,
+        "max_recurrences_per_route": max_recurrences,
+        "route_decisions": route_decisions,
+        "controls": [
+            "recurrence-plan-derived-from-public-escalation-action-metadata",
+            "maintenance-windows-contain-no-provider-credentials",
+            "owner-calendars-are-public-safe-availability-metadata",
+            "suppression-decisions-do-not-perform-endpoint-mutation",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("recurrence_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-manager"),
+        "decision_count": int(plan.get("route_count") or 0),
+        "blocked_count": int(plan.get("suppressed_route_count") or 0),
+        "approval_required_count": int(plan.get("deliverable_route_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-escalation-recurrence-plan",
+        "recurrence_plan_id": plan.get("recurrence_plan_id"),
+        "plan_id": plan.get("plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "route_count": plan.get("route_count", 0),
+        "deliverable_route_count": plan.get("deliverable_route_count", 0),
+        "waiting_route_count": plan.get("waiting_route_count", 0),
+        "suppressed_route_count": plan.get("suppressed_route_count", 0),
+        "maintenance_suppressed_count": plan.get("maintenance_suppressed_count", 0),
+        "calendar_suppressed_count": plan.get("calendar_suppressed_count", 0),
+        "recurrence_plan": plan,
+    }
+
+
+def filter_endpoint_remediation_sla_escalation_recurrence_history(
+    items: list[dict[str, Any]],
+    *,
+    plan_id: str | None = None,
+    owner: str | None = None,
+    provider: str | None = None,
+    action: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [
+        item for item in items if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-plan"
+    ]
+    if plan_id:
+        filtered = [item for item in filtered if item.get("plan_id") == plan_id or item.get("session_id") == plan_id]
+    if owner or provider or action:
+        owner_key = owner.strip().lower() if owner else None
+        provider_key = provider.strip().lower().replace("-", "_") if provider else None
+        action_key = action.strip().lower() if action else None
+        matched = []
+        for item in filtered:
+            plan = item.get("recurrence_plan") if isinstance(item.get("recurrence_plan"), dict) else item
+            decisions = plan.get("route_decisions", []) if isinstance(plan.get("route_decisions"), list) else []
+            if owner_key:
+                decisions = [decision for decision in decisions if str(decision.get("owner", "")).lower() == owner_key]
+            if provider_key:
+                decisions = [decision for decision in decisions if str(decision.get("provider", "")).lower() == provider_key]
+            if action_key:
+                decisions = [decision for decision in decisions if str(decision.get("action", "")).lower() == action_key]
+            if decisions:
+                matched.append(item | {"matched_route_decisions": decisions})
+        filtered = matched
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_escalation_recurrence_history(items, limit=500)["items"]
+    latest = history[0] if history else {}
+    plan = latest.get("recurrence_plan") if isinstance(latest.get("recurrence_plan"), dict) else latest
+    decisions = plan.get("route_decisions", []) if isinstance(plan.get("route_decisions"), list) else []
+    deliverable = [item for item in decisions if item.get("action") == "deliver"]
+    waiting = [item for item in decisions if item.get("action") == "wait"]
+    suppressed = [item for item in decisions if item.get("action") == "suppress"]
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": "critical" if deliverable else "warning" if waiting else "healthy",
+        "plan_count": len(history),
+        "route_count": len(decisions),
+        "deliverable_route_count": len(deliverable),
+        "waiting_route_count": len(waiting),
+        "suppressed_route_count": len(suppressed),
+        "maintenance_suppressed_count": len([item for item in suppressed if item.get("maintenance_window")]),
+        "calendar_suppressed_count": len(
+            [item for item in suppressed if not item.get("owner_availability", {}).get("available", True)]
+        ),
+        "owners": sorted({str(item.get("owner")) for item in decisions if item.get("owner")}),
         "latest": history[:10],
     }
 
@@ -6605,6 +6845,168 @@ def _endpoint_remediation_sla_escalation_item_has_route(
             continue
         return True
     return False
+
+
+def _endpoint_remediation_sla_route_key(plan_id: str, report_id: str, provider: str, owner: str) -> str:
+    material = "|".join([plan_id, report_id, provider, owner])
+    return f"erslaroute-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+
+
+def _endpoint_remediation_sla_latest_review_by_route(reviews: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    latest: dict[str, dict[str, Any]] = {}
+    for review in reviews:
+        key = _endpoint_remediation_sla_route_key(
+            str(review.get("plan_id") or ""),
+            str(review.get("report_id") or ""),
+            str(review.get("provider") or ""),
+            str(review.get("owner") or ""),
+        )
+        current = latest.get(key)
+        if current is None or str(review.get("created_at", "")) > str(current.get("created_at", "")):
+            latest[key] = review
+    return latest
+
+
+def _latest_release_created_at(items: list[dict[str, Any]]) -> datetime | None:
+    latest: datetime | None = None
+    for item in items:
+        parsed = _parse_release_datetime(item.get("created_at"))
+        if parsed is not None and (latest is None or parsed > latest):
+            latest = parsed
+    return latest
+
+
+def _endpoint_remediation_sla_matching_maintenance_window(
+    policy: dict[str, Any],
+    *,
+    now: datetime,
+    plan_id: str,
+    report_id: str,
+    provider: str,
+    owner: str,
+) -> dict[str, Any] | None:
+    windows = policy.get("maintenance_windows", policy.get("suppression_windows", []))
+    if not isinstance(windows, list):
+        return None
+    for raw in windows:
+        if not isinstance(raw, dict):
+            continue
+        start = _parse_release_datetime(raw.get("start_at") or raw.get("starts_at"))
+        end = _parse_release_datetime(raw.get("end_at") or raw.get("ends_at"))
+        if start is None or end is None or not (start <= now <= end):
+            continue
+        if not _endpoint_remediation_sla_window_matches(raw, plan_id=plan_id, report_id=report_id, provider=provider, owner=owner):
+            continue
+        return {
+            "window_id": str(raw.get("window_id") or raw.get("id") or "maintenance-window"),
+            "start_at": start.isoformat(),
+            "end_at": end.isoformat(),
+            "reason": raw.get("reason") or raw.get("description") or "maintenance window",
+        }
+    return None
+
+
+def _endpoint_remediation_sla_window_matches(
+    window: dict[str, Any],
+    *,
+    plan_id: str,
+    report_id: str,
+    provider: str,
+    owner: str,
+) -> bool:
+    matchers = {
+        "plan_ids": plan_id,
+        "report_ids": report_id,
+        "providers": provider,
+        "owners": owner,
+    }
+    for matcher_field, value in matchers.items():
+        configured = {str(item).lower() for item in window.get(matcher_field, [])}
+        if configured and str(value).lower() not in configured:
+            return False
+    return True
+
+
+def _endpoint_remediation_sla_owner_availability(
+    policy: dict[str, Any],
+    owner: str,
+    *,
+    now: datetime,
+) -> dict[str, Any]:
+    calendar = _endpoint_remediation_sla_owner_calendar(policy, owner)
+    if not calendar:
+        return {"available": True, "reason": "no owner calendar configured"}
+    unavailable = _endpoint_remediation_sla_calendar_unavailable_window(calendar, now)
+    if unavailable:
+        return {"available": False, "reason": "owner unavailable window is active", "window": unavailable}
+    business_hours = calendar.get("business_hours", calendar.get("availability_windows", []))
+    if not business_hours:
+        return {"available": True, "reason": "no business-hours restriction configured"}
+    if _endpoint_remediation_sla_in_business_hours(business_hours, now):
+        return {"available": True, "reason": "owner calendar is available"}
+    return {"available": False, "reason": "owner calendar is outside business hours"}
+
+
+def _endpoint_remediation_sla_owner_calendar(policy: dict[str, Any], owner: str) -> dict[str, Any]:
+    calendars = policy.get("owner_calendars", policy.get("calendars", {}))
+    if isinstance(calendars, dict):
+        value = calendars.get(owner) or calendars.get(owner.lower())
+        return value if isinstance(value, dict) else {}
+    if isinstance(calendars, list):
+        for item in calendars:
+            if not isinstance(item, dict):
+                continue
+            owners = {str(value).lower() for value in item.get("owners", [])}
+            if not owners or owner.lower() in owners:
+                return item
+    return {}
+
+
+def _endpoint_remediation_sla_calendar_unavailable_window(
+    calendar: dict[str, Any],
+    now: datetime,
+) -> dict[str, Any] | None:
+    for raw in calendar.get("unavailable_windows", calendar.get("out_of_office", [])):
+        if not isinstance(raw, dict):
+            continue
+        start = _parse_release_datetime(raw.get("start_at") or raw.get("starts_at"))
+        end = _parse_release_datetime(raw.get("end_at") or raw.get("ends_at"))
+        if start is None or end is None or not (start <= now <= end):
+            continue
+        return {
+            "window_id": str(raw.get("window_id") or raw.get("id") or "owner-unavailable"),
+            "start_at": start.isoformat(),
+            "end_at": end.isoformat(),
+            "reason": raw.get("reason") or "owner unavailable",
+        }
+    return None
+
+
+def _endpoint_remediation_sla_in_business_hours(windows: Any, now: datetime) -> bool:
+    if not isinstance(windows, list):
+        return False
+    day = now.strftime("%a").lower()[:3]
+    current_minutes = now.hour * 60 + now.minute
+    for raw in windows:
+        if not isinstance(raw, dict):
+            continue
+        days = {str(value).lower()[:3] for value in raw.get("days", raw.get("weekdays", []))}
+        if days and day not in days:
+            continue
+        start = _parse_hhmm_minutes(str(raw.get("start") or raw.get("start_time") or "00:00"))
+        end = _parse_hhmm_minutes(str(raw.get("end") or raw.get("end_time") or "23:59"))
+        if start <= current_minutes <= end:
+            return True
+    return False
+
+
+def _parse_hhmm_minutes(value: str) -> int:
+    match = re.match(r"^(\d{1,2}):(\d{2})$", value.strip())
+    if not match:
+        return 0
+    hours = max(0, min(int(match.group(1)), 23))
+    minutes = max(0, min(int(match.group(2)), 59))
+    return hours * 60 + minutes
 
 
 def _endpoint_remediation_sla_escalation_delivery_description(
