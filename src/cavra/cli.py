@@ -96,6 +96,9 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_run,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
     build_endpoint_remediation_sla_escalation_recurrence_plan,
     build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
@@ -139,6 +142,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_automation_history,
     filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
@@ -3897,6 +3901,154 @@ def endpoint_remediation_sla_escalation_suppression_trends(
             console.print(f"  indexed: {store}")
 
 
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation")
+def endpoint_remediation_sla_escalation_recurrence_automation(
+    retry_policy: Annotated[Optional[Path], typer.Option(help="Optional recurrence retry policy JSON/YAML.")] = None,
+    config: Annotated[Optional[Path], typer.Option("--config", help="Optional connector config JSON/YAML path used only with --execute.")] = None,
+    output: Annotated[Path, typer.Option(help="Output directory for owner digest delivery evidence.")] = Path(
+        ".cavra/release/endpoint-remediation-sla-escalation-recurrence-automation"
+    ),
+    provider: Annotated[str, typer.Option(help="all, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    schedule_interval_minutes: Annotated[int, typer.Option(help="Idempotency window for scheduled worker runs.")] = 60,
+    max_digest_plans: Annotated[int, typer.Option(help="Maximum latest recurrence plans to include in owner digest generation.")] = 5,
+    dry_run: bool = typer.Option(True, "--dry-run/--execute", help="Plan by default; use --execute to deliver owner digests through configured connectors."),
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity running the worker.")] = "release-manager",
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to read recurrence metadata and index worker outputs.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to read recurrence metadata and index worker outputs.")] = Path(".cavra/evidence/metadata.db"),
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable automation output."),
+) -> None:
+    """Run one scheduled recurrence automation pass for retry, digest, and trend follow-up."""
+    try:
+        policy = load_connector_config(retry_policy) if retry_policy else None
+        connector_config = load_connector_config(config) if config and not dry_run else None
+        items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+        run = build_endpoint_remediation_sla_escalation_recurrence_automation_run(
+            items,
+            retry_policy=policy,
+            schedule={"interval_minutes": schedule_interval_minutes},
+            generated_by=generated_by,
+            dry_run=dry_run,
+            max_digest_plans=max_digest_plans,
+        )
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    retry_metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata(run["retry_plan"]),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    trend_metadata, trend_indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_suppression_trend_metadata(run["suppression_trend"]),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    indexed.extend(trend_indexed)
+    digest_results = []
+    for event in run.get("owner_digest_events", []):
+        digest_metadata, digest_indexed = _index_release_metadata(
+            build_endpoint_remediation_sla_escalation_owner_digest_metadata(event),
+            metadata_json=metadata_json,
+            sqlite=sqlite,
+        )
+        indexed.extend(digest_indexed)
+        delivery = None
+        delivery_evidence = None
+        delivery_metadata = None
+        skipped = None
+        if dry_run:
+            skipped = "dry_run"
+        elif connector_config is None:
+            skipped = "connector_config_not_configured"
+        else:
+            delivery = deliver_connector_event(
+                event,
+                connector_config,
+                provider=provider,
+                retries=retries,
+                timeout_seconds=timeout_seconds,
+            )
+            path = export_connector_delivery_result(delivery, output)
+            delivery_evidence = str(path)
+            delivery_metadata, delivery_indexed = _index_release_connector_delivery(
+                delivery,
+                path,
+                source="endpoint_remediation_sla_escalation_owner_digest",
+                metadata_json=metadata_json,
+                sqlite=sqlite,
+            )
+            indexed.extend(delivery_indexed)
+        digest_results.append(
+            {
+                "event": event,
+                "digest_metadata": digest_metadata,
+                "delivery": delivery,
+                "delivery_evidence": delivery_evidence,
+                "metadata": delivery_metadata,
+                "skipped": skipped,
+            }
+        )
+    metadata, run_indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata(run),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    indexed.extend(run_indexed)
+    payload = {
+        "run": run,
+        "metadata": metadata,
+        "retry_metadata": retry_metadata,
+        "trend_metadata": trend_metadata,
+        "owner_digests": digest_results,
+        "indexed_metadata_stores": sorted(set(indexed)),
+    }
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+        for store in sorted(set(indexed)):
+            console.print(f"  indexed: {store}")
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation-history")
+def endpoint_remediation_sla_escalation_recurrence_automation_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    dry_run: Annotated[Optional[bool], typer.Option(help="Filter by dry-run or executed worker runs.")] = None,
+    limit: Annotated[int, typer.Option(help="Maximum records to return.")] = 50,
+    offset: Annotated[int, typer.Option(help="Records to skip.")] = 0,
+) -> None:
+    """List scheduled recurrence automation worker runs."""
+    items = _load_endpoint_remediation_sla_escalation_recurrence_automation_items(
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    _print_json(
+        filter_endpoint_remediation_sla_escalation_recurrence_automation_history(
+            items,
+            dry_run=dry_run,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-automation-dashboard")
+def endpoint_remediation_sla_escalation_recurrence_automation_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize scheduled recurrence automation worker runs."""
+    items = _load_endpoint_remediation_sla_escalation_recurrence_automation_items(
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    _print_json(build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard(items))
+
+
 @release_app.command("endpoint-remediation-history")
 def endpoint_remediation_history(
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
@@ -4179,6 +4331,10 @@ def _load_endpoint_remediation_sla_escalation_action_items(
             metadata_kind="endpoint-remediation-sla-escalation-suppression-trend",
             limit=500,
         )["items"]
+        automation_runs = store.search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-run",
+            limit=500,
+        )["items"]
         deliveries = store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [
             *plans,
@@ -4188,8 +4344,24 @@ def _load_endpoint_remediation_sla_escalation_action_items(
             *retry_plans,
             *owner_digests,
             *suppression_trends,
+            *automation_runs,
             *deliveries,
         ]
+    return []
+
+
+def _load_endpoint_remediation_sla_escalation_recurrence_automation_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-automation-run",
+            limit=500,
+        )["items"]
     return []
 
 

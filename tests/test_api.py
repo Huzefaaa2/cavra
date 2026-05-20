@@ -753,6 +753,21 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     sla_escalation_suppression_trends = client.get(
         "/endpoint-remediation-sla-escalation-recurrences/suppression-trends"
     )
+    sla_escalation_recurrence_automation = client.post(
+        "/endpoint-remediation-sla-escalation-recurrences/automation-run",
+        json={
+            "generated_by": "release-agent",
+            "dry_run": True,
+            "schedule": {"interval_minutes": 30},
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 1, "backoff_multiplier": 1},
+        },
+    )
+    sla_escalation_recurrence_automation_history = client.get(
+        "/endpoint-remediation-sla-escalation-recurrence-automations"
+    )
+    sla_escalation_recurrence_automation_dashboard = client.get(
+        "/endpoint-remediation-sla-escalation-recurrence-automations/dashboard"
+    )
     sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
     sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
@@ -871,6 +886,16 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         sla_escalation_suppression_trends.json()["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-suppression-trend"
     )
+    assert sla_escalation_recurrence_automation.status_code == 200
+    assert (
+        sla_escalation_recurrence_automation.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-automation-run"
+    )
+    assert sla_escalation_recurrence_automation.json()["run"]["dry_run"] is True
+    assert sla_escalation_recurrence_automation_history.status_code == 200
+    assert sla_escalation_recurrence_automation_history.json()["total"] >= 1
+    assert sla_escalation_recurrence_automation_dashboard.status_code == 200
+    assert sla_escalation_recurrence_automation_dashboard.json()["run_count"] >= 1
     assert sla_escalation_recurrence_history.status_code == 200
     assert sla_escalation_recurrence_history.json()["total"] >= 1
     assert sla_escalation_recurrence_dashboard.status_code == 200
@@ -952,6 +977,14 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_suppression_trends"]
         == "/endpoint-remediation-sla-escalation-recurrences/suppression-trends"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automation"]
+        == "/endpoint-remediation-sla-escalation-recurrences/automation-run"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_automations"]
+        == "/endpoint-remediation-sla-escalation-recurrence-automations"
     )
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]

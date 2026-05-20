@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.
+1. Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.

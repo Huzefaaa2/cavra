@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.
+1. Surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.
 2. Continue broadening approval-route parity as new policy packs are added.

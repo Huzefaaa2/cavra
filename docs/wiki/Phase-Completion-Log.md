@@ -1135,4 +1135,30 @@ Validation:
 - `git diff --check`
 - `python3 -m pytest -q`
 
-Recommended next issue: add scheduled recurrence automation workers for retry plans, owner digests, suppression trends, and notification follow-up.
+Recommended next issue: delivered below as scheduled recurrence automation workers.
+
+## Phase 7 Scheduled Recurrence Automation Workers
+
+Status: complete for the current public-safe recurrence automation slice.
+
+Completed implementation:
+- Added `cavra.endpoint_remediation_sla.escalation_recurrence_automation_run.v1` worker-run artifacts.
+- Added dry-run-by-default worker orchestration for retry-plan creation, owner digest generation, suppression trend generation, and follow-up action planning.
+- Added schedule-window idempotency keys based on the worker interval and recurrence metadata inputs.
+- Added optional `--execute` delivery for owner digests through configured connectors while preserving dry-run as the safe default.
+- Added metadata indexing for worker runs as `endpoint-remediation-sla-escalation-recurrence-automation-run`.
+- Added CLI commands for recurrence automation run, history, and dashboard summaries.
+- Added API endpoints for recurrence automation run, history, and dashboard summaries.
+- Updated README, CLI docs, API docs, Go release packaging docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for worker artifact construction, metadata indexing, CLI execution, API execution, history, dashboard, and console config endpoint discovery.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `python3 -m pytest -q tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift`
+- `python3 -m ruff check src tests`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+- `python3 -m pytest -q`
+
+Recommended next issue: surface recurrence automation worker history, dry-run status, and execution outcomes in the Evidence Console.

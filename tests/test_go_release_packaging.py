@@ -29,6 +29,9 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_owner_digest_event,
     build_endpoint_remediation_sla_escalation_owner_digest_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_run,
+    build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
     build_endpoint_remediation_sla_escalation_recurrence_plan,
@@ -1051,7 +1054,7 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         "metadata_kind": "release-connector-delivery",
         "connector_delivery_source": "endpoint_remediation_sla_escalation_recurrence_delivery",
         "session_id": "rcd-recurrence-existing",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": "2026-05-19T01:20:00+00:00",
         "event_id": recurrence_plan["recurrence_plan_id"],
         "event_type": "cavra.endpoint_remediation_sla.escalation_recurrence_delivery",
         "delivery_success": False,
@@ -1087,6 +1090,27 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         [recurrence_metadata, suppression_audit_metadata]
     )
     suppression_trend_metadata = build_endpoint_remediation_sla_escalation_suppression_trend_metadata(suppression_trend)
+    automation_now = datetime(2026, 5, 19, 1, 35, tzinfo=timezone.utc)
+    recurrence_automation_run = build_endpoint_remediation_sla_escalation_recurrence_automation_run(
+        [recurrence_metadata, suppression_audit_metadata, failed_recurrence_delivery_metadata],
+        retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 1, "backoff_multiplier": 1},
+        schedule={"interval_minutes": 30},
+        dry_run=True,
+        now=automation_now,
+    )
+    repeated_recurrence_automation_run = build_endpoint_remediation_sla_escalation_recurrence_automation_run(
+        [recurrence_metadata, suppression_audit_metadata, failed_recurrence_delivery_metadata],
+        retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 1, "backoff_multiplier": 1},
+        schedule={"interval_minutes": 30},
+        dry_run=True,
+        now=automation_now + timedelta(minutes=2),
+    )
+    recurrence_automation_metadata = build_endpoint_remediation_sla_escalation_recurrence_automation_run_metadata(
+        recurrence_automation_run
+    )
+    recurrence_automation_dashboard = build_endpoint_remediation_sla_escalation_recurrence_automation_dashboard(
+        [recurrence_automation_metadata]
+    )
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -1163,6 +1187,16 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert owner_digest_event["summary"]["owner_count"] >= 1
     assert suppression_trend_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-suppression-trend"
     assert suppression_trend["suppression_event_count"] >= 1
+    assert (
+        recurrence_automation_metadata["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-automation-run"
+    )
+    assert recurrence_automation_run["dry_run"] is True
+    assert repeated_recurrence_automation_run["run_id"] == recurrence_automation_run["run_id"]
+    assert recurrence_automation_run["summary"]["retryable_count"] >= 1
+    assert recurrence_automation_run["summary"]["owner_digest_count"] >= 1
+    assert recurrence_automation_run["follow_up_actions"]
+    assert recurrence_automation_dashboard["run_count"] == 1
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1555,6 +1589,37 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "--json",
         ],
     )
+    sla_escalation_recurrence_automation_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-automation",
+            "--metadata-json",
+            str(metadata_json),
+            "--schedule-interval-minutes",
+            "30",
+            "--dry-run",
+            "--json",
+        ],
+    )
+    sla_escalation_recurrence_automation_history_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-automation-history",
+            "--metadata-json",
+            str(metadata_json),
+        ],
+    )
+    sla_escalation_recurrence_automation_dashboard_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-automation-dashboard",
+            "--metadata-json",
+            str(metadata_json),
+        ],
+    )
     sla_escalation_recurrence_history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-escalation-recurrence-history", "--metadata-json", str(metadata_json)],
@@ -1662,6 +1727,16 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         json.loads(sla_escalation_suppression_trends_cli.output)["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-suppression-trend"
     )
+    assert sla_escalation_recurrence_automation_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_recurrence_automation_cli.output)["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-automation-run"
+    )
+    assert json.loads(sla_escalation_recurrence_automation_cli.output)["run"]["dry_run"] is True
+    assert sla_escalation_recurrence_automation_history_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_automation_history_cli.output)["total"] >= 1
+    assert sla_escalation_recurrence_automation_dashboard_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_automation_dashboard_cli.output)["run_count"] >= 1
     assert sla_escalation_recurrence_history_cli.exit_code == 0
     assert json.loads(sla_escalation_recurrence_history_cli.output)["total"] >= 1
     assert sla_escalation_recurrence_dashboard_cli.exit_code == 0
