@@ -27,13 +27,19 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_dashboard,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
+    build_endpoint_remediation_sla_escalation_owner_digest_event,
+    build_endpoint_remediation_sla_escalation_owner_digest_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
     build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
     build_endpoint_remediation_sla_escalation_recurrence_plan,
     build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_retry_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_escalation_suppression_audit,
     build_endpoint_remediation_sla_escalation_suppression_audit_metadata,
+    build_endpoint_remediation_sla_escalation_suppression_trends,
+    build_endpoint_remediation_sla_escalation_suppression_trend_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_notification_ack_metadata,
@@ -1041,6 +1047,33 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     )
     recurrence_dashboard = build_endpoint_remediation_sla_escalation_recurrence_dashboard([recurrence_metadata])
     recurrence_event = build_endpoint_remediation_sla_escalation_recurrence_delivery_event(recurrence_plan)
+    failed_recurrence_delivery_metadata = {
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "endpoint_remediation_sla_escalation_recurrence_delivery",
+        "session_id": "rcd-recurrence-existing",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "event_id": recurrence_plan["recurrence_plan_id"],
+        "event_type": "cavra.endpoint_remediation_sla.escalation_recurrence_delivery",
+        "delivery_success": False,
+        "providers": [recurrence_event["routes"][0]["provider"]],
+        "failed_providers": [recurrence_event["routes"][0]["provider"]],
+        "status_codes": [503],
+        "attempt_count": 1,
+        "max_attempt_count": 1,
+    }
+    recurrence_retry_plan = build_endpoint_remediation_sla_escalation_recurrence_retry_plan(
+        [recurrence_metadata, failed_recurrence_delivery_metadata],
+        policy={"max_retry_attempts": 3, "retry_delay_minutes": 1, "backoff_multiplier": 1},
+        now=datetime.now(timezone.utc) + timedelta(minutes=5),
+    )
+    recurrence_retry_metadata = build_endpoint_remediation_sla_escalation_recurrence_retry_plan_metadata(
+        recurrence_retry_plan
+    )
+    owner_digest_event = build_endpoint_remediation_sla_escalation_owner_digest_event(
+        recurrence_plan,
+        retry_plan=recurrence_retry_plan,
+    )
+    owner_digest_metadata = build_endpoint_remediation_sla_escalation_owner_digest_metadata(owner_digest_event)
     suppression_audit = build_endpoint_remediation_sla_escalation_suppression_audit(recurrence_plan)
     suppression_audit_metadata = build_endpoint_remediation_sla_escalation_suppression_audit_metadata(
         suppression_audit,
@@ -1050,6 +1083,10 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         recurrence_plan,
         tmp_path / "recurrence-suppression-audit",
     )
+    suppression_trend = build_endpoint_remediation_sla_escalation_suppression_trends(
+        [recurrence_metadata, suppression_audit_metadata]
+    )
+    suppression_trend_metadata = build_endpoint_remediation_sla_escalation_suppression_trend_metadata(suppression_trend)
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -1119,6 +1156,13 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert suppression_audit_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-suppression-audit"
     assert suppression_audit["summary"]["suppressed_route_count"] >= 1
     assert any(path.name == "endpoint-remediation-sla-escalation-suppression-audit.md" for path in suppression_export.files)
+    assert recurrence_retry_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-recurrence-retry-plan"
+    assert recurrence_retry_plan["retryable_count"] >= 1
+    assert owner_digest_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-owner-digest"
+    assert owner_digest_event["event_type"] == "cavra.endpoint_remediation_sla.escalation_owner_digest"
+    assert owner_digest_event["summary"]["owner_count"] >= 1
+    assert suppression_trend_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-suppression-trend"
+    assert suppression_trend["suppression_event_count"] >= 1
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1469,6 +1513,48 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "--json",
         ],
     )
+    sla_escalation_recurrence_retry_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-retry-plan",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_recurrence_retry_path = tmp_path / "endpoint-remediation-sla-escalation-recurrence-retry-plan.json"
+    if sla_escalation_recurrence_retry_cli.exit_code == 0:
+        sla_escalation_recurrence_retry_path.write_text(sla_escalation_recurrence_retry_cli.output, encoding="utf-8")
+    sla_escalation_owner_digest_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-remediation-sla-escalation-owner-digest",
+            str(sla_escalation_recurrence_plan_path),
+            "--retry-plan",
+            str(sla_escalation_recurrence_retry_path),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_suppression_trends_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-suppression-trends",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
     sla_escalation_recurrence_history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-escalation-recurrence-history", "--metadata-json", str(metadata_json)],
@@ -1560,6 +1646,21 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert (
         json.loads(sla_escalation_suppression_audit_cli.output)["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-suppression-audit"
+    )
+    assert sla_escalation_recurrence_retry_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_recurrence_retry_cli.output)["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-retry-plan"
+    )
+    assert sla_escalation_owner_digest_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_owner_digest_cli.output)["digest_metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-owner-digest"
+    )
+    assert sla_escalation_suppression_trends_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_suppression_trends_cli.output)["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-suppression-trend"
     )
     assert sla_escalation_recurrence_history_cli.exit_code == 0
     assert json.loads(sla_escalation_recurrence_history_cli.output)["total"] >= 1

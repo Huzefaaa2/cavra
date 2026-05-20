@@ -1092,4 +1092,25 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
 - `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
 
-Recommended next issue: add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.
+Recommended next issue: delivered below as recurrence retry policies, owner digests, and suppression trends.
+
+## Phase 7 Endpoint Remediation Recurrence Retry Digests And Trends
+
+Status: complete for the current public-safe recurrence retry and analytics slice.
+
+Completed implementation:
+- Added recurrence retry plans derived from failed `endpoint_remediation_sla_escalation_recurrence_delivery` metadata.
+- Added retry policy controls for maximum retry attempts, retry delay, and backoff without storing connector credentials.
+- Added owner digest notification events that group unresolved recurrence routes by owner and provider.
+- Added owner digest connector delivery metadata through `connector_delivery_source=endpoint_remediation_sla_escalation_owner_digest`.
+- Added suppression trend analytics by reason category, owner, and provider.
+- Added CLI commands for retry plans, owner digest delivery, and suppression trend reports.
+- Added API endpoints for retry plans, owner digest delivery, and suppression trend reports.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for retry decision planning, owner digest event generation, suppression trend metadata, CLI commands, API endpoints, and action dashboard counts.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
+
+Recommended next issue: surface recurrence retry, owner digest, and suppression trend analytics in the Evidence Console with filters and export drill-downs.
