@@ -27,6 +27,9 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_dashboard,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
@@ -61,6 +64,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_ingestion_history,
@@ -998,6 +1002,40 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     escalation_action_dashboard = build_endpoint_remediation_sla_escalation_action_dashboard(
         [escalation_plan_metadata, escalation_delivery_metadata, escalation_review_metadata]
     )
+    recurrence_policy = {
+        "recurrence_interval_minutes": 30,
+        "max_recurrences_per_route": 3,
+        "maintenance_windows": [
+            {
+                "window_id": "jira-maintenance",
+                "owners": ["release-cab"],
+                "providers": ["jira"],
+                "start_at": (
+                    datetime.fromisoformat(escalation_plan["generated_at"]) - timedelta(minutes=5)
+                ).isoformat(),
+                "end_at": (
+                    datetime.fromisoformat(escalation_plan["generated_at"]) + timedelta(minutes=30)
+                ).isoformat(),
+                "reason": "provider maintenance",
+            }
+        ],
+        "owner_calendars": {
+            "release-cab": {
+                "business_hours": [{"days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "start": "00:00", "end": "23:59"}]
+            }
+        },
+    }
+    recurrence_plan = build_endpoint_remediation_sla_escalation_recurrence_plan(
+        [escalation_plan_metadata, escalation_delivery_metadata, escalation_review_metadata],
+        policy=recurrence_policy,
+        now=datetime.fromisoformat(escalation_plan["generated_at"]) + timedelta(minutes=10),
+    )
+    recurrence_metadata = build_endpoint_remediation_sla_escalation_recurrence_plan_metadata(recurrence_plan)
+    recurrence_history = filter_endpoint_remediation_sla_escalation_recurrence_history(
+        [recurrence_metadata],
+        action="suppress",
+    )
+    recurrence_dashboard = build_endpoint_remediation_sla_escalation_recurrence_dashboard([recurrence_metadata])
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -1056,6 +1094,11 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert escalation_action_history["total"] == 2
     assert escalation_action_dashboard["delivery_count"] == 1
     assert escalation_action_dashboard["owner_review_count"] == 1
+    assert recurrence_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-recurrence-plan"
+    assert recurrence_plan["suppressed_route_count"] >= 1
+    assert recurrence_plan["maintenance_suppressed_count"] >= 1
+    assert recurrence_history["total"] == 1
+    assert recurrence_dashboard["suppressed_route_count"] >= 1
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1102,6 +1145,27 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
                         "action": "Escalate unresolved SLA notification to release governance.",
                     }
                 ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    recurrence_policy = tmp_path / "sla-escalation-recurrence-policy.json"
+    recurrence_policy.write_text(
+        json.dumps(
+            {
+                "recurrence_interval_minutes": 30,
+                "max_recurrences_per_route": 3,
+                "owner_calendars": {
+                    "release-governance": {
+                        "business_hours": [
+                            {
+                                "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+                                "start": "00:00",
+                                "end": "23:59",
+                            }
+                        ]
+                    }
+                },
             }
         ),
         encoding="utf-8",
@@ -1340,6 +1404,26 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         app,
         ["release", "endpoint-remediation-sla-escalation-action-dashboard", "--metadata-json", str(metadata_json)],
     )
+    sla_escalation_recurrence_plan_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "endpoint-remediation-sla-escalation-recurrence-plan",
+            "--recurrence-policy",
+            str(recurrence_policy),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_recurrence_history_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-escalation-recurrence-history", "--metadata-json", str(metadata_json)],
+    )
+    sla_escalation_recurrence_dashboard_cli = runner.invoke(
+        app,
+        ["release", "endpoint-remediation-sla-escalation-recurrence-dashboard", "--metadata-json", str(metadata_json)],
+    )
     sla_escalation_history_cli = runner.invoke(
         app,
         [
@@ -1409,6 +1493,15 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert json.loads(sla_escalation_action_history_cli.output)["total"] >= 3
     assert sla_escalation_action_dashboard_cli.exit_code == 0
     assert json.loads(sla_escalation_action_dashboard_cli.output)["delivery_count"] >= 1
+    assert sla_escalation_recurrence_plan_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_recurrence_plan_cli.output)["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-recurrence-plan"
+    )
+    assert sla_escalation_recurrence_history_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_history_cli.output)["total"] >= 1
+    assert sla_escalation_recurrence_dashboard_cli.exit_code == 0
+    assert json.loads(sla_escalation_recurrence_dashboard_cli.output)["route_count"] >= 1
     assert sla_escalation_history_cli.exit_code == 0
     assert json.loads(sla_escalation_history_cli.output)["total"] >= 1
     assert sla_escalation_dashboard_cli.exit_code == 0

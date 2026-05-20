@@ -93,6 +93,9 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_dashboard,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_notification_ack_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
@@ -127,6 +130,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
@@ -3565,6 +3569,76 @@ def endpoint_remediation_sla_escalation_action_dashboard(
     _print_json(build_endpoint_remediation_sla_escalation_action_dashboard(items))
 
 
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-plan")
+def endpoint_remediation_sla_escalation_recurrence_plan(
+    recurrence_policy: Annotated[Optional[Path], typer.Option(help="Optional recurrence, owner calendar, and maintenance window policy JSON/YAML.")] = None,
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to read escalation action metadata and index the plan.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to read escalation action metadata and index the plan.")] = Path(".cavra/evidence/metadata.db"),
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity generating the recurrence plan.")] = "release-manager",
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable recurrence plan output."),
+) -> None:
+    """Plan recurring escalation follow-up with owner calendar and maintenance-window suppression."""
+    try:
+        policy = load_connector_config(recurrence_policy) if recurrence_policy else None
+        items = _load_endpoint_remediation_sla_escalation_action_items(metadata_json=metadata_json, sqlite=sqlite)
+        plan = build_endpoint_remediation_sla_escalation_recurrence_plan(
+            items,
+            policy=policy,
+            generated_by=generated_by,
+        )
+    except (OSError, json.JSONDecodeError, FileNotFoundError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_metadata(
+        build_endpoint_remediation_sla_escalation_recurrence_plan_metadata(plan),
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = {"plan": plan, "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(payload, indent=2)))
+        for store in indexed:
+            console.print(f"  indexed: {store}")
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-history")
+def endpoint_remediation_sla_escalation_recurrence_history(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+    plan_id: Annotated[Optional[str], typer.Option(help="Filter by escalation plan ID.")] = None,
+    owner: Annotated[Optional[str], typer.Option(help="Filter by escalation owner.")] = None,
+    provider: Annotated[Optional[str], typer.Option(help="Filter by notification provider.")] = None,
+    action: Annotated[Optional[str], typer.Option(help="Filter by recurrence action: deliver, wait, or suppress.")] = None,
+    limit: Annotated[int, typer.Option(help="Page size.")] = 50,
+    offset: Annotated[int, typer.Option(help="Page offset.")] = 0,
+) -> None:
+    """Show endpoint remediation SLA escalation recurrence and suppression plans."""
+    items = _load_endpoint_remediation_sla_escalation_recurrence_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(
+        filter_endpoint_remediation_sla_escalation_recurrence_history(
+            items,
+            plan_id=plan_id,
+            owner=owner,
+            provider=provider,
+            action=action,
+            limit=limit,
+            offset=offset,
+        )
+    )
+
+
+@release_app.command("endpoint-remediation-sla-escalation-recurrence-dashboard")
+def endpoint_remediation_sla_escalation_recurrence_dashboard(
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store.")] = Path(".cavra/evidence/metadata.db"),
+) -> None:
+    """Summarize endpoint remediation SLA escalation recurrence suppression."""
+    items = _load_endpoint_remediation_sla_escalation_recurrence_items(metadata_json=metadata_json, sqlite=sqlite)
+    _print_json(build_endpoint_remediation_sla_escalation_recurrence_dashboard(items))
+
+
 @release_app.command("endpoint-remediation-history")
 def endpoint_remediation_history(
     metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store.")] = None,
@@ -3830,8 +3904,24 @@ def _load_endpoint_remediation_sla_escalation_action_items(
         store = SQLiteEvidenceMetadataStore(sqlite)
         plans = store.search(metadata_kind="endpoint-remediation-sla-escalation-plan", limit=500)["items"]
         reviews = store.search(metadata_kind="endpoint-remediation-sla-escalation-review", limit=500)["items"]
+        recurrences = store.search(metadata_kind="endpoint-remediation-sla-escalation-recurrence-plan", limit=500)["items"]
         deliveries = store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
-        return [*plans, *reviews, *deliveries]
+        return [*plans, *reviews, *recurrences, *deliveries]
+    return []
+
+
+def _load_endpoint_remediation_sla_escalation_recurrence_items(
+    *,
+    metadata_json: Path | None,
+    sqlite: Path | None,
+) -> list[dict]:
+    if metadata_json:
+        return EvidenceMetadataStore(metadata_json).list()
+    if sqlite:
+        return SQLiteEvidenceMetadataStore(sqlite).search(
+            metadata_kind="endpoint-remediation-sla-escalation-recurrence-plan",
+            limit=500,
+        )["items"]
     return []
 
 

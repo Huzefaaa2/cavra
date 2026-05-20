@@ -76,6 +76,9 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_dashboard,
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
+    build_endpoint_remediation_sla_escalation_recurrence_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_plan,
+    build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
     build_endpoint_remediation_sla_notification_ack_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
@@ -107,6 +110,7 @@ from cavra.release import (
     filter_endpoint_remediation_handoff_status_history,
     filter_endpoint_remediation_sla_escalation_history,
     filter_endpoint_remediation_sla_escalation_action_history,
+    filter_endpoint_remediation_sla_escalation_recurrence_history,
     filter_endpoint_remediation_sla_notification_history,
     filter_endpoint_remediation_sla_report_history,
     filter_endpoint_inventory_freshness_history,
@@ -291,6 +295,9 @@ def create_app():
                 "endpoint_remediation_sla_escalation_dashboard": "/endpoint-remediation-sla-escalations/dashboard",
                 "endpoint_remediation_sla_escalation_actions": "/endpoint-remediation-sla-escalation-actions",
                 "endpoint_remediation_sla_escalation_action_dashboard": "/endpoint-remediation-sla-escalation-actions/dashboard",
+                "endpoint_remediation_sla_escalation_recurrence_plan": "/endpoint-remediation-sla-escalations/recurrence-plan",
+                "endpoint_remediation_sla_escalation_recurrences": "/endpoint-remediation-sla-escalation-recurrences",
+                "endpoint_remediation_sla_escalation_recurrence_dashboard": "/endpoint-remediation-sla-escalation-recurrences/dashboard",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
@@ -2019,6 +2026,41 @@ def create_app():
             _endpoint_remediation_sla_escalation_action_items(evidence_store)
         )
 
+    @app.post("/endpoint-remediation-sla-escalations/recurrence-plan")
+    def endpoint_remediation_sla_escalation_recurrence_plan(payload: dict) -> dict:
+        plan = build_endpoint_remediation_sla_escalation_recurrence_plan(
+            _endpoint_remediation_sla_escalation_action_items(evidence_store),
+            policy=payload.get("recurrence_policy") if isinstance(payload.get("recurrence_policy"), dict) else None,
+            generated_by=payload.get("generated_by", "console"),
+        )
+        metadata = evidence_store.upsert(build_endpoint_remediation_sla_escalation_recurrence_plan_metadata(plan))
+        return {"plan": plan, "metadata": metadata}
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrences")
+    def endpoint_remediation_sla_escalation_recurrence_index(
+        plan_id: Optional[str] = None,
+        owner: Optional[str] = None,
+        provider: Optional[str] = None,
+        action: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return filter_endpoint_remediation_sla_escalation_recurrence_history(
+            _endpoint_remediation_sla_escalation_recurrence_items(evidence_store),
+            plan_id=plan_id,
+            owner=owner,
+            provider=provider,
+            action=action,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
+    def endpoint_remediation_sla_escalation_recurrence_dashboard() -> dict:
+        return build_endpoint_remediation_sla_escalation_recurrence_dashboard(
+            _endpoint_remediation_sla_escalation_recurrence_items(evidence_store)
+        )
+
     @app.get("/endpoint-remediation-sla-reports/dashboard")
     def endpoint_remediation_sla_report_dashboard() -> dict:
         result = _search_evidence_metadata(
@@ -2412,8 +2454,21 @@ def _endpoint_remediation_sla_escalation_action_items(
     if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
         plans = evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-plan", limit=500)["items"]
         reviews = evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-review", limit=500)["items"]
+        recurrences = evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-recurrence-plan", limit=500)[
+            "items"
+        ]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
-        return [*plans, *reviews, *deliveries]
+        return [*plans, *reviews, *recurrences, *deliveries]
+    return evidence_store.list()
+
+
+def _endpoint_remediation_sla_escalation_recurrence_items(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+) -> list[dict]:
+    if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+        return evidence_store.search(metadata_kind="endpoint-remediation-sla-escalation-recurrence-plan", limit=500)[
+            "items"
+        ]
     return evidence_store.list()
 
 

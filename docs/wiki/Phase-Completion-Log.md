@@ -1051,3 +1051,24 @@ Validation:
 - `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
 
 Recommended next issue: add endpoint remediation escalation recurrence policies, owner calendars, and maintenance-window suppression.
+
+## Phase 7 Endpoint Remediation Escalation Recurrence And Suppression
+
+Status: complete for the current public-safe recurrence planning slice.
+
+Completed implementation:
+- Added `cavra.endpoint_remediation_sla.escalation_recurrence_plan.v1` plans derived from escalation plans, delivery metadata, and owner review records.
+- Added recurrence intervals and maximum recurrence counts so unresolved escalation routes can be re-evaluated without duplicate follow-up noise.
+- Added public-safe owner calendar availability checks with business-hours and unavailable-window support.
+- Added maintenance-window suppression scoped by plan, report, provider, or owner without storing connector credentials or endpoint mutation logic.
+- Added CLI commands for recurrence plan generation, recurrence history, and recurrence dashboards.
+- Added API endpoints for recurrence plan generation, recurrence history, and recurrence dashboards.
+- Updated the Evidence Console endpoint remediation SLA panel with recurrence-ready and suppressed-route metrics.
+- Added tests for recurrence metadata indexing, maintenance-window suppression, CLI recurrence commands, API recurrence endpoints, and dashboard summaries.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
+
+Recommended next issue: add recurrence plan-driven escalation delivery batching and suppression audit exports.
