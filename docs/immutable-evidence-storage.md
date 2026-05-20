@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is expanded Go parity and public sandbox URL validation after deployment from `main`.
+The next recommended work is public sandbox URL validation after deployment from `main` and continued release-governance record parity.

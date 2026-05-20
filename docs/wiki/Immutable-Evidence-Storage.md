@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-expanded Go parity and public sandbox URL validation after deployment from `main`.
+public sandbox URL validation after deployment from `main` and continued release-governance record parity.

@@ -23,6 +23,7 @@ type Request struct {
 	Server             string `json:"server"`
 	Tool               string `json:"tool"`
 	Capability         string `json:"capability"`
+	Record             map[string]any `json:"record,omitempty"`
 }
 
 type Decision struct {
@@ -136,6 +137,8 @@ func EvaluateWithPolicyAndRegistry(request Request, p Policy, registry *TrustReg
 		} else {
 			decision = evaluateMCP(request, pack, p)
 		}
+	case "release_governance_record":
+		decision = evaluateReleaseGovernanceRecord(request, pack)
 	default:
 		decision = baseDecision("require_approval", "Unknown action type; review required.", request.ActionType, request.Target, request.operation(), pack, "runtime.default.require_approval", "medium", "Repository Owners")
 	}

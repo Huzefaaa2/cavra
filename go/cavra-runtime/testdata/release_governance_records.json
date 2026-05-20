@@ -1,0 +1,76 @@
+[
+  {
+    "name": "pending channel promotion request requires approval",
+    "request": {
+      "session_id": "release-governance-pending",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "release-channel-promotion-request",
+        "approval_required_count": 1,
+        "approval_state": "pending",
+        "approval_id": "apr_channel_prod"
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.approval.pending",
+      "severity": "high",
+      "approver_group": "Release Governance",
+      "evidence_ref_prefix": "evidence://release-governance-pending/"
+    }
+  },
+  {
+    "name": "approved rollout promotion execution allows",
+    "request": {
+      "session_id": "release-governance-approved",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "rollout-promotion-execution",
+        "approval_state": "approved",
+        "approval_id": "apr_promote_prod"
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.approval.approved",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "rollback execution missing approval blocks",
+    "request": {
+      "session_id": "release-governance-missing",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "rollout-rollback-execution",
+        "approval_required_count": 1
+      }
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "release_governance.approval.missing",
+      "severity": "critical",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "denied endpoint remediation request blocks",
+    "request": {
+      "session_id": "release-governance-denied",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-drift-remediation-request",
+        "approval": {
+          "state": "denied",
+          "approval_id": "apr_endpoint_denied"
+        }
+      }
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "release_governance.approval.denied",
+      "severity": "critical",
+      "approver_group": "Release Governance"
+    }
+  }
+]

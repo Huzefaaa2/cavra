@@ -31,5 +31,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
+- Continue broadening release-governance record parity and validate the public sandbox URL.
 - Public sandbox URL validation after deployment from `main`.
