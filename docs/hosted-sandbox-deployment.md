@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add recurrence plan-driven escalation delivery batching and suppression audit exports.
+1. Add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.

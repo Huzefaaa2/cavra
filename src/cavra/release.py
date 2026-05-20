@@ -4460,6 +4460,7 @@ def filter_endpoint_remediation_sla_escalation_action_history(
         "endpoint-remediation-sla-escalation-plan",
         "endpoint-remediation-sla-escalation-review",
         "endpoint-remediation-sla-escalation-recurrence-plan",
+        "endpoint-remediation-sla-escalation-suppression-audit",
         "release-connector-delivery",
     }
     filtered = [
@@ -4468,7 +4469,11 @@ def filter_endpoint_remediation_sla_escalation_action_history(
         if item.get("metadata_kind") in allowed_kinds
         and (
             item.get("metadata_kind") != "release-connector-delivery"
-            or item.get("connector_delivery_source") == "endpoint_remediation_sla_escalation_delivery"
+            or item.get("connector_delivery_source")
+            in {
+                "endpoint_remediation_sla_escalation_delivery",
+                "endpoint_remediation_sla_escalation_recurrence_delivery",
+            }
         )
     ]
     if metadata_kind:
@@ -4520,6 +4525,9 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
     recurrences = [
         item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-recurrence-plan"
     ]
+    suppression_audits = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-suppression-audit"
+    ]
     failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
     unresolved_reviews = [item for item in reviews if item.get("review_state") in {"accepted", "deferred", "escalated"}]
     active_escalation_count = 0
@@ -4542,6 +4550,7 @@ def build_endpoint_remediation_sla_escalation_action_dashboard(items: list[dict[
         "unresolved_review_count": len(unresolved_reviews),
         "recurrence_plan_count": len(recurrences),
         "recurrence_suppressed_count": sum(int(item.get("suppressed_route_count") or 0) for item in recurrences),
+        "suppression_audit_count": len(suppression_audits),
         "active_escalation_count": active_escalation_count,
         "owner_count": len(owners),
         "latest": history[:10],
@@ -4780,6 +4789,189 @@ def build_endpoint_remediation_sla_escalation_recurrence_dashboard(items: list[d
         "owners": sorted({str(item.get("owner")) for item in decisions if item.get("owner")}),
         "latest": history[:10],
     }
+
+
+def build_endpoint_remediation_sla_escalation_recurrence_delivery_event(
+    recurrence_plan: dict[str, Any],
+    *,
+    generated_by: str = "release-manager",
+    max_routes: int = 50,
+) -> dict[str, Any]:
+    """Build a connector event from deliverable recurrence routes only."""
+    max_routes = max(1, min(int(max_routes), 200))
+    decisions = recurrence_plan.get("route_decisions", []) if isinstance(recurrence_plan.get("route_decisions"), list) else []
+    deliverable = [item for item in decisions if isinstance(item, dict) and item.get("action") == "deliver"]
+    selected = deliverable[:max_routes]
+    recurrence_plan_id = str(recurrence_plan.get("recurrence_plan_id") or "endpoint-remediation-sla-recurrence")
+    plan_id = str(recurrence_plan.get("plan_id") or "")
+    owner_count = len({str(item.get("owner")) for item in selected if item.get("owner")})
+    provider_count = len({str(item.get("provider")) for item in selected if item.get("provider")})
+    title = f"CAVRA endpoint remediation recurrence batch: {recurrence_plan_id}"
+    message = f"{len(selected)} deliverable recurrence routes across {owner_count} owners and {provider_count} providers."
+    description = _endpoint_remediation_sla_recurrence_delivery_description(
+        recurrence_plan_id,
+        selected,
+        omitted_route_count=max(0, len(deliverable) - len(selected)),
+    )
+    event = {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_recurrence_delivery.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_remediation_sla.escalation_recurrence_delivery",
+        "session_id": recurrence_plan_id,
+        "recurrence_plan_id": recurrence_plan_id,
+        "plan_id": plan_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "source_plan_generated_at": recurrence_plan.get("generated_at"),
+        "alert_level": "critical" if selected else "healthy",
+        "max_severity": "critical" if selected else "low",
+        "blocked_count": len(selected),
+        "approval_required_count": len(selected),
+        "decision_count": int(recurrence_plan.get("route_count") or len(decisions)),
+        "summary": {
+            "deliverable_route_count": len(deliverable),
+            "selected_route_count": len(selected),
+            "suppressed_route_count": int(recurrence_plan.get("suppressed_route_count") or 0),
+            "waiting_route_count": int(recurrence_plan.get("waiting_route_count") or 0),
+            "owner_count": owner_count,
+            "provider_count": provider_count,
+            "omitted_route_count": max(0, len(deliverable) - len(selected)),
+        },
+        "routes": selected,
+        "omitted_route_count": max(0, len(deliverable) - len(selected)),
+        "controls": [
+            "recurrence-delivery-derived-from-public-recurrence-plan",
+            "only-deliverable-routes-included",
+            "suppressed-and-waiting-routes-excluded-from-delivery-batch",
+            "connector-delivery-evidence-redacts-secrets",
+            "no-endpoint-mutation-performed-by-public-recurrence-event",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": _endpoint_remediation_sla_escalation_slack_payload(title, message, selected),
+        "teams": _endpoint_remediation_sla_escalation_teams_payload(title, message, event["alert_level"], selected),
+        "jira": _endpoint_remediation_sla_jira_payload(title, description, event["alert_level"]),
+        "servicenow": _endpoint_remediation_sla_servicenow_payload(
+            title,
+            description,
+            recurrence_plan_id,
+            event["alert_level"],
+        ),
+    }
+    return event
+
+
+def build_endpoint_remediation_sla_escalation_suppression_audit(
+    recurrence_plan: dict[str, Any],
+    *,
+    generated_by: str = "release-manager",
+) -> dict[str, Any]:
+    decisions = recurrence_plan.get("route_decisions", []) if isinstance(recurrence_plan.get("route_decisions"), list) else []
+    suppressed = [item for item in decisions if isinstance(item, dict) and item.get("action") == "suppress"]
+    waiting = [item for item in decisions if isinstance(item, dict) and item.get("action") == "wait"]
+    deliverable = [item for item in decisions if isinstance(item, dict) and item.get("action") == "deliver"]
+    generated_at = datetime.now(timezone.utc).isoformat()
+    recurrence_plan_id = str(recurrence_plan.get("recurrence_plan_id") or "endpoint-remediation-sla-recurrence")
+    material = json.dumps(
+        {
+            "recurrence_plan_id": recurrence_plan_id,
+            "generated_at": generated_at,
+            "suppressed": suppressed,
+            "waiting": waiting,
+        },
+        sort_keys=True,
+    )
+    audit_id = f"erslaescaudit-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_suppression_audit.v1",
+        "product": "CAVRA",
+        "audit_id": audit_id,
+        "recurrence_plan_id": recurrence_plan_id,
+        "plan_id": recurrence_plan.get("plan_id"),
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "warning" if suppressed or waiting else "healthy",
+        "summary": {
+            "route_count": len(decisions),
+            "deliverable_route_count": len(deliverable),
+            "suppressed_route_count": len(suppressed),
+            "waiting_route_count": len(waiting),
+            "maintenance_suppressed_count": len([item for item in suppressed if item.get("maintenance_window")]),
+            "calendar_suppressed_count": len(
+                [item for item in suppressed if not item.get("owner_availability", {}).get("available", True)]
+            ),
+            "max_recurrence_suppressed_count": len(
+                [item for item in suppressed if "maximum recurrence count" in str(item.get("reason") or "")]
+            ),
+            "interval_wait_count": len(waiting),
+        },
+        "suppressed_routes": suppressed,
+        "waiting_routes": waiting,
+        "deliverable_routes": deliverable,
+        "controls": [
+            "suppression-audit-derived-from-public-recurrence-plan",
+            "maintenance-and-calendar-suppression-reasons-recorded",
+            "connector-secrets-not-included",
+            "audit-export-does-not-perform-delivery-or-endpoint-mutation",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_suppression_audit_metadata(
+    audit: dict[str, Any],
+    *,
+    bundle_dir: Path | None = None,
+) -> dict[str, Any]:
+    summary = audit.get("summary", {}) if isinstance(audit.get("summary"), dict) else {}
+    metadata = {
+        "session_id": audit.get("audit_id"),
+        "created_at": audit.get("generated_at"),
+        "signer": audit.get("generated_by", "release-manager"),
+        "decision_count": int(summary.get("route_count") or 0),
+        "blocked_count": int(summary.get("suppressed_route_count") or 0),
+        "approval_required_count": int(summary.get("waiting_route_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-escalation-suppression-audit",
+        "audit_id": audit.get("audit_id"),
+        "recurrence_plan_id": audit.get("recurrence_plan_id"),
+        "plan_id": audit.get("plan_id"),
+        "alert_level": audit.get("alert_level"),
+        "suppressed_route_count": summary.get("suppressed_route_count", 0),
+        "waiting_route_count": summary.get("waiting_route_count", 0),
+        "maintenance_suppressed_count": summary.get("maintenance_suppressed_count", 0),
+        "calendar_suppressed_count": summary.get("calendar_suppressed_count", 0),
+        "suppression_audit": audit,
+    }
+    if bundle_dir:
+        metadata["bundle_dir"] = str(bundle_dir)
+    return metadata
+
+
+def export_endpoint_remediation_sla_escalation_suppression_audit(
+    recurrence_plan: dict[str, Any],
+    output_dir: Path,
+    *,
+    generated_by: str = "release-manager",
+) -> ReleaseAuditExportResult:
+    output_dir = output_dir.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    audit = build_endpoint_remediation_sla_escalation_suppression_audit(
+        recurrence_plan,
+        generated_by=generated_by,
+    )
+    files = [
+        _write_release_json(output_dir / "endpoint-remediation-sla-escalation-suppression-audit.json", audit),
+    ]
+    summary_path = output_dir / "endpoint-remediation-sla-escalation-suppression-audit.md"
+    summary_path.write_text(_endpoint_remediation_sla_suppression_audit_markdown(audit), encoding="utf-8")
+    files.append(summary_path)
+    checksums_path = output_dir / "checksums.txt"
+    checksums_path.write_text(
+        "\n".join(f"{sha256_file(path)}  {path.name}" for path in files) + "\n",
+        encoding="utf-8",
+    )
+    files.append(checksums_path)
+    return ReleaseAuditExportResult(output_dir=output_dir, files=files)
 
 
 def filter_endpoint_remediation_sla_report_history(
@@ -7038,6 +7230,77 @@ def _endpoint_remediation_sla_escalation_delivery_description(
         ]
     )
     return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_recurrence_delivery_description(
+    recurrence_plan_id: str,
+    routes: list[dict[str, Any]],
+    *,
+    omitted_route_count: int,
+) -> str:
+    lines = [
+        f"CAVRA endpoint remediation SLA recurrence plan {recurrence_plan_id} has deliverable routes.",
+        "",
+        "Deliverable routes:",
+    ]
+    if not routes:
+        lines.append("- No deliverable recurrence routes.")
+    for item in routes:
+        lines.append(
+            "- "
+            f"owner={item.get('owner')} provider={item.get('provider')} report={item.get('report_id')} "
+            f"recurrences={item.get('recurrence_count')}/{item.get('max_recurrences')} "
+            f"next={item.get('next_delivery_at')} action={item.get('recommended_action')}"
+        )
+    if omitted_route_count:
+        lines.append(f"- {omitted_route_count} additional deliverable routes omitted from connector payload.")
+    lines.extend(
+        [
+            "",
+            "This recurrence batch is generated from public CAVRA recurrence metadata. Suppressed routes are excluded from delivery and explained in the suppression audit export.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_suppression_audit_markdown(audit: dict[str, Any]) -> str:
+    summary = audit.get("summary", {}) if isinstance(audit.get("summary"), dict) else {}
+    lines = [
+        "# Endpoint Remediation SLA Escalation Suppression Audit",
+        "",
+        f"- Audit ID: `{audit.get('audit_id')}`",
+        f"- Recurrence plan ID: `{audit.get('recurrence_plan_id')}`",
+        f"- Generated at: `{audit.get('generated_at')}`",
+        f"- Suppressed routes: {summary.get('suppressed_route_count', 0)}",
+        f"- Waiting routes: {summary.get('waiting_route_count', 0)}",
+        f"- Maintenance suppressed: {summary.get('maintenance_suppressed_count', 0)}",
+        f"- Calendar suppressed: {summary.get('calendar_suppressed_count', 0)}",
+        "",
+        "## Suppressed Routes",
+    ]
+    suppressed = audit.get("suppressed_routes", []) if isinstance(audit.get("suppressed_routes"), list) else []
+    if not suppressed:
+        lines.append("- No suppressed routes.")
+    for item in suppressed:
+        lines.append(
+            "- "
+            f"`{item.get('owner')}` `{item.get('provider')}` `{item.get('report_id')}` "
+            f"{item.get('reason')}"
+        )
+    waiting = audit.get("waiting_routes", []) if isinstance(audit.get("waiting_routes"), list) else []
+    lines.extend(["", "## Waiting Routes"])
+    if not waiting:
+        lines.append("- No waiting routes.")
+    for item in waiting:
+        lines.append(
+            "- "
+            f"`{item.get('owner')}` `{item.get('provider')}` `{item.get('report_id')}` "
+            f"{item.get('reason')}"
+        )
+    lines.extend(["", "## Controls"])
+    for control in audit.get("controls", []):
+        lines.append(f"- `{control}`")
+    return "\n".join(lines) + "\n"
 
 
 def _endpoint_remediation_sla_escalation_slack_payload(

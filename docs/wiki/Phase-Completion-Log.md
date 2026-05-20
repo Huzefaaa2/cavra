@@ -1071,4 +1071,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js`
 - `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
 
-Recommended next issue: add recurrence plan-driven escalation delivery batching and suppression audit exports.
+Recommended next issue: delivered below as endpoint remediation recurrence delivery batches and suppression audits.
+
+## Phase 7 Endpoint Remediation Recurrence Delivery Batches And Suppression Audits
+
+Status: complete for the current public-safe recurrence delivery and suppression audit slice.
+
+Completed implementation:
+- Added `cavra.endpoint_remediation_sla.escalation_recurrence_delivery.v1` connector events derived only from recurrence routes whose action is `deliver`.
+- Excluded suppressed and waiting recurrence routes from connector payloads while preserving their reasons in audit evidence.
+- Added suppression audit exports with JSON, Markdown, and checksum files for maintenance windows, owner unavailability, maximum recurrence limits, and recurrence interval waits.
+- Added suppression audit metadata indexing as `endpoint-remediation-sla-escalation-suppression-audit`.
+- Added recurrence delivery metadata indexing through `release-connector-delivery` with `connector_delivery_source=endpoint_remediation_sla_escalation_recurrence_delivery`.
+- Added CLI commands for recurrence delivery batching and suppression audit exports.
+- Added API endpoints for recurrence delivery batching and suppression audit retrieval.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for recurrence delivery event filtering, suppression audit metadata, CLI export paths, API endpoints, and action dashboard summaries.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `python3 -m pytest -q tests/test_go_release_packaging.py tests/test_api.py`
+
+Recommended next issue: add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.

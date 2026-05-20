@@ -28,9 +28,12 @@ from cavra.release import (
     build_endpoint_remediation_sla_escalation_plan,
     build_endpoint_remediation_sla_escalation_plan_metadata,
     build_endpoint_remediation_sla_escalation_recurrence_dashboard,
+    build_endpoint_remediation_sla_escalation_recurrence_delivery_event,
     build_endpoint_remediation_sla_escalation_recurrence_plan,
     build_endpoint_remediation_sla_escalation_recurrence_plan_metadata,
     build_endpoint_remediation_sla_escalation_review_metadata,
+    build_endpoint_remediation_sla_escalation_suppression_audit,
+    build_endpoint_remediation_sla_escalation_suppression_audit_metadata,
     build_endpoint_remediation_sla_notification_dashboard,
     build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_notification_ack_metadata,
@@ -55,6 +58,7 @@ from cavra.release import (
     acknowledge_endpoint_remediation_sla_notification,
     create_release_channel_promotion_request,
     execute_endpoint_drift_remediation,
+    export_endpoint_remediation_sla_escalation_suppression_audit,
     export_endpoint_management_bundles,
     export_rollout_promotion_execution_audit,
     filter_endpoint_inventory_freshness_history,
@@ -1036,6 +1040,16 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         action="suppress",
     )
     recurrence_dashboard = build_endpoint_remediation_sla_escalation_recurrence_dashboard([recurrence_metadata])
+    recurrence_event = build_endpoint_remediation_sla_escalation_recurrence_delivery_event(recurrence_plan)
+    suppression_audit = build_endpoint_remediation_sla_escalation_suppression_audit(recurrence_plan)
+    suppression_audit_metadata = build_endpoint_remediation_sla_escalation_suppression_audit_metadata(
+        suppression_audit,
+        bundle_dir=tmp_path / "recurrence-suppression-audit",
+    )
+    suppression_export = export_endpoint_remediation_sla_escalation_suppression_audit(
+        recurrence_plan,
+        tmp_path / "recurrence-suppression-audit",
+    )
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -1099,6 +1113,12 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert recurrence_plan["maintenance_suppressed_count"] >= 1
     assert recurrence_history["total"] == 1
     assert recurrence_dashboard["suppressed_route_count"] >= 1
+    assert recurrence_event["event_type"] == "cavra.endpoint_remediation_sla.escalation_recurrence_delivery"
+    assert recurrence_event["summary"]["deliverable_route_count"] >= 1
+    assert all(route["action"] == "deliver" for route in recurrence_event["routes"])
+    assert suppression_audit_metadata["metadata_kind"] == "endpoint-remediation-sla-escalation-suppression-audit"
+    assert suppression_audit["summary"]["suppressed_route_count"] >= 1
+    assert any(path.name == "endpoint-remediation-sla-escalation-suppression-audit.md" for path in suppression_export.files)
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -1416,6 +1436,39 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "--json",
         ],
     )
+    sla_escalation_recurrence_plan_path = tmp_path / "endpoint-remediation-sla-escalation-recurrence-plan.json"
+    if sla_escalation_recurrence_plan_cli.exit_code == 0:
+        sla_escalation_recurrence_plan_path.write_text(sla_escalation_recurrence_plan_cli.output, encoding="utf-8")
+    sla_escalation_recurrence_delivery_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-remediation-sla-escalation-recurrence",
+            str(sla_escalation_recurrence_plan_path),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
+    sla_escalation_suppression_audit_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "export-endpoint-remediation-sla-escalation-suppression-audit",
+            str(sla_escalation_recurrence_plan_path),
+            "--output",
+            str(tmp_path / "cli-escalation-suppression-audit"),
+            "--metadata-json",
+            str(metadata_json),
+            "--json",
+        ],
+    )
     sla_escalation_recurrence_history_cli = runner.invoke(
         app,
         ["release", "endpoint-remediation-sla-escalation-recurrence-history", "--metadata-json", str(metadata_json)],
@@ -1497,6 +1550,16 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert (
         json.loads(sla_escalation_recurrence_plan_cli.output)["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-recurrence-plan"
+    )
+    assert sla_escalation_recurrence_delivery_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_recurrence_delivery_cli.output)["event"]["event_type"]
+        == "cavra.endpoint_remediation_sla.escalation_recurrence_delivery"
+    )
+    assert sla_escalation_suppression_audit_cli.exit_code == 0
+    assert (
+        json.loads(sla_escalation_suppression_audit_cli.output)["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-suppression-audit"
     )
     assert sla_escalation_recurrence_history_cli.exit_code == 0
     assert json.loads(sla_escalation_recurrence_history_cli.output)["total"] >= 1
