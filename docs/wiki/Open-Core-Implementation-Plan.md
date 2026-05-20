@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add recurrence plan-driven escalation delivery batching and suppression audit exports.
+Add recurrence batch retry policy, owner digest notifications, and suppression trend analytics.

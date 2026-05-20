@@ -727,6 +727,13 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
             },
         },
     )
+    sla_escalation_recurrence_delivery = client.post(
+        f"/endpoint-remediation-sla-escalation-recurrences/{sla_escalation_recurrence_plan.json()['plan']['recurrence_plan_id']}/deliver",
+        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+    )
+    sla_escalation_suppression_audit = client.get(
+        f"/endpoint-remediation-sla-escalation-recurrences/{sla_escalation_recurrence_plan.json()['plan']['recurrence_plan_id']}/suppression-audit"
+    )
     sla_escalation_recurrence_history = client.get("/endpoint-remediation-sla-escalation-recurrences")
     sla_escalation_recurrence_dashboard = client.get("/endpoint-remediation-sla-escalation-recurrences/dashboard")
     sla_escalation_history = client.get("/endpoint-remediation-sla-escalations", params={"active_only": True})
@@ -820,6 +827,16 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         sla_escalation_recurrence_plan.json()["metadata"]["metadata_kind"]
         == "endpoint-remediation-sla-escalation-recurrence-plan"
     )
+    assert sla_escalation_recurrence_delivery.status_code == 200
+    assert (
+        sla_escalation_recurrence_delivery.json()["event"]["event_type"]
+        == "cavra.endpoint_remediation_sla.escalation_recurrence_delivery"
+    )
+    assert sla_escalation_suppression_audit.status_code == 200
+    assert (
+        sla_escalation_suppression_audit.json()["metadata"]["metadata_kind"]
+        == "endpoint-remediation-sla-escalation-suppression-audit"
+    )
     assert sla_escalation_recurrence_history.status_code == 200
     assert sla_escalation_recurrence_history.json()["total"] >= 1
     assert sla_escalation_recurrence_dashboard.status_code == 200
@@ -881,6 +898,14 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_plan"]
         == "/endpoint-remediation-sla-escalations/recurrence-plan"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_recurrence_deliver"]
+        == "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/deliver"
+    )
+    assert (
+        config["endpoints"]["endpoint_remediation_sla_escalation_suppression_audit"]
+        == "/endpoint-remediation-sla-escalation-recurrences/{recurrence_plan_id}/suppression-audit"
     )
     assert (
         config["endpoints"]["endpoint_remediation_sla_escalation_recurrences"]
