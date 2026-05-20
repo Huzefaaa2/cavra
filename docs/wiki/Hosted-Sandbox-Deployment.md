@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint remediation escalation delivery actions and owner review workflows.
+1. Add endpoint remediation escalation recurrence policies, owner calendars, and maintenance-window suppression.
