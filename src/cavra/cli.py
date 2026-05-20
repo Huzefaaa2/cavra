@@ -88,6 +88,7 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_ingestion_dashboard,
@@ -3128,6 +3129,56 @@ def endpoint_remediation_sla_report(
             console.print(f"  [red]error:[/] {error}")
     if not result.valid:
         raise typer.Exit(code=1)
+
+
+@release_app.command("deliver-endpoint-remediation-sla")
+def deliver_endpoint_remediation_sla(
+    sla_report: Annotated[Path, typer.Argument(help="Endpoint remediation SLA report JSON.")],
+    config: Path = typer.Option(..., "--config", help="Connector config JSON/YAML path."),
+    output: Annotated[Path, typer.Option(help="Output directory for connector delivery evidence.")] = Path(
+        ".cavra/release/endpoint-remediation-sla-deliveries"
+    ),
+    provider: Annotated[str, typer.Option(help="all, webhook, slack, teams, jira, or servicenow.")] = "all",
+    retries: Annotated[int, typer.Option(help="Retry count after the first attempt.")] = 2,
+    timeout_seconds: Annotated[float, typer.Option(help="HTTP timeout in seconds.")] = 10.0,
+    generated_by: Annotated[str, typer.Option(help="Actor or automation identity delivering the notification.")] = "release-manager",
+    metadata_json: Annotated[Optional[Path], typer.Option(help="Optional JSON evidence metadata store to index delivery history.")] = None,
+    sqlite: Annotated[Optional[Path], typer.Option(help="Optional SQLite evidence metadata store to index delivery history.")] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print machine-readable delivery output."),
+) -> None:
+    """Deliver endpoint remediation SLA notifications through configured release connectors."""
+    try:
+        report_payload = json.loads(sla_report.read_text(encoding="utf-8"))
+        report = report_payload.get("report", report_payload)
+        if not isinstance(report, dict):
+            raise ValueError("endpoint remediation SLA report JSON must be an object")
+        event = build_endpoint_remediation_sla_notification_event(report, generated_by=generated_by)
+        result = deliver_connector_event(
+            event,
+            load_connector_config(config),
+            provider=provider,
+            retries=retries,
+            timeout_seconds=timeout_seconds,
+        )
+        path = export_connector_delivery_result(result, output)
+    except (OSError, json.JSONDecodeError, FileNotFoundError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    metadata, indexed = _index_release_connector_delivery(
+        result,
+        path,
+        source="endpoint_remediation_sla_notification",
+        metadata_json=metadata_json,
+        sqlite=sqlite,
+    )
+    payload = result | {"delivery_evidence": str(path), "metadata": metadata, "indexed_metadata_stores": indexed}
+    if json_output:
+        _print_json(payload)
+    else:
+        console.print(JSON(json.dumps(result, indent=2)))
+        console.print(f"[green]endpoint remediation SLA notification delivery evidence exported[/green] {path}")
+        for store in indexed:
+            console.print(f"  indexed: {store}")
 
 
 @release_app.command("endpoint-remediation-sla-history")

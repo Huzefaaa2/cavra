@@ -22,6 +22,7 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
@@ -471,9 +472,10 @@ def test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata(tmp_
     dist = _package_go_runtime(tmp_path, "v0.2.0-rc.1", "abc123", targets=("linux_amd64",))
     desired_manifest = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
     target = desired_manifest["deployment_targets"][0]
+    observed_at = datetime.now(timezone.utc).isoformat()
     observed = {
         "schema_version": "cavra.endpoint-observations.v1",
-        "observed_at": "2026-05-19T00:00:00+00:00",
+        "observed_at": observed_at,
         "channel": "stable",
         "endpoints": [
             {
@@ -481,14 +483,14 @@ def test_managed_endpoint_reconciliation_detects_drift_and_indexes_metadata(tmp_
                 "deployment_target": target["id"],
                 "installed_version": "v0.2.0-rc.1",
                 "binary_sha256": target["binary_sha256"],
-                "last_seen_at": "2026-05-19T00:00:00+00:00",
+                "last_seen_at": observed_at,
             },
             {
                 "endpoint_id": "runner-2",
                 "deployment_target": target["id"],
                 "installed_version": "v0.1.0",
                 "binary_sha256": "bad",
-                "last_seen_at": "2026-05-19T00:00:00+00:00",
+                "last_seen_at": observed_at,
             },
         ],
     }
@@ -872,6 +874,7 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         output_dir=tmp_path / "remediation-sla",
     )
     sla_metadata = build_endpoint_remediation_sla_report_metadata(sla_result.report or {})
+    sla_event = build_endpoint_remediation_sla_notification_event(sla_result.report or {})
     execution_metadata = build_endpoint_drift_remediation_execution_metadata(execution_result.execution or {})
     history = filter_endpoint_drift_remediation_history(
         [request_metadata, execution_metadata],
@@ -908,6 +911,9 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert sla_result.valid
     assert sla_result.report["executive_summary"]["breached_count"] == 1
     assert sla_result.report["escalation_payloads"]["executive_summary"]["critical_count"] == 1
+    assert sla_event["event_type"] == "cavra.endpoint_remediation_sla.notification"
+    assert sla_event["provider_payloads"]["slack"]["blocks"][0]["type"] == "header"
+    assert sla_event["provider_payloads"]["servicenow"]["correlation_id"] == sla_result.report["report_id"]
     assert "endpoint-remediation-sla-report.json" in sla_result.files
     assert sla_metadata["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_history["total"] == 1
@@ -919,6 +925,11 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     report_path = tmp_path / "reconciliation" / "managed-endpoint-reconciliation.json"
     metadata_json = tmp_path / "metadata.json"
     approval_json = tmp_path / "cli-approvals.json"
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
     request_cli = runner.invoke(
         app,
         [
@@ -1018,6 +1029,8 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
         [
             "release",
             "endpoint-remediation-sla-report",
+            "--output",
+            str(tmp_path / "cli-remediation-sla"),
             "--metadata-json",
             str(metadata_json),
             "--index-metadata-json",
@@ -1026,6 +1039,23 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
             "1",
             "--critical-hours",
             "1",
+            "--json",
+        ],
+    )
+    sla_delivery_cli = runner.invoke(
+        app,
+        [
+            "release",
+            "deliver-endpoint-remediation-sla",
+            str(tmp_path / "cli-remediation-sla" / "endpoint-remediation-sla-report.json"),
+            "--config",
+            str(connector_config),
+            "--provider",
+            "webhook",
+            "--retries",
+            "0",
+            "--metadata-json",
+            str(metadata_json),
             "--json",
         ],
     )
@@ -1059,6 +1089,9 @@ def test_endpoint_drift_remediation_requires_approval_and_indexes_execution(
     assert json.loads(handoff_status_dashboard_cli.output)["in_progress_count"] == 1
     assert sla_cli.exit_code == 0
     assert json.loads(sla_cli.output)["metadata"]["metadata_kind"] == "endpoint-remediation-sla-report"
+    assert sla_delivery_cli.exit_code == 0
+    assert json.loads(sla_delivery_cli.output)["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_notification"
+    assert json.loads(sla_delivery_cli.output)["event_type"] == "cavra.endpoint_remediation_sla.notification"
     assert sla_history_cli.exit_code == 0
     assert json.loads(sla_history_cli.output)["total"] == 1
     assert sla_dashboard_cli.exit_code == 0

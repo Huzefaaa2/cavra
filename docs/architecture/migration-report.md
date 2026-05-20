@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.
+4. Add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.

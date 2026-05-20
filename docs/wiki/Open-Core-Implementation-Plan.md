@@ -43,5 +43,5 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add endpoint remediation SLA notification delivery through configured ITSM,
-ChatOps, and release governance connectors.
+Add endpoint remediation SLA notification routing policies, acknowledgement
+tracking, and duplicate suppression windows.

@@ -645,6 +645,9 @@ def _has_auth(headers: dict[str, str], provider_config: dict[str, Any]) -> bool:
 
 def _connector_body(provider: str, event: dict[str, Any], provider_config: dict[str, Any]) -> dict[str, Any]:
     title = str(provider_config.get("title") or f"CAVRA {event.get('event_type', 'event')}")
+    provider_payloads = event.get("provider_payloads", {})
+    if isinstance(provider_payloads, dict) and isinstance(provider_payloads.get(provider), dict):
+        return provider_payloads[provider]
     if provider == "splunk":
         return build_splunk_hec_events(event, index=str(provider_config.get("index", "cavra")))[0]
     if provider == "sentinel":
@@ -703,9 +706,6 @@ def _connector_body(provider: str, event: dict[str, Any], provider_config: dict[
             "correlation_id": event.get("session_id") or event.get("event_type"),
         }
     if provider in {"jamf", "intune", "linux"}:
-        provider_payloads = event.get("provider_payloads", {})
-        if isinstance(provider_payloads, dict) and isinstance(provider_payloads.get(provider), dict):
-            return provider_payloads[provider]
         return build_webhook_payload(event)
     raise ValueError(f"unsupported connector provider: {provider}")
 

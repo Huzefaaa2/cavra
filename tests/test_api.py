@@ -536,6 +536,12 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
     monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra?token=secret"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_CONNECTOR_CONFIG", str(connector_config))
     client = TestClient(create_app())
     desired_manifest = {
         "schema_version": "cavra.go-runtime.endpoint-deployment.v1",
@@ -623,6 +629,10 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         "/endpoint-remediation-sla/report",
         json={"warning_hours": 1, "critical_hours": 1, "generated_by": "release-agent"},
     )
+    sla_delivery = client.post(
+        f"/endpoint-remediation-sla-reports/{sla_report.json()['report_id']}/deliver",
+        json={"provider": "webhook", "retries": 0, "generated_by": "release-agent"},
+    )
     sla_history = client.get("/endpoint-remediation-sla-reports")
     sla_dashboard = client.get("/endpoint-remediation-sla-reports/dashboard")
     automation = client.post(
@@ -683,6 +693,9 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
     assert sla_report.status_code == 200
     assert sla_report.json()["metadata"]["metadata_kind"] == "endpoint-remediation-sla-report"
     assert sla_report.json()["report"]["executive_summary"]["tracked_work_item_count"] == 2
+    assert sla_delivery.status_code == 200
+    assert sla_delivery.json()["metadata"]["connector_delivery_source"] == "endpoint_remediation_sla_notification"
+    assert sla_delivery.json()["event_type"] == "cavra.endpoint_remediation_sla.notification"
     assert sla_history.status_code == 200
     assert sla_history.json()["total"] == 1
     assert sla_dashboard.status_code == 200
@@ -705,6 +718,7 @@ def test_api_reconciles_managed_endpoint_deployment_drift(monkeypatch, tmp_path)
         == "/endpoint-remediation-handoff-statuses/dashboard"
     )
     assert config["endpoints"]["endpoint_remediation_sla_dashboard"] == "/endpoint-remediation-sla-reports/dashboard"
+    assert config["endpoints"]["endpoint_remediation_sla_deliver"] == "/endpoint-remediation-sla-reports/{report_id}/deliver"
 
 
 def test_api_serves_endpoint_management_export_artifacts_with_integrity(monkeypatch, tmp_path) -> None:
