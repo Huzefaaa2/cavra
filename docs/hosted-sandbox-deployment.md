@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint remediation notification escalation ladders and owner-specific service-level objectives.
+1. Add endpoint remediation escalation delivery actions and owner review workflows.

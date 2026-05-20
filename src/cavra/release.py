@@ -3932,7 +3932,31 @@ def build_endpoint_remediation_sla_notification_dashboard(items: list[dict[str, 
         if not report_id:
             continue
         current = latest_plan_by_report.get(report_id)
-        if current is None or str(plan.get("created_at", "")) > str(current.get("created_at", "")):
+        candidate_plan = plan.get("notification_plan") if isinstance(plan.get("notification_plan"), dict) else plan
+        current_plan = current.get("notification_plan") if current and isinstance(current.get("notification_plan"), dict) else current
+        candidate_has_required = bool(plan.get("acknowledgement_required_providers"))
+        candidate_selected_providers = plan.get("selected_providers") or candidate_plan.get("selected_providers", [])
+        candidate_has_selected = any(
+            bool(route.get("selected")) for route in candidate_plan.get("routes", []) if isinstance(route, dict)
+        ) or bool(candidate_selected_providers)
+        current_has_required = bool(current and current.get("acknowledgement_required_providers"))
+        current_selected_providers = (current or {}).get("selected_providers") or (
+            current_plan.get("selected_providers", []) if current_plan else []
+        )
+        current_has_selected = bool(
+            current_plan
+            and any(bool(route.get("selected")) for route in current_plan.get("routes", []) if isinstance(route, dict))
+        ) or bool(current_selected_providers)
+        if (
+            current is None
+            or (candidate_has_required and not current_has_required)
+            or (candidate_has_selected and not current_has_selected)
+            or (
+                candidate_has_required == current_has_required
+                and candidate_has_selected == current_has_selected
+                and str(plan.get("created_at", "")) > str(current.get("created_at", ""))
+            )
+        ):
             latest_plan_by_report[report_id] = plan
     acknowledged = {
         (str(item.get("report_id")), str(item.get("provider")))
@@ -3960,6 +3984,317 @@ def build_endpoint_remediation_sla_notification_dashboard(items: list[dict[str, 
         "outstanding_acknowledgement_count": len(outstanding),
         "suppressed_provider_count": suppressed_count,
         "outstanding_acknowledgements": outstanding[:20],
+        "latest": history[:10],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-manager",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Build owner SLO and escalation-ladder status from public notification metadata."""
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    history = filter_endpoint_remediation_sla_notification_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-notification-plan"]
+    acknowledgements = [
+        item for item in history if item.get("metadata_kind") == "endpoint-remediation-sla-notification-ack"
+    ]
+    latest_plan_by_report: dict[str, dict[str, Any]] = {}
+    for plan in plans:
+        report_id = str(plan.get("report_id") or "")
+        if not report_id:
+            continue
+        current = latest_plan_by_report.get(report_id)
+        if current is None or str(plan.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_plan_by_report[report_id] = plan
+    latest_ack_by_route: dict[tuple[str, str], dict[str, Any]] = {}
+    for acknowledgement in acknowledgements:
+        key = (str(acknowledgement.get("report_id") or ""), str(acknowledgement.get("provider") or ""))
+        if not key[0] or not key[1]:
+            continue
+        current = latest_ack_by_route.get(key)
+        if current is None or str(acknowledgement.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_ack_by_route[key] = acknowledgement
+    deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source") == "endpoint_remediation_sla_notification"
+    ]
+    for delivery in deliveries:
+        report_id = str(delivery.get("event_id") or delivery.get("report_id") or "")
+        providers = [str(provider) for provider in delivery.get("providers", []) if provider]
+        if not report_id or not providers:
+            continue
+        current = latest_plan_by_report.get(report_id)
+        current_plan = current.get("notification_plan") if current and isinstance(current.get("notification_plan"), dict) else current
+        current_has_selected = bool(
+            current_plan
+            and any(bool(route.get("selected")) for route in current_plan.get("routes", []) if isinstance(route, dict))
+        ) or bool((current or {}).get("selected_providers") or (current_plan.get("selected_providers", []) if current_plan else []))
+        if current_has_selected:
+            continue
+        latest_plan_by_report[report_id] = {
+            "metadata_kind": "endpoint-remediation-sla-notification-plan",
+            "session_id": f"synthetic-{delivery.get('session_id', report_id)}",
+            "created_at": delivery.get("created_at"),
+            "report_id": report_id,
+            "plan_id": delivery.get("session_id"),
+            "selected_providers": providers,
+            "acknowledgement_required_providers": providers if policy else [],
+            "notification_plan": {
+                "report_id": report_id,
+                "generated_at": delivery.get("created_at"),
+                "plan_id": delivery.get("session_id"),
+                "alert_level": delivery.get("alert_level", "unknown"),
+                "selected_providers": providers,
+                "acknowledgement_required_providers": providers if policy else [],
+                "routes": [
+                    {
+                        "provider": provider,
+                        "selected": True,
+                        "owner": policy.get("owner") or "release-governance",
+                        "acknowledgement_required": bool(policy),
+                    }
+                    for provider in providers
+                ],
+            },
+        }
+    route_statuses: list[dict[str, Any]] = []
+    for plan_metadata in latest_plan_by_report.values():
+        plan = plan_metadata.get("notification_plan") if isinstance(plan_metadata.get("notification_plan"), dict) else plan_metadata
+        report_id = str(plan.get("report_id") or plan_metadata.get("report_id") or "")
+        alert_level = str(plan.get("alert_level") or plan_metadata.get("alert_level") or "healthy")
+        created_at = _parse_release_datetime(plan.get("generated_at") or plan_metadata.get("created_at")) or now
+        age_minutes = max(0.0, (now - created_at).total_seconds() / 60)
+        required = {str(provider) for provider in plan.get("acknowledgement_required_providers", [])}
+        routes = plan.get("routes", []) if isinstance(plan.get("routes"), list) else []
+        if not routes:
+            selected_providers = plan.get("selected_providers") or plan_metadata.get("selected_providers", [])
+            routes = [
+                {
+                    "provider": provider,
+                    "selected": True,
+                    "owner": policy.get("owner") or "release-governance",
+                    "acknowledgement_required": provider in required,
+                }
+                for provider in selected_providers
+            ]
+        for route in routes:
+            provider = str(route.get("provider") or "")
+            if not provider or not bool(route.get("selected")):
+                continue
+            if provider not in required and not policy:
+                continue
+            owner = str(route.get("owner") or policy.get("owner") or "release-governance")
+            owner_slo = _endpoint_remediation_sla_owner_slo(policy, owner, alert_level, provider)
+            acknowledgement = latest_ack_by_route.get((report_id, provider), {})
+            state = str(acknowledgement.get("acknowledgement_state") or "pending")
+            acknowledged = state in {"acknowledged", "resolved"}
+            resolved = state == "resolved"
+            acknowledgement_due_at = created_at + timedelta(minutes=owner_slo["acknowledgement_minutes"])
+            resolution_due_at = created_at + timedelta(minutes=owner_slo["resolution_minutes"])
+            ack_state = "met" if acknowledged else _endpoint_remediation_sla_slo_state(
+                age_minutes,
+                owner_slo["acknowledgement_minutes"],
+            )
+            resolution_state = "met" if resolved else _endpoint_remediation_sla_slo_state(
+                age_minutes,
+                owner_slo["resolution_minutes"],
+            )
+            escalation = _endpoint_remediation_sla_ladder_level(
+                policy,
+                age_minutes=age_minutes,
+                owner=owner,
+                alert_level=alert_level,
+                provider=provider,
+            )
+            active = ack_state == "breached" or resolution_state == "breached" or bool(escalation)
+            route_statuses.append(
+                {
+                    "report_id": report_id,
+                    "plan_id": plan.get("plan_id") or plan_metadata.get("plan_id"),
+                    "provider": provider,
+                    "owner": owner,
+                    "alert_level": alert_level,
+                    "age_minutes": round(age_minutes, 2),
+                    "acknowledgement_state": state,
+                    "acknowledgement_slo_state": ack_state,
+                    "resolution_slo_state": resolution_state,
+                    "acknowledgement_minutes": owner_slo["acknowledgement_minutes"],
+                    "resolution_minutes": owner_slo["resolution_minutes"],
+                    "acknowledgement_due_at": acknowledgement_due_at.isoformat(),
+                    "resolution_due_at": resolution_due_at.isoformat(),
+                    "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+                    "escalation_level": escalation.get("level") if escalation else None,
+                    "escalation_after_minutes": escalation.get("after_minutes") if escalation else None,
+                    "escalation_action": escalation.get("action") if escalation else None,
+                    "escalation_providers": escalation.get("providers", []) if escalation else [],
+                    "active_escalation": active,
+                    "recommended_action": _endpoint_remediation_sla_escalation_ladder_action(
+                        owner,
+                        provider,
+                        ack_state,
+                        resolution_state,
+                        escalation,
+                    ),
+                }
+            )
+    active_escalations = [item for item in route_statuses if item["active_escalation"]]
+    owner_summary: dict[str, dict[str, Any]] = {}
+    for item in route_statuses:
+        owner = str(item["owner"])
+        summary = owner_summary.setdefault(
+            owner,
+            {
+                "owner": owner,
+                "route_count": 0,
+                "active_escalation_count": 0,
+                "acknowledgement_breach_count": 0,
+                "resolution_breach_count": 0,
+                "providers": set(),
+            },
+        )
+        summary["route_count"] += 1
+        summary["active_escalation_count"] += 1 if item["active_escalation"] else 0
+        summary["acknowledgement_breach_count"] += 1 if item["acknowledgement_slo_state"] == "breached" else 0
+        summary["resolution_breach_count"] += 1 if item["resolution_slo_state"] == "breached" else 0
+        summary["providers"].add(item["provider"])
+    owners = []
+    for summary in owner_summary.values():
+        summary["providers"] = sorted(summary["providers"])
+        owners.append(summary)
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "route_statuses": route_statuses,
+        },
+        sort_keys=True,
+    )
+    plan_id = f"erslaesc-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if active_escalations else "healthy",
+        "route_count": len(route_statuses),
+        "active_escalation_count": len(active_escalations),
+        "acknowledgement_breach_count": len(
+            [item for item in route_statuses if item["acknowledgement_slo_state"] == "breached"]
+        ),
+        "resolution_breach_count": len(
+            [item for item in route_statuses if item["resolution_slo_state"] == "breached"]
+        ),
+        "owner_count": len(owners),
+        "owners": sorted(owners, key=lambda item: (-int(item["active_escalation_count"]), str(item["owner"]))),
+        "route_statuses": sorted(
+            route_statuses,
+            key=lambda item: (not item["active_escalation"], str(item["owner"]), str(item["provider"])),
+        ),
+        "controls": [
+            "escalation-plan-derived-from-public-notification-metadata",
+            "owner-slos-contain-no-connector-secrets",
+            "private-connectors-remain-responsible-for-ticket-chat-or-pager-side-effects",
+            "acknowledgement-and-resolution-slo-states-are-audit-metadata-only",
+        ],
+    }
+
+
+def build_endpoint_remediation_sla_escalation_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-manager"),
+        "decision_count": int(plan.get("route_count") or 0),
+        "blocked_count": int(plan.get("active_escalation_count") or 0),
+        "approval_required_count": int(plan.get("acknowledgement_breach_count") or 0),
+        "metadata_kind": "endpoint-remediation-sla-escalation-plan",
+        "plan_id": plan.get("plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "route_count": plan.get("route_count", 0),
+        "active_escalation_count": plan.get("active_escalation_count", 0),
+        "acknowledgement_breach_count": plan.get("acknowledgement_breach_count", 0),
+        "resolution_breach_count": plan.get("resolution_breach_count", 0),
+        "owner_count": plan.get("owner_count", 0),
+        "owners": [item.get("owner") for item in plan.get("owners", []) if item.get("owner")],
+        "escalation_plan": plan,
+    }
+
+
+def filter_endpoint_remediation_sla_escalation_history(
+    items: list[dict[str, Any]],
+    *,
+    owner: str | None = None,
+    provider: str | None = None,
+    alert_level: str | None = None,
+    active_only: bool = False,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    limit = max(1, min(limit, 500))
+    offset = max(0, offset)
+    filtered = [
+        item for item in items if item.get("metadata_kind") == "endpoint-remediation-sla-escalation-plan"
+    ]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if owner or provider or active_only:
+        owner_key = owner.strip().lower() if owner else None
+        provider_key = provider.strip().lower().replace("-", "_") if provider else None
+        filtered_by_route = []
+        for item in filtered:
+            plan = item.get("escalation_plan") if isinstance(item.get("escalation_plan"), dict) else item
+            routes = plan.get("route_statuses", []) if isinstance(plan.get("route_statuses"), list) else []
+            if owner_key:
+                routes = [route for route in routes if str(route.get("owner", "")).lower() == owner_key]
+            if provider_key:
+                routes = [route for route in routes if str(route.get("provider", "")).lower() == provider_key]
+            if active_only:
+                routes = [route for route in routes if bool(route.get("active_escalation"))]
+            if routes:
+                filtered_by_route.append(item | {"matched_route_statuses": routes})
+        filtered = filtered_by_route
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_endpoint_remediation_sla_escalation_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_endpoint_remediation_sla_escalation_history(items, limit=500)["items"]
+    latest = history[0] if history else {}
+    plan = latest.get("escalation_plan") if isinstance(latest.get("escalation_plan"), dict) else latest
+    route_statuses = plan.get("route_statuses", []) if isinstance(plan.get("route_statuses"), list) else []
+    active = [item for item in route_statuses if bool(item.get("active_escalation"))]
+    return {
+        "schema_version": "cavra.endpoint_remediation_sla.escalation_dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": "critical" if active else "healthy",
+        "plan_count": len(history),
+        "route_count": len(route_statuses),
+        "active_escalation_count": len(active),
+        "acknowledgement_breach_count": len(
+            [item for item in route_statuses if item.get("acknowledgement_slo_state") == "breached"]
+        ),
+        "resolution_breach_count": len(
+            [item for item in route_statuses if item.get("resolution_slo_state") == "breached"]
+        ),
+        "owner_count": len({str(item.get("owner")) for item in route_statuses if item.get("owner")}),
+        "owners": plan.get("owners", []),
+        "active_escalations": active[:20],
         "latest": history[:10],
     }
 
@@ -5904,6 +6239,110 @@ def _endpoint_remediation_sla_route_map(matched_rules: list[dict[str, Any]]) -> 
                 route["owner"] = owner
             route["acknowledgement_required"] = route["acknowledgement_required"] or ack_required
     return route_by_provider
+
+
+def _endpoint_remediation_sla_owner_slo(
+    policy: dict[str, Any],
+    owner: str,
+    alert_level: str,
+    provider: str,
+) -> dict[str, int]:
+    defaults = policy.get("default_slo") if isinstance(policy.get("default_slo"), dict) else {}
+    ack_minutes = int(defaults.get("acknowledgement_minutes", defaults.get("ack_minutes", 60)) or 60)
+    resolution_minutes = int(defaults.get("resolution_minutes", 240) or 240)
+    owner_rules = policy.get("owner_slos", policy.get("service_level_objectives", {}))
+    candidates: list[dict[str, Any]] = []
+    if isinstance(owner_rules, dict):
+        owner_rule = owner_rules.get(owner)
+        if isinstance(owner_rule, dict):
+            candidates.append(owner_rule)
+    elif isinstance(owner_rules, list):
+        for rule in owner_rules:
+            if not isinstance(rule, dict):
+                continue
+            owners = {str(value) for value in rule.get("owners", [])}
+            providers = {str(value).lower().replace("-", "_") for value in rule.get("providers", [])}
+            levels = {str(value) for value in rule.get("alert_levels", [])}
+            if owners and owner not in owners:
+                continue
+            if providers and provider not in providers:
+                continue
+            if levels and alert_level not in levels:
+                continue
+            candidates.append(rule)
+    for candidate in candidates:
+        ack_minutes = int(candidate.get("acknowledgement_minutes", candidate.get("ack_minutes", ack_minutes)) or ack_minutes)
+        resolution_minutes = int(candidate.get("resolution_minutes", resolution_minutes) or resolution_minutes)
+    return {
+        "acknowledgement_minutes": max(1, ack_minutes),
+        "resolution_minutes": max(1, resolution_minutes),
+    }
+
+
+def _endpoint_remediation_sla_slo_state(age_minutes: float, target_minutes: int) -> str:
+    if age_minutes > target_minutes:
+        return "breached"
+    if age_minutes >= target_minutes * 0.8:
+        return "at_risk"
+    return "within_slo"
+
+
+def _endpoint_remediation_sla_ladder_level(
+    policy: dict[str, Any],
+    *,
+    age_minutes: float,
+    owner: str,
+    alert_level: str,
+    provider: str,
+) -> dict[str, Any]:
+    ladder = policy.get("ladders", policy.get("escalation_ladders", []))
+    if not isinstance(ladder, list):
+        ladder = [
+            {"level": "owner", "after_minutes": 60, "providers": ["slack"], "action": "Notify remediation owner."},
+            {"level": "release-governance", "after_minutes": 240, "providers": ["jira"], "action": "Escalate to release governance."},
+        ]
+    selected: dict[str, Any] = {}
+    for raw in ladder:
+        if not isinstance(raw, dict):
+            continue
+        owners = {str(value) for value in raw.get("owners", [])}
+        providers = {str(value).lower().replace("-", "_") for value in raw.get("route_providers", raw.get("match_providers", []))}
+        levels = {str(value) for value in raw.get("alert_levels", [])}
+        after_minutes = int(raw.get("after_minutes", raw.get("after", 0)) or 0)
+        if owners and owner not in owners:
+            continue
+        if providers and provider not in providers:
+            continue
+        if levels and alert_level not in levels:
+            continue
+        if age_minutes < after_minutes:
+            continue
+        if not selected or after_minutes >= int(selected.get("after_minutes", 0) or 0):
+            selected = {
+                "level": str(raw.get("level") or raw.get("name") or "owner"),
+                "after_minutes": after_minutes,
+                "providers": _normalize_endpoint_remediation_sla_notification_providers(raw.get("providers", [])),
+                "action": str(raw.get("action") or "Escalate unacknowledged endpoint remediation SLA notification."),
+            }
+    return selected
+
+
+def _endpoint_remediation_sla_escalation_ladder_action(
+    owner: str,
+    provider: str,
+    acknowledgement_state: str,
+    resolution_state: str,
+    escalation: dict[str, Any],
+) -> str:
+    if escalation:
+        return str(escalation.get("action") or f"Escalate {provider} route to {owner}.")
+    if acknowledgement_state == "breached":
+        return f"Escalate unacknowledged {provider} notification to {owner}."
+    if resolution_state == "breached":
+        return f"Escalate unresolved {provider} notification to {owner}."
+    if acknowledgement_state == "at_risk" or resolution_state == "at_risk":
+        return f"Warn {owner} that {provider} remediation notification is approaching SLO."
+    return "No escalation required."
 
 
 def _endpoint_remediation_sla_notification_description(

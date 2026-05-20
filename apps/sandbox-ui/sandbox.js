@@ -1345,6 +1345,24 @@ async function loadEndpointRemediationSlaNotificationDashboard() {
   }
 }
 
+async function loadEndpointRemediationSlaEscalationDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/endpoint-remediation-sla-escalations/dashboard"));
+    if (!response.ok) throw new Error("Endpoint remediation SLA escalation dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return {
+      alert_level: "healthy",
+      plan_count: 0,
+      active_escalation_count: 0,
+      acknowledgement_breach_count: 0,
+      resolution_breach_count: 0,
+      owner_count: 0
+    };
+  }
+}
+
 async function loadEndpointManagementExportArtifacts(exportId) {
   await loadConsoleConfig();
   try {
@@ -2477,7 +2495,7 @@ function renderEndpointRemediationHandoffStatuses(items, dashboard) {
   }
 }
 
-function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}) {
+function renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard = {}, escalationDashboard = {}) {
   const rows = document.querySelector("#endpointRemediationSlaRows");
   const panel = document.querySelector("#endpointRemediationSlaDashboard");
   if (!rows || !panel) return;
@@ -2514,6 +2532,14 @@ function renderEndpointRemediationSlaReports(items, dashboard, notificationDashb
     <div class="release-delivery-metric">
       <span>Suppressed</span>
       <strong class="${Number(notificationDashboard.suppressed_provider_count || 0) ? "warn" : "allow"}">${formatMetricNumber(notificationDashboard.suppressed_provider_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Active Escalations</span>
+      <strong class="${Number(escalationDashboard.active_escalation_count || 0) ? "block" : "allow"}">${formatMetricNumber(escalationDashboard.active_escalation_count)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>SLO Owners</span>
+      <strong>${formatMetricNumber(escalationDashboard.owner_count)}</strong>
     </div>
   `;
   for (const item of items) {
@@ -3283,12 +3309,13 @@ async function refreshEndpointRemediationHandoffStatus() {
 }
 
 async function refreshEndpointRemediationSla() {
-  const [items, dashboard, notificationDashboard] = await Promise.all([
+  const [items, dashboard, notificationDashboard, escalationDashboard] = await Promise.all([
     loadEndpointRemediationSlaReports(),
     loadEndpointRemediationSlaDashboard(),
-    loadEndpointRemediationSlaNotificationDashboard()
+    loadEndpointRemediationSlaNotificationDashboard(),
+    loadEndpointRemediationSlaEscalationDashboard()
   ]);
-  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard);
+  renderEndpointRemediationSlaReports(items, dashboard, notificationDashboard, escalationDashboard);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

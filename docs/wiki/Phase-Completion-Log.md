@@ -1009,4 +1009,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js`
 - `python3 -m pytest tests/test_integrations.py::test_deliver_connector_event_accepts_comma_separated_providers tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q`
 
-Recommended next issue: add endpoint remediation notification escalation ladders and owner-specific service-level objectives.
+Recommended next issue: delivered below as endpoint remediation notification escalation ladders and owner-specific service-level objectives.
+
+## Endpoint Remediation SLA Escalation Ladders and Owner SLOs
+
+Status: complete for the current public-safe escalation planning slice.
+
+Completed:
+- Added endpoint remediation SLA escalation plans derived from public notification plan, acknowledgement, and redacted delivery metadata.
+- Added owner-specific acknowledgement and resolution SLO evaluation with configurable default SLOs and owner overrides.
+- Added escalation ladder levels with age thresholds, escalation providers, and recommended actions without storing connector credentials.
+- Added CLI commands for escalation plan generation, escalation history, and escalation dashboards.
+- Added API endpoints for escalation plan generation, escalation history, and escalation dashboards.
+- Updated the Evidence Console endpoint remediation SLA panel with active escalation and owner SLO metrics.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added focused tests for owner SLO breach evaluation, escalation metadata indexing, CLI history and dashboard output, API escalation endpoints, and console metric loading.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q`
+
+Recommended next issue: add endpoint remediation escalation delivery actions and owner review workflows.
