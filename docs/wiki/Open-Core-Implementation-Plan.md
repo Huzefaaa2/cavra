@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.
+Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.

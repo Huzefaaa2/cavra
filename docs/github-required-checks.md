@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is expanded Go parity and public sandbox URL validation after deployment from `main`.
+The next recommended implementation step is public sandbox URL validation after deployment from `main` and continued release-governance record parity.

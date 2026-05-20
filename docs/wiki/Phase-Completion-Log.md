@@ -1247,4 +1247,24 @@ Validation:
 - `python3 -m ruff check src/cavra/release.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py`
 - `node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.
+Recommended next issue: delivered below as approval-backed release governance Go parity.
+
+## Phase 7 Approval-Backed Release Governance Go Parity
+
+Status: complete for the current public-safe release governance record parity slice.
+
+Completed implementation:
+- Added `release_governance_record` support to the Go runtime evaluator with approval-state checks for promotion, rollback, endpoint remediation request, and endpoint remediation execution metadata.
+- Added public-safe Go fixtures for pending, approved, denied, and missing-approval release governance records.
+- Added Go runtime tests and Python fixture-shape validation for the new release governance parity cases.
+- Updated README, Go runtime docs, roadmap docs, feature inventory, and wiki source.
+
+Validation:
+- `python3 -m pytest -q tests/test_go_runtime_parity.py`
+- `python3 -m ruff check tests/test_go_runtime_parity.py`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh .`
+
+Note: local Go validation could not run because the Go toolchain is not installed in this environment; CI will run the Go parity job.
+
+Recommended next issue: validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.

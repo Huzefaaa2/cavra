@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
+- Continue broadening release-governance record parity and validate the public sandbox URL.
 - Public sandbox URL validation after deployment from `main`.

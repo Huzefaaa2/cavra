@@ -64,4 +64,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is expanded Go parity and public sandbox URL validation after deployment from `main`.
+The next recommended work is public sandbox URL validation after deployment from `main` and continued release-governance record parity.

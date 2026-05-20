@@ -15,6 +15,7 @@ from cavra.runtime import RuntimeGuard
 
 PARITY_CASES = Path("go/cavra-runtime/testdata/parity_cases.json")
 TESTDATA = PARITY_CASES.parent
+RELEASE_GOVERNANCE_CASES = TESTDATA / "release_governance_records.json"
 
 
 def _python_decision(request: dict[str, str], *, registry_store: RegistryStore | None = None) -> dict[str, object]:
@@ -180,6 +181,25 @@ def test_go_mcp_registry_fixture_shape_is_supported() -> None:
 
     assert {item["server_id"] for item in fixture["mcp_servers"]} >= {"github-mcp", "filesystem-lab", "personal-drive-mcp"}
     assert next(item for item in fixture["mcp_servers"] if item["server_id"] == "github-mcp")["allowed_tools"] == ["create_pull_request"]
+
+
+def test_go_release_governance_record_fixture_shape_is_supported() -> None:
+    cases = json.loads(RELEASE_GOVERNANCE_CASES.read_text(encoding="utf-8"))
+    metadata_kinds = {item["request"]["record"]["metadata_kind"] for item in cases}
+    rule_ids = {item["expected"]["rule_id"] for item in cases}
+
+    assert metadata_kinds >= {
+        "release-channel-promotion-request",
+        "rollout-promotion-execution",
+        "rollout-rollback-execution",
+        "endpoint-drift-remediation-request",
+    }
+    assert rule_ids >= {
+        "release_governance.approval.pending",
+        "release_governance.approval.approved",
+        "release_governance.approval.missing",
+        "release_governance.approval.denied",
+    }
 
 
 def _representative_policy_requests(policy_pack: str, compiled: dict[str, object]) -> list[dict[str, str]]:

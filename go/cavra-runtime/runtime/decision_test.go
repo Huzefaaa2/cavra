@@ -44,6 +44,37 @@ func TestParityCases(t *testing.T) {
 	}
 }
 
+func TestReleaseGovernanceRecordCases(t *testing.T) {
+	data, err := os.ReadFile("../testdata/release_governance_records.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []parityCase
+	if err := json.Unmarshal(data, &cases); err != nil {
+		t.Fatal(err)
+	}
+	for _, item := range cases {
+		t.Run(item.Name, func(t *testing.T) {
+			decision := Evaluate(item.Request)
+			assertEqual(t, "decision", decision.Decision, item.Expected["decision"])
+			assertEqual(t, "rule_id", decision.RuleID, item.Expected["rule_id"])
+			assertEqual(t, "severity", decision.Severity, item.Expected["severity"])
+			if expected := item.Expected["approver_group"]; expected != "" {
+				assertEqual(t, "approver_group", decision.ApproverGroup, expected)
+			}
+			if expected := item.Expected["evidence_ref_prefix"]; expected != "" {
+				assertNotEmpty(t, "decision_id", decision.DecisionID)
+				assertNotEmpty(t, "timestamp", decision.Timestamp)
+				assertHasPrefix(t, "correlation_id", decision.CorrelationID, "corr_")
+				if len(decision.EvidenceRefs) == 0 {
+					t.Fatal("evidence_refs must not be empty")
+				}
+				assertHasPrefix(t, "evidence_refs[0]", decision.EvidenceRefs[0], expected)
+			}
+		})
+	}
+}
+
 func evaluateParityCase(t *testing.T, item parityCase) Decision {
 	t.Helper()
 	if item.Registry == "" {

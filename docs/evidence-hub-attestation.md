@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Expand Go parity across approvals, evidence references, and registry-backed MCP decisions.
+- Continue broadening release-governance record parity and validate the public sandbox URL.
 - Validate the hosted sandbox URL after deployment from `main`.

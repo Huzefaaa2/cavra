@@ -61,7 +61,7 @@ Management plane:
 
 Enforcement plane:
 - Current Python runtime guard.
-- Scaffolded Go runtime backend with shared parity fixtures and compiled-policy loading.
+- Scaffolded Go runtime backend with shared parity fixtures, compiled-policy loading, registry-backed MCP decisions, and approval-backed release governance record checks.
 - Future Unix-socket or gRPC interface.
 - Future local daemon and CI runner mode.
 - Future air-gapped single-binary deployment.

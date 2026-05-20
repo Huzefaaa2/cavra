@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Expand Go parity across approval-backed release governance records and validate the public sandbox URL after deployment from `main`.
+Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.

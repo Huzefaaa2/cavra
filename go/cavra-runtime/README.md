@@ -10,6 +10,7 @@ The Python runtime remains authoritative. The Go package intentionally covers on
 - protected branch Git pushes
 - policy-backed MCP allow/block decisions
 - registry-backed MCP allow, approval, and block decisions
+- approval-backed release governance record checks for promotion, rollback, and endpoint remediation evidence
 - runtime evidence reference metadata
 - representative compiled-policy decisions across every bundled policy pack
 - release packages with checksums, SPDX SBOM, detached signatures, and release evidence
@@ -26,6 +27,8 @@ echo '{"action_type":"read_file","target":".env"}' \
   | go run ./cmd/cavra-runtime --policy /tmp/cavra-compiled-policy.json
 echo '{"session_id":"registry-demo","action_type":"mcp_tool_call","server":"github-mcp","tool":"delete_repository","capability":"repository","policy_pack":"cavra-mcp-enterprise"}' \
   | go run ./cmd/cavra-runtime --registry testdata/mcp_registry.json
+echo '{"session_id":"release-demo","action_type":"release_governance_record","record":{"metadata_kind":"rollout-promotion-execution","approval_state":"approved","approval_id":"apr_prod"}}' \
+  | go run ./cmd/cavra-runtime
 go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock --policy /tmp/cavra-compiled-policy.json
 echo '{"action_type":"execute_command","target":"terraform plan","requested_operation":"terraform plan","policy_pack":"cavra-ai-agent-baseline"}' \
   | go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock
@@ -46,5 +49,5 @@ python3 scripts/generate_go_enforcement_contracts.py
 
 Next Go work:
 
-- Attach signed Go release packages directly to GitHub Releases and add verifier CLI support.
-- Continue broadening approval-route coverage as new policy packs are added.
+- Validate the public sandbox URL after deployment from `main`.
+- Continue broadening release-governance record coverage as new release evidence kinds are added.
