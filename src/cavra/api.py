@@ -71,6 +71,7 @@ from cavra.release import (
     build_endpoint_remediation_handoff_status_dashboard,
     build_endpoint_remediation_handoff_status_metadata,
     build_endpoint_remediation_sla_dashboard,
+    build_endpoint_remediation_sla_notification_event,
     build_endpoint_remediation_sla_report,
     build_endpoint_remediation_sla_report_metadata,
     build_endpoint_inventory_freshness_dashboard,
@@ -264,6 +265,7 @@ def create_app():
                 "endpoint_remediation_handoff_statuses": "/endpoint-remediation-handoff-statuses",
                 "endpoint_remediation_handoff_status_dashboard": "/endpoint-remediation-handoff-statuses/dashboard",
                 "endpoint_remediation_sla_report": "/endpoint-remediation-sla/report",
+                "endpoint_remediation_sla_deliver": "/endpoint-remediation-sla-reports/{report_id}/deliver",
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
@@ -1759,6 +1761,36 @@ def create_app():
             limit=limit,
             offset=offset,
         )
+
+    @app.post("/endpoint-remediation-sla-reports/{report_id}/deliver")
+    def endpoint_remediation_sla_report_deliver(report_id: str, payload: dict) -> dict:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        item = evidence_store.get(report_id)
+        if item is None or item.get("metadata_kind") != "endpoint-remediation-sla-report":
+            raise HTTPException(status_code=404, detail="endpoint remediation SLA report not found")
+        report = item.get("report")
+        if not isinstance(report, dict):
+            raise HTTPException(status_code=400, detail="endpoint remediation SLA metadata is missing report payload")
+        try:
+            event = build_endpoint_remediation_sla_notification_event(
+                report,
+                generated_by=payload.get("generated_by", "console"),
+                max_escalations=int(payload.get("max_escalations", 10)),
+            )
+            result = deliver_connector_event(
+                event,
+                connector_config,
+                provider=payload.get("provider", "all"),
+                retries=int(payload.get("retries", 2)),
+                timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+            )
+            metadata = evidence_store.upsert(
+                build_connector_delivery_metadata(result, source="endpoint_remediation_sla_notification")
+            )
+            return result | {"metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/endpoint-remediation-sla-reports/dashboard")
     def endpoint_remediation_sla_report_dashboard() -> dict:

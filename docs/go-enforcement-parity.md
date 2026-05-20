@@ -76,5 +76,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.
+1. Add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
 2. Continue broadening approval-route parity as new policy packs are added.

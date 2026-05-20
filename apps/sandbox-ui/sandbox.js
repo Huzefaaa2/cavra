@@ -3260,6 +3260,43 @@ async function refreshEndpointRemediationSla() {
   renderEndpointRemediationSlaReports(items, dashboard);
 }
 
+async function deliverEndpointRemediationSlaNotification() {
+  const status = document.querySelector("#endpointRemediationSlaDeliveryStatus");
+  if (status) {
+    status.textContent = "Delivering SLA notification...";
+    status.className = "status-line require_approval";
+  }
+  const reports = await loadEndpointRemediationSlaReports();
+  const report = reports[0];
+  if (!report) {
+    if (status) {
+      status.textContent = "No SLA report is available to notify.";
+      status.className = "status-line warn";
+    }
+    return;
+  }
+  const reportId = report.report_id || report.session_id;
+  try {
+    const response = await fetch(apiUrl(`/endpoint-remediation-sla-reports/${encodeURIComponent(reportId)}/deliver`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({ provider: "all", retries: 1, generated_by: "console" })
+    });
+    if (!response.ok) throw new Error("Endpoint remediation SLA notification API unavailable");
+    const result = await response.json();
+    if (status) {
+      status.textContent = `Notification ${result.success ? "delivered" : "recorded with failures"}: ${result.event_id || reportId}`;
+      status.className = `status-line ${result.success ? "ok" : "warn"}`;
+    }
+    await refreshReleaseDelivery();
+  } catch {
+    if (status) {
+      status.textContent = `Sample notification ready for ${reportId}; configure connectors to deliver.`;
+      status.className = "status-line warn";
+    }
+  }
+}
+
 async function refreshReleaseChannels() {
   const [promotions, exports, dashboard] = await Promise.all([
     loadReleaseChannelPromotions(),
@@ -3624,6 +3661,7 @@ document.querySelector("#refreshEndpointRemediation").addEventListener("click", 
 document.querySelector("#refreshEndpointRemediationHandoff").addEventListener("click", refreshEndpointRemediationHandoff);
 document.querySelector("#refreshEndpointRemediationHandoffStatus").addEventListener("click", refreshEndpointRemediationHandoffStatus);
 document.querySelector("#refreshEndpointRemediationSla").addEventListener("click", refreshEndpointRemediationSla);
+document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
 document.querySelector("#refreshPolicyCatalog").addEventListener("click", refreshPolicyCatalog);

@@ -3594,6 +3594,77 @@ def build_endpoint_remediation_sla_report_metadata(
     return metadata
 
 
+def build_endpoint_remediation_sla_notification_event(
+    report: dict[str, Any],
+    *,
+    generated_by: str = "release-manager",
+    max_escalations: int = 10,
+) -> dict[str, Any]:
+    """Build a public-safe connector event from an endpoint remediation SLA report."""
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    escalations = [item for item in report.get("escalations", []) if isinstance(item, dict)]
+    max_escalations = max(1, min(int(max_escalations), 50))
+    selected_escalations = escalations[:max_escalations]
+    report_id = str(report.get("report_id") or "endpoint-remediation-sla")
+    alert_level = str(report.get("alert_level") or "healthy")
+    breached_count = int(summary.get("breached_count") or 0)
+    at_risk_count = int(summary.get("at_risk_count") or 0)
+    tracked_count = int(summary.get("tracked_work_item_count") or 0)
+    completion_rate = summary.get("completion_rate", 0)
+    title = f"CAVRA endpoint remediation SLA {alert_level}: {report_id}"
+    message = (
+        f"{breached_count} breached and {at_risk_count} at-risk endpoint remediation "
+        f"handoffs across {tracked_count} tracked work items."
+    )
+    description = _endpoint_remediation_sla_notification_description(
+        report_id,
+        alert_level,
+        summary,
+        selected_escalations,
+    )
+    event = {
+        "schema_version": "cavra.endpoint_remediation_sla.notification.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.endpoint_remediation_sla.notification",
+        "session_id": report_id,
+        "report_id": report_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "source_report_generated_at": report.get("generated_at"),
+        "alert_level": alert_level,
+        "max_severity": "critical" if breached_count else "warning" if at_risk_count else "low",
+        "blocked_count": breached_count,
+        "approval_required_count": at_risk_count,
+        "decision_count": tracked_count,
+        "completion_rate": completion_rate,
+        "summary": {
+            "tracked_work_item_count": tracked_count,
+            "completed_count": int(summary.get("completed_count") or 0),
+            "at_risk_count": at_risk_count,
+            "breached_count": breached_count,
+            "critical_provider_count": int(summary.get("critical_provider_count") or 0),
+            "release_channels": summary.get("release_channels", []),
+        },
+        "escalations": selected_escalations,
+        "omitted_escalation_count": max(0, len(escalations) - len(selected_escalations)),
+        "controls": [
+            "notification-derived-from-public-sla-report",
+            "connector-delivery-evidence-redacts-secrets",
+            "no-endpoint-mutation-performed-by-public-notification-event",
+            "private-connectors-remain-responsible-for-ticket-or-chat-side-effects",
+        ],
+        "evidence_refs": report.get("evidence_refs", []),
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": _endpoint_remediation_sla_slack_payload(title, message, selected_escalations),
+        "teams": _endpoint_remediation_sla_teams_payload(title, message, alert_level, selected_escalations),
+        "jira": _endpoint_remediation_sla_jira_payload(title, description, alert_level),
+        "servicenow": _endpoint_remediation_sla_servicenow_payload(title, description, report_id, alert_level),
+    }
+    return event
+
+
 def filter_endpoint_remediation_sla_report_history(
     items: list[dict[str, Any]],
     *,
@@ -5396,6 +5467,122 @@ def _endpoint_remediation_sla_report_markdown_summary(report: dict[str, Any]) ->
     for control in report.get("controls", []):
         lines.append(f"- `{control}`")
     return "\n".join(lines) + "\n"
+
+
+def _endpoint_remediation_sla_notification_description(
+    report_id: str,
+    alert_level: str,
+    summary: dict[str, Any],
+    escalations: list[dict[str, Any]],
+) -> str:
+    lines = [
+        f"CAVRA endpoint remediation SLA report {report_id} is {alert_level}.",
+        "",
+        f"Tracked work items: {summary.get('tracked_work_item_count', 0)}",
+        f"Completed: {summary.get('completed_count', 0)}",
+        f"At risk: {summary.get('at_risk_count', 0)}",
+        f"Breached: {summary.get('breached_count', 0)}",
+        f"Critical providers: {summary.get('critical_provider_count', 0)}",
+        "",
+        "Escalations:",
+    ]
+    if not escalations:
+        lines.append("- No active SLA escalations.")
+    for item in escalations:
+        lines.append(
+            "- "
+            f"{item.get('severity')} provider={item.get('provider')} handoff={item.get('handoff_id')} "
+            f"status={item.get('status')} action={item.get('recommended_action')}"
+        )
+    lines.extend(
+        [
+            "",
+            "This notification is generated from public CAVRA SLA metadata. Endpoint mutation and private connector execution remain outside the Community Edition repository.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _endpoint_remediation_sla_slack_payload(
+    title: str,
+    message: str,
+    escalations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    fields = [
+        {
+            "type": "mrkdwn",
+            "text": f"*{item.get('severity', 'unknown').title()}* `{item.get('provider')}` `{item.get('handoff_id')}`",
+        }
+        for item in escalations[:8]
+    ]
+    blocks: list[dict[str, Any]] = [
+        {"type": "header", "text": {"type": "plain_text", "text": title[:150]}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+    ]
+    if fields:
+        blocks.append({"type": "section", "fields": fields})
+    blocks.append(
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": "Generated from public CAVRA endpoint remediation SLA evidence."}],
+        }
+    )
+    return {"text": title, "blocks": blocks}
+
+
+def _endpoint_remediation_sla_teams_payload(
+    title: str,
+    message: str,
+    alert_level: str,
+    escalations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    facts = [
+        {
+            "name": str(item.get("provider") or "provider"),
+            "value": f"{item.get('severity')} {item.get('handoff_id')} {item.get('status')}",
+        }
+        for item in escalations[:8]
+    ]
+    return {
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": title,
+        "themeColor": "DC2626" if alert_level == "critical" else "D97706" if alert_level == "warning" else "2E7D32",
+        "sections": [
+            {
+                "activityTitle": title,
+                "activitySubtitle": message,
+                "facts": facts,
+            }
+        ],
+    }
+
+
+def _endpoint_remediation_sla_jira_payload(title: str, description: str, alert_level: str) -> dict[str, Any]:
+    return {
+        "fields": {
+            "summary": title,
+            "description": description,
+            "labels": ["cavra", "endpoint-remediation", "sla", alert_level],
+        }
+    }
+
+
+def _endpoint_remediation_sla_servicenow_payload(
+    title: str,
+    description: str,
+    report_id: str,
+    alert_level: str,
+) -> dict[str, Any]:
+    return {
+        "short_description": title,
+        "description": description,
+        "category": "software",
+        "subcategory": "endpoint_runtime",
+        "impact": "1" if alert_level == "critical" else "2" if alert_level == "warning" else "3",
+        "urgency": "1" if alert_level == "critical" else "2",
+        "correlation_id": report_id,
+    }
 
 
 def _normalize_endpoint_remediation_handoff_providers(providers: list[str] | None) -> list[str]:

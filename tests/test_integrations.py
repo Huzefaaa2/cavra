@@ -239,3 +239,25 @@ def test_endpoint_management_connectors_use_provider_payloads() -> None:
     assert specs["jamf"]["body"]["provider"] == "jamf"
     assert specs["intune"]["body"]["provider"] == "intune"
     assert specs["linux"]["body"]["provider"] == "linux"
+
+
+def test_chatops_and_itsm_connectors_use_provider_payloads() -> None:
+    event = {
+        "event_type": "cavra.endpoint_remediation_sla.notification",
+        "session_id": "ersla-123",
+        "provider_payloads": {
+            "slack": {"text": "custom slack"},
+            "jira": {"fields": {"summary": "custom jira"}},
+        },
+    }
+    config = {
+        "connectors": {
+            "slack": {"url": "https://hooks.slack.com/services/test"},
+            "jira": {"url": "https://jira.example.test/rest/api/3/issue", "token": "secret"},
+        }
+    }
+
+    specs = build_connector_request_specs(event, config)
+
+    assert specs["slack"]["body"]["text"] == "custom slack"
+    assert specs["jira"]["body"]["fields"]["summary"] == "custom jira"

@@ -53,4 +53,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.
+1. Add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.

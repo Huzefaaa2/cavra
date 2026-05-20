@@ -549,7 +549,11 @@
             <h2>Endpoint Remediation SLA</h2>
             <p>Review SLA breaches, escalation readiness, and executive release governance summaries.</p>
           </div>
-          <button id="refreshEndpointRemediationSla">Refresh</button>
+          <div class="console-actions">
+            <span id="endpointRemediationSlaDeliveryStatus" class="status-line"></span>
+            <button id="deliverEndpointRemediationSla">Notify</button>
+            <button id="refreshEndpointRemediationSla">Refresh</button>
+          </div>
         </div>
         <div id="endpointRemediationSlaDashboard" class="release-delivery-dashboard"></div>
         <div class="search-controls">

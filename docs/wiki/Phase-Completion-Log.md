@@ -967,4 +967,25 @@ Validation:
 - `node --check apps/sandbox-ui/sandbox.js` passed locally.
 - `python3 -m pytest tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
 
-Recommended next issue: add endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.
+Recommended next issue: delivered below as endpoint remediation SLA notification delivery through configured ITSM, ChatOps, and release governance connectors.
+
+## Endpoint Remediation SLA Notification Delivery
+
+Status: complete for the current public-safe SLA notification delivery slice.
+
+Completed:
+- Added `cavra.endpoint_remediation_sla.notification.v1` events derived from public endpoint remediation SLA reports.
+- Added provider-shaped notification payloads for Slack, Teams, Jira, ServiceNow, and generic webhooks without connector credentials.
+- Reused the existing connector delivery runtime so notification attempts produce redacted delivery evidence and retry metadata.
+- Added `cavra release deliver-endpoint-remediation-sla` with metadata indexing as `release-connector-delivery` and source `endpoint_remediation_sla_notification`.
+- Added `POST /endpoint-remediation-sla-reports/{report_id}/deliver` for API-driven notification delivery.
+- Updated the Evidence Console with a Notify action on the Endpoint Remediation SLA panel.
+- Updated README, CLI docs, API docs, Go release packaging docs, release advisory docs, roadmap docs, feature inventory, and wiki source.
+- Added tests for notification event payloads, provider payload routing, CLI delivery evidence, and API delivery indexing.
+
+Validation:
+- `python3 -m ruff check src/cavra/release.py src/cavra/integrations.py src/cavra/cli.py src/cavra/api.py tests/test_go_release_packaging.py tests/test_api.py tests/test_integrations.py` passed locally.
+- `node --check apps/sandbox-ui/sandbox.js` passed locally.
+- `python3 -m pytest tests/test_integrations.py::test_chatops_and_itsm_connectors_use_provider_payloads tests/test_go_release_packaging.py::test_endpoint_drift_remediation_requires_approval_and_indexes_execution tests/test_api.py::test_api_reconciles_managed_endpoint_deployment_drift -q` passed locally.
+
+Recommended next issue: add endpoint remediation SLA notification routing policies, acknowledgement tracking, and duplicate suppression windows.
