@@ -3,7 +3,6 @@ package daemon
 import (
 	"net"
 	"os"
-	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -19,7 +18,7 @@ func TestDefaultPIDPathUsesSocketPath(t *testing.T) {
 }
 
 func TestStatusDaemonUsesPIDFileAndSocketProbe(t *testing.T) {
-	socketPath := filepath.Join(t.TempDir(), "cavra-runtime.sock")
+	socketPath := shortSocketPath(t, "cavra-runtime.sock")
 	pidPath := socketPath + ".pid"
 	if err := os.WriteFile(pidPath, []byte(strconv.Itoa(os.Getpid())+"\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -53,7 +52,7 @@ func TestStatusDaemonUsesPIDFileAndSocketProbe(t *testing.T) {
 }
 
 func TestStatusDaemonReportsStoppedWithoutPID(t *testing.T) {
-	socketPath := filepath.Join(t.TempDir(), "missing.sock")
+	socketPath := shortSocketPath(t, "missing.sock")
 	status, err := StatusDaemon(LifecycleConfig{
 		SocketPath:     socketPath,
 		StartupTimeout: 10 * time.Millisecond,

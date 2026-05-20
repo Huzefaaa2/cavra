@@ -2,14 +2,13 @@ package daemon
 
 import (
 	"net"
-	"path/filepath"
 	"testing"
 
 	enforcementv1 "github.com/Huzefaaa2/cavra/go/cavra-runtime/enforcement/v1"
 )
 
 func TestClientEvaluateUsesUnixSocketDaemon(t *testing.T) {
-	socketPath := filepath.Join(t.TempDir(), "cavra-runtime.sock")
+	socketPath := shortSocketPath(t, "cavra-runtime.sock")
 	listener, err := net.Listen("unix", socketPath)
 	if err != nil {
 		t.Fatal(err)

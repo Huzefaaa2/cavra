@@ -12,17 +12,17 @@ import (
 )
 
 type Request struct {
-	SessionID          string `json:"session_id,omitempty"`
-	AgentID            string `json:"agent_id,omitempty"`
-	Actor              string `json:"actor,omitempty"`
-	ActionType         string `json:"action_type"`
-	Target             string `json:"target"`
-	Operation          string `json:"operation"`
-	RequestedOperation string `json:"requested_operation"`
-	PolicyPack         string `json:"policy_pack"`
-	Server             string `json:"server"`
-	Tool               string `json:"tool"`
-	Capability         string `json:"capability"`
+	SessionID          string         `json:"session_id,omitempty"`
+	AgentID            string         `json:"agent_id,omitempty"`
+	Actor              string         `json:"actor,omitempty"`
+	ActionType         string         `json:"action_type"`
+	Target             string         `json:"target"`
+	Operation          string         `json:"operation"`
+	RequestedOperation string         `json:"requested_operation"`
+	PolicyPack         string         `json:"policy_pack"`
+	Server             string         `json:"server"`
+	Tool               string         `json:"tool"`
+	Capability         string         `json:"capability"`
 	Record             map[string]any `json:"record,omitempty"`
 }
 
