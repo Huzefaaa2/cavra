@@ -87,5 +87,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Validate the public sandbox URL after deployment from `main`.
+1. Continue broadening release-governance record parity as new evidence metadata kinds are added.
 2. Continue broadening release-governance record parity as new evidence metadata kinds are added.

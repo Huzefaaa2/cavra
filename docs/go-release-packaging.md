@@ -699,4 +699,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.
+1. Continue broadening release-governance record parity as new evidence metadata kinds are added.

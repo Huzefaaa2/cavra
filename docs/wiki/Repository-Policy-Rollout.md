@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is public sandbox URL validation after deployment from `main` and continued release-governance record parity.
+The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.

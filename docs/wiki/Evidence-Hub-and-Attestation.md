@@ -85,5 +85,5 @@ Configure deployed console/API topologies with `CAVRA_PUBLIC_API_BASE_URL`, `CAV
 
 ## Next Work
 
-- Continue broadening release-governance record parity and validate the public sandbox URL.
+- Continue broadening release-governance record parity as new evidence metadata kinds are added.
 - Public sandbox URL validation after deployment from `main`.

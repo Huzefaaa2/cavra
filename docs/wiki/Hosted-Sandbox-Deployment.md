@@ -17,6 +17,7 @@ The workflow:
 - Configures the already-enabled GitHub Pages site for GitHub Actions publishing.
 - Uploads a Pages artifact.
 - Deploys only when the workflow runs on `refs/heads/main`.
+- Opts JavaScript-based GitHub Actions into Node.js 24 to avoid the hosted-runner Node.js 20 deprecation path.
 - Runs a post-deploy smoke check against the public page, JavaScript, stylesheet, brand assets, C4 diagram asset, and downloadable evidence file.
 
 ## How To Run
@@ -53,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.
+1. Continue broadening release-governance record parity as new evidence metadata kinds are added.

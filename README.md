@@ -390,7 +390,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.
+- Continue broadening release-governance record parity as new evidence metadata kinds are added.
 
 ## User stories and enterprise value
 

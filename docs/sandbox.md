@@ -12,7 +12,7 @@ Deploy from GitHub Pages:
 gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
 ```
 
-The workflow at `.github/workflows/deploy-sandbox.yml` validates `config.js` and `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, writes `public/config.js` from `CAVRA_PUBLIC_API_BASE_URL`, includes the repository SVG diagrams, uploads the artifact with `actions/upload-pages-artifact`, and deploys with `actions/deploy-pages` only when the workflow runs on `main`.
+The workflow at `.github/workflows/deploy-sandbox.yml` validates `config.js` and `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, writes `public/config.js` from `CAVRA_PUBLIC_API_BASE_URL`, includes the repository SVG diagrams, uploads the artifact with `actions/upload-pages-artifact`, opts JavaScript-based GitHub Actions into Node.js 24, and deploys with `actions/deploy-pages` only when the workflow runs on `main`.
 
 The sandbox is a simulated AI-agent scenario using real CAVRA policy decisions. It shows agent actions, CAVRA decisions, policy rules, risk, evidence, compliance mapping, and Claude Code install CTA.
 

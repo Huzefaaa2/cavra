@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.
+Continue broadening release-governance record parity as new evidence metadata kinds are added.

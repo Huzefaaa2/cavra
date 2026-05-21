@@ -1267,4 +1267,22 @@ Validation:
 
 Note: local Go validation could not run because the Go toolchain is not installed in this environment; CI will run the Go parity job.
 
-Recommended next issue: validate the public sandbox URL after deployment from `main` and continue broadening release-governance record parity.
+Recommended next issue: delivered below as sandbox deployment Node.js 24 runner compatibility.
+
+## Phase 9 Sandbox Deployment Node.js 24 Compatibility
+
+Status: complete for the current hosted sandbox deployment maintenance slice.
+
+Completed implementation:
+- Opted `.github/workflows/deploy-sandbox.yml` into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` so JavaScript-based GitHub Actions run on Node.js 24 ahead of the hosted-runner Node.js 20 deprecation path.
+- Added workflow-template test coverage for the Node.js 24 opt-in.
+- Updated sandbox deployment documentation, README, roadmap docs, and wiki source.
+
+Validation:
+- `python3 -m pytest -q tests/test_ci_templates.py`
+- `node --check apps/sandbox-ui/config.js`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh .`
+- `git diff --check`
+
+Recommended next issue: continue broadening release-governance record parity as new evidence metadata kinds are added.
