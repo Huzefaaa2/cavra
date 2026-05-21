@@ -53,6 +53,6 @@ def test_immutable_storage_docs_reference_deployment_bundles() -> None:
 
     assert str(AWS_DIR) in doc
     assert str(AZURE_DIR) in doc
-    assert "runner authentication and signed streaming evidence" in doc
+    assert "CI-provider OIDC token verification" in doc
     assert str(AWS_DIR) in wiki
     assert str(AZURE_DIR) in wiki

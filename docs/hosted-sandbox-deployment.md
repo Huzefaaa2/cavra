@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add runner authentication and signed streaming evidence for release governance daemon checks.
+1. Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.

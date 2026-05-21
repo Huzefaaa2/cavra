@@ -28,6 +28,11 @@ func main() {
 	pidPath := flag.String("pid", "", "PID file path for --lifecycle; defaults to <socket>.pid")
 	lifecycleTimeout := flag.Duration("lifecycle-timeout", 5*time.Second, "timeout for daemon lifecycle readiness and shutdown")
 	evidenceLogPath := flag.String("evidence-log", "", "JSONL evidence log path for daemon request/response records")
+	evidenceSigningKey := flag.String("evidence-signing-key", os.Getenv("CAVRA_DAEMON_EVIDENCE_HMAC_KEY"), "optional HMAC key for chained daemon evidence signatures")
+	evidenceSigningKeyID := flag.String("evidence-signing-key-id", os.Getenv("CAVRA_DAEMON_EVIDENCE_KEY_ID"), "optional key ID for chained daemon evidence signatures")
+	runnerAuthKey := flag.String("runner-auth-key", os.Getenv("CAVRA_RUNNER_AUTH_HMAC_KEY"), "optional HMAC key for CI runner authentication")
+	runnerAuthKeyID := flag.String("runner-auth-key-id", os.Getenv("CAVRA_RUNNER_AUTH_KEY_ID"), "optional key ID for CI runner authentication")
+	runnerAuthClaims := flag.String("runner-auth-claims", "", "optional JSON file with CI runner identity claims to sign in --daemon mode")
 	flag.Parse()
 
 	if *lifecycle != "" {
@@ -37,13 +42,26 @@ func main() {
 			PolicyPath:      *policyPath,
 			RegistryPath:    *registryPath,
 			EvidenceLogPath: *evidenceLogPath,
+			EvidenceKey:     *evidenceSigningKey,
+			EvidenceKeyID:   *evidenceSigningKeyID,
+			RunnerAuthKey:   *runnerAuthKey,
+			RunnerAuthKeyID: *runnerAuthKeyID,
 			StartupTimeout:  *lifecycleTimeout,
 		})
 		return
 	}
 
 	if *clientMode {
-		runDaemonClient(*socketPath, *inputPath, *evidenceLogPath)
+		runDaemonClient(
+			*socketPath,
+			*inputPath,
+			*evidenceLogPath,
+			*evidenceSigningKey,
+			*evidenceSigningKeyID,
+			*runnerAuthClaims,
+			*runnerAuthKey,
+			*runnerAuthKeyID,
+		)
 		return
 	}
 
@@ -64,7 +82,16 @@ func main() {
 		registry = &loadedRegistry
 	}
 	if *serve {
-		serveUnixSocket(*socketPath, policy, registry, *evidenceLogPath)
+		serveUnixSocket(
+			*socketPath,
+			policy,
+			registry,
+			*evidenceLogPath,
+			*evidenceSigningKey,
+			*evidenceSigningKeyID,
+			*runnerAuthKey,
+			*runnerAuthKeyID,
+		)
 		return
 	}
 
@@ -128,7 +155,16 @@ func inputReader(inputPath string) (io.Reader, func(), error) {
 	}, nil
 }
 
-func runDaemonClient(socket string, inputPath string, evidenceLogPath string) {
+func runDaemonClient(
+	socket string,
+	inputPath string,
+	evidenceLogPath string,
+	evidenceSigningKey string,
+	evidenceSigningKeyID string,
+	runnerAuthClaims string,
+	runnerAuthKey string,
+	runnerAuthKeyID string,
+) {
 	reader, closeInput, err := inputReader(inputPath)
 	if err != nil {
 		fail(err)
@@ -138,11 +174,24 @@ func runDaemonClient(socket string, inputPath string, evidenceLogPath string) {
 	if err := json.NewDecoder(reader).Decode(&request); err != nil {
 		fail(err)
 	}
+	if runnerAuthClaims != "" {
+		identity, err := loadRunnerIdentity(runnerAuthClaims)
+		if err != nil {
+			fail(err)
+		}
+		auth, err := daemon.SignRunnerAuthentication(identity, runnerAuthKey, runnerAuthKeyID)
+		if err != nil {
+			fail(err)
+		}
+		request.RunnerAuth = &auth
+	}
 	response, err := daemon.NewClient(socket).Evaluate(request)
 	if err != nil {
 		fail(err)
 	}
-	response, err = daemon.NewEvidenceRecorder(evidenceLogPath).Record(request, response)
+	response, err = daemon.NewEvidenceRecorder(evidenceLogPath).
+		WithSigningKey(evidenceSigningKey, evidenceSigningKeyID).
+		Record(request, response)
 	if err != nil {
 		fail(err)
 	}
@@ -151,6 +200,19 @@ func runDaemonClient(socket string, inputPath string, evidenceLogPath string) {
 	if err := encoder.Encode(response); err != nil {
 		fail(err)
 	}
+}
+
+func loadRunnerIdentity(path string) (enforcementv1.RunnerIdentity, error) {
+	reader, closeInput, err := inputReader(path)
+	if err != nil {
+		return enforcementv1.RunnerIdentity{}, err
+	}
+	defer closeInput()
+	var identity enforcementv1.RunnerIdentity
+	if err := json.NewDecoder(reader).Decode(&identity); err != nil {
+		return enforcementv1.RunnerIdentity{}, err
+	}
+	return identity, nil
 }
 
 func runLifecycle(action string, config daemon.LifecycleConfig) {
@@ -178,7 +240,16 @@ func runLifecycle(action string, config daemon.LifecycleConfig) {
 	fmt.Println(string(data))
 }
 
-func serveUnixSocket(socket string, policy *cavraruntime.Policy, registry *cavraruntime.TrustRegistry, evidenceLogPath string) {
+func serveUnixSocket(
+	socket string,
+	policy *cavraruntime.Policy,
+	registry *cavraruntime.TrustRegistry,
+	evidenceLogPath string,
+	evidenceSigningKey string,
+	evidenceSigningKeyID string,
+	runnerAuthKey string,
+	runnerAuthKeyID string,
+) {
 	if err := os.MkdirAll(filepath.Dir(socket), 0o755); err != nil {
 		fail(err)
 	}
@@ -196,7 +267,9 @@ func serveUnixSocket(socket string, policy *cavraruntime.Policy, registry *cavra
 		<-signals
 		_ = listener.Close()
 	}()
-	if err := daemon.ServeWithEvidence(listener, daemon.RuntimeEvaluatorWithRegistry(policy, registry), daemon.NewEvidenceRecorder(evidenceLogPath)); err != nil {
+	recorder := daemon.NewEvidenceRecorder(evidenceLogPath).WithSigningKey(evidenceSigningKey, evidenceSigningKeyID)
+	authenticator := daemon.RunnerAuthenticator{HMACKey: runnerAuthKey, KeyID: runnerAuthKeyID}
+	if err := daemon.ServeWithSecurity(listener, daemon.RuntimeEvaluatorWithRegistry(policy, registry), recorder, authenticator); err != nil {
 		fail(err)
 	}
 }

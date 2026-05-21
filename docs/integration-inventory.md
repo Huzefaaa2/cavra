@@ -69,4 +69,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is runner authentication and signed streaming evidence for release governance daemon checks.
+The next recommended work is CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.

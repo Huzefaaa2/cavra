@@ -25,6 +25,7 @@ type EvaluateRequest struct {
 \tRequestedOperation string `json:"requested_operation,omitempty"`
 \tPolicyPack         string `json:"policy_pack,omitempty"`
 \tReleaseGovernance *ReleaseGovernanceEvidence `json:"release_governance,omitempty"`
+\tRunnerAuth        *RunnerAuthentication `json:"runner_auth,omitempty"`
 }
 
 type ReleaseGovernanceEvidence struct {
@@ -48,6 +49,26 @@ type ReleaseGovernanceEvidence struct {
 \tMissingTargetCount               int      `json:"missing_target_count,omitempty"`
 \tEvidenceRefs                     []string `json:"evidence_refs,omitempty"`
 \tConnectorDeliverySource          string   `json:"connector_delivery_source,omitempty"`
+}
+
+type RunnerAuthentication struct {
+\tIdentity  RunnerIdentity `json:"identity,omitempty"`
+\tAlgorithm string         `json:"algorithm,omitempty"`
+\tKeyID     string         `json:"key_id,omitempty"`
+\tSignature string         `json:"signature,omitempty"`
+}
+
+type RunnerIdentity struct {
+\tProvider   string `json:"provider,omitempty"`
+\tRepository string `json:"repository,omitempty"`
+\tWorkflow   string `json:"workflow,omitempty"`
+\tRunID      string `json:"run_id,omitempty"`
+\tRunAttempt string `json:"run_attempt,omitempty"`
+\tRef        string `json:"ref,omitempty"`
+\tSHA        string `json:"sha,omitempty"`
+\tActor      string `json:"actor,omitempty"`
+\tJob        string `json:"job,omitempty"`
+\tRunnerName string `json:"runner_name,omitempty"`
 }
 
 type DecisionResponse struct {
@@ -172,6 +193,9 @@ def main() -> None:
         "requested_operation",
         "policy_pack",
         "release_governance",
+        "runner_auth",
+        "RunnerAuthentication",
+        "RunnerIdentity",
         "ReleaseGovernanceEvidence",
         "metadata_kind",
         "release_channel",
@@ -193,6 +217,15 @@ def main() -> None:
         "missing_target_count",
         "evidence_refs",
         "connector_delivery_source",
+        "provider",
+        "repository",
+        "workflow",
+        "run_id",
+        "run_attempt",
+        "ref",
+        "sha",
+        "job",
+        "runner_name",
         "decision_id",
         "policy_id",
         "rule_id",

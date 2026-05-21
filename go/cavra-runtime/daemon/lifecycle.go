@@ -23,6 +23,10 @@ type LifecycleConfig struct {
 	PolicyPath      string
 	RegistryPath    string
 	EvidenceLogPath string
+	EvidenceKey     string
+	EvidenceKeyID   string
+	RunnerAuthKey   string
+	RunnerAuthKeyID string
 	BinaryPath      string
 	StartupTimeout  time.Duration
 }
@@ -69,6 +73,18 @@ func StartDaemon(config LifecycleConfig) (LifecycleStatus, error) {
 	}
 	if config.EvidenceLogPath != "" {
 		args = append(args, "--evidence-log", config.EvidenceLogPath)
+	}
+	if config.EvidenceKey != "" {
+		args = append(args, "--evidence-signing-key", config.EvidenceKey)
+	}
+	if config.EvidenceKeyID != "" {
+		args = append(args, "--evidence-signing-key-id", config.EvidenceKeyID)
+	}
+	if config.RunnerAuthKey != "" {
+		args = append(args, "--runner-auth-key", config.RunnerAuthKey)
+	}
+	if config.RunnerAuthKeyID != "" {
+		args = append(args, "--runner-auth-key-id", config.RunnerAuthKeyID)
 	}
 	cmd := exec.Command(config.BinaryPath, args...)
 	cmd.Stdout = os.Stdout

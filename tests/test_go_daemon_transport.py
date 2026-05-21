@@ -11,10 +11,15 @@ def test_go_daemon_transport_docs_reference_socket_contract() -> None:
     assert "--daemon" in doc
     assert "--lifecycle" in doc
     assert "--evidence-log" in doc
+    assert "--runner-auth-key" in doc
+    assert "--runner-auth-claims" in doc
+    assert "--evidence-signing-key" in doc
     assert "Unix-socket" in doc
     assert "EvaluateRequest" in doc
     assert "DecisionResponse" in doc
     assert "go-daemon-evidence://" in doc
+    assert "runner_auth" in doc
+    assert "HMAC-SHA256" in doc
     assert "daemon.Client" in doc
     assert "go/cavra-runtime/daemon" in wiki
 
@@ -26,6 +31,9 @@ def test_go_runtime_readme_references_daemon_mode() -> None:
     assert "--daemon" in readme
     assert "--lifecycle" in readme
     assert "--evidence-log" in readme
+    assert "--runner-auth-key" in readme
+    assert "--runner-auth-claims" in readme
+    assert "--evidence-signing-key" in readme
     assert "--socket" in readme
     assert "EvaluateRequest" in readme
     assert "DecisionResponse" in readme
@@ -63,8 +71,14 @@ def test_go_daemon_evidence_hook_is_present() -> None:
     assert "type EvidenceRecorder struct" in evidence
     assert "cavra.go-daemon.evidence.v1" in evidence
     assert "go-daemon-evidence://" in evidence
+    assert "EvidenceSignature" in evidence
+    assert "PreviousHash" in evidence
+    assert "RecordHash" in evidence
     assert "HandleConnectionWithEvidence" in server
+    assert "HandleConnectionWithSecurity" in server
     assert 'flag.String("evidence-log"' in cli
+    assert 'flag.String("runner-auth-key"' in cli
+    assert 'flag.String("runner-auth-claims"' in cli
 
 
 def test_typed_release_governance_daemon_examples_are_present() -> None:

@@ -6982,6 +6982,10 @@ def verify_go_ci_runner_bundles(
     controls = payload.get("controls")
     if not isinstance(controls, list) or "verified-signed-runtime-before-runner-use" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing signed runtime verification control")
+    if "runner-authentication-claims-signed" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing runner authentication control")
+    if "daemon-evidence-stream-hmac-signed" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing signed evidence stream control")
     if "blocking-decision-fails-closed-by-default" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing fail-closed decision control")
 

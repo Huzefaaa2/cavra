@@ -12,6 +12,7 @@ Generator: `scripts/generate_go_enforcement_contracts.py`
 
 - `EvaluateRequest` generated from the protobuf request shape.
 - `ReleaseGovernanceEvidence` generated from the protobuf release-governance evidence payload shape.
+- `RunnerAuthentication` and `RunnerIdentity` generated from the protobuf runner authentication payload shape.
 - `DecisionResponse` generated from the protobuf response shape.
 - Conversion from generated request contracts to runtime requests.
 - Conversion from typed release-governance contract payloads into public-safe runtime records.
@@ -19,6 +20,7 @@ Generator: `scripts/generate_go_enforcement_contracts.py`
 - Contract tests that verify expected proto fields remain present.
 - Contract-level fixtures for approval, failed delivery, and critical inventory freshness release-governance payloads.
 - Daemon and CI runner examples that send typed release-governance payloads through the generated request contract.
+- Runner-authenticated daemon checks that attach signed `runner_auth` claims to `EvaluateRequest`.
 - Runtime support for both legacy `operation` and proto-aligned `requested_operation`.
 
 ## How To Use
@@ -46,7 +48,20 @@ Example proto-shaped JSON request:
   "action_type": "execute_command",
   "target": "terraform plan",
   "requested_operation": "terraform plan",
-  "policy_pack": "cavra-ai-agent-baseline"
+  "policy_pack": "cavra-ai-agent-baseline",
+  "runner_auth": {
+    "algorithm": "HMAC-SHA256",
+    "key_id": "ci-runner-2026-q2",
+    "signature": "example-signature-from-ci-secret",
+    "identity": {
+      "provider": "github-actions",
+      "repository": "Huzefaaa2/cavra",
+      "workflow": "CAVRA Release Governance",
+      "run_id": "123456",
+      "ref": "refs/heads/main",
+      "sha": "abc123"
+    }
+  }
 }
 ```
 
@@ -76,7 +91,7 @@ Example release-governance evidence contract request:
 ## User Stories
 
 - As a platform engineer, I can build daemon transport on a stable request and response shape.
-- As a CI owner, I can validate the same contract before wiring runner-side enforcement.
+- As a CI owner, I can validate the same contract before wiring runner-side enforcement and signed runner claims.
 - As an auditor, I can see that the Go enforcement boundary follows the documented protobuf contract.
 - As a release manager, I can send typed release-governance metadata into the Go runtime without relying on ad hoc JSON maps.
 
@@ -89,4 +104,4 @@ Generated contracts reduce integration drift between Python, Go, future daemon t
 - The generated package is a lightweight JSON transport contract, not a full gRPC server.
 - The current daemon transport and `daemon.Client` helper use these contracts over a one-request-per-connection Unix socket.
 - GitHub Actions, GitLab CI, and Azure Pipelines examples now use typed release-governance contract payloads directly.
-- Next work should package signed runner binaries and reusable runner actions around these examples.
+- Next work should add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence stream signatures.

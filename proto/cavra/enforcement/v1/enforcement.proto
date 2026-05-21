@@ -15,6 +15,7 @@ message EvaluateRequest {
   string requested_operation = 6;
   string policy_pack = 7;
   ReleaseGovernanceEvidence release_governance = 8;
+  RunnerAuthentication runner_auth = 9;
 }
 
 message DecisionResponse {
@@ -58,4 +59,24 @@ message ReleaseGovernanceEvidence {
   int32 missing_target_count = 18;
   repeated string evidence_refs = 19;
   string connector_delivery_source = 20;
+}
+
+message RunnerAuthentication {
+  RunnerIdentity identity = 1;
+  string algorithm = 2;
+  string key_id = 3;
+  string signature = 4;
+}
+
+message RunnerIdentity {
+  string provider = 1;
+  string repository = 2;
+  string workflow = 3;
+  string run_id = 4;
+  string run_attempt = 5;
+  string ref = 6;
+  string sha = 7;
+  string actor = 8;
+  string job = 9;
+  string runner_name = 10;
 }

@@ -35,6 +35,15 @@ func Serve(listener net.Listener, evaluate Evaluator) error {
 }
 
 func ServeWithEvidence(listener net.Listener, evaluate Evaluator, recorder *EvidenceRecorder) error {
+	return ServeWithSecurity(listener, evaluate, recorder, RunnerAuthenticator{})
+}
+
+func ServeWithSecurity(
+	listener net.Listener,
+	evaluate Evaluator,
+	recorder *EvidenceRecorder,
+	authenticator RunnerAuthenticator,
+) error {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -44,7 +53,7 @@ func ServeWithEvidence(listener net.Listener, evaluate Evaluator, recorder *Evid
 			return err
 		}
 		go func() {
-			_ = HandleConnectionWithEvidence(conn, evaluate, recorder)
+			_ = HandleConnectionWithSecurity(conn, evaluate, recorder, authenticator)
 		}()
 	}
 }
@@ -54,12 +63,26 @@ func HandleConnection(conn net.Conn, evaluate Evaluator) error {
 }
 
 func HandleConnectionWithEvidence(conn net.Conn, evaluate Evaluator, recorder *EvidenceRecorder) error {
+	return HandleConnectionWithSecurity(conn, evaluate, recorder, RunnerAuthenticator{})
+}
+
+func HandleConnectionWithSecurity(
+	conn net.Conn,
+	evaluate Evaluator,
+	recorder *EvidenceRecorder,
+	authenticator RunnerAuthenticator,
+) error {
 	defer conn.Close()
 	var request enforcementv1.EvaluateRequest
 	if err := json.NewDecoder(conn).Decode(&request); err != nil {
 		return err
 	}
-	response := evaluate(request)
+	var response enforcementv1.DecisionResponse
+	if err := authenticator.Validate(request); err != nil {
+		response = RunnerAuthBlockedResponse(request, err)
+	} else {
+		response = evaluate(request)
+	}
 	var err error
 	response, err = recorder.Record(request, response)
 	if err != nil {

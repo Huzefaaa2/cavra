@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add runner authentication and signed streaming evidence for release governance daemon checks.
+Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.

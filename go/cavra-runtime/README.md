@@ -37,11 +37,15 @@ go run ./cmd/cavra-runtime --lifecycle start --socket .cavra/cavra-runtime.sock 
 go run ./cmd/cavra-runtime --lifecycle status --socket .cavra/cavra-runtime.sock
 go run ./cmd/cavra-runtime --lifecycle stop --socket .cavra/cavra-runtime.sock
 go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock --evidence-log .cavra/go-daemon/evidence.jsonl
+export CAVRA_RUNNER_AUTH_HMAC_KEY="set-this-from-a-ci-secret"
+export CAVRA_DAEMON_EVIDENCE_HMAC_KEY="set-this-from-a-ci-secret"
+go run ./cmd/cavra-runtime --lifecycle start --socket .cavra/cavra-runtime.sock --evidence-log .cavra/go-daemon/evidence.jsonl --runner-auth-key-id ci-runner-2026-q2 --evidence-signing-key-id ci-evidence-2026-q2
+go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock --input ../../examples/go-runtime/typed-release-governance/approved-promotion.json --runner-auth-claims .cavra/go-daemon/runner-auth-claims.json --runner-auth-key-id ci-runner-2026-q2
 ```
 
 `--policy` accepts normalized JSON from `cavra policy compile`. `--registry` accepts CAVRA trust-registry JSON with MCP server records and applies the same approved, pending, blocked, tool-scope, and capability-scope decisions as the Python registry path. When omitted, the runtime uses the built-in scaffold policy subset for local parity tests.
 
-Generated enforcement contracts live under `enforcement/v1` and are generated from `../../proto/cavra/enforcement/v1/enforcement.proto`. They include `EvaluateRequest`, `ReleaseGovernanceEvidence`, and `DecisionResponse`; typed `release_governance` payloads are converted into runtime release-governance records. The daemon transport accepts one JSON `EvaluateRequest` per Unix-socket connection and returns one JSON `DecisionResponse`. The `daemon.Client` helper and CLI `--daemon` mode can send contract-shaped requests to a running socket daemon. The daemon lifecycle helper supports `start`, `status`, and `stop` with PID-file tracking, socket readiness probing, and graceful signal cleanup. `--evidence-log` writes JSONL request/response records and appends `go-daemon-evidence://...` references to `DecisionResponse.evidence_refs`.
+Generated enforcement contracts live under `enforcement/v1` and are generated from `../../proto/cavra/enforcement/v1/enforcement.proto`. They include `EvaluateRequest`, `ReleaseGovernanceEvidence`, `RunnerAuthentication`, `RunnerIdentity`, and `DecisionResponse`; typed `release_governance` payloads are converted into runtime release-governance records. The daemon transport accepts one JSON `EvaluateRequest` per Unix-socket connection and returns one JSON `DecisionResponse`. The `daemon.Client` helper and CLI `--daemon` mode can send contract-shaped requests to a running socket daemon. The daemon lifecycle helper supports `start`, `status`, and `stop` with PID-file tracking, socket readiness probing, and graceful signal cleanup. `--evidence-log` writes JSONL request/response records and appends `go-daemon-evidence://...` references to `DecisionResponse.evidence_refs`. `--runner-auth-key`, `--runner-auth-key-id`, and `--runner-auth-claims` support HMAC-signed CI runner claims. `--evidence-signing-key` and `--evidence-signing-key-id` support HMAC-signed, hash-chained daemon evidence records.
 
 ```bash
 cd ../..
@@ -53,7 +57,8 @@ Packaged runner wrappers:
 - `examples/ci-runners/cavra-release-governance-runner.sh` runs a typed release-governance request through the daemon and fails closed on unexpected or blocking decisions.
 - `examples/github-actions/actions/cavra-release-governance-go-runtime/action.yml` wraps the shell runner as a reusable GitHub composite action.
 - `scripts/package_go_release.py` includes both wrappers plus `cavra-runtime.ci-runner-bundles.json` in signed Go runtime release packages.
+- The wrapper writes `runner-auth-claims.json`, signs runner claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, and signs daemon evidence records when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set.
 
 Next Go work:
 
-- Add runner authentication and signed streaming evidence for release governance daemon checks.
+- Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence stream signatures.

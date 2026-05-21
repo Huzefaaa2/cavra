@@ -12,6 +12,7 @@ type EvaluateRequest struct {
 	RequestedOperation string                     `json:"requested_operation,omitempty"`
 	PolicyPack         string                     `json:"policy_pack,omitempty"`
 	ReleaseGovernance  *ReleaseGovernanceEvidence `json:"release_governance,omitempty"`
+	RunnerAuth         *RunnerAuthentication      `json:"runner_auth,omitempty"`
 }
 
 type ReleaseGovernanceEvidence struct {
@@ -35,6 +36,26 @@ type ReleaseGovernanceEvidence struct {
 	MissingTargetCount            int      `json:"missing_target_count,omitempty"`
 	EvidenceRefs                  []string `json:"evidence_refs,omitempty"`
 	ConnectorDeliverySource       string   `json:"connector_delivery_source,omitempty"`
+}
+
+type RunnerAuthentication struct {
+	Identity  RunnerIdentity `json:"identity,omitempty"`
+	Algorithm string         `json:"algorithm,omitempty"`
+	KeyID     string         `json:"key_id,omitempty"`
+	Signature string         `json:"signature,omitempty"`
+}
+
+type RunnerIdentity struct {
+	Provider   string `json:"provider,omitempty"`
+	Repository string `json:"repository,omitempty"`
+	Workflow   string `json:"workflow,omitempty"`
+	RunID      string `json:"run_id,omitempty"`
+	RunAttempt string `json:"run_attempt,omitempty"`
+	Ref        string `json:"ref,omitempty"`
+	SHA        string `json:"sha,omitempty"`
+	Actor      string `json:"actor,omitempty"`
+	Job        string `json:"job,omitempty"`
+	RunnerName string `json:"runner_name,omitempty"`
 }
 
 type DecisionResponse struct {
