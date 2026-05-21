@@ -16,6 +16,7 @@ from cavra.runtime import RuntimeGuard
 PARITY_CASES = Path("go/cavra-runtime/testdata/parity_cases.json")
 TESTDATA = PARITY_CASES.parent
 RELEASE_GOVERNANCE_CASES = TESTDATA / "release_governance_records.json"
+RELEASE_GOVERNANCE_CONTRACT_CASES = TESTDATA / "release_governance_contracts.json"
 
 
 def _python_decision(request: dict[str, object], *, registry_store: RegistryStore | None = None) -> dict[str, object]:
@@ -42,7 +43,7 @@ def _python_decision(request: dict[str, object], *, registry_store: RegistryStor
             str(request.get("capability", "")) or None,
         ).to_dict()
     if action == "release_governance_record":
-        record = request.get("record")
+        record = request.get("record") or request.get("release_governance")
         assert isinstance(record, dict)
         return guard.evaluate_release_governance_record(
             record,
@@ -96,6 +97,18 @@ def test_go_release_governance_cases_match_python_runtime_expectations() -> None
             assert str(decision["correlation_id"]).startswith("corr_"), item["name"]
             assert decision["evidence_refs"], item["name"]
             assert str(decision["evidence_refs"][0]).startswith(expected["evidence_ref_prefix"]), item["name"]
+
+
+def test_go_release_governance_contract_cases_match_python_runtime_expectations() -> None:
+    cases = json.loads(RELEASE_GOVERNANCE_CONTRACT_CASES.read_text(encoding="utf-8"))
+    for item in cases:
+        decision = _python_decision(item["request"])
+        expected = item["expected"]
+        assert decision["decision"] == expected["decision"], item["name"]
+        assert decision["rule_id"] == expected["rule_id"], item["name"]
+        assert decision["severity"] == expected["severity"], item["name"]
+        if expected.get("approver_group"):
+            assert decision["approver_group"] == expected["approver_group"], item["name"]
 
 
 @pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain is not installed")

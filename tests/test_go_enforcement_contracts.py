@@ -39,3 +39,11 @@ def test_go_release_governance_contract_fixtures_are_documented() -> None:
     assert "ReleaseGovernance  *ReleaseGovernanceEvidence" in contracts
     assert "RunnerAuth" in contracts
     assert "RuntimeRecord" in contracts
+    assert "verification_status" in proto
+    assert "integrity_status" in proto
+    assert "audit_export_status" in proto
+    assert "VerificationStatus" in contracts
+    assert "IntegrityStatus" in contracts
+    assert "AuditExportStatus" in contracts
+    assert "rollout-promotion-audit-export" in fixture.read_text(encoding="utf-8")
+    assert "rollout-rollback-audit-export" in fixture.read_text(encoding="utf-8")

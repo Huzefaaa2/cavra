@@ -66,6 +66,12 @@ func TestGeneratedContractsMatchProtoFields(t *testing.T) {
 		"missing_target_count",
 		"evidence_refs",
 		"connector_delivery_source",
+		"verification_status",
+		"integrity_status",
+		"failed_verification_count",
+		"integrity_failure_count",
+		"audit_export_status",
+		"rollback_reference_count",
 	})
 	assertProtoFields(t, proto, "DecisionResponse", []string{
 		"decision_id",

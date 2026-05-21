@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add contract-level Go fixtures and production release-signing key rotation documentation.
+Document production release-signing operations, key rotation, and emergency revocation evidence.

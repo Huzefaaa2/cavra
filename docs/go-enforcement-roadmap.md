@@ -26,10 +26,10 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 
 ## Current Boundary
 
-The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, write request/response evidence records, verify release-governance fixtures across Python and Go, and package reproducibility metadata for air-gapped rebuild checks. It does not yet include all future release-governance contract fixtures or production signing key rotation operations.
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, write request/response evidence records, verify release-governance fixtures across Python and Go, cover high-risk rollout evidence and audit export contract cases, and package reproducibility metadata for air-gapped rebuild checks. It does not yet include production signing key rotation operations.
 
 ## Next Implementation Steps
 
-1. Add contract-level fixtures for additional high-risk release-governance metadata kinds.
-2. Document production release-signing operations and key rotation.
+1. Document production release-signing operations, key rotation, and emergency revocation evidence.
+2. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
 3. Promote Go to an optional backend only after audited parity and deployment tests pass.

@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add contract-level Go fixtures and production release-signing key rotation documentation.
+Document production release-signing operations, key rotation, and emergency revocation evidence.

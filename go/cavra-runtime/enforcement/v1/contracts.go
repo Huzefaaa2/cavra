@@ -36,6 +36,12 @@ type ReleaseGovernanceEvidence struct {
 	MissingTargetCount            int      `json:"missing_target_count,omitempty"`
 	EvidenceRefs                  []string `json:"evidence_refs,omitempty"`
 	ConnectorDeliverySource       string   `json:"connector_delivery_source,omitempty"`
+	VerificationStatus            string   `json:"verification_status,omitempty"`
+	IntegrityStatus               string   `json:"integrity_status,omitempty"`
+	FailedVerificationCount       int      `json:"failed_verification_count,omitempty"`
+	IntegrityFailureCount         int      `json:"integrity_failure_count,omitempty"`
+	AuditExportStatus             string   `json:"audit_export_status,omitempty"`
+	RollbackReferenceCount        int      `json:"rollback_reference_count,omitempty"`
 }
 
 type RunnerAuthentication struct {
@@ -127,6 +133,12 @@ func (evidence ReleaseGovernanceEvidence) RuntimeRecord() map[string]any {
 		record["evidence_refs"] = evidence.EvidenceRefs
 	}
 	addString(record, "connector_delivery_source", evidence.ConnectorDeliverySource)
+	addString(record, "verification_status", evidence.VerificationStatus)
+	addString(record, "integrity_status", evidence.IntegrityStatus)
+	addInt(record, "failed_verification_count", evidence.FailedVerificationCount)
+	addInt(record, "integrity_failure_count", evidence.IntegrityFailureCount)
+	addString(record, "audit_export_status", evidence.AuditExportStatus)
+	addInt(record, "rollback_reference_count", evidence.RollbackReferenceCount)
 	if len(record) == 0 {
 		return nil
 	}

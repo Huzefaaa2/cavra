@@ -50,6 +50,6 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: contract-level Go fixtures for the next high-risk release-governance metadata kinds, remaining high-risk runtime decisions, and production release signing operations.
+Known gaps: remaining high-risk runtime decisions and production release signing operations.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, expanded golden parity suite, and generated enforcement contracts for the Go runtime.

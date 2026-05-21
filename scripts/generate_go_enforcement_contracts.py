@@ -49,6 +49,12 @@ type ReleaseGovernanceEvidence struct {
 \tMissingTargetCount               int      `json:"missing_target_count,omitempty"`
 \tEvidenceRefs                     []string `json:"evidence_refs,omitempty"`
 \tConnectorDeliverySource          string   `json:"connector_delivery_source,omitempty"`
+\tVerificationStatus               string   `json:"verification_status,omitempty"`
+\tIntegrityStatus                  string   `json:"integrity_status,omitempty"`
+\tFailedVerificationCount          int      `json:"failed_verification_count,omitempty"`
+\tIntegrityFailureCount            int      `json:"integrity_failure_count,omitempty"`
+\tAuditExportStatus                string   `json:"audit_export_status,omitempty"`
+\tRollbackReferenceCount           int      `json:"rollback_reference_count,omitempty"`
 }
 
 type RunnerAuthentication struct {
@@ -140,6 +146,12 @@ func (evidence ReleaseGovernanceEvidence) RuntimeRecord() map[string]any {
 \t\trecord["evidence_refs"] = evidence.EvidenceRefs
 \t}
 \taddString(record, "connector_delivery_source", evidence.ConnectorDeliverySource)
+\taddString(record, "verification_status", evidence.VerificationStatus)
+\taddString(record, "integrity_status", evidence.IntegrityStatus)
+\taddInt(record, "failed_verification_count", evidence.FailedVerificationCount)
+\taddInt(record, "integrity_failure_count", evidence.IntegrityFailureCount)
+\taddString(record, "audit_export_status", evidence.AuditExportStatus)
+\taddInt(record, "rollback_reference_count", evidence.RollbackReferenceCount)
 \tif len(record) == 0 {
 \t\treturn nil
 \t}
@@ -217,6 +229,12 @@ def main() -> None:
         "missing_target_count",
         "evidence_refs",
         "connector_delivery_source",
+        "verification_status",
+        "integrity_status",
+        "failed_verification_count",
+        "integrity_failure_count",
+        "audit_export_status",
+        "rollback_reference_count",
         "provider",
         "repository",
         "workflow",
