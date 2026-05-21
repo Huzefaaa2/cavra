@@ -1771,4 +1771,35 @@ Enterprise challenge solved:
 - Preserves public-safe route decision evidence for auditors and release governance.
 - Keeps connector credentials, private routing logic, customer names, and internal calendar exports outside the public Community Edition.
 
-Recommended next issue: add Evidence Console drill notification acknowledgement and escalation drill-down views.
+Recommended next issue: delivered below as Evidence Console drill notification acknowledgement and escalation drill-down views.
+
+## Phase 7 Evidence Console Drill Notification Drill-Downs
+
+Status: complete for the current public-safe Evidence Console drill notification review slice.
+
+Completed implementation:
+- Added a Go Rollback Drill Notifications console section with dashboard metrics for plans, deliveries, failed deliveries, acknowledgements, outstanding routes, escalation routes, and breached routes.
+- Added provider, acknowledgement state, and metadata kind filters for rollback drill notification records.
+- Added notification history rows for plans, redacted connector delivery metadata, acknowledgement records, and escalation plans.
+- Added escalation route rows with schedule, provider, owner, acknowledgement state, route age, acknowledgement SLO, and recommended action.
+- Added JSON detail and export actions for notification records and route-level escalation payloads.
+- Added local public-safe sample metadata so the Community Edition dashboard works without a live API.
+- Added `docs/go-backend-rollback-drill-console.md`, `docs/wiki/Go-Backend-Rollback-Drill-Console.md`, and `docs/diagrams/go-backend-rollback-drill-console.svg`.
+- Updated README, feature inventory, production roadmap, productization report, escalation docs, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+
+User stories:
+- As a release manager, I can review whether stale rollback drill notifications were acknowledged.
+- As an incident commander, I can find the owner, provider, and route that missed the acknowledgement SLO.
+- As a platform owner, I can export route-level escalation metadata for operational review.
+- As an auditor, I can inspect public-safe notification evidence without seeing connector credentials.
+
+Enterprise challenge solved:
+- Converts delivered alerts into operator-readable accountability views.
+- Makes missed rollback drill follow-up visible before promoted backend confidence decays.
+- Keeps connector credentials, private URLs, customer data, and Enterprise source outside the public Community Edition.
+
+Recommended next issue: add persisted drill routing history filters and suppression trend summaries.

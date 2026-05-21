@@ -693,6 +693,62 @@
       <section class="console">
         <div class="console-header">
           <div>
+            <h2>Go Rollback Drill Notifications</h2>
+            <p>Review acknowledgement coverage, delivery status, and escalation routes for promoted Go backend rollback drills.</p>
+          </div>
+          <button id="refreshGoRollbackDrillNotifications">Refresh</button>
+        </div>
+        <div id="goRollbackDrillNotificationDashboard" class="release-delivery-dashboard"></div>
+        <div class="search-controls">
+          <label>Provider <select id="filterGoDrillNotificationProvider"><option value="">Any</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="email">Email</option><option value="pagerduty">PagerDuty</option></select></label>
+          <label>State <select id="filterGoDrillNotificationState"><option value="">Any</option><option value="acknowledged">Acknowledged</option><option value="dismissed">Dismissed</option><option value="escalated">Escalated</option><option value="resolved">Resolved</option><option value="outstanding">Outstanding</option></select></label>
+          <label>Kind <select id="filterGoDrillNotificationKind"><option value="">Any</option><option value="go-backend-rollback-drill-notification-plan">Notification plan</option><option value="go-backend-rollback-drill-notification-ack">Acknowledgement</option><option value="go-backend-rollback-drill-notification-escalation-plan">Escalation plan</option><option value="release-connector-delivery">Connector delivery</option></select></label>
+        </div>
+        <div class="recurrence-grid">
+          <div>
+            <h3>Notification History</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Record</th>
+                    <th>Kind</th>
+                    <th>Provider</th>
+                    <th>Status</th>
+                    <th>Schedule</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="goDrillNotificationRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Escalation Routes</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Schedule</th>
+                    <th>Provider</th>
+                    <th>Owner</th>
+                    <th>State</th>
+                    <th>Age / SLO</th>
+                    <th>Action</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="goDrillEscalationRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="goDrillNotificationDetail" class="detail-panel">Select Details from a drill notification row.</div>
+      </section>
+      <section class="console">
+        <div class="console-header">
+          <div>
             <h2>Evidence Search</h2>
             <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
           </div>

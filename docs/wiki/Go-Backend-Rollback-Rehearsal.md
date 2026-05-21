@@ -94,4 +94,4 @@ Promotion without rehearsal leaves teams with a plan that may fail during an inc
 
 ## Next Work
 
-The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.
+The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.

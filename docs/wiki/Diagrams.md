@@ -88,6 +88,10 @@ See `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg` for th
 
 See `docs/diagrams/go-backend-rollback-drill-routing.svg` for owner routing, maintenance-window suppression, owner calendar suppression, and route decision evidence for promoted Go backend rollback drills.
 
+## Go Backend Rollback Drill Console
+
+See `docs/diagrams/go-backend-rollback-drill-console.svg` for the Evidence Console drill-down flow across notification history, acknowledgement state, escalation routes, detail panels, and exportable public-safe evidence.
+
 ## SVG Images
 
 Repository diagram images:
