@@ -2227,11 +2227,13 @@ async function loadDeploymentReadiness() {
         { id: "cors_restricted", status: (consoleConfig?.cors_origins || []).length ? "pass" : "warn", message: "Allowed console origins are explicit." },
         { id: "go_backend_pilot", status: "pass", message: "Optional Go backend pilot is disabled or ready with Python fallback and parity gate evidence." },
         { id: "go_backend_deployment_paths", status: "pass", message: "Go backend CI runner and workstation deployment paths are ready when the pilot is enabled." },
-        { id: "go_backend_promotion_gate", status: "pass", message: "Promoted Go backend mode requires runtime, deployment, and audited parity evidence." }
+        { id: "go_backend_promotion_gate", status: "pass", message: "Promoted Go backend mode requires runtime, deployment, and audited parity evidence." },
+        { id: "go_backend_rollback_controls", status: "pass", message: "Promoted Go backend mode requires an approved rollback plan back to Python-only mode." }
       ],
       go_backend_pilot: { schema_version: "cavra.go-backend-pilot.readiness.v1", mode: "disabled", status: "disabled", checks: [] },
       go_backend_deployment: { schema_version: "cavra.go-backend-pilot.deployment-readiness.v1", mode: "disabled", status: "not_configured", checks: [], ci_runner_targets: [], workstation_targets: [], channels: [] },
       go_backend_promotion: { schema_version: "cavra.go-backend-pilot.promotion-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
+      go_backend_rollback: { schema_version: "cavra.go-backend-pilot.rollback-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
       operator_notes: ["Connect to the API for full persistent-store and evidence-artifact readiness checks."]
     };
   }
@@ -4035,6 +4037,7 @@ function renderDeploymentReadiness(report) {
   const goPilot = report.go_backend_pilot || {};
   const goDeployment = report.go_backend_deployment || {};
   const goPromotion = report.go_backend_promotion || {};
+  const goRollback = report.go_backend_rollback || {};
   panel.innerHTML = `
     <dl>
       <dt>Status</dt><dd class="${report.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(report.status || "needs_attention")}</dd>
@@ -4043,6 +4046,7 @@ function renderDeploymentReadiness(report) {
       <dt>Go pilot</dt><dd class="${goPilot.status === "ready" || goPilot.status === "disabled" ? "allow" : "require_approval"}">${escapeHtml(goPilot.status || "disabled")} (${escapeHtml(goPilot.mode || "disabled")})</dd>
       <dt>Go deployment</dt><dd class="${goDeployment.status === "ready" || goDeployment.status === "not_configured" ? "allow" : "require_approval"}">${escapeHtml(goDeployment.status || "not_configured")}</dd>
       <dt>Go promotion</dt><dd class="${goPromotion.status === "ready" || goPromotion.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goPromotion.status || "not_requested")}</dd>
+      <dt>Go rollback</dt><dd class="${goRollback.status === "ready" || goRollback.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goRollback.status || "not_requested")}</dd>
     </dl>
     <h3>Checks</h3>
     <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.id)}<br><small>${escapeHtml(item.message || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>

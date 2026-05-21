@@ -49,6 +49,7 @@ from cavra.go_backend import (
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
+    go_rollback_readiness_report,
 )
 from cavra.integrations import (
     CommandInterceptor,
@@ -255,6 +256,7 @@ def runtime_go_pilot_readiness(
     channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
     updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
     promotion_evidence_path: Annotated[str, typer.Option(help="Optional Go promotion evidence JSON path.")] = "",
+    rollback_plan_path: Annotated[str, typer.Option(help="Optional Go rollback plan JSON path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print readiness JSON."),
 ) -> None:
@@ -270,6 +272,7 @@ def runtime_go_pilot_readiness(
         channel_manifest_path=channel_manifest_path,
         updater_policy_path=updater_policy_path,
         promotion_evidence_path=promotion_evidence_path,
+        rollback_plan_path=rollback_plan_path,
         timeout_seconds=timeout_seconds,
     )
     report = go_backend_readiness_report(config)
@@ -321,6 +324,7 @@ def runtime_go_promotion_readiness(
     channel_manifest_path: Annotated[str, typer.Option(help="Workstation release channel manifest path.")] = "",
     updater_policy_path: Annotated[str, typer.Option(help="Workstation updater policy path.")] = "",
     promotion_evidence_path: Annotated[str, typer.Option(help="Audited Go promotion evidence JSON path.")] = "",
+    rollback_plan_path: Annotated[str, typer.Option(help="Optional Go rollback plan JSON path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print promotion readiness JSON."),
 ) -> None:
@@ -336,6 +340,7 @@ def runtime_go_promotion_readiness(
         channel_manifest_path=channel_manifest_path,
         updater_policy_path=updater_policy_path,
         promotion_evidence_path=promotion_evidence_path,
+        rollback_plan_path=rollback_plan_path,
         timeout_seconds=timeout_seconds,
     )
     report = go_promotion_readiness_report(config)
@@ -343,6 +348,24 @@ def runtime_go_promotion_readiness(
         typer.echo(json.dumps(report, indent=2))
         return
     console.print(f"Go promotion readiness: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
+@runtime_app.command("go-rollback-readiness")
+def runtime_go_rollback_readiness(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
+    rollback_plan_path: Annotated[str, typer.Option(help="Approved Go rollback plan JSON path.")] = "",
+    json_output: bool = typer.Option(False, "--json", help="Print rollback readiness JSON."),
+) -> None:
+    """Show Go backend rollback readiness for promoted pilots."""
+    report = go_rollback_readiness_report(
+        GoBackendConfig(mode=mode, rollback_plan_path=rollback_plan_path)
+    )
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go rollback readiness: {report['status']} ({report['mode']})")
     for check in report["checks"]:
         console.print(f"  {check['status']} {check['id']}: {check['message']}")
 
@@ -362,6 +385,7 @@ def runtime_go_pilot_evaluate(
     channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
     updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
     promotion_evidence_path: Annotated[str, typer.Option(help="Optional audited Go promotion evidence JSON path.")] = "",
+    rollback_plan_path: Annotated[str, typer.Option(help="Optional approved Go rollback plan JSON path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
     tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
@@ -394,6 +418,7 @@ def runtime_go_pilot_evaluate(
         channel_manifest_path=channel_manifest_path,
         updater_policy_path=updater_policy_path,
         promotion_evidence_path=promotion_evidence_path,
+        rollback_plan_path=rollback_plan_path,
         timeout_seconds=timeout_seconds,
     )
     result = evaluate_with_go_pilot(request, config=config)

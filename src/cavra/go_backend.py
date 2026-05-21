@@ -33,6 +33,7 @@ class GoBackendConfig:
     channel_manifest_path: str = ""
     updater_policy_path: str = ""
     promotion_evidence_path: str = ""
+    rollback_plan_path: str = ""
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -55,6 +56,7 @@ def go_backend_config_from_env() -> GoBackendConfig:
         channel_manifest_path=os.environ.get("CAVRA_GO_WORKSTATION_CHANNELS", ""),
         updater_policy_path=os.environ.get("CAVRA_GO_WORKSTATION_UPDATER_POLICY", ""),
         promotion_evidence_path=os.environ.get("CAVRA_GO_PROMOTION_EVIDENCE", ""),
+        rollback_plan_path=os.environ.get("CAVRA_GO_ROLLBACK_PLAN", ""),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -264,6 +266,69 @@ def go_promotion_readiness_report(config: GoBackendConfig | None = None) -> dict
     }
 
 
+def go_rollback_readiness_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    rollback = _rollback_plan_summary(config.rollback_plan_path)
+    requested = config.mode == GO_BACKEND_PROMOTED or bool(config.rollback_plan_path)
+    checks = [
+        _check(
+            "go_rollback_requested",
+            requested,
+            "Rollback controls are required when CAVRA_GO_BACKEND_MODE=promoted or a rollback plan is configured.",
+            mode=config.mode,
+        ),
+        _check(
+            "python_fallback_available",
+            True,
+            "Python fallback remains available and can be restored by setting CAVRA_GO_BACKEND_MODE=disabled.",
+        ),
+        _check(
+            "go_rollback_plan",
+            rollback["valid"],
+            rollback["message"],
+            path=config.rollback_plan_path,
+            rollback_schema=rollback["schema_version"],
+        ),
+        _check(
+            "go_rollback_approval",
+            rollback["approved"],
+            rollback["approval_message"],
+            approval_id=rollback["approval_id"],
+        ),
+        _check(
+            "go_rollback_disable_path",
+            rollback["target_mode"] == GO_BACKEND_DISABLED,
+            rollback["target_mode_message"],
+            target_mode=rollback["target_mode"],
+        ),
+        _check(
+            "go_rollback_controls",
+            rollback["controls_valid"],
+            rollback["controls_message"],
+            missing_controls=rollback["missing_controls"],
+        ),
+    ]
+    if not requested:
+        status = "not_requested"
+    elif all(item["status"] == "pass" for item in checks):
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-readiness.v1",
+        "mode": config.mode,
+        "status": status,
+        "rollback_plan_path": config.rollback_plan_path,
+        "checks": checks,
+        "rollback": rollback,
+        "operator_notes": [
+            "Promoted Go backend pilots must have a documented path back to Python-only mode.",
+            "The rollback plan is public-safe metadata; do not include private keys, secrets, or customer data.",
+            "Set CAVRA_GO_BACKEND_MODE=disabled to force Python backend selection during rollback.",
+        ],
+    }
+
+
 def evaluate_with_go_pilot(
     request: dict[str, Any],
     *,
@@ -299,6 +364,14 @@ def evaluate_with_go_pilot(
             result["fallback_reason"] = "go backend promotion readiness check failed"
             result["readiness"] = readiness
             result["promotion_readiness"] = promotion
+            return result
+        rollback = go_rollback_readiness_report(config)
+        if rollback["status"] != "ready":
+            result["fallback_used"] = True
+            result["fallback_reason"] = "go backend rollback readiness check failed"
+            result["readiness"] = readiness
+            result["promotion_readiness"] = promotion
+            result["rollback_readiness"] = rollback
             return result
     try:
         go_decision = _run_go_runtime(request, config)
@@ -511,6 +584,86 @@ def _promotion_evidence_summary(path_value: str) -> dict[str, Any]:
         "evidence_refs": evidence_refs if refs_valid else [],
         "parity_status": parity_status,
         "deployment_status": deployment_status,
+    }
+
+
+def _rollback_plan_summary(path_value: str) -> dict[str, Any]:
+    check = _read_json_check(Path(path_value) if path_value else None)
+    required_controls = {
+        "python-fallback-available",
+        "promoted-mode-disable-tested",
+        "rollback-approval-recorded",
+        "operator-runbook-linked",
+        "evidence-capture-enabled",
+    }
+    if not check.valid:
+        return {
+            "valid": False,
+            "approved": False,
+            "controls_valid": False,
+            "schema_version": "",
+            "approval_id": "",
+            "target_mode": "",
+            "message": check.message,
+            "approval_message": "rollback plan is missing or invalid",
+            "target_mode_message": "rollback plan must set target_mode=disabled",
+            "controls_message": "rollback plan controls are missing",
+            "missing_controls": sorted(required_controls),
+            "evidence_refs": [],
+            "rollback_steps": [],
+            "max_recovery_minutes": None,
+        }
+    payload = check.payload
+    schema = str(payload.get("schema_version", ""))
+    approval = payload.get("approval") if isinstance(payload.get("approval"), dict) else {}
+    approved = payload.get("approved") is True or approval.get("status") == "approved"
+    approval_id = str(payload.get("approval_id") or approval.get("approval_id") or "")
+    target_mode = str(payload.get("target_mode", ""))
+    controls = {str(item) for item in payload.get("controls", []) if isinstance(item, str)}
+    missing_controls = sorted(required_controls - controls)
+    rollback_steps = payload.get("rollback_steps", [])
+    evidence_refs = payload.get("evidence_refs", [])
+    steps_valid = isinstance(rollback_steps, list) and all(isinstance(item, str) for item in rollback_steps)
+    refs_valid = isinstance(evidence_refs, list) and all(isinstance(item, str) for item in evidence_refs)
+    status = str(payload.get("status", ""))
+    max_recovery = payload.get("max_recovery_minutes")
+    max_recovery_valid = isinstance(max_recovery, (int, float)) and not isinstance(max_recovery, bool) and max_recovery > 0
+    valid = (
+        schema == "cavra.go-backend-rollback-plan.v1"
+        and status == "ready"
+        and target_mode == GO_BACKEND_DISABLED
+        and not missing_controls
+        and steps_valid
+        and bool(rollback_steps)
+        and refs_valid
+        and max_recovery_valid
+    )
+    messages = []
+    if schema != "cavra.go-backend-rollback-plan.v1":
+        messages.append("rollback plan has an invalid schema_version")
+    if status != "ready":
+        messages.append("rollback plan must record status=ready")
+    if not steps_valid or not rollback_steps:
+        messages.append("rollback plan must include rollback_steps as a non-empty list of strings")
+    if not refs_valid:
+        messages.append("rollback evidence_refs must be a list of strings")
+    if not max_recovery_valid:
+        messages.append("rollback plan must include positive max_recovery_minutes")
+    return {
+        "valid": valid,
+        "approved": approved,
+        "controls_valid": not missing_controls,
+        "schema_version": schema,
+        "approval_id": approval_id,
+        "target_mode": target_mode,
+        "message": "; ".join(messages) if messages else "Rollback plan is ready for promoted Go backend pilots.",
+        "approval_message": "Rollback approval is recorded." if approved else "rollback plan must be approved",
+        "target_mode_message": "Rollback returns CAVRA to Python-only mode." if target_mode == GO_BACKEND_DISABLED else "rollback plan must set target_mode=disabled",
+        "controls_message": "Rollback controls are complete." if not missing_controls else f"rollback plan is missing controls: {', '.join(missing_controls)}",
+        "missing_controls": missing_controls,
+        "evidence_refs": evidence_refs if refs_valid else [],
+        "rollback_steps": rollback_steps if steps_valid else [],
+        "max_recovery_minutes": max_recovery if max_recovery_valid else None,
     }
 
 
