@@ -53,6 +53,8 @@ jobs:
           version="${INPUT_VERSION:-${GITHUB_REF_NAME}}"
           dist="dist/go-runtime-${version}"
           mkdir -p "$dist/bin"
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export GOFLAGS="-trimpath -mod=readonly -buildvcs=false"
           targets=(
             "linux amd64"
             "linux arm64"
@@ -69,7 +71,7 @@ jobs:
             fi
             output="$dist/bin/cavra-runtime_${version}_${goos}_${goarch}${suffix}"
             GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 \
-              go build -trimpath -ldflags="-s -w" -o "$output" ./cmd/cavra-runtime
+              go build -ldflags="-s -w -buildid=" -o "$output" ./cmd/cavra-runtime
           done
           go list -m -json all > "$dist/go-modules.json"
         working-directory: go/cavra-runtime

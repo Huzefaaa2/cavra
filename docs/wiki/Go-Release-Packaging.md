@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, endpoint export publication delivery, endpoint inventory ingestion, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, reproducibility manifests, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, endpoint export publication delivery, endpoint inventory ingestion, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -10,10 +10,11 @@ The workflow:
 
 - Runs on manual dispatch for dry-run packaging and on published GitHub releases.
 - Builds `cavra-runtime` for Linux, macOS, and Windows on `amd64` and `arm64`.
-- Uses `go build -trimpath -ldflags="-s -w"` for reproducible, stripped binaries.
+- Uses `CGO_ENABLED=0`, `GOFLAGS="-trimpath -mod=readonly -buildvcs=false"`, and `go build -ldflags="-s -w -buildid="` for reproducible, stripped binaries.
 - Exports Go module metadata with `go list -m -json all`.
 - Generates `cavra-runtime.sbom.spdx.json`.
 - Generates `cavra-runtime.installers.json` with per-platform install metadata, binary checksums, install paths, and verification commands.
+- Generates `cavra-runtime.reproducibility.json` with build flags, target matrix, rebuild commands, and per-binary digests for air-gapped rebuild checks.
 - Generates `cavra-runtime.endpoint-deployment.json` with approved CI runner and developer workstation deployment targets.
 - Generates `cavra-runtime.ci-runner-bundles.json` with GitHub Actions, GitLab CI, and Azure Pipelines runner metadata for the signed Linux runtime binary.
 - Packages `ci-runners/cavra-release-governance-runner.sh` and `ci-runners/github-action/action.yml` into the signed release package.
@@ -83,6 +84,15 @@ jq '.targets[] | {target, binary, install_path, binary_sha256}' \
 ```
 
 `cavra release verify-go-package` requires `cavra-runtime.installers.json`, checks every referenced binary digest, confirms checksum guidance, and verifies the metadata through checksums, SLSA provenance, and detached signatures.
+
+Inspect reproducibility metadata before rebuilding a package in a controlled or restricted environment:
+
+```bash
+jq '.binaries[] | {target, binary, binary_sha256, rebuild_command}' \
+  go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.reproducibility.json
+```
+
+`cavra release verify-go-package` requires `cavra-runtime.reproducibility.json`. The verifier checks that the manifest declares `CGO_ENABLED=0`, `-trimpath`, read-only module resolution, disabled VCS stamping, an empty Go build ID, a declared target matrix, per-binary digests, and operator rebuild guidance. Air-gapped operators should rebuild from the recorded commit and compare rebuilt SHA-256 values to this manifest before placing binaries on runner images or developer workstations.
 
 Inspect managed endpoint deployment guidance before publishing binaries into runner images, Jamf, Intune, Linux endpoint management, or restricted workstation channels:
 
@@ -758,5 +768,5 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
-2. Complete air-gapped single-binary packaging and reproducibility documentation.
+1. Add contract-level Go fixtures for the next high-risk release-governance metadata kinds.
+2. Document production release-signing operations and key rotation.

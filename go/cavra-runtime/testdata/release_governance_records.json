@@ -204,5 +204,42 @@
       "severity": "high",
       "approver_group": "Release Governance"
     }
+  },
+  {
+    "name": "clean rollout evidence verification allows",
+    "request": {
+      "session_id": "release-governance-rollout-evidence-clean",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "rollout-evidence-verification",
+        "verification_status": "verified",
+        "failed_verification_count": 0,
+        "artifact_count": 4
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.record.verified",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "failed rollout artifact integrity requires approval",
+    "request": {
+      "session_id": "release-governance-rollout-integrity-failed",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "rollout-artifact-integrity",
+        "integrity_status": "mismatch",
+        "integrity_failure_count": 1,
+        "artifact_sha256": "invalid"
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
   }
 ]

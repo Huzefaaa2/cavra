@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
+- Add contract-level Go fixtures and production release-signing key rotation documentation.
 - Validate the hosted sandbox URL after deployment from `main`.

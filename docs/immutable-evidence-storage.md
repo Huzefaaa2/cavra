@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
+The next recommended work is contract-level Go fixtures and production release-signing key rotation documentation.

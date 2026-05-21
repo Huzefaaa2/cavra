@@ -122,7 +122,11 @@ func knownReleaseGovernanceKind(kind string) bool {
 		"release-channel-promotion-request",
 		"release-connector-delivery",
 		"rollout-promotion-execution",
-		"rollout-rollback-execution":
+		"rollout-rollback-execution",
+		"rollout-evidence-capture",
+		"rollout-evidence-verification",
+		"rollout-artifact-retrieval",
+		"rollout-artifact-integrity":
 		return true
 	default:
 		return false
@@ -159,11 +163,19 @@ func criticalReleaseSignal(record map[string]any) bool {
 	if handoffStatus := normalizeState(stringValue(record, "handoff_status")); handoffStatus == "blocked" || handoffStatus == "failed" {
 		return true
 	}
+	if verificationStatus := normalizeState(stringValue(record, "verification_status")); verificationStatus == "failed" || verificationStatus == "blocked" || verificationStatus == "mismatch" {
+		return true
+	}
+	if integrityStatus := normalizeState(stringValue(record, "integrity_status")); integrityStatus == "failed" || integrityStatus == "mismatch" || integrityStatus == "tampered" {
+		return true
+	}
 	return intValue(record, "blocked_count") > 0 ||
 		intValue(record, "critical_count") > 0 ||
 		intValue(record, "breached_count") > 0 ||
 		intValue(record, "failed_delivery_count") > 0 ||
-		intValue(record, "connector_delivery_failure_count") > 0
+		intValue(record, "connector_delivery_failure_count") > 0 ||
+		intValue(record, "failed_verification_count") > 0 ||
+		intValue(record, "integrity_failure_count") > 0
 }
 
 func approvalID(record map[string]any) string {

@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
+- Add contract-level Go fixtures and production release-signing key rotation documentation.
 - Validate the hosted sandbox URL after deployment from `main`.

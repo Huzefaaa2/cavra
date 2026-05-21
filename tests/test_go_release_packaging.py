@@ -148,6 +148,7 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     evidence = json.loads((dist / "release-evidence.json").read_text(encoding="utf-8"))
     provenance = json.loads((dist / "cavra-runtime.provenance.intoto.json").read_text(encoding="utf-8"))
     bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
+    reproducibility = json.loads((dist / "cavra-runtime.reproducibility.json").read_text(encoding="utf-8"))
     installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
     endpoint_deployment = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
     ci_runner_bundles = json.loads((dist / "cavra-runtime.ci-runner-bundles.json").read_text(encoding="utf-8"))
@@ -161,6 +162,7 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert "ci-runners/cavra-release-governance-runner.sh" in checksums
     assert "ci-runners/github-action/action.yml" in checksums
     assert "cavra-runtime.installers.json" in checksums
+    assert "cavra-runtime.reproducibility.json" in checksums
     assert "cavra-runtime.channels.json" in checksums
     assert "cavra-runtime.updater-policy.json" in checksums
     assert "cavra-runtime.provenance.intoto.json" in checksums
@@ -174,9 +176,17 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert bootstrap["mode"] == "air_gapped"
     assert "cavra-runtime.endpoint-deployment.json" in bootstrap["required_files"]
     assert "cavra-runtime.installers.json" in bootstrap["required_files"]
+    assert "cavra-runtime.reproducibility.json" in bootstrap["required_files"]
     assert "cavra-runtime.channels.json" in bootstrap["required_files"]
     assert "cavra-runtime.updater-policy.json" in bootstrap["required_files"]
     assert "cavra release verify-airgap-bundle cavra-go-runtime-v0.1.0-test.zip" in bootstrap["verification_commands"]
+    assert reproducibility["schema_version"] == "cavra.go-runtime.reproducibility.v1"
+    assert reproducibility["build_environment"]["CGO_ENABLED"] == "0"
+    assert "-trimpath" in reproducibility["build_environment"]["GOFLAGS"]
+    assert "-buildvcs=false" in reproducibility["build_environment"]["GOFLAGS"]
+    assert "-buildid=" in reproducibility["build_flags"]["ldflags"]
+    assert reproducibility["binaries"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
+    assert "CGO_ENABLED=0" in reproducibility["binaries"][0]["rebuild_command"]
     assert installers["schema_version"] == "cavra.go-runtime.installers.v1"
     assert installers["targets"][0]["target"] == "linux/amd64"
     assert installers["targets"][0]["binary"] == "bin/cavra-runtime_test_linux_amd64"
@@ -251,6 +261,7 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
         "ci-runner-bundles",
         "ci-runner-wrapper",
         "installer-metadata",
+        "reproducibility-manifest",
         "release-channel-manifest",
         "updater-policy",
         "sbom",
@@ -313,6 +324,9 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "cavra-runtime.installers.json" in valid_result.verified_artifacts
     assert "cavra-runtime.installers.json" in valid_result.verified_provenance
     assert "cavra-runtime.installers.json" in valid_result.verified_signatures
+    assert "cavra-runtime.reproducibility.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.reproducibility.json" in valid_result.verified_provenance
+    assert "cavra-runtime.reproducibility.json" in valid_result.verified_signatures
     assert "cavra-runtime.channels.json" in valid_result.verified_artifacts
     assert "cavra-runtime.channels.json" in valid_result.verified_provenance
     assert "cavra-runtime.channels.json" in valid_result.verified_signatures
@@ -353,6 +367,20 @@ def test_go_release_verifier_rejects_missing_installer_metadata(tmp_path: Path, 
     invalid_result = verify_go_release_package(dist)
     assert not invalid_result.valid
     assert any("missing cavra-runtime.installers.json" in error for error in invalid_result.errors)
+
+
+def test_go_release_verifier_rejects_missing_reproducibility_manifest(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    (dist / "cavra-runtime.reproducibility.json").unlink()
+
+    invalid_result = verify_go_release_package(dist)
+    assert not invalid_result.valid
+    assert any("missing cavra-runtime.reproducibility.json" in error for error in invalid_result.errors)
 
 
 def test_go_release_verifier_rejects_missing_endpoint_deployment_metadata(tmp_path: Path, monkeypatch) -> None:
@@ -2692,6 +2720,9 @@ def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     assert "contents: write" in text
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "GOOS=" in text
+    assert "SOURCE_DATE_EPOCH" in text
+    assert "GOFLAGS=\"-trimpath -mod=readonly -buildvcs=false\"" in text
+    assert "-buildid=" in text
     assert "checksums" in text
     assert "provenance" in text
     assert "scripts/package_go_release.py" in text

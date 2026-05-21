@@ -40,6 +40,10 @@ See `docs/diagrams/go-parity-sandbox-deployment.svg` for the dedicated flow from
 
 The release-governance runner wrapper now acquires provider OIDC tokens from GitHub Actions, GitLab CI, or Azure Pipelines when available, sends signed or OIDC-backed `runner_auth` to the Go daemon, records hash-chained evidence, verifies the evidence stream, and publishes `release-governance-evidence-verification.json` as an audit artifact. Custody and rotation guidance is documented in `Runner-Auth-And-Evidence-Key-Custody.md`.
 
+## Go Reproducible Air-Gapped Build Flow
+
+See `docs/diagrams/go-reproducible-airgap.svg` for the release path from connected GitHub Actions build, checksums, SBOM, signatures, provenance, and reproducibility metadata to restricted-environment verification and optional binary rebuild.
+
 ## SVG Images
 
 Repository diagram images:
@@ -51,6 +55,7 @@ Repository diagram images:
 - `docs/diagrams/immutable-evidence-storage.svg`
 - `docs/diagrams/oidc-rbac-deployment.svg`
 - `docs/diagrams/go-parity-sandbox-deployment.svg`
+- `docs/diagrams/go-reproducible-airgap.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

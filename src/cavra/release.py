@@ -609,6 +609,15 @@ def verify_go_release_package(
         except ReleaseVerificationError as exc:
             errors.append(str(exc))
 
+    reproducibility_path = package_dir / "cavra-runtime.reproducibility.json"
+    if not reproducibility_path.exists():
+        errors.append("missing cavra-runtime.reproducibility.json")
+    else:
+        try:
+            verify_go_reproducibility_manifest(reproducibility_path, package_dir, expected_checksums, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     endpoint_deployment_path = package_dir / "cavra-runtime.endpoint-deployment.json"
     if not endpoint_deployment_path.exists():
         errors.append("missing cavra-runtime.endpoint-deployment.json")
@@ -6857,6 +6866,87 @@ def verify_go_installer_metadata(
         if "sha256sum -c checksums.txt" not in str(target.get("verification_command", "")):
             raise ReleaseVerificationError(f"installer metadata target is missing checksum verification guidance: {target_name}")
         verified.append(binary)
+    return sorted(verified)
+
+
+def verify_go_reproducibility_manifest(
+    reproducibility_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    try:
+        payload = json.loads(reproducibility_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid reproducibility manifest JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.reproducibility.v1":
+        raise ReleaseVerificationError("reproducibility manifest has an invalid schema_version")
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("reproducibility manifest version does not match release evidence")
+    if payload.get("module_dir") != "go/cavra-runtime":
+        raise ReleaseVerificationError("reproducibility manifest must reference go/cavra-runtime")
+
+    controls = payload.get("controls")
+    required_controls = {
+        "cgo-disabled",
+        "trimpath-enabled",
+        "readonly-module-resolution",
+        "buildvcs-disabled",
+        "empty-go-buildid",
+        "target-matrix-declared",
+        "binary-digests-declared",
+        "airgap-rebuild-guidance",
+    }
+    if not isinstance(controls, list) or not required_controls.issubset(set(controls)):
+        raise ReleaseVerificationError("reproducibility manifest is missing required build controls")
+
+    environment = payload.get("build_environment")
+    if not isinstance(environment, dict) or environment.get("CGO_ENABLED") != "0":
+        raise ReleaseVerificationError("reproducibility manifest must declare CGO_ENABLED=0")
+    goflags = str(environment.get("GOFLAGS", ""))
+    if "-trimpath" not in goflags or "-mod=readonly" not in goflags or "-buildvcs=false" not in goflags:
+        raise ReleaseVerificationError("reproducibility manifest is missing required GOFLAGS")
+
+    build_flags = payload.get("build_flags")
+    if not isinstance(build_flags, dict):
+        raise ReleaseVerificationError("reproducibility manifest is missing build_flags")
+    ldflags = build_flags.get("ldflags")
+    if not isinstance(ldflags, list) or "-buildid=" not in ldflags:
+        raise ReleaseVerificationError("reproducibility manifest must declare an empty Go build ID")
+
+    targets = payload.get("go_targets")
+    declared_targets = {str(target) for target in targets or []}
+    if not declared_targets:
+        raise ReleaseVerificationError("reproducibility manifest target matrix is empty")
+
+    binaries = payload.get("binaries")
+    if not isinstance(binaries, list) or not binaries:
+        raise ReleaseVerificationError("reproducibility manifest has no binaries")
+    verified: list[str] = []
+    seen_targets: set[str] = set()
+    for binary in binaries:
+        if not isinstance(binary, dict):
+            raise ReleaseVerificationError("reproducibility manifest binary entry is invalid")
+        target = str(binary.get("target", ""))
+        if target in seen_targets:
+            raise ReleaseVerificationError(f"reproducibility manifest has duplicate target: {target}")
+        seen_targets.add(target)
+        relative_path = str(binary.get("binary", ""))
+        binary_path = _safe_package_path(package_dir, relative_path)
+        if binary_path is None or not binary_path.exists() or not binary_path.is_file():
+            raise ReleaseVerificationError(f"reproducibility manifest binary is missing: {relative_path}")
+        expected_sha256 = str(binary.get("binary_sha256", "")).lower()
+        if sha256_file(binary_path) != expected_sha256:
+            raise ReleaseVerificationError(f"reproducibility manifest digest mismatch for {relative_path}")
+        checksum_sha256 = expected_checksums.get(relative_path)
+        if checksum_sha256 and checksum_sha256 != expected_sha256:
+            raise ReleaseVerificationError(f"reproducibility manifest disagrees with checksums.txt: {relative_path}")
+        command = str(binary.get("rebuild_command", ""))
+        if "CGO_ENABLED=0" not in command or "-buildid=" not in command or "go build" not in command:
+            raise ReleaseVerificationError(f"reproducibility manifest is missing rebuild guidance for {target}")
+        verified.append(target)
+    if seen_targets != declared_targets:
+        raise ReleaseVerificationError("reproducibility manifest binaries do not cover every declared target")
     return sorted(verified)
 
 
