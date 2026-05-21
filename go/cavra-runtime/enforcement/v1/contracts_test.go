@@ -25,6 +25,25 @@ func TestGeneratedContractsMatchProtoFields(t *testing.T) {
 		"requested_operation",
 		"policy_pack",
 		"release_governance",
+		"runner_auth",
+	})
+	assertProtoFields(t, proto, "RunnerAuthentication", []string{
+		"identity",
+		"algorithm",
+		"key_id",
+		"signature",
+	})
+	assertProtoFields(t, proto, "RunnerIdentity", []string{
+		"provider",
+		"repository",
+		"workflow",
+		"run_id",
+		"run_attempt",
+		"ref",
+		"sha",
+		"actor",
+		"job",
+		"runner_name",
 	})
 	assertProtoFields(t, proto, "ReleaseGovernanceEvidence", []string{
 		"metadata_kind",

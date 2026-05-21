@@ -320,6 +320,10 @@ def write_ci_runner_bundle_metadata(dist: Path, *, version: str, commit: str, re
                     "CAVRA_EXPECTED_DECISION",
                     "CAVRA_EXPECTED_RULE_ID",
                     "CAVRA_RELEASE_GOVERNANCE_EVIDENCE_DIR",
+                    "CAVRA_RUNNER_AUTH_HMAC_KEY",
+                    "CAVRA_RUNNER_AUTH_KEY_ID",
+                    "CAVRA_DAEMON_EVIDENCE_HMAC_KEY",
+                    "CAVRA_DAEMON_EVIDENCE_KEY_ID",
                 ],
             },
             "github_action": {
@@ -356,6 +360,8 @@ def write_ci_runner_bundle_metadata(dist: Path, *, version: str, commit: str, re
                 "verified-signed-runtime-before-runner-use",
                 "typed-release-governance-request-required",
                 "daemon-evidence-artifacts-published",
+                "runner-authentication-claims-signed",
+                "daemon-evidence-stream-hmac-signed",
                 "blocking-decision-fails-closed-by-default",
                 "runner-wrapper-included-in-signed-release-package",
             ],
@@ -363,6 +369,8 @@ def write_ci_runner_bundle_metadata(dist: Path, *, version: str, commit: str, re
                 "Verify the Go runtime release package before copying the runtime binary or runner wrappers into CI.",
                 "Install only the signed runtime binary referenced by this manifest for the runner operating system and architecture.",
                 "Set CAVRA_RELEASE_GOVERNANCE_REQUEST to a reviewed typed release-governance request JSON file.",
+                "Set CAVRA_RUNNER_AUTH_HMAC_KEY when runner authentication is required by the daemon.",
+                "Set CAVRA_DAEMON_EVIDENCE_HMAC_KEY when chained evidence signatures are required.",
                 "Publish the daemon evidence directory as a CI artifact for audit and release change records.",
             ],
         },
@@ -398,6 +406,7 @@ def _ci_runner_bundle(
         "required_outputs": [
             ".cavra/go-daemon/release-governance-response.json",
             ".cavra/go-daemon/release-governance-evidence.jsonl",
+            ".cavra/go-daemon/runner-auth-claims.json",
         ],
     }
 

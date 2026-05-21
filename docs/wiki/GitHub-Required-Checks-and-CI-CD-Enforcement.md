@@ -60,4 +60,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is runner authentication and signed streaming evidence for release governance daemon checks.
+The next recommended implementation step is CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.

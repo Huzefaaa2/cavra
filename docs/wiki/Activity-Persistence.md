@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add runner authentication and signed streaming evidence for release governance daemon checks.
+- Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
 - Validate the hosted sandbox URL after deployment from `main`.

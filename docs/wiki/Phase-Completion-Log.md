@@ -1356,4 +1356,26 @@ Validation:
 - `python3 -m pytest tests/test_ci_templates.py::test_github_release_governance_composite_action_uses_packaged_runner_wrapper tests/test_ci_templates.py::test_release_governance_runner_wrapper_runs_daemon_and_fails_closed -q`
 - `python3 scripts/validate_release_security.py`
 
-Recommended next issue: add runner authentication and signed streaming evidence for release governance daemon checks.
+Recommended next issue: delivered below as runner authentication and signed streaming evidence.
+
+## Phase 7 Runner Authentication And Signed Evidence Streams
+
+Status: complete for the current public-safe HMAC runner authentication and evidence stream signing slice.
+
+Completed implementation:
+- Added `RunnerAuthentication` and `RunnerIdentity` to the generated Go enforcement contract and protobuf source.
+- Added optional daemon-side runner authentication with `--runner-auth-key`, `--runner-auth-key-id`, and signed `runner_auth` claims on `EvaluateRequest`.
+- Added client-side `--runner-auth-claims` support so packaged runner scripts can attach signed CI provider, repository, workflow, ref, SHA, actor, job, and runner identity claims.
+- Added hash-chained daemon evidence records with sequence numbers, previous hashes, record hashes, optional `HMAC-SHA256` signatures, and key IDs.
+- Updated the release-governance runner wrapper and GitHub composite action to support `CAVRA_RUNNER_AUTH_HMAC_KEY`, `CAVRA_RUNNER_AUTH_KEY_ID`, `CAVRA_DAEMON_EVIDENCE_HMAC_KEY`, and `CAVRA_DAEMON_EVIDENCE_KEY_ID`.
+- Extended signed CI runner bundle metadata and release verification controls to require runner authentication and signed evidence stream guidance.
+- Updated README, Go daemon transport docs, Go release packaging docs, Go contract docs, Go runtime README, feature inventory, productization report, roadmap, and wiki source.
+
+Validation:
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m pytest tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_ci_templates.py::test_github_release_governance_composite_action_uses_packaged_runner_wrapper tests/test_ci_templates.py::test_release_governance_runner_wrapper_runs_daemon_and_fails_closed tests/test_go_daemon_transport.py tests/test_go_enforcement_contracts.py -q`
+- `python3 scripts/validate_release_security.py`
+- `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
+- Built `go/cavra-runtime/cmd/cavra-runtime` and smoke-tested `examples/ci-runners/cavra-release-governance-runner.sh` with runner auth and evidence HMAC keys.
+
+Recommended next issue: add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence stream signatures.

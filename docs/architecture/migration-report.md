@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add runner authentication and signed streaming evidence for release governance daemon checks.
+4. Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.

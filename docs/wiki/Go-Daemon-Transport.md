@@ -13,7 +13,8 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - Daemon lifecycle helper with `--lifecycle start`, `status`, and `stop`.
 - PID-file tracking, readiness probing, and graceful signal cleanup for local daemon processes.
 - Request/response evidence hooks through `--evidence-log`.
-- JSONL evidence records with `cavra.go-daemon.evidence.v1` schema and `go-daemon-evidence://...` references.
+- JSONL evidence records with `cavra.go-daemon.evidence.v1` schema, `go-daemon-evidence://...` references, hash chaining, optional `HMAC-SHA256` signatures, and key IDs.
+- Optional CI runner authentication through `runner_auth` claims signed with `HMAC-SHA256`.
 - Runtime evaluator that can use either the built-in scaffold policy or compiled policy JSON loaded through `--policy`.
 - Typed release-governance daemon request examples under `examples/go-runtime/typed-release-governance/`.
 - CI runner examples for GitHub Actions, GitLab CI, and Azure Pipelines that send typed `release_governance` payloads through the daemon.
@@ -63,6 +64,47 @@ printf '{"action_type":"execute_command","target":"terraform plan","requested_op
 The daemon returns a `DecisionResponse` JSON object matching the generated contract package under `go/cavra-runtime/enforcement/v1`.
 When evidence logging is enabled, the response includes a `go-daemon-evidence://...` reference and the JSONL record contains both the request and response.
 
+Sign daemon evidence as a hash-chained stream:
+
+```bash
+export CAVRA_DAEMON_EVIDENCE_HMAC_KEY="set-this-from-a-ci-secret"
+go run ./cmd/cavra-runtime --serve \
+  --socket .cavra/cavra-runtime.sock \
+  --evidence-log .cavra/go-daemon/evidence.jsonl \
+  --evidence-signing-key-id ci-evidence-2026-q2
+```
+
+When `--evidence-signing-key` or `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is configured, each record includes `sequence`, `previous_hash`, `record_hash`, and an `HMAC-SHA256` signature. The signing key is never written to the evidence stream.
+
+Require authenticated runner claims:
+
+```bash
+cat > .cavra/go-daemon/runner-auth-claims.json <<'JSON'
+{
+  "provider": "github-actions",
+  "repository": "Huzefaaa2/cavra",
+  "workflow": "CAVRA Release Governance",
+  "run_id": "123456",
+  "ref": "refs/heads/main",
+  "sha": "abc123"
+}
+JSON
+
+export CAVRA_RUNNER_AUTH_HMAC_KEY="set-this-from-a-ci-secret"
+go run ./cmd/cavra-runtime --lifecycle start \
+  --socket .cavra/cavra-runtime.sock \
+  --evidence-log .cavra/go-daemon/release-governance-evidence.jsonl \
+  --runner-auth-key-id ci-runner-2026-q2
+
+go run ./cmd/cavra-runtime --daemon \
+  --socket .cavra/cavra-runtime.sock \
+  --input ../../examples/go-runtime/typed-release-governance/approved-promotion.json \
+  --runner-auth-claims .cavra/go-daemon/runner-auth-claims.json \
+  --runner-auth-key-id ci-runner-2026-q2
+```
+
+When `--runner-auth-key` or `CAVRA_RUNNER_AUTH_HMAC_KEY` is configured on the daemon, unauthenticated requests return a clean `block` decision with rule `runner_auth.invalid`.
+
 Evaluate a typed release-governance request:
 
 ```bash
@@ -90,7 +132,7 @@ Signed Go runtime release packages now also include:
 - `ci-runners/cavra-release-governance-runner.sh`
 - `ci-runners/github-action/action.yml`
 
-Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence.
+Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence. The runner wrapper writes `runner-auth-claims.json`, signs claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, and signs the evidence stream when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set.
 
 ## User Stories
 
@@ -98,9 +140,10 @@ Verify the release package first, install the referenced runtime binary, then us
 - As a developer, I can start, inspect, and stop the daemon without hand-managing socket and PID files.
 - As a CI owner, I can connect runner-side tooling to a stable socket protocol.
 - As a CI owner, I can reuse a signed release-governance runner wrapper instead of rebuilding CAVRA from source in each pipeline.
+- As a CI owner, I can require signed runner claims before the daemon accepts release-governance checks.
 - As a platform engineer, I can call the daemon through a typed Go helper instead of hand-rolled socket code.
 - As a release manager, I can gate promotion or rollback workflows on typed release-governance evidence without relying on ad hoc JSON maps.
-- As an auditor, I can trace daemon decisions to a request/response evidence record.
+- As an auditor, I can trace daemon decisions to a hash-chained, optionally signed request/response evidence stream.
 - As an enterprise architect, I can evaluate a path toward a lightweight air-gapped enforcement binary.
 
 ## Enterprise Challenge Solved
@@ -110,10 +153,10 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 ## Current Limits
 
 - The daemon handles one request per connection.
-- There is no authentication layer or signed streaming evidence writer yet.
-- Expanded production hardening is still needed for runner authentication and signed streaming evidence.
+- Evidence signing uses public-safe HMAC hooks in this repository; production key custody and rotation policy must be supplied by deployment automation.
+- Runner authentication validates signed claims but does not yet validate CI-provider OIDC tokens directly.
 
 ## Next Recommended Work
 
-1. Add runner authentication for signed runtime daemon checks.
-2. Add signed streaming evidence for long-lived daemon sessions.
+1. Add CI-provider OIDC token verification for runner authentication.
+2. Add verifier CLI support for daemon evidence stream signatures and hash chains.

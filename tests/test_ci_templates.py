@@ -121,7 +121,11 @@ def test_github_release_governance_composite_action_uses_packaged_runner_wrapper
     assert "runtime-path" in action["inputs"]
     assert "request-path" in action["inputs"]
     assert "expected-decision" in action["inputs"]
+    assert "runner-auth-key-id" in action["inputs"]
+    assert "evidence-signing-key-id" in action["inputs"]
     assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "CAVRA_RUNNER_AUTH_KEY_ID" in text
+    assert "CAVRA_DAEMON_EVIDENCE_KEY_ID" in text
     assert "cavra-release-governance-runner.sh" in text
 
 
@@ -133,6 +137,12 @@ def test_release_governance_runner_wrapper_runs_daemon_and_fails_closed() -> Non
     assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
     assert "--lifecycle start" in text
     assert "--daemon" in text
+    assert "--runner-auth-claims" in text
+    assert "--runner-auth-key-id" in text
+    assert "--evidence-signing-key-id" in text
+    assert "CAVRA_RUNNER_AUTH_HMAC_KEY" in text
+    assert "CAVRA_DAEMON_EVIDENCE_HMAC_KEY" in text
+    assert "runner-auth-claims.json" in text
     assert "release-governance-evidence.jsonl" in text
     assert "release-governance-response.json" in text
     assert "CAVRA blocked release governance request" in text

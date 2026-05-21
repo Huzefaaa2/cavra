@@ -191,7 +191,11 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert ci_runner_bundles["schema_version"] == "cavra.go-runtime.ci-runner-bundles.v1"
     assert ci_runner_bundles["source_metadata"] == "cavra-runtime.endpoint-deployment.json"
     assert ci_runner_bundles["runner_script"]["path"] == "ci-runners/cavra-release-governance-runner.sh"
+    assert "CAVRA_RUNNER_AUTH_HMAC_KEY" in ci_runner_bundles["runner_script"]["required_environment"]
+    assert "CAVRA_DAEMON_EVIDENCE_HMAC_KEY" in ci_runner_bundles["runner_script"]["required_environment"]
     assert ci_runner_bundles["github_action"]["path"] == "ci-runners/github-action/action.yml"
+    assert "runner-authentication-claims-signed" in ci_runner_bundles["controls"]
+    assert "daemon-evidence-stream-hmac-signed" in ci_runner_bundles["controls"]
     assert {bundle["platform"] for bundle in ci_runner_bundles["runner_bundles"]} == {
         "GitHub Actions",
         "GitLab CI",
@@ -210,6 +214,10 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
         "gh attestation verify" in command
         for bundle in ci_runner_bundles["runner_bundles"]
         for command in bundle["verification_commands"]
+    )
+    assert all(
+        ".cavra/go-daemon/runner-auth-claims.json" in bundle["required_outputs"]
+        for bundle in ci_runner_bundles["runner_bundles"]
     )
     assert channels["schema_version"] == "cavra.go-runtime.channels.v1"
     assert channels["updater_policy"] == "cavra-runtime.updater-policy.json"

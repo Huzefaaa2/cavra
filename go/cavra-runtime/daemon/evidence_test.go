@@ -98,6 +98,55 @@ func TestHandleConnectionWithEvidenceAppendsEvidenceRef(t *testing.T) {
 	}
 }
 
+func TestEvidenceRecorderWritesSignedHashChainedStream(t *testing.T) {
+	evidencePath := filepath.Join(t.TempDir(), "daemon-evidence.jsonl")
+	recorder := NewEvidenceRecorder(evidencePath).WithSigningKey("evidence-secret", "evidence-key-1")
+	recorder.Clock = func() time.Time {
+		return time.Date(2026, 5, 18, 12, 0, 0, 0, time.UTC)
+	}
+
+	request := enforcementv1.EvaluateRequest{
+		SessionID:          "session-signed",
+		ActionType:         "execute_command",
+		Target:             "terraform plan",
+		RequestedOperation: "terraform plan",
+	}
+	if _, err := recorder.Record(request, enforcementv1.DecisionResponse{Decision: "allow"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := recorder.Record(request, enforcementv1.DecisionResponse{Decision: "allow"}); err != nil {
+		t.Fatal(err)
+	}
+
+	records := readEvidenceRecords(t, evidencePath)
+	if len(records) != 2 {
+		t.Fatalf("record count mismatch: got %d", len(records))
+	}
+	if records[0].Sequence != 1 || records[1].Sequence != 2 {
+		t.Fatalf("sequence mismatch: %+v %+v", records[0].Sequence, records[1].Sequence)
+	}
+	if records[0].RecordHash == "" || records[1].RecordHash == "" {
+		t.Fatal("expected record hashes")
+	}
+	if records[1].PreviousHash != records[0].RecordHash {
+		t.Fatalf("previous hash mismatch: got %q want %q", records[1].PreviousHash, records[0].RecordHash)
+	}
+	for _, record := range records {
+		if record.Signature == nil {
+			t.Fatal("expected evidence signature")
+		}
+		if record.Signature.Algorithm != "HMAC-SHA256" {
+			t.Fatalf("signature algorithm mismatch: %q", record.Signature.Algorithm)
+		}
+		if record.Signature.KeyID != "evidence-key-1" {
+			t.Fatalf("signature key id mismatch: %q", record.Signature.KeyID)
+		}
+		if record.Signature.Value == "" {
+			t.Fatal("expected signature value")
+		}
+	}
+}
+
 func readEvidenceRecords(t *testing.T, path string) []EvidenceRecord {
 	t.Helper()
 	lines := strings.Split(strings.TrimSpace(readFile(t, path)), "\n")

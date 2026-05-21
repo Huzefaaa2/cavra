@@ -24,6 +24,14 @@ inputs:
     description: Directory for daemon request, response, and evidence artifacts.
     required: false
     default: .cavra/go-daemon
+  runner-auth-key-id:
+    description: Optional key ID for CAVRA_RUNNER_AUTH_HMAC_KEY.
+    required: false
+    default: ""
+  evidence-signing-key-id:
+    description: Optional key ID for CAVRA_DAEMON_EVIDENCE_HMAC_KEY.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -36,6 +44,8 @@ runs:
         CAVRA_EXPECTED_RULE_ID: ${{ inputs.expected-rule-id }}
         CAVRA_ALLOW_BLOCKING_DECISION: ${{ inputs.allow-blocking-decision }}
         CAVRA_RELEASE_GOVERNANCE_EVIDENCE_DIR: ${{ inputs.evidence-dir }}
+        CAVRA_RUNNER_AUTH_KEY_ID: ${{ inputs.runner-auth-key-id }}
+        CAVRA_DAEMON_EVIDENCE_KEY_ID: ${{ inputs.evidence-signing-key-id }}
       run: |
         set -euo pipefail
         runner="${GITHUB_ACTION_PATH}/../cavra-release-governance-runner.sh"

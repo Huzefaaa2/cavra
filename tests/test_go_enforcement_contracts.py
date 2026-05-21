@@ -19,8 +19,11 @@ def test_go_enforcement_contract_docs_reference_generated_package() -> None:
     assert "go/cavra-runtime/enforcement/v1" in doc
     assert "EvaluateRequest" in doc
     assert "ReleaseGovernanceEvidence" in doc
+    assert "RunnerAuthentication" in doc
+    assert "RunnerIdentity" in doc
     assert "DecisionResponse" in doc
     assert "release_governance" in doc
+    assert "runner_auth" in doc
     assert "go/cavra-runtime/enforcement/v1" in wiki
 
 
@@ -31,5 +34,8 @@ def test_go_release_governance_contract_fixtures_are_documented() -> None:
 
     assert fixture.exists()
     assert "message ReleaseGovernanceEvidence" in proto
+    assert "message RunnerAuthentication" in proto
+    assert "message RunnerIdentity" in proto
     assert "ReleaseGovernance  *ReleaseGovernanceEvidence" in contracts
+    assert "RunnerAuth" in contracts
     assert "RuntimeRecord" in contracts

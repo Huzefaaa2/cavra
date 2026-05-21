@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add runner authentication and signed streaming evidence for release governance daemon checks.
+- Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
 - Validate the hosted sandbox URL after deployment from `main`.

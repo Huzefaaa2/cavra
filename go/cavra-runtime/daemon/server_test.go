@@ -63,3 +63,39 @@ func TestRuntimeEvaluatorUsesCompiledPolicy(t *testing.T) {
 		t.Fatalf("policy pack mismatch: got %q", response.PolicyPack)
 	}
 }
+
+func TestHandleConnectionWithSecurityBlocksUnsignedRunnerRequest(t *testing.T) {
+	server, client := net.Pipe()
+	done := make(chan error, 1)
+	go func() {
+		done <- HandleConnectionWithSecurity(
+			server,
+			RuntimeEvaluator(nil),
+			nil,
+			RunnerAuthenticator{HMACKey: "runner-secret", KeyID: "runner-key-1"},
+		)
+	}()
+
+	request := enforcementv1.EvaluateRequest{
+		SessionID:          "session-auth",
+		ActionType:         "release_governance_record",
+		Target:             "release promotion",
+		RequestedOperation: "release promotion",
+	}
+	if err := json.NewEncoder(client).Encode(request); err != nil {
+		t.Fatal(err)
+	}
+	var response enforcementv1.DecisionResponse
+	if err := json.NewDecoder(client).Decode(&response); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	if response.Decision != "block" {
+		t.Fatalf("decision mismatch: got %q", response.Decision)
+	}
+	if response.RuleID != "runner_auth.invalid" {
+		t.Fatalf("rule id mismatch: got %q", response.RuleID)
+	}
+}
