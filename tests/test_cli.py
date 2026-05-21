@@ -131,6 +131,36 @@ def test_runtime_go_rollback_drill_notification_plan_cli_reports_payload() -> No
     assert payload["event"]["event_type"] == "cavra.go_backend.rollback_drill.notification"
 
 
+def test_runtime_go_rollback_drill_notification_ack_cli_reports_payload() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "runtime",
+            "go-rollback-drill-notification-ack",
+            "go_backend_python_fallback_monthly",
+            "--provider",
+            "slack",
+            "--acknowledged-by",
+            "release-manager",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["acknowledgement"]["acknowledgement_state"] == "acknowledged"
+    assert payload["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
+
+
+def test_runtime_go_rollback_drill_escalation_plan_cli_reports_payload() -> None:
+    result = runner.invoke(app, ["runtime", "go-rollback-drill-escalation-plan", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.go-backend-pilot.rollback-drill-notification-escalation-plan.v1"
+    assert payload["alert_level"] == "healthy"
+
+
 def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
     event = tmp_path / "event.json"
     config = tmp_path / "connectors.json"

@@ -94,6 +94,8 @@ curl -X POST http://127.0.0.1:8000/runtime/go-pilot/rollback-drill-notifications
 
 The delivery endpoint builds `cavra.go-backend-pilot.rollback-drill-notification-plan.v1`, emits `cavra.go_backend.rollback_drill.notification`, and indexes redacted connector delivery evidence as `release-connector-delivery` with source `go_backend_rollback_drill_notification`.
 
+Acknowledgement and escalation follow-up is documented in [Go Backend Rollback Drill Notification Escalation](go-backend-rollback-drill-notification-escalation.md).
+
 ## Evidence Console
 
 Production readiness now includes:
@@ -118,4 +120,4 @@ Rollback readiness decays when teams only prove it once. CAVRA keeps rollback co
 
 ## Next Work
 
-The next recommended implementation step is to add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
+The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.

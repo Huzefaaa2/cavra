@@ -45,6 +45,9 @@ from cavra.go_backend import (
     GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
+    acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_notification_ack_metadata,
+    build_go_rollback_drill_notification_escalation_plan,
     build_go_rollback_drill_notification_event,
     build_go_rollback_drill_notification_plan,
     evaluate_with_go_pilot,
@@ -499,6 +502,57 @@ def runtime_go_rollback_drill_notification_plan(
         return
     console.print(f"Go rollback drill notification plan: {plan['alert_level']} ({plan['reason']})")
     console.print(f"  selected providers: {', '.join(plan['selected_providers']) or 'none'}")
+
+
+@runtime_app.command("go-rollback-drill-notification-ack")
+def runtime_go_rollback_drill_notification_ack(
+    schedule_id: Annotated[str, typer.Argument(help="Rollback drill schedule ID.")],
+    provider: Annotated[str, typer.Option(help="Notification provider being acknowledged.")] = "",
+    acknowledged_by: Annotated[str, typer.Option(help="Actor recording acknowledgement.")] = "",
+    acknowledgement_state: Annotated[str, typer.Option(help="acknowledged, dismissed, escalated, or resolved.")] = "acknowledged",
+    plan_id: Annotated[str, typer.Option(help="Optional notification plan ID.")] = "",
+    external_ref: Annotated[str, typer.Option(help="Optional external ticket/chat reference.")] = "",
+    notes: Annotated[str, typer.Option(help="Optional public-safe notes.")] = "",
+    json_output: bool = typer.Option(False, "--json", help="Print acknowledgement JSON."),
+) -> None:
+    """Build public-safe rollback drill notification acknowledgement metadata."""
+    acknowledgement = acknowledge_go_rollback_drill_notification(
+        schedule_id,
+        provider=provider,
+        acknowledged_by=acknowledged_by,
+        acknowledgement_state=acknowledgement_state,
+        external_ref=external_ref,
+        notes=notes,
+        plan_id=plan_id,
+    )
+    payload = {
+        "acknowledgement": acknowledgement,
+        "metadata": build_go_rollback_drill_notification_ack_metadata(acknowledgement),
+    }
+    if json_output:
+        typer.echo(json.dumps(payload, indent=2))
+        return
+    console.print(
+        f"Go rollback drill notification acknowledgement: {acknowledgement['acknowledgement_state']} "
+        f"({acknowledgement['schedule_id']} / {acknowledgement['provider']})"
+    )
+
+
+@runtime_app.command("go-rollback-drill-escalation-plan")
+def runtime_go_rollback_drill_escalation_plan(
+    acknowledgement_minutes: Annotated[int, typer.Option(help="Minutes before outstanding notifications breach.")] = 60,
+    json_output: bool = typer.Option(False, "--json", help="Print escalation plan JSON."),
+) -> None:
+    """Build an empty public-safe rollback drill notification escalation plan template."""
+    plan = build_go_rollback_drill_notification_escalation_plan(
+        [],
+        policy={"acknowledgement_minutes": acknowledgement_minutes},
+        generated_by="cli",
+    )
+    if json_output:
+        typer.echo(json.dumps(plan, indent=2))
+        return
+    console.print(f"Go rollback drill escalation plan: {plan['alert_level']} ({plan['route_count']} routes)")
 
 
 @runtime_app.command("go-pilot-evaluate")

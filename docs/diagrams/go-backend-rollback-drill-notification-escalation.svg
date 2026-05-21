@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Rollback Drill Notification Acknowledgement and Escalation</title>
+  <desc id="desc">Rollback drill notification plans create connector deliveries, acknowledgement records, dashboards, and missed-notification escalation plans.</desc>
+  <defs>
+    <style>
+      .bg{fill:#071014}
+      .panel{fill:#101b21;stroke:#5ee0c2;stroke-width:2;rx:12}
+      .panel2{fill:#13242b;stroke:#93b7c3;stroke-width:2;rx:12}
+      .critical{fill:#2b1416;stroke:#ff7a7a;stroke-width:2;rx:12}
+      .text{fill:#eef7f6;font:600 22px Arial, sans-serif}
+      .small{fill:#b8c9cf;font:16px Arial, sans-serif}
+      .tiny{fill:#8fa5ad;font:14px Arial, sans-serif}
+      .accent{fill:#6ee7c8;font:700 18px Arial, sans-serif}
+      .arrow{stroke:#6ee7c8;stroke-width:4;fill:none;marker-end:url(#arrow)}
+      .muted{stroke:#51656d;stroke-width:3;fill:none;marker-end:url(#arrow-muted)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6ee7c8"/>
+    </marker>
+    <marker id="arrow-muted" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#51656d"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="620"/>
+  <text x="56" y="60" class="text">Rollback Drill Notification Governance</text>
+  <text x="56" y="90" class="small">Acknowledgement and escalation evidence for missed promoted-backend drill notifications</text>
+
+  <rect x="60" y="150" width="220" height="130" class="panel"/>
+  <text x="88" y="190" class="accent">Notification Plan</text>
+  <text x="88" y="222" class="small">selected providers</text>
+  <text x="88" y="248" class="small">owners and schedule</text>
+  <text x="88" y="274" class="tiny">gordn-* metadata</text>
+
+  <rect x="350" y="150" width="220" height="130" class="panel"/>
+  <text x="378" y="190" class="accent">Connector Delivery</text>
+  <text x="378" y="222" class="small">Slack, Teams, Jira</text>
+  <text x="378" y="248" class="small">redacted evidence</text>
+  <text x="378" y="274" class="tiny">release-connector-delivery</text>
+
+  <rect x="640" y="150" width="220" height="130" class="panel2"/>
+  <text x="668" y="190" class="accent">Acknowledgement</text>
+  <text x="668" y="222" class="small">acknowledged</text>
+  <text x="668" y="248" class="small">resolved or escalated</text>
+  <text x="668" y="274" class="tiny">gordack-* metadata</text>
+
+  <rect x="930" y="150" width="220" height="130" class="critical"/>
+  <text x="958" y="190" class="accent">Escalation Plan</text>
+  <text x="958" y="222" class="small">outstanding routes</text>
+  <text x="958" y="248" class="small">breached SLOs</text>
+  <text x="958" y="274" class="tiny">gordesc-* metadata</text>
+
+  <rect x="350" y="390" width="510" height="120" class="panel2"/>
+  <text x="378" y="430" class="accent">Dashboard and Audit History</text>
+  <text x="378" y="462" class="small">plan count, delivery count, failed delivery count, acknowledgement count, outstanding acknowledgement count</text>
+  <text x="378" y="488" class="tiny">GET /runtime/go-pilot/rollback-drill-notifications/dashboard</text>
+
+  <path d="M280 215 H350" class="arrow"/>
+  <path d="M570 215 H640" class="arrow"/>
+  <path d="M860 215 H930" class="arrow"/>
+  <path d="M750 280 V390" class="muted"/>
+  <path d="M1040 280 V445 H860" class="muted"/>
+  <path d="M460 280 V390" class="muted"/>
+
+  <text x="64" y="555" class="tiny">Public source stores schemas and redacted evidence only. Connector credentials, private routing logic, and customer-specific destinations remain outside this repository.</text>
+</svg>

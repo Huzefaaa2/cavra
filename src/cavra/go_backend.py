@@ -670,6 +670,7 @@ def build_go_rollback_drill_notification_plan(
         "alert_level": "critical" if schedule_report.get("status") == "needs_attention" else "warning" if schedule_report.get("status") == "due_soon" else "healthy",
         "eligible_providers": eligible,
         "selected_providers": selected,
+        "acknowledgement_required_providers": selected,
         "suppressed_providers": [provider for provider in eligible if provider not in selected],
         "owners": schedule.get("owners", []),
         "next_due_at": schedule.get("next_due_at", ""),
@@ -690,7 +691,261 @@ def build_go_rollback_drill_notification_plan_metadata(plan: dict[str, Any]) -> 
         "schedule_id": plan.get("schedule_id"),
         "alert_level": plan.get("alert_level"),
         "selected_providers": plan.get("selected_providers", []),
+        "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
         "plan": plan,
+    }
+
+
+def acknowledge_go_rollback_drill_notification(
+    schedule_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "acknowledged",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    plan_id: str | None = None,
+) -> dict[str, Any]:
+    if not schedule_id:
+        raise ValueError("schedule_id is required")
+    if not provider:
+        raise ValueError("provider is required")
+    if not acknowledged_by:
+        raise ValueError("acknowledged_by is required")
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    if state not in {"acknowledged", "dismissed", "escalated", "resolved"}:
+        raise ValueError("acknowledgement_state must be acknowledged, dismissed, escalated, or resolved")
+    acknowledged_at = datetime.now(timezone.utc).isoformat()
+    material = json.dumps(
+        {
+            "schedule_id": schedule_id,
+            "provider": provider,
+            "acknowledged_by": acknowledged_by,
+            "acknowledgement_state": state,
+            "acknowledged_at": acknowledged_at,
+            "plan_id": plan_id or "",
+        },
+        sort_keys=True,
+    )
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": f"gordack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+        "schedule_id": schedule_id,
+        "plan_id": plan_id or "",
+        "provider": provider,
+        "acknowledged_by": acknowledged_by,
+        "acknowledgement_state": state,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+    }
+
+
+def build_go_rollback_drill_notification_ack_metadata(acknowledgement: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(acknowledgement.get("acknowledgement_id") or "go-rollback-drill-notification-ack"),
+        "created_at": str(acknowledgement.get("acknowledged_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(acknowledgement.get("acknowledged_by") or "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-notification-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "schedule_id": acknowledgement.get("schedule_id"),
+        "plan_id": acknowledgement.get("plan_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "acknowledgement": acknowledgement,
+    }
+
+
+def filter_go_rollback_drill_notification_history(
+    items: list[dict[str, Any]],
+    *,
+    schedule_id: str | None = None,
+    provider: str | None = None,
+    metadata_kind: str | None = None,
+    acknowledgement_state: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    allowed_kinds = {
+        "go-backend-rollback-drill-notification-plan",
+        "go-backend-rollback-drill-notification-ack",
+        "go-backend-rollback-drill-notification-escalation-plan",
+        "release-connector-delivery",
+    }
+    filtered = [
+        item
+        for item in items
+        if item.get("metadata_kind") in allowed_kinds
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or item.get("connector_delivery_source") == "go_backend_rollback_drill_notification"
+        )
+    ]
+    if schedule_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("schedule_id") == schedule_id
+            or item.get("event_id") == schedule_id
+            or (isinstance(item.get("plan"), dict) and item["plan"].get("schedule_id") == schedule_id)
+        ]
+    if provider:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("provider") == provider
+            or provider in item.get("selected_providers", [])
+            or provider in item.get("providers", [])
+        ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if acknowledgement_state:
+        state = acknowledgement_state.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("acknowledgement_state") == state]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) -> dict[str, Any]:
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-plan"]
+    deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    acknowledgements = [
+        item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-ack"
+    ]
+    latest_plan_by_schedule = _latest_go_rollback_drill_plan_by_schedule(plans)
+    acknowledged = {
+        (str(item.get("schedule_id")), str(item.get("provider")))
+        for item in acknowledgements
+        if item.get("acknowledgement_state") in {"acknowledged", "resolved"}
+    }
+    outstanding = []
+    for plan in latest_plan_by_schedule.values():
+        for provider in plan.get("acknowledgement_required_providers", []):
+            key = (str(plan.get("schedule_id")), str(provider))
+            if key not in acknowledged:
+                outstanding.append({"schedule_id": key[0], "provider": key[1], "plan_id": plan.get("plan_id")})
+    failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    alert_level = "critical" if failed_deliveries or outstanding else "healthy"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "plan_count": len(plans),
+        "delivery_count": len(deliveries),
+        "failed_delivery_count": len(failed_deliveries),
+        "acknowledgement_count": len(acknowledgements),
+        "outstanding_acknowledgement_count": len(outstanding),
+        "outstanding_acknowledgements": outstanding[:20],
+        "latest": history[:10],
+    }
+
+
+def build_go_rollback_drill_notification_escalation_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    acknowledgement_minutes = _positive_int(
+        policy.get("acknowledgement_minutes")
+        or (policy.get("default_slo", {}) if isinstance(policy.get("default_slo"), dict) else {}).get("acknowledgement_minutes"),
+        60,
+    )
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    plans = [item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-plan"]
+    acknowledgements = [
+        item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-ack"
+    ]
+    latest_plan_by_schedule = _latest_go_rollback_drill_plan_by_schedule(plans)
+    latest_ack_by_route: dict[tuple[str, str], dict[str, Any]] = {}
+    for acknowledgement in acknowledgements:
+        key = (str(acknowledgement.get("schedule_id") or ""), str(acknowledgement.get("provider") or ""))
+        if not key[0] or not key[1]:
+            continue
+        current = latest_ack_by_route.get(key)
+        if current is None or str(acknowledgement.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_ack_by_route[key] = acknowledgement
+    routes = []
+    for plan in latest_plan_by_schedule.values():
+        created = _parse_iso_datetime(str(plan.get("created_at") or plan.get("generated_at") or ""))
+        age_minutes = None
+        if created is not None:
+            age_minutes = round((now - created).total_seconds() / 60, 2)
+        for provider in plan.get("acknowledgement_required_providers", []):
+            key = (str(plan.get("schedule_id") or ""), str(provider))
+            ack = latest_ack_by_route.get(key)
+            ack_state = str(ack.get("acknowledgement_state") or "") if ack else ""
+            acknowledged = ack_state in {"acknowledged", "resolved"}
+            breached = not acknowledged and age_minutes is not None and age_minutes >= acknowledgement_minutes
+            routes.append(
+                {
+                    "schedule_id": key[0],
+                    "plan_id": plan.get("plan_id", ""),
+                    "provider": key[1],
+                    "owner": ", ".join(str(item) for item in plan.get("owners", []) if item) or "release-governance",
+                    "acknowledgement_state": ack_state or "outstanding",
+                    "acknowledged": acknowledged,
+                    "age_minutes": age_minutes,
+                    "acknowledgement_minutes": acknowledgement_minutes,
+                    "breached": breached,
+                    "recommended_action": "escalate_missed_drill_notification" if breached else "wait_for_acknowledgement" if not acknowledged else "no_action",
+                }
+            )
+    breached_routes = [route for route in routes if route["breached"]]
+    outstanding_routes = [route for route in routes if not route["acknowledged"]]
+    alert_level = "critical" if breached_routes else "warning" if outstanding_routes else "healthy"
+    material = json.dumps(
+        {
+            "generated_by": generated_by,
+            "alert_level": alert_level,
+            "routes": routes,
+            "acknowledgement_minutes": acknowledgement_minutes,
+        },
+        sort_keys=True,
+    )
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-escalation-plan.v1",
+        "product": "CAVRA",
+        "plan_id": f"gordesc-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "acknowledgement_minutes": acknowledgement_minutes,
+        "route_count": len(routes),
+        "outstanding_count": len(outstanding_routes),
+        "breached_count": len(breached_routes),
+        "routes": routes,
+    }
+
+
+def build_go_rollback_drill_notification_escalation_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(plan.get("plan_id") or "go-rollback-drill-notification-escalation-plan"),
+        "created_at": str(plan.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(plan.get("generated_by") or "release-governance"),
+        "decision_count": int(plan.get("route_count") or 0),
+        "blocked_count": int(plan.get("breached_count") or 0),
+        "approval_required_count": int(plan.get("outstanding_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-notification-escalation-plan",
+        "plan_id": plan.get("plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "escalation_plan": plan,
     }
 
 
@@ -1383,8 +1638,34 @@ def _parse_iso_datetime(value: str) -> datetime | None:
     return parsed.astimezone(timezone.utc)
 
 
+def _latest_go_rollback_drill_plan_by_schedule(plans: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    latest: dict[str, dict[str, Any]] = {}
+    for item in plans:
+        plan = item.get("plan") if isinstance(item.get("plan"), dict) else item
+        schedule_id = str(item.get("schedule_id") or plan.get("schedule_id") or "")
+        if not schedule_id:
+            continue
+        candidate = {
+            **plan,
+            "created_at": item.get("created_at") or plan.get("generated_at"),
+            "metadata_kind": item.get("metadata_kind"),
+        }
+        current = latest.get(schedule_id)
+        if current is None or str(candidate.get("created_at", "")) > str(current.get("created_at", "")):
+            latest[schedule_id] = candidate
+    return latest
+
+
 def _positive_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+
+
+def _positive_int(value: Any, default: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else default
 
 
 def _ci_runner_summary(ci_payload: dict[str, Any], endpoint_payload: dict[str, Any]) -> dict[str, Any]:

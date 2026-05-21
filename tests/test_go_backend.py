@@ -11,8 +11,15 @@ from cavra.go_backend import (
     GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
+    acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_notification_ack_metadata,
+    build_go_rollback_drill_notification_dashboard,
+    build_go_rollback_drill_notification_escalation_plan,
+    build_go_rollback_drill_notification_escalation_plan_metadata,
     build_go_rollback_drill_notification_event,
+    build_go_rollback_drill_notification_plan_metadata,
     build_go_rollback_drill_notification_plan,
+    filter_go_rollback_drill_notification_history,
     evaluate_with_go_pilot,
     go_backend_config_from_env,
     go_backend_readiness_report,
@@ -319,6 +326,61 @@ def test_go_rollback_drill_schedule_accepts_due_soon_notification_routes(tmp_pat
     assert plan["selected_providers"] == ["slack"]
     assert event["event_type"] == "cavra.go_backend.rollback_drill.notification"
     assert event["alert_level"] == "warning"
+
+
+def test_go_rollback_drill_notification_acknowledgement_and_dashboard(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    dashboard_before = build_go_rollback_drill_notification_dashboard([plan_metadata])
+    acknowledgement = acknowledge_go_rollback_drill_notification(
+        "go_backend_python_fallback_monthly",
+        provider="slack",
+        acknowledged_by="release-manager",
+        plan_id=plan["plan_id"],
+    )
+    ack_metadata = build_go_rollback_drill_notification_ack_metadata(acknowledgement)
+    dashboard_after = build_go_rollback_drill_notification_dashboard([plan_metadata, ack_metadata])
+    history = filter_go_rollback_drill_notification_history([plan_metadata, ack_metadata], provider="slack")
+
+    assert dashboard_before["outstanding_acknowledgement_count"] == 1
+    assert ack_metadata["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
+    assert dashboard_after["outstanding_acknowledgement_count"] == 0
+    assert history["total"] == 2
+
+
+def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    plan_metadata["created_at"] = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
+
+    escalation = build_go_rollback_drill_notification_escalation_plan(
+        [plan_metadata],
+        policy={"acknowledgement_minutes": 5},
+    )
+    metadata = build_go_rollback_drill_notification_escalation_plan_metadata(escalation)
+
+    assert escalation["alert_level"] == "critical"
+    assert escalation["breached_count"] == 1
+    assert escalation["routes"][0]["recommended_action"] == "escalate_missed_drill_notification"
+    assert metadata["metadata_kind"] == "go-backend-rollback-drill-notification-escalation-plan"
 
 
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:

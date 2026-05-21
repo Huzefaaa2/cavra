@@ -80,6 +80,10 @@ See `docs/diagrams/go-backend-rollback-drill-history.svg` for the operational dr
 
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
+## Go Backend Rollback Drill Notification Escalation
+
+See `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg` for the acknowledgement and escalation path that tracks missed rollback drill notifications.
+
 ## SVG Images
 
 Repository diagram images:
@@ -101,6 +105,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-rehearsal.svg`
 - `docs/diagrams/go-backend-rollback-drill-history.svg`
 - `docs/diagrams/go-backend-rollback-drill-scheduling.svg`
+- `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

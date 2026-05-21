@@ -1521,6 +1521,19 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert config["endpoints"]["go_rollback_drills"] == "/runtime/go-pilot/rollback-drills"
     assert config["endpoints"]["go_rollback_drill_schedule"] == "/runtime/go-pilot/rollback-drill-schedule"
     assert config["endpoints"]["go_rollback_drill_notifications"] == "/runtime/go-pilot/rollback-drill-notifications/deliver"
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledge"]
+        == "/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements"
+    )
+    assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_dashboard"]
+        == "/runtime/go-pilot/rollback-drill-notifications/dashboard"
+    )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_escalation_plan"]
+        == "/runtime/go-pilot/rollback-drill-notifications/escalation-plan"
+    )
 
 
 def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
@@ -1690,12 +1703,37 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/deliver",
         json={"provider": "webhook", "retries": 0, "timeout_seconds": 0.1},
     )
+    dashboard_before = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
+    escalation = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
+        json={"policy": {"acknowledgement_minutes": 60}, "generated_by": "test"},
+    )
+    acknowledgement = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/go_backend_stale_schedule/acknowledgements",
+        json={
+            "provider": "webhook",
+            "acknowledged_by": "release-manager",
+            "plan_id": response.json()["plan"]["plan_id"],
+        },
+    )
+    history = client.get("/runtime/go-pilot/rollback-drill-notifications")
+    dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
     assert response.json()["plan"]["alert_level"] == "critical"
     assert response.json()["plan"]["selected_providers"] == ["webhook"]
     assert response.json()["metadata"]["connector_delivery_source"] == "go_backend_rollback_drill_notification"
     assert response.json()["plan_metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-plan"
+    assert dashboard_before.status_code == 200
+    assert dashboard_before.json()["outstanding_acknowledgement_count"] == 1
+    assert escalation.status_code == 200
+    assert escalation.json()["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-escalation-plan"
+    assert acknowledgement.status_code == 200
+    assert acknowledgement.json()["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
+    assert history.status_code == 200
+    assert history.json()["total"] >= 4
+    assert dashboard_after.status_code == 200
+    assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:
