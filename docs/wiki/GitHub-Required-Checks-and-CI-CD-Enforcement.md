@@ -60,4 +60,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is signed CI runner binary packaging and reusable runner actions for typed release-governance enforcement requests.
+The next recommended implementation step is runner authentication and signed streaming evidence for release governance daemon checks.

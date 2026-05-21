@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+- Add runner authentication and signed streaming evidence for release governance daemon checks.
 - Validate the hosted sandbox URL after deployment from `main`.

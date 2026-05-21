@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is signed CI runner binary packaging and reusable runner actions for typed release-governance enforcement requests.
+The next recommended work is runner authentication and signed streaming evidence for release governance daemon checks.

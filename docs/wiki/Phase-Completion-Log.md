@@ -1338,4 +1338,22 @@ Validation:
 - `python3 -m json.tool examples/go-runtime/typed-release-governance/failed-connector-delivery.json`
 - `python3 -m json.tool examples/go-runtime/typed-release-governance/critical-inventory-freshness.json`
 
-Recommended next issue: package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+Recommended next issue: delivered below as signed CI runner binary packaging and reusable runner actions.
+
+## Phase 7 Signed CI Runner Packaging
+
+Status: complete for the current public-safe signed runner packaging slice.
+
+Completed implementation:
+- Added a reusable release-governance runner shell wrapper that starts the Go daemon, sends a typed request, validates the expected decision and rule, fails closed on blocking decisions, and writes daemon evidence artifacts.
+- Added a GitHub composite action that wraps the runner script for repository or packaged-action usage.
+- Extended Go release packaging to include `cavra-runtime.ci-runner-bundles.json`, `ci-runners/cavra-release-governance-runner.sh`, and `ci-runners/github-action/action.yml` in the signed release package.
+- Extended Go release verification to require and validate CI runner bundle metadata, runner wrapper digests, CI deployment target bindings, package verification guidance, keyless attestation guidance, and daemon evidence outputs.
+- Updated README, Go release packaging docs, Go daemon transport docs, Go runtime README, feature inventory, roadmap, and wiki source.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_go_release_packaging.py::test_go_release_verifier_accepts_signed_package_and_rejects_tampering tests/test_go_release_packaging.py::test_go_release_verifier_rejects_missing_ci_runner_bundle_metadata -q`
+- `python3 -m pytest tests/test_ci_templates.py::test_github_release_governance_composite_action_uses_packaged_runner_wrapper tests/test_ci_templates.py::test_release_governance_runner_wrapper_runs_daemon_and_fails_closed -q`
+- `python3 scripts/validate_release_security.py`
+
+Recommended next issue: add runner authentication and signed streaming evidence for release governance daemon checks.

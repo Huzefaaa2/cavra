@@ -17,6 +17,8 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - Runtime evaluator that can use either the built-in scaffold policy or compiled policy JSON loaded through `--policy`.
 - Typed release-governance daemon request examples under `examples/go-runtime/typed-release-governance/`.
 - CI runner examples for GitHub Actions, GitLab CI, and Azure Pipelines that send typed `release_governance` payloads through the daemon.
+- Packaged CI runner wrappers under `examples/ci-runners/` plus a reusable GitHub composite action under `examples/github-actions/actions/cavra-release-governance-go-runtime/`.
+- Signed release-package metadata in `cavra-runtime.ci-runner-bundles.json` that binds runner wrappers to verified Go runtime binaries and CI deployment targets.
 - Go tests for contract request handling, client calls, lifecycle status, evidence recording, and compiled-policy-backed daemon evaluation.
 
 ## How To Use
@@ -78,14 +80,24 @@ go run ./cmd/cavra-runtime --lifecycle stop --socket .cavra/cavra-runtime.sock
 Runner templates are available at:
 
 - `examples/github-actions/cavra-release-governance-go-runtime.yml`
+- `examples/github-actions/actions/cavra-release-governance-go-runtime/action.yml`
 - `examples/gitlab-ci/cavra-release-governance-go-runtime.gitlab-ci.yml`
 - `examples/azure-pipelines/cavra-release-governance-go-runtime.azure-pipelines.yml`
+
+Signed Go runtime release packages now also include:
+
+- `cavra-runtime.ci-runner-bundles.json`
+- `ci-runners/cavra-release-governance-runner.sh`
+- `ci-runners/github-action/action.yml`
+
+Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence.
 
 ## User Stories
 
 - As a developer, I can run a local enforcement daemon without starting the Python API.
 - As a developer, I can start, inspect, and stop the daemon without hand-managing socket and PID files.
 - As a CI owner, I can connect runner-side tooling to a stable socket protocol.
+- As a CI owner, I can reuse a signed release-governance runner wrapper instead of rebuilding CAVRA from source in each pipeline.
 - As a platform engineer, I can call the daemon through a typed Go helper instead of hand-rolled socket code.
 - As a release manager, I can gate promotion or rollback workflows on typed release-governance evidence without relying on ad hoc JSON maps.
 - As an auditor, I can trace daemon decisions to a request/response evidence record.
@@ -99,9 +111,9 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 
 - The daemon handles one request per connection.
 - There is no authentication layer or signed streaming evidence writer yet.
-- Expanded production hardening is still needed for signed streaming evidence, runner binary packaging, and runner authentication.
+- Expanded production hardening is still needed for runner authentication and signed streaming evidence.
 
 ## Next Recommended Work
 
-1. Package signed CI runner binaries and reusable runner actions around the typed release-governance daemon examples.
-2. Add runner authentication and signed streaming evidence after the packaging path is stable.
+1. Add runner authentication for signed runtime daemon checks.
+2. Add signed streaming evidence for long-lived daemon sessions.

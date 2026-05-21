@@ -48,6 +48,12 @@ cd ../..
 python3 scripts/generate_go_enforcement_contracts.py
 ```
 
+Packaged runner wrappers:
+
+- `examples/ci-runners/cavra-release-governance-runner.sh` runs a typed release-governance request through the daemon and fails closed on unexpected or blocking decisions.
+- `examples/github-actions/actions/cavra-release-governance-go-runtime/action.yml` wraps the shell runner as a reusable GitHub composite action.
+- `scripts/package_go_release.py` includes both wrappers plus `cavra-runtime.ci-runner-bundles.json` in signed Go runtime release packages.
+
 Next Go work:
 
-- Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+- Add runner authentication and signed streaming evidence for release governance daemon checks.

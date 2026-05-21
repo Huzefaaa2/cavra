@@ -88,5 +88,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+1. Add runner authentication and signed streaming evidence for release governance daemon checks.
 2. Add contract-level fixtures when new release governance metadata kinds are introduced.

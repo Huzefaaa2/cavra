@@ -618,6 +618,15 @@ def verify_go_release_package(
         except ReleaseVerificationError as exc:
             errors.append(str(exc))
 
+    ci_runner_bundles_path = package_dir / "cavra-runtime.ci-runner-bundles.json"
+    if not ci_runner_bundles_path.exists():
+        errors.append("missing cavra-runtime.ci-runner-bundles.json")
+    else:
+        try:
+            verify_go_ci_runner_bundles(ci_runner_bundles_path, package_dir, expected_checksums, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     channel_manifest_path = package_dir / "cavra-runtime.channels.json"
     updater_policy_path = package_dir / "cavra-runtime.updater-policy.json"
     if not channel_manifest_path.exists():
@@ -6926,6 +6935,118 @@ def verify_managed_endpoint_deployment(
             raise ReleaseVerificationError(f"endpoint deployment target is missing smoke installer guidance: {deployment_id}")
         verified.append(deployment_id)
     return sorted(verified)
+
+
+def verify_go_ci_runner_bundles(
+    runner_bundles_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    try:
+        payload = json.loads(runner_bundles_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid CI runner bundle JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.ci-runner-bundles.v1":
+        raise ReleaseVerificationError("CI runner bundle metadata has an invalid schema_version")
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("CI runner bundle metadata version does not match release evidence")
+    if payload.get("source_metadata") != "cavra-runtime.endpoint-deployment.json":
+        raise ReleaseVerificationError("CI runner bundle metadata must reference cavra-runtime.endpoint-deployment.json")
+
+    endpoint_deployment_path = package_dir / "cavra-runtime.endpoint-deployment.json"
+    try:
+        endpoint_deployment = json.loads(endpoint_deployment_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise ReleaseVerificationError("CI runner bundle metadata cannot load endpoint deployment metadata") from exc
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid endpoint deployment JSON for CI runner bundles: {exc}") from exc
+    deployment_targets = {
+        str(target.get("id")): target
+        for target in endpoint_deployment.get("deployment_targets", [])
+        if isinstance(target, dict) and target.get("id")
+    }
+
+    runner_script = payload.get("runner_script")
+    if not isinstance(runner_script, dict):
+        raise ReleaseVerificationError("CI runner bundle metadata is missing runner_script")
+    _verify_runner_file(package_dir, expected_checksums, runner_script, "runner_script")
+    if "CAVRA_RELEASE_GOVERNANCE_REQUEST" not in runner_script.get("required_environment", []):
+        raise ReleaseVerificationError("CI runner script metadata must require CAVRA_RELEASE_GOVERNANCE_REQUEST")
+
+    github_action = payload.get("github_action")
+    if not isinstance(github_action, dict):
+        raise ReleaseVerificationError("CI runner bundle metadata is missing github_action")
+    _verify_runner_file(package_dir, expected_checksums, github_action, "github_action")
+
+    controls = payload.get("controls")
+    if not isinstance(controls, list) or "verified-signed-runtime-before-runner-use" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing signed runtime verification control")
+    if "blocking-decision-fails-closed-by-default" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing fail-closed decision control")
+
+    bundles = payload.get("runner_bundles")
+    if not isinstance(bundles, list) or not bundles:
+        raise ReleaseVerificationError("CI runner bundle metadata has no runner_bundles")
+    verified: list[str] = []
+    for bundle in bundles:
+        if not isinstance(bundle, dict):
+            raise ReleaseVerificationError("CI runner bundle entry is invalid")
+        platform = str(bundle.get("platform", ""))
+        deployment_target = str(bundle.get("deployment_target", ""))
+        if not platform or not deployment_target:
+            raise ReleaseVerificationError("CI runner bundle entry is missing platform or deployment_target")
+        target = deployment_targets.get(deployment_target)
+        if not target:
+            raise ReleaseVerificationError(f"CI runner bundle references unknown deployment target: {deployment_target}")
+        if target.get("surface") != "ci-runner":
+            raise ReleaseVerificationError(f"CI runner bundle target is not a CI runner: {deployment_target}")
+        binary = str(bundle.get("runtime_binary", ""))
+        if binary != target.get("binary"):
+            raise ReleaseVerificationError(f"CI runner bundle binary does not match endpoint deployment: {deployment_target}")
+        binary_path = _safe_package_path(package_dir, binary)
+        if binary_path is None or not binary_path.exists() or not binary_path.is_file():
+            raise ReleaseVerificationError(f"CI runner bundle binary is missing: {binary}")
+        expected_sha256 = str(bundle.get("runtime_binary_sha256", "")).lower()
+        if sha256_file(binary_path) != expected_sha256:
+            raise ReleaseVerificationError(f"CI runner bundle digest mismatch for {binary}")
+        checksum_sha256 = expected_checksums.get(binary)
+        if checksum_sha256 and checksum_sha256 != expected_sha256:
+            raise ReleaseVerificationError(f"CI runner bundle disagrees with checksums.txt: {binary}")
+        wrapper = str(bundle.get("reusable_wrapper", ""))
+        wrapper_path = _safe_package_path(package_dir, wrapper)
+        if wrapper_path is None or not wrapper_path.exists() or not wrapper_path.is_file():
+            raise ReleaseVerificationError(f"CI runner bundle wrapper is missing: {wrapper}")
+        commands = "\n".join(str(command) for command in bundle.get("verification_commands", []))
+        if "cavra release verify-go-package" not in commands:
+            raise ReleaseVerificationError(f"CI runner bundle is missing package verification guidance: {platform}")
+        if "gh attestation verify" not in commands:
+            raise ReleaseVerificationError(f"CI runner bundle is missing keyless attestation guidance: {platform}")
+        outputs = bundle.get("required_outputs")
+        if not isinstance(outputs, list) or not outputs:
+            raise ReleaseVerificationError(f"CI runner bundle is missing required outputs: {platform}")
+        if not any("release-governance-evidence.jsonl" in str(output) for output in outputs):
+            raise ReleaseVerificationError(f"CI runner bundle is missing daemon evidence output: {platform}")
+        verified.append(deployment_target)
+    return sorted(verified)
+
+
+def _verify_runner_file(
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    item: dict[str, Any],
+    label: str,
+) -> None:
+    relative_path = str(item.get("path", ""))
+    path = _safe_package_path(package_dir, relative_path)
+    if path is None or not path.exists() or not path.is_file():
+        raise ReleaseVerificationError(f"CI runner {label} is missing: {relative_path}")
+    expected_sha256 = str(item.get("sha256", "")).lower()
+    if sha256_file(path) != expected_sha256:
+        raise ReleaseVerificationError(f"CI runner {label} digest mismatch: {relative_path}")
+    checksum_sha256 = expected_checksums.get(relative_path)
+    if checksum_sha256 and checksum_sha256 != expected_sha256:
+        raise ReleaseVerificationError(f"CI runner {label} disagrees with checksums.txt: {relative_path}")
 
 
 def verify_release_channel_manifest(
