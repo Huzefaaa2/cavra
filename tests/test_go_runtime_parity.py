@@ -193,12 +193,22 @@ def test_go_release_governance_record_fixture_shape_is_supported() -> None:
         "rollout-promotion-execution",
         "rollout-rollback-execution",
         "endpoint-drift-remediation-request",
+        "endpoint-management-publication-delivery",
+        "release-connector-delivery",
+        "endpoint-inventory-freshness-report",
+        "managed-endpoint-reconciliation",
+        "endpoint-remediation-sla-report",
+        "endpoint-remediation-handoff-status",
+        "endpoint-remediation-handoff",
     }
     assert rule_ids >= {
         "release_governance.approval.pending",
         "release_governance.approval.approved",
         "release_governance.approval.missing",
         "release_governance.approval.denied",
+        "release_governance.delivery.failed",
+        "release_governance.signal.critical",
+        "release_governance.record.verified",
     }
 
 

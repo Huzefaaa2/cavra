@@ -64,4 +64,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended work is continued generated enforcement contracts around release governance evidence payloads.

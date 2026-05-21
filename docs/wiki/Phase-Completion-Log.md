@@ -1285,4 +1285,20 @@ Validation:
 - `bash scripts/validate-boundaries.sh .`
 - `git diff --check`
 
-Recommended next issue: continue broadening release-governance record parity as new evidence metadata kinds are added.
+Recommended next issue: delivered below as expanded release governance Go record parity.
+
+## Phase 7 Expanded Release Governance Go Record Parity
+
+Status: complete for the current public-safe release governance metadata parity slice.
+
+Completed implementation:
+- Expanded `release_governance_record` evaluation to recognize delivery failures, critical alert levels, drift states, blocked handoff status, blocked counts, SLA breach counts, failed delivery counts, and known release governance metadata kinds.
+- Added fixtures for endpoint publication delivery, failed release connector delivery, endpoint inventory freshness, managed endpoint reconciliation drift, clean SLA reports, blocked handoff status, and pending endpoint remediation handoff approvals.
+- Updated Go parity fixture-shape assertions, README, Go runtime docs, feature inventory, roadmap docs, and wiki source.
+
+Validation:
+- `python3 -m pytest -q tests/test_go_runtime_parity.py`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m json.tool go/cavra-runtime/testdata/release_governance_records.json`
+
+Recommended next issue: continue broadening generated enforcement contracts around release governance evidence payloads.

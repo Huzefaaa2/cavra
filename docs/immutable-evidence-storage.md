@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended work is continued generated enforcement contracts around release governance evidence payloads.

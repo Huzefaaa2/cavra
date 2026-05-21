@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended implementation step is continued generated enforcement contracts around release governance evidence payloads.

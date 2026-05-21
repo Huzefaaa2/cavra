@@ -58,4 +58,4 @@ Immutable storage references connect CAVRA's signed evidence bundles to enterpri
 
 ## Next
 
-continued release-governance record parity as new evidence metadata kinds are added.
+continued generated enforcement contracts around release governance evidence payloads.
