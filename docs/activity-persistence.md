@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Continue broadening release-governance record parity and validate the public sandbox URL.
+- Continue broadening release-governance record parity as new evidence metadata kinds are added.
 - Validate the hosted sandbox URL after deployment from `main`.

@@ -43,6 +43,7 @@ def test_sandbox_pages_workflow_builds_static_artifact() -> None:
 
     assert workflow["permissions"]["pages"] == "write"
     assert workflow["permissions"]["id-token"] == "write"
+    assert workflow["env"]["FORCE_JAVASCRIPT_ACTIONS_TO_NODE24"] == "true"
     assert workflow["jobs"]["build"]["name"] == "build-sandbox"
     assert workflow["jobs"]["deploy"]["name"] == "deploy-sandbox"
     assert "assets/brand/**" in text

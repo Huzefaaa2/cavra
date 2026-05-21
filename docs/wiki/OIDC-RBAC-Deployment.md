@@ -52,4 +52,4 @@ OIDC/RBAC deployment references move CAVRA from local approval claims to product
 
 ## Next
 
-public sandbox URL validation after deployment from `main` and continued release-governance record parity.
+continued release-governance record parity as new evidence metadata kinds are added.

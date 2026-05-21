@@ -30,4 +30,4 @@ Required checks turn CAVRA evidence and policy validation into a merge gate. Thi
 
 ## Next
 
-public sandbox URL validation after deployment from `main` and continued release-governance record parity.
+continued release-governance record parity as new evidence metadata kinds are added.

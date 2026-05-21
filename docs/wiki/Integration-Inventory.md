@@ -64,4 +64,4 @@ Integration inventory prevents source control, SIEM, ITSM, identity, and storage
 
 ## Next
 
-The next recommended work is public sandbox URL validation after deployment from `main` and continued release-governance record parity.
+The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.

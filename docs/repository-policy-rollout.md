@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is public sandbox URL validation after deployment from `main` and continued release-governance record parity.
+The next recommended step is continued release-governance record parity as new evidence metadata kinds are added.

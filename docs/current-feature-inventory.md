@@ -36,7 +36,7 @@ Go enforcement contracts: `scripts/generate_go_enforcement_contracts.py` generat
 
 Go daemon transport: `go/cavra-runtime/daemon` and `go run ./cmd/cavra-runtime --serve --socket .cavra/cavra-runtime.sock` provide the first Unix-socket transport for generated `EvaluateRequest` and `DecisionResponse` JSON payloads. `daemon.NewClient(socket).Evaluate(request)` and `go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock` provide a reusable client path. `go run ./cmd/cavra-runtime --lifecycle start|status|stop` provides PID-file-backed daemon lifecycle management. `--evidence-log` writes request/response JSONL evidence and appends `go-daemon-evidence://...` references to decision responses.
 
-Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, and deploys only from `main`.
+Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` validates `apps/sandbox-ui/sandbox.js`, builds a static artifact from `apps/sandbox-ui`, includes SVG diagram assets, uploads a GitHub Pages artifact, opts JavaScript-based GitHub Actions into Node.js 24, and deploys only from `main`.
 
 Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses a top-left CAVRA wordmark, a larger top-right hero mark below the install CTA, and ships the brand assets in the Pages artifact.
 
