@@ -1511,6 +1511,7 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert response.json()["go_backend_rollback"]["status"] == "not_requested"
     assert response.json()["go_backend_rollback_rehearsal"]["status"] == "not_requested"
     assert response.json()["go_backend_rollback_drill_history"]["status"] == "not_requested"
+    assert response.json()["go_backend_rollback_drill_schedule"]["status"] == "not_requested"
     assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
     assert config["endpoints"]["go_backend_readiness"] == "/runtime/go-pilot/readiness"
     assert config["endpoints"]["go_deployment_readiness"] == "/runtime/go-pilot/deployment-readiness"
@@ -1518,6 +1519,8 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert config["endpoints"]["go_rollback_readiness"] == "/runtime/go-pilot/rollback-readiness"
     assert config["endpoints"]["go_rollback_rehearsal"] == "/runtime/go-pilot/rollback-rehearsal"
     assert config["endpoints"]["go_rollback_drills"] == "/runtime/go-pilot/rollback-drills"
+    assert config["endpoints"]["go_rollback_drill_schedule"] == "/runtime/go-pilot/rollback-drill-schedule"
+    assert config["endpoints"]["go_rollback_drill_notifications"] == "/runtime/go-pilot/rollback-drill-notifications/deliver"
 
 
 def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
@@ -1601,6 +1604,98 @@ def test_api_go_backend_rollback_drills(monkeypatch, tmp_path) -> None:
     assert drills.status_code == 200
     assert drills.json()["schema_version"] == "cavra.go-backend-pilot.rollback-drill-history.v1"
     assert drills.json()["status"] == "needs_attention"
+
+
+def test_api_go_backend_rollback_drill_schedule(monkeypatch, tmp_path) -> None:
+    history = tmp_path / "drills.json"
+    history.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-drill-history.v1",
+                "drills": [
+                    {
+                        "drill_id": "drill_api",
+                        "executed_at": "2099-01-01T00:00:00+00:00",
+                        "target_mode": "disabled",
+                        "status": "pass",
+                        "fallback_verified": True,
+                        "recovery_minutes": 5,
+                        "max_recovery_minutes": 15,
+                        "runbook_ref": "docs/go-backend-rollback-drill-scheduling.md",
+                        "evidence_refs": ["go-rollback-drill://api"],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-drill-schedule.v1",
+                "schedule_id": "go_backend_api_schedule",
+                "status": "active",
+                "interval_days": 30,
+                "next_due_at": "2099-02-01T00:00:00+00:00",
+                "owners": ["release-governance"],
+                "notification_providers": ["webhook"],
+                "runbook_ref": "docs/go-backend-rollback-drill-scheduling.md",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_GO_BACKEND_MODE", "promoted")
+    monkeypatch.setenv("CAVRA_GO_ROLLBACK_DRILL_HISTORY", str(history))
+    monkeypatch.setenv("CAVRA_GO_ROLLBACK_DRILL_SCHEDULE", str(schedule))
+    client = TestClient(create_app())
+
+    response = client.get("/runtime/go-pilot/rollback-drill-schedule")
+
+    assert response.status_code == 200
+    assert response.json()["schema_version"] == "cavra.go-backend-pilot.rollback-drill-schedule.v1"
+    assert response.json()["status"] == "ready"
+    assert response.json()["schedule"]["notification_providers"] == ["webhook"]
+
+
+def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "evidence.json"))
+    connector_config = tmp_path / "connectors.json"
+    connector_config.write_text(
+        json.dumps({"connectors": {"webhook": {"url": "http://127.0.0.1:9/cavra"}}}),
+        encoding="utf-8",
+    )
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-drill-schedule.v1",
+                "schedule_id": "go_backend_stale_schedule",
+                "status": "active",
+                "interval_days": 30,
+                "next_due_at": "2000-01-01T00:00:00+00:00",
+                "owners": ["release-governance"],
+                "notification_providers": ["webhook"],
+                "runbook_ref": "docs/go-backend-rollback-drill-scheduling.md",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CAVRA_CONNECTOR_CONFIG", str(connector_config))
+    monkeypatch.setenv("CAVRA_GO_BACKEND_MODE", "promoted")
+    monkeypatch.setenv("CAVRA_GO_ROLLBACK_DRILL_SCHEDULE", str(schedule))
+    client = TestClient(create_app())
+
+    response = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/deliver",
+        json={"provider": "webhook", "retries": 0, "timeout_seconds": 0.1},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["plan"]["alert_level"] == "critical"
+    assert response.json()["plan"]["selected_providers"] == ["webhook"]
+    assert response.json()["metadata"]["connector_delivery_source"] == "go_backend_rollback_drill_notification"
+    assert response.json()["plan_metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-plan"
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:

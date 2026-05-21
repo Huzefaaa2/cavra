@@ -215,6 +215,7 @@ def production_readiness_report(
     go_rollback_readiness: dict[str, Any] | None = None,
     go_rollback_rehearsal: dict[str, Any] | None = None,
     go_rollback_drill_history: dict[str, Any] | None = None,
+    go_rollback_drill_schedule: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     stores = store_status.get("items", []) if isinstance(store_status, dict) else []
     missing_stores = [item.get("name") for item in stores if not item.get("exists")]
@@ -229,6 +230,7 @@ def production_readiness_report(
     go_rollback_status = (go_rollback_readiness or {}).get("status", "not_requested")
     go_rehearsal_status = (go_rollback_rehearsal or {}).get("status", "not_requested")
     go_drill_status = (go_rollback_drill_history or {}).get("status", "not_requested")
+    go_drill_schedule_status = (go_rollback_drill_schedule or {}).get("status", "not_requested")
     checks = [
         _check("oidc_configured", oidc_configured, "Console and approval actions validate signed OIDC tokens."),
         _check("rbac_configured", rbac_configured, "Repository-scoped RBAC policy is configured."),
@@ -278,6 +280,13 @@ def production_readiness_report(
             mode=go_backend_mode,
             go_rollback_drill_history_status=go_drill_status,
         ),
+        _check(
+            "go_backend_rollback_drill_schedule",
+            go_drill_schedule_status in {"not_requested", "ready", "due_soon"},
+            "Promoted Go backend mode requires recurring rollback drill scheduling and stale-drill notification routes.",
+            mode=go_backend_mode,
+            go_rollback_drill_schedule_status=go_drill_schedule_status,
+        ),
     ]
     return {
         "schema_version": "cavra.deployment.production_readiness.v1",
@@ -325,6 +334,13 @@ def production_readiness_report(
         "go_backend_rollback_drill_history": go_rollback_drill_history
         or {
             "schema_version": "cavra.go-backend-pilot.rollback-drill-history.v1",
+            "mode": "disabled",
+            "status": "not_requested",
+            "checks": [],
+        },
+        "go_backend_rollback_drill_schedule": go_rollback_drill_schedule
+        or {
+            "schema_version": "cavra.go-backend-pilot.rollback-drill-schedule.v1",
             "mode": "disabled",
             "status": "not_requested",
             "checks": [],

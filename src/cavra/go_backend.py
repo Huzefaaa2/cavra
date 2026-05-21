@@ -4,7 +4,8 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,8 @@ class GoBackendConfig:
     rollback_rehearsal_path: str = ""
     rollback_drill_history_path: str = ""
     rollback_drill_max_age_days: float = 90.0
+    rollback_drill_schedule_path: str = ""
+    rollback_drill_due_soon_days: float = 14.0
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -64,6 +67,8 @@ def go_backend_config_from_env() -> GoBackendConfig:
         rollback_rehearsal_path=os.environ.get("CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE", ""),
         rollback_drill_history_path=os.environ.get("CAVRA_GO_ROLLBACK_DRILL_HISTORY", ""),
         rollback_drill_max_age_days=_float_env("CAVRA_GO_ROLLBACK_DRILL_MAX_AGE_DAYS", 90.0),
+        rollback_drill_schedule_path=os.environ.get("CAVRA_GO_ROLLBACK_DRILL_SCHEDULE", ""),
+        rollback_drill_due_soon_days=_float_env("CAVRA_GO_ROLLBACK_DRILL_DUE_SOON_DAYS", 14.0),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -475,6 +480,220 @@ def go_rollback_drill_history_report(config: GoBackendConfig | None = None) -> d
     }
 
 
+def go_rollback_drill_schedule_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    history = _rollback_drill_history_summary(
+        config.rollback_drill_history_path,
+        max_age_days=config.rollback_drill_max_age_days,
+    )
+    schedule = _rollback_drill_schedule_summary(
+        config.rollback_drill_schedule_path,
+        history,
+        due_soon_days=config.rollback_drill_due_soon_days,
+    )
+    requested = config.mode == GO_BACKEND_PROMOTED or bool(config.rollback_drill_schedule_path)
+    checks = [
+        _check(
+            "go_rollback_drill_schedule_requested",
+            requested,
+            "Recurring rollback drill scheduling is required when CAVRA_GO_BACKEND_MODE=promoted or a schedule is configured.",
+            mode=config.mode,
+        ),
+        _check(
+            "go_rollback_drill_schedule_file",
+            schedule["valid"],
+            schedule["message"],
+            path=config.rollback_drill_schedule_path,
+            schedule_schema=schedule["schema_version"],
+        ),
+        _check(
+            "go_rollback_drill_schedule_active",
+            schedule["active"],
+            schedule["active_message"],
+        ),
+        _check(
+            "go_rollback_drill_schedule_cadence",
+            schedule["cadence_valid"],
+            schedule["cadence_message"],
+            interval_days=schedule["interval_days"],
+        ),
+        _check(
+            "go_rollback_drill_schedule_next_due",
+            bool(schedule["next_due_at"]),
+            schedule["next_due_message"],
+            next_due_at=schedule["next_due_at"],
+            days_until_due=schedule["days_until_due"],
+        ),
+        _check(
+            "go_rollback_drill_schedule_not_stale",
+            not schedule["stale"],
+            schedule["stale_message"],
+            stale=schedule["stale"],
+        ),
+        _check(
+            "go_rollback_drill_notification_routes",
+            schedule["notification_routes_valid"],
+            schedule["notification_message"],
+            notification_providers=schedule["notification_providers"],
+            owners=schedule["owners"],
+        ),
+    ]
+    if not requested:
+        status = "not_requested"
+    elif schedule["valid"] and not schedule["stale"] and schedule["due_soon"]:
+        status = "due_soon"
+    elif schedule["valid"] and not schedule["stale"]:
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-schedule.v1",
+        "mode": config.mode,
+        "status": status,
+        "rollback_drill_schedule_path": config.rollback_drill_schedule_path,
+        "rollback_drill_due_soon_days": config.rollback_drill_due_soon_days,
+        "checks": checks,
+        "schedule": schedule,
+        "history": history,
+        "operator_notes": [
+            "Schedule metadata defines when promoted environments must rehearse rollback back to Python-only mode.",
+            "Stale or missing schedules should notify release governance through configured connectors.",
+            "Keep connector credentials in CAVRA_CONNECTOR_CONFIG or private secret stores; schedule metadata must stay public-safe.",
+        ],
+    }
+
+
+def build_go_rollback_drill_notification_event(
+    schedule_report: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+) -> dict[str, Any]:
+    schedule = schedule_report.get("schedule", {}) if isinstance(schedule_report.get("schedule"), dict) else {}
+    history = schedule_report.get("history", {}) if isinstance(schedule_report.get("history"), dict) else {}
+    status = str(schedule_report.get("status") or "not_requested")
+    alert_level = "critical" if status == "needs_attention" else "warning" if status == "due_soon" else "healthy"
+    event = {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.go_backend.rollback_drill.notification",
+        "session_id": str(schedule.get("schedule_id") or "go-backend-rollback-drill-schedule"),
+        "schedule_id": str(schedule.get("schedule_id") or ""),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "status": status,
+        "mode": schedule_report.get("mode", GO_BACKEND_DISABLED),
+        "title": f"CAVRA Go rollback drill schedule {alert_level}",
+        "summary": {
+            "environment": schedule.get("environment", ""),
+            "latest_drill_id": history.get("latest_drill_id", ""),
+            "latest_executed_at": history.get("latest_executed_at", ""),
+            "next_due_at": schedule.get("next_due_at", ""),
+            "days_until_due": schedule.get("days_until_due"),
+            "stale": bool(schedule.get("stale")),
+            "due_soon": bool(schedule.get("due_soon")),
+            "interval_days": schedule.get("interval_days"),
+        },
+        "owners": schedule.get("owners", []),
+        "notification_providers": schedule.get("notification_providers", []),
+        "runbook_ref": schedule.get("runbook_ref", ""),
+        "evidence_refs": history.get("evidence_refs", []),
+        "controls": [
+            "notification-derived-from-public-drill-schedule",
+            "no-runtime-mode-change-performed-by-public-notification",
+            "connector-delivery-evidence-redacts-secrets",
+            "private-connectors-remain-responsible-for-ticket-or-chat-side-effects",
+        ],
+    }
+    message = (
+        f"Go backend rollback drill status is {status}; next due at "
+        f"{schedule.get('next_due_at') or 'unknown'}."
+    )
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "slack": {"text": f"{event['title']}: {message}", "metadata": event["summary"]},
+        "teams": {
+            "type": "message",
+            "title": event["title"],
+            "text": message,
+            "sections": [{"facts": [{"name": key, "value": str(value)} for key, value in event["summary"].items()]}],
+        },
+        "jira": {
+            "summary": event["title"],
+            "description": json.dumps(event, indent=2, sort_keys=True),
+            "labels": ["cavra", "go-backend", "rollback-drill"],
+        },
+        "servicenow": {
+            "short_description": event["title"],
+            "description": json.dumps(event, indent=2, sort_keys=True),
+            "category": "software",
+            "correlation_id": event["session_id"],
+        },
+    }
+    return event
+
+
+def build_go_rollback_drill_notification_plan(
+    schedule_report: dict[str, Any],
+    *,
+    requested_provider: str = "all",
+    available_providers: list[str] | None = None,
+    generated_by: str = "release-governance",
+    force: bool = False,
+) -> dict[str, Any]:
+    schedule = schedule_report.get("schedule", {}) if isinstance(schedule_report.get("schedule"), dict) else {}
+    configured = [str(item) for item in schedule.get("notification_providers", []) if isinstance(item, str)]
+    available = [str(item) for item in available_providers or [] if item]
+    eligible = configured or available or ["webhook"]
+    if requested_provider != "all":
+        requested = [item.strip() for item in str(requested_provider).split(",") if item.strip()]
+        eligible = [item for item in eligible if item in requested]
+    selected = eligible if force or schedule_report.get("status") in {"needs_attention", "due_soon"} else []
+    material = json.dumps(
+        {
+            "schedule_id": schedule.get("schedule_id", ""),
+            "status": schedule_report.get("status", ""),
+            "selected": selected,
+            "generated_by": generated_by,
+        },
+        sort_keys=True,
+    )
+    plan_id = f"gordn-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "schedule_id": schedule.get("schedule_id", ""),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "status": schedule_report.get("status", "not_requested"),
+        "alert_level": "critical" if schedule_report.get("status") == "needs_attention" else "warning" if schedule_report.get("status") == "due_soon" else "healthy",
+        "eligible_providers": eligible,
+        "selected_providers": selected,
+        "suppressed_providers": [provider for provider in eligible if provider not in selected],
+        "owners": schedule.get("owners", []),
+        "next_due_at": schedule.get("next_due_at", ""),
+        "reason": "rollback drill is stale or due soon" if selected else "rollback drill schedule is healthy; notification suppressed",
+    }
+
+
+def build_go_rollback_drill_notification_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(plan.get("plan_id") or "go-rollback-drill-notification-plan"),
+        "created_at": str(plan.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(plan.get("generated_by") or "release-governance"),
+        "decision_count": len(plan.get("eligible_providers", [])),
+        "blocked_count": 1 if plan.get("alert_level") == "critical" else 0,
+        "approval_required_count": 1 if plan.get("alert_level") == "warning" else 0,
+        "metadata_kind": "go-backend-rollback-drill-notification-plan",
+        "plan_id": plan.get("plan_id"),
+        "schedule_id": plan.get("schedule_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "plan": plan,
+    }
+
+
 def evaluate_with_go_pilot(
     request: dict[str, Any],
     *,
@@ -537,6 +756,17 @@ def evaluate_with_go_pilot(
             result["rollback_readiness"] = rollback
             result["rollback_rehearsal"] = rehearsal
             result["rollback_drill_history"] = drills
+            return result
+        schedule = go_rollback_drill_schedule_report(config)
+        if schedule["status"] not in {"ready", "due_soon"}:
+            result["fallback_used"] = True
+            result["fallback_reason"] = "go backend rollback drill schedule check failed"
+            result["readiness"] = readiness
+            result["promotion_readiness"] = promotion
+            result["rollback_readiness"] = rollback
+            result["rollback_rehearsal"] = rehearsal
+            result["rollback_drill_history"] = drills
+            result["rollback_drill_schedule"] = schedule
             return result
     try:
         go_decision = _run_go_runtime(request, config)
@@ -990,6 +1220,115 @@ def _rollback_drill_history_summary(path_value: str, *, max_age_days: float) -> 
         "fallback_message": "Latest rollback drill verified Python fallback restoration." if fallback_verified else "latest rollback drill must verify Python fallback restoration",
         "recovery_message": "Latest rollback drill met the recovery target." if recovery_sla_met else "latest rollback drill recovery_minutes must be positive and less than or equal to max_recovery_minutes",
         "freshness_message": "Latest rollback drill is within the freshness window." if fresh else "latest rollback drill is missing, invalid, or stale",
+    }
+
+
+def _rollback_drill_schedule_summary(
+    path_value: str,
+    history: dict[str, Any],
+    *,
+    due_soon_days: float,
+) -> dict[str, Any]:
+    check = _read_json_check(Path(path_value) if path_value else None)
+    if not check.valid:
+        return _empty_drill_schedule_summary(check.message)
+    payload = check.payload
+    schema = str(payload.get("schema_version", ""))
+    schedule_id = str(payload.get("schedule_id", ""))
+    status = str(payload.get("status", ""))
+    active = status == "active"
+    interval_days = payload.get("interval_days")
+    cadence_valid = _positive_number(interval_days)
+    owners = payload.get("owners", [])
+    providers = payload.get("notification_providers", [])
+    owners_valid = isinstance(owners, list) and all(isinstance(item, str) for item in owners) and bool(owners)
+    providers_valid = isinstance(providers, list) and all(isinstance(item, str) for item in providers) and bool(providers)
+    runbook_ref = str(payload.get("runbook_ref", ""))
+    latest_executed = _parse_iso_datetime(str(history.get("latest_executed_at", "")))
+    explicit_due = _parse_iso_datetime(str(payload.get("next_due_at", "")))
+    next_due = explicit_due
+    if next_due is None and latest_executed is not None and cadence_valid:
+        next_due = latest_executed + timedelta(days=float(interval_days))
+    now = datetime.now(timezone.utc)
+    days_until_due = None
+    stale = True
+    due_soon = False
+    if next_due is not None:
+        days_until_due = round((next_due - now).total_seconds() / 86400, 4)
+        stale = days_until_due < 0
+        due_soon = not stale and _positive_number(due_soon_days) and days_until_due <= due_soon_days
+    valid = (
+        schema == "cavra.go-backend-rollback-drill-schedule.v1"
+        and bool(schedule_id)
+        and active
+        and cadence_valid
+        and bool(next_due)
+        and not stale
+        and owners_valid
+        and providers_valid
+        and bool(runbook_ref)
+    )
+    messages = []
+    if schema != "cavra.go-backend-rollback-drill-schedule.v1":
+        messages.append("rollback drill schedule has an invalid schema_version")
+    if not schedule_id:
+        messages.append("rollback drill schedule must include schedule_id")
+    if not bool(runbook_ref):
+        messages.append("rollback drill schedule must include runbook_ref")
+    if not owners_valid:
+        messages.append("rollback drill schedule owners must be a non-empty list of strings")
+    if not providers_valid:
+        messages.append("rollback drill notification_providers must be a non-empty list of strings")
+    return {
+        "valid": valid,
+        "schema_version": schema,
+        "schedule_id": schedule_id,
+        "environment": str(payload.get("environment", "")),
+        "status": status,
+        "active": active,
+        "cadence_valid": cadence_valid,
+        "interval_days": interval_days if cadence_valid else None,
+        "next_due_at": next_due.isoformat() if next_due else "",
+        "days_until_due": days_until_due,
+        "stale": stale,
+        "due_soon": due_soon,
+        "notification_routes_valid": owners_valid and providers_valid,
+        "owners": owners if owners_valid else [],
+        "notification_providers": providers if providers_valid else [],
+        "runbook_ref": runbook_ref,
+        "message": "; ".join(messages) if messages else "Rollback drill schedule is active and notification routes are configured.",
+        "active_message": "Rollback drill schedule is active." if active else "rollback drill schedule must set status=active",
+        "cadence_message": "Rollback drill cadence is configured." if cadence_valid else "rollback drill schedule must include positive interval_days",
+        "next_due_message": "Next rollback drill due date is known." if next_due else "rollback drill schedule must include next_due_at or usable latest drill history",
+        "stale_message": "Rollback drill schedule is not stale." if not stale else "rollback drill schedule is stale and requires notification",
+        "notification_message": "Rollback drill notification routes are configured." if owners_valid and providers_valid else "rollback drill schedule must include owners and notification_providers",
+    }
+
+
+def _empty_drill_schedule_summary(message: str) -> dict[str, Any]:
+    return {
+        "valid": False,
+        "schema_version": "",
+        "schedule_id": "",
+        "environment": "",
+        "status": "",
+        "active": False,
+        "cadence_valid": False,
+        "interval_days": None,
+        "next_due_at": "",
+        "days_until_due": None,
+        "stale": True,
+        "due_soon": False,
+        "notification_routes_valid": False,
+        "owners": [],
+        "notification_providers": [],
+        "runbook_ref": "",
+        "message": message,
+        "active_message": "rollback drill schedule is missing or inactive",
+        "cadence_message": "rollback drill schedule must include positive interval_days",
+        "next_due_message": "rollback drill schedule must include next_due_at or usable latest drill history",
+        "stale_message": "rollback drill schedule is stale and requires notification",
+        "notification_message": "rollback drill schedule must include owners and notification_providers",
     }
 
 

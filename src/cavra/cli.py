@@ -45,12 +45,15 @@ from cavra.go_backend import (
     GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
+    build_go_rollback_drill_notification_event,
+    build_go_rollback_drill_notification_plan,
     evaluate_with_go_pilot,
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
     go_rollback_readiness_report,
     go_rollback_drill_history_report,
+    go_rollback_drill_schedule_report,
     go_rollback_rehearsal_report,
 )
 from cavra.integrations import (
@@ -439,6 +442,65 @@ def runtime_go_rollback_drills(
         console.print(f"  {check['status']} {check['id']}: {check['message']}")
 
 
+@runtime_app.command("go-rollback-drill-schedule")
+def runtime_go_rollback_drill_schedule(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Go rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
+    rollback_drill_schedule_path: Annotated[str, typer.Option(help="Go rollback drill schedule JSON path.")] = "",
+    rollback_drill_due_soon_days: Annotated[float, typer.Option(help="Days before due date to mark drills due soon.")] = 14.0,
+    json_output: bool = typer.Option(False, "--json", help="Print rollback drill schedule JSON."),
+) -> None:
+    """Show recurring rollback drill schedule and stale-drill notification readiness."""
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=mode,
+            rollback_drill_history_path=rollback_drill_history_path,
+            rollback_drill_max_age_days=rollback_drill_max_age_days,
+            rollback_drill_schedule_path=rollback_drill_schedule_path,
+            rollback_drill_due_soon_days=rollback_drill_due_soon_days,
+        )
+    )
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go rollback drill schedule: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
+@runtime_app.command("go-rollback-drill-notification-plan")
+def runtime_go_rollback_drill_notification_plan(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Go rollback drill history JSON path.")] = "",
+    rollback_drill_schedule_path: Annotated[str, typer.Option(help="Go rollback drill schedule JSON path.")] = "",
+    provider: Annotated[str, typer.Option(help="Connector provider to select, or all.")] = "all",
+    force: Annotated[bool, typer.Option(help="Select providers even when the schedule is healthy.")] = False,
+    json_output: bool = typer.Option(False, "--json", help="Print notification plan JSON."),
+) -> None:
+    """Build a public-safe stale rollback drill notification plan."""
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=mode,
+            rollback_drill_history_path=rollback_drill_history_path,
+            rollback_drill_schedule_path=rollback_drill_schedule_path,
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(
+        report,
+        requested_provider=provider,
+        generated_by="cli",
+        force=force,
+    )
+    event = build_go_rollback_drill_notification_event(report, generated_by="cli")
+    payload = {"schedule": report, "plan": plan, "event": event}
+    if json_output:
+        typer.echo(json.dumps(payload, indent=2))
+        return
+    console.print(f"Go rollback drill notification plan: {plan['alert_level']} ({plan['reason']})")
+    console.print(f"  selected providers: {', '.join(plan['selected_providers']) or 'none'}")
+
+
 @runtime_app.command("go-pilot-evaluate")
 def runtime_go_pilot_evaluate(
     action_type: Annotated[str, typer.Argument(help="read_file, write_file, execute_command, git_operation, mcp_tool_call.")],
@@ -458,6 +520,8 @@ def runtime_go_pilot_evaluate(
     rollback_rehearsal_path: Annotated[str, typer.Option(help="Optional rollback rehearsal evidence JSON path.")] = "",
     rollback_drill_history_path: Annotated[str, typer.Option(help="Optional rollback drill history JSON path.")] = "",
     rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
+    rollback_drill_schedule_path: Annotated[str, typer.Option(help="Optional rollback drill schedule JSON path.")] = "",
+    rollback_drill_due_soon_days: Annotated[float, typer.Option(help="Days before due date to mark drills due soon.")] = 14.0,
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
     tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
@@ -494,6 +558,8 @@ def runtime_go_pilot_evaluate(
         rollback_rehearsal_path=rollback_rehearsal_path,
         rollback_drill_history_path=rollback_drill_history_path,
         rollback_drill_max_age_days=rollback_drill_max_age_days,
+        rollback_drill_schedule_path=rollback_drill_schedule_path,
+        rollback_drill_due_soon_days=rollback_drill_due_soon_days,
         timeout_seconds=timeout_seconds,
     )
     result = evaluate_with_go_pilot(request, config=config)

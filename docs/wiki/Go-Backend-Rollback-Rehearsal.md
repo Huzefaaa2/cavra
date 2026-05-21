@@ -94,4 +94,4 @@ Promotion without rehearsal leaves teams with a plan that may fail during an inc
 
 ## Next Work
 
-The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.
+The next recommended implementation step is to add rollback drill notification acknowledgements and escalation policy for missed drill notifications.

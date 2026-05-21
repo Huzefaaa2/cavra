@@ -29,12 +29,16 @@ from cavra.evidence import (
     load_evidence_artifact,
 )
 from cavra.go_backend import (
+    build_go_rollback_drill_notification_event,
+    build_go_rollback_drill_notification_plan,
+    build_go_rollback_drill_notification_plan_metadata,
     evaluate_with_go_pilot,
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
     go_rollback_readiness_report,
     go_rollback_drill_history_report,
+    go_rollback_drill_schedule_report,
     go_rollback_rehearsal_report,
 )
 from cavra.integrations import (
@@ -351,6 +355,8 @@ def create_app():
                 "go_rollback_readiness": "/runtime/go-pilot/rollback-readiness",
                 "go_rollback_rehearsal": "/runtime/go-pilot/rollback-rehearsal",
                 "go_rollback_drills": "/runtime/go-pilot/rollback-drills",
+                "go_rollback_drill_schedule": "/runtime/go-pilot/rollback-drill-schedule",
+                "go_rollback_drill_notifications": "/runtime/go-pilot/rollback-drill-notifications/deliver",
                 "go_backend_evaluate": "/runtime/go-pilot/evaluate",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
@@ -623,6 +629,7 @@ def create_app():
             go_rollback_readiness=go_rollback_readiness_report(),
             go_rollback_rehearsal=go_rollback_rehearsal_report(),
             go_rollback_drill_history=go_rollback_drill_history_report(),
+            go_rollback_drill_schedule=go_rollback_drill_schedule_report(),
         )
 
     @app.get("/runtime/go-pilot/readiness")
@@ -648,6 +655,57 @@ def create_app():
     @app.get("/runtime/go-pilot/rollback-drills")
     def runtime_go_pilot_rollback_drills() -> dict[str, object]:
         return go_rollback_drill_history_report()
+
+    @app.get("/runtime/go-pilot/rollback-drill-schedule")
+    def runtime_go_pilot_rollback_drill_schedule() -> dict[str, object]:
+        return go_rollback_drill_schedule_report()
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/deliver")
+    def runtime_go_pilot_rollback_drill_notification_deliver(payload: dict) -> dict[str, object]:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        try:
+            report = go_rollback_drill_schedule_report()
+            plan = build_go_rollback_drill_notification_plan(
+                report,
+                requested_provider=payload.get("provider", "all"),
+                available_providers=_configured_connector_providers(connector_config),
+                generated_by=payload.get("generated_by", "console"),
+                force=bool(payload.get("force", False)),
+            )
+            event = build_go_rollback_drill_notification_event(
+                report,
+                generated_by=payload.get("generated_by", "console"),
+            )
+            event["notification_plan"] = plan
+            plan_metadata = evidence_store.upsert(build_go_rollback_drill_notification_plan_metadata(plan))
+            result = None
+            metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="go_backend_rollback_drill_notification",
+                    )
+                )
+            return {
+                "schedule": report,
+                "plan": plan,
+                "delivery": result,
+                "plan_metadata": plan_metadata,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "event_id": plan.get("schedule_id") or plan.get("plan_id"),
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/runtime/go-pilot/evaluate")
     def runtime_go_pilot_evaluate(payload: dict) -> dict[str, object]:
