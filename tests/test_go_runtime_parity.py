@@ -18,25 +18,37 @@ TESTDATA = PARITY_CASES.parent
 RELEASE_GOVERNANCE_CASES = TESTDATA / "release_governance_records.json"
 
 
-def _python_decision(request: dict[str, str], *, registry_store: RegistryStore | None = None) -> dict[str, object]:
+def _python_decision(request: dict[str, object], *, registry_store: RegistryStore | None = None) -> dict[str, object]:
     guard = RuntimeGuard(
-        policy_pack=request.get("policy_pack") or "cavra-ai-agent-baseline",
-        session_id=request.get("session_id", "local"),
-        agent_id=request.get("agent_id", "unknown-agent"),
-        actor=request.get("actor", "ai-agent"),
+        policy_pack=str(request.get("policy_pack") or "cavra-ai-agent-baseline"),
+        session_id=str(request.get("session_id", "local")),
+        agent_id=str(request.get("agent_id", "unknown-agent")),
+        actor=str(request.get("actor", "ai-agent")),
         registry_store=registry_store,
     )
     action = request["action_type"]
     if action == "read_file":
-        return guard.evaluate_file_access(Path(request["target"]), "read").to_dict()
+        return guard.evaluate_file_access(Path(str(request["target"])), "read").to_dict()
     if action == "write_file":
-        return guard.evaluate_file_access(Path(request["target"]), "write").to_dict()
+        return guard.evaluate_file_access(Path(str(request["target"])), "write").to_dict()
     if action == "execute_command":
-        return guard.evaluate_command(request["target"]).to_dict()
+        return guard.evaluate_command(str(request["target"])).to_dict()
     if action == "git_operation":
-        return guard.evaluate_git_action(request.get("operation", "push"), request.get("target")).to_dict()
+        return guard.evaluate_git_action(str(request.get("operation", "push")), str(request.get("target", ""))).to_dict()
     if action == "mcp_tool_call":
-        return guard.evaluate_mcp_tool_call(request["server"], request["tool"], request.get("capability")).to_dict()
+        return guard.evaluate_mcp_tool_call(
+            str(request["server"]),
+            str(request["tool"]),
+            str(request.get("capability", "")) or None,
+        ).to_dict()
+    if action == "release_governance_record":
+        record = request.get("record")
+        assert isinstance(record, dict)
+        return guard.evaluate_release_governance_record(
+            record,
+            target=str(request.get("target", "")) or None,
+            requested_operation=str(request.get("operation", request.get("requested_operation", "verify"))),
+        ).to_dict()
     raise AssertionError(f"unsupported parity action: {action}")
 
 
@@ -54,6 +66,24 @@ def test_go_parity_cases_match_python_runtime_expectations(tmp_path: Path) -> No
     cases = json.loads(PARITY_CASES.read_text(encoding="utf-8"))
     for item in cases:
         decision = _python_decision(item["request"], registry_store=_registry_store(tmp_path, item.get("registry")))
+        expected = item["expected"]
+        assert decision["decision"] == expected["decision"], item["name"]
+        assert decision["rule_id"] == expected["rule_id"], item["name"]
+        assert decision["severity"] == expected["severity"], item["name"]
+        if expected.get("approver_group"):
+            assert decision["approver_group"] == expected["approver_group"], item["name"]
+        if expected.get("evidence_ref_prefix"):
+            assert decision["decision_id"], item["name"]
+            assert decision["timestamp"], item["name"]
+            assert str(decision["correlation_id"]).startswith("corr_"), item["name"]
+            assert decision["evidence_refs"], item["name"]
+            assert str(decision["evidence_refs"][0]).startswith(expected["evidence_ref_prefix"]), item["name"]
+
+
+def test_go_release_governance_cases_match_python_runtime_expectations() -> None:
+    cases = json.loads(RELEASE_GOVERNANCE_CASES.read_text(encoding="utf-8"))
+    for item in cases:
+        decision = _python_decision(item["request"])
         expected = item["expected"]
         assert decision["decision"] == expected["decision"], item["name"]
         assert decision["rule_id"] == expected["rule_id"], item["name"]
@@ -200,6 +230,8 @@ def test_go_release_governance_record_fixture_shape_is_supported() -> None:
         "endpoint-remediation-sla-report",
         "endpoint-remediation-handoff-status",
         "endpoint-remediation-handoff",
+        "rollout-evidence-verification",
+        "rollout-artifact-integrity",
     }
     assert rule_ids >= {
         "release_governance.approval.pending",

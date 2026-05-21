@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Broaden Go runtime parity and complete air-gapped single-binary reproducibility documentation.
+Add contract-level Go fixtures and production release-signing key rotation documentation.

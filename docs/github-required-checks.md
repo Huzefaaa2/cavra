@@ -60,4 +60,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
+The next recommended implementation step is contract-level Go fixtures and production release-signing key rotation documentation.

@@ -194,5 +194,5 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 
 ## Next Recommended Work
 
-1. Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
-2. Complete air-gapped single-binary packaging and reproducibility documentation.
+1. Add contract-level Go fixtures for the next high-risk release-governance metadata kinds.
+2. Document production release-signing operations and key rotation.

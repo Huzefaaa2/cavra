@@ -1418,4 +1418,24 @@ Validation:
 - `python3 scripts/validate_release_security.py`
 - `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
 
-Recommended next issue: broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions, then complete air-gapped single-binary packaging and reproducibility documentation.
+Recommended next issue: delivered below as Go release-governance parity expansion and reproducible air-gapped build metadata.
+
+## Phase 7 Go Release-Governance Parity And Reproducible Air-Gapped Builds
+
+Status: complete for the current public-safe parity and reproducibility slice.
+
+Completed implementation:
+- Added Python `RuntimeGuard` release-governance evaluation for the same public-safe record fixture used by the Go runtime.
+- Expanded Go release-governance record parity with rollout evidence verification and rollout artifact integrity cases.
+- Added critical signal handling for failed rollout verification and artifact integrity mismatches.
+- Added `cavra-runtime.reproducibility.json` to Go release packages with deterministic build environment, Go flags, linker flags, target binaries, SHA-256 digests, and air-gapped rebuild commands.
+- Updated the Go release workflow to build with `SOURCE_DATE_EPOCH`, `CGO_ENABLED=0`, `GOFLAGS="-trimpath -mod=readonly -buildvcs=false"`, and `-ldflags="-s -w -buildid="`.
+- Extended `cavra release verify-go-package` to require and validate the reproducibility manifest.
+- Added `docs/go-reproducible-airgap-builds.md` and refreshed README, roadmap, feature inventory, Go parity, Go packaging, and wiki source documentation.
+
+Validation:
+- `python3 -m pytest tests/test_go_runtime_parity.py tests/test_go_release_packaging.py -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/cavra/runtime.py scripts/package_go_release.py tests/test_go_runtime_parity.py tests/test_go_release_packaging.py`
+
+Recommended next issue: add contract-level Go fixtures for the next high-risk release-governance metadata kinds, then document production release-signing operations and key rotation.

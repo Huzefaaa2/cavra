@@ -21,6 +21,8 @@ GO_TARGETS = [
     "windows/amd64",
     "windows/arm64",
 ]
+REPRODUCIBLE_GOFLAGS = ["-trimpath", "-mod=readonly", "-buildvcs=false"]
+REPRODUCIBLE_LDFLAGS = ["-s", "-w", "-buildid="]
 
 
 @dataclass(frozen=True)
@@ -95,6 +97,9 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     modules = dist / "go-modules.json"
     if modules.exists():
         artifacts.append(_artifact(dist, modules, "go-modules"))
+    reproducibility = dist / "cavra-runtime.reproducibility.json"
+    if reproducibility.exists():
+        artifacts.append(_artifact(dist, reproducibility, "reproducibility-manifest"))
     return artifacts
 
 
@@ -193,6 +198,7 @@ def write_offline_trust_bootstrap(
                 "cavra-runtime.endpoint-deployment.json",
                 "cavra-runtime.ci-runner-bundles.json",
                 "cavra-runtime.installers.json",
+                "cavra-runtime.reproducibility.json",
                 "cavra-runtime.channels.json",
                 "cavra-runtime.updater-policy.json",
                 "cavra-runtime.sbom.spdx.json",
@@ -212,6 +218,90 @@ def write_offline_trust_bootstrap(
                 "Preserve release evidence, checksums, provenance, signatures, and this bootstrap manifest with the change record.",
             ],
         },
+    )
+
+
+def write_reproducibility_manifest(
+    dist: Path,
+    *,
+    version: str,
+    commit: str,
+    ref: str,
+    repository: str,
+    workflow_ref: str,
+) -> Path:
+    binaries: list[dict[str, Any]] = []
+    declared_targets: list[str] = []
+    for binary in sorted((dist / "bin").glob("*")):
+        if not binary.is_file():
+            continue
+        target = _binary_target(binary.name)
+        target_name = f"{target['os']}/{target['arch']}"
+        declared_targets.append(target_name)
+        binaries.append(
+            {
+                "target": target_name,
+                "os": target["os"],
+                "arch": target["arch"],
+                "binary": binary.relative_to(dist).as_posix(),
+                "binary_sha256": sha256_file(binary),
+                "size_bytes": binary.stat().st_size,
+                "rebuild_command": _rebuild_command(version, target["os"], target["arch"]),
+            }
+        )
+    return write_json(
+        dist / "cavra-runtime.reproducibility.json",
+        {
+            "schema_version": "cavra.go-runtime.reproducibility.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "ref": ref,
+            "repository": repository,
+            "workflow_ref": workflow_ref,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source_date_epoch": os.environ.get("SOURCE_DATE_EPOCH", ""),
+            "module_dir": "go/cavra-runtime",
+            "go_targets": declared_targets,
+            "build_environment": {
+                "CGO_ENABLED": "0",
+                "GOFLAGS": " ".join(REPRODUCIBLE_GOFLAGS),
+                "SOURCE_DATE_EPOCH": os.environ.get("SOURCE_DATE_EPOCH", ""),
+            },
+            "build_flags": {
+                "go_build": REPRODUCIBLE_GOFLAGS,
+                "ldflags": REPRODUCIBLE_LDFLAGS,
+            },
+            "binaries": binaries,
+            "controls": [
+                "cgo-disabled",
+                "trimpath-enabled",
+                "readonly-module-resolution",
+                "buildvcs-disabled",
+                "empty-go-buildid",
+                "target-matrix-declared",
+                "binary-digests-declared",
+                "airgap-rebuild-guidance",
+            ],
+            "operator_steps": [
+                "Verify this manifest through checksums, detached signatures, and SLSA provenance before rebuilding.",
+                "Rebuild from the recorded commit and ref with the declared Go target, CGO, GOFLAGS, and ldflags.",
+                "Compare rebuilt binary SHA-256 values to the binary_sha256 values in this manifest before restricted-network rollout.",
+                "Store rebuild evidence with the same change record as release-evidence.json.",
+            ],
+        },
+    )
+
+
+def _rebuild_command(version: str, goos: str, goarch: str) -> str:
+    suffix = ".exe" if goos == "windows" else ""
+    output = f"dist/rebuild/cavra-runtime_{version}_{goos}_{goarch}{suffix}"
+    return (
+        f"CGO_ENABLED=0 GOOS={goos} GOARCH={goarch} "
+        f"GOFLAGS=\"{' '.join(REPRODUCIBLE_GOFLAGS)}\" "
+        f"go build -ldflags=\"{' '.join(REPRODUCIBLE_LDFLAGS)}\" "
+        f"-o {output} ./cmd/cavra-runtime"
     )
 
 
@@ -914,6 +1004,7 @@ def write_evidence(
             "signed-ci-runner-bundles",
             "release-channel-manifests",
             "managed-workstation-updater-policy",
+            "reproducibility-manifest",
             "release-evidence-manifest",
         ],
     }
@@ -955,6 +1046,14 @@ def package_release(args: argparse.Namespace) -> None:
     modules = load_go_modules(dist / "go-modules.json")
     write_spdx_sbom(dist, args.version, args.commit, modules)
     write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
+    write_reproducibility_manifest(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        ref=args.ref,
+        repository=args.repository,
+        workflow_ref=args.workflow_ref,
+    )
     write_managed_endpoint_deployment(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_ci_runner_bundle_metadata(
         dist,

@@ -18,16 +18,18 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 - Daemon request/response evidence hooks with JSONL output and `go-daemon-evidence://...` refs.
 - `cavra-runtime --serve --socket ...` server mode.
 - Python parity test that verifies the same fixture against the authoritative `RuntimeGuard`.
+- Python parity test that verifies release-governance record fixtures for approvals, delivery failures, rollout evidence verification, and artifact integrity.
 - Go unit test that loads the fixture and verifies the Go evaluator.
+- Go release packaging reproducibility manifest for air-gapped rebuild checks.
 - GitHub Actions `go-runtime-parity` job with `actions/setup-go`.
 - Required governance check now runs the Go parity suite before publishing evidence.
 
 ## Current Boundary
 
-The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, and write request/response evidence records. It does not yet include expanded approval/registry parity or production binary packaging.
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, write request/response evidence records, verify release-governance fixtures across Python and Go, and package reproducibility metadata for air-gapped rebuild checks. It does not yet include all future release-governance contract fixtures or production signing key rotation operations.
 
 ## Next Implementation Steps
 
-1. Expand golden parity tests for approvals, evidence references, registry-backed MCP decisions, and policy inheritance overlays.
-2. Package the Go binary for CI runner and air-gapped usage.
+1. Add contract-level fixtures for additional high-risk release-governance metadata kinds.
+2. Document production release-signing operations and key rotation.
 3. Promote Go to an optional backend only after audited parity and deployment tests pass.
