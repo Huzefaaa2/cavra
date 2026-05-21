@@ -699,4 +699,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add daemon and CI runner examples for typed release governance enforcement requests.
+1. Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.

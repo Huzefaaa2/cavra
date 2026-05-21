@@ -1,0 +1,23 @@
+{
+  "session_id": "release-governance-failed-delivery",
+  "agent_id": "release-agent",
+  "actor": "release.manager@example.com",
+  "action_type": "release_governance_record",
+  "target": "release-connectors",
+  "requested_operation": "verify",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "release_governance": {
+    "metadata_kind": "release-connector-delivery",
+    "release_channel": "stable",
+    "release_version": "v0.2.0",
+    "failed_providers": [
+      "servicenow"
+    ],
+    "failed_delivery_count": 1,
+    "blocked_count": 1,
+    "connector_delivery_source": "release_governance_promotion",
+    "evidence_refs": [
+      "evidence://release/prod/connector-delivery"
+    ]
+  }
+}

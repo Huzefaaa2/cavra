@@ -69,4 +69,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is daemon and CI runner examples for typed release governance enforcement requests.
+The next recommended work is signed CI runner binary packaging and reusable runner actions for typed release-governance enforcement requests.

@@ -88,5 +88,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add daemon and CI runner examples for typed release governance enforcement requests.
+1. Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
 2. Add contract-level fixtures when new release governance metadata kinds are introduced.

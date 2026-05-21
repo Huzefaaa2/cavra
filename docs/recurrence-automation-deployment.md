@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add daemon and CI runner examples for typed release governance enforcement requests.
+Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.

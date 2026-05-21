@@ -1319,4 +1319,23 @@ Validation:
 - `python3 scripts/generate_go_enforcement_contracts.py`
 - `python3 -m json.tool go/cavra-runtime/testdata/release_governance_contracts.json`
 
-Recommended next issue: add daemon and CI runner examples for typed release governance enforcement requests.
+Recommended next issue: delivered below as typed release governance daemon and CI runner examples.
+
+## Phase 7 Typed Release Governance Daemon And Runner Examples
+
+Status: complete for the current public-safe daemon and CI runner example slice.
+
+Completed implementation:
+- Added typed release-governance `EvaluateRequest` JSON examples for approved promotion execution, failed connector delivery, and critical endpoint inventory freshness.
+- Added GitHub Actions, GitLab CI, and Azure Pipelines templates that start the Go daemon, send a typed `release_governance` request through `--daemon`, validate the expected decision and rule, and publish daemon evidence artifacts.
+- Updated Go daemon transport and Go enforcement contract documentation to show the typed request path and CI runner usage.
+- Updated README, roadmap docs, feature inventory, phase log, and wiki source.
+
+Validation:
+- `python3 -m pytest -q tests/test_ci_templates.py tests/test_go_daemon_transport.py`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m json.tool examples/go-runtime/typed-release-governance/approved-promotion.json`
+- `python3 -m json.tool examples/go-runtime/typed-release-governance/failed-connector-delivery.json`
+- `python3 -m json.tool examples/go-runtime/typed-release-governance/critical-inventory-freshness.json`
+
+Recommended next issue: package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.

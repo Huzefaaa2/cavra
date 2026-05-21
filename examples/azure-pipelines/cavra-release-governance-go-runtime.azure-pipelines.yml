@@ -1,0 +1,73 @@
+# CAVRA Release Governance Go Runtime for Azure Pipelines.
+#
+# Create a pipeline from this YAML file, then add it to release branch or
+# environment gates that must verify typed release-governance evidence.
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  CAVRA_RELEASE_GOVERNANCE_REQUEST: examples/go-runtime/typed-release-governance/approved-promotion.json
+  CAVRA_EXPECTED_DECISION: allow
+  CAVRA_EXPECTED_RULE_ID: release_governance.approval.approved
+  CAVRA_ALLOW_BLOCKING_DECISION: "false"
+
+stages:
+  - stage: release_governance
+    displayName: CAVRA release governance
+    jobs:
+      - job: cavra_release_governance_go_runtime
+        displayName: cavra-release-governance-go-runtime
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: GoTool@0
+            displayName: Set up Go
+            inputs:
+              version: "1.26.3"
+
+          - script: |
+              set -euo pipefail
+              cd go/cavra-runtime
+              mkdir -p .cavra/go-daemon
+              go run ./cmd/cavra-runtime \
+                --lifecycle start \
+                --socket .cavra/cavra-runtime.sock \
+                --evidence-log .cavra/go-daemon/release-governance-evidence.jsonl
+              trap 'go run ./cmd/cavra-runtime --lifecycle stop --socket .cavra/cavra-runtime.sock || true' EXIT
+
+              go run ./cmd/cavra-runtime \
+                --daemon \
+                --socket .cavra/cavra-runtime.sock \
+                --input "../../${CAVRA_RELEASE_GOVERNANCE_REQUEST}" \
+                > .cavra/go-daemon/release-governance-response.json
+
+              python3 - <<'PY'
+              import json
+              import os
+              import pathlib
+              import sys
+
+              response = json.loads(pathlib.Path(".cavra/go-daemon/release-governance-response.json").read_text())
+              expected_decision = os.environ["CAVRA_EXPECTED_DECISION"]
+              expected_rule = os.environ.get("CAVRA_EXPECTED_RULE_ID", "")
+              allow_block = os.environ.get("CAVRA_ALLOW_BLOCKING_DECISION", "false").lower() == "true"
+
+              if response.get("decision") != expected_decision:
+                  sys.exit(f"unexpected CAVRA decision: {response.get('decision')} != {expected_decision}")
+              if expected_rule and response.get("rule_id") != expected_rule:
+                  sys.exit(f"unexpected CAVRA rule_id: {response.get('rule_id')} != {expected_rule}")
+              if response.get("decision") == "block" and not allow_block:
+                  sys.exit(response.get("reason", "CAVRA blocked release governance request"))
+              PY
+            displayName: Validate typed release governance request with Go daemon
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Go daemon evidence
+            condition: always()
+            inputs:
+              targetPath: go/cavra-runtime/.cavra/go-daemon
+              artifact: cavra-release-governance-go-runtime

@@ -1,0 +1,18 @@
+{
+  "session_id": "release-governance-critical-freshness",
+  "agent_id": "release-agent",
+  "actor": "platform.owner@example.com",
+  "action_type": "release_governance_record",
+  "target": "endpoint-inventory",
+  "requested_operation": "verify",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "release_governance": {
+    "metadata_kind": "endpoint-inventory-freshness-report",
+    "alert_level": "critical",
+    "critical_count": 2,
+    "blocked_count": 2,
+    "evidence_refs": [
+      "evidence://inventory/freshness"
+    ]
+  }
+}
