@@ -192,10 +192,16 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert ci_runner_bundles["source_metadata"] == "cavra-runtime.endpoint-deployment.json"
     assert ci_runner_bundles["runner_script"]["path"] == "ci-runners/cavra-release-governance-runner.sh"
     assert "CAVRA_RUNNER_AUTH_HMAC_KEY" in ci_runner_bundles["runner_script"]["required_environment"]
+    assert "CAVRA_RUNNER_AUTH_OIDC_TOKEN" in ci_runner_bundles["runner_script"]["required_environment"]
+    assert "CAVRA_RUNNER_OIDC_ISSUER" in ci_runner_bundles["runner_script"]["required_environment"]
+    assert "CAVRA_RUNNER_OIDC_AUDIENCE" in ci_runner_bundles["runner_script"]["required_environment"]
+    assert "CAVRA_RUNNER_OIDC_JWKS_URL" in ci_runner_bundles["runner_script"]["required_environment"]
     assert "CAVRA_DAEMON_EVIDENCE_HMAC_KEY" in ci_runner_bundles["runner_script"]["required_environment"]
     assert ci_runner_bundles["github_action"]["path"] == "ci-runners/github-action/action.yml"
     assert "runner-authentication-claims-signed" in ci_runner_bundles["controls"]
+    assert "runner-authentication-oidc-verified" in ci_runner_bundles["controls"]
     assert "daemon-evidence-stream-hmac-signed" in ci_runner_bundles["controls"]
+    assert "daemon-evidence-stream-verifier-cli" in ci_runner_bundles["controls"]
     assert {bundle["platform"] for bundle in ci_runner_bundles["runner_bundles"]} == {
         "GitHub Actions",
         "GitLab CI",
@@ -217,6 +223,10 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     )
     assert all(
         ".cavra/go-daemon/runner-auth-claims.json" in bundle["required_outputs"]
+        for bundle in ci_runner_bundles["runner_bundles"]
+    )
+    assert all(
+        ".cavra/go-daemon/release-governance-evidence-verification.json" in bundle["required_outputs"]
         for bundle in ci_runner_bundles["runner_bundles"]
     )
     assert channels["schema_version"] == "cavra.go-runtime.channels.v1"

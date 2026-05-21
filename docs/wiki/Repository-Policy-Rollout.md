@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+The next recommended step is provider-native OIDC token acquisition helpers and production key custody documentation.

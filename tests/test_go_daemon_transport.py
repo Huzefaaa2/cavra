@@ -13,12 +13,16 @@ def test_go_daemon_transport_docs_reference_socket_contract() -> None:
     assert "--evidence-log" in doc
     assert "--runner-auth-key" in doc
     assert "--runner-auth-claims" in doc
+    assert "--runner-oidc-issuer" in doc
+    assert "--runner-auth-oidc-token-file" in doc
     assert "--evidence-signing-key" in doc
+    assert "--verify-evidence" in doc
     assert "Unix-socket" in doc
     assert "EvaluateRequest" in doc
     assert "DecisionResponse" in doc
     assert "go-daemon-evidence://" in doc
     assert "runner_auth" in doc
+    assert "OIDC-JWT" in doc
     assert "HMAC-SHA256" in doc
     assert "daemon.Client" in doc
     assert "go/cavra-runtime/daemon" in wiki
@@ -33,7 +37,9 @@ def test_go_runtime_readme_references_daemon_mode() -> None:
     assert "--evidence-log" in readme
     assert "--runner-auth-key" in readme
     assert "--runner-auth-claims" in readme
+    assert "--runner-oidc-issuer" in readme
     assert "--evidence-signing-key" in readme
+    assert "--verify-evidence" in readme
     assert "--socket" in readme
     assert "EvaluateRequest" in readme
     assert "DecisionResponse" in readme
@@ -74,11 +80,28 @@ def test_go_daemon_evidence_hook_is_present() -> None:
     assert "EvidenceSignature" in evidence
     assert "PreviousHash" in evidence
     assert "RecordHash" in evidence
+    assert "VerifyEvidenceStream" in evidence
     assert "HandleConnectionWithEvidence" in server
     assert "HandleConnectionWithSecurity" in server
     assert 'flag.String("evidence-log"' in cli
     assert 'flag.String("runner-auth-key"' in cli
     assert 'flag.String("runner-auth-claims"' in cli
+    assert 'flag.String("runner-oidc-issuer"' in cli
+    assert 'flag.Bool("verify-evidence"' in cli
+
+
+def test_go_daemon_runner_oidc_verifier_is_present() -> None:
+    oidc = Path("go/cavra-runtime/daemon/oidc.go").read_text(encoding="utf-8")
+    runner_auth = Path("go/cavra-runtime/daemon/runner_auth.go").read_text(encoding="utf-8")
+
+    assert "type RunnerOIDCVerifier struct" in oidc
+    assert "RunnerAuthOIDCAlgorithm" in oidc
+    assert "OIDC-JWT" in oidc
+    assert "JWKSPath" in oidc
+    assert "JWKSURL" in oidc
+    assert "rsa.VerifyPKCS1v15" in oidc
+    assert "providerForIssuer" in oidc
+    assert "OIDCVerifier" in runner_auth
 
 
 def test_typed_release_governance_daemon_examples_are_present() -> None:

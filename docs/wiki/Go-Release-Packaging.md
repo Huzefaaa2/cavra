@@ -100,7 +100,7 @@ jq '.runner_bundles[] | {platform, deployment_target, runtime_binary, reusable_w
   go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.ci-runner-bundles.json
 ```
 
-`cavra-runtime.ci-runner-bundles.json` binds the Linux `amd64` runtime binary to reusable runner wrappers for typed release-governance daemon checks. The release verifier requires this manifest, validates the packaged shell wrapper and GitHub composite action digests, confirms every runner bundle maps to a CI deployment target in `cavra-runtime.endpoint-deployment.json`, and checks that operator guidance includes package verification, checksum verification, GitHub keyless attestation verification, signed runner authentication claims, signed daemon evidence stream controls, and daemon evidence outputs.
+`cavra-runtime.ci-runner-bundles.json` binds the Linux `amd64` runtime binary to reusable runner wrappers for typed release-governance daemon checks. The release verifier requires this manifest, validates the packaged shell wrapper and GitHub composite action digests, confirms every runner bundle maps to a CI deployment target in `cavra-runtime.endpoint-deployment.json`, and checks that operator guidance includes package verification, checksum verification, GitHub keyless attestation verification, signed runner authentication claims, CI-provider OIDC runner JWT verification, signed daemon evidence stream controls, verifier CLI controls, and daemon evidence outputs.
 
 The packaged shell runner can be used by GitLab CI, Azure Pipelines, or a custom runner image after the package is verified and the binary is installed:
 
@@ -116,6 +116,19 @@ export CAVRA_DAEMON_EVIDENCE_KEY_ID=ci-evidence-2026-q2
 bash ci-runners/cavra-release-governance-runner.sh
 ```
 
+To require CI-provider OIDC JWT verification instead of shared-secret runner signatures, configure the daemon-side issuer, audience, and JWKS source, then provide a runner token through `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE`:
+
+```bash
+export CAVRA_RUNNER_PROVIDER=github-actions
+export CAVRA_RUNNER_OIDC_ISSUER=https://token.actions.githubusercontent.com
+export CAVRA_RUNNER_OIDC_AUDIENCE=cavra-release-governance
+export CAVRA_RUNNER_OIDC_JWKS_URL=https://token.actions.githubusercontent.com/.well-known/jwks
+export CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE=.cavra/go-daemon/runner-oidc.jwt
+bash ci-runners/cavra-release-governance-runner.sh
+```
+
+The runtime sends `runner_auth.algorithm=OIDC-JWT`, verifies RS256 signatures with JWKS, checks issuer, audience, expiry, not-before, provider, repository, and matching runner identity claims, and redacts the bearer JWT from daemon evidence records.
+
 GitHub Actions can use the packaged composite action from `ci-runners/github-action/action.yml` after the signed package is unpacked into the workspace:
 
 ```yaml
@@ -127,9 +140,12 @@ GitHub Actions can use the packaged composite action from `ci-runners/github-act
     expected-rule-id: release_governance.approval.approved
     runner-auth-key-id: ci-runner-2026-q2
     evidence-signing-key-id: ci-evidence-2026-q2
+    runner-oidc-issuer: https://token.actions.githubusercontent.com
+    runner-oidc-audience: cavra-release-governance
+    runner-oidc-jwks-url: https://token.actions.githubusercontent.com/.well-known/jwks
 ```
 
-For GitHub Actions, pass `CAVRA_RUNNER_AUTH_HMAC_KEY` and `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` through repository or organization secrets. The action records CI identity claims in `runner-auth-claims.json` and signs the daemon evidence stream without writing either HMAC key to disk.
+For GitHub Actions, pass `CAVRA_RUNNER_AUTH_HMAC_KEY` and `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` through repository or organization secrets when using HMAC mode, or provide an OIDC token file plus issuer, audience, and JWKS settings when using OIDC mode. The action records CI identity claims in `runner-auth-claims.json`, writes `release-governance-evidence-verification.json` when evidence signing is enabled, and signs the daemon evidence stream without writing HMAC keys to disk.
 
 Inspect channel manifests and managed workstation updater policy before publishing package metadata to endpoint-management tooling:
 
@@ -741,5 +757,5 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add CI-provider OIDC token verification for runner authentication.
-2. Add verifier CLI support for daemon evidence stream signatures and hash chains.
+1. Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
+2. Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.

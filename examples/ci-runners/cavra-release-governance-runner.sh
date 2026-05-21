@@ -13,11 +13,19 @@ response_path="${CAVRA_RELEASE_GOVERNANCE_RESPONSE:-${evidence_dir}/release-gove
 runner_claims_path="${CAVRA_RUNNER_AUTH_CLAIMS:-${evidence_dir}/runner-auth-claims.json}"
 runner_auth_key_id="${CAVRA_RUNNER_AUTH_KEY_ID:-}"
 evidence_key_id="${CAVRA_DAEMON_EVIDENCE_KEY_ID:-}"
+runner_oidc_issuer="${CAVRA_RUNNER_OIDC_ISSUER:-}"
+runner_oidc_audience="${CAVRA_RUNNER_OIDC_AUDIENCE:-}"
+runner_oidc_jwks="${CAVRA_RUNNER_OIDC_JWKS:-}"
+runner_oidc_jwks_url="${CAVRA_RUNNER_OIDC_JWKS_URL:-}"
+runner_oidc_token_file="${CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE:-}"
 
 mkdir -p "${evidence_dir}"
 
 # Optional hardening:
 # - CAVRA_RUNNER_AUTH_HMAC_KEY signs runner identity claims for daemon authentication.
+# - CAVRA_RUNNER_AUTH_OIDC_TOKEN or CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE sends a CI-provider OIDC JWT.
+# - CAVRA_RUNNER_OIDC_ISSUER, CAVRA_RUNNER_OIDC_AUDIENCE, and CAVRA_RUNNER_OIDC_JWKS_URL
+#   make the daemon verify GitHub Actions, GitLab CI, or Azure Pipelines JWTs directly.
 # - CAVRA_DAEMON_EVIDENCE_HMAC_KEY signs the chained daemon evidence JSONL stream.
 
 python3 - "${runner_claims_path}" <<'PY'
@@ -117,6 +125,18 @@ fi
 if [ -n "${runner_auth_key_id}" ]; then
   start_args+=(--runner-auth-key-id "${runner_auth_key_id}")
 fi
+if [ -n "${runner_oidc_issuer}" ]; then
+  start_args+=(--runner-oidc-issuer "${runner_oidc_issuer}")
+fi
+if [ -n "${runner_oidc_audience}" ]; then
+  start_args+=(--runner-oidc-audience "${runner_oidc_audience}")
+fi
+if [ -n "${runner_oidc_jwks}" ]; then
+  start_args+=(--runner-oidc-jwks "${runner_oidc_jwks}")
+fi
+if [ -n "${runner_oidc_jwks_url}" ]; then
+  start_args+=(--runner-oidc-jwks-url "${runner_oidc_jwks_url}")
+fi
 
 "${runtime_path}" "${start_args[@]}"
 trap '"${runtime_path}" --lifecycle stop --socket "${socket_path}" || true' EXIT
@@ -132,12 +152,26 @@ if [ -n "${CAVRA_RUNNER_AUTH_HMAC_KEY:-}" ]; then
     client_args+=(--runner-auth-key-id "${runner_auth_key_id}")
   fi
 fi
+if [ -n "${CAVRA_RUNNER_AUTH_OIDC_TOKEN:-}" ] || [ -n "${runner_oidc_token_file}" ]; then
+  client_args+=(--runner-auth-claims "${runner_claims_path}")
+  if [ -n "${runner_oidc_token_file}" ]; then
+    client_args+=(--runner-auth-oidc-token-file "${runner_oidc_token_file}")
+  fi
+fi
 if [ -n "${evidence_key_id}" ]; then
   client_args+=(--evidence-signing-key-id "${evidence_key_id}")
 fi
 
 "${runtime_path}" "${client_args[@]}" \
   > "${response_path}"
+
+if [ -n "${CAVRA_DAEMON_EVIDENCE_HMAC_KEY:-}" ]; then
+  verify_args=(--verify-evidence --evidence-log "${evidence_log}")
+  if [ -n "${evidence_key_id}" ]; then
+    verify_args+=(--evidence-signing-key-id "${evidence_key_id}")
+  fi
+  "${runtime_path}" "${verify_args[@]}" > "${evidence_dir}/release-governance-evidence-verification.json"
+fi
 
 python3 - "${response_path}" "${expected_decision}" "${expected_rule_id}" "${allow_blocking_decision}" <<'PY'
 import json

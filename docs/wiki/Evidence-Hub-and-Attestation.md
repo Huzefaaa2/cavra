@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+- Add provider-native OIDC token acquisition helpers and production key custody documentation.
 - Validate the hosted sandbox URL after deployment from `main`.

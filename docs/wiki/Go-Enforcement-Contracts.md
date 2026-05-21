@@ -21,6 +21,7 @@ Generator: `scripts/generate_go_enforcement_contracts.py`
 - Contract-level fixtures for approval, failed delivery, and critical inventory freshness release-governance payloads.
 - Daemon and CI runner examples that send typed release-governance payloads through the generated request contract.
 - Runner-authenticated daemon checks that attach signed `runner_auth` claims to `EvaluateRequest`.
+- Runner authentication support for `HMAC-SHA256` shared-secret signatures and `OIDC-JWT` CI-provider token verification.
 - Runtime support for both legacy `operation` and proto-aligned `requested_operation`.
 
 ## How To Use
@@ -104,4 +105,4 @@ Generated contracts reduce integration drift between Python, Go, future daemon t
 - The generated package is a lightweight JSON transport contract, not a full gRPC server.
 - The current daemon transport and `daemon.Client` helper use these contracts over a one-request-per-connection Unix socket.
 - GitHub Actions, GitLab CI, and Azure Pipelines examples now use typed release-governance contract payloads directly.
-- Next work should add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence stream signatures.
+- Next work should add provider-native OIDC token acquisition helpers for runner wrappers and production key custody documentation.

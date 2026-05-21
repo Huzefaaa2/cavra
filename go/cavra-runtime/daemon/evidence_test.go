@@ -147,6 +147,60 @@ func TestEvidenceRecorderWritesSignedHashChainedStream(t *testing.T) {
 	}
 }
 
+func TestVerifyEvidenceStreamValidatesHashChainAndSignature(t *testing.T) {
+	evidencePath := filepath.Join(t.TempDir(), "daemon-evidence.jsonl")
+	recorder := NewEvidenceRecorder(evidencePath).WithSigningKey("evidence-secret", "evidence-key-1")
+	recorder.Clock = func() time.Time {
+		return time.Date(2026, 5, 18, 12, 0, 0, 0, time.UTC)
+	}
+	request := enforcementv1.EvaluateRequest{SessionID: "session-verify", ActionType: "execute_command"}
+	if _, err := recorder.Record(request, enforcementv1.DecisionResponse{Decision: "allow"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := recorder.Record(request, enforcementv1.DecisionResponse{Decision: "allow"}); err != nil {
+		t.Fatal(err)
+	}
+	report, err := VerifyEvidenceStream(evidencePath, "evidence-secret", "evidence-key-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !report.Valid {
+		t.Fatalf("expected valid report: %+v", report)
+	}
+	if report.Records != 2 || report.SignedRecords != 2 {
+		t.Fatalf("report counts mismatch: %+v", report)
+	}
+	report, err = VerifyEvidenceStream(evidencePath, "wrong-secret", "evidence-key-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Valid {
+		t.Fatal("expected wrong signing key to invalidate evidence stream")
+	}
+}
+
+func TestEvidenceRecorderRedactsOIDCToken(t *testing.T) {
+	evidencePath := filepath.Join(t.TempDir(), "daemon-evidence.jsonl")
+	request := enforcementv1.EvaluateRequest{
+		SessionID: "session-oidc",
+		RunnerAuth: &enforcementv1.RunnerAuthentication{
+			Algorithm: RunnerAuthOIDCAlgorithm,
+			Signature: "header.claims.signature",
+			Identity: enforcementv1.RunnerIdentity{
+				Provider:   "github-actions",
+				Repository: "Huzefaaa2/cavra",
+			},
+		},
+	}
+	if _, err := NewEvidenceRecorder(evidencePath).Record(request, enforcementv1.DecisionResponse{Decision: "allow"}); err != nil {
+		t.Fatal(err)
+	}
+	records := readEvidenceRecords(t, evidencePath)
+	if records[0].Request.RunnerAuth.Signature != "<redacted-oidc-jwt>" {
+		t.Fatalf("expected redacted OIDC token, got %q", records[0].Request.RunnerAuth.Signature)
+	}
+}
+
 func readEvidenceRecords(t *testing.T, path string) []EvidenceRecord {
 	t.Helper()
 	lines := strings.Split(strings.TrimSpace(readFile(t, path)), "\n")

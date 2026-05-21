@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+The next recommended work is provider-native OIDC token acquisition helpers and production key custody documentation.
