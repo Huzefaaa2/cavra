@@ -68,6 +68,10 @@ See `docs/diagrams/go-backend-promotion.svg` for the promotion gate that require
 
 See `docs/diagrams/go-backend-rollback.svg` for the rollback gate that requires an approved plan back to Python-only mode before `promoted` mode selects Go.
 
+## Go Backend Rollback Rehearsal
+
+See `docs/diagrams/go-backend-rollback-rehearsal.svg` for the rehearsal evidence path that validates fallback restoration, recovery target, and dashboard visibility before `promoted` mode selects Go.
+
 ## SVG Images
 
 Repository diagram images:
@@ -86,6 +90,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-deployment-readiness.svg`
 - `docs/diagrams/go-backend-promotion.svg`
 - `docs/diagrams/go-backend-rollback.svg`
+- `docs/diagrams/go-backend-rollback-rehearsal.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

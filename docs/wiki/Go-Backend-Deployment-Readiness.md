@@ -78,4 +78,4 @@ Go runtime adoption touches developer laptops and CI runners. Those surfaces nee
 
 ## Next Work
 
-The next recommended implementation step is to add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.

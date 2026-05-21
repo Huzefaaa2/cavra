@@ -52,6 +52,7 @@ Do not include secrets, private customer details, private endpoint identifiers, 
 export CAVRA_GO_BACKEND_MODE=promoted
 export CAVRA_GO_PROMOTION_EVIDENCE=/etc/cavra/go-backend-promotion-evidence.json
 export CAVRA_GO_ROLLBACK_PLAN=/etc/cavra/go-backend-rollback-plan.json
+export CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE=/etc/cavra/go-backend-rollback-rehearsal.json
 ```
 
 To roll back immediately:
@@ -81,6 +82,7 @@ cavra runtime go-pilot-evaluate execute_command "terraform plan" \
   --package-dir /opt/cavra/go-runtime-release \
   --promotion-evidence-path /etc/cavra/go-backend-promotion-evidence.json \
   --rollback-plan-path /etc/cavra/go-backend-rollback-plan.json \
+  --rollback-rehearsal-path /etc/cavra/go-backend-rollback-rehearsal.json \
   --json
 ```
 
@@ -91,7 +93,7 @@ curl http://127.0.0.1:8000/runtime/go-pilot/rollback-readiness
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Production readiness includes a `go_backend_rollback` section and a `go_backend_rollback_controls` check. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without an approved rollback plan.
+Production readiness includes a `go_backend_rollback` section and a `go_backend_rollback_controls` check. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without an approved rollback plan. Rehearsal evidence is documented in [Go backend rollback rehearsal evidence](go-backend-rollback-rehearsal.md).
 
 ## User Stories
 
@@ -106,4 +108,4 @@ Backend promotion is only production-ready when rollback is boring, explicit, an
 
 ## Next Work
 
-The next recommended implementation step is to add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.

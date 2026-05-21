@@ -2228,12 +2228,14 @@ async function loadDeploymentReadiness() {
         { id: "go_backend_pilot", status: "pass", message: "Optional Go backend pilot is disabled or ready with Python fallback and parity gate evidence." },
         { id: "go_backend_deployment_paths", status: "pass", message: "Go backend CI runner and workstation deployment paths are ready when the pilot is enabled." },
         { id: "go_backend_promotion_gate", status: "pass", message: "Promoted Go backend mode requires runtime, deployment, and audited parity evidence." },
-        { id: "go_backend_rollback_controls", status: "pass", message: "Promoted Go backend mode requires an approved rollback plan back to Python-only mode." }
+        { id: "go_backend_rollback_controls", status: "pass", message: "Promoted Go backend mode requires an approved rollback plan back to Python-only mode." },
+        { id: "go_backend_rollback_rehearsal", status: "pass", message: "Promoted Go backend mode requires rollback rehearsal evidence and dashboard visibility." }
       ],
       go_backend_pilot: { schema_version: "cavra.go-backend-pilot.readiness.v1", mode: "disabled", status: "disabled", checks: [] },
       go_backend_deployment: { schema_version: "cavra.go-backend-pilot.deployment-readiness.v1", mode: "disabled", status: "not_configured", checks: [], ci_runner_targets: [], workstation_targets: [], channels: [] },
       go_backend_promotion: { schema_version: "cavra.go-backend-pilot.promotion-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
       go_backend_rollback: { schema_version: "cavra.go-backend-pilot.rollback-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
+      go_backend_rollback_rehearsal: { schema_version: "cavra.go-backend-pilot.rollback-rehearsal.v1", mode: "disabled", status: "not_requested", checks: [], rehearsal: {} },
       operator_notes: ["Connect to the API for full persistent-store and evidence-artifact readiness checks."]
     };
   }
@@ -4038,6 +4040,8 @@ function renderDeploymentReadiness(report) {
   const goDeployment = report.go_backend_deployment || {};
   const goPromotion = report.go_backend_promotion || {};
   const goRollback = report.go_backend_rollback || {};
+  const goRehearsal = report.go_backend_rollback_rehearsal || {};
+  const rehearsalEvidence = Array.isArray(goRehearsal.rehearsal?.evidence_refs) ? goRehearsal.rehearsal.evidence_refs : [];
   panel.innerHTML = `
     <dl>
       <dt>Status</dt><dd class="${report.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(report.status || "needs_attention")}</dd>
@@ -4047,6 +4051,9 @@ function renderDeploymentReadiness(report) {
       <dt>Go deployment</dt><dd class="${goDeployment.status === "ready" || goDeployment.status === "not_configured" ? "allow" : "require_approval"}">${escapeHtml(goDeployment.status || "not_configured")}</dd>
       <dt>Go promotion</dt><dd class="${goPromotion.status === "ready" || goPromotion.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goPromotion.status || "not_requested")}</dd>
       <dt>Go rollback</dt><dd class="${goRollback.status === "ready" || goRollback.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goRollback.status || "not_requested")}</dd>
+      <dt>Rollback rehearsal</dt><dd class="${goRehearsal.status === "ready" || goRehearsal.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goRehearsal.status || "not_requested")}</dd>
+      <dt>Recovery target</dt><dd>${escapeHtml(goRehearsal.rehearsal?.recovery_minutes ? `${goRehearsal.rehearsal.recovery_minutes}m / ${goRehearsal.rehearsal.max_recovery_minutes || "n/a"}m` : "n/a")}</dd>
+      <dt>Rehearsal evidence</dt><dd>${escapeHtml(rehearsalEvidence.join(", ") || "n/a")}</dd>
     </dl>
     <h3>Checks</h3>
     <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.id)}<br><small>${escapeHtml(item.message || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>

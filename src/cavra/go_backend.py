@@ -34,6 +34,7 @@ class GoBackendConfig:
     updater_policy_path: str = ""
     promotion_evidence_path: str = ""
     rollback_plan_path: str = ""
+    rollback_rehearsal_path: str = ""
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -57,6 +58,7 @@ def go_backend_config_from_env() -> GoBackendConfig:
         updater_policy_path=os.environ.get("CAVRA_GO_WORKSTATION_UPDATER_POLICY", ""),
         promotion_evidence_path=os.environ.get("CAVRA_GO_PROMOTION_EVIDENCE", ""),
         rollback_plan_path=os.environ.get("CAVRA_GO_ROLLBACK_PLAN", ""),
+        rollback_rehearsal_path=os.environ.get("CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE", ""),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -329,6 +331,70 @@ def go_rollback_readiness_report(config: GoBackendConfig | None = None) -> dict[
     }
 
 
+def go_rollback_rehearsal_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    rollback = _rollback_plan_summary(config.rollback_plan_path)
+    rehearsal = _rollback_rehearsal_summary(config.rollback_rehearsal_path, rollback)
+    requested = config.mode == GO_BACKEND_PROMOTED or bool(config.rollback_rehearsal_path)
+    checks = [
+        _check(
+            "go_rollback_rehearsal_requested",
+            requested,
+            "Rollback rehearsal evidence is required when CAVRA_GO_BACKEND_MODE=promoted or rehearsal evidence is configured.",
+            mode=config.mode,
+        ),
+        _check(
+            "go_rollback_rehearsal_evidence",
+            rehearsal["valid"],
+            rehearsal["message"],
+            path=config.rollback_rehearsal_path,
+            rehearsal_schema=rehearsal["schema_version"],
+        ),
+        _check(
+            "go_rollback_rehearsal_simulated",
+            rehearsal["simulated"] is True,
+            rehearsal["simulation_message"],
+        ),
+        _check(
+            "go_rollback_rehearsal_fallback_verified",
+            rehearsal["fallback_verified"] is True,
+            rehearsal["fallback_message"],
+        ),
+        _check(
+            "go_rollback_rehearsal_recovery_sla",
+            rehearsal["recovery_sla_met"],
+            rehearsal["recovery_message"],
+            recovery_minutes=rehearsal["recovery_minutes"],
+            max_recovery_minutes=rehearsal["max_recovery_minutes"],
+        ),
+        _check(
+            "go_rollback_rehearsal_evidence_refs",
+            bool(rehearsal["evidence_refs"]),
+            rehearsal["evidence_message"],
+            evidence_refs=rehearsal["evidence_refs"],
+        ),
+    ]
+    if not requested:
+        status = "not_requested"
+    elif all(item["status"] == "pass" for item in checks):
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-rehearsal.v1",
+        "mode": config.mode,
+        "status": status,
+        "rollback_rehearsal_path": config.rollback_rehearsal_path,
+        "checks": checks,
+        "rehearsal": rehearsal,
+        "operator_notes": [
+            "Run rollback rehearsals outside the console and attach public-safe evidence metadata here.",
+            "Rehearsals must prove that promoted mode can return to Python-only mode within the approved recovery target.",
+            "Do not include secrets, customer data, or private endpoint scripts in rehearsal evidence.",
+        ],
+    }
+
+
 def evaluate_with_go_pilot(
     request: dict[str, Any],
     *,
@@ -372,6 +438,15 @@ def evaluate_with_go_pilot(
             result["readiness"] = readiness
             result["promotion_readiness"] = promotion
             result["rollback_readiness"] = rollback
+            return result
+        rehearsal = go_rollback_rehearsal_report(config)
+        if rehearsal["status"] != "ready":
+            result["fallback_used"] = True
+            result["fallback_reason"] = "go backend rollback rehearsal check failed"
+            result["readiness"] = readiness
+            result["promotion_readiness"] = promotion
+            result["rollback_readiness"] = rollback
+            result["rollback_rehearsal"] = rehearsal
             return result
     try:
         go_decision = _run_go_runtime(request, config)
@@ -665,6 +740,91 @@ def _rollback_plan_summary(path_value: str) -> dict[str, Any]:
         "rollback_steps": rollback_steps if steps_valid else [],
         "max_recovery_minutes": max_recovery if max_recovery_valid else None,
     }
+
+
+def _rollback_rehearsal_summary(path_value: str, rollback: dict[str, Any]) -> dict[str, Any]:
+    check = _read_json_check(Path(path_value) if path_value else None)
+    if not check.valid:
+        return {
+            "valid": False,
+            "schema_version": "",
+            "status": "",
+            "plan_approval_id": "",
+            "simulated": False,
+            "fallback_verified": False,
+            "recovery_sla_met": False,
+            "recovery_minutes": None,
+            "max_recovery_minutes": rollback.get("max_recovery_minutes"),
+            "evidence_refs": [],
+            "runbook_ref": "",
+            "message": check.message,
+            "simulation_message": "rollback rehearsal evidence is missing or invalid",
+            "fallback_message": "rollback rehearsal must verify Python fallback restoration",
+            "recovery_message": "rollback rehearsal must record recovery_minutes within max_recovery_minutes",
+            "evidence_message": "rollback rehearsal must include evidence_refs",
+        }
+    payload = check.payload
+    schema = str(payload.get("schema_version", ""))
+    status = str(payload.get("status", ""))
+    plan_approval_id = str(payload.get("plan_approval_id") or payload.get("approval_id") or "")
+    simulated = payload.get("simulated") is True
+    fallback_verified = payload.get("fallback_verified") is True
+    recovery_minutes = payload.get("recovery_minutes")
+    rehearsal_max_recovery = payload.get("max_recovery_minutes")
+    plan_max_recovery = rollback.get("max_recovery_minutes")
+    max_recovery = rehearsal_max_recovery if _positive_number(rehearsal_max_recovery) else plan_max_recovery
+    evidence_refs = payload.get("evidence_refs", [])
+    refs_valid = isinstance(evidence_refs, list) and all(isinstance(item, str) for item in evidence_refs)
+    runbook_ref = str(payload.get("runbook_ref", ""))
+    recovery_valid = _positive_number(recovery_minutes)
+    max_recovery_valid = _positive_number(max_recovery)
+    recovery_sla_met = bool(recovery_valid and max_recovery_valid and recovery_minutes <= max_recovery)
+    rollback_approval_id = str(rollback.get("approval_id", ""))
+    approval_matches = not rollback_approval_id or plan_approval_id == rollback_approval_id
+    valid = (
+        schema == "cavra.go-backend-rollback-rehearsal.v1"
+        and status == "pass"
+        and simulated
+        and fallback_verified
+        and recovery_sla_met
+        and refs_valid
+        and bool(evidence_refs)
+        and bool(runbook_ref)
+        and approval_matches
+    )
+    messages = []
+    if schema != "cavra.go-backend-rollback-rehearsal.v1":
+        messages.append("rollback rehearsal evidence has an invalid schema_version")
+    if status != "pass":
+        messages.append("rollback rehearsal evidence must record status=pass")
+    if not bool(runbook_ref):
+        messages.append("rollback rehearsal evidence must include runbook_ref")
+    if not refs_valid or not evidence_refs:
+        messages.append("rollback rehearsal evidence_refs must be a non-empty list of strings")
+    if not approval_matches:
+        messages.append("rollback rehearsal plan_approval_id must match the rollback plan approval_id")
+    return {
+        "valid": valid,
+        "schema_version": schema,
+        "status": status,
+        "plan_approval_id": plan_approval_id,
+        "simulated": simulated,
+        "fallback_verified": fallback_verified,
+        "recovery_sla_met": recovery_sla_met,
+        "recovery_minutes": recovery_minutes if recovery_valid else None,
+        "max_recovery_minutes": max_recovery if max_recovery_valid else None,
+        "evidence_refs": evidence_refs if refs_valid else [],
+        "runbook_ref": runbook_ref,
+        "message": "; ".join(messages) if messages else "Rollback rehearsal evidence proves Python fallback restoration within the approved recovery target.",
+        "simulation_message": "Rollback rehearsal was simulated." if simulated else "rollback rehearsal must be marked simulated=true",
+        "fallback_message": "Python fallback restoration was verified." if fallback_verified else "rollback rehearsal must verify Python fallback restoration",
+        "recovery_message": "Recovery target was met." if recovery_sla_met else "rollback rehearsal recovery_minutes must be positive and less than or equal to max_recovery_minutes",
+        "evidence_message": "Rollback rehearsal evidence references are recorded." if refs_valid and evidence_refs else "rollback rehearsal must include evidence_refs",
+    }
+
+
+def _positive_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
 
 
 def _ci_runner_summary(ci_payload: dict[str, Any], endpoint_payload: dict[str, Any]) -> dict[str, Any]:

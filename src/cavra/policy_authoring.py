@@ -213,6 +213,7 @@ def production_readiness_report(
     go_deployment_readiness: dict[str, Any] | None = None,
     go_promotion_readiness: dict[str, Any] | None = None,
     go_rollback_readiness: dict[str, Any] | None = None,
+    go_rollback_rehearsal: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     stores = store_status.get("items", []) if isinstance(store_status, dict) else []
     missing_stores = [item.get("name") for item in stores if not item.get("exists")]
@@ -225,6 +226,7 @@ def production_readiness_report(
     )
     go_promotion_status = (go_promotion_readiness or {}).get("status", "not_requested")
     go_rollback_status = (go_rollback_readiness or {}).get("status", "not_requested")
+    go_rehearsal_status = (go_rollback_rehearsal or {}).get("status", "not_requested")
     checks = [
         _check("oidc_configured", oidc_configured, "Console and approval actions validate signed OIDC tokens."),
         _check("rbac_configured", rbac_configured, "Repository-scoped RBAC policy is configured."),
@@ -260,6 +262,13 @@ def production_readiness_report(
             mode=go_backend_mode,
             go_rollback_status=go_rollback_status,
         ),
+        _check(
+            "go_backend_rollback_rehearsal",
+            go_rehearsal_status in {"not_requested", "ready"},
+            "Promoted Go backend mode requires rollback rehearsal evidence and dashboard visibility.",
+            mode=go_backend_mode,
+            go_rollback_rehearsal_status=go_rehearsal_status,
+        ),
     ]
     return {
         "schema_version": "cavra.deployment.production_readiness.v1",
@@ -293,6 +302,13 @@ def production_readiness_report(
         "go_backend_rollback": go_rollback_readiness
         or {
             "schema_version": "cavra.go-backend-pilot.rollback-readiness.v1",
+            "mode": "disabled",
+            "status": "not_requested",
+            "checks": [],
+        },
+        "go_backend_rollback_rehearsal": go_rollback_rehearsal
+        or {
+            "schema_version": "cavra.go-backend-pilot.rollback-rehearsal.v1",
             "mode": "disabled",
             "status": "not_requested",
             "checks": [],

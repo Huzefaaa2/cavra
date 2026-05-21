@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
