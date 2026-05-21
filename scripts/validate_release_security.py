@@ -32,6 +32,7 @@ REQUIRED_TEXT = {
         "offline-trust-root-bootstrap.json",
         "cavra-runtime.installers.json",
         "cavra-runtime.endpoint-deployment.json",
+        "cavra-runtime.ci-runner-bundles.json",
     ],
     "src/cavra/release.py": [
         "verify_go_release_provenance",
@@ -39,6 +40,7 @@ REQUIRED_TEXT = {
         "validate_go_release_upgrade",
         "verify_go_installer_metadata",
         "verify_managed_endpoint_deployment",
+        "verify_go_ci_runner_bundles",
         "capture_managed_endpoint_rollout_evidence",
         "verify_managed_endpoint_rollout_evidence",
         "smoke_test_go_installers",

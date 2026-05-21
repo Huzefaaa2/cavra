@@ -1,0 +1,45 @@
+name: CAVRA Release Governance Go Runtime
+description: Validate a typed CAVRA release-governance request through the packaged Go runtime daemon.
+inputs:
+  runtime-path:
+    description: Path to the verified cavra-runtime binary.
+    required: false
+    default: cavra-runtime
+  request-path:
+    description: Path to the typed release-governance EvaluateRequest JSON file.
+    required: true
+  expected-decision:
+    description: Expected CAVRA decision.
+    required: false
+    default: allow
+  expected-rule-id:
+    description: Expected CAVRA rule ID.
+    required: false
+    default: ""
+  allow-blocking-decision:
+    description: Allow a block decision to be reported without failing this action.
+    required: false
+    default: "false"
+  evidence-dir:
+    description: Directory for daemon request, response, and evidence artifacts.
+    required: false
+    default: .cavra/go-daemon
+runs:
+  using: composite
+  steps:
+    - name: Validate release governance request
+      shell: bash
+      env:
+        CAVRA_RUNTIME_PATH: ${{ inputs.runtime-path }}
+        CAVRA_RELEASE_GOVERNANCE_REQUEST: ${{ inputs.request-path }}
+        CAVRA_EXPECTED_DECISION: ${{ inputs.expected-decision }}
+        CAVRA_EXPECTED_RULE_ID: ${{ inputs.expected-rule-id }}
+        CAVRA_ALLOW_BLOCKING_DECISION: ${{ inputs.allow-blocking-decision }}
+        CAVRA_RELEASE_GOVERNANCE_EVIDENCE_DIR: ${{ inputs.evidence-dir }}
+      run: |
+        set -euo pipefail
+        runner="${GITHUB_ACTION_PATH}/../cavra-release-governance-runner.sh"
+        if [ ! -f "${runner}" ]; then
+          runner="${GITHUB_ACTION_PATH}/../../../ci-runners/cavra-release-governance-runner.sh"
+        fi
+        "${runner}"

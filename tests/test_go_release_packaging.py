@@ -150,12 +150,16 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     bootstrap = json.loads((dist / "offline-trust-root-bootstrap.json").read_text(encoding="utf-8"))
     installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
     endpoint_deployment = json.loads((dist / "cavra-runtime.endpoint-deployment.json").read_text(encoding="utf-8"))
+    ci_runner_bundles = json.loads((dist / "cavra-runtime.ci-runner-bundles.json").read_text(encoding="utf-8"))
     channels = json.loads((dist / "cavra-runtime.channels.json").read_text(encoding="utf-8"))
     updater_policy = json.loads((dist / "cavra-runtime.updater-policy.json").read_text(encoding="utf-8"))
     summary = (dist / "release-evidence.md").read_text(encoding="utf-8")
 
     assert "bin/cavra-runtime_test_linux_amd64" in checksums
     assert "cavra-runtime.endpoint-deployment.json" in checksums
+    assert "cavra-runtime.ci-runner-bundles.json" in checksums
+    assert "ci-runners/cavra-release-governance-runner.sh" in checksums
+    assert "ci-runners/github-action/action.yml" in checksums
     assert "cavra-runtime.installers.json" in checksums
     assert "cavra-runtime.channels.json" in checksums
     assert "cavra-runtime.updater-policy.json" in checksums
@@ -184,6 +188,29 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
         "cavra release smoke-installers" in command
         for command in endpoint_deployment["deployment_targets"][0]["verification_commands"]
     )
+    assert ci_runner_bundles["schema_version"] == "cavra.go-runtime.ci-runner-bundles.v1"
+    assert ci_runner_bundles["source_metadata"] == "cavra-runtime.endpoint-deployment.json"
+    assert ci_runner_bundles["runner_script"]["path"] == "ci-runners/cavra-release-governance-runner.sh"
+    assert ci_runner_bundles["github_action"]["path"] == "ci-runners/github-action/action.yml"
+    assert {bundle["platform"] for bundle in ci_runner_bundles["runner_bundles"]} == {
+        "GitHub Actions",
+        "GitLab CI",
+        "Azure Pipelines",
+    }
+    assert {bundle["deployment_target"] for bundle in ci_runner_bundles["runner_bundles"]} == {
+        "github-actions-linux-amd64-runner",
+        "gitlab-linux-amd64-runner",
+        "azure-linux-amd64-runner",
+    }
+    assert all(
+        bundle["runtime_binary"] == "bin/cavra-runtime_test_linux_amd64"
+        for bundle in ci_runner_bundles["runner_bundles"]
+    )
+    assert any(
+        "gh attestation verify" in command
+        for bundle in ci_runner_bundles["runner_bundles"]
+        for command in bundle["verification_commands"]
+    )
     assert channels["schema_version"] == "cavra.go-runtime.channels.v1"
     assert channels["updater_policy"] == "cavra-runtime.updater-policy.json"
     assert channels["channels"][0]["auto_update"] is False
@@ -198,6 +225,8 @@ def test_go_release_packaging_creates_sbom_checksums_and_evidence(tmp_path: Path
     assert {artifact["kind"] for artifact in evidence["artifacts"]} >= {
         "go-binary",
         "managed-endpoint-deployment",
+        "ci-runner-bundles",
+        "ci-runner-wrapper",
         "installer-metadata",
         "release-channel-manifest",
         "updater-policy",
@@ -251,6 +280,13 @@ def test_go_release_verifier_accepts_signed_package_and_rejects_tampering(tmp_pa
     assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_artifacts
     assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_provenance
     assert "cavra-runtime.endpoint-deployment.json" in valid_result.verified_signatures
+    assert "cavra-runtime.ci-runner-bundles.json" in valid_result.verified_artifacts
+    assert "cavra-runtime.ci-runner-bundles.json" in valid_result.verified_provenance
+    assert "cavra-runtime.ci-runner-bundles.json" in valid_result.verified_signatures
+    assert "ci-runners/cavra-release-governance-runner.sh" in valid_result.verified_artifacts
+    assert "ci-runners/cavra-release-governance-runner.sh" in valid_result.verified_signatures
+    assert "ci-runners/github-action/action.yml" in valid_result.verified_artifacts
+    assert "ci-runners/github-action/action.yml" in valid_result.verified_signatures
     assert "cavra-runtime.installers.json" in valid_result.verified_artifacts
     assert "cavra-runtime.installers.json" in valid_result.verified_provenance
     assert "cavra-runtime.installers.json" in valid_result.verified_signatures
@@ -308,6 +344,20 @@ def test_go_release_verifier_rejects_missing_endpoint_deployment_metadata(tmp_pa
     invalid_result = verify_go_release_package(dist)
     assert not invalid_result.valid
     assert any("missing cavra-runtime.endpoint-deployment.json" in error for error in invalid_result.errors)
+
+
+def test_go_release_verifier_rejects_missing_ci_runner_bundle_metadata(tmp_path: Path, monkeypatch) -> None:
+    private_key = tmp_path / "keys" / "private.pem"
+    public_key = tmp_path / "keys" / "public.pem"
+    generate_ed25519_keypair(private_key, public_key)
+    monkeypatch.setenv("CAVRA_GO_RELEASE_SIGNING_KEY", private_key.read_text(encoding="utf-8"))
+    dist = _package_go_runtime(tmp_path, "v0.1.0-test", "abc123")
+
+    (dist / "cavra-runtime.ci-runner-bundles.json").unlink()
+
+    invalid_result = verify_go_release_package(dist)
+    assert not invalid_result.valid
+    assert any("missing cavra-runtime.ci-runner-bundles.json" in error for error in invalid_result.errors)
 
 
 def test_go_release_verifier_rejects_missing_channel_and_updater_policy(tmp_path: Path, monkeypatch) -> None:

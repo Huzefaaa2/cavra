@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is signed CI runner binary packaging and reusable runner actions for typed release-governance enforcement requests.
+The next recommended step is runner authentication and signed streaming evidence for release governance daemon checks.

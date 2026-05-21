@@ -5,6 +5,7 @@ import base64
 import hashlib
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -74,6 +75,12 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     endpoint_deployment = dist / "cavra-runtime.endpoint-deployment.json"
     if endpoint_deployment.exists():
         artifacts.append(_artifact(dist, endpoint_deployment, "managed-endpoint-deployment"))
+    ci_runner_bundles = dist / "cavra-runtime.ci-runner-bundles.json"
+    if ci_runner_bundles.exists():
+        artifacts.append(_artifact(dist, ci_runner_bundles, "ci-runner-bundles"))
+    for path in sorted((dist / "ci-runners").glob("**/*")):
+        if path.is_file():
+            artifacts.append(_artifact(dist, path, "ci-runner-wrapper"))
     channels = dist / "cavra-runtime.channels.json"
     if channels.exists():
         artifacts.append(_artifact(dist, channels, "release-channel-manifest"))
@@ -184,6 +191,7 @@ def write_offline_trust_bootstrap(
             "required_files": [
                 "checksums.txt",
                 "cavra-runtime.endpoint-deployment.json",
+                "cavra-runtime.ci-runner-bundles.json",
                 "cavra-runtime.installers.json",
                 "cavra-runtime.channels.json",
                 "cavra-runtime.updater-policy.json",
@@ -256,6 +264,142 @@ def write_installer_metadata(dist: Path, *, version: str, commit: str, repositor
             ],
         },
     )
+
+
+def write_ci_runner_bundle_metadata(dist: Path, *, version: str, commit: str, repository: str, repo_root: Path) -> Path:
+    generated_at = datetime.now(timezone.utc).isoformat()
+    wrappers_dir = dist / "ci-runners"
+    github_action_dir = wrappers_dir / "github-action"
+    wrappers_dir.mkdir(parents=True, exist_ok=True)
+    github_action_dir.mkdir(parents=True, exist_ok=True)
+
+    runner_source = repo_root / "examples" / "ci-runners" / "cavra-release-governance-runner.sh"
+    action_source = (
+        repo_root
+        / "examples"
+        / "github-actions"
+        / "actions"
+        / "cavra-release-governance-go-runtime"
+        / "action.yml"
+    )
+    runner_script = wrappers_dir / "cavra-release-governance-runner.sh"
+    github_action = github_action_dir / "action.yml"
+    shutil.copy2(runner_source, runner_script)
+    shutil.copy2(action_source, github_action)
+    runner_script.chmod(0o755)
+
+    installers = json.loads((dist / "cavra-runtime.installers.json").read_text(encoding="utf-8"))
+    linux_amd64 = next(
+        (
+            target
+            for target in installers.get("targets", [])
+            if isinstance(target, dict) and target.get("target") == "linux/amd64"
+        ),
+        {},
+    )
+    runtime_binary = str(linux_amd64.get("binary", "bin/cavra-runtime_<version>_linux_amd64"))
+    runtime_binary_sha256 = str(linux_amd64.get("binary_sha256", ""))
+
+    return write_json(
+        dist / "cavra-runtime.ci-runner-bundles.json",
+        {
+            "schema_version": "cavra.go-runtime.ci-runner-bundles.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "repository": repository,
+            "generated_at": generated_at,
+            "source_metadata": "cavra-runtime.endpoint-deployment.json",
+            "runner_script": {
+                "path": "ci-runners/cavra-release-governance-runner.sh",
+                "sha256": sha256_file(runner_script),
+                "required_environment": [
+                    "CAVRA_RUNTIME_PATH",
+                    "CAVRA_RELEASE_GOVERNANCE_REQUEST",
+                    "CAVRA_EXPECTED_DECISION",
+                    "CAVRA_EXPECTED_RULE_ID",
+                    "CAVRA_RELEASE_GOVERNANCE_EVIDENCE_DIR",
+                ],
+            },
+            "github_action": {
+                "path": "ci-runners/github-action/action.yml",
+                "sha256": sha256_file(github_action),
+            },
+            "runner_bundles": [
+                _ci_runner_bundle(
+                    platform="GitHub Actions",
+                    target_id="github-actions-linux-amd64-runner",
+                    binary=runtime_binary,
+                    binary_sha256=runtime_binary_sha256,
+                    reusable_wrapper="ci-runners/github-action/action.yml",
+                    invocation="uses: ./ci-runners/github-action",
+                ),
+                _ci_runner_bundle(
+                    platform="GitLab CI",
+                    target_id="gitlab-linux-amd64-runner",
+                    binary=runtime_binary,
+                    binary_sha256=runtime_binary_sha256,
+                    reusable_wrapper="ci-runners/cavra-release-governance-runner.sh",
+                    invocation="bash ci-runners/cavra-release-governance-runner.sh",
+                ),
+                _ci_runner_bundle(
+                    platform="Azure Pipelines",
+                    target_id="azure-linux-amd64-runner",
+                    binary=runtime_binary,
+                    binary_sha256=runtime_binary_sha256,
+                    reusable_wrapper="ci-runners/cavra-release-governance-runner.sh",
+                    invocation="bash ci-runners/cavra-release-governance-runner.sh",
+                ),
+            ],
+            "controls": [
+                "verified-signed-runtime-before-runner-use",
+                "typed-release-governance-request-required",
+                "daemon-evidence-artifacts-published",
+                "blocking-decision-fails-closed-by-default",
+                "runner-wrapper-included-in-signed-release-package",
+            ],
+            "operator_steps": [
+                "Verify the Go runtime release package before copying the runtime binary or runner wrappers into CI.",
+                "Install only the signed runtime binary referenced by this manifest for the runner operating system and architecture.",
+                "Set CAVRA_RELEASE_GOVERNANCE_REQUEST to a reviewed typed release-governance request JSON file.",
+                "Publish the daemon evidence directory as a CI artifact for audit and release change records.",
+            ],
+        },
+    )
+
+
+def _ci_runner_bundle(
+    *,
+    platform: str,
+    target_id: str,
+    binary: str,
+    binary_sha256: str,
+    reusable_wrapper: str,
+    invocation: str,
+) -> dict[str, Any]:
+    return {
+        "platform": platform,
+        "deployment_target": target_id,
+        "runner_os": "linux",
+        "runner_arch": "amd64",
+        "runtime_binary": binary,
+        "runtime_binary_sha256": binary_sha256,
+        "runtime_path": "./cavra-runtime",
+        "reusable_wrapper": reusable_wrapper,
+        "invocation": invocation,
+        "default_request": "examples/go-runtime/typed-release-governance/approved-promotion.json",
+        "evidence_dir": ".cavra/go-daemon",
+        "verification_commands": [
+            "cavra release verify-go-package .",
+            "sha256sum -c checksums.txt",
+            "gh attestation verify cavra-go-runtime-<version>.zip --repo Huzefaaa2/cavra",
+        ],
+        "required_outputs": [
+            ".cavra/go-daemon/release-governance-response.json",
+            ".cavra/go-daemon/release-governance-evidence.jsonl",
+        ],
+    }
 
 
 def write_managed_endpoint_deployment(dist: Path, *, version: str, commit: str, repository: str) -> Path:
@@ -739,6 +883,7 @@ def write_evidence(
             "ed25519-detached-signatures",
             "signed-installer-metadata",
             "managed-endpoint-deployment-manifests",
+            "signed-ci-runner-bundles",
             "release-channel-manifests",
             "managed-workstation-updater-policy",
             "release-evidence-manifest",
@@ -783,6 +928,13 @@ def package_release(args: argparse.Namespace) -> None:
     write_spdx_sbom(dist, args.version, args.commit, modules)
     write_installer_metadata(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_managed_endpoint_deployment(dist, version=args.version, commit=args.commit, repository=args.repository)
+    write_ci_runner_bundle_metadata(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        repository=args.repository,
+        repo_root=Path(args.repo_root).resolve(),
+    )
     write_release_channels_and_updater_policy(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_offline_trust_bootstrap(
         dist,
@@ -856,6 +1008,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--signer", default="github-actions")
     parser.add_argument("--key-id", default="cavra-go-release")
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", "Huzefaaa2/cavra"))
+    parser.add_argument("--repo-root", default=os.environ.get("GITHUB_WORKSPACE", "."))
     parser.add_argument("--workflow-ref", default=os.environ.get("GITHUB_WORKFLOW_REF", ""))
     parser.add_argument("--run-id", default=os.environ.get("GITHUB_RUN_ID", "local"))
     parser.add_argument("--run-attempt", default=os.environ.get("GITHUB_RUN_ATTEMPT", ""))

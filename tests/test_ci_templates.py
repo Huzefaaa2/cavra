@@ -112,6 +112,32 @@ def test_github_release_governance_go_runtime_template_uses_typed_daemon_request
     assert "cavra-release-governance-go-runtime" in text
 
 
+def test_github_release_governance_composite_action_uses_packaged_runner_wrapper() -> None:
+    action_path = "examples/github-actions/actions/cavra-release-governance-go-runtime/action.yml"
+    action = _load_yaml(action_path)
+    text = Path(action_path).read_text(encoding="utf-8")
+
+    assert action["runs"]["using"] == "composite"
+    assert "runtime-path" in action["inputs"]
+    assert "request-path" in action["inputs"]
+    assert "expected-decision" in action["inputs"]
+    assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "cavra-release-governance-runner.sh" in text
+
+
+def test_release_governance_runner_wrapper_runs_daemon_and_fails_closed() -> None:
+    script_path = "examples/ci-runners/cavra-release-governance-runner.sh"
+    text = Path(script_path).read_text(encoding="utf-8")
+
+    assert "CAVRA_RUNTIME_PATH" in text
+    assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "--lifecycle start" in text
+    assert "--daemon" in text
+    assert "release-governance-evidence.jsonl" in text
+    assert "release-governance-response.json" in text
+    assert "CAVRA blocked release governance request" in text
+
+
 def test_gitlab_required_check_template_parses_and_exports_artifacts() -> None:
     pipeline_path = "examples/gitlab-ci/cavra-required-check.gitlab-ci.yml"
     pipeline = _load_yaml(pipeline_path)

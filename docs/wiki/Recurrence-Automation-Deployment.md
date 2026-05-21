@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+Add runner authentication and signed streaming evidence for release governance daemon checks.

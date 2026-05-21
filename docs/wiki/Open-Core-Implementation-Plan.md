@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
+Add runner authentication and signed streaming evidence for release governance daemon checks.
