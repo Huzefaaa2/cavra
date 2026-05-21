@@ -68,6 +68,15 @@ def test_runtime_go_pilot_readiness_cli_reports_disabled() -> None:
     assert payload["status"] == "disabled"
 
 
+def test_runtime_go_deployment_readiness_cli_reports_not_configured() -> None:
+    result = runner.invoke(app, ["runtime", "go-deployment-readiness", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.go-backend-pilot.deployment-readiness.v1"
+    assert payload["status"] == "not_configured"
+
+
 def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
     event = tmp_path / "event.json"
     config = tmp_path / "connectors.json"

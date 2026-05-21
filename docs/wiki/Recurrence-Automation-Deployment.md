@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add deployment readiness checks for Go backend CI runner and workstation paths.
+Promote Go to an optional backend only after audited parity and deployment tests pass.

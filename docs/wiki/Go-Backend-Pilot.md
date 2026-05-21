@@ -74,6 +74,8 @@ curl -X POST http://127.0.0.1:8000/runtime/go-pilot/evaluate \
 
 Production readiness now includes a `go_backend_pilot` section and a `go_backend_pilot` check. A disabled pilot is acceptable. An enabled pilot must have a runtime binary, compiled policy file, optional registry file if configured, Python fallback, and parity gate.
 
+Deployment readiness is reported separately under `go_backend_deployment`. It validates CI runner bundle metadata, workstation channel manifests, and updater policy before a Go pilot is promoted into runner or workstation rollout paths.
+
 ## User Stories
 
 - As a platform owner, I can test the Go backend in shadow mode without changing the effective policy decision.
@@ -87,4 +89,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add deployment readiness checks for Go backend CI runner and workstation paths.
+The next recommended implementation step is to promote Go to an optional backend only after audited parity and deployment tests pass.

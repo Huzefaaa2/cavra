@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import textwrap
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from cavra.go_backend import (
     evaluate_with_go_pilot,
     go_backend_config_from_env,
     go_backend_readiness_report,
+    go_deployment_readiness_report,
 )
 
 
@@ -90,6 +92,33 @@ def test_go_backend_falls_back_when_go_diverges(tmp_path: Path) -> None:
     assert result["effective_decision"]["decision"] == "allow"
 
 
+def test_go_deployment_readiness_reports_not_configured_when_disabled() -> None:
+    report = go_deployment_readiness_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_configured"
+    assert next(item for item in report["checks"] if item["id"] == "go_deployment_metadata_configured")["status"] == "pass"
+
+
+def test_go_deployment_readiness_requires_metadata_when_enabled() -> None:
+    report = go_deployment_readiness_report(GoBackendConfig(mode=GO_BACKEND_SHADOW))
+
+    assert report["status"] == "needs_attention"
+    assert next(item for item in report["checks"] if item["id"] == "go_deployment_metadata_configured")["status"] == "warn"
+
+
+def test_go_deployment_readiness_accepts_ci_runner_and_workstation_metadata(tmp_path: Path) -> None:
+    _write_deployment_metadata(tmp_path)
+
+    report = go_deployment_readiness_report(
+        GoBackendConfig(mode=GO_BACKEND_SHADOW, package_dir=str(tmp_path))
+    )
+
+    assert report["status"] == "ready"
+    assert report["ci_runner_targets"][0]["deployment_target"] == "github-actions-linux-amd64-runner"
+    assert report["workstation_targets"][0]["deployment_target"] == "linux-systemd-amd64-workstation"
+    assert report["channels"] == ["stable"]
+
+
 def _fake_go_runtime(tmp_path: Path, *, decision: str, rule_id: str, severity: str) -> Path:
     path = tmp_path / "fake-cavra-runtime"
     path.write_text(
@@ -117,3 +146,91 @@ def _fake_go_runtime(tmp_path: Path, *, decision: str, rule_id: str, severity: s
     )
     path.chmod(0o755)
     return path
+
+
+def _write_deployment_metadata(path: Path) -> None:
+    (path / "cavra-runtime.endpoint-deployment.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-runtime.endpoint-deployment.v1",
+                "deployment_targets": [
+                    {
+                        "id": "github-actions-linux-amd64-runner",
+                        "surface": "ci-runner",
+                        "platform": "linux/amd64",
+                        "binary": "bin/cavra-runtime_linux_amd64",
+                    },
+                    {
+                        "id": "linux-systemd-amd64-workstation",
+                        "surface": "workstation",
+                        "platform": "linux/amd64",
+                        "binary": "bin/cavra-runtime_linux_amd64",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (path / "cavra-runtime.ci-runner-bundles.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-runtime.ci-runner-bundles.v1",
+                "source_metadata": "cavra-runtime.endpoint-deployment.json",
+                "controls": [
+                    "verified-signed-runtime-before-runner-use",
+                    "runner-authentication-claims-signed",
+                    "runner-authentication-oidc-verified",
+                    "daemon-evidence-stream-hmac-signed",
+                    "evidence-verification-artifact-published",
+                    "blocking-decision-fails-closed-by-default",
+                ],
+                "runner_bundles": [
+                    {
+                        "platform": "GitHub Actions",
+                        "deployment_target": "github-actions-linux-amd64-runner",
+                        "runtime_binary": "bin/cavra-runtime_linux_amd64",
+                        "required_outputs": [
+                            ".cavra/go-daemon/release-governance-evidence-verification.json"
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (path / "cavra-runtime.channels.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-runtime.channels.v1",
+                "source_metadata": "cavra-runtime.endpoint-deployment.json",
+                "channels": [
+                    {
+                        "channel": "stable",
+                        "auto_update": False,
+                        "approval_required": True,
+                        "workstation_targets": [
+                            {
+                                "id": "linux-systemd-amd64-workstation",
+                                "platform": "linux/amd64",
+                                "deployment_channel": "stable",
+                                "management_tool": "linux",
+                                "binary": "bin/cavra-runtime_linux_amd64",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (path / "cavra-runtime.updater-policy.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-runtime.updater-policy.v1",
+                "source_channel_manifest": "cavra-runtime.channels.json",
+                "default_auto_update": False,
+                "policies": [{"channel": "stable", "auto_update": False, "approval_required": True}],
+            }
+        ),
+        encoding="utf-8",
+    )

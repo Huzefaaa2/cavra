@@ -56,6 +56,10 @@ See `docs/diagrams/high-risk-command-cloud-iac-parity.svg` for the shared fixtur
 
 See `docs/diagrams/go-backend-pilot.svg` for the guarded backend-selection flow from operator opt-in through Python evaluation, Go comparison, parity gate, fallback, and readiness evidence.
 
+## Go Backend Deployment Readiness
+
+See `docs/diagrams/go-backend-deployment-readiness.svg` for the CI runner and workstation readiness path that checks release metadata before Go backend promotion.
+
 ## SVG Images
 
 Repository diagram images:
@@ -71,6 +75,7 @@ Repository diagram images:
 - `docs/diagrams/release-signing-operations.svg`
 - `docs/diagrams/high-risk-command-cloud-iac-parity.svg`
 - `docs/diagrams/go-backend-pilot.svg`
+- `docs/diagrams/go-backend-deployment-readiness.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

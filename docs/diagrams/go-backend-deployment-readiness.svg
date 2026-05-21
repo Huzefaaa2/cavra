@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go backend deployment readiness</title>
+  <desc id="desc">Deployment readiness flow for Go backend CI runner and workstation paths.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071216"/>
+      <stop offset="1" stop-color="#10252b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6ee7c2"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #f5fbff; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b9cbd2; }
+      .label { font: 700 19px Arial, sans-serif; fill: #f5fbff; }
+      .body { font: 400 15px Arial, sans-serif; fill: #cbd8dd; }
+      .small { font: 700 13px Arial, sans-serif; fill: #071216; }
+      .box { fill: #122126; stroke: #6ee7c2; stroke-width: 2; rx: 10; }
+      .gold { fill: #211d15; stroke: #f6c15a; stroke-width: 2; rx: 10; }
+      .blue { fill: #101f2f; stroke: #66c7ff; stroke-width: 2; rx: 10; }
+      .arrow { stroke: #6ee7c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="60" y="62" class="title">Go Backend Deployment Readiness</text>
+  <text x="60" y="92" class="subtitle">CI runners and workstation paths are checked before the opt-in Go backend is promoted.</text>
+
+  <rect x="70" y="150" width="260" height="145" class="gold"/>
+  <text x="94" y="184" class="label">Verified Release Package</text>
+  <text x="94" y="218" class="body">endpoint deployment manifest</text>
+  <text x="94" y="242" class="body">CI runner bundle metadata</text>
+  <text x="94" y="266" class="body">channels and updater policy</text>
+
+  <rect x="420" y="95" width="270" height="155" class="box"/>
+  <text x="444" y="129" class="label">CI Runner Path</text>
+  <text x="444" y="163" class="body">runner target surface</text>
+  <text x="444" y="187" class="body">signed runtime verification</text>
+  <text x="444" y="211" class="body">auth and evidence controls</text>
+  <text x="444" y="235" class="body">fail-closed behavior</text>
+
+  <rect x="420" y="360" width="270" height="155" class="box"/>
+  <text x="444" y="394" class="label">Workstation Path</text>
+  <text x="444" y="428" class="body">approval-bound channels</text>
+  <text x="444" y="452" class="body">auto update disabled</text>
+  <text x="444" y="476" class="body">managed target guidance</text>
+  <text x="444" y="500" class="body">updater policy alignment</text>
+
+  <rect x="780" y="225" width="245" height="150" class="blue"/>
+  <text x="804" y="259" class="label">Readiness Report</text>
+  <text x="804" y="293" class="body">not_configured</text>
+  <text x="804" y="317" class="body">needs_attention</text>
+  <text x="804" y="341" class="body">ready</text>
+  <text x="804" y="365" class="body">operator notes</text>
+
+  <rect x="1060" y="225" width="170" height="150" class="gold"/>
+  <text x="1080" y="259" class="label">Promotion Gate</text>
+  <text x="1080" y="293" class="body">API</text>
+  <text x="1080" y="317" class="body">CLI</text>
+  <text x="1080" y="341" class="body">console</text>
+  <text x="1080" y="365" class="body">release evidence</text>
+
+  <path d="M330 222 C370 222 380 172 420 172" class="arrow"/>
+  <path d="M330 222 C370 222 380 438 420 438" class="arrow"/>
+  <path d="M690 172 C745 172 748 298 780 298" class="arrow"/>
+  <path d="M690 438 C745 438 748 298 780 298" class="arrow"/>
+  <path d="M1025 300 L1060 300" class="arrow"/>
+
+  <rect x="70" y="590" width="1150" height="64" fill="#6ee7c2" rx="10"/>
+  <text x="96" y="626" class="small">Production rule: Go backend promotion requires ready runner and workstation deployment paths, not only local runtime parity.</text>
+</svg>
