@@ -1506,8 +1506,10 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert response.json()["schema_version"] == "cavra.deployment.production_readiness.v1"
     assert any(item["id"] == "cors_restricted" for item in response.json()["checks"])
     assert response.json()["go_backend_pilot"]["status"] == "disabled"
+    assert response.json()["go_backend_deployment"]["status"] == "not_configured"
     assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
     assert config["endpoints"]["go_backend_readiness"] == "/runtime/go-pilot/readiness"
+    assert config["endpoints"]["go_deployment_readiness"] == "/runtime/go-pilot/deployment-readiness"
 
 
 def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
@@ -1528,6 +1530,21 @@ def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) ->
     assert evaluation.json()["selected_backend"] == "python"
     assert evaluation.json()["fallback_used"] is True
     assert evaluation.json()["effective_decision"]["decision"] == "allow"
+
+
+def test_api_go_backend_deployment_readiness(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_GO_BACKEND_MODE", "shadow")
+    monkeypatch.setenv("CAVRA_GO_RUNTIME_PACKAGE_DIR", str(tmp_path / "missing-package"))
+    client = TestClient(create_app())
+
+    readiness = client.get("/runtime/go-pilot/deployment-readiness")
+    production = client.get("/deployment/production-readiness")
+
+    assert readiness.status_code == 200
+    assert readiness.json()["schema_version"] == "cavra.go-backend-pilot.deployment-readiness.v1"
+    assert readiness.json()["status"] == "needs_attention"
+    assert production.json()["go_backend_deployment"]["status"] == "needs_attention"
+    assert any(item["id"] == "go_backend_deployment_paths" for item in production.json()["checks"])
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:

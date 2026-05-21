@@ -18,9 +18,9 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 - Daemon request/response evidence hooks with JSONL output and `go-daemon-evidence://...` refs.
 - `cavra-runtime --serve --socket ...` server mode.
 - Opt-in Python integration pilot through `src/cavra/go_backend.py`.
-- CLI commands `cavra runtime go-pilot-readiness` and `cavra runtime go-pilot-evaluate`.
-- API endpoints `/runtime/go-pilot/readiness` and `/runtime/go-pilot/evaluate`.
-- Production readiness check for Go backend pilot status, configured runtime binary, compiled policy path, optional registry path, Python fallback, and parity gate evidence.
+- CLI commands `cavra runtime go-pilot-readiness`, `cavra runtime go-deployment-readiness`, and `cavra runtime go-pilot-evaluate`.
+- API endpoints `/runtime/go-pilot/readiness`, `/runtime/go-pilot/deployment-readiness`, and `/runtime/go-pilot/evaluate`.
+- Production readiness check for Go backend pilot status, configured runtime binary, compiled policy path, optional registry path, Python fallback, parity gate evidence, CI runner bundle readiness, and workstation channel readiness.
 - Python parity test that verifies the same fixture against the authoritative `RuntimeGuard`.
 - Shared high-risk command and cloud/IaC parity cases for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery controls.
 - Python parity test that verifies release-governance record fixtures for approvals, delivery failures, rollout evidence verification, and artifact integrity.
@@ -31,9 +31,8 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 
 ## Current Boundary
 
-The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, write request/response evidence records, verify release-governance fixtures across Python and Go, cover high-risk command and cloud/IaC parity cases, cover high-risk rollout evidence and audit export contract cases, package reproducibility and signing operations metadata for release governance, and run as an explicitly opt-in Python-side backend pilot with audited fallback.
+The scaffold intentionally mirrors a critical subset of policy behavior. It can now load compiled policy artifacts, expose generated Go request/response contracts, serve one-request-per-connection daemon calls over a Unix socket, call the daemon through a typed client helper, manage local daemon lifecycle through PID-file-backed `start/status/stop`, write request/response evidence records, verify release-governance fixtures across Python and Go, cover high-risk command and cloud/IaC parity cases, cover high-risk rollout evidence and audit export contract cases, package reproducibility and signing operations metadata for release governance, run as an explicitly opt-in Python-side backend pilot with audited fallback, and validate CI runner plus workstation deployment metadata before promotion.
 
 ## Next Implementation Steps
 
-1. Add deployment readiness checks for Go backend CI runner and workstation paths.
-2. Promote Go to an optional backend only after audited parity and deployment tests pass.
+1. Promote Go to an optional backend only after audited parity and deployment tests pass.

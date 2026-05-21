@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add deployment readiness checks for Go backend CI runner and workstation paths.
+- Promote Go to an optional backend only after audited parity and deployment tests pass.
 - Validate the hosted sandbox URL after deployment from `main`.

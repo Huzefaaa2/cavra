@@ -210,10 +210,17 @@ def production_readiness_report(
     policy_pack_count: int,
     store_status: dict[str, Any],
     go_backend_readiness: dict[str, Any] | None = None,
+    go_deployment_readiness: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     stores = store_status.get("items", []) if isinstance(store_status, dict) else []
     missing_stores = [item.get("name") for item in stores if not item.get("exists")]
     go_backend_status = (go_backend_readiness or {}).get("status", "disabled")
+    go_backend_mode = (go_backend_readiness or {}).get("mode", "disabled")
+    go_deployment_status = (go_deployment_readiness or {}).get("status", "not_configured")
+    go_deployment_ready = (
+        go_deployment_status == "ready"
+        or (go_backend_mode == "disabled" and go_deployment_status == "not_configured")
+    )
     checks = [
         _check("oidc_configured", oidc_configured, "Console and approval actions validate signed OIDC tokens."),
         _check("rbac_configured", rbac_configured, "Repository-scoped RBAC policy is configured."),
@@ -225,8 +232,15 @@ def production_readiness_report(
             "go_backend_pilot",
             go_backend_status in {"disabled", "ready"},
             "Optional Go backend pilot is disabled or ready with Python fallback and parity gate evidence.",
-            mode=(go_backend_readiness or {}).get("mode", "disabled"),
+            mode=go_backend_mode,
             go_backend_status=go_backend_status,
+        ),
+        _check(
+            "go_backend_deployment_paths",
+            go_deployment_ready,
+            "Go backend CI runner and workstation deployment paths are ready when the pilot is enabled.",
+            mode=go_backend_mode,
+            go_deployment_status=go_deployment_status,
         ),
     ]
     return {
@@ -240,6 +254,16 @@ def production_readiness_report(
             "mode": "disabled",
             "status": "disabled",
             "checks": [],
+        },
+        "go_backend_deployment": go_deployment_readiness
+        or {
+            "schema_version": "cavra.go-backend-pilot.deployment-readiness.v1",
+            "mode": "disabled",
+            "status": "not_configured",
+            "checks": [],
+            "ci_runner_targets": [],
+            "workstation_targets": [],
+            "channels": [],
         },
         "store_summary": {
             "total": len(stores),

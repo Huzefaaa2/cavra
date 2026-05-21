@@ -21,6 +21,11 @@ class GoBackendConfig:
     runtime_path: str = ""
     policy_path: str = ""
     registry_path: str = ""
+    package_dir: str = ""
+    endpoint_deployment_path: str = ""
+    ci_runner_bundles_path: str = ""
+    channel_manifest_path: str = ""
+    updater_policy_path: str = ""
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -37,6 +42,11 @@ def go_backend_config_from_env() -> GoBackendConfig:
         runtime_path=os.environ.get("CAVRA_GO_RUNTIME_PATH", ""),
         policy_path=os.environ.get("CAVRA_GO_RUNTIME_POLICY", ""),
         registry_path=os.environ.get("CAVRA_GO_RUNTIME_REGISTRY", ""),
+        package_dir=os.environ.get("CAVRA_GO_RUNTIME_PACKAGE_DIR", ""),
+        endpoint_deployment_path=os.environ.get("CAVRA_GO_ENDPOINT_DEPLOYMENT_MANIFEST", ""),
+        ci_runner_bundles_path=os.environ.get("CAVRA_GO_CI_RUNNER_BUNDLES", ""),
+        channel_manifest_path=os.environ.get("CAVRA_GO_WORKSTATION_CHANNELS", ""),
+        updater_policy_path=os.environ.get("CAVRA_GO_WORKSTATION_UPDATER_POLICY", ""),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -100,6 +110,85 @@ def go_backend_readiness_report(config: GoBackendConfig | None = None) -> dict[s
             "Leave CAVRA_GO_BACKEND_MODE=disabled unless the environment has current parity evidence.",
             "Use shadow mode first; enforce mode still falls back to Python on mismatch or runtime failure.",
             "Attach this readiness report to deployment evidence before piloting Go in CI or workstation paths.",
+        ],
+    }
+
+
+def go_deployment_readiness_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    package_dir = Path(config.package_dir) if config.package_dir else None
+    paths = _deployment_metadata_paths(config, package_dir)
+    configured = bool(package_dir or any(path is not None for path in paths.values()))
+    checks = [
+        _check(
+            "go_deployment_metadata_configured",
+            configured or not config.enabled,
+            "Go deployment metadata is configured before enabling CI runner or workstation rollout paths.",
+        ),
+        _check(
+            "go_release_package_dir",
+            not package_dir or package_dir.exists(),
+            "Optional CAVRA_GO_RUNTIME_PACKAGE_DIR exists when configured.",
+            path=str(package_dir) if package_dir else "",
+        ),
+    ]
+    endpoint = _read_json_check(paths["endpoint_deployment"])
+    ci_runner = _read_json_check(paths["ci_runner_bundles"])
+    channels = _read_json_check(paths["channel_manifest"])
+    updater = _read_json_check(paths["updater_policy"])
+    ci_summary = _ci_runner_summary(ci_runner.payload, endpoint.payload)
+    workstation_summary = _workstation_summary(channels.payload, updater.payload)
+    checks.extend(
+        [
+            _check(
+                "go_endpoint_deployment_manifest",
+                endpoint.valid,
+                endpoint.message or "Endpoint deployment manifest is present and declares deployment targets.",
+                path=_display_path(paths["endpoint_deployment"]),
+            ),
+            _check(
+                "go_ci_runner_bundles",
+                ci_runner.valid and ci_summary["valid"],
+                ci_summary["message"],
+                path=_display_path(paths["ci_runner_bundles"]),
+                targets=ci_summary["targets"],
+            ),
+            _check(
+                "go_workstation_channels",
+                channels.valid and workstation_summary["channels_valid"],
+                workstation_summary["channels_message"],
+                path=_display_path(paths["channel_manifest"]),
+                channels=workstation_summary["channels"],
+                targets=workstation_summary["workstation_targets"],
+            ),
+            _check(
+                "go_workstation_updater_policy",
+                updater.valid and workstation_summary["updater_valid"],
+                workstation_summary["updater_message"],
+                path=_display_path(paths["updater_policy"]),
+            ),
+        ]
+    )
+    if not configured:
+        status = "needs_attention" if config.enabled else "not_configured"
+    elif all(item["status"] == "pass" for item in checks):
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.deployment-readiness.v1",
+        "mode": config.mode,
+        "status": status,
+        "package_dir": str(package_dir) if package_dir else "",
+        "metadata_paths": {name: _display_path(path) for name, path in paths.items()},
+        "checks": checks,
+        "ci_runner_targets": ci_summary["targets"],
+        "workstation_targets": workstation_summary["workstation_targets"],
+        "channels": workstation_summary["channels"],
+        "operator_notes": [
+            "Use a verified Go runtime release package before enabling CI runner or workstation rollout paths.",
+            "CI runner bundles must reference signed runtime binaries and publish daemon evidence outputs.",
+            "Workstation channel manifests and updater policy must require approval and disable automatic updates by default.",
         ],
     }
 
@@ -235,3 +324,202 @@ def _float_env(name: str, default: float) -> float:
 
 def _check(check_id: str, passed: bool, message: str, **extra: Any) -> dict[str, Any]:
     return {"id": check_id, "status": "pass" if passed else "warn", "message": message, **extra}
+
+
+def _deployment_metadata_paths(config: GoBackendConfig, package_dir: Path | None) -> dict[str, Path | None]:
+    return {
+        "endpoint_deployment": _configured_path(
+            config.endpoint_deployment_path,
+            package_dir,
+            "cavra-runtime.endpoint-deployment.json",
+        ),
+        "ci_runner_bundles": _configured_path(
+            config.ci_runner_bundles_path,
+            package_dir,
+            "cavra-runtime.ci-runner-bundles.json",
+        ),
+        "channel_manifest": _configured_path(
+            config.channel_manifest_path,
+            package_dir,
+            "cavra-runtime.channels.json",
+        ),
+        "updater_policy": _configured_path(
+            config.updater_policy_path,
+            package_dir,
+            "cavra-runtime.updater-policy.json",
+        ),
+    }
+
+
+def _configured_path(value: str, package_dir: Path | None, default_name: str) -> Path | None:
+    if value:
+        return Path(value)
+    if package_dir:
+        return package_dir / default_name
+    return None
+
+
+def _display_path(path: Path | None) -> str:
+    return str(path) if path else ""
+
+
+@dataclass(frozen=True)
+class _JsonCheck:
+    valid: bool
+    message: str
+    payload: dict[str, Any]
+
+
+def _read_json_check(path: Path | None) -> _JsonCheck:
+    if path is None:
+        return _JsonCheck(False, "metadata path is not configured", {})
+    if not path.exists() or not path.is_file():
+        return _JsonCheck(False, "metadata file is missing", {})
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return _JsonCheck(False, f"metadata JSON is invalid: {exc}", {})
+    if not isinstance(payload, dict):
+        return _JsonCheck(False, "metadata JSON must be an object", {})
+    return _JsonCheck(True, "metadata file is present and parseable", payload)
+
+
+def _ci_runner_summary(ci_payload: dict[str, Any], endpoint_payload: dict[str, Any]) -> dict[str, Any]:
+    targets = []
+    messages = []
+    valid = True
+    if ci_payload.get("schema_version") != "cavra.go-runtime.ci-runner-bundles.v1":
+        valid = False
+        messages.append("CI runner bundle metadata has an invalid schema_version")
+    if ci_payload.get("source_metadata") != "cavra-runtime.endpoint-deployment.json":
+        valid = False
+        messages.append("CI runner bundle metadata must reference cavra-runtime.endpoint-deployment.json")
+    controls = {str(item) for item in ci_payload.get("controls", []) if isinstance(item, str)}
+    required_controls = {
+        "verified-signed-runtime-before-runner-use",
+        "runner-authentication-claims-signed",
+        "runner-authentication-oidc-verified",
+        "daemon-evidence-stream-hmac-signed",
+        "evidence-verification-artifact-published",
+        "blocking-decision-fails-closed-by-default",
+    }
+    missing_controls = sorted(required_controls - controls)
+    if missing_controls:
+        valid = False
+        messages.append(f"CI runner bundle metadata is missing controls: {', '.join(missing_controls)}")
+    endpoint_targets = {
+        str(target.get("id")): target
+        for target in endpoint_payload.get("deployment_targets", [])
+        if isinstance(target, dict) and target.get("id")
+    }
+    bundles = ci_payload.get("runner_bundles")
+    if not isinstance(bundles, list) or not bundles:
+        valid = False
+        messages.append("CI runner bundle metadata has no runner_bundles")
+    else:
+        for bundle in bundles:
+            if not isinstance(bundle, dict):
+                valid = False
+                messages.append("CI runner bundle entry is invalid")
+                continue
+            target_id = str(bundle.get("deployment_target", ""))
+            target = endpoint_targets.get(target_id)
+            targets.append(
+                {
+                    "deployment_target": target_id,
+                    "platform": str(bundle.get("platform", "")),
+                    "runtime_binary": str(bundle.get("runtime_binary", "")),
+                    "surface": str(target.get("surface", "")) if target else "",
+                }
+            )
+            if not target_id or not bundle.get("platform"):
+                valid = False
+                messages.append("CI runner bundle entry is missing platform or deployment_target")
+            if not target or target.get("surface") != "ci-runner":
+                valid = False
+                messages.append(f"CI runner bundle references an invalid CI runner target: {target_id or 'unknown'}")
+            outputs = bundle.get("required_outputs")
+            output_text = "\n".join(str(output) for output in outputs) if isinstance(outputs, list) else ""
+            if "release-governance-evidence-verification.json" not in output_text:
+                valid = False
+                messages.append(f"CI runner bundle is missing evidence verification output: {target_id or 'unknown'}")
+    return {
+        "valid": valid,
+        "targets": targets,
+        "message": "; ".join(messages) if messages else "CI runner bundles are ready for governed runner rollout.",
+    }
+
+
+def _workstation_summary(channels_payload: dict[str, Any], updater_payload: dict[str, Any]) -> dict[str, Any]:
+    channels = []
+    workstation_targets = []
+    channel_messages = []
+    updater_messages = []
+    channels_valid = True
+    updater_valid = True
+    if channels_payload.get("schema_version") != "cavra.go-runtime.channels.v1":
+        channels_valid = False
+        channel_messages.append("workstation channel manifest has an invalid schema_version")
+    if channels_payload.get("source_metadata") != "cavra-runtime.endpoint-deployment.json":
+        channels_valid = False
+        channel_messages.append("workstation channel manifest must reference cavra-runtime.endpoint-deployment.json")
+    for channel in channels_payload.get("channels", []):
+        if not isinstance(channel, dict):
+            channels_valid = False
+            channel_messages.append("workstation channel entry is invalid")
+            continue
+        channel_name = str(channel.get("channel", ""))
+        channels.append(channel_name)
+        if channel.get("auto_update") is not False or channel.get("approval_required") is not True:
+            channels_valid = False
+            channel_messages.append(f"channel {channel_name or 'unknown'} must require approval and disable auto update")
+        targets = channel.get("workstation_targets")
+        if not isinstance(targets, list) or not targets:
+            channels_valid = False
+            channel_messages.append(f"channel {channel_name or 'unknown'} has no workstation targets")
+            continue
+        for target in targets:
+            if not isinstance(target, dict):
+                channels_valid = False
+                channel_messages.append(f"channel {channel_name or 'unknown'} workstation target is invalid")
+                continue
+            workstation_targets.append(
+                {
+                    "channel": channel_name,
+                    "deployment_target": str(target.get("id", "")),
+                    "platform": str(target.get("platform", "")),
+                    "management_tool": str(target.get("management_tool", "")),
+                    "binary": str(target.get("binary", "")),
+                }
+            )
+            if any(not target.get(field) for field in ("id", "platform", "deployment_channel", "management_tool")):
+                channels_valid = False
+                channel_messages.append(f"channel {channel_name or 'unknown'} target is missing deployment guidance")
+    if not channels:
+        channels_valid = False
+        channel_messages.append("workstation channel manifest has no channels")
+    if updater_payload.get("schema_version") != "cavra.go-runtime.updater-policy.v1":
+        updater_valid = False
+        updater_messages.append("workstation updater policy has an invalid schema_version")
+    if updater_payload.get("source_channel_manifest") != "cavra-runtime.channels.json":
+        updater_valid = False
+        updater_messages.append("workstation updater policy must reference cavra-runtime.channels.json")
+    if updater_payload.get("default_auto_update") is not False:
+        updater_valid = False
+        updater_messages.append("workstation updater policy must disable default auto update")
+    policies = updater_payload.get("policies")
+    policy_channels = {str(item.get("channel")) for item in policies if isinstance(item, dict) and item.get("channel")} if isinstance(policies, list) else set()
+    if not policy_channels:
+        updater_valid = False
+        updater_messages.append("workstation updater policy has no channel policies")
+    if channels and policy_channels and policy_channels != set(channels):
+        updater_valid = False
+        updater_messages.append("workstation updater policy channels must match channel manifest channels")
+    return {
+        "channels_valid": channels_valid,
+        "updater_valid": updater_valid,
+        "channels": channels,
+        "workstation_targets": workstation_targets,
+        "channels_message": "; ".join(channel_messages) if channel_messages else "Workstation channels are approval-bound and ready.",
+        "updater_message": "; ".join(updater_messages) if updater_messages else "Workstation updater policy is approval-bound and ready.",
+    }

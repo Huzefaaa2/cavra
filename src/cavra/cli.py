@@ -46,6 +46,7 @@ from cavra.go_backend import (
     GoBackendConfig,
     evaluate_with_go_pilot,
     go_backend_readiness_report,
+    go_deployment_readiness_report,
 )
 from cavra.integrations import (
     CommandInterceptor,
@@ -246,6 +247,11 @@ def runtime_go_pilot_readiness(
     runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
     policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
     registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
+    package_dir: Annotated[str, typer.Option(help="Optional verified Go runtime release package directory.")] = "",
+    endpoint_deployment_path: Annotated[str, typer.Option(help="Optional endpoint deployment manifest path.")] = "",
+    ci_runner_bundles_path: Annotated[str, typer.Option(help="Optional CI runner bundles manifest path.")] = "",
+    channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
+    updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print readiness JSON."),
 ) -> None:
@@ -255,6 +261,11 @@ def runtime_go_pilot_readiness(
         runtime_path=runtime_path,
         policy_path=policy_path,
         registry_path=registry_path,
+        package_dir=package_dir,
+        endpoint_deployment_path=endpoint_deployment_path,
+        ci_runner_bundles_path=ci_runner_bundles_path,
+        channel_manifest_path=channel_manifest_path,
+        updater_policy_path=updater_policy_path,
         timeout_seconds=timeout_seconds,
     )
     report = go_backend_readiness_report(config)
@@ -262,6 +273,34 @@ def runtime_go_pilot_readiness(
         typer.echo(json.dumps(report, indent=2))
         return
     console.print(f"Go backend pilot: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
+@runtime_app.command("go-deployment-readiness")
+def runtime_go_deployment_readiness(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, or enforce.")] = "disabled",
+    package_dir: Annotated[str, typer.Option(help="Verified Go runtime release package directory.")] = "",
+    endpoint_deployment_path: Annotated[str, typer.Option(help="Endpoint deployment manifest path.")] = "",
+    ci_runner_bundles_path: Annotated[str, typer.Option(help="CI runner bundles manifest path.")] = "",
+    channel_manifest_path: Annotated[str, typer.Option(help="Workstation release channel manifest path.")] = "",
+    updater_policy_path: Annotated[str, typer.Option(help="Workstation updater policy path.")] = "",
+    json_output: bool = typer.Option(False, "--json", help="Print deployment readiness JSON."),
+) -> None:
+    """Show Go backend CI runner and workstation deployment readiness."""
+    config = GoBackendConfig(
+        mode=mode,
+        package_dir=package_dir,
+        endpoint_deployment_path=endpoint_deployment_path,
+        ci_runner_bundles_path=ci_runner_bundles_path,
+        channel_manifest_path=channel_manifest_path,
+        updater_policy_path=updater_policy_path,
+    )
+    report = go_deployment_readiness_report(config)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go deployment readiness: {report['status']} ({report['mode']})")
     for check in report["checks"]:
         console.print(f"  {check['status']} {check['id']}: {check['message']}")
 
@@ -275,6 +314,11 @@ def runtime_go_pilot_evaluate(
     runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
     policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
     registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
+    package_dir: Annotated[str, typer.Option(help="Optional verified Go runtime release package directory.")] = "",
+    endpoint_deployment_path: Annotated[str, typer.Option(help="Optional endpoint deployment manifest path.")] = "",
+    ci_runner_bundles_path: Annotated[str, typer.Option(help="Optional CI runner bundles manifest path.")] = "",
+    channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
+    updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
     tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
@@ -301,6 +345,11 @@ def runtime_go_pilot_evaluate(
         runtime_path=runtime_path,
         policy_path=policy_path,
         registry_path=registry_path,
+        package_dir=package_dir,
+        endpoint_deployment_path=endpoint_deployment_path,
+        ci_runner_bundles_path=ci_runner_bundles_path,
+        channel_manifest_path=channel_manifest_path,
+        updater_policy_path=updater_policy_path,
         timeout_seconds=timeout_seconds,
     )
     result = evaluate_with_go_pilot(request, config=config)

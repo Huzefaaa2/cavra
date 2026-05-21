@@ -1457,7 +1457,7 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
+Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
 
 ## Phase 7 High-Risk Command And Cloud/IaC Parity
 
@@ -1479,7 +1479,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
+Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
 
 ## Phase 7 Release Signing Operations
 
@@ -1501,7 +1501,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
+Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
 
 ## Phase 7 Opt-In Go Backend Pilot
 
@@ -1526,4 +1526,29 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
+Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+
+## Phase 7 Go Backend Deployment Readiness
+
+Status: complete for the current public-safe CI runner and workstation readiness slice.
+
+Completed implementation:
+- Added Go backend deployment readiness checks to `src/cavra/go_backend.py`.
+- Added environment support for `CAVRA_GO_RUNTIME_PACKAGE_DIR`, `CAVRA_GO_ENDPOINT_DEPLOYMENT_MANIFEST`, `CAVRA_GO_CI_RUNNER_BUNDLES`, `CAVRA_GO_WORKSTATION_CHANNELS`, and `CAVRA_GO_WORKSTATION_UPDATER_POLICY`.
+- Added CLI command `cavra runtime go-deployment-readiness`.
+- Added FastAPI endpoint `/runtime/go-pilot/deployment-readiness`.
+- Added `go_backend_deployment` to `/deployment/production-readiness` and surfaced Go deployment status in the Evidence Console Production Readiness panel.
+- Added tests for disabled, missing, and valid CI runner/workstation metadata readiness.
+- Added `docs/go-backend-deployment-readiness.md`, `docs/wiki/Go-Backend-Deployment-Readiness.md`, and `docs/diagrams/go-backend-deployment-readiness.svg`.
+- Updated README, production roadmap, current feature inventory, production deployment validation, Go parity docs, Go roadmap, productization report, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_deployment_readiness tests/test_cli.py::test_runtime_go_deployment_readiness_cli_reports_not_configured tests/test_policy_authoring.py::test_production_readiness_report_marks_missing_controls -q`
+- `python3 -m ruff check src/cavra/go_backend.py src/cavra/cli.py src/cavra/api.py src/cavra/policy_authoring.py tests/test_go_backend.py tests/test_api.py tests/test_cli.py tests/test_policy_authoring.py`
+- `python3 -m pytest -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
+
+Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.

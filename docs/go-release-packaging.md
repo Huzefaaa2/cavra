@@ -779,4 +779,4 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add deployment readiness checks for Go backend CI runner and workstation paths.
+1. Promote Go to an optional backend only after audited parity and deployment tests pass.

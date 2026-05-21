@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add deployment readiness checks for Go backend CI runner and workstation paths.
+- Promote Go to an optional backend only after audited parity and deployment tests pass.
 - Validate the hosted sandbox URL after deployment from `main`.
