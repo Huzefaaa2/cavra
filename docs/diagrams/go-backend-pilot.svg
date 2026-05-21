@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA opt-in Go backend pilot</title>
+  <desc id="desc">Opt-in Go backend flow showing Python authoritative evaluation, Go runtime comparison, parity gate, fallback, and effective decision.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071216"/>
+      <stop offset="1" stop-color="#10252b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6ee7c2"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #f5fbff; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b9cbd2; }
+      .label { font: 700 19px Arial, sans-serif; fill: #f5fbff; }
+      .body { font: 400 15px Arial, sans-serif; fill: #cbd8dd; }
+      .small { font: 700 13px Arial, sans-serif; fill: #071216; }
+      .box { fill: #122126; stroke: #6ee7c2; stroke-width: 2; rx: 10; }
+      .gold { fill: #211d15; stroke: #f6c15a; stroke-width: 2; rx: 10; }
+      .red { fill: #211719; stroke: #ff8f8f; stroke-width: 2; rx: 10; }
+      .arrow { stroke: #6ee7c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="60" y="62" class="title">Opt-In Go Backend Pilot</text>
+  <text x="60" y="92" class="subtitle">Python remains authoritative; Go is selected only when explicitly enabled and parity matches.</text>
+
+  <rect x="70" y="160" width="220" height="130" class="gold"/>
+  <text x="92" y="194" class="label">Operator Opt-In</text>
+  <text x="92" y="226" class="body">disabled / shadow / enforce</text>
+  <text x="92" y="250" class="body">runtime path</text>
+  <text x="92" y="274" class="body">compiled policy path</text>
+
+  <rect x="370" y="105" width="235" height="130" class="box"/>
+  <text x="392" y="139" class="label">Python Runtime</text>
+  <text x="392" y="171" class="body">Authoritative decision</text>
+  <text x="392" y="195" class="body">Always evaluated first</text>
+  <text x="392" y="219" class="body">Fallback target</text>
+
+  <rect x="370" y="330" width="235" height="130" class="box"/>
+  <text x="392" y="364" class="label">Go Runtime</text>
+  <text x="392" y="396" class="body">Runs only when enabled</text>
+  <text x="392" y="420" class="body">Uses compiled policy JSON</text>
+  <text x="392" y="444" class="body">Timeout bounded</text>
+
+  <rect x="690" y="220" width="245" height="150" class="red"/>
+  <text x="714" y="254" class="label">Parity Gate</text>
+  <text x="714" y="286" class="body">decision matches</text>
+  <text x="714" y="310" class="body">rule_id matches</text>
+  <text x="714" y="334" class="body">severity matches</text>
+  <text x="714" y="358" class="body">fallback on mismatch</text>
+
+  <rect x="1010" y="105" width="210" height="130" class="box"/>
+  <text x="1032" y="139" class="label">Effective Decision</text>
+  <text x="1032" y="171" class="body">shadow: Python</text>
+  <text x="1032" y="195" class="body">enforce: Go only if safe</text>
+  <text x="1032" y="219" class="body">audited result</text>
+
+  <rect x="1010" y="330" width="210" height="130" class="gold"/>
+  <text x="1032" y="364" class="label">Readiness Evidence</text>
+  <text x="1032" y="396" class="body">CLI report</text>
+  <text x="1032" y="420" class="body">API report</text>
+  <text x="1032" y="444" class="body">production readiness</text>
+
+  <path d="M290 225 C330 225 335 170 370 170" class="arrow"/>
+  <path d="M290 225 C330 225 335 395 370 395" class="arrow"/>
+  <path d="M605 170 C650 170 655 294 690 294" class="arrow"/>
+  <path d="M605 395 C650 395 655 294 690 294" class="arrow"/>
+  <path d="M935 294 C970 294 980 170 1010 170" class="arrow"/>
+  <path d="M812 370 C812 520 1115 520 1115 460" class="arrow"/>
+
+  <rect x="70" y="575" width="1150" height="64" fill="#6ee7c2" rx="10"/>
+  <text x="96" y="611" class="small">Fail-closed behavior: Go errors, timeouts, missing readiness inputs, and parity mismatches all keep the effective decision on Python.</text>
+</svg>

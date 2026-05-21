@@ -40,6 +40,13 @@ from cavra.evidence import (
     generate_ed25519_keypair,
     verify_evidence_bundle,
 )
+from cavra.go_backend import (
+    GO_BACKEND_ENFORCE,
+    GO_BACKEND_SHADOW,
+    GoBackendConfig,
+    evaluate_with_go_pilot,
+    go_backend_readiness_report,
+)
 from cavra.integrations import (
     CommandInterceptor,
     build_connector_delivery_dashboard,
@@ -186,6 +193,7 @@ approval_app = typer.Typer(help="Human approval router commands.")
 registry_app = typer.Typer(help="Agent and MCP trust registry commands.")
 ops_app = typer.Typer(help="Persistent API operations commands.")
 release_app = typer.Typer(help="Release package verification commands.")
+runtime_app = typer.Typer(help="Runtime backend pilot commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -196,6 +204,7 @@ app.add_typer(approval_app, name="approval")
 app.add_typer(registry_app, name="registry")
 app.add_typer(ops_app, name="ops")
 app.add_typer(release_app, name="release")
+app.add_typer(runtime_app, name="runtime")
 
 
 @app.command()
@@ -229,6 +238,82 @@ def evaluate(
         console.print(JSON(json.dumps(decision.to_dict(), indent=2)))
     else:
         console.print(f"{decision.decision}: {decision.reason}")
+
+
+@runtime_app.command("go-pilot-readiness")
+def runtime_go_pilot_readiness(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, or enforce.")] = "disabled",
+    runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
+    policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
+    registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
+    timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
+    json_output: bool = typer.Option(False, "--json", help="Print readiness JSON."),
+) -> None:
+    """Show opt-in Go backend pilot readiness."""
+    config = GoBackendConfig(
+        mode=mode,
+        runtime_path=runtime_path,
+        policy_path=policy_path,
+        registry_path=registry_path,
+        timeout_seconds=timeout_seconds,
+    )
+    report = go_backend_readiness_report(config)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go backend pilot: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
+@runtime_app.command("go-pilot-evaluate")
+def runtime_go_pilot_evaluate(
+    action_type: Annotated[str, typer.Argument(help="read_file, write_file, execute_command, git_operation, mcp_tool_call.")],
+    target: Annotated[str, typer.Argument(help="File path, command, Git target, or MCP server.")],
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+    mode: Annotated[str, typer.Option(help="shadow or enforce.")] = GO_BACKEND_SHADOW,
+    runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
+    policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
+    registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
+    timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
+    operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
+    tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
+    capability: Annotated[str, typer.Option(help="MCP capability for mcp_tool_call.")] = "",
+    json_output: bool = typer.Option(False, "--json", help="Print evaluation JSON."),
+) -> None:
+    """Evaluate through the opt-in Go backend pilot with Python fallback."""
+    if mode not in {GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE}:
+        console.print("[red]mode must be shadow or enforce for go-pilot-evaluate[/red]")
+        raise typer.Exit(code=2)
+    request = {
+        "action_type": action_type,
+        "target": target,
+        "policy_pack": policy_pack,
+    }
+    if operation:
+        request["operation"] = operation
+    if action_type == "mcp_tool_call":
+        request["server"] = target
+        request["tool"] = tool
+        request["capability"] = capability
+    config = GoBackendConfig(
+        mode=mode,
+        runtime_path=runtime_path,
+        policy_path=policy_path,
+        registry_path=registry_path,
+        timeout_seconds=timeout_seconds,
+    )
+    result = evaluate_with_go_pilot(request, config=config)
+    if json_output:
+        typer.echo(json.dumps(result, indent=2))
+        return
+    effective = result["effective_decision"]
+    console.print(
+        f"{effective['decision']} via {result['selected_backend']} "
+        f"(mode={result['backend_mode']}, fallback={result['fallback_used']})"
+    )
+    if result.get("fallback_reason"):
+        console.print(f"[yellow]{result['fallback_reason']}[/yellow]")
 
 
 @agent_app.command("start")

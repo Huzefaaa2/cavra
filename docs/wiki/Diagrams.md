@@ -52,6 +52,10 @@ See `docs/diagrams/release-signing-operations.svg` for the release path from ext
 
 See `docs/diagrams/high-risk-command-cloud-iac-parity.svg` for the shared fixture path that compares authoritative Python runtime decisions with Go runtime decisions before Go is allowed into deployment paths.
 
+## Opt-In Go Backend Pilot
+
+See `docs/diagrams/go-backend-pilot.svg` for the guarded backend-selection flow from operator opt-in through Python evaluation, Go comparison, parity gate, fallback, and readiness evidence.
+
 ## SVG Images
 
 Repository diagram images:
@@ -66,6 +70,7 @@ Repository diagram images:
 - `docs/diagrams/go-reproducible-airgap.svg`
 - `docs/diagrams/release-signing-operations.svg`
 - `docs/diagrams/high-risk-command-cloud-iac-parity.svg`
+- `docs/diagrams/go-backend-pilot.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

@@ -2224,8 +2224,10 @@ async function loadDeploymentReadiness() {
       checks: [
         { id: "oidc_configured", status: consoleConfig?.approval_oidc === "configured" ? "pass" : "warn", message: "Console and approval actions validate signed OIDC tokens." },
         { id: "rbac_configured", status: consoleConfig?.approval_rbac === "configured" ? "pass" : "warn", message: "Repository-scoped RBAC policy is configured." },
-        { id: "cors_restricted", status: (consoleConfig?.cors_origins || []).length ? "pass" : "warn", message: "Allowed console origins are explicit." }
+        { id: "cors_restricted", status: (consoleConfig?.cors_origins || []).length ? "pass" : "warn", message: "Allowed console origins are explicit." },
+        { id: "go_backend_pilot", status: "pass", message: "Optional Go backend pilot is disabled or ready with Python fallback and parity gate evidence." }
       ],
+      go_backend_pilot: { schema_version: "cavra.go-backend-pilot.readiness.v1", mode: "disabled", status: "disabled", checks: [] },
       operator_notes: ["Connect to the API for full persistent-store and evidence-artifact readiness checks."]
     };
   }
@@ -4026,11 +4028,13 @@ function renderDeploymentReadiness(report) {
   const panel = document.querySelector("#deploymentReadiness");
   const checks = Array.isArray(report.checks) ? report.checks : [];
   const notes = Array.isArray(report.operator_notes) ? report.operator_notes : [];
+  const goPilot = report.go_backend_pilot || {};
   panel.innerHTML = `
     <dl>
       <dt>Status</dt><dd class="${report.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(report.status || "needs_attention")}</dd>
       <dt>Stores</dt><dd>${Number(report.store_summary?.total || 0)} checked</dd>
       <dt>Missing stores</dt><dd>${escapeHtml((report.store_summary?.missing || []).join(", ") || "none")}</dd>
+      <dt>Go pilot</dt><dd class="${goPilot.status === "ready" || goPilot.status === "disabled" ? "allow" : "require_approval"}">${escapeHtml(goPilot.status || "disabled")} (${escapeHtml(goPilot.mode || "disabled")})</dd>
     </dl>
     <h3>Checks</h3>
     <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.id)}<br><small>${escapeHtml(item.message || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>

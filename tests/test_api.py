@@ -1505,7 +1505,29 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert response.status_code == 200
     assert response.json()["schema_version"] == "cavra.deployment.production_readiness.v1"
     assert any(item["id"] == "cors_restricted" for item in response.json()["checks"])
+    assert response.json()["go_backend_pilot"]["status"] == "disabled"
     assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
+    assert config["endpoints"]["go_backend_readiness"] == "/runtime/go-pilot/readiness"
+
+
+def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_GO_BACKEND_MODE", "shadow")
+    monkeypatch.setenv("CAVRA_GO_RUNTIME_PATH", str(tmp_path / "missing-runtime"))
+    monkeypatch.setenv("CAVRA_GO_RUNTIME_POLICY", str(tmp_path / "missing-policy.json"))
+    client = TestClient(create_app())
+
+    readiness = client.get("/runtime/go-pilot/readiness")
+    evaluation = client.post(
+        "/runtime/go-pilot/evaluate",
+        json={"action_type": "execute_command", "target": "terraform plan"},
+    )
+
+    assert readiness.status_code == 200
+    assert readiness.json()["status"] == "needs_attention"
+    assert evaluation.status_code == 200
+    assert evaluation.json()["selected_backend"] == "python"
+    assert evaluation.json()["fallback_used"] is True
+    assert evaluation.json()["effective_decision"]["decision"] == "allow"
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:

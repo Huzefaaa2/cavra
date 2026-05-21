@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+4. Add deployment readiness checks for Go backend CI runner and workstation paths.

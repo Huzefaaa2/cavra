@@ -209,9 +209,11 @@ def production_readiness_report(
     evidence_artifact_root_configured: bool,
     policy_pack_count: int,
     store_status: dict[str, Any],
+    go_backend_readiness: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     stores = store_status.get("items", []) if isinstance(store_status, dict) else []
     missing_stores = [item.get("name") for item in stores if not item.get("exists")]
+    go_backend_status = (go_backend_readiness or {}).get("status", "disabled")
     checks = [
         _check("oidc_configured", oidc_configured, "Console and approval actions validate signed OIDC tokens."),
         _check("rbac_configured", rbac_configured, "Repository-scoped RBAC policy is configured."),
@@ -219,12 +221,26 @@ def production_readiness_report(
         _check("evidence_artifacts", evidence_artifact_root_configured, "Evidence artifact retrieval root is configured."),
         _check("policy_catalog", policy_pack_count > 0, f"{policy_pack_count} policy packs are discoverable."),
         _check("persistent_stores", not missing_stores, "Persistent API stores exist.", missing=missing_stores),
+        _check(
+            "go_backend_pilot",
+            go_backend_status in {"disabled", "ready"},
+            "Optional Go backend pilot is disabled or ready with Python fallback and parity gate evidence.",
+            mode=(go_backend_readiness or {}).get("mode", "disabled"),
+            go_backend_status=go_backend_status,
+        ),
     ]
     return {
         "schema_version": "cavra.deployment.production_readiness.v1",
         "product": "CAVRA",
         "status": "ready" if all(item["status"] == "pass" for item in checks) else "needs_attention",
         "checks": checks,
+        "go_backend_pilot": go_backend_readiness
+        or {
+            "schema_version": "cavra.go-backend-pilot.readiness.v1",
+            "mode": "disabled",
+            "status": "disabled",
+            "checks": [],
+        },
         "store_summary": {
             "total": len(stores),
             "missing": missing_stores,

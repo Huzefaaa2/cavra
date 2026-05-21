@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+- Add deployment readiness checks for Go backend CI runner and workstation paths.
 - Validate the hosted sandbox URL after deployment from `main`.

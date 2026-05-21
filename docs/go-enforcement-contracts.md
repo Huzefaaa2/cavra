@@ -106,4 +106,4 @@ Generated contracts reduce integration drift between Python, Go, future daemon t
 - The generated package is a lightweight JSON transport contract, not a full gRPC server.
 - The current daemon transport and `daemon.Client` helper use these contracts over a one-request-per-connection Unix socket.
 - GitHub Actions, GitLab CI, and Azure Pipelines examples now use typed release-governance contract payloads directly.
-- Next work should add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+- Next work should add deployment readiness checks for Go backend CI runner and workstation paths.
