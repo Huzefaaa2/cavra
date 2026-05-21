@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is an explicitly opt-in Go enforcement backend pilot with audited fallback to Python, deployment readiness checks, and parity-gate evidence before any production use.
+The next recommended implementation step is to add deployment readiness checks for Go backend CI runner and workstation paths.

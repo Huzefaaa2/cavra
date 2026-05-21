@@ -28,6 +28,7 @@ from cavra.evidence import (
     list_evidence_artifacts,
     load_evidence_artifact,
 )
+from cavra.go_backend import evaluate_with_go_pilot, go_backend_readiness_report
 from cavra.integrations import (
     IntegrationStore,
     SQLiteIntegrationStore,
@@ -336,6 +337,8 @@ def create_app():
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
                 "deployment_readiness": "/deployment/production-readiness",
+                "go_backend_readiness": "/runtime/go-pilot/readiness",
+                "go_backend_evaluate": "/runtime/go-pilot/evaluate",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
                 "policy_pack_publish_plan": "/policy-packs/publish-plan",
@@ -601,7 +604,16 @@ def create_app():
             evidence_artifact_root_configured=bool(evidence_artifact_root),
             policy_pack_count=len(PolicyRegistry().list_policy_packs()),
             store_status=persistent_api_store_status(),
+            go_backend_readiness=go_backend_readiness_report(),
         )
+
+    @app.get("/runtime/go-pilot/readiness")
+    def runtime_go_pilot_readiness() -> dict[str, object]:
+        return go_backend_readiness_report()
+
+    @app.post("/runtime/go-pilot/evaluate")
+    def runtime_go_pilot_evaluate(payload: dict) -> dict[str, object]:
+        return evaluate_with_go_pilot(payload)
 
     @app.get("/repositories")
     def repository_index(

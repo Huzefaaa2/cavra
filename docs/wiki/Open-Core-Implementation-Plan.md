@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+Add deployment readiness checks for Go backend CI runner and workstation paths.

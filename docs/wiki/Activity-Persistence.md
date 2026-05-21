@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+- Add deployment readiness checks for Go backend CI runner and workstation paths.
 - Validate the hosted sandbox URL after deployment from `main`.

@@ -126,4 +126,6 @@ def test_production_readiness_report_marks_missing_controls() -> None:
 
     assert report["status"] == "needs_attention"
     assert any(item["id"] == "oidc_configured" and item["status"] == "warn" for item in report["checks"])
+    assert any(item["id"] == "go_backend_pilot" and item["status"] == "pass" for item in report["checks"])
+    assert report["go_backend_pilot"]["status"] == "disabled"
     assert report["store_summary"]["missing"] == ["activity"]

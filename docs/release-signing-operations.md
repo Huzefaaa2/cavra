@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+The next recommended implementation step is to add deployment readiness checks for Go backend CI runner and workstation paths.

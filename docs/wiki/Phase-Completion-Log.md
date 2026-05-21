@@ -1457,7 +1457,7 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
 
 ## Phase 7 High-Risk Command And Cloud/IaC Parity
 
@@ -1479,7 +1479,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
 
 ## Phase 7 Release Signing Operations
 
@@ -1501,4 +1501,29 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.
+
+## Phase 7 Opt-In Go Backend Pilot
+
+Status: complete for the current public-safe pilot integration slice.
+
+Completed implementation:
+- Added `src/cavra/go_backend.py` with disabled, shadow, and enforce modes.
+- Added readiness checks for runtime binary path, compiled policy path, optional registry path, Python fallback, and parity gate evidence.
+- Added audited pilot evaluation that runs Python first, invokes Go only when enabled, compares `decision`, `rule_id`, and `severity`, and falls back to Python on failure or mismatch.
+- Added CLI commands `cavra runtime go-pilot-readiness` and `cavra runtime go-pilot-evaluate`.
+- Added FastAPI endpoints `/runtime/go-pilot/readiness` and `/runtime/go-pilot/evaluate`.
+- Added Go backend pilot status to `/deployment/production-readiness`, `/console/config`, and the Evidence Console Production Readiness panel.
+- Added `docs/go-backend-pilot.md`, `docs/wiki/Go-Backend-Pilot.md`, and `docs/diagrams/go-backend-pilot.svg`.
+- Updated README, production roadmap, feature inventory, production deployment validation, Go parity docs, Go roadmap, productization report, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_policy_authoring.py::test_production_readiness_report_marks_missing_controls tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_pilot_readiness_and_evaluation tests/test_cli.py::test_runtime_go_pilot_readiness_cli_reports_disabled -q`
+- `python3 -m ruff check src/cavra/go_backend.py src/cavra/cli.py src/cavra/api.py src/cavra/policy_authoring.py tests/test_go_backend.py tests/test_api.py tests/test_cli.py tests/test_policy_authoring.py`
+- `python3 -m pytest -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
+
+Recommended next issue: add deployment readiness checks for Go backend CI runner and workstation paths.

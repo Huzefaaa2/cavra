@@ -1,22 +1,39 @@
 # Production Deployment Validation
 
-CAVRA exposes `GET /deployment/production-readiness` for production console/API readiness checks.
+CAVRA now exposes a deployment readiness report for authenticated console/API topologies.
 
-## Checks
+## Endpoint
 
-- OIDC configured.
-- Repository RBAC configured.
-- CORS origins restricted.
-- Evidence artifact root configured.
-- Policy pack catalog available.
-- Persistent API stores exist.
+- `GET /deployment/production-readiness`
+
+The report checks:
+
+- OIDC configuration.
+- Repository RBAC configuration.
+- Restricted CORS origins.
+- Evidence artifact root configuration.
+- Policy pack catalog availability.
+- Persistent API store presence.
+- Opt-in Go backend pilot mode, runtime binary path, compiled policy path, optional registry path, Python fallback, and parity gate evidence.
+
+## Usage
+
+```bash
+curl http://127.0.0.1:8000/deployment/production-readiness
+```
+
+Run this in the same environment that hosts the API and console. Attach the report to release evidence before enterprise pilots.
 
 ## Console
 
-The sandbox console includes a Production Readiness panel that displays status, checks, store summary, and operator notes.
+The sandbox console includes a Production Readiness panel that displays deployment status, checks, store summary, Go backend pilot status, and operator notes.
 
 ## User Stories
 
-- As a platform engineer, I can validate production controls before rollout.
-- As a security architect, I can see missing identity, RBAC, CORS, persistence, or evidence controls.
-- As an auditor, I can attach readiness status to release evidence.
+- As a platform engineer, I can validate whether production identity, RBAC, CORS, evidence, persistence controls, and optional Go backend pilot inputs are configured.
+- As a security architect, I can detect missing controls before exposing the console to enterprise users.
+- As an auditor, I can attach a readiness report to release evidence.
+
+## Enterprise Value
+
+Deployment validation turns production readiness into a repeatable control check. It helps teams avoid launching a console/API topology without identity, RBAC, evidence retrieval, CORS restrictions, persistent stores, or Go backend pilot evidence when that pilot is enabled.
