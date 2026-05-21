@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.

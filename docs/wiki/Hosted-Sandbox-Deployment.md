@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+1. Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.

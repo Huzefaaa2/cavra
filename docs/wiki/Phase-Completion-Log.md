@@ -1457,7 +1457,29 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
+
+## Phase 7 High-Risk Command And Cloud/IaC Parity
+
+Status: complete for the current high-risk built-in Go policy parity slice.
+
+Completed implementation:
+- Added Go built-in policy parity for `cavra-cloud-iam`, `cavra-kubernetes-prod`, `cavra-terraform-prod`, `cavra-github-enterprise`, `cavra-owasp-llm-agentic`, and `cavra-agentic-delivery`.
+- Expanded `go/cavra-runtime/testdata/parity_cases.json` with high-risk Cloud IAM mutation, Kubernetes production apply, Terraform/OpenTofu destructive operation, GitHub force/admin operation, OWASP pipe-shell command injection, and agentic delivery repository-setting cases.
+- Added positive read-only/test allowances for Cloud IAM, Kubernetes diff, OpenTofu plan, and agentic delivery test commands.
+- Added Python fixture-shape coverage to ensure the high-risk command and cloud/IaC policy packs remain represented in the shared parity suite.
+- Added `docs/high-risk-command-cloud-iac-parity.md`, wiki documentation, and a dedicated SVG diagram for parity evidence.
+- Updated README, roadmap, feature inventory, Go parity docs, productization report, and wiki source documentation.
+
+Validation:
+- `python3 -m pytest tests/test_go_runtime_parity.py -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m pytest -q`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
+
+Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
 
 ## Phase 7 Release Signing Operations
 
@@ -1479,4 +1501,4 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+Recommended next issue: add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.

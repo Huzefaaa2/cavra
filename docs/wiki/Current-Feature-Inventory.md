@@ -50,6 +50,8 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: remaining high-risk runtime decision parity cases that are still Python-only.
+Known gaps: optional Go backend rollout controls and deployment readiness checks.
+
+Recent parity expansion: Go and Python now share high-risk command and cloud/IaC fixtures for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery controls.
 
 Refactor recommendations: typed policy models, JSON Schema validation in command path, persistent evidence store, policy inheritance resolver, expanded golden parity suite, and generated enforcement contracts for the Go runtime.

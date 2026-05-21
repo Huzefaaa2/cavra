@@ -15,6 +15,7 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `tests/test_go_runtime_parity.py` verifies the same runtime and release-governance fixtures against Python `RuntimeGuard` and compiles every bundled policy pack before checking representative Go CLI decisions.
 - `go run ./cmd/cavra-runtime --policy compiled-policy.json` evaluates against normalized JSON from `cavra policy compile`.
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
+- Built-in Go policy parity now covers high-risk Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command-injection, and transparent agentic delivery command controls.
 - `release_governance_record` requests verify pending, approved, denied, missing-approval, failed-delivery, and critical operational signal states without exposing private enterprise logic.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request, release-governance evidence, and response contracts from the enforcement protobuf.
 - `go/cavra-runtime/testdata/release_governance_contracts.json` verifies typed release-governance contract payloads for approved, failed-delivery, critical-signal, rollout evidence verification, rollout artifact integrity, promotion audit export, and rollback audit export records.
@@ -73,6 +74,7 @@ echo '{"session_id":"release-demo","action_type":"release_governance_record","re
 - As a platform engineer, I can inspect a small Go implementation before allowing it into runners or developer laptops.
 - As an auditor, I can see that parity is tested before CAVRA claims a second enforcement backend.
 - As a release manager, I can verify that promotion, rollback, endpoint remediation, endpoint publication, inventory freshness, reconciliation drift, SLA, rollout evidence, artifact integrity, and rollout audit export evidence are evaluated consistently by the Go runtime.
+- As a cloud platform owner, I can verify that IAM, Kubernetes, Terraform/OpenTofu, GitHub, and command-injection decisions match Python before Go is allowed in runner paths.
 
 ## Enterprise Challenge Solved
 
@@ -81,6 +83,7 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 ## Current Limits
 
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
+- Built-in high-risk command parity is now covered for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery governance packs.
 - Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
 - Release governance record parity is intentionally bounded to public-safe metadata checks for approval state, delivery success, drift status, alert level, blocked counts, SLA breach counts, rollout verification status, artifact integrity status, and rollout audit export status.
 - It exposes an initial Unix-socket daemon transport using the generated request and response types.
@@ -88,4 +91,4 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+1. Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.

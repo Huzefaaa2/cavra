@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">High-risk command and cloud/IaC parity</title>
+  <desc id="desc">Shared parity flow comparing authoritative Python runtime decisions and Go runtime decisions for cloud IAM, Kubernetes, Terraform, OpenTofu, GitHub, OWASP command injection, and agentic delivery controls.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071216"/>
+      <stop offset="1" stop-color="#10252b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6ee7c2"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #f5fbff; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b9cbd2; }
+      .label { font: 700 19px Arial, sans-serif; fill: #f5fbff; }
+      .body { font: 400 15px Arial, sans-serif; fill: #cbd8dd; }
+      .small { font: 700 13px Arial, sans-serif; fill: #071216; }
+      .box { fill: #122126; stroke: #6ee7c2; stroke-width: 2; rx: 10; }
+      .gold { fill: #211d15; stroke: #f6c15a; stroke-width: 2; rx: 10; }
+      .red { fill: #211719; stroke: #ff8f8f; stroke-width: 2; rx: 10; }
+      .arrow { stroke: #6ee7c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="60" y="62" class="title">High-Risk Command And Cloud/IaC Parity</text>
+  <text x="60" y="92" class="subtitle">Go enforcement only advances when shared fixtures prove the same decisions as Python.</text>
+
+  <rect x="60" y="145" width="245" height="155" class="gold"/>
+  <text x="84" y="180" class="label">Shared Fixture</text>
+  <text x="84" y="213" class="body">parity_cases.json</text>
+  <text x="84" y="238" class="body">Cloud IAM, Kubernetes</text>
+  <text x="84" y="263" class="body">Terraform/OpenTofu</text>
+  <text x="84" y="288" class="body">GitHub and injection controls</text>
+
+  <rect x="385" y="120" width="245" height="155" class="box"/>
+  <text x="409" y="155" class="label">Python Runtime</text>
+  <text x="409" y="188" class="body">Authoritative policy plane</text>
+  <text x="409" y="213" class="body">Loads bundled policy packs</text>
+  <text x="409" y="238" class="body">Produces expected decision</text>
+
+  <rect x="385" y="330" width="245" height="155" class="box"/>
+  <text x="409" y="365" class="label">Go Runtime</text>
+  <text x="409" y="398" class="body">Low-latency scaffold</text>
+  <text x="409" y="423" class="body">Mirrors public-safe controls</text>
+  <text x="409" y="448" class="body">Produces actual decision</text>
+
+  <rect x="710" y="225" width="245" height="155" class="red"/>
+  <text x="734" y="260" class="label">Parity Gate</text>
+  <text x="734" y="293" class="body">Decision must match</text>
+  <text x="734" y="318" class="body">Rule ID must match</text>
+  <text x="734" y="343" class="body">Severity must match</text>
+  <text x="734" y="368" class="body">Evidence metadata must exist</text>
+
+  <rect x="1030" y="225" width="190" height="155" class="box"/>
+  <text x="1053" y="260" class="label">CI Evidence</text>
+  <text x="1053" y="293" class="body">pytest parity</text>
+  <text x="1053" y="318" class="body">go test ./...</text>
+  <text x="1053" y="343" class="body">required check</text>
+
+  <path d="M305 222 C340 222 350 198 385 198" class="arrow"/>
+  <path d="M305 222 C340 222 350 407 385 407" class="arrow"/>
+  <path d="M630 198 C670 198 675 302 710 302" class="arrow"/>
+  <path d="M630 407 C670 407 675 302 710 302" class="arrow"/>
+  <path d="M955 302 L1030 302" class="arrow"/>
+
+  <rect x="60" y="560" width="1160" height="72" fill="#6ee7c2" rx="10"/>
+  <text x="88" y="594" class="small">Covered controls: Cloud IAM mutation blocks, Kubernetes production apply/delete blocks, Terraform/OpenTofu destructive blocks, GitHub force/admin blocks, OWASP curl/wget pipe-shell blocks, and approved read-only/test command allowances.</text>
+</svg>
