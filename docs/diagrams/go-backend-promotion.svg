@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go backend promotion gate</title>
+  <desc id="desc">Promotion readiness flow requiring runtime readiness, deployment readiness, audited parity evidence, and approval before promoted mode selects Go.</desc>
+  <defs>
+    <style>
+      .bg { fill: #081114; }
+      .panel { fill: #111b20; stroke: #31515a; stroke-width: 2; rx: 12; }
+      .gate { fill: #102620; stroke: #70dbbd; stroke-width: 3; rx: 12; }
+      .warn { fill: #2a2212; stroke: #f6c85f; stroke-width: 2; rx: 12; }
+      .text { fill: #f4fbfb; font: 700 28px Inter, Arial, sans-serif; }
+      .small { fill: #c9d7d8; font: 18px Inter, Arial, sans-serif; }
+      .label { fill: #70dbbd; font: 700 18px Inter, Arial, sans-serif; }
+      .arrow { stroke: #70dbbd; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .fallback { stroke: #f6c85f; stroke-width: 4; fill: none; marker-end: url(#arrowWarn); stroke-dasharray: 10 8; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#70dbbd"/>
+    </marker>
+    <marker id="arrowWarn" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#f6c85f"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text x="60" y="72" class="text">CAVRA Go Backend Promotion Gate</text>
+  <text x="60" y="105" class="small">Go stays optional. Promoted mode selects Go only after readiness, deployment, parity evidence, and approval pass.</text>
+
+  <rect x="60" y="155" width="250" height="120" class="panel"/>
+  <text x="88" y="200" class="label">Runtime readiness</text>
+  <text x="88" y="232" class="small">binary, policy, registry,</text>
+  <text x="88" y="258" class="small">Python fallback, parity gate</text>
+
+  <rect x="365" y="155" width="250" height="120" class="panel"/>
+  <text x="393" y="200" class="label">Deployment readiness</text>
+  <text x="393" y="232" class="small">CI runner bundles, channels,</text>
+  <text x="393" y="258" class="small">updater policy controls</text>
+
+  <rect x="670" y="155" width="250" height="120" class="panel"/>
+  <text x="698" y="200" class="label">Promotion evidence</text>
+  <text x="698" y="232" class="small">schema v1, parity pass,</text>
+  <text x="698" y="258" class="small">deployment ready refs</text>
+
+  <rect x="60" y="360" width="250" height="120" class="panel"/>
+  <text x="88" y="405" class="label">Approval recorded</text>
+  <text x="88" y="437" class="small">approved=true or approval</text>
+  <text x="88" y="463" class="small">status approved</text>
+
+  <rect x="365" y="360" width="250" height="120" class="gate"/>
+  <text x="393" y="405" class="label">Promotion report</text>
+  <text x="393" y="437" class="small">/runtime/go-pilot/</text>
+  <text x="393" y="463" class="small">promotion-readiness</text>
+
+  <rect x="670" y="360" width="250" height="120" class="gate"/>
+  <text x="698" y="405" class="label">promoted mode</text>
+  <text x="698" y="437" class="small">selects Go only when</text>
+  <text x="698" y="463" class="small">promotion status is ready</text>
+
+  <rect x="365" y="580" width="250" height="100" class="warn"/>
+  <text x="393" y="624" class="label">Fallback path</text>
+  <text x="393" y="656" class="small">any failed gate uses Python</text>
+
+  <path class="arrow" d="M310 215 H365"/>
+  <path class="arrow" d="M615 215 H670"/>
+  <path class="arrow" d="M795 275 V315 C795 342 765 360 735 360"/>
+  <path class="arrow" d="M310 420 H365"/>
+  <path class="arrow" d="M615 420 H670"/>
+  <path class="fallback" d="M490 480 V580"/>
+
+  <text x="60" y="724" class="small">Production rule: runtime promotion is a release-control decision. Missing evidence, failed deployment metadata, or missing approval never selects Go.</text>
+</svg>

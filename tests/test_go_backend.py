@@ -7,12 +7,14 @@ from pathlib import Path
 from cavra.go_backend import (
     GO_BACKEND_DISABLED,
     GO_BACKEND_ENFORCE,
+    GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
     evaluate_with_go_pilot,
     go_backend_config_from_env,
     go_backend_readiness_report,
     go_deployment_readiness_report,
+    go_promotion_readiness_report,
 )
 
 
@@ -117,6 +119,98 @@ def test_go_deployment_readiness_accepts_ci_runner_and_workstation_metadata(tmp_
     assert report["ci_runner_targets"][0]["deployment_target"] == "github-actions-linux-amd64-runner"
     assert report["workstation_targets"][0]["deployment_target"] == "linux-systemd-amd64-workstation"
     assert report["channels"] == ["stable"]
+
+
+def test_go_promotion_readiness_is_not_requested_by_default() -> None:
+    report = go_promotion_readiness_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_requested"
+    assert next(item for item in report["checks"] if item["id"] == "go_promotion_requested")["status"] == "warn"
+
+
+def test_go_promotion_readiness_requires_audited_evidence(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+
+    report = go_promotion_readiness_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+        )
+    )
+
+    assert report["status"] == "needs_attention"
+    assert next(item for item in report["checks"] if item["id"] == "go_parity_evidence")["status"] == "warn"
+
+
+def test_go_promotion_readiness_accepts_valid_audited_evidence(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+
+    report = go_promotion_readiness_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+        )
+    )
+
+    assert report["status"] == "ready"
+    assert report["evidence"]["approval_id"] == "apr_go_backend_promotion"
+
+
+def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+        ),
+    )
+
+    assert result["selected_backend"] == "python"
+    assert result["fallback_used"] is True
+    assert result["fallback_reason"] == "go backend promotion readiness check failed"
+    assert result["promotion_readiness"]["status"] == "needs_attention"
+
+
+def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+        ),
+    )
+
+    assert result["selected_backend"] == "go"
+    assert result["fallback_used"] is False
+    assert result["effective_decision"] == result["go_decision"]
 
 
 def _fake_go_runtime(tmp_path: Path, *, decision: str, rule_id: str, severity: str) -> Path:
@@ -234,3 +328,24 @@ def _write_deployment_metadata(path: Path) -> None:
         ),
         encoding="utf-8",
     )
+
+
+def _write_promotion_evidence(path: Path) -> Path:
+    evidence = path / "cavra-runtime.go-backend-promotion-evidence.json"
+    evidence.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-promotion-evidence.v1",
+                "parity_status": "pass",
+                "deployment_status": "ready",
+                "approved": True,
+                "approval_id": "apr_go_backend_promotion",
+                "evidence_refs": [
+                    "go-runtime-parity://ci/238-passed",
+                    "go-deployment-readiness://ci/ready",
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return evidence

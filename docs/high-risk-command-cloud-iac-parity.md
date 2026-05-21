@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to promote Go to an optional backend only after audited parity and deployment tests pass.
+The next recommended implementation step is to add production rollback controls for promoted Go backend pilots.

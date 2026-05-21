@@ -24,7 +24,8 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `src/cavra/go_backend.py` exposes an opt-in backend pilot that evaluates Python first, runs Go only when enabled, compares `decision`, `rule_id`, and `severity`, and falls back to Python on runtime failure, timeout, missing readiness inputs, or mismatch.
 - `cavra runtime go-pilot-readiness`, `cavra runtime go-pilot-evaluate`, `/runtime/go-pilot/readiness`, and `/runtime/go-pilot/evaluate` expose pilot readiness and evaluation evidence for operators.
 - `cavra runtime go-deployment-readiness` and `/runtime/go-pilot/deployment-readiness` validate Go backend CI runner and workstation rollout metadata.
-- `/deployment/production-readiness` and the Evidence Console Production Readiness panel now surface Go backend pilot and deployment status.
+- `cavra runtime go-promotion-readiness` and `/runtime/go-pilot/promotion-readiness` require approved audited parity evidence before `promoted` mode selects Go as an optional backend.
+- `/deployment/production-readiness` and the Evidence Console Production Readiness panel now surface Go backend pilot, deployment, and promotion status.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 

@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to promote Go to an optional backend only after audited parity and deployment tests pass.
+The next recommended implementation step is to add production rollback controls for promoted Go backend pilots.
