@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+1. Add provider-native OIDC token acquisition helpers and production key custody documentation.

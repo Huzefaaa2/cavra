@@ -88,5 +88,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+1. Add provider-native OIDC token acquisition helpers and production key custody documentation.
 2. Add contract-level fixtures when new release governance metadata kinds are introduced.

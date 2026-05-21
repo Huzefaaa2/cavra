@@ -1378,4 +1378,24 @@ Validation:
 - `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
 - Built `go/cavra-runtime/cmd/cavra-runtime` and smoke-tested `examples/ci-runners/cavra-release-governance-runner.sh` with runner auth and evidence HMAC keys.
 
-Recommended next issue: add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence stream signatures.
+Recommended next issue: delivered below as runner OIDC verification and daemon evidence verifier CLI.
+
+## Phase 7 Runner OIDC Verification And Evidence Verifier CLI
+
+Status: complete for the current public-safe runner JWT verification and daemon evidence verification slice.
+
+Completed implementation:
+- Added `OIDC-JWT` runner authentication alongside existing `HMAC-SHA256` runner signatures.
+- Added daemon-side RS256/JWKS verification for CI-provider runner tokens with issuer, audience, expiry, not-before, provider, repository, and runner identity claim checks.
+- Added client-side `--runner-auth-oidc-token` and `--runner-auth-oidc-token-file` support and daemon-side `--runner-oidc-issuer`, `--runner-oidc-audience`, `--runner-oidc-jwks`, and `--runner-oidc-jwks-url` configuration.
+- Redacted OIDC bearer JWTs from daemon evidence records while preserving runner identity metadata.
+- Added `--verify-evidence` to validate daemon evidence sequence numbers, previous hashes, record hashes, signature key IDs, and HMAC signatures.
+- Updated reusable CI runner wrappers, GitHub composite action inputs, release bundle metadata, release verification controls, README, Go runtime docs, Go daemon transport docs, Go release packaging docs, feature inventory, roadmap, and wiki source.
+
+Validation:
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m pytest tests/test_ci_templates.py::test_github_release_governance_composite_action_uses_packaged_runner_wrapper tests/test_ci_templates.py::test_release_governance_runner_wrapper_runs_daemon_and_fails_closed tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_go_daemon_transport.py tests/test_identity_references.py tests/test_immutable_storage_references.py -q`
+- `python3 scripts/validate_release_security.py`
+- `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
+
+Recommended next issue: add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers, plus production key custody and rotation documentation for runner authentication and daemon evidence verification keys.

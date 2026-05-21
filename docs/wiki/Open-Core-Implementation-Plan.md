@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+Add provider-native OIDC token acquisition helpers and production key custody documentation.

@@ -15,6 +15,8 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - Request/response evidence hooks through `--evidence-log`.
 - JSONL evidence records with `cavra.go-daemon.evidence.v1` schema, `go-daemon-evidence://...` references, hash chaining, optional `HMAC-SHA256` signatures, and key IDs.
 - Optional CI runner authentication through `runner_auth` claims signed with `HMAC-SHA256`.
+- Optional CI-provider OIDC runner authentication through `OIDC-JWT`, issuer, audience, and JWKS verification.
+- Evidence verifier CLI support through `--verify-evidence` for daemon JSONL hash chains and HMAC signatures.
 - Runtime evaluator that can use either the built-in scaffold policy or compiled policy JSON loaded through `--policy`.
 - Typed release-governance daemon request examples under `examples/go-runtime/typed-release-governance/`.
 - CI runner examples for GitHub Actions, GitLab CI, and Azure Pipelines that send typed `release_governance` payloads through the daemon.
@@ -76,6 +78,16 @@ go run ./cmd/cavra-runtime --serve \
 
 When `--evidence-signing-key` or `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is configured, each record includes `sequence`, `previous_hash`, `record_hash`, and an `HMAC-SHA256` signature. The signing key is never written to the evidence stream.
 
+Verify daemon evidence after a runner check:
+
+```bash
+go run ./cmd/cavra-runtime --verify-evidence \
+  --evidence-log .cavra/go-daemon/evidence.jsonl \
+  --evidence-signing-key-id ci-evidence-2026-q2
+```
+
+When `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is available, the verifier checks every record hash, sequence number, previous hash, signature key ID, and HMAC signature. The JSON report returns `valid`, record counts, signed-record counts, and any verification errors.
+
 Require authenticated runner claims:
 
 ```bash
@@ -105,6 +117,26 @@ go run ./cmd/cavra-runtime --daemon \
 
 When `--runner-auth-key` or `CAVRA_RUNNER_AUTH_HMAC_KEY` is configured on the daemon, unauthenticated requests return a clean `block` decision with rule `runner_auth.invalid`.
 
+Require CI-provider OIDC runner JWTs instead of shared-secret runner signatures:
+
+```bash
+export CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE=".cavra/go-daemon/runner-oidc.jwt"
+go run ./cmd/cavra-runtime --lifecycle start \
+  --socket .cavra/cavra-runtime.sock \
+  --evidence-log .cavra/go-daemon/release-governance-evidence.jsonl \
+  --runner-oidc-issuer https://token.actions.githubusercontent.com \
+  --runner-oidc-audience cavra-release-governance \
+  --runner-oidc-jwks-url https://token.actions.githubusercontent.com/.well-known/jwks
+
+go run ./cmd/cavra-runtime --daemon \
+  --socket .cavra/cavra-runtime.sock \
+  --input ../../examples/go-runtime/typed-release-governance/approved-promotion.json \
+  --runner-auth-claims .cavra/go-daemon/runner-auth-claims.json \
+  --runner-auth-oidc-token-file "${CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE}"
+```
+
+OIDC mode stores `runner_auth.algorithm` as `OIDC-JWT`, verifies RS256 JWT signatures against the configured JWKS, checks issuer, audience, expiry, not-before, provider, repository, and matching runner identity claims, and redacts the bearer JWT from daemon evidence records.
+
 Evaluate a typed release-governance request:
 
 ```bash
@@ -132,7 +164,7 @@ Signed Go runtime release packages now also include:
 - `ci-runners/cavra-release-governance-runner.sh`
 - `ci-runners/github-action/action.yml`
 
-Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence. The runner wrapper writes `runner-auth-claims.json`, signs claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, and signs the evidence stream when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set.
+Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence. The runner wrapper writes `runner-auth-claims.json`, signs claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, sends OIDC JWTs when `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE` is set, signs the evidence stream when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set, and writes an evidence verification report.
 
 ## User Stories
 
@@ -141,9 +173,11 @@ Verify the release package first, install the referenced runtime binary, then us
 - As a CI owner, I can connect runner-side tooling to a stable socket protocol.
 - As a CI owner, I can reuse a signed release-governance runner wrapper instead of rebuilding CAVRA from source in each pipeline.
 - As a CI owner, I can require signed runner claims before the daemon accepts release-governance checks.
+- As a CI owner, I can require CI-provider OIDC JWT verification before the daemon accepts release-governance checks.
 - As a platform engineer, I can call the daemon through a typed Go helper instead of hand-rolled socket code.
 - As a release manager, I can gate promotion or rollback workflows on typed release-governance evidence without relying on ad hoc JSON maps.
 - As an auditor, I can trace daemon decisions to a hash-chained, optionally signed request/response evidence stream.
+- As an auditor, I can verify daemon evidence hash chains and signatures with the packaged runtime CLI.
 - As an enterprise architect, I can evaluate a path toward a lightweight air-gapped enforcement binary.
 
 ## Enterprise Challenge Solved
@@ -154,9 +188,9 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 
 - The daemon handles one request per connection.
 - Evidence signing uses public-safe HMAC hooks in this repository; production key custody and rotation policy must be supplied by deployment automation.
-- Runner authentication validates signed claims but does not yet validate CI-provider OIDC tokens directly.
+- OIDC verification currently supports RS256 JWKS-backed CI-provider JWTs and validates common GitHub Actions, GitLab CI, Azure Pipelines, and generic runner identity claims. Provider-specific token acquisition remains pipeline-specific.
 
 ## Next Recommended Work
 
-1. Add CI-provider OIDC token verification for runner authentication.
-2. Add verifier CLI support for daemon evidence stream signatures and hash chains.
+1. Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
+2. Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.

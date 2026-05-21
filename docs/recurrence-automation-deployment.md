@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add CI-provider OIDC token verification for runner authentication and verifier CLI support for daemon evidence streams.
+Add provider-native OIDC token acquisition helpers and production key custody documentation.

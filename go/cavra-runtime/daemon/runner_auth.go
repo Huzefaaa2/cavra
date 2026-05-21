@@ -14,12 +14,13 @@ import (
 const RunnerAuthAlgorithm = "HMAC-SHA256"
 
 type RunnerAuthenticator struct {
-	HMACKey string
-	KeyID   string
+	HMACKey      string
+	KeyID        string
+	OIDCVerifier *RunnerOIDCVerifier
 }
 
 func (auth RunnerAuthenticator) Enabled() bool {
-	return auth.HMACKey != ""
+	return auth.HMACKey != "" || (auth.OIDCVerifier != nil && auth.OIDCVerifier.Enabled())
 }
 
 func (auth RunnerAuthenticator) Validate(request enforcementv1.EvaluateRequest) error {
@@ -30,8 +31,19 @@ func (auth RunnerAuthenticator) Validate(request enforcementv1.EvaluateRequest) 
 		return errors.New("runner_auth is required")
 	}
 	runnerAuth := *request.RunnerAuth
-	if runnerAuth.Algorithm != RunnerAuthAlgorithm {
-		return fmt.Errorf("runner_auth algorithm must be %s", RunnerAuthAlgorithm)
+	switch runnerAuth.Algorithm {
+	case RunnerAuthAlgorithm:
+		return auth.validateHMAC(runnerAuth)
+	case RunnerAuthOIDCAlgorithm:
+		return auth.validateOIDC(runnerAuth)
+	default:
+		return fmt.Errorf("runner_auth algorithm must be %s or %s", RunnerAuthAlgorithm, RunnerAuthOIDCAlgorithm)
+	}
+}
+
+func (auth RunnerAuthenticator) validateHMAC(runnerAuth enforcementv1.RunnerAuthentication) error {
+	if auth.HMACKey == "" {
+		return errors.New("runner HMAC authentication is not configured")
 	}
 	if auth.KeyID != "" && runnerAuth.KeyID != auth.KeyID {
 		return fmt.Errorf("runner_auth key_id mismatch: %s", runnerAuth.KeyID)
@@ -47,6 +59,19 @@ func (auth RunnerAuthenticator) Validate(request enforcementv1.EvaluateRequest) 
 		return errors.New("runner_auth identity requires provider and repository")
 	}
 	return nil
+}
+
+func (auth RunnerAuthenticator) validateOIDC(runnerAuth enforcementv1.RunnerAuthentication) error {
+	if auth.OIDCVerifier == nil || !auth.OIDCVerifier.Enabled() {
+		return errors.New("runner OIDC authentication is not configured")
+	}
+	if strings.TrimSpace(runnerAuth.Signature) == "" {
+		return errors.New("runner_auth OIDC token is required")
+	}
+	if runnerAuth.Identity.Provider == "" || runnerAuth.Identity.Repository == "" {
+		return errors.New("runner_auth identity requires provider and repository")
+	}
+	return auth.OIDCVerifier.Validate(runnerAuth.Signature, runnerAuth.Identity)
 }
 
 func SignRunnerAuthentication(

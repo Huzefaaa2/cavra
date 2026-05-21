@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,23 +31,39 @@ func main() {
 	evidenceLogPath := flag.String("evidence-log", "", "JSONL evidence log path for daemon request/response records")
 	evidenceSigningKey := flag.String("evidence-signing-key", os.Getenv("CAVRA_DAEMON_EVIDENCE_HMAC_KEY"), "optional HMAC key for chained daemon evidence signatures")
 	evidenceSigningKeyID := flag.String("evidence-signing-key-id", os.Getenv("CAVRA_DAEMON_EVIDENCE_KEY_ID"), "optional key ID for chained daemon evidence signatures")
+	verifyEvidence := flag.Bool("verify-evidence", false, "verify the evidence log hash chain and optional HMAC signatures, then exit")
 	runnerAuthKey := flag.String("runner-auth-key", os.Getenv("CAVRA_RUNNER_AUTH_HMAC_KEY"), "optional HMAC key for CI runner authentication")
 	runnerAuthKeyID := flag.String("runner-auth-key-id", os.Getenv("CAVRA_RUNNER_AUTH_KEY_ID"), "optional key ID for CI runner authentication")
 	runnerAuthClaims := flag.String("runner-auth-claims", "", "optional JSON file with CI runner identity claims to sign in --daemon mode")
+	runnerAuthOIDCToken := flag.String("runner-auth-oidc-token", os.Getenv("CAVRA_RUNNER_AUTH_OIDC_TOKEN"), "optional CI-provider OIDC token for runner authentication in --daemon mode")
+	runnerAuthOIDCTokenFile := flag.String("runner-auth-oidc-token-file", os.Getenv("CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE"), "optional file containing a CI-provider OIDC token for runner authentication in --daemon mode")
+	runnerOIDCIssuer := flag.String("runner-oidc-issuer", os.Getenv("CAVRA_RUNNER_OIDC_ISSUER"), "expected CI-provider OIDC issuer for daemon runner authentication")
+	runnerOIDCAudience := flag.String("runner-oidc-audience", os.Getenv("CAVRA_RUNNER_OIDC_AUDIENCE"), "expected CI-provider OIDC audience for daemon runner authentication")
+	runnerOIDCJWKSPath := flag.String("runner-oidc-jwks", os.Getenv("CAVRA_RUNNER_OIDC_JWKS"), "JWKS file path for daemon runner OIDC verification")
+	runnerOIDCJWKSURL := flag.String("runner-oidc-jwks-url", os.Getenv("CAVRA_RUNNER_OIDC_JWKS_URL"), "JWKS URL for daemon runner OIDC verification")
 	flag.Parse()
+
+	if *verifyEvidence {
+		runEvidenceVerifier(*evidenceLogPath, *evidenceSigningKey, *evidenceSigningKeyID)
+		return
+	}
 
 	if *lifecycle != "" {
 		runLifecycle(*lifecycle, daemon.LifecycleConfig{
-			SocketPath:      *socketPath,
-			PIDPath:         *pidPath,
-			PolicyPath:      *policyPath,
-			RegistryPath:    *registryPath,
-			EvidenceLogPath: *evidenceLogPath,
-			EvidenceKey:     *evidenceSigningKey,
-			EvidenceKeyID:   *evidenceSigningKeyID,
-			RunnerAuthKey:   *runnerAuthKey,
-			RunnerAuthKeyID: *runnerAuthKeyID,
-			StartupTimeout:  *lifecycleTimeout,
+			SocketPath:         *socketPath,
+			PIDPath:            *pidPath,
+			PolicyPath:         *policyPath,
+			RegistryPath:       *registryPath,
+			EvidenceLogPath:    *evidenceLogPath,
+			EvidenceKey:        *evidenceSigningKey,
+			EvidenceKeyID:      *evidenceSigningKeyID,
+			RunnerAuthKey:      *runnerAuthKey,
+			RunnerAuthKeyID:    *runnerAuthKeyID,
+			RunnerOIDCIssuer:   *runnerOIDCIssuer,
+			RunnerOIDCAudience: *runnerOIDCAudience,
+			RunnerOIDCJWKSPath: *runnerOIDCJWKSPath,
+			RunnerOIDCJWKSURL:  *runnerOIDCJWKSURL,
+			StartupTimeout:     *lifecycleTimeout,
 		})
 		return
 	}
@@ -61,6 +78,8 @@ func main() {
 			*runnerAuthClaims,
 			*runnerAuthKey,
 			*runnerAuthKeyID,
+			*runnerAuthOIDCToken,
+			*runnerAuthOIDCTokenFile,
 		)
 		return
 	}
@@ -91,6 +110,10 @@ func main() {
 			*evidenceSigningKeyID,
 			*runnerAuthKey,
 			*runnerAuthKeyID,
+			*runnerOIDCIssuer,
+			*runnerOIDCAudience,
+			*runnerOIDCJWKSPath,
+			*runnerOIDCJWKSURL,
 		)
 		return
 	}
@@ -164,6 +187,8 @@ func runDaemonClient(
 	runnerAuthClaims string,
 	runnerAuthKey string,
 	runnerAuthKeyID string,
+	runnerAuthOIDCToken string,
+	runnerAuthOIDCTokenFile string,
 ) {
 	reader, closeInput, err := inputReader(inputPath)
 	if err != nil {
@@ -179,7 +204,16 @@ func runDaemonClient(
 		if err != nil {
 			fail(err)
 		}
-		auth, err := daemon.SignRunnerAuthentication(identity, runnerAuthKey, runnerAuthKeyID)
+		oidcToken, err := loadRunnerOIDCToken(runnerAuthOIDCToken, runnerAuthOIDCTokenFile)
+		if err != nil {
+			fail(err)
+		}
+		var auth enforcementv1.RunnerAuthentication
+		if oidcToken != "" {
+			auth, err = daemon.BuildRunnerOIDCAuthentication(identity, oidcToken)
+		} else {
+			auth, err = daemon.SignRunnerAuthentication(identity, runnerAuthKey, runnerAuthKeyID)
+		}
 		if err != nil {
 			fail(err)
 		}
@@ -213,6 +247,38 @@ func loadRunnerIdentity(path string) (enforcementv1.RunnerIdentity, error) {
 		return enforcementv1.RunnerIdentity{}, err
 	}
 	return identity, nil
+}
+
+func loadRunnerOIDCToken(token string, tokenPath string) (string, error) {
+	if strings.TrimSpace(token) != "" {
+		return strings.TrimSpace(token), nil
+	}
+	if strings.TrimSpace(tokenPath) == "" {
+		return "", nil
+	}
+	data, err := os.ReadFile(tokenPath)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(data)), nil
+}
+
+func runEvidenceVerifier(evidenceLogPath string, signingKey string, signingKeyID string) {
+	if evidenceLogPath == "" {
+		fail(fmt.Errorf("--evidence-log is required with --verify-evidence"))
+	}
+	report, err := daemon.VerifyEvidenceStream(evidenceLogPath, signingKey, signingKeyID)
+	if err != nil {
+		fail(err)
+	}
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(report); err != nil {
+		fail(err)
+	}
+	if !report.Valid {
+		os.Exit(1)
+	}
 }
 
 func runLifecycle(action string, config daemon.LifecycleConfig) {
@@ -249,6 +315,10 @@ func serveUnixSocket(
 	evidenceSigningKeyID string,
 	runnerAuthKey string,
 	runnerAuthKeyID string,
+	runnerOIDCIssuer string,
+	runnerOIDCAudience string,
+	runnerOIDCJWKSPath string,
+	runnerOIDCJWKSURL string,
 ) {
 	if err := os.MkdirAll(filepath.Dir(socket), 0o755); err != nil {
 		fail(err)
@@ -268,7 +338,16 @@ func serveUnixSocket(
 		_ = listener.Close()
 	}()
 	recorder := daemon.NewEvidenceRecorder(evidenceLogPath).WithSigningKey(evidenceSigningKey, evidenceSigningKeyID)
-	authenticator := daemon.RunnerAuthenticator{HMACKey: runnerAuthKey, KeyID: runnerAuthKeyID}
+	authenticator := daemon.RunnerAuthenticator{
+		HMACKey: runnerAuthKey,
+		KeyID:   runnerAuthKeyID,
+		OIDCVerifier: &daemon.RunnerOIDCVerifier{
+			Issuer:   runnerOIDCIssuer,
+			Audience: runnerOIDCAudience,
+			JWKSPath: runnerOIDCJWKSPath,
+			JWKSURL:  runnerOIDCJWKSURL,
+		},
+	}
 	if err := daemon.ServeWithSecurity(listener, daemon.RuntimeEvaluatorWithRegistry(policy, registry), recorder, authenticator); err != nil {
 		fail(err)
 	}

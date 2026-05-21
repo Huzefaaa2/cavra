@@ -18,17 +18,21 @@ import (
 const DefaultLifecycleTimeout = 5 * time.Second
 
 type LifecycleConfig struct {
-	SocketPath      string
-	PIDPath         string
-	PolicyPath      string
-	RegistryPath    string
-	EvidenceLogPath string
-	EvidenceKey     string
-	EvidenceKeyID   string
-	RunnerAuthKey   string
-	RunnerAuthKeyID string
-	BinaryPath      string
-	StartupTimeout  time.Duration
+	SocketPath         string
+	PIDPath            string
+	PolicyPath         string
+	RegistryPath       string
+	EvidenceLogPath    string
+	EvidenceKey        string
+	EvidenceKeyID      string
+	RunnerAuthKey      string
+	RunnerAuthKeyID    string
+	RunnerOIDCIssuer   string
+	RunnerOIDCAudience string
+	RunnerOIDCJWKSPath string
+	RunnerOIDCJWKSURL  string
+	BinaryPath         string
+	StartupTimeout     time.Duration
 }
 
 type LifecycleStatus struct {
@@ -85,6 +89,18 @@ func StartDaemon(config LifecycleConfig) (LifecycleStatus, error) {
 	}
 	if config.RunnerAuthKeyID != "" {
 		args = append(args, "--runner-auth-key-id", config.RunnerAuthKeyID)
+	}
+	if config.RunnerOIDCIssuer != "" {
+		args = append(args, "--runner-oidc-issuer", config.RunnerOIDCIssuer)
+	}
+	if config.RunnerOIDCAudience != "" {
+		args = append(args, "--runner-oidc-audience", config.RunnerOIDCAudience)
+	}
+	if config.RunnerOIDCJWKSPath != "" {
+		args = append(args, "--runner-oidc-jwks", config.RunnerOIDCJWKSPath)
+	}
+	if config.RunnerOIDCJWKSURL != "" {
+		args = append(args, "--runner-oidc-jwks-url", config.RunnerOIDCJWKSURL)
 	}
 	cmd := exec.Command(config.BinaryPath, args...)
 	cmd.Stdout = os.Stdout

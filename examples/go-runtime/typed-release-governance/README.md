@@ -38,7 +38,7 @@ Reference CI templates are available for:
 - GitLab CI: `examples/gitlab-ci/cavra-release-governance-go-runtime.gitlab-ci.yml`
 - Azure Pipelines: `examples/azure-pipelines/cavra-release-governance-go-runtime.azure-pipelines.yml`
 
-The templates run the Go daemon, send the typed request, validate the expected decision, and publish daemon evidence artifacts. The packaged runner wrapper can also sign CI runner identity claims with `CAVRA_RUNNER_AUTH_HMAC_KEY` and sign the hash-chained daemon evidence stream with `CAVRA_DAEMON_EVIDENCE_HMAC_KEY`.
+The templates run the Go daemon, send the typed request, validate the expected decision, and publish daemon evidence artifacts. The packaged runner wrapper can also sign CI runner identity claims with `CAVRA_RUNNER_AUTH_HMAC_KEY`, send CI-provider OIDC JWTs with `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE`, sign the hash-chained daemon evidence stream with `CAVRA_DAEMON_EVIDENCE_HMAC_KEY`, and write an evidence verification report.
 
 Reusable runner assets are available for signed runtime packages:
 
