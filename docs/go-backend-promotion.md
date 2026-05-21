@@ -37,9 +37,10 @@ export CAVRA_GO_RUNTIME_PATH=/opt/cavra/bin/cavra-runtime
 export CAVRA_GO_RUNTIME_POLICY=/etc/cavra/compiled-policy.json
 export CAVRA_GO_RUNTIME_PACKAGE_DIR=/opt/cavra/go-runtime-release
 export CAVRA_GO_PROMOTION_EVIDENCE=/etc/cavra/go-backend-promotion-evidence.json
+export CAVRA_GO_ROLLBACK_PLAN=/etc/cavra/go-backend-rollback-plan.json
 ```
 
-`promoted` mode fails closed to Python when any promotion input is missing, malformed, stale, or unapproved.
+`promoted` mode fails closed to Python when any promotion or rollback input is missing, malformed, stale, or unapproved.
 
 ## CLI Usage
 
@@ -50,6 +51,7 @@ cavra runtime go-promotion-readiness \
   --policy-path /etc/cavra/compiled-policy.json \
   --package-dir /opt/cavra/go-runtime-release \
   --promotion-evidence-path /etc/cavra/go-backend-promotion-evidence.json \
+  --rollback-plan-path /etc/cavra/go-backend-rollback-plan.json \
   --json
 ```
 
@@ -72,13 +74,14 @@ curl http://127.0.0.1:8000/runtime/go-pilot/promotion-readiness
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Production readiness includes a `go_backend_promotion` section and a `go_backend_promotion_gate` check. `not_requested` is acceptable when Go promotion is not configured. `needs_attention` blocks readiness when promoted mode is requested without complete evidence.
+Production readiness includes `go_backend_promotion` and `go_backend_rollback` sections. `not_requested` is acceptable when Go promotion is not configured. `needs_attention` blocks readiness when promoted mode is requested without complete promotion evidence or rollback controls.
 
 ## User Stories
 
 - As a platform owner, I can keep Python authoritative while testing Go in shadow and enforce modes.
 - As a release owner, I can require audited parity and deployment evidence before Go becomes the selected optional backend.
 - As a security reviewer, I can prove promoted mode falls back to Python when promotion evidence is missing.
+- As an incident commander, I can require rollback controls before promoted mode can select Go.
 - As an auditor, I can attach parity, deployment, and approval references to every promoted backend decision path.
 
 ## Enterprise Challenge Solved
@@ -87,4 +90,4 @@ Runtime backend changes are high-risk because a silent drift can alter enforceme
 
 ## Next Work
 
-The next recommended implementation step is to add production rollback controls for promoted Go backend pilots.
+The next recommended implementation step is to add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.

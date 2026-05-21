@@ -15,6 +15,7 @@ from cavra.go_backend import (
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
+    go_rollback_readiness_report,
 )
 
 
@@ -168,6 +169,32 @@ def test_go_promotion_readiness_accepts_valid_audited_evidence(tmp_path: Path) -
     assert report["evidence"]["approval_id"] == "apr_go_backend_promotion"
 
 
+def test_go_rollback_readiness_is_not_requested_by_default() -> None:
+    report = go_rollback_readiness_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_requested"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_requested")["status"] == "warn"
+
+
+def test_go_rollback_readiness_requires_approved_plan() -> None:
+    report = go_rollback_readiness_report(GoBackendConfig(mode=GO_BACKEND_PROMOTED))
+
+    assert report["status"] == "needs_attention"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_plan")["status"] == "warn"
+
+
+def test_go_rollback_readiness_accepts_valid_plan(tmp_path: Path) -> None:
+    rollback = _write_rollback_plan(tmp_path)
+
+    report = go_rollback_readiness_report(
+        GoBackendConfig(mode=GO_BACKEND_PROMOTED, rollback_plan_path=str(rollback))
+    )
+
+    assert report["status"] == "ready"
+    assert report["rollback"]["target_mode"] == GO_BACKEND_DISABLED
+    assert report["rollback"]["approval_id"] == "apr_go_backend_rollback"
+
+
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
@@ -190,7 +217,7 @@ def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) 
     assert result["promotion_readiness"]["status"] == "needs_attention"
 
 
-def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+def test_go_promoted_mode_falls_back_without_rollback_plan(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
     policy.write_text("{}", encoding="utf-8")
@@ -205,6 +232,32 @@ def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) 
             policy_path=str(policy),
             package_dir=str(tmp_path),
             promotion_evidence_path=str(promotion),
+        ),
+    )
+
+    assert result["selected_backend"] == "python"
+    assert result["fallback_used"] is True
+    assert result["fallback_reason"] == "go backend rollback readiness check failed"
+    assert result["rollback_readiness"]["status"] == "needs_attention"
+
+
+def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+    rollback = _write_rollback_plan(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+            rollback_plan_path=str(rollback),
         ),
     )
 
@@ -349,3 +402,37 @@ def _write_promotion_evidence(path: Path) -> Path:
         encoding="utf-8",
     )
     return evidence
+
+
+def _write_rollback_plan(path: Path) -> Path:
+    plan = path / "cavra-runtime.go-backend-rollback-plan.json"
+    plan.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-plan.v1",
+                "status": "ready",
+                "target_mode": "disabled",
+                "approved": True,
+                "approval_id": "apr_go_backend_rollback",
+                "max_recovery_minutes": 15,
+                "controls": [
+                    "python-fallback-available",
+                    "promoted-mode-disable-tested",
+                    "rollback-approval-recorded",
+                    "operator-runbook-linked",
+                    "evidence-capture-enabled",
+                ],
+                "rollback_steps": [
+                    "Set CAVRA_GO_BACKEND_MODE=disabled.",
+                    "Restart API, CI runner, or workstation process using CAVRA.",
+                    "Capture go rollback readiness and production readiness reports.",
+                ],
+                "evidence_refs": [
+                    "go-rollback-readiness://ci/ready",
+                    "go-promotion-rollback-runbook://docs/current",
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return plan

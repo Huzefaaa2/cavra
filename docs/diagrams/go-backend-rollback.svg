@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go backend rollback controls</title>
+  <desc id="desc">Rollback readiness flow for promoted Go backend pilots returning CAVRA to Python-only mode.</desc>
+  <defs>
+    <style>
+      .bg { fill: #081114; }
+      .panel { fill: #111b20; stroke: #31515a; stroke-width: 2; rx: 12; }
+      .gate { fill: #102620; stroke: #70dbbd; stroke-width: 3; rx: 12; }
+      .safe { fill: #17251d; stroke: #9fd18b; stroke-width: 3; rx: 12; }
+      .warn { fill: #2a2212; stroke: #f6c85f; stroke-width: 2; rx: 12; }
+      .text { fill: #f4fbfb; font: 700 28px Inter, Arial, sans-serif; }
+      .small { fill: #c9d7d8; font: 18px Inter, Arial, sans-serif; }
+      .label { fill: #70dbbd; font: 700 18px Inter, Arial, sans-serif; }
+      .arrow { stroke: #70dbbd; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .fallback { stroke: #f6c85f; stroke-width: 4; fill: none; marker-end: url(#arrowWarn); stroke-dasharray: 10 8; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#70dbbd"/>
+    </marker>
+    <marker id="arrowWarn" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#f6c85f"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text x="60" y="72" class="text">CAVRA Go Backend Rollback Controls</text>
+  <text x="60" y="105" class="small">Promoted Go backend pilots require a tested path back to Python-only mode before Go is selected.</text>
+
+  <rect x="60" y="155" width="260" height="122" class="panel"/>
+  <text x="88" y="200" class="label">Rollback plan</text>
+  <text x="88" y="232" class="small">schema v1, status ready,</text>
+  <text x="88" y="258" class="small">target_mode disabled</text>
+
+  <rect x="370" y="155" width="260" height="122" class="panel"/>
+  <text x="398" y="200" class="label">Approval and controls</text>
+  <text x="398" y="232" class="small">approval recorded, steps,</text>
+  <text x="398" y="258" class="small">evidence capture enabled</text>
+
+  <rect x="680" y="155" width="260" height="122" class="panel"/>
+  <text x="708" y="200" class="label">Recovery target</text>
+  <text x="708" y="232" class="small">CAVRA_GO_BACKEND_MODE</text>
+  <text x="708" y="258" class="small">set to disabled</text>
+
+  <rect x="215" y="370" width="260" height="122" class="gate"/>
+  <text x="243" y="415" class="label">Rollback report</text>
+  <text x="243" y="447" class="small">/runtime/go-pilot/</text>
+  <text x="243" y="473" class="small">rollback-readiness</text>
+
+  <rect x="525" y="370" width="260" height="122" class="gate"/>
+  <text x="553" y="415" class="label">Promoted evaluation</text>
+  <text x="553" y="447" class="small">requires promotion ready</text>
+  <text x="553" y="473" class="small">and rollback ready</text>
+
+  <rect x="835" y="370" width="260" height="122" class="safe"/>
+  <text x="863" y="415" class="label">Python-only recovery</text>
+  <text x="863" y="447" class="small">fallback selected when</text>
+  <text x="863" y="473" class="small">rollback gates fail</text>
+
+  <rect x="525" y="590" width="260" height="90" class="warn"/>
+  <text x="553" y="628" class="label">Fail closed</text>
+  <text x="553" y="658" class="small">missing plan never selects Go</text>
+
+  <path class="arrow" d="M320 216 H370"/>
+  <path class="arrow" d="M630 216 H680"/>
+  <path class="arrow" d="M810 277 V330 C810 360 760 370 735 370"/>
+  <path class="arrow" d="M475 431 H525"/>
+  <path class="arrow" d="M785 431 H835"/>
+  <path class="fallback" d="M655 492 V590"/>
+
+  <text x="60" y="724" class="small">Production rule: promoted Go backend pilots must be reversible before they are selectable. Disable mode returns execution to Python.</text>
+</svg>

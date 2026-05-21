@@ -33,6 +33,7 @@ from cavra.go_backend import (
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
+    go_rollback_readiness_report,
 )
 from cavra.integrations import (
     IntegrationStore,
@@ -345,6 +346,7 @@ def create_app():
                 "go_backend_readiness": "/runtime/go-pilot/readiness",
                 "go_deployment_readiness": "/runtime/go-pilot/deployment-readiness",
                 "go_promotion_readiness": "/runtime/go-pilot/promotion-readiness",
+                "go_rollback_readiness": "/runtime/go-pilot/rollback-readiness",
                 "go_backend_evaluate": "/runtime/go-pilot/evaluate",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
@@ -614,6 +616,7 @@ def create_app():
             go_backend_readiness=go_backend_readiness_report(),
             go_deployment_readiness=go_deployment_readiness_report(),
             go_promotion_readiness=go_promotion_readiness_report(),
+            go_rollback_readiness=go_rollback_readiness_report(),
         )
 
     @app.get("/runtime/go-pilot/readiness")
@@ -627,6 +630,10 @@ def create_app():
     @app.get("/runtime/go-pilot/promotion-readiness")
     def runtime_go_pilot_promotion_readiness() -> dict[str, object]:
         return go_promotion_readiness_report()
+
+    @app.get("/runtime/go-pilot/rollback-readiness")
+    def runtime_go_pilot_rollback_readiness() -> dict[str, object]:
+        return go_rollback_readiness_report()
 
     @app.post("/runtime/go-pilot/evaluate")
     def runtime_go_pilot_evaluate(payload: dict) -> dict[str, object]:

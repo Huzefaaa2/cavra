@@ -212,6 +212,7 @@ def production_readiness_report(
     go_backend_readiness: dict[str, Any] | None = None,
     go_deployment_readiness: dict[str, Any] | None = None,
     go_promotion_readiness: dict[str, Any] | None = None,
+    go_rollback_readiness: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     stores = store_status.get("items", []) if isinstance(store_status, dict) else []
     missing_stores = [item.get("name") for item in stores if not item.get("exists")]
@@ -223,6 +224,7 @@ def production_readiness_report(
         or (go_backend_mode == "disabled" and go_deployment_status == "not_configured")
     )
     go_promotion_status = (go_promotion_readiness or {}).get("status", "not_requested")
+    go_rollback_status = (go_rollback_readiness or {}).get("status", "not_requested")
     checks = [
         _check("oidc_configured", oidc_configured, "Console and approval actions validate signed OIDC tokens."),
         _check("rbac_configured", rbac_configured, "Repository-scoped RBAC policy is configured."),
@@ -251,6 +253,13 @@ def production_readiness_report(
             mode=go_backend_mode,
             go_promotion_status=go_promotion_status,
         ),
+        _check(
+            "go_backend_rollback_controls",
+            go_rollback_status in {"not_requested", "ready"},
+            "Promoted Go backend mode requires an approved rollback plan back to Python-only mode.",
+            mode=go_backend_mode,
+            go_rollback_status=go_rollback_status,
+        ),
     ]
     return {
         "schema_version": "cavra.deployment.production_readiness.v1",
@@ -277,6 +286,13 @@ def production_readiness_report(
         "go_backend_promotion": go_promotion_readiness
         or {
             "schema_version": "cavra.go-backend-pilot.promotion-readiness.v1",
+            "mode": "disabled",
+            "status": "not_requested",
+            "checks": [],
+        },
+        "go_backend_rollback": go_rollback_readiness
+        or {
+            "schema_version": "cavra.go-backend-pilot.rollback-readiness.v1",
             "mode": "disabled",
             "status": "not_requested",
             "checks": [],

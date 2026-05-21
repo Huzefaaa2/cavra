@@ -86,6 +86,15 @@ def test_runtime_go_promotion_readiness_cli_reports_not_requested() -> None:
     assert payload["status"] == "not_requested"
 
 
+def test_runtime_go_rollback_readiness_cli_reports_not_requested() -> None:
+    result = runner.invoke(app, ["runtime", "go-rollback-readiness", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.go-backend-pilot.rollback-readiness.v1"
+    assert payload["status"] == "not_requested"
+
+
 def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
     event = tmp_path / "event.json"
     config = tmp_path / "connectors.json"
