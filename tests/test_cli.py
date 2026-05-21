@@ -131,6 +131,39 @@ def test_runtime_go_rollback_drill_notification_plan_cli_reports_payload() -> No
     assert payload["event"]["event_type"] == "cavra.go_backend.rollback_drill.notification"
 
 
+def test_runtime_go_rollback_drill_notification_plan_cli_accepts_routing_policy(tmp_path: Path) -> None:
+    routing_policy = tmp_path / "routing-policy.json"
+    routing_policy.write_text(
+        json.dumps(
+            {
+                "owner_routes": {
+                    "release-governance": {
+                        "providers": ["slack"],
+                        "acknowledgement_minutes": 15,
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = runner.invoke(
+        app,
+        [
+            "runtime",
+            "go-rollback-drill-notification-plan",
+            "--routing-policy",
+            str(routing_policy),
+            "--force",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["plan"]["selected_providers"] == ["slack"]
+    assert payload["plan"]["route_decisions"][0]["acknowledgement_minutes"] == 15
+
+
 def test_runtime_go_rollback_drill_notification_ack_cli_reports_payload() -> None:
     result = runner.invoke(
         app,

@@ -1701,7 +1701,19 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
 
     response = client.post(
         "/runtime/go-pilot/rollback-drill-notifications/deliver",
-        json={"provider": "webhook", "retries": 0, "timeout_seconds": 0.1},
+        json={
+            "provider": "webhook",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+            "routing_policy": {
+                "owner_routes": {
+                    "release-governance": {
+                        "providers": ["webhook"],
+                        "acknowledgement_minutes": 30,
+                    }
+                }
+            },
+        },
     )
     dashboard_before = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
     escalation = client.post(
@@ -1722,6 +1734,7 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert response.status_code == 200
     assert response.json()["plan"]["alert_level"] == "critical"
     assert response.json()["plan"]["selected_providers"] == ["webhook"]
+    assert response.json()["plan"]["route_decisions"][0]["acknowledgement_minutes"] == 30
     assert response.json()["metadata"]["connector_delivery_source"] == "go_backend_rollback_drill_notification"
     assert response.json()["plan_metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-plan"
     assert dashboard_before.status_code == 200

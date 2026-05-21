@@ -328,6 +328,83 @@ def test_go_rollback_drill_schedule_accepts_due_soon_notification_routes(tmp_pat
     assert event["alert_level"] == "warning"
 
 
+def test_go_rollback_drill_notification_plan_applies_owner_routes_and_maintenance(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    now = datetime.now(timezone.utc)
+    policy = {
+        "owner_routes": {
+            "release-governance": {
+                "providers": ["slack", "teams"],
+                "acknowledgement_minutes": 15,
+                "escalation_owner": "platform-lead",
+            }
+        },
+        "maintenance_windows": [
+            {
+                "window_id": "change-freeze",
+                "start_at": (now - timedelta(minutes=5)).isoformat(),
+                "end_at": (now + timedelta(minutes=30)).isoformat(),
+                "providers": ["slack"],
+                "owners": ["release-governance"],
+                "reason": "production change freeze",
+            }
+        ],
+    }
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+            rollback_drill_due_soon_days=14,
+        )
+    )
+
+    plan = build_go_rollback_drill_notification_plan(report, routing_policy=policy, now=now)
+
+    assert plan["selected_providers"] == ["teams"]
+    assert plan["maintenance_suppressed_count"] == 1
+    assert plan["deliverable_route_count"] == 1
+    assert next(route for route in plan["route_decisions"] if route["provider"] == "slack")["action"] == "suppress"
+    teams = next(route for route in plan["route_decisions"] if route["provider"] == "teams")
+    assert teams["acknowledgement_minutes"] == 15
+    assert teams["escalation_owner"] == "platform-lead"
+
+
+def test_go_rollback_drill_notification_plan_applies_owner_calendar(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    now = datetime.now(timezone.utc)
+    policy = {
+        "owner_routes": {"release-governance": {"providers": ["slack"]}},
+        "owner_calendars": {
+            "release-governance": {
+                "unavailable_windows": [
+                    {
+                        "start_at": (now - timedelta(minutes=5)).isoformat(),
+                        "end_at": (now + timedelta(minutes=30)).isoformat(),
+                        "reason": "regional holiday",
+                    }
+                ]
+            }
+        },
+    }
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+            rollback_drill_due_soon_days=14,
+        )
+    )
+
+    plan = build_go_rollback_drill_notification_plan(report, routing_policy=policy, now=now)
+
+    assert plan["selected_providers"] == []
+    assert plan["calendar_suppressed_count"] == 1
+    assert plan["route_decisions"][0]["reason"] == "regional holiday"
+
+
 def test_go_rollback_drill_notification_acknowledgement_and_dashboard(tmp_path: Path) -> None:
     drills = _write_rollback_drill_history(tmp_path)
     schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
@@ -381,6 +458,40 @@ def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path:
     assert escalation["breached_count"] == 1
     assert escalation["routes"][0]["recommended_action"] == "escalate_missed_drill_notification"
     assert metadata["metadata_kind"] == "go-backend-rollback-drill-notification-escalation-plan"
+
+
+def test_go_rollback_drill_notification_escalation_uses_owner_slo(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    now = datetime.now(timezone.utc)
+    policy = {
+        "owner_routes": {
+            "release-governance": {
+                "providers": ["slack"],
+                "acknowledgement_minutes": 20,
+            }
+        }
+    }
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack", routing_policy=policy, now=now)
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    plan_metadata["created_at"] = (now - timedelta(minutes=10)).isoformat()
+
+    escalation = build_go_rollback_drill_notification_escalation_plan(
+        [plan_metadata],
+        policy=policy,
+        now=now,
+    )
+
+    assert escalation["alert_level"] == "warning"
+    assert escalation["breached_count"] == 0
+    assert escalation["routes"][0]["acknowledgement_minutes"] == 20
 
 
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:

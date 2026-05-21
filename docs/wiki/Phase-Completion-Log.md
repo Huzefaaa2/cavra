@@ -1706,7 +1706,7 @@ Enterprise challenge solved:
 - Turns stale drill schedules into visible readiness failures and connector-backed notification evidence.
 - Keeps connector credentials, private URLs, customer names, and endpoint details outside the public Community Edition.
 
-Recommended next issue: add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+Recommended next issue: delivered below as rollback drill notification acknowledgement and escalation.
 
 ## Phase 7 Go Backend Rollback Drill Notification Acknowledgement and Escalation
 
@@ -1739,4 +1739,36 @@ Enterprise challenge solved:
 - Produces public-safe escalation evidence for missed drill notifications.
 - Keeps connector credentials, private routing logic, customer names, and endpoint details outside the public Community Edition.
 
-Recommended next issue: add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+Recommended next issue: delivered below as rollback drill owner routing and maintenance-window suppression.
+
+## Phase 7 Go Backend Rollback Drill Routing and Maintenance Windows
+
+Status: complete for the current public-safe owner routing and maintenance-window suppression slice.
+
+Completed implementation:
+- Added public-safe rollback drill `owner_routes`, `maintenance_windows`, and `owner_calendars` support in schedule metadata.
+- Added route-level notification decisions with `deliver`, `suppress`, maintenance-window suppression, and owner-calendar suppression reasons.
+- Added owner-specific provider selection, acknowledgement SLOs, and escalation owner metadata for promoted backend rollback drill notifications.
+- Updated notification plan metadata with selected providers, acknowledgement-required providers, route decisions, deliverable route counts, suppressed route counts, maintenance suppression counts, and calendar suppression counts.
+- Updated missed-notification escalation planning to use owner-specific acknowledgement SLOs from routing policy.
+- Added CLI `--routing-policy` support to `cavra runtime go-rollback-drill-notification-plan` and `cavra runtime go-rollback-drill-escalation-plan`.
+- Added API `routing_policy` support to `/runtime/go-pilot/rollback-drill-notifications/deliver`.
+- Added tests for owner route selection, maintenance-window suppression, owner-calendar suppression, owner-specific escalation SLOs, CLI routing policy loading, and API routing policy handling.
+- Added `docs/go-backend-rollback-drill-routing.md`, `docs/wiki/Go-Backend-Rollback-Drill-Routing.md`, and `docs/diagrams/go-backend-rollback-drill-routing.svg`.
+- Updated README, API docs, feature inventory, production roadmap, scheduling docs, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+
+User stories:
+- As a release manager, I can route rollback drill notifications to different providers per owner.
+- As an incident commander, I can suppress drill notifications during approved maintenance windows while preserving audit metadata.
+- As a platform owner, I can apply owner-specific acknowledgement SLOs for promoted backend rollback confidence.
+- As an auditor, I can review route decisions without seeing private connector credentials or customer calendar data.
+
+Enterprise challenge solved:
+- Aligns rollback drill notification delivery with enterprise change freezes and team-specific ownership.
+- Preserves public-safe route decision evidence for auditors and release governance.
+- Keeps connector credentials, private routing logic, customer names, and internal calendar exports outside the public Community Edition.
+
+Recommended next issue: add Evidence Console drill notification acknowledgement and escalation drill-down views.

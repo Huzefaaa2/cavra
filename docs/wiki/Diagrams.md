@@ -84,6 +84,10 @@ See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule an
 
 See `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg` for the acknowledgement and escalation path that tracks missed rollback drill notifications.
 
+## Go Backend Rollback Drill Routing
+
+See `docs/diagrams/go-backend-rollback-drill-routing.svg` for owner routing, maintenance-window suppression, owner calendar suppression, and route decision evidence for promoted Go backend rollback drills.
+
 ## SVG Images
 
 Repository diagram images:
@@ -106,6 +110,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-history.svg`
 - `docs/diagrams/go-backend-rollback-drill-scheduling.svg`
 - `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg`
+- `docs/diagrams/go-backend-rollback-drill-routing.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

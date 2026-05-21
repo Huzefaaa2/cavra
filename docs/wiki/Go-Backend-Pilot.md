@@ -115,4 +115,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.

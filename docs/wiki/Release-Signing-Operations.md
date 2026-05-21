@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.

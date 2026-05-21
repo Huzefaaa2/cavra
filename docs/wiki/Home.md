@@ -92,6 +92,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Backend Rollback Drill History: `Go-Backend-Rollback-Drill-History.md`
 - Go Backend Rollback Drill Scheduling: `Go-Backend-Rollback-Drill-Scheduling.md`
 - Go Backend Rollback Drill Notification Escalation: `Go-Backend-Rollback-Drill-Notification-Escalation.md`
+- Go Backend Rollback Drill Routing: `Go-Backend-Rollback-Drill-Routing.md`
 - Vulnerability Disclosure: `Vulnerability-Disclosure.md`
 - Release Security Advisories: `Release-Security-Advisories.md`
 - Hosted Sandbox Deployment: `Hosted-Sandbox-Deployment.md`

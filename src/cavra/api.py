@@ -682,10 +682,12 @@ def create_app():
                 available_providers=_configured_connector_providers(connector_config),
                 generated_by=payload.get("generated_by", "console"),
                 force=bool(payload.get("force", False)),
+                routing_policy=payload.get("routing_policy") if isinstance(payload.get("routing_policy"), dict) else None,
             )
             event = build_go_rollback_drill_notification_event(
                 report,
                 generated_by=payload.get("generated_by", "console"),
+                routing_policy=payload.get("routing_policy") if isinstance(payload.get("routing_policy"), dict) else None,
             )
             event["notification_plan"] = plan
             plan_metadata = evidence_store.upsert(build_go_rollback_drill_notification_plan_metadata(plan))
