@@ -618,6 +618,15 @@ def verify_go_release_package(
         except ReleaseVerificationError as exc:
             errors.append(str(exc))
 
+    signing_operations_path = package_dir / "cavra-runtime.signing-operations.json"
+    if not signing_operations_path.exists():
+        errors.append("missing cavra-runtime.signing-operations.json")
+    else:
+        try:
+            verify_go_release_signing_operations(signing_operations_path, package_dir, expected_checksums, evidence)
+        except ReleaseVerificationError as exc:
+            errors.append(str(exc))
+
     endpoint_deployment_path = package_dir / "cavra-runtime.endpoint-deployment.json"
     if not endpoint_deployment_path.exists():
         errors.append("missing cavra-runtime.endpoint-deployment.json")
@@ -6948,6 +6957,90 @@ def verify_go_reproducibility_manifest(
     if seen_targets != declared_targets:
         raise ReleaseVerificationError("reproducibility manifest binaries do not cover every declared target")
     return sorted(verified)
+
+
+def verify_go_release_signing_operations(
+    signing_operations_path: Path,
+    package_dir: Path,
+    expected_checksums: dict[str, str],
+    evidence: dict[str, Any],
+) -> list[str]:
+    try:
+        payload = json.loads(signing_operations_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ReleaseVerificationError(f"invalid release signing operations JSON: {exc}") from exc
+    if payload.get("schema_version") != "cavra.go-runtime.signing-operations.v1":
+        raise ReleaseVerificationError("release signing operations has an invalid schema_version")
+    if payload.get("component") != "go-enforcement-plane":
+        raise ReleaseVerificationError("release signing operations must reference go-enforcement-plane")
+    if evidence and payload.get("version") != evidence.get("version"):
+        raise ReleaseVerificationError("release signing operations version does not match release evidence")
+    if payload.get("algorithm") != "Ed25519":
+        raise ReleaseVerificationError("release signing operations must declare Ed25519")
+    key_id = str(payload.get("active_key_id", ""))
+    if not key_id:
+        raise ReleaseVerificationError("release signing operations is missing active_key_id")
+    if evidence and bool(payload.get("signing_required")) != bool(evidence.get("signing_required")):
+        raise ReleaseVerificationError("release signing operations signing_required does not match release evidence")
+
+    expected_sha256 = expected_checksums.get("cavra-runtime.signing-operations.json")
+    if expected_sha256 is None:
+        raise ReleaseVerificationError("release signing operations is missing from checksums.txt")
+    if sha256_file(signing_operations_path) != expected_sha256:
+        raise ReleaseVerificationError("release signing operations disagrees with checksums.txt")
+    if _safe_package_path(package_dir, "cavra-runtime.signing-operations.json") != signing_operations_path.resolve():
+        raise ReleaseVerificationError("release signing operations path is outside the package directory")
+
+    controls = payload.get("controls")
+    required_controls = {
+        "release-signing-key-id-declared",
+        "private-key-public-boundary-documented",
+        "quarterly-key-rotation-policy",
+        "incident-triggered-revocation-policy",
+        "emergency-revocation-evidence-required",
+        "replacement-key-overlap-guidance",
+        "signed-release-evidence-required",
+    }
+    if not isinstance(controls, list) or not required_controls.issubset(set(controls)):
+        raise ReleaseVerificationError("release signing operations is missing required controls")
+
+    custody_model = payload.get("custody_model")
+    if not isinstance(custody_model, dict):
+        raise ReleaseVerificationError("release signing operations is missing custody_model")
+    boundary = str(custody_model.get("private_key_public_repo_boundary", "")).lower()
+    if "private signing keys must never be committed" not in boundary:
+        raise ReleaseVerificationError("release signing operations must document the private-key public repository boundary")
+
+    rotation_policy = payload.get("rotation_policy")
+    if not isinstance(rotation_policy, dict):
+        raise ReleaseVerificationError("release signing operations is missing rotation_policy")
+    cadence = str(rotation_policy.get("cadence", "")).lower()
+    if "quarterly" not in cadence and "incident" not in cadence:
+        raise ReleaseVerificationError("release signing operations must define quarterly or incident-triggered rotation")
+    rotation_actions = rotation_policy.get("minimum_actions")
+    if not isinstance(rotation_actions, list) or not rotation_actions:
+        raise ReleaseVerificationError("release signing operations must define rotation actions")
+    rotation_text = "\n".join(str(action).lower() for action in rotation_actions)
+    if "replacement key" not in rotation_text or "old key" not in rotation_text:
+        raise ReleaseVerificationError("release signing operations must define replacement-key overlap guidance")
+
+    emergency_revocation = payload.get("emergency_revocation")
+    if not isinstance(emergency_revocation, dict):
+        raise ReleaseVerificationError("release signing operations is missing emergency_revocation")
+    required_evidence = emergency_revocation.get("required_evidence")
+    required_actions = emergency_revocation.get("required_actions")
+    if not isinstance(required_evidence, list) or not isinstance(required_actions, list):
+        raise ReleaseVerificationError("release signing operations emergency revocation must define evidence and actions")
+    evidence_text = "\n".join(str(item).lower() for item in required_evidence)
+    action_text = "\n".join(str(item).lower() for item in required_actions)
+    for fragment in ("revoked key_id", "replacement key_id", "customer advisory"):
+        if fragment not in evidence_text:
+            raise ReleaseVerificationError(f"release signing operations emergency evidence is missing {fragment}")
+    for fragment in ("disable the compromised signing secret", "rebuild and sign replacement packages"):
+        if fragment not in action_text:
+            raise ReleaseVerificationError(f"release signing operations emergency action is missing {fragment}")
+
+    return [key_id]
 
 
 def verify_managed_endpoint_deployment(

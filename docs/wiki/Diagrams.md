@@ -44,6 +44,10 @@ The release-governance runner wrapper now acquires provider OIDC tokens from Git
 
 See `docs/diagrams/go-reproducible-airgap.svg` for the release path from connected GitHub Actions build, checksums, SBOM, signatures, provenance, and reproducibility metadata to restricted-environment verification and optional binary rebuild.
 
+## Release Signing Operations
+
+See `docs/diagrams/release-signing-operations.svg` for the release path from external signing key custody into signed package generation, verifier enforcement, planned key rotation, and emergency revocation evidence.
+
 ## SVG Images
 
 Repository diagram images:
@@ -56,6 +60,7 @@ Repository diagram images:
 - `docs/diagrams/oidc-rbac-deployment.svg`
 - `docs/diagrams/go-parity-sandbox-deployment.svg`
 - `docs/diagrams/go-reproducible-airgap.svg`
+- `docs/diagrams/release-signing-operations.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

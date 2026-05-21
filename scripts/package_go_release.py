@@ -100,6 +100,9 @@ def collect_artifacts(dist: Path) -> list[Artifact]:
     reproducibility = dist / "cavra-runtime.reproducibility.json"
     if reproducibility.exists():
         artifacts.append(_artifact(dist, reproducibility, "reproducibility-manifest"))
+    signing_operations = dist / "cavra-runtime.signing-operations.json"
+    if signing_operations.exists():
+        artifacts.append(_artifact(dist, signing_operations, "signing-operations"))
     return artifacts
 
 
@@ -199,6 +202,7 @@ def write_offline_trust_bootstrap(
                 "cavra-runtime.ci-runner-bundles.json",
                 "cavra-runtime.installers.json",
                 "cavra-runtime.reproducibility.json",
+                "cavra-runtime.signing-operations.json",
                 "cavra-runtime.channels.json",
                 "cavra-runtime.updater-policy.json",
                 "cavra-runtime.sbom.spdx.json",
@@ -216,6 +220,88 @@ def write_offline_trust_bootstrap(
                 "Run verification before placing binaries on developer machines, CI runners, or restricted networks.",
                 "Use the endpoint deployment manifest to map signed binaries to approved managed endpoint channels.",
                 "Preserve release evidence, checksums, provenance, signatures, and this bootstrap manifest with the change record.",
+            ],
+        },
+    )
+
+
+def write_release_signing_operations(
+    dist: Path,
+    *,
+    version: str,
+    commit: str,
+    ref: str,
+    repository: str,
+    signer: str,
+    key_id: str,
+    signing_required: bool,
+    dry_run: bool,
+) -> Path:
+    return write_json(
+        dist / "cavra-runtime.signing-operations.json",
+        {
+            "schema_version": "cavra.go-runtime.signing-operations.v1",
+            "product": "CAVRA",
+            "component": "go-enforcement-plane",
+            "version": version,
+            "commit": commit,
+            "ref": ref,
+            "repository": repository,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "signer": signer,
+            "active_key_id": key_id,
+            "algorithm": "Ed25519",
+            "signing_required": signing_required,
+            "dry_run": dry_run,
+            "custody_model": {
+                "private_key_location": "operator-managed-secret-store",
+                "public_key_distribution": "detached signature files and release evidence",
+                "private_key_public_repo_boundary": "private signing keys must never be committed to this repository",
+            },
+            "rotation_policy": {
+                "cadence": "quarterly-or-incident-triggered",
+                "overlap": "publish old and new public trust material during transition",
+                "minimum_actions": [
+                    "create replacement key in approved secret manager",
+                    "publish release evidence with the new key_id",
+                    "verify signatures from both old and new key IDs during overlap",
+                    "retire the old key after all active release channels move to the new key",
+                ],
+            },
+            "emergency_revocation": {
+                "trigger": "suspected private-key exposure, unauthorized signing, or release tampering",
+                "required_evidence": [
+                    "revoked key_id",
+                    "affected release versions",
+                    "revocation timestamp",
+                    "replacement key_id",
+                    "operator approver",
+                    "new signed release evidence",
+                    "customer advisory reference",
+                ],
+                "required_actions": [
+                    "disable the compromised signing secret",
+                    "remove affected release artifacts from promotion channels",
+                    "publish a revocation advisory",
+                    "rebuild and sign replacement packages with a new key_id",
+                    "verify replacement packages before channel promotion",
+                ],
+            },
+            "controls": [
+                "release-signing-key-id-declared",
+                "private-key-public-boundary-documented",
+                "quarterly-key-rotation-policy",
+                "incident-triggered-revocation-policy",
+                "emergency-revocation-evidence-required",
+                "replacement-key-overlap-guidance",
+                "signed-release-evidence-required",
+            ],
+            "operator_steps": [
+                "Store CAVRA_GO_RELEASE_SIGNING_KEY only in an approved secret manager or GitHub Actions secret.",
+                "Set --key-id to the active production signing key identifier for every release.",
+                "Attach this signing operations manifest to the release change record.",
+                "During rotation, verify old and new key IDs before retiring the old key.",
+                "During emergency revocation, publish the revocation evidence listed in this manifest before resuming release promotion.",
             ],
         },
     )
@@ -1005,6 +1091,7 @@ def write_evidence(
             "release-channel-manifests",
             "managed-workstation-updater-policy",
             "reproducibility-manifest",
+            "release-signing-operations",
             "release-evidence-manifest",
         ],
     }
@@ -1053,6 +1140,17 @@ def package_release(args: argparse.Namespace) -> None:
         ref=args.ref,
         repository=args.repository,
         workflow_ref=args.workflow_ref,
+    )
+    write_release_signing_operations(
+        dist,
+        version=args.version,
+        commit=args.commit,
+        ref=args.ref,
+        repository=args.repository,
+        signer=args.signer,
+        key_id=args.key_id,
+        signing_required=args.signing_required,
+        dry_run=args.dry_run,
     )
     write_managed_endpoint_deployment(dist, version=args.version, commit=args.commit, repository=args.repository)
     write_ci_runner_bundle_metadata(

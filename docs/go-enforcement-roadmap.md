@@ -30,6 +30,6 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
 
 ## Next Implementation Steps
 
-1. Document production release-signing operations, key rotation, and emergency revocation evidence.
+1. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
 2. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
 3. Promote Go to an optional backend only after audited parity and deployment tests pass.

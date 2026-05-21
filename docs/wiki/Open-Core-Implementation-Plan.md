@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Document production release-signing operations, key rotation, and emergency revocation evidence.
+Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.

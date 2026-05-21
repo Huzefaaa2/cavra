@@ -1457,4 +1457,26 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: document production release-signing operations, key rotation, and emergency revocation evidence.
+Recommended next issue: add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+
+## Phase 7 Release Signing Operations
+
+Status: complete for the current public-safe production signing operations slice.
+
+Completed implementation:
+- Added `cavra-runtime.signing-operations.json` to Go runtime release packages with active key ID, Ed25519 algorithm, private-key custody boundary, rotation policy, emergency revocation evidence, and operator steps.
+- Added the signing operations manifest to release checksums, SLSA provenance subjects, detached signatures, release evidence artifacts, and offline trust bootstrap required files.
+- Extended `cavra release verify-go-package` to require and validate signing operations controls before package promotion.
+- Added tests for generated signing operations metadata, signed package verification, and missing manifest rejection.
+- Added `docs/release-signing-operations.md`, wiki documentation, and a dedicated SVG diagram for users and auditors.
+- Updated README, Go release packaging docs, roadmap, feature inventory, productization report, and wiki source documentation.
+
+Validation:
+- `python3 -m pytest tests/test_go_release_packaging.py -q`
+- `python3 -m pytest -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
+
+Recommended next issue: add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.

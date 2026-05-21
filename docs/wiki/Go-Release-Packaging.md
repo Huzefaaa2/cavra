@@ -1,6 +1,6 @@
 # Go Release Packaging
 
-CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, reproducibility manifests, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, endpoint export publication delivery, endpoint inventory ingestion, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
+CAVRA includes a GitHub Actions workflow for packaging the Go enforcement-plane runtime with checksums, SPDX-style SBOM metadata, signed installer metadata, reproducibility manifests, release signing operations metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, endpoint export publication delivery, endpoint inventory ingestion, installer smoke validation, SLSA provenance, detached Ed25519 signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
 
 ## Workflow
 
@@ -15,6 +15,7 @@ The workflow:
 - Generates `cavra-runtime.sbom.spdx.json`.
 - Generates `cavra-runtime.installers.json` with per-platform install metadata, binary checksums, install paths, and verification commands.
 - Generates `cavra-runtime.reproducibility.json` with build flags, target matrix, rebuild commands, and per-binary digests for air-gapped rebuild checks.
+- Generates `cavra-runtime.signing-operations.json` with public-safe key custody, rotation, and emergency revocation controls.
 - Generates `cavra-runtime.endpoint-deployment.json` with approved CI runner and developer workstation deployment targets.
 - Generates `cavra-runtime.ci-runner-bundles.json` with GitHub Actions, GitLab CI, and Azure Pipelines runner metadata for the signed Linux runtime binary.
 - Packages `ci-runners/cavra-release-governance-runner.sh` and `ci-runners/github-action/action.yml` into the signed release package.
@@ -93,6 +94,15 @@ jq '.binaries[] | {target, binary, binary_sha256, rebuild_command}' \
 ```
 
 `cavra release verify-go-package` requires `cavra-runtime.reproducibility.json`. The verifier checks that the manifest declares `CGO_ENABLED=0`, `-trimpath`, read-only module resolution, disabled VCS stamping, an empty Go build ID, a declared target matrix, per-binary digests, and operator rebuild guidance. Air-gapped operators should rebuild from the recorded commit and compare rebuilt SHA-256 values to this manifest before placing binaries on runner images or developer workstations.
+
+Inspect release signing operations before promoting a package:
+
+```bash
+jq '{active_key_id, algorithm, signing_required, controls}' \
+  go/cavra-runtime/dist/go-runtime-v0.1.0/cavra-runtime.signing-operations.json
+```
+
+`cavra release verify-go-package` requires `cavra-runtime.signing-operations.json`. The verifier checks that the manifest declares the active signing key ID, Ed25519 signing, private-key public repository boundaries, quarterly or incident-triggered key rotation, replacement-key overlap guidance, emergency revocation evidence, and replacement package actions. See [release-signing-operations.md](release-signing-operations.md).
 
 Inspect managed endpoint deployment guidance before publishing binaries into runner images, Jamf, Intune, Linux endpoint management, or restricted workstation channels:
 
@@ -739,6 +749,7 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 - As a SOC analyst, I can deliver promotion audit and rollback execution records through configured connectors with retry evidence.
 - As a release engineer, I can smoke-test installer metadata and the native packaged runtime before publishing a release asset.
 - As an auditor, I can run a single CLI verifier and see checksum, evidence, and signature failures before approval.
+- As an auditor, I can verify that release signing key custody, rotation, and emergency revocation controls are present before package promotion.
 - As a release manager, I can review persisted connector delivery history after promotion and rollback audit events are sent.
 - As a SOC analyst, I can see dashboard alerts when release governance delivery to SIEM, ITSM, ChatOps, or webhook targets fails.
 - As a release manager, I can review channel promotion request history, endpoint-management export history, and endpoint publication delivery status from the API or Evidence Console.
@@ -764,9 +775,8 @@ Do not commit private keys. Store production signing keys in GitHub Actions secr
 
 ## Enterprise Challenge Solved
 
-Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, managed endpoint deployment manifests, signed CI runner bundle metadata, reusable release-governance runner wrappers, signed runner authentication claims, signed daemon evidence stream controls, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, duplicate suppression windows, acknowledgement tracking, escalation ladders, owner-specific service-level objectives, escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, recurrence delivery batching, suppression audit exports, recurrence retry policies, owner digest notifications, suppression trend analytics, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
+Enterprise buyers require release integrity before allowing local enforcement binaries onto developer laptops, CI runners, or air-gapped environments. The Go release package turns runtime binaries into auditable artifacts with checksums, SBOM metadata, signed installer metadata, release signing operations metadata, managed endpoint deployment manifests, signed CI runner bundle metadata, reusable release-governance runner wrappers, signed runner authentication claims, signed daemon evidence stream controls, release channel manifests, managed workstation updater policy, signed channel promotion approvals, Jamf/Intune/Linux endpoint export bundles, governed endpoint export downloads, checksum-enforced endpoint export integrity, public-safe endpoint inventory ingestion, endpoint inventory freshness SLA alerts, endpoint drift reconciliation, reconciliation automation from fresh inventory, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, duplicate suppression windows, acknowledgement tracking, escalation ladders, owner-specific service-level objectives, escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, recurrence delivery batching, suppression audit exports, recurrence retry policies, owner digest notifications, suppression trend analytics, channel promotion request history, endpoint export history, Evidence Console release channel publishing views, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout evidence artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted delivery history, alerting dashboards, installer smoke validation, SLSA provenance, detached signatures, GitHub OIDC-backed keyless attestations, offline bootstrap metadata, CAVRA release evidence, release-candidate upgrade validation, release-asset attachment, and local plus GitHub verifier commands.
 
 ## Next Work
 
-1. Document production release-signing operations, key rotation, and emergency revocation evidence.
-2. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+1. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
