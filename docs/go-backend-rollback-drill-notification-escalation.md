@@ -81,4 +81,6 @@ Connector delivery is not enough for regulated operations. CAVRA now tracks whet
 
 ## Next Work
 
-The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.
+The Evidence Console drill notification acknowledgement and escalation drill-down views are documented in `docs/go-backend-rollback-drill-console.md`.
+
+The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.

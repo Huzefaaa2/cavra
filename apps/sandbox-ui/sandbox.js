@@ -187,6 +187,106 @@ const releaseConnectorDeliveryCatalog = [
   }
 ];
 
+const goRollbackDrillNotificationCatalog = [
+  {
+    session_id: "gordplan-go-backend-python-fallback-monthly",
+    metadata_kind: "go-backend-rollback-drill-notification-plan",
+    created_at: "2026-05-20T10:00:00+00:00",
+    signer: "release-governance",
+    plan_id: "gordplan-go-backend-python-fallback-monthly",
+    schedule_id: "go_backend_python_fallback_monthly",
+    alert_level: "critical",
+    selected_providers: ["slack", "teams"],
+    acknowledgement_required_providers: ["slack", "teams"],
+    deliverable_route_count: 2,
+    suppressed_route_count: 1,
+    maintenance_suppressed_count: 1,
+    calendar_suppressed_count: 0,
+    plan: {
+      schema_version: "cavra.go-backend-pilot.rollback-drill-notification-plan.v1",
+      product: "CAVRA",
+      plan_id: "gordplan-go-backend-python-fallback-monthly",
+      schedule_id: "go_backend_python_fallback_monthly",
+      generated_at: "2026-05-20T10:00:00+00:00",
+      generated_by: "release-governance",
+      alert_level: "critical",
+      selected_providers: ["slack", "teams"],
+      acknowledgement_required_providers: ["slack", "teams"],
+      route_decisions: [
+        { schedule_id: "go_backend_python_fallback_monthly", plan_id: "gordplan-go-backend-python-fallback-monthly", provider: "slack", owner: "release-governance", action: "deliver", acknowledgement_minutes: 45, reason: "stale rollback drill requires owner acknowledgement" },
+        { schedule_id: "go_backend_python_fallback_monthly", plan_id: "gordplan-go-backend-python-fallback-monthly", provider: "teams", owner: "platform-operations", action: "deliver", acknowledgement_minutes: 60, reason: "stale rollback drill requires owner acknowledgement" },
+        { schedule_id: "go_backend_python_fallback_monthly", plan_id: "gordplan-go-backend-python-fallback-monthly", provider: "webhook", owner: "release-governance", action: "suppress", category: "maintenance_window", reason: "approved maintenance window is active" }
+      ],
+      controls: [
+        "routing-policy-derived-from-public-safe-owner-metadata",
+        "notification-plan-does-not-mutate-runtime-mode"
+      ]
+    }
+  },
+  {
+    session_id: "rcd-gordplan-go-backend-python-fallback-monthly",
+    metadata_kind: "release-connector-delivery",
+    connector_delivery_source: "go_backend_rollback_drill_notification",
+    created_at: "2026-05-20T10:02:00+00:00",
+    event_id: "go_backend_python_fallback_monthly",
+    event_type: "cavra.go_backend.rollback_drill_notification",
+    delivery_success: false,
+    providers: ["slack", "teams"],
+    failed_providers: ["teams"],
+    attempt_count: 2,
+    max_attempt_count: 2,
+    delivery_evidence: ".cavra/release/go-backend-rollback-drill-notification-delivery.json"
+  },
+  {
+    session_id: "gordack-go-backend-python-fallback-monthly-slack",
+    metadata_kind: "go-backend-rollback-drill-notification-ack",
+    created_at: "2026-05-20T10:20:00+00:00",
+    signer: "release-manager",
+    acknowledgement_id: "gordack-go-backend-python-fallback-monthly-slack",
+    schedule_id: "go_backend_python_fallback_monthly",
+    plan_id: "gordplan-go-backend-python-fallback-monthly",
+    provider: "slack",
+    acknowledgement_state: "acknowledged",
+    acknowledgement: {
+      schema_version: "cavra.go-backend-pilot.rollback-drill-notification-ack.v1",
+      product: "CAVRA",
+      acknowledgement_id: "gordack-go-backend-python-fallback-monthly-slack",
+      schedule_id: "go_backend_python_fallback_monthly",
+      plan_id: "gordplan-go-backend-python-fallback-monthly",
+      provider: "slack",
+      acknowledged_by: "release-manager",
+      acknowledgement_state: "acknowledged",
+      acknowledged_at: "2026-05-20T10:20:00+00:00",
+      external_ref: "CHG-123",
+      notes: "Rollback drill follow-up accepted by release governance."
+    }
+  },
+  {
+    session_id: "gordesc-go-backend-python-fallback-monthly",
+    metadata_kind: "go-backend-rollback-drill-notification-escalation-plan",
+    created_at: "2026-05-20T11:10:00+00:00",
+    signer: "release-governance",
+    plan_id: "gordesc-go-backend-python-fallback-monthly",
+    alert_level: "critical",
+    escalation_plan: {
+      schema_version: "cavra.go-backend-pilot.rollback-drill-notification-escalation-plan.v1",
+      product: "CAVRA",
+      plan_id: "gordesc-go-backend-python-fallback-monthly",
+      generated_at: "2026-05-20T11:10:00+00:00",
+      generated_by: "release-governance",
+      alert_level: "critical",
+      acknowledgement_minutes: 60,
+      route_count: 2,
+      outstanding_count: 1,
+      breached_count: 1,
+      routes: [
+        { schedule_id: "go_backend_python_fallback_monthly", plan_id: "gordplan-go-backend-python-fallback-monthly", provider: "slack", owner: "release-governance", acknowledgement_state: "acknowledged", acknowledged: true, age_minutes: 70, acknowledgement_minutes: 45, breached: false, recommended_action: "no_action" },
+        { schedule_id: "go_backend_python_fallback_monthly", plan_id: "gordplan-go-backend-python-fallback-monthly", provider: "teams", owner: "platform-operations", acknowledgement_state: "outstanding", acknowledged: false, age_minutes: 70, acknowledgement_minutes: 60, breached: true, recommended_action: "escalate_missed_drill_notification" }
+      ]
+    }
+  }
+];
+
 const releaseChannelPromotionCatalog = [
   {
     session_id: "rcp-stable-v0.2.0-rc.1",
@@ -591,6 +691,7 @@ const endpointRecurrenceAutomationCatalog = [
 ];
 
 const endpointRecurrenceDetailPayloads = new Map();
+const goDrillNotificationDetailPayloads = new Map();
 
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
@@ -1864,6 +1965,146 @@ async function loadEndpointRecurrenceSuppressionTrends() {
     endpointRecurrenceSuppressionTrendCatalog
   );
   return filterEndpointRecurrenceSuppressionTrends(items);
+}
+
+function selectedGoDrillNotificationFilters() {
+  return {
+    provider: document.querySelector("#filterGoDrillNotificationProvider")?.value || "",
+    state: document.querySelector("#filterGoDrillNotificationState")?.value || "",
+    kind: document.querySelector("#filterGoDrillNotificationKind")?.value || ""
+  };
+}
+
+function goDrillNotificationPayload(item) {
+  if (item?.plan && typeof item.plan === "object") return item.plan;
+  if (item?.acknowledgement && typeof item.acknowledgement === "object") return item.acknowledgement;
+  if (item?.escalation_plan && typeof item.escalation_plan === "object") return item.escalation_plan;
+  return item || {};
+}
+
+function goDrillNotificationProviders(item) {
+  const escalationRoutes = item?.escalation_plan && typeof item.escalation_plan === "object" && Array.isArray(item.escalation_plan.routes)
+    ? item.escalation_plan.routes
+    : [];
+  const providers = [
+    item?.provider,
+    ...(Array.isArray(item?.selected_providers) ? item.selected_providers : []),
+    ...(Array.isArray(item?.acknowledgement_required_providers) ? item.acknowledgement_required_providers : []),
+    ...(Array.isArray(item?.providers) ? item.providers : []),
+    ...(Array.isArray(item?.failed_providers) ? item.failed_providers : []),
+    ...escalationRoutes.map((route) => route.provider)
+  ].filter(Boolean);
+  return [...new Set(providers.map(String))];
+}
+
+function goDrillNotificationStatus(item) {
+  if (item?.acknowledgement_state) return String(item.acknowledgement_state);
+  if (item?.delivery_success === false) return "delivery_failed";
+  if (item?.delivery_success === true) return "delivered";
+  if (item?.alert_level) return String(item.alert_level);
+  return "indexed";
+}
+
+function filterGoDrillNotificationHistory(items) {
+  const filters = selectedGoDrillNotificationFilters();
+  return items.filter((item) => {
+    if (filters.kind && item.metadata_kind !== filters.kind) return false;
+    if (filters.provider && !goDrillNotificationProviders(item).includes(filters.provider)) return false;
+    if (filters.state) {
+      const status = goDrillNotificationStatus(item);
+      if (filters.state === "outstanding") {
+        const payload = goDrillNotificationPayload(item);
+        if (!payload.routes?.some((route) => route.acknowledgement_state === "outstanding" || route.acknowledged === false)) return false;
+      } else if (status !== filters.state) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+function buildSampleGoDrillNotificationDashboard(items) {
+  const plans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-plan");
+  const deliveries = items.filter((item) => item.metadata_kind === "release-connector-delivery");
+  const acknowledgements = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-ack");
+  const escalationRoutes = items.flatMap((item) => {
+    const plan = item.escalation_plan && typeof item.escalation_plan === "object" ? item.escalation_plan : {};
+    return Array.isArray(plan.routes) ? plan.routes : [];
+  });
+  const outstanding = escalationRoutes.filter((route) => route.acknowledged === false || route.acknowledgement_state === "outstanding");
+  const failedDeliveries = deliveries.filter((item) => item.delivery_success === false);
+  return {
+    alert_level: failedDeliveries.length || outstanding.length ? "critical" : "healthy",
+    plan_count: plans.length,
+    delivery_count: deliveries.length,
+    failed_delivery_count: failedDeliveries.length,
+    acknowledgement_count: acknowledgements.length,
+    outstanding_acknowledgement_count: outstanding.length,
+    outstanding_acknowledgements: outstanding.map((route) => ({
+      schedule_id: route.schedule_id,
+      provider: route.provider,
+      plan_id: route.plan_id
+    })),
+    latest: items.slice(0, 10)
+  };
+}
+
+function goDrillEscalationRoutes(historyItems, dashboard = {}) {
+  const filters = selectedGoDrillNotificationFilters();
+  let routes = historyItems.flatMap((item) => {
+    const plan = item.escalation_plan && typeof item.escalation_plan === "object" ? item.escalation_plan : {};
+    return Array.isArray(plan.routes)
+      ? plan.routes.map((route) => ({ ...route, escalation_plan_id: item.plan_id || plan.plan_id }))
+      : [];
+  });
+  if (!routes.length) {
+    routes = (dashboard.outstanding_acknowledgements || []).map((route) => ({
+      schedule_id: route.schedule_id,
+      plan_id: route.plan_id,
+      provider: route.provider,
+      owner: "release-governance",
+      acknowledgement_state: "outstanding",
+      acknowledged: false,
+      age_minutes: null,
+      acknowledgement_minutes: null,
+      breached: false,
+      recommended_action: "wait_for_acknowledgement"
+    }));
+  }
+  return routes.filter((route) => {
+    if (filters.provider && route.provider !== filters.provider) return false;
+    if (filters.state && filters.state !== (route.acknowledgement_state || (route.acknowledged ? "acknowledged" : "outstanding"))) return false;
+    return true;
+  });
+}
+
+async function loadGoRollbackDrillNotificationHistory() {
+  await loadConsoleConfig();
+  const filters = selectedGoDrillNotificationFilters();
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications", {
+      provider: filters.provider,
+      metadata_kind: filters.kind,
+      acknowledgement_state: filters.state && filters.state !== "outstanding" ? filters.state : "",
+      limit: 50
+    }));
+    if (!response.ok) throw new Error("Go rollback drill notification history API unavailable");
+    const payload = await response.json();
+    return filterGoDrillNotificationHistory(Array.isArray(payload) ? payload : payload.items || []);
+  } catch {
+    return filterGoDrillNotificationHistory(goRollbackDrillNotificationCatalog);
+  }
+}
+
+async function loadGoRollbackDrillNotificationDashboard() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/dashboard"));
+    if (!response.ok) throw new Error("Go rollback drill notification dashboard API unavailable");
+    return await response.json();
+  } catch {
+    return buildSampleGoDrillNotificationDashboard(goRollbackDrillNotificationCatalog);
+  }
 }
 
 async function loadEndpointManagementExportArtifacts(exportId) {
@@ -3410,6 +3651,149 @@ function exportEndpointRecurrencePayload(payloadId) {
   URL.revokeObjectURL(href);
 }
 
+function goDrillPayloadId(kind, index) {
+  return `go-drill-${kind}:${index}`;
+}
+
+function goDrillNotificationActionButtons(payloadId) {
+  return `
+    <div class="row-actions">
+      <button class="goDrillNotificationDetailAction secondary" data-payload="${escapeHtml(payloadId)}">Details</button>
+      <button class="goDrillNotificationExportAction secondary" data-payload="${escapeHtml(payloadId)}">Export</button>
+    </div>
+  `;
+}
+
+function goDrillNotificationKindLabel(kind) {
+  return String(kind || "record")
+    .replace("go-backend-rollback-drill-notification-", "")
+    .replace("release-connector-delivery", "connector-delivery");
+}
+
+function renderGoRollbackDrillNotifications(historyItems, dashboard = {}) {
+  const panel = document.querySelector("#goRollbackDrillNotificationDashboard");
+  const historyRows = document.querySelector("#goDrillNotificationRows");
+  const escalationRows = document.querySelector("#goDrillEscalationRows");
+  if (!panel || !historyRows || !escalationRows) return;
+
+  goDrillNotificationDetailPayloads.clear();
+  historyRows.innerHTML = "";
+  escalationRows.innerHTML = "";
+  const routes = goDrillEscalationRoutes(historyItems, dashboard);
+  const breachedRoutes = routes.filter((route) => route.breached);
+  const outstandingRoutes = routes.filter((route) => route.acknowledged === false || route.acknowledgement_state === "outstanding");
+  const status = dashboard.alert_level || (breachedRoutes.length ? "critical" : outstandingRoutes.length ? "warning" : "healthy");
+
+  panel.innerHTML = `
+    <div class="release-delivery-metric">
+      <span>Status</span>
+      <strong class="${riskClass(status)}">${escapeHtml(status)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Plans</span>
+      <strong>${formatMetricNumber(dashboard.plan_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-plan").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Deliveries</span>
+      <strong>${formatMetricNumber(dashboard.delivery_count || historyItems.filter((item) => item.metadata_kind === "release-connector-delivery").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Failed Delivery</span>
+      <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || historyItems.filter((item) => item.delivery_success === false).length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Acknowledgements</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-ack").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Outstanding</span>
+      <strong class="${Number(dashboard.outstanding_acknowledgement_count || outstandingRoutes.length) ? "block" : "allow"}">${formatMetricNumber(dashboard.outstanding_acknowledgement_count || outstandingRoutes.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Escalation Routes</span>
+      <strong>${formatMetricNumber(routes.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Breached</span>
+      <strong class="${breachedRoutes.length ? "block" : "allow"}">${formatMetricNumber(breachedRoutes.length)}</strong>
+    </div>
+  `;
+
+  historyItems.forEach((item, index) => {
+    const payload = goDrillNotificationPayload(item);
+    const payloadId = goDrillPayloadId("history", index);
+    const providers = goDrillNotificationProviders(item);
+    const statusText = goDrillNotificationStatus(item);
+    goDrillNotificationDetailPayloads.set(payloadId, {
+      label: item.session_id || item.plan_id || item.acknowledgement_id || item.event_id || "go-drill-notification",
+      payload: item
+    });
+    historyRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(item.session_id || item.plan_id || item.acknowledgement_id || item.event_id || "notification")}</td>
+        <td>${escapeHtml(goDrillNotificationKindLabel(item.metadata_kind))}</td>
+        <td>${escapeHtml(providers.join(", ") || "n/a")}</td>
+        <td class="${statusText === "delivery_failed" || statusText === "critical" ? "block" : statusText === "warning" || statusText === "escalated" ? "require_approval" : "allow"}">${escapeHtml(statusText)}</td>
+        <td>${escapeHtml(item.schedule_id || item.event_id || payload.schedule_id || "n/a")}</td>
+        <td>${escapeHtml(String(item.created_at || payload.generated_at || payload.acknowledged_at || "").slice(0, 19))}</td>
+        <td>${goDrillNotificationActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!historyItems.length) historyRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No rollback drill notification records match the current filters.</td></tr>`);
+
+  routes.forEach((route, index) => {
+    const payloadId = goDrillPayloadId("route", index);
+    const state = route.acknowledgement_state || (route.acknowledged ? "acknowledged" : "outstanding");
+    goDrillNotificationDetailPayloads.set(payloadId, {
+      label: `${route.schedule_id || "schedule"}-${route.provider || "provider"}`,
+      payload: route
+    });
+    const age = route.age_minutes === null || route.age_minutes === undefined ? "n/a" : `${formatMetricNumber(route.age_minutes)}m`;
+    const slo = route.acknowledgement_minutes === null || route.acknowledgement_minutes === undefined ? "n/a" : `${formatMetricNumber(route.acknowledgement_minutes)}m`;
+    escalationRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(route.schedule_id || "unknown")}</td>
+        <td>${escapeHtml(route.provider || "unknown")}</td>
+        <td>${escapeHtml(route.owner || "release-governance")}</td>
+        <td class="${route.breached ? "block" : state === "outstanding" ? "require_approval" : "allow"}">${escapeHtml(state)}</td>
+        <td>${escapeHtml(`${age} / ${slo}`)}</td>
+        <td>${escapeHtml(route.recommended_action || "n/a")}</td>
+        <td>${goDrillNotificationActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!routes.length) escalationRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No escalation routes are currently indexed.</td></tr>`);
+}
+
+function showGoDrillNotificationDetail(payloadId) {
+  const panel = document.querySelector("#goDrillNotificationDetail");
+  const entry = goDrillNotificationDetailPayloads.get(payloadId);
+  if (!panel || !entry) return;
+  panel.innerHTML = `
+    <dl>
+      <dt>Artifact</dt><dd>${escapeHtml(entry.label)}</dd>
+      <dt>Type</dt><dd>${escapeHtml(payloadId.split(":")[0].replace("go-drill-", ""))}</dd>
+    </dl>
+    <pre>${escapeHtml(JSON.stringify(entry.payload, null, 2))}</pre>
+  `;
+}
+
+function exportGoDrillNotificationPayload(payloadId) {
+  const entry = goDrillNotificationDetailPayloads.get(payloadId);
+  if (!entry) return;
+  const fileName = `${String(entry.label || "cavra-go-drill-notification").replace(/[^a-zA-Z0-9_.-]+/g, "-")}.json`;
+  const blob = new Blob([JSON.stringify(entry.payload, null, 2)], { type: "application/json" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(href);
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -4230,6 +4614,14 @@ async function refreshEndpointRecurrenceOperations() {
   );
 }
 
+async function refreshGoRollbackDrillNotifications() {
+  const [historyItems, dashboard] = await Promise.all([
+    loadGoRollbackDrillNotificationHistory(),
+    loadGoRollbackDrillNotificationDashboard()
+  ]);
+  renderGoRollbackDrillNotifications(historyItems, dashboard);
+}
+
 async function deliverEndpointRemediationSlaNotification() {
   const status = document.querySelector("#endpointRemediationSlaDeliveryStatus");
   if (status) {
@@ -4632,10 +5024,15 @@ document.querySelector("#refreshEndpointRemediationHandoff").addEventListener("c
 document.querySelector("#refreshEndpointRemediationHandoffStatus").addEventListener("click", refreshEndpointRemediationHandoffStatus);
 document.querySelector("#refreshEndpointRemediationSla").addEventListener("click", refreshEndpointRemediationSla);
 document.querySelector("#refreshEndpointRecurrenceOperations").addEventListener("click", refreshEndpointRecurrenceOperations);
+document.querySelector("#refreshGoRollbackDrillNotifications").addEventListener("click", refreshGoRollbackDrillNotifications);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory, #filterEndpointRecurrenceWorkerMode").forEach((control) => {
   control.addEventListener("input", refreshEndpointRecurrenceOperations);
   control.addEventListener("change", refreshEndpointRecurrenceOperations);
+});
+document.querySelectorAll("#filterGoDrillNotificationProvider, #filterGoDrillNotificationState, #filterGoDrillNotificationKind").forEach((control) => {
+  control.addEventListener("input", refreshGoRollbackDrillNotifications);
+  control.addEventListener("change", refreshGoRollbackDrillNotifications);
 });
 document.querySelector("#refreshActivity").addEventListener("click", refreshActivity);
 document.querySelector("#refreshInventory").addEventListener("click", refreshInventory);
@@ -4708,6 +5105,13 @@ document.addEventListener("click", (event) => {
   }
   const exportButton = event.target.closest(".endpointRecurrenceExportAction");
   if (exportButton) exportEndpointRecurrencePayload(exportButton.dataset.payload);
+  const goDrillDetailButton = event.target.closest(".goDrillNotificationDetailAction");
+  if (goDrillDetailButton) {
+    showGoDrillNotificationDetail(goDrillDetailButton.dataset.payload);
+    return;
+  }
+  const goDrillExportButton = event.target.closest(".goDrillNotificationExportAction");
+  if (goDrillExportButton) exportGoDrillNotificationPayload(goDrillExportButton.dataset.payload);
 });
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;
@@ -4737,6 +5141,7 @@ refreshEndpointRemediationHandoff();
 refreshEndpointRemediationHandoffStatus();
 refreshEndpointRemediationSla();
 refreshEndpointRecurrenceOperations();
+refreshGoRollbackDrillNotifications();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();
