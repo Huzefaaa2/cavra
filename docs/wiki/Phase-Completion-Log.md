@@ -1673,7 +1673,7 @@ Enterprise challenge solved:
 - Gives enterprise reviewers evidence that promoted Go backend use remains reversible over time.
 - Keeps private runbooks, endpoint identifiers, customer names, and secrets outside the public Community Edition.
 
-Recommended next issue: add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
+Recommended next issue: delivered below as rollback drill notification acknowledgement and escalation.
 
 ## Phase 7 Go Backend Rollback Drill Scheduling
 
@@ -1706,4 +1706,37 @@ Enterprise challenge solved:
 - Turns stale drill schedules into visible readiness failures and connector-backed notification evidence.
 - Keeps connector credentials, private URLs, customer names, and endpoint details outside the public Community Edition.
 
-Recommended next issue: add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
+Recommended next issue: add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+
+## Phase 7 Go Backend Rollback Drill Notification Acknowledgement and Escalation
+
+Status: complete for the current public-safe missed drill notification follow-up slice.
+
+Completed implementation:
+- Added public-safe rollback drill notification acknowledgement records using `cavra.go-backend-pilot.rollback-drill-notification-ack.v1`.
+- Added acknowledgement metadata indexing with `metadata_kind=go-backend-rollback-drill-notification-ack`.
+- Added notification history filtering across drill notification plans, redacted connector delivery records, acknowledgements, and escalation plans.
+- Added notification dashboard metrics for delivery count, failed deliveries, acknowledgement count, and outstanding acknowledgement routes.
+- Added missed-notification escalation planning with acknowledgement SLO policy and route-level recommended actions.
+- Added escalation metadata indexing with `metadata_kind=go-backend-rollback-drill-notification-escalation-plan`.
+- Added CLI commands `cavra runtime go-rollback-drill-notification-ack` and `cavra runtime go-rollback-drill-escalation-plan`.
+- Added FastAPI endpoints `/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`, `/runtime/go-pilot/rollback-drill-notifications`, `/runtime/go-pilot/rollback-drill-notifications/dashboard`, and `/runtime/go-pilot/rollback-drill-notifications/escalation-plan`.
+- Added tests for acknowledgement metadata, dashboard outstanding route tracking, escalation breach detection, CLI commands, API acknowledgement, API history, API dashboard, and API escalation planning.
+- Added `docs/go-backend-rollback-drill-notification-escalation.md`, `docs/wiki/Go-Backend-Rollback-Drill-Notification-Escalation.md`, and `docs/diagrams/go-backend-rollback-drill-notification-escalation.svg`.
+- Updated README, API docs, CLI docs, feature inventory, production roadmap, scheduling docs, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+
+User stories:
+- As a release manager, I can prove that stale rollback drill notifications were acknowledged.
+- As an incident commander, I can identify which notification route still needs owner action.
+- As a platform owner, I can escalate missed drill notifications before promoted Go backend rollback confidence decays.
+- As an auditor, I can review acknowledgement and escalation metadata without seeing connector credentials.
+
+Enterprise challenge solved:
+- Turns connector delivery into accountable owner follow-up.
+- Produces public-safe escalation evidence for missed drill notifications.
+- Keeps connector credentials, private routing logic, customer names, and endpoint details outside the public Community Edition.
+
+Recommended next issue: add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.

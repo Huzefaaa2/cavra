@@ -97,4 +97,4 @@ Runtime backend changes are high-risk because a silent drift can alter enforceme
 
 ## Next Work
 
-The next recommended implementation step is to add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
+The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.

@@ -29,10 +29,16 @@ from cavra.evidence import (
     load_evidence_artifact,
 )
 from cavra.go_backend import (
+    acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_notification_ack_metadata,
     build_go_rollback_drill_notification_event,
+    build_go_rollback_drill_notification_dashboard,
+    build_go_rollback_drill_notification_escalation_plan,
+    build_go_rollback_drill_notification_escalation_plan_metadata,
     build_go_rollback_drill_notification_plan,
     build_go_rollback_drill_notification_plan_metadata,
     evaluate_with_go_pilot,
+    filter_go_rollback_drill_notification_history,
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
@@ -357,6 +363,10 @@ def create_app():
                 "go_rollback_drills": "/runtime/go-pilot/rollback-drills",
                 "go_rollback_drill_schedule": "/runtime/go-pilot/rollback-drill-schedule",
                 "go_rollback_drill_notifications": "/runtime/go-pilot/rollback-drill-notifications/deliver",
+                "go_rollback_drill_notification_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements",
+                "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
+                "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
+                "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
                 "go_backend_evaluate": "/runtime/go-pilot/evaluate",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
@@ -706,6 +716,62 @@ def create_app():
             }
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements")
+    def runtime_go_pilot_rollback_drill_notification_acknowledge(schedule_id: str, payload: dict) -> dict[str, object]:
+        if not payload.get("provider"):
+            raise HTTPException(status_code=400, detail="provider is required")
+        if not payload.get("acknowledged_by"):
+            raise HTTPException(status_code=400, detail="acknowledged_by is required")
+        try:
+            acknowledgement = acknowledge_go_rollback_drill_notification(
+                schedule_id,
+                provider=payload["provider"],
+                acknowledged_by=payload["acknowledged_by"],
+                acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+                plan_id=payload.get("plan_id"),
+            )
+            metadata = evidence_store.upsert(build_go_rollback_drill_notification_ack_metadata(acknowledgement))
+            return {"acknowledgement": acknowledgement, "metadata": metadata}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications")
+    def runtime_go_pilot_rollback_drill_notification_history(
+        schedule_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        metadata_kind: Optional[str] = None,
+        acknowledgement_state: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, object]:
+        return filter_go_rollback_drill_notification_history(
+            _go_rollback_drill_notification_items(evidence_store),
+            schedule_id=schedule_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
+    def runtime_go_pilot_rollback_drill_notification_dashboard() -> dict[str, object]:
+        return build_go_rollback_drill_notification_dashboard(
+            _go_rollback_drill_notification_items(evidence_store)
+        )
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/escalation-plan")
+    def runtime_go_pilot_rollback_drill_notification_escalation_plan(payload: dict) -> dict[str, object]:
+        plan = build_go_rollback_drill_notification_escalation_plan(
+            _go_rollback_drill_notification_items(evidence_store),
+            policy=payload.get("policy") if isinstance(payload.get("policy"), dict) else None,
+            generated_by=payload.get("generated_by", "console"),
+        )
+        metadata = evidence_store.upsert(build_go_rollback_drill_notification_escalation_plan_metadata(plan))
+        return {"plan": plan, "metadata": metadata}
 
     @app.post("/runtime/go-pilot/evaluate")
     def runtime_go_pilot_evaluate(payload: dict) -> dict[str, object]:
@@ -2913,6 +2979,24 @@ def _endpoint_remediation_sla_notification_items(
         ]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [*plans, *acknowledgements, *deliveries]
+    return evidence_store.list()
+
+
+def _go_rollback_drill_notification_items(
+    evidence_store: EvidenceMetadataStore | SQLiteEvidenceMetadataStore,
+) -> list[dict]:
+    if isinstance(evidence_store, SQLiteEvidenceMetadataStore):
+        plans = evidence_store.search(metadata_kind="go-backend-rollback-drill-notification-plan", limit=500)["items"]
+        acknowledgements = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-notification-ack",
+            limit=500,
+        )["items"]
+        escalations = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-notification-escalation-plan",
+            limit=500,
+        )["items"]
+        deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
+        return [*plans, *acknowledgements, *escalations, *deliveries]
     return evidence_store.list()
 
 
