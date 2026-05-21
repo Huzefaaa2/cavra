@@ -1438,4 +1438,23 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/package_go_release.py tests/test_go_runtime_parity.py tests/test_go_release_packaging.py`
 
-Recommended next issue: add contract-level Go fixtures for the next high-risk release-governance metadata kinds, then document production release-signing operations and key rotation.
+Recommended next issue: delivered below as high-risk release-governance contract fixtures.
+
+## Phase 7 High-Risk Release-Governance Contract Fixtures
+
+Status: complete for the current public-safe generated contract fixture slice.
+
+Completed implementation:
+- Extended `ReleaseGovernanceEvidence` in `proto/cavra/enforcement/v1/enforcement.proto` with typed rollout verification, artifact integrity, audit export, and rollback reference fields.
+- Regenerated `go/cavra-runtime/enforcement/v1/contracts.go` through `scripts/generate_go_enforcement_contracts.py`.
+- Added contract fixture cases for failed rollout evidence verification, artifact integrity mismatch, successful promotion audit export, and failed rollback audit export.
+- Updated Python and Go runtime critical signal handling for audit export failures.
+- Added Python parity coverage for the proto-shaped release-governance contract fixture set.
+- Updated README, Go contract docs, Go parity docs, roadmap, feature inventory, and wiki source documentation.
+
+Validation:
+- `python3 -m pytest tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
+
+Recommended next issue: document production release-signing operations, key rotation, and emergency revocation evidence.

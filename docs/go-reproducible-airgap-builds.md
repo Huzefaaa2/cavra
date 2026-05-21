@@ -52,4 +52,4 @@ This feature documents and verifies Community Edition Go runtime packaging only.
 
 ## Next Work
 
-The next recommended implementation phase is contract-level Go parity for additional high-risk release-governance metadata and production release-signing operations documentation.
+The next recommended implementation phase is production release-signing operations, key rotation, and emergency revocation evidence documentation.

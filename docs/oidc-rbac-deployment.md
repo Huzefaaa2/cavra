@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is contract-level Go fixtures and production release-signing key rotation documentation.
+The next recommended work is production release-signing operations, key rotation, and emergency revocation evidence.

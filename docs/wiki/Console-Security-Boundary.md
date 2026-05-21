@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is contract-level Go fixtures and production release-signing key rotation documentation.
+The next recommended work is production release-signing operations, key rotation, and emergency revocation evidence.

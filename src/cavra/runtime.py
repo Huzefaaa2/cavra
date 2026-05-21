@@ -450,6 +450,8 @@ def _known_release_governance_kind(kind: str) -> bool:
         "rollout-evidence-verification",
         "rollout-artifact-retrieval",
         "rollout-artifact-integrity",
+        "rollout-promotion-audit-export",
+        "rollout-rollback-audit-export",
     }
 
 
@@ -468,12 +470,14 @@ def _critical_release_signal(record: dict[str, Any]) -> bool:
     handoff_status = _normalize_state(_string_value(record, "handoff_status"))
     verification_status = _normalize_state(_string_value(record, "verification_status"))
     integrity_status = _normalize_state(_string_value(record, "integrity_status"))
+    audit_export_status = _normalize_state(_string_value(record, "audit_export_status"))
     return (
         alert_level in {"critical", "blocked", "breached"}
         or drift_status in {"drifted", "non_compliant", "drift_detected"}
         or handoff_status in {"blocked", "failed"}
         or verification_status in {"failed", "blocked", "mismatch"}
         or integrity_status in {"failed", "mismatch", "tampered"}
+        or audit_export_status in {"failed", "blocked"}
         or _int_value(record, "blocked_count") > 0
         or _int_value(record, "critical_count") > 0
         or _int_value(record, "breached_count") > 0

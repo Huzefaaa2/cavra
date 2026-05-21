@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add contract-level Go fixtures and production release-signing key rotation documentation.
+- Document production release-signing operations, key rotation, and emergency revocation evidence.
 - Validate the hosted sandbox URL after deployment from `main`.

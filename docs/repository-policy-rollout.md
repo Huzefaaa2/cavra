@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is contract-level Go fixtures and production release-signing key rotation documentation.
+The next recommended step is production release-signing operations, key rotation, and emergency revocation evidence.

@@ -75,5 +75,110 @@
       "severity": "high",
       "approver_group": "Release Governance"
     }
+  },
+  {
+    "name": "typed rollout evidence verification failure requires approval",
+    "request": {
+      "session_id": "contract-rollout-evidence-failed",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "rollout-evidence",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "rollout-evidence-verification",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "verification_status": "failed",
+        "failed_verification_count": 1,
+        "evidence_refs": ["evidence://rollout/verification"]
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "typed rollout artifact integrity mismatch requires approval",
+    "request": {
+      "session_id": "contract-rollout-integrity-mismatch",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "rollout-artifacts",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "rollout-artifact-integrity",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "integrity_status": "mismatch",
+        "integrity_failure_count": 1,
+        "evidence_refs": ["evidence://rollout/artifact-integrity"]
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "typed promotion audit export allows",
+    "request": {
+      "session_id": "contract-promotion-audit-exported",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "promotion-audit",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "rollout-promotion-audit-export",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "approval_state": "approved",
+        "approval_id": "apr_prod_release",
+        "audit_export_status": "exported",
+        "rollback_reference_count": 2,
+        "evidence_refs": ["evidence://rollout/promotion-audit"]
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.approval.approved",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "typed rollback audit export failure requires approval",
+    "request": {
+      "session_id": "contract-rollback-audit-failed",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "rollback-audit",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "rollout-rollback-audit-export",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "audit_export_status": "failed",
+        "blocked_count": 1,
+        "evidence_refs": ["evidence://rollout/rollback-audit"]
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
   }
 ]

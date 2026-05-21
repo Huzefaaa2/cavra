@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add contract-level Go fixtures and production release-signing key rotation documentation.
+- Document production release-signing operations, key rotation, and emergency revocation evidence.
 - Validate the hosted sandbox URL after deployment from `main`.

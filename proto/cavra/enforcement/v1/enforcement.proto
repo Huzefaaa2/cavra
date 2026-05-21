@@ -59,6 +59,12 @@ message ReleaseGovernanceEvidence {
   int32 missing_target_count = 18;
   repeated string evidence_refs = 19;
   string connector_delivery_source = 20;
+  string verification_status = 21;
+  string integrity_status = 22;
+  int32 failed_verification_count = 23;
+  int32 integrity_failure_count = 24;
+  string audit_export_status = 25;
+  int32 rollback_reference_count = 26;
 }
 
 message RunnerAuthentication {

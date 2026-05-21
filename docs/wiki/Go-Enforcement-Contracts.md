@@ -18,7 +18,8 @@ Generator: `scripts/generate_go_enforcement_contracts.py`
 - Conversion from typed release-governance contract payloads into public-safe runtime records.
 - Conversion from runtime decisions to generated response contracts.
 - Contract tests that verify expected proto fields remain present.
-- Contract-level fixtures for approval, failed delivery, and critical inventory freshness release-governance payloads.
+- Contract-level fixtures for approval, failed delivery, critical inventory freshness, rollout evidence verification, rollout artifact integrity, promotion audit export, and rollback audit export release-governance payloads.
+- Typed public-safe rollout verification, artifact integrity, audit export, and rollback reference fields in `ReleaseGovernanceEvidence`.
 - Daemon and CI runner examples that send typed release-governance payloads through the generated request contract.
 - Runner-authenticated daemon checks that attach signed `runner_auth` claims to `EvaluateRequest`.
 - Runner authentication support for `HMAC-SHA256` shared-secret signatures and `OIDC-JWT` CI-provider token verification.
@@ -105,4 +106,4 @@ Generated contracts reduce integration drift between Python, Go, future daemon t
 - The generated package is a lightweight JSON transport contract, not a full gRPC server.
 - The current daemon transport and `daemon.Client` helper use these contracts over a one-request-per-connection Unix socket.
 - GitHub Actions, GitLab CI, and Azure Pipelines examples now use typed release-governance contract payloads directly.
-- Next work should add contract-level Go fixtures and production release-signing key rotation documentation.
+- Next work should document production release-signing operations, key rotation, and emergency revocation evidence.

@@ -194,5 +194,5 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 
 ## Next Recommended Work
 
-1. Add contract-level Go fixtures for the next high-risk release-governance metadata kinds.
-2. Document production release-signing operations and key rotation.
+1. Document production release-signing operations, key rotation, and emergency revocation evidence.
+2. Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.

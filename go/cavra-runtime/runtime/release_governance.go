@@ -126,7 +126,9 @@ func knownReleaseGovernanceKind(kind string) bool {
 		"rollout-evidence-capture",
 		"rollout-evidence-verification",
 		"rollout-artifact-retrieval",
-		"rollout-artifact-integrity":
+		"rollout-artifact-integrity",
+		"rollout-promotion-audit-export",
+		"rollout-rollback-audit-export":
 		return true
 	default:
 		return false
@@ -167,6 +169,9 @@ func criticalReleaseSignal(record map[string]any) bool {
 		return true
 	}
 	if integrityStatus := normalizeState(stringValue(record, "integrity_status")); integrityStatus == "failed" || integrityStatus == "mismatch" || integrityStatus == "tampered" {
+		return true
+	}
+	if auditExportStatus := normalizeState(stringValue(record, "audit_export_status")); auditExportStatus == "failed" || auditExportStatus == "blocked" {
 		return true
 	}
 	return intValue(record, "blocked_count") > 0 ||

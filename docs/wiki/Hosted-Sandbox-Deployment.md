@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add contract-level Go fixtures and production release-signing key rotation documentation.
+1. Document production release-signing operations, key rotation, and emergency revocation evidence.
