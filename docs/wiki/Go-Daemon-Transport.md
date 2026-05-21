@@ -16,6 +16,7 @@ CAVRA now includes the first local daemon transport for the Go enforcement plane
 - JSONL evidence records with `cavra.go-daemon.evidence.v1` schema, `go-daemon-evidence://...` references, hash chaining, optional `HMAC-SHA256` signatures, and key IDs.
 - Optional CI runner authentication through `runner_auth` claims signed with `HMAC-SHA256`.
 - Optional CI-provider OIDC runner authentication through `OIDC-JWT`, issuer, audience, and JWKS verification.
+- Provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
 - Evidence verifier CLI support through `--verify-evidence` for daemon JSONL hash chains and HMAC signatures.
 - Runtime evaluator that can use either the built-in scaffold policy or compiled policy JSON loaded through `--policy`.
 - Typed release-governance daemon request examples under `examples/go-runtime/typed-release-governance/`.
@@ -164,7 +165,7 @@ Signed Go runtime release packages now also include:
 - `ci-runners/cavra-release-governance-runner.sh`
 - `ci-runners/github-action/action.yml`
 
-Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence. The runner wrapper writes `runner-auth-claims.json`, signs claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, sends OIDC JWTs when `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE` is set, signs the evidence stream when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set, and writes an evidence verification report.
+Verify the release package first, install the referenced runtime binary, then use the shell wrapper or composite action to execute a typed release-governance daemon check and publish `.cavra/go-daemon/` as CI evidence. The runner wrapper writes `runner-auth-claims.json`, signs claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, auto-acquires CI-provider OIDC JWTs when `CAVRA_RUNNER_OIDC_AUTO=true`, sends OIDC JWTs when `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE` is set, signs the evidence stream when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set, and writes an evidence verification report.
 
 ## User Stories
 
@@ -174,6 +175,7 @@ Verify the release package first, install the referenced runtime binary, then us
 - As a CI owner, I can reuse a signed release-governance runner wrapper instead of rebuilding CAVRA from source in each pipeline.
 - As a CI owner, I can require signed runner claims before the daemon accepts release-governance checks.
 - As a CI owner, I can require CI-provider OIDC JWT verification before the daemon accepts release-governance checks.
+- As a CI owner, I can let the wrapper request GitHub Actions, GitLab CI, or Azure Pipelines OIDC tokens without storing a long-lived runner auth secret.
 - As a platform engineer, I can call the daemon through a typed Go helper instead of hand-rolled socket code.
 - As a release manager, I can gate promotion or rollback workflows on typed release-governance evidence without relying on ad hoc JSON maps.
 - As an auditor, I can trace daemon decisions to a hash-chained, optionally signed request/response evidence stream.
@@ -187,10 +189,10 @@ Daemon transport moves the Go runtime from a CLI-only prototype toward an embedd
 ## Current Limits
 
 - The daemon handles one request per connection.
-- Evidence signing uses public-safe HMAC hooks in this repository; production key custody and rotation policy must be supplied by deployment automation.
-- OIDC verification currently supports RS256 JWKS-backed CI-provider JWTs and validates common GitHub Actions, GitLab CI, Azure Pipelines, and generic runner identity claims. Provider-specific token acquisition remains pipeline-specific.
+- Evidence signing uses public-safe HMAC hooks in this repository; production key custody and rotation policy is documented in `docs/runner-auth-evidence-key-custody.md`.
+- OIDC verification currently supports RS256 JWKS-backed CI-provider JWTs and validates common GitHub Actions, GitLab CI, Azure Pipelines, and generic runner identity claims. Provider-specific acquisition helpers are implemented for GitHub Actions, GitLab CI, and Azure Pipelines, but Azure issuer and JWKS configuration must still be pinned by the operator from approved tenant metadata.
 
 ## Next Recommended Work
 
-1. Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
-2. Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.
+1. Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
+2. Complete air-gapped single-binary packaging and reproducibility documentation.

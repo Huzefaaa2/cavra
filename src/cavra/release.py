@@ -6986,10 +6986,16 @@ def verify_go_ci_runner_bundles(
         raise ReleaseVerificationError("CI runner bundle metadata is missing runner authentication control")
     if "runner-authentication-oidc-verified" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing runner OIDC verification control")
+    if "runner-oidc-provider-token-acquisition" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing provider OIDC token acquisition control")
     if "daemon-evidence-stream-hmac-signed" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing signed evidence stream control")
     if "daemon-evidence-stream-verifier-cli" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing daemon evidence verifier control")
+    if "evidence-verification-artifact-published" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing evidence verification artifact control")
+    if "runner-evidence-key-custody-documented" not in controls:
+        raise ReleaseVerificationError("CI runner bundle metadata is missing key custody documentation control")
     if "blocking-decision-fails-closed-by-default" not in controls:
         raise ReleaseVerificationError("CI runner bundle metadata is missing fail-closed decision control")
 

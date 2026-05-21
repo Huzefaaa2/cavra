@@ -60,9 +60,9 @@ Packaged runner wrappers:
 - `examples/ci-runners/cavra-release-governance-runner.sh` runs a typed release-governance request through the daemon and fails closed on unexpected or blocking decisions.
 - `examples/github-actions/actions/cavra-release-governance-go-runtime/action.yml` wraps the shell runner as a reusable GitHub composite action.
 - `scripts/package_go_release.py` includes both wrappers plus `cavra-runtime.ci-runner-bundles.json` in signed Go runtime release packages.
-- The wrapper writes `runner-auth-claims.json`, signs runner claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, sends CI-provider OIDC JWTs when `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE` is set, signs daemon evidence records when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set, and writes an evidence verification report.
+- The wrapper writes `runner-auth-claims.json`, signs runner claims when `CAVRA_RUNNER_AUTH_HMAC_KEY` is set, auto-acquires CI-provider OIDC JWTs when `CAVRA_RUNNER_OIDC_AUTO=true`, sends CI-provider OIDC JWTs when `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE` is set, signs daemon evidence records when `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` is set, and writes an evidence verification report.
 
 Next Go work:
 
-- Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
-- Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.
+- Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
+- Complete air-gapped single-binary packaging and reproducibility documentation.

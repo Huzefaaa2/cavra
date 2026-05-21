@@ -90,4 +90,4 @@ AI-agent governance evidence must remain trustworthy after a release, incident, 
 
 ## Next Work
 
-The next recommended work is provider-native OIDC token acquisition helpers and production key custody documentation.
+The next recommended work is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

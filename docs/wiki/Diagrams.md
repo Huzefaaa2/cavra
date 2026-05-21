@@ -36,6 +36,10 @@ See `docs/diagrams/oidc-rbac-deployment.svg` for the dedicated identity flow fro
 
 See `docs/diagrams/go-parity-sandbox-deployment.svg` for the dedicated flow from authoritative Python runtime behavior through shared parity fixtures, Go runtime tests, required CI checks, sandbox source, GitHub Pages deployment, and the future promotion gate.
 
+## Runner OIDC and Evidence Verification
+
+The release-governance runner wrapper now acquires provider OIDC tokens from GitHub Actions, GitLab CI, or Azure Pipelines when available, sends signed or OIDC-backed `runner_auth` to the Go daemon, records hash-chained evidence, verifies the evidence stream, and publishes `release-governance-evidence-verification.json` as an audit artifact. Custody and rotation guidance is documented in `Runner-Auth-And-Evidence-Key-Custody.md`.
+
 ## SVG Images
 
 Repository diagram images:

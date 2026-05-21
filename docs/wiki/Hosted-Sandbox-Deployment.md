@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Add provider-native OIDC token acquisition helpers and production key custody documentation.
+1. Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

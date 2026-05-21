@@ -60,4 +60,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is provider-native OIDC token acquisition helpers and production key custody documentation.
+The next recommended implementation step is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

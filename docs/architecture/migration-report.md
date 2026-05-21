@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Add provider-native OIDC token acquisition helpers and production key custody documentation.
+4. Broaden Go runtime parity and complete air-gapped single-binary reproducibility documentation.

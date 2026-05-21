@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is provider-native OIDC token acquisition helpers and production key custody documentation.
+The next recommended step is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

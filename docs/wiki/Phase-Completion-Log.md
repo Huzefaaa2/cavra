@@ -1398,4 +1398,24 @@ Validation:
 - `python3 scripts/validate_release_security.py`
 - `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
 
-Recommended next issue: add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers, plus production key custody and rotation documentation for runner authentication and daemon evidence verification keys.
+Recommended next issue: delivered below as provider-native OIDC token acquisition and runner evidence key custody.
+
+## Phase 7 Provider OIDC Token Acquisition And Runner Key Custody
+
+Status: complete for the current public-safe CI provider acquisition and key-custody documentation slice.
+
+Completed implementation:
+- Added runner wrapper auto-acquisition for GitHub Actions OIDC tokens through `ACTIONS_ID_TOKEN_REQUEST_URL` and `ACTIONS_ID_TOKEN_REQUEST_TOKEN`.
+- Added GitLab CI `id_tokens` support through `CAVRA_GITLAB_OIDC_TOKEN`, `GITLAB_OIDC_TOKEN`, `CAVRA_RUNNER_AUTH_OIDC_TOKEN_ENV`, or `CI_JOB_JWT_V2`.
+- Added Azure Pipelines token acquisition support through `SYSTEM_OIDCREQUESTURI` plus `SYSTEM_ACCESSTOKEN` or `CAVRA_AZURE_OIDC_REQUEST_TOKEN`, with `CAVRA_AZURE_OIDC_TOKEN` as an explicit fallback.
+- Added GitHub composite action inputs for OIDC auto-acquisition and GitLab token environment selection.
+- Updated GitHub Actions, GitLab CI, and Azure Pipelines examples to publish `release-governance-evidence-verification.json` as an audit artifact.
+- Added `docs/runner-auth-evidence-key-custody.md` for OIDC preference, HMAC fallback, key IDs, rotation cadence, JWKS trust, and release-governance evidence retention.
+- Extended release package metadata, release verification controls, README, Go daemon transport docs, Go release packaging docs, Go runtime README, feature inventory, roadmap, and wiki source.
+
+Validation:
+- `python3 -m pytest tests/test_ci_templates.py tests/test_go_release_packaging.py::test_go_release_packaging_creates_sbom_checksums_and_evidence tests/test_identity_references.py tests/test_immutable_storage_references.py -q`
+- `python3 scripts/validate_release_security.py`
+- `bash -n examples/ci-runners/cavra-release-governance-runner.sh`
+
+Recommended next issue: broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions, then complete air-gapped single-binary packaging and reproducibility documentation.

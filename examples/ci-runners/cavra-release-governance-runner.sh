@@ -18,12 +18,16 @@ runner_oidc_audience="${CAVRA_RUNNER_OIDC_AUDIENCE:-}"
 runner_oidc_jwks="${CAVRA_RUNNER_OIDC_JWKS:-}"
 runner_oidc_jwks_url="${CAVRA_RUNNER_OIDC_JWKS_URL:-}"
 runner_oidc_token_file="${CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE:-}"
+runner_oidc_auto="${CAVRA_RUNNER_OIDC_AUTO:-true}"
+runner_oidc_token_env="${CAVRA_RUNNER_AUTH_OIDC_TOKEN_ENV:-}"
+runner_oidc_auto_token_file="${evidence_dir}/runner-oidc.jwt"
 
 mkdir -p "${evidence_dir}"
 
 # Optional hardening:
 # - CAVRA_RUNNER_AUTH_HMAC_KEY signs runner identity claims for daemon authentication.
 # - CAVRA_RUNNER_AUTH_OIDC_TOKEN or CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE sends a CI-provider OIDC JWT.
+# - CAVRA_RUNNER_OIDC_AUTO=true asks GitHub Actions, GitLab CI, or Azure Pipelines for a short-lived JWT.
 # - CAVRA_RUNNER_OIDC_ISSUER, CAVRA_RUNNER_OIDC_AUDIENCE, and CAVRA_RUNNER_OIDC_JWKS_URL
 #   make the daemon verify GitHub Actions, GitLab CI, or Azure Pipelines JWTs directly.
 # - CAVRA_DAEMON_EVIDENCE_HMAC_KEY signs the chained daemon evidence JSONL stream.
@@ -113,6 +117,83 @@ claims = {
 }
 pathlib.Path(sys.argv[1]).write_text(json.dumps(claims, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
+
+if [ "${runner_oidc_auto}" = "true" ] && [ -z "${CAVRA_RUNNER_AUTH_OIDC_TOKEN:-}" ] && [ -z "${runner_oidc_token_file}" ] && { [ -z "${CAVRA_RUNNER_AUTH_HMAC_KEY:-}" ] || [ -n "${runner_oidc_issuer}" ] || [ -n "${runner_oidc_audience}" ]; }; then
+  python3 - "${runner_oidc_auto_token_file}" "${runner_oidc_audience}" "${runner_oidc_token_env}" <<'PY'
+import json
+import os
+import pathlib
+import sys
+import urllib.parse
+import urllib.request
+
+output_path = pathlib.Path(sys.argv[1])
+audience = sys.argv[2]
+token_env_name = sys.argv[3]
+
+
+def write_token(token: str) -> None:
+    token = token.strip()
+    if not token:
+        return
+    output_path.write_text(token + "\n", encoding="utf-8")
+    output_path.chmod(0o600)
+
+
+def request_json(url, bearer=None):
+    headers = {"Accept": "application/json"}
+    if bearer:
+        headers["Authorization"] = f"Bearer {bearer}"
+    request = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(request, timeout=20) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+if os.environ.get("GITHUB_ACTIONS") and os.environ.get("ACTIONS_ID_TOKEN_REQUEST_URL") and os.environ.get("ACTIONS_ID_TOKEN_REQUEST_TOKEN"):
+    url = os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
+    if audience:
+        separator = "&" if "?" in url else "?"
+        url = f"{url}{separator}audience={urllib.parse.quote(audience, safe='')}"
+    payload = request_json(url, os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"])
+    write_token(str(payload.get("value", "")))
+elif os.environ.get("GITLAB_CI"):
+    candidates = [
+        token_env_name,
+        "CAVRA_GITLAB_OIDC_TOKEN",
+        "GITLAB_OIDC_TOKEN",
+        "CI_JOB_JWT_V2",
+    ]
+    for name in candidates:
+        if name and os.environ.get(name):
+            write_token(os.environ[name])
+            break
+elif os.environ.get("TF_BUILD"):
+    if os.environ.get("CAVRA_AZURE_OIDC_TOKEN"):
+        write_token(os.environ["CAVRA_AZURE_OIDC_TOKEN"])
+    elif os.environ.get("SYSTEM_OIDCREQUESTURI"):
+        bearer = os.environ.get("CAVRA_AZURE_OIDC_REQUEST_TOKEN") or os.environ.get("SYSTEM_ACCESSTOKEN")
+        payload = request_json(os.environ["SYSTEM_OIDCREQUESTURI"], bearer)
+        write_token(str(payload.get("oidcToken") or payload.get("idToken") or payload.get("value") or ""))
+PY
+  if [ -s "${runner_oidc_auto_token_file}" ]; then
+    runner_oidc_token_file="${runner_oidc_auto_token_file}"
+  fi
+fi
+
+if [ -z "${runner_oidc_issuer}" ] && { [ -n "${CAVRA_RUNNER_AUTH_OIDC_TOKEN:-}" ] || [ -n "${runner_oidc_token_file}" ]; }; then
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    runner_oidc_issuer="https://token.actions.githubusercontent.com"
+  elif [ -n "${GITLAB_CI:-}" ]; then
+    runner_oidc_issuer="${CI_SERVER_URL:-https://gitlab.com}"
+  fi
+fi
+if [ -z "${runner_oidc_jwks_url}" ] && { [ -n "${CAVRA_RUNNER_AUTH_OIDC_TOKEN:-}" ] || [ -n "${runner_oidc_token_file}" ]; }; then
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    runner_oidc_jwks_url="https://token.actions.githubusercontent.com/.well-known/jwks"
+  elif [ -n "${GITLAB_CI:-}" ]; then
+    runner_oidc_jwks_url="${CI_SERVER_URL:-https://gitlab.com}/oauth/discovery/keys"
+  fi
+fi
 
 start_args=(
   --lifecycle start

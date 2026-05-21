@@ -88,5 +88,5 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 ## Next Recommended Work
 
-1. Add provider-native OIDC token acquisition helpers and production key custody documentation.
+1. Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
 2. Add contract-level fixtures when new release governance metadata kinds are introduced.
