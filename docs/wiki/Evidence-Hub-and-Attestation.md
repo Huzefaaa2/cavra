@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Document production release-signing operations, key rotation, and emergency revocation evidence.
+- Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
 - Validate the hosted sandbox URL after deployment from `main`.

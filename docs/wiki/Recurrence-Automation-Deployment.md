@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Document production release-signing operations, key rotation, and emergency revocation evidence.
+Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.

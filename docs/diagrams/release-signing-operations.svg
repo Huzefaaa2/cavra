@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA release signing operations</title>
+  <desc id="desc">Release package flow showing external key custody, package generation, signing operations manifest, verifier gates, rotation, and emergency revocation evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071216"/>
+      <stop offset="1" stop-color="#0f1f26"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #f4fbff; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b7c7ce; }
+      .label { font: 700 18px Arial, sans-serif; fill: #f4fbff; }
+      .body { font: 400 15px Arial, sans-serif; fill: #c8d7dd; }
+      .small { font: 700 13px Arial, sans-serif; fill: #081417; }
+      .box { fill: #122126; stroke: #6ee7c2; stroke-width: 2; rx: 10; }
+      .warn { fill: #201918; stroke: #f6c15a; stroke-width: 2; rx: 10; }
+      .danger { fill: #211719; stroke: #ff8f8f; stroke-width: 2; rx: 10; }
+      .arrow { stroke: #6ee7c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrow2 { stroke: #f6c15a; stroke-width: 3; fill: none; marker-end: url(#arrow2); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6ee7c2"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#f6c15a"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="60" y="62" class="title">CAVRA Release Signing Operations</text>
+  <text x="60" y="92" class="subtitle">Public-safe release evidence for signing key custody, rotation, and emergency revocation.</text>
+
+  <rect x="60" y="145" width="235" height="130" class="warn"/>
+  <text x="82" y="178" class="label">Secret Manager</text>
+  <text x="82" y="207" class="body">Private Ed25519 signing key</text>
+  <text x="82" y="230" class="body">Stored outside the repo</text>
+  <text x="82" y="253" class="body">Referenced only by key ID</text>
+
+  <rect x="360" y="145" width="240" height="130" class="box"/>
+  <text x="382" y="178" class="label">Package Builder</text>
+  <text x="382" y="207" class="body">Build runtime artifacts</text>
+  <text x="382" y="230" class="body">Generate checksums</text>
+  <text x="382" y="253" class="body">Create SLSA provenance</text>
+
+  <rect x="665" y="145" width="250" height="130" class="box"/>
+  <text x="687" y="178" class="label">Signing Operations</text>
+  <text x="687" y="207" class="body">cavra-runtime.signing-</text>
+  <text x="687" y="230" class="body">operations.json</text>
+  <text x="687" y="253" class="body">Rotation and revocation controls</text>
+
+  <rect x="985" y="145" width="235" height="130" class="box"/>
+  <text x="1007" y="178" class="label">Verifier Gate</text>
+  <text x="1007" y="207" class="body">Checksums</text>
+  <text x="1007" y="230" class="body">Detached signatures</text>
+  <text x="1007" y="253" class="body">Required controls</text>
+
+  <path d="M295 210 L360 210" class="arrow2"/>
+  <path d="M600 210 L665 210" class="arrow"/>
+  <path d="M915 210 L985 210" class="arrow"/>
+
+  <rect x="155" y="380" width="285" height="165" class="box"/>
+  <text x="182" y="415" class="label">Planned Rotation</text>
+  <text x="182" y="447" class="body">1. Create replacement key</text>
+  <text x="182" y="472" class="body">2. Publish new key ID evidence</text>
+  <text x="182" y="497" class="body">3. Verify old and new keys</text>
+  <text x="182" y="522" class="body">4. Retire old key after overlap</text>
+
+  <rect x="500" y="380" width="285" height="165" class="danger"/>
+  <text x="527" y="415" class="label">Emergency Revocation</text>
+  <text x="527" y="447" class="body">1. Disable compromised secret</text>
+  <text x="527" y="472" class="body">2. Remove affected artifacts</text>
+  <text x="527" y="497" class="body">3. Publish advisory</text>
+  <text x="527" y="522" class="body">4. Rebuild and sign replacements</text>
+
+  <rect x="845" y="380" width="285" height="165" class="box"/>
+  <text x="872" y="415" class="label">Release Promotion</text>
+  <text x="872" y="447" class="body">Requires verified manifest</text>
+  <text x="872" y="472" class="body">Requires release evidence</text>
+  <text x="872" y="497" class="body">Requires signatures</text>
+  <text x="872" y="522" class="body">Blocks missing controls</text>
+
+  <path d="M790 275 C790 335 298 330 298 380" class="arrow"/>
+  <path d="M790 275 C790 335 642 330 642 380" class="arrow2"/>
+  <path d="M1103 275 L1103 380" class="arrow"/>
+
+  <rect x="60" y="615" width="1160" height="52" fill="#6ee7c2" rx="10"/>
+  <text x="88" y="648" class="small">Boundary: private signing keys, customer material, proprietary enterprise logic, and license secrets never belong in the public Community Edition repository.</text>
+</svg>
