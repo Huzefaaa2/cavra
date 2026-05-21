@@ -69,4 +69,4 @@ Enterprise CAVRA deployments touch multiple control systems. Integration invento
 
 ## Next Work
 
-The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended work is continued generated enforcement contracts around release governance evidence payloads.

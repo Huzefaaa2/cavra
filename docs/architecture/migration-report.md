@@ -68,4 +68,4 @@ Private:
 1. Create private `cavra-enterprise` repository.
 2. Move future paid modules and paid policy packs there.
 3. Keep public interfaces stable and test Enterprise absence in Community mode.
-4. Continue broadening release-governance record parity as new evidence metadata kinds are added.
+4. Continue broadening generated enforcement contracts around release governance evidence payloads.

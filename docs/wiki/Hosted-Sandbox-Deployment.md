@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Continue broadening release-governance record parity as new evidence metadata kinds are added.
+1. Continue broadening generated enforcement contracts around release governance evidence payloads.

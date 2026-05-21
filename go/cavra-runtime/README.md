@@ -10,7 +10,7 @@ The Python runtime remains authoritative. The Go package intentionally covers on
 - protected branch Git pushes
 - policy-backed MCP allow/block decisions
 - registry-backed MCP allow, approval, and block decisions
-- approval-backed release governance record checks for promotion, rollback, and endpoint remediation evidence
+- release governance record checks for approval state, delivery failures, critical drift, inventory freshness, endpoint publication, and SLA evidence
 - runtime evidence reference metadata
 - representative compiled-policy decisions across every bundled policy pack
 - release packages with checksums, SPDX SBOM, detached signatures, and release evidence
@@ -49,5 +49,4 @@ python3 scripts/generate_go_enforcement_contracts.py
 
 Next Go work:
 
-- Validate the public sandbox URL after deployment from `main`.
-- Continue broadening release-governance record coverage as new release evidence kinds are added.
+- Continue broadening generated enforcement contracts around release governance evidence payloads.

@@ -52,4 +52,4 @@ OIDC/RBAC deployment references move CAVRA from local approval claims to product
 
 ## Next
 
-continued release-governance record parity as new evidence metadata kinds are added.
+continued generated enforcement contracts around release governance evidence payloads.

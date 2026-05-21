@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended step is continued generated enforcement contracts around release governance evidence payloads.

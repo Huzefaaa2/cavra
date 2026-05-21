@@ -10,12 +10,12 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `go/cavra-runtime/testdata/parity_cases.json` captures shared critical decision cases.
 - `go/cavra-runtime/testdata/compiled_policy.json` captures a compiled-policy loading fixture.
 - `go/cavra-runtime/testdata/mcp_registry.json` captures registry-backed MCP trust decisions.
-- `go/cavra-runtime/testdata/release_governance_records.json` captures approval-backed release governance record decisions.
+- `go/cavra-runtime/testdata/release_governance_records.json` captures release governance record decisions for approvals, delivery failures, endpoint publication, inventory freshness, reconciliation drift, SLA reports, and handoff status.
 - `go/cavra-runtime/runtime/decision_test.go` verifies the Go evaluator against the shared fixture.
 - `tests/test_go_runtime_parity.py` verifies the same fixture against Python `RuntimeGuard` and compiles every bundled policy pack before checking representative Go CLI decisions.
 - `go run ./cmd/cavra-runtime --policy compiled-policy.json` evaluates against normalized JSON from `cavra policy compile`.
 - `go run ./cmd/cavra-runtime --registry mcp-registry.json` evaluates MCP calls with trust-registry decisions.
-- `release_governance_record` requests verify pending, approved, denied, and missing-approval release evidence states without exposing private enterprise logic.
+- `release_governance_record` requests verify pending, approved, denied, missing-approval, failed-delivery, and critical operational signal states without exposing private enterprise logic.
 - `go/cavra-runtime/enforcement/v1` contains generated Go request and response contracts from the enforcement protobuf.
 - Go decisions now emit runtime evidence metadata: decision ID, correlation ID, timestamp, and `evidence://...` references.
 - `.github/workflows/go-release.yml` packages Go runtime binaries with checksums, SPDX SBOM metadata, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, signed release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, channel publishing history metadata, endpoint export publication delivery, endpoint inventory ingestion, endpoint inventory freshness SLA reports, reconciliation automation from ingested inventory, managed endpoint reconciliation, endpoint drift dashboards, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, endpoint remediation escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, recurrence delivery batching, suppression audit exports, recurrence retry policies, owner digest notifications, suppression trend analytics, installer smoke validation, detached signatures, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, and release evidence.
@@ -71,7 +71,7 @@ echo '{"session_id":"release-demo","action_type":"release_governance_record","re
 - As a CI owner, I can verify that a future low-latency runtime returns the same critical decisions as the authoritative Python runtime.
 - As a platform engineer, I can inspect a small Go implementation before allowing it into runners or developer laptops.
 - As an auditor, I can see that parity is tested before CAVRA claims a second enforcement backend.
-- As a release manager, I can verify that promotion, rollback, and endpoint remediation evidence is not accepted by the Go runtime without the expected approval state.
+- As a release manager, I can verify that promotion, rollback, endpoint remediation, endpoint publication, inventory freshness, reconciliation drift, and SLA evidence are evaluated consistently by the Go runtime.
 
 ## Enterprise Challenge Solved
 
@@ -81,11 +81,11 @@ Enterprises need fast local enforcement but cannot accept inconsistent policy de
 
 - The Go runtime supports compiled policy JSON for the currently mirrored sections: filesystem, commands, and MCP trust lists.
 - Registry-backed MCP parity is implemented for approved, pending, blocked, tool-scope, and capability-scope decisions.
-- Release governance record parity is intentionally bounded to approval state checks for promotion, rollback, endpoint remediation request, and endpoint remediation execution metadata.
+- Release governance record parity is intentionally bounded to public-safe metadata checks for approval state, delivery success, drift status, alert level, blocked counts, and SLA breach counts.
 - It exposes an initial Unix-socket daemon transport using the generated request and response types.
 - Managed endpoint deployment manifests are available for packaged CI runner and developer workstation rollout metadata.
 
 ## Next Recommended Work
 
-1. Continue broadening release-governance record parity as new evidence metadata kinds are added.
-2. Continue broadening release-governance record parity as new evidence metadata kinds are added.
+1. Continue broadening generated enforcement contracts around release governance evidence payloads.
+2. Add contract-level fixtures when new release governance metadata kinds are introduced.

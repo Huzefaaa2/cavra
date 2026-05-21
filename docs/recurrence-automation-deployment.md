@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Continue broadening release-governance record parity as new evidence metadata kinds are added.
+Continue broadening generated enforcement contracts around release governance evidence payloads.

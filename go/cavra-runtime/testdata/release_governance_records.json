@@ -72,5 +72,137 @@
       "severity": "critical",
       "approver_group": "Release Governance"
     }
+  },
+  {
+    "name": "successful endpoint publication delivery allows",
+    "request": {
+      "session_id": "release-governance-publication-success",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-management-publication-delivery",
+        "delivery_success": true,
+        "approval_id": "apr_channel_prod",
+        "providers": ["jamf", "intune"],
+        "failed_providers": []
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.record.verified",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "failed release connector delivery blocks",
+    "request": {
+      "session_id": "release-governance-delivery-failed",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "release-connector-delivery",
+        "delivery_success": false,
+        "connector_delivery_source": "release_governance_rollback",
+        "failed_providers": ["servicenow"],
+        "blocked_count": 1
+      }
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "release_governance.delivery.failed",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "critical endpoint inventory freshness requires approval",
+    "request": {
+      "session_id": "release-governance-freshness-critical",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-inventory-freshness-report",
+        "alert_level": "critical",
+        "critical_count": 2,
+        "blocked_count": 2
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "managed endpoint reconciliation drift requires approval",
+    "request": {
+      "session_id": "release-governance-reconciliation-drift",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "managed-endpoint-reconciliation",
+        "drift_status": "drifted",
+        "drifted_endpoint_count": 3,
+        "missing_target_count": 1
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "clean endpoint remediation sla report allows",
+    "request": {
+      "session_id": "release-governance-sla-clean",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-remediation-sla-report",
+        "alert_level": "healthy",
+        "breached_count": 0,
+        "at_risk_count": 0
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.record.verified",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "blocked endpoint remediation handoff status requires approval",
+    "request": {
+      "session_id": "release-governance-handoff-blocked",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-remediation-handoff-status",
+        "handoff_status": "blocked",
+        "blocked_count": 1
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "pending endpoint remediation handoff requires approval",
+    "request": {
+      "session_id": "release-governance-handoff-pending",
+      "action_type": "release_governance_record",
+      "record": {
+        "metadata_kind": "endpoint-remediation-handoff",
+        "approval_required_count": 1,
+        "approval_state": "pending",
+        "approval_id": "apr_handoff"
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.approval.pending",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
   }
 ]

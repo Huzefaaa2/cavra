@@ -62,4 +62,4 @@ Large enterprises cannot govern AI coding agents repository by repository throug
 
 ## Next
 
-The next recommended work is continued release-governance record parity as new evidence metadata kinds are added.
+The next recommended work is continued generated enforcement contracts around release governance evidence payloads.

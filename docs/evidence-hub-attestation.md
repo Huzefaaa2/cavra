@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Continue broadening release-governance record parity as new evidence metadata kinds are added.
+- Continue broadening generated enforcement contracts around release governance evidence payloads.
 - Validate the hosted sandbox URL after deployment from `main`.
