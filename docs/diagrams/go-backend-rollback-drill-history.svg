@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go Backend Rollback Drill History</title>
+  <desc id="desc">Diagram showing rollback drill history metadata used as a production readiness gate for promoted Go backend pilots.</desc>
+  <rect width="1280" height="720" fill="#071114"/>
+  <rect x="48" y="48" width="1184" height="624" rx="18" fill="#0d181c" stroke="#58d6c3" stroke-width="2"/>
+  <text x="80" y="104" fill="#eff9f7" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Rollback Drill History Gate</text>
+  <text x="80" y="142" fill="#9fb8b6" font-family="Inter, Arial, sans-serif" font-size="18">Promoted Go backend selection requires fresh evidence that teams can return to Python-only mode.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="88" y="218" width="220" height="126" rx="10" fill="#10242a" stroke="#58d6c3"/>
+    <text x="118" y="262" fill="#eff9f7" font-size="22" font-weight="700">Operational Drill</text>
+    <text x="118" y="294" fill="#9fb8b6" font-size="15">Runbook executed</text>
+    <text x="118" y="318" fill="#9fb8b6" font-size="15">Fallback restored</text>
+    <rect x="390" y="218" width="238" height="126" rx="10" fill="#10242a" stroke="#f7c65c"/>
+    <text x="420" y="262" fill="#eff9f7" font-size="22" font-weight="700">Drill History JSON</text>
+    <text x="420" y="294" fill="#9fb8b6" font-size="15">Latest drill status</text>
+    <text x="420" y="318" fill="#9fb8b6" font-size="15">Recovery and age</text>
+    <rect x="710" y="218" width="238" height="126" rx="10" fill="#10242a" stroke="#58d6c3"/>
+    <text x="740" y="262" fill="#eff9f7" font-size="22" font-weight="700">CAVRA Gate</text>
+    <text x="740" y="294" fill="#9fb8b6" font-size="15">Freshness window</text>
+    <text x="740" y="318" fill="#9fb8b6" font-size="15">Recovery SLA check</text>
+    <rect x="1030" y="218" width="162" height="126" rx="10" fill="#10242a" stroke="#58d6c3"/>
+    <text x="1056" y="262" fill="#eff9f7" font-size="22" font-weight="700">Console</text>
+    <text x="1056" y="294" fill="#9fb8b6" font-size="15">Latest drill</text>
+    <text x="1056" y="318" fill="#9fb8b6" font-size="15">Evidence refs</text>
+    <path d="M310 281 H382" stroke="#58d6c3" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M630 281 H702" stroke="#58d6c3" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M950 281 H1022" stroke="#58d6c3" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="180" y="448" width="920" height="124" rx="12" fill="#081316" stroke="#315861"/>
+    <text x="220" y="496" fill="#eff9f7" font-size="24" font-weight="700">Promoted Backend Rule</text>
+    <text x="220" y="532" fill="#9fb8b6" font-size="17">If drill history is missing, failed, stale, or lacks recovery evidence, CAVRA falls back to Python.</text>
+    <text x="220" y="562" fill="#6fe4c3" font-size="17" font-weight="700">The browser displays evidence; operational runbooks perform the drill outside the public UI.</text>
+  </g>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58d6c3"/>
+    </marker>
+  </defs>
+</svg>

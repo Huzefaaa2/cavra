@@ -108,4 +108,4 @@ Backend promotion is only production-ready when rollback is boring, explicit, an
 
 ## Next Work
 
-The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
+The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.

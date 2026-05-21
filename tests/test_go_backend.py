@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import textwrap
+from datetime import datetime, timezone
 from pathlib import Path
 
 from cavra.go_backend import (
@@ -16,6 +17,7 @@ from cavra.go_backend import (
     go_deployment_readiness_report,
     go_promotion_readiness_report,
     go_rollback_readiness_report,
+    go_rollback_drill_history_report,
     go_rollback_rehearsal_report,
 )
 
@@ -235,6 +237,41 @@ def test_go_rollback_rehearsal_accepts_valid_evidence(tmp_path: Path) -> None:
     assert report["rehearsal"]["plan_approval_id"] == "apr_go_backend_rollback"
 
 
+def test_go_rollback_drill_history_is_not_requested_by_default() -> None:
+    report = go_rollback_drill_history_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_requested"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_drill_history_requested")["status"] == "warn"
+
+
+def test_go_rollback_drill_history_requires_valid_history_when_promoted(tmp_path: Path) -> None:
+    report = go_rollback_drill_history_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(tmp_path / "missing-drills.json"),
+        )
+    )
+
+    assert report["status"] == "needs_attention"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_drill_history_file")["status"] == "warn"
+
+
+def test_go_rollback_drill_history_accepts_latest_fresh_drill(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+
+    report = go_rollback_drill_history_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_max_age_days=90,
+        )
+    )
+
+    assert report["status"] == "ready"
+    assert report["history"]["latest_drill_id"] == "drill_go_backend_python_fallback"
+    assert report["history"]["latest_target_mode"] == GO_BACKEND_DISABLED
+
+
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
@@ -307,7 +344,7 @@ def test_go_promoted_mode_falls_back_without_rollback_rehearsal(tmp_path: Path) 
     assert result["rollback_rehearsal"]["status"] == "needs_attention"
 
 
-def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+def test_go_promoted_mode_falls_back_without_rollback_drill_history(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
     policy.write_text("{}", encoding="utf-8")
@@ -326,6 +363,36 @@ def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) 
             promotion_evidence_path=str(promotion),
             rollback_plan_path=str(rollback),
             rollback_rehearsal_path=str(rehearsal),
+        ),
+    )
+
+    assert result["selected_backend"] == "python"
+    assert result["fallback_used"] is True
+    assert result["fallback_reason"] == "go backend rollback drill history check failed"
+    assert result["rollback_drill_history"]["status"] == "needs_attention"
+
+
+def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+    rollback = _write_rollback_plan(tmp_path)
+    rehearsal = _write_rollback_rehearsal(tmp_path)
+    drills = _write_rollback_drill_history(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+            rollback_plan_path=str(rollback),
+            rollback_rehearsal_path=str(rehearsal),
+            rollback_drill_history_path=str(drills),
         ),
     )
 
@@ -528,3 +595,35 @@ def _write_rollback_rehearsal(path: Path) -> Path:
         encoding="utf-8",
     )
     return rehearsal
+
+
+def _write_rollback_drill_history(path: Path) -> Path:
+    history = path / "cavra-runtime.go-backend-rollback-drills.json"
+    history.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-drill-history.v1",
+                "environment": "production-pilot",
+                "drills": [
+                    {
+                        "drill_id": "drill_go_backend_python_fallback",
+                        "executed_at": datetime.now(timezone.utc).isoformat(),
+                        "actor": "release-agent",
+                        "source_mode": "promoted",
+                        "target_mode": "disabled",
+                        "status": "pass",
+                        "fallback_verified": True,
+                        "recovery_minutes": 7,
+                        "max_recovery_minutes": 15,
+                        "runbook_ref": "docs/go-backend-rollback-drill-history.md",
+                        "evidence_refs": [
+                            "go-rollback-drill://ci/python-fallback-restored",
+                            "go-production-readiness://ci/post-drill-ready",
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return history

@@ -39,9 +39,10 @@ export CAVRA_GO_RUNTIME_PACKAGE_DIR=/opt/cavra/go-runtime-release
 export CAVRA_GO_PROMOTION_EVIDENCE=/etc/cavra/go-backend-promotion-evidence.json
 export CAVRA_GO_ROLLBACK_PLAN=/etc/cavra/go-backend-rollback-plan.json
 export CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE=/etc/cavra/go-backend-rollback-rehearsal.json
+export CAVRA_GO_ROLLBACK_DRILL_HISTORY=/etc/cavra/go-backend-rollback-drills.json
 ```
 
-`promoted` mode fails closed to Python when any promotion, rollback, or rollback rehearsal input is missing, malformed, stale, or unapproved.
+`promoted` mode fails closed to Python when any promotion, rollback, rollback rehearsal, or rollback drill history input is missing, malformed, stale, or unapproved.
 
 ## CLI Usage
 
@@ -54,6 +55,7 @@ cavra runtime go-promotion-readiness \
   --promotion-evidence-path /etc/cavra/go-backend-promotion-evidence.json \
   --rollback-plan-path /etc/cavra/go-backend-rollback-plan.json \
   --rollback-rehearsal-path /etc/cavra/go-backend-rollback-rehearsal.json \
+  --rollback-drill-history-path /etc/cavra/go-backend-rollback-drills.json \
   --json
 ```
 
@@ -66,6 +68,9 @@ cavra runtime go-pilot-evaluate execute_command "terraform plan" \
   --policy-path /etc/cavra/compiled-policy.json \
   --package-dir /opt/cavra/go-runtime-release \
   --promotion-evidence-path /etc/cavra/go-backend-promotion-evidence.json \
+  --rollback-plan-path /etc/cavra/go-backend-rollback-plan.json \
+  --rollback-rehearsal-path /etc/cavra/go-backend-rollback-rehearsal.json \
+  --rollback-drill-history-path /etc/cavra/go-backend-rollback-drills.json \
   --json
 ```
 
@@ -76,20 +81,20 @@ curl http://127.0.0.1:8000/runtime/go-pilot/promotion-readiness
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Production readiness includes `go_backend_promotion`, `go_backend_rollback`, and `go_backend_rollback_rehearsal` sections. `not_requested` is acceptable when Go promotion is not configured. `needs_attention` blocks readiness when promoted mode is requested without complete promotion evidence, rollback controls, or rollback rehearsal evidence.
+Production readiness includes `go_backend_promotion`, `go_backend_rollback`, `go_backend_rollback_rehearsal`, and `go_backend_rollback_drill_history` sections. `not_requested` is acceptable when Go promotion is not configured. `needs_attention` blocks readiness when promoted mode is requested without complete promotion evidence, rollback controls, rollback rehearsal evidence, or rollback drill history.
 
 ## User Stories
 
 - As a platform owner, I can keep Python authoritative while testing Go in shadow and enforce modes.
 - As a release owner, I can require audited parity and deployment evidence before Go becomes the selected optional backend.
 - As a security reviewer, I can prove promoted mode falls back to Python when promotion evidence is missing.
-- As an incident commander, I can require rollback controls and rehearsal evidence before promoted mode can select Go.
+- As an incident commander, I can require rollback controls, rehearsal evidence, and fresh drill history before promoted mode can select Go.
 - As an auditor, I can attach parity, deployment, and approval references to every promoted backend decision path.
 
 ## Enterprise Challenge Solved
 
-Runtime backend changes are high-risk because a silent drift can alter enforcement. The promotion gate turns backend selection into an auditable release-control decision with explicit evidence, approval, rollback rehearsal, and rollback-friendly fallback to Python.
+Runtime backend changes are high-risk because a silent drift can alter enforcement. The promotion gate turns backend selection into an auditable release-control decision with explicit evidence, approval, rollback rehearsal, rollback drill history, and rollback-friendly fallback to Python.
 
 ## Next Work
 
-The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
+The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.

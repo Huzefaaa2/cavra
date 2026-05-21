@@ -1641,4 +1641,36 @@ Enterprise challenge solved:
 - Gives enterprise reviewers dashboard visibility into recovery timing and fallback verification.
 - Keeps private runbooks, secrets, endpoint scripts, and customer data outside the public Community Edition.
 
-Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
+Recommended next issue: delivered below as rollback drill history.
+
+## Phase 7 Go Backend Rollback Drill History
+
+Status: complete for the current public-safe promoted backend drill-history slice.
+
+Completed implementation:
+- Added `CAVRA_GO_ROLLBACK_DRILL_HISTORY`, `CAVRA_GO_ROLLBACK_DRILL_MAX_AGE_DAYS`, and Go backend configuration fields for rollback drill history.
+- Added `go_rollback_drill_history_report` with latest drill, target mode, fallback verification, recovery SLA, freshness, runbook, and evidence-reference checks.
+- Added fail-closed promoted-mode evaluation so Go is selected only when promotion readiness, rollback readiness, rollback rehearsal evidence, and drill history are `ready`.
+- Added CLI command `cavra runtime go-rollback-drills`.
+- Added FastAPI endpoint `/runtime/go-pilot/rollback-drills`.
+- Added `go_backend_rollback_drill_history` to `/deployment/production-readiness`, `/console/config`, and the Evidence Console Production Readiness panel.
+- Added dashboard fields for drill status, latest drill ID, timestamp, and evidence references.
+- Added tests for default `not_requested`, missing drill history, valid fresh drill history, promoted-mode drill fallback, and promoted-mode Go selection with drill history.
+- Added `docs/go-backend-rollback-drill-history.md`, `docs/wiki/Go-Backend-Rollback-Drill-History.md`, and `docs/diagrams/go-backend-rollback-drill-history.svg`.
+- Updated README, feature inventory, production deployment validation, Go parity docs, pilot/promotion/rehearsal docs, productization docs, production roadmap, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_rollback_drills tests/test_policy_authoring.py -q`
+
+User stories:
+- As an incident commander, I can prove that return-to-Python rollback is practiced on an operational cadence.
+- As a platform owner, I can see the latest drill ID, timestamp, recovery target, and evidence references in the Evidence Console.
+- As a security reviewer, I can block promoted mode when rollback drills become stale.
+- As an auditor, I can review drill history without exposing private customer or endpoint details.
+
+Enterprise challenge solved:
+- Converts rollback practice into a production readiness gate instead of informal operational memory.
+- Gives enterprise reviewers evidence that promoted Go backend use remains reversible over time.
+- Keeps private runbooks, endpoint identifiers, customer names, and secrets outside the public Community Edition.
+
+Recommended next issue: add recurring rollback drill scheduling and stale-drill notification delivery.
