@@ -14,6 +14,7 @@ message EvaluateRequest {
   string target = 5;
   string requested_operation = 6;
   string policy_pack = 7;
+  ReleaseGovernanceEvidence release_governance = 8;
 }
 
 message DecisionResponse {
@@ -34,4 +35,27 @@ message DecisionResponse {
   string approver_group = 15;
   string timestamp = 16;
   string correlation_id = 17;
+}
+
+message ReleaseGovernanceEvidence {
+  string metadata_kind = 1;
+  string release_channel = 2;
+  string release_version = 3;
+  string approval_state = 4;
+  string approval_id = 5;
+  int32 approval_required_count = 6;
+  bool delivery_success = 7;
+  repeated string failed_providers = 8;
+  int32 failed_delivery_count = 9;
+  int32 connector_delivery_failure_count = 10;
+  string alert_level = 11;
+  string drift_status = 12;
+  string handoff_status = 13;
+  int32 blocked_count = 14;
+  int32 critical_count = 15;
+  int32 breached_count = 16;
+  int32 drifted_endpoint_count = 17;
+  int32 missing_target_count = 18;
+  repeated string evidence_refs = 19;
+  string connector_delivery_source = 20;
 }

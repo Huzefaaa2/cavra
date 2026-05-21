@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Continue broadening generated enforcement contracts around release governance evidence payloads.
+Add daemon and CI runner examples for typed release governance enforcement requests.

@@ -53,6 +53,6 @@ def test_immutable_storage_docs_reference_deployment_bundles() -> None:
 
     assert str(AWS_DIR) in doc
     assert str(AZURE_DIR) in doc
-    assert "generated enforcement contracts" in doc
+    assert "typed release governance enforcement requests" in doc
     assert str(AWS_DIR) in wiki
     assert str(AZURE_DIR) in wiki

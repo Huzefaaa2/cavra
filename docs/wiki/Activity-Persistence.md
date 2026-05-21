@@ -5,19 +5,28 @@ Phase 6 starts durable operational visibility for CAVRA sessions and decisions.
 ## Current Implementation
 
 - JSON and SQLite stores for runtime sessions and decisions.
-- `POST /decisions` evaluates and persists decisions and updates the session summary.
-- `GET /decisions` filters by session, agent, repository, policy pack, decision outcome, severity, action type, limit, and offset.
-- `GET /sessions` filters by agent, repository, policy pack, state, limit, and offset.
-- Console Activity Explorer shows sessions and decisions with enterprise filters.
+- `POST /decisions` now persists evaluated decisions and updates the session summary.
+- `GET /decisions` supports filters for session, agent, repository, policy pack, decision outcome, severity, action type, limit, and offset.
+- `GET /sessions` supports filters for agent, repository, policy pack, state, limit, and offset.
+- Console Activity Explorer shows persisted sessions and decisions with enterprise-friendly filters.
 - SQLite migration `004_activity_sessions_decisions.sql` creates indexed activity tables.
 
 ## Configuration
 
+Use JSON persistence for local pilots:
+
 ```bash
 export CAVRA_ACTIVITY_STORE=.cavra/api/activity.json
+```
+
+Use SQLite persistence for self-hosted API deployments:
+
+```bash
 export CAVRA_ACTIVITY_DB=.cavra/activity.db
 cavra evidence migrate --sqlite .cavra/activity.db
 ```
+
+The shared migration command applies evidence, approval, registry, and activity migrations.
 
 ## User Stories
 
@@ -31,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Continue broadening generated enforcement contracts around release governance evidence payloads.
-- Public sandbox URL validation after deployment from `main`.
+- Add daemon and CI runner examples for typed release governance enforcement requests.
+- Validate the hosted sandbox URL after deployment from `main`.

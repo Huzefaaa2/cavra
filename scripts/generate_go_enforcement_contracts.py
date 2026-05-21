@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 
@@ -23,6 +24,30 @@ type EvaluateRequest struct {
 \tTarget             string `json:"target,omitempty"`
 \tRequestedOperation string `json:"requested_operation,omitempty"`
 \tPolicyPack         string `json:"policy_pack,omitempty"`
+\tReleaseGovernance *ReleaseGovernanceEvidence `json:"release_governance,omitempty"`
+}
+
+type ReleaseGovernanceEvidence struct {
+\tMetadataKind                     string   `json:"metadata_kind,omitempty"`
+\tReleaseChannel                   string   `json:"release_channel,omitempty"`
+\tReleaseVersion                   string   `json:"release_version,omitempty"`
+\tApprovalState                    string   `json:"approval_state,omitempty"`
+\tApprovalID                       string   `json:"approval_id,omitempty"`
+\tApprovalRequiredCount            int      `json:"approval_required_count,omitempty"`
+\tDeliverySuccess                  bool     `json:"delivery_success,omitempty"`
+\tFailedProviders                  []string `json:"failed_providers,omitempty"`
+\tFailedDeliveryCount              int      `json:"failed_delivery_count,omitempty"`
+\tConnectorDeliveryFailureCount    int      `json:"connector_delivery_failure_count,omitempty"`
+\tAlertLevel                       string   `json:"alert_level,omitempty"`
+\tDriftStatus                      string   `json:"drift_status,omitempty"`
+\tHandoffStatus                    string   `json:"handoff_status,omitempty"`
+\tBlockedCount                     int      `json:"blocked_count,omitempty"`
+\tCriticalCount                    int      `json:"critical_count,omitempty"`
+\tBreachedCount                    int      `json:"breached_count,omitempty"`
+\tDriftedEndpointCount             int      `json:"drifted_endpoint_count,omitempty"`
+\tMissingTargetCount               int      `json:"missing_target_count,omitempty"`
+\tEvidenceRefs                     []string `json:"evidence_refs,omitempty"`
+\tConnectorDeliverySource          string   `json:"connector_delivery_source,omitempty"`
 }
 
 type DecisionResponse struct {
@@ -46,7 +71,7 @@ type DecisionResponse struct {
 }
 
 func (request EvaluateRequest) RuntimeRequest() cavraruntime.Request {
-\treturn cavraruntime.Request{
+\truntimeRequest := cavraruntime.Request{
 \t\tSessionID:           request.SessionID,
 \t\tAgentID:             request.AgentID,
 \t\tActor:               request.Actor,
@@ -54,6 +79,61 @@ func (request EvaluateRequest) RuntimeRequest() cavraruntime.Request {
 \t\tTarget:              request.Target,
 \t\tRequestedOperation:  request.RequestedOperation,
 \t\tPolicyPack:          request.PolicyPack,
+\t}
+\tif request.ReleaseGovernance != nil {
+\t\tif record := request.ReleaseGovernance.RuntimeRecord(); record != nil {
+\t\t\truntimeRequest.Record = record
+\t\t\tif runtimeRequest.ActionType == "" {
+\t\t\t\truntimeRequest.ActionType = "release_governance_record"
+\t\t\t}
+\t\t}
+\t}
+\treturn runtimeRequest
+}
+
+func (evidence ReleaseGovernanceEvidence) RuntimeRecord() map[string]any {
+\trecord := map[string]any{}
+\taddString(record, "metadata_kind", evidence.MetadataKind)
+\taddString(record, "release_channel", evidence.ReleaseChannel)
+\taddString(record, "release_version", evidence.ReleaseVersion)
+\taddString(record, "approval_state", evidence.ApprovalState)
+\taddString(record, "approval_id", evidence.ApprovalID)
+\taddInt(record, "approval_required_count", evidence.ApprovalRequiredCount)
+\tif evidence.DeliverySuccess {
+\t\trecord["delivery_success"] = true
+\t}
+\tif len(evidence.FailedProviders) > 0 {
+\t\trecord["failed_providers"] = evidence.FailedProviders
+\t}
+\taddInt(record, "failed_delivery_count", evidence.FailedDeliveryCount)
+\taddInt(record, "connector_delivery_failure_count", evidence.ConnectorDeliveryFailureCount)
+\taddString(record, "alert_level", evidence.AlertLevel)
+\taddString(record, "drift_status", evidence.DriftStatus)
+\taddString(record, "handoff_status", evidence.HandoffStatus)
+\taddInt(record, "blocked_count", evidence.BlockedCount)
+\taddInt(record, "critical_count", evidence.CriticalCount)
+\taddInt(record, "breached_count", evidence.BreachedCount)
+\taddInt(record, "drifted_endpoint_count", evidence.DriftedEndpointCount)
+\taddInt(record, "missing_target_count", evidence.MissingTargetCount)
+\tif len(evidence.EvidenceRefs) > 0 {
+\t\trecord["evidence_refs"] = evidence.EvidenceRefs
+\t}
+\taddString(record, "connector_delivery_source", evidence.ConnectorDeliverySource)
+\tif len(record) == 0 {
+\t\treturn nil
+\t}
+\treturn record
+}
+
+func addString(record map[string]any, key string, value string) {
+\tif value != "" {
+\t\trecord[key] = value
+\t}
+}
+
+func addInt(record map[string]any, key string, value int) {
+\tif value != 0 {
+\t\trecord[key] = value
 \t}
 }
 
@@ -91,6 +171,28 @@ def main() -> None:
         "target",
         "requested_operation",
         "policy_pack",
+        "release_governance",
+        "ReleaseGovernanceEvidence",
+        "metadata_kind",
+        "release_channel",
+        "release_version",
+        "approval_state",
+        "approval_id",
+        "approval_required_count",
+        "delivery_success",
+        "failed_providers",
+        "failed_delivery_count",
+        "connector_delivery_failure_count",
+        "alert_level",
+        "drift_status",
+        "handoff_status",
+        "blocked_count",
+        "critical_count",
+        "breached_count",
+        "drifted_endpoint_count",
+        "missing_target_count",
+        "evidence_refs",
+        "connector_delivery_source",
         "decision_id",
         "policy_id",
         "rule_id",
@@ -107,6 +209,7 @@ def main() -> None:
         raise SystemExit(f"{PROTO} is missing expected fields: {', '.join(missing)}")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(TEMPLATE, encoding="utf-8")
+    subprocess.run(["gofmt", "-w", str(OUTPUT)], check=True)
 
 
 if __name__ == "__main__":

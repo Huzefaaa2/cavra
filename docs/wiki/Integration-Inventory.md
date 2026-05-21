@@ -1,67 +1,72 @@
 # Integration Inventory
 
-Phase 6 now includes durable enterprise integration inventory.
+Phase 6 now persists enterprise integration records for source control, CI/CD, SIEM, ITSM, ChatOps, identity, cloud, storage, security, and observability connectors.
 
-## What It Provides
+## Feature Summary
 
-- JSON and SQLite persistence for integration records.
-- API filters for provider, category, status, owner, environment, and health status.
-- Console view for source control, CI/CD, SIEM, ITSM, ChatOps, identity, storage, security, and observability connectors.
-- Evidence references so integration records can link to setup reviews, delivery tests, or operational checks.
-- Live connector execution hooks for Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks.
+CAVRA integration inventory gives platform and security teams a central view of which enterprise systems are connected or planned, who owns them, what capabilities they provide, how they authenticate, and whether the integration is healthy.
 
-## How To Use
+## API Surface
 
-Configure JSON persistence:
+- `GET /integrations`
+- `POST /integrations`
+- `GET /integrations/{integration_id}`
+- `POST /integrations/{integration_id}/deliver`
+
+Supported filters:
+
+- `provider`
+- `category`
+- `status`
+- `owner`
+- `environment`
+- `health_status`
+
+## Persistence
+
+Default JSON store:
+
+```bash
+.cavra/api/integrations.json
+```
+
+Override the JSON path:
 
 ```bash
 export CAVRA_INTEGRATION_STORE=.cavra/api/integrations.json
 ```
 
-Configure SQLite persistence:
+Use SQLite:
 
 ```bash
 export CAVRA_INTEGRATION_DB=.cavra/api/integrations.db
 cavra evidence migrate --sqlite .cavra/api/integrations.db
 ```
 
-Create or update an integration:
+The migration `006_integrations_inventory.sql` creates the `integrations` table and indexes provider, category, status, owner, and health status.
 
-```bash
-curl -X POST http://127.0.0.1:8000/integrations \
-  -H 'content-type: application/json' \
-  -d '{"integration_id":"github-enterprise","provider":"github","category":"source_control","status":"active","health_status":"healthy","owner":"Developer Platform"}'
-```
+## Console
 
-Deliver an event through a configured connector:
+The sandbox console includes an Enterprise Integrations view. It filters integration records by category, status, health, and owner, then displays provider, environment, capabilities, and operational status.
 
-```bash
-export CAVRA_CONNECTOR_CONFIG=.cavra/connectors.json
-curl -X POST http://127.0.0.1:8000/integrations/splunk/deliver \
-  -H 'content-type: application/json' \
-  -d '{"event":{"event_type":"cavra.evidence_bundle","session_id":"release-42"},"provider":"splunk"}'
-```
+## Connector Execution
 
-Or from the CLI:
+CAVRA can execute configured connector hooks for Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks. Configure connector secrets outside the inventory record, set `CAVRA_CONNECTOR_CONFIG`, and call `POST /integrations/{integration_id}/deliver` or `cavra integration deliver`. Release governance records can use the same connector layer through `POST /promotion-executions/{execution_id}/audit-export/deliver`, `POST /rollback-executions/{rollback_id}/deliver`, `cavra release deliver-promotion-audit`, and `cavra release deliver-rollback-execution`.
 
-```bash
-cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra/connectors.json --provider splunk
-cavra release deliver-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json --config .cavra/connectors.json --provider webhook --retries 1
-cavra release deliver-rollback-execution .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json --config .cavra/connectors.json --provider webhook --retries 1
-```
+Delivery evidence uses the `cavra.connector.delivery.v1` schema and redacts credentials before writing output.
 
 ## User Stories
 
 - As a platform engineer, I can see which enterprise systems CAVRA is configured to use.
-- As a SOC lead, I can track SIEM connector status and ownership.
-- As a SOC lead, I can deliver CAVRA evidence events into SIEM, ITSM, and ChatOps systems with credential-redacted delivery records.
+- As a SOC lead, I can track SIEM connector ownership and health status.
+- As a SOC lead, I can deliver signed CAVRA evidence events into SIEM and ChatOps systems with credential-redacted delivery records.
 - As a release manager, I can deliver promotion audit and rollback execution records through owned connectors with retry evidence.
-- As an auditor, I can confirm that enterprise integration records have owners, health state, and evidence references.
+- As an auditor, I can inspect whether source control, ITSM, identity, and evidence storage integrations have owners and evidence references.
 
 ## Enterprise Challenge Solved
 
-Integration inventory prevents source control, SIEM, ITSM, identity, and storage connectors from becoming undocumented deployment drift. It gives operators one API and console view for connector ownership, health, capability scope, and delivery evidence.
+Enterprise CAVRA deployments touch multiple control systems. Integration inventory prevents those connectors from becoming undocumented configuration drift by making ownership, status, health, and capability scope visible through the API and console. Connector execution turns those records into auditable delivery paths for SOC, ITSM, and collaboration workflows.
 
-## Next
+## Next Work
 
-The next recommended work is continued generated enforcement contracts around release governance evidence payloads.
+The next recommended work is daemon and CI runner examples for typed release governance enforcement requests.

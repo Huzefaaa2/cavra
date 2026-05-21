@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is continued generated enforcement contracts around release governance evidence payloads.
+The next recommended work is daemon and CI runner examples for typed release governance enforcement requests.

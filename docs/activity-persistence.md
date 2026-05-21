@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Continue broadening generated enforcement contracts around release governance evidence payloads.
+- Add daemon and CI runner examples for typed release governance enforcement requests.
 - Validate the hosted sandbox URL after deployment from `main`.

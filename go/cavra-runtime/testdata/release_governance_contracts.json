@@ -1,0 +1,79 @@
+[
+  {
+    "name": "typed approved promotion execution allows",
+    "request": {
+      "session_id": "contract-approved-promotion",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "prod",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "rollout-promotion-execution",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "approval_state": "approved",
+        "approval_id": "apr_prod_release",
+        "evidence_refs": ["evidence://release/prod"]
+      }
+    },
+    "expected": {
+      "decision": "allow",
+      "rule_id": "release_governance.approval.approved",
+      "severity": "low"
+    }
+  },
+  {
+    "name": "typed failed connector delivery blocks",
+    "request": {
+      "session_id": "contract-failed-delivery",
+      "agent_id": "release-agent",
+      "actor": "release.manager@example.com",
+      "action_type": "release_governance_record",
+      "target": "release-connectors",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "release-connector-delivery",
+        "release_channel": "stable",
+        "release_version": "v0.2.0",
+        "failed_providers": ["servicenow"],
+        "failed_delivery_count": 1,
+        "blocked_count": 1,
+        "connector_delivery_source": "release_governance_promotion"
+      }
+    },
+    "expected": {
+      "decision": "block",
+      "rule_id": "release_governance.delivery.failed",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  },
+  {
+    "name": "typed critical freshness report requires approval",
+    "request": {
+      "session_id": "contract-critical-freshness",
+      "agent_id": "release-agent",
+      "actor": "platform.owner@example.com",
+      "action_type": "release_governance_record",
+      "target": "endpoint-inventory",
+      "requested_operation": "verify",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "release_governance": {
+        "metadata_kind": "endpoint-inventory-freshness-report",
+        "alert_level": "critical",
+        "critical_count": 2,
+        "blocked_count": 2,
+        "evidence_refs": ["evidence://inventory/freshness"]
+      }
+    },
+    "expected": {
+      "decision": "require_approval",
+      "rule_id": "release_governance.signal.critical",
+      "severity": "high",
+      "approver_group": "Release Governance"
+    }
+  }
+]

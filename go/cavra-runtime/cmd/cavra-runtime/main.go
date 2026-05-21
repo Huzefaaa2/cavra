@@ -74,8 +74,8 @@ func main() {
 	}
 	defer closeInput()
 
-	var request cavraruntime.Request
-	if err := json.NewDecoder(reader).Decode(&request); err != nil {
+	request, err := decodeRuntimeRequest(reader)
+	if err != nil {
 		fail(err)
 	}
 	var decision cavraruntime.Decision
@@ -92,6 +92,22 @@ func main() {
 	if err := encoder.Encode(decision); err != nil {
 		fail(err)
 	}
+}
+
+func decodeRuntimeRequest(reader io.Reader) (cavraruntime.Request, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return cavraruntime.Request{}, err
+	}
+	var contractRequest enforcementv1.EvaluateRequest
+	if err := json.Unmarshal(data, &contractRequest); err == nil && contractRequest.ReleaseGovernance != nil {
+		return contractRequest.RuntimeRequest(), nil
+	}
+	var request cavraruntime.Request
+	if err := json.Unmarshal(data, &request); err != nil {
+		return cavraruntime.Request{}, err
+	}
+	return request, nil
 }
 
 func fail(err error) {
