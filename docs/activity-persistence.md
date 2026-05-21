@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add provider-native OIDC token acquisition helpers and production key custody documentation.
+- Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
 - Validate the hosted sandbox URL after deployment from `main`.

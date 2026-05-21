@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add provider-native OIDC token acquisition helpers and production key custody documentation.
+Broaden Go runtime parity and complete air-gapped single-binary reproducibility documentation.

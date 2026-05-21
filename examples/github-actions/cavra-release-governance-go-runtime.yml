@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  id-token: write
 
 jobs:
   cavra-release-governance:
@@ -41,6 +42,13 @@ jobs:
             --socket .cavra/cavra-runtime.sock \
             --input "../../${CAVRA_RELEASE_GOVERNANCE_REQUEST}" \
             > .cavra/go-daemon/release-governance-response.json
+
+          verify_args=(--verify-evidence --evidence-log .cavra/go-daemon/release-governance-evidence.jsonl)
+          if [ -n "${CAVRA_DAEMON_EVIDENCE_KEY_ID:-}" ]; then
+            verify_args+=(--evidence-signing-key-id "${CAVRA_DAEMON_EVIDENCE_KEY_ID}")
+          fi
+          go run ./cmd/cavra-runtime "${verify_args[@]}" \
+            > .cavra/go-daemon/release-governance-evidence-verification.json
 
           python3 - <<'PY'
           import json

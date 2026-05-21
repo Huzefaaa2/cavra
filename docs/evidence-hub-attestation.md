@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add provider-native OIDC token acquisition helpers and production key custody documentation.
+- Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.
 - Validate the hosted sandbox URL after deployment from `main`.

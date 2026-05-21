@@ -95,4 +95,4 @@ Enterprise consoles cannot rely on local demo identity. OIDC/RBAC deployment ref
 
 ## Next Work
 
-The next recommended work is provider-native OIDC token acquisition helpers and production key custody documentation.
+The next recommended work is Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

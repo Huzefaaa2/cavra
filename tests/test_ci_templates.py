@@ -100,13 +100,16 @@ def test_github_release_governance_go_runtime_template_uses_typed_daemon_request
 
     job = workflow["jobs"]["cavra-release-governance"]
     assert job["name"] == "cavra-release-governance-go-runtime"
+    assert workflow["permissions"]["id-token"] == "write"
     assert "actions/setup-go@v6" in text
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
     assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
     assert "--lifecycle start" in text
     assert "--daemon" in text
+    assert "--verify-evidence" in text
     assert "release-governance-evidence.jsonl" in text
+    assert "release-governance-evidence-verification.json" in text
     assert "release-governance-response.json" in text
     assert "release_governance.approval.approved" in text
     assert "cavra-release-governance-go-runtime" in text
@@ -127,11 +130,15 @@ def test_github_release_governance_composite_action_uses_packaged_runner_wrapper
     assert "runner-oidc-audience" in action["inputs"]
     assert "runner-oidc-jwks-url" in action["inputs"]
     assert "runner-oidc-token-file" in action["inputs"]
+    assert "runner-oidc-auto" in action["inputs"]
+    assert "runner-oidc-token-env" in action["inputs"]
     assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
     assert "CAVRA_RUNNER_AUTH_KEY_ID" in text
     assert "CAVRA_DAEMON_EVIDENCE_KEY_ID" in text
     assert "CAVRA_RUNNER_OIDC_ISSUER" in text
     assert "CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE" in text
+    assert "CAVRA_RUNNER_OIDC_AUTO" in text
+    assert "CAVRA_RUNNER_AUTH_OIDC_TOKEN_ENV" in text
     assert "cavra-release-governance-runner.sh" in text
 
 
@@ -151,6 +158,11 @@ def test_release_governance_runner_wrapper_runs_daemon_and_fails_closed() -> Non
     assert "--runner-oidc-jwks-url" in text
     assert "--evidence-signing-key-id" in text
     assert "--verify-evidence" in text
+    assert "ACTIONS_ID_TOKEN_REQUEST_URL" in text
+    assert "ACTIONS_ID_TOKEN_REQUEST_TOKEN" in text
+    assert "CAVRA_GITLAB_OIDC_TOKEN" in text
+    assert "SYSTEM_OIDCREQUESTURI" in text
+    assert "CAVRA_AZURE_OIDC_REQUEST_TOKEN" in text
     assert "CAVRA_RUNNER_AUTH_HMAC_KEY" in text
     assert "CAVRA_RUNNER_AUTH_OIDC_TOKEN" in text
     assert "CAVRA_RUNNER_OIDC_JWKS_URL" in text
@@ -182,11 +194,14 @@ def test_gitlab_release_governance_go_runtime_template_uses_typed_daemon_request
     job = pipeline["cavra-release-governance-go-runtime"]
     assert job["stage"] == "release-governance"
     assert job["image"] == "golang:1.26"
+    assert job["id_tokens"]["CAVRA_GITLAB_OIDC_TOKEN"]["aud"] == "cavra-release-governance"
     assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
     assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
     assert "--lifecycle start" in text
     assert "--daemon" in text
+    assert "--verify-evidence" in text
     assert "release-governance-evidence.jsonl" in text
+    assert "release-governance-evidence-verification.json" in text
     assert "release_governance.approval.approved" in text
     assert "go/cavra-runtime/.cavra/go-daemon/" in job["artifacts"]["paths"]
 
@@ -223,7 +238,9 @@ def test_azure_release_governance_go_runtime_template_uses_typed_daemon_request(
     assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
     assert "--lifecycle start" in text
     assert "--daemon" in text
+    assert "--verify-evidence" in text
     assert "release-governance-evidence.jsonl" in text
+    assert "release-governance-evidence-verification.json" in text
     assert "release_governance.approval.approved" in text
     assert artifact_step["task"] == "PublishPipelineArtifact@1"
     assert artifact_step["inputs"]["artifact"] == "cavra-release-governance-go-runtime"

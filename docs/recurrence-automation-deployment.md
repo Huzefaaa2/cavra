@@ -151,4 +151,4 @@ Enterprises need repeatable remediation follow-up without turning scheduled jobs
 
 ## Next Recommendation
 
-Add provider-native OIDC token acquisition helpers and production key custody documentation.
+Add Go runtime parity expansion and air-gapped single-binary reproducibility documentation.

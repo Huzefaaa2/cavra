@@ -279,7 +279,7 @@ Scheduled recurrence automation deployment templates are available for GitHub Ac
 
 Immutable evidence storage deployment references are documented in [docs/immutable-evidence-storage.md](docs/immutable-evidence-storage.md). Reference bundles are available for AWS S3 Object Lock and Azure Blob immutability under `examples/immutable-storage/`.
 
-Evidence key management and rotation guidance is documented in [docs/evidence-key-management.md](docs/evidence-key-management.md).
+Evidence key management and rotation guidance is documented in [docs/evidence-key-management.md](docs/evidence-key-management.md). Runner authentication, CI-provider OIDC token acquisition, daemon evidence signing, and release-governance verifier retention are documented in [docs/runner-auth-evidence-key-custody.md](docs/runner-auth-evidence-key-custody.md).
 
 ## Persistent API operations
 
@@ -390,8 +390,8 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
-- Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.
+- Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
+- Complete air-gapped single-binary packaging and reproducibility documentation.
 
 ## User stories and enterprise value
 

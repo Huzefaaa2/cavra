@@ -116,18 +116,18 @@ export CAVRA_DAEMON_EVIDENCE_KEY_ID=ci-evidence-2026-q2
 bash ci-runners/cavra-release-governance-runner.sh
 ```
 
-To require CI-provider OIDC JWT verification instead of shared-secret runner signatures, configure the daemon-side issuer, audience, and JWKS source, then provide a runner token through `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE`:
+To require CI-provider OIDC JWT verification instead of shared-secret runner signatures, configure the daemon-side issuer, audience, and JWKS source. The runner wrapper can auto-acquire provider JWTs with `CAVRA_RUNNER_OIDC_AUTO=true`, or it can use a token supplied through `CAVRA_RUNNER_AUTH_OIDC_TOKEN` or `CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE`:
 
 ```bash
 export CAVRA_RUNNER_PROVIDER=github-actions
 export CAVRA_RUNNER_OIDC_ISSUER=https://token.actions.githubusercontent.com
 export CAVRA_RUNNER_OIDC_AUDIENCE=cavra-release-governance
 export CAVRA_RUNNER_OIDC_JWKS_URL=https://token.actions.githubusercontent.com/.well-known/jwks
-export CAVRA_RUNNER_AUTH_OIDC_TOKEN_FILE=.cavra/go-daemon/runner-oidc.jwt
+export CAVRA_RUNNER_OIDC_AUTO=true
 bash ci-runners/cavra-release-governance-runner.sh
 ```
 
-The runtime sends `runner_auth.algorithm=OIDC-JWT`, verifies RS256 signatures with JWKS, checks issuer, audience, expiry, not-before, provider, repository, and matching runner identity claims, and redacts the bearer JWT from daemon evidence records.
+For GitLab CI, configure `id_tokens` and use `CAVRA_GITLAB_OIDC_TOKEN` or set `CAVRA_RUNNER_AUTH_OIDC_TOKEN_ENV` to the variable that contains the JWT. For Azure Pipelines, expose `SYSTEM_OIDCREQUESTURI` with `SYSTEM_ACCESSTOKEN` or set `CAVRA_AZURE_OIDC_TOKEN` after an approved token acquisition step. The runtime sends `runner_auth.algorithm=OIDC-JWT`, verifies RS256 signatures with JWKS, checks issuer, audience, expiry, not-before, provider, repository, and matching runner identity claims, and redacts the bearer JWT from daemon evidence records.
 
 GitHub Actions can use the packaged composite action from `ci-runners/github-action/action.yml` after the signed package is unpacked into the workspace:
 
@@ -143,9 +143,10 @@ GitHub Actions can use the packaged composite action from `ci-runners/github-act
     runner-oidc-issuer: https://token.actions.githubusercontent.com
     runner-oidc-audience: cavra-release-governance
     runner-oidc-jwks-url: https://token.actions.githubusercontent.com/.well-known/jwks
+    runner-oidc-auto: "true"
 ```
 
-For GitHub Actions, pass `CAVRA_RUNNER_AUTH_HMAC_KEY` and `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` through repository or organization secrets when using HMAC mode, or provide an OIDC token file plus issuer, audience, and JWKS settings when using OIDC mode. The action records CI identity claims in `runner-auth-claims.json`, writes `release-governance-evidence-verification.json` when evidence signing is enabled, and signs the daemon evidence stream without writing HMAC keys to disk.
+For GitHub Actions, grant `id-token: write`, pass `CAVRA_RUNNER_AUTH_HMAC_KEY` and `CAVRA_DAEMON_EVIDENCE_HMAC_KEY` through repository or organization secrets when using HMAC mode, or use OIDC auto-acquisition plus issuer, audience, and JWKS settings when using OIDC mode. The action records CI identity claims in `runner-auth-claims.json`, writes `release-governance-evidence-verification.json` when evidence signing is enabled, and signs the daemon evidence stream without writing HMAC keys to disk. Custody and rotation guidance lives in `docs/runner-auth-evidence-key-custody.md`.
 
 Inspect channel manifests and managed workstation updater policy before publishing package metadata to endpoint-management tooling:
 
@@ -757,5 +758,5 @@ Enterprise buyers require release integrity before allowing local enforcement bi
 
 ## Next Work
 
-1. Add provider-native OIDC token acquisition helpers for GitHub Actions, GitLab CI, and Azure Pipelines runner wrappers.
-2. Add production key custody and rotation documentation for runner authentication and daemon evidence verification keys.
+1. Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
+2. Complete air-gapped single-binary packaging and reproducibility documentation.
