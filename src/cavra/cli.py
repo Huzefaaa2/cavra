@@ -50,6 +50,7 @@ from cavra.go_backend import (
     go_deployment_readiness_report,
     go_promotion_readiness_report,
     go_rollback_readiness_report,
+    go_rollback_drill_history_report,
     go_rollback_rehearsal_report,
 )
 from cavra.integrations import (
@@ -259,6 +260,8 @@ def runtime_go_pilot_readiness(
     promotion_evidence_path: Annotated[str, typer.Option(help="Optional Go promotion evidence JSON path.")] = "",
     rollback_plan_path: Annotated[str, typer.Option(help="Optional Go rollback plan JSON path.")] = "",
     rollback_rehearsal_path: Annotated[str, typer.Option(help="Optional Go rollback rehearsal evidence JSON path.")] = "",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Optional Go rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print readiness JSON."),
 ) -> None:
@@ -276,6 +279,8 @@ def runtime_go_pilot_readiness(
         promotion_evidence_path=promotion_evidence_path,
         rollback_plan_path=rollback_plan_path,
         rollback_rehearsal_path=rollback_rehearsal_path,
+        rollback_drill_history_path=rollback_drill_history_path,
+        rollback_drill_max_age_days=rollback_drill_max_age_days,
         timeout_seconds=timeout_seconds,
     )
     report = go_backend_readiness_report(config)
@@ -329,6 +334,8 @@ def runtime_go_promotion_readiness(
     promotion_evidence_path: Annotated[str, typer.Option(help="Audited Go promotion evidence JSON path.")] = "",
     rollback_plan_path: Annotated[str, typer.Option(help="Optional Go rollback plan JSON path.")] = "",
     rollback_rehearsal_path: Annotated[str, typer.Option(help="Optional Go rollback rehearsal evidence JSON path.")] = "",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Optional Go rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print promotion readiness JSON."),
 ) -> None:
@@ -346,6 +353,8 @@ def runtime_go_promotion_readiness(
         promotion_evidence_path=promotion_evidence_path,
         rollback_plan_path=rollback_plan_path,
         rollback_rehearsal_path=rollback_rehearsal_path,
+        rollback_drill_history_path=rollback_drill_history_path,
+        rollback_drill_max_age_days=rollback_drill_max_age_days,
         timeout_seconds=timeout_seconds,
     )
     report = go_promotion_readiness_report(config)
@@ -385,6 +394,8 @@ def runtime_go_rollback_rehearsal(
     mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
     rollback_plan_path: Annotated[str, typer.Option(help="Approved Go rollback plan JSON path.")] = "",
     rollback_rehearsal_path: Annotated[str, typer.Option(help="Go rollback rehearsal evidence JSON path.")] = "",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Optional Go rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
     json_output: bool = typer.Option(False, "--json", help="Print rollback rehearsal JSON."),
 ) -> None:
     """Show automated rollback rehearsal evidence status for promoted Go pilots."""
@@ -393,12 +404,37 @@ def runtime_go_rollback_rehearsal(
             mode=mode,
             rollback_plan_path=rollback_plan_path,
             rollback_rehearsal_path=rollback_rehearsal_path,
+            rollback_drill_history_path=rollback_drill_history_path,
+            rollback_drill_max_age_days=rollback_drill_max_age_days,
         )
     )
     if json_output:
         typer.echo(json.dumps(report, indent=2))
         return
     console.print(f"Go rollback rehearsal: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
+@runtime_app.command("go-rollback-drills")
+def runtime_go_rollback_drills(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Go rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
+    json_output: bool = typer.Option(False, "--json", help="Print rollback drill history JSON."),
+) -> None:
+    """Show operational rollback drill history status for promoted Go pilots."""
+    report = go_rollback_drill_history_report(
+        GoBackendConfig(
+            mode=mode,
+            rollback_drill_history_path=rollback_drill_history_path,
+            rollback_drill_max_age_days=rollback_drill_max_age_days,
+        )
+    )
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go rollback drills: {report['status']} ({report['mode']})")
     for check in report["checks"]:
         console.print(f"  {check['status']} {check['id']}: {check['message']}")
 
@@ -420,6 +456,8 @@ def runtime_go_pilot_evaluate(
     promotion_evidence_path: Annotated[str, typer.Option(help="Optional audited Go promotion evidence JSON path.")] = "",
     rollback_plan_path: Annotated[str, typer.Option(help="Optional approved Go rollback plan JSON path.")] = "",
     rollback_rehearsal_path: Annotated[str, typer.Option(help="Optional rollback rehearsal evidence JSON path.")] = "",
+    rollback_drill_history_path: Annotated[str, typer.Option(help="Optional rollback drill history JSON path.")] = "",
+    rollback_drill_max_age_days: Annotated[float, typer.Option(help="Maximum accepted age for the latest rollback drill.")] = 90.0,
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
     tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
@@ -454,6 +492,8 @@ def runtime_go_pilot_evaluate(
         promotion_evidence_path=promotion_evidence_path,
         rollback_plan_path=rollback_plan_path,
         rollback_rehearsal_path=rollback_rehearsal_path,
+        rollback_drill_history_path=rollback_drill_history_path,
+        rollback_drill_max_age_days=rollback_drill_max_age_days,
         timeout_seconds=timeout_seconds,
     )
     result = evaluate_with_go_pilot(request, config=config)

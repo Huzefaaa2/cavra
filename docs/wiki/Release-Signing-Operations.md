@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
+The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.

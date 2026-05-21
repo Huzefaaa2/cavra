@@ -2229,13 +2229,15 @@ async function loadDeploymentReadiness() {
         { id: "go_backend_deployment_paths", status: "pass", message: "Go backend CI runner and workstation deployment paths are ready when the pilot is enabled." },
         { id: "go_backend_promotion_gate", status: "pass", message: "Promoted Go backend mode requires runtime, deployment, and audited parity evidence." },
         { id: "go_backend_rollback_controls", status: "pass", message: "Promoted Go backend mode requires an approved rollback plan back to Python-only mode." },
-        { id: "go_backend_rollback_rehearsal", status: "pass", message: "Promoted Go backend mode requires rollback rehearsal evidence and dashboard visibility." }
+        { id: "go_backend_rollback_rehearsal", status: "pass", message: "Promoted Go backend mode requires rollback rehearsal evidence and dashboard visibility." },
+        { id: "go_backend_rollback_drill_history", status: "pass", message: "Promoted Go backend mode requires fresh operational drill history for returning to Python-only mode." }
       ],
       go_backend_pilot: { schema_version: "cavra.go-backend-pilot.readiness.v1", mode: "disabled", status: "disabled", checks: [] },
       go_backend_deployment: { schema_version: "cavra.go-backend-pilot.deployment-readiness.v1", mode: "disabled", status: "not_configured", checks: [], ci_runner_targets: [], workstation_targets: [], channels: [] },
       go_backend_promotion: { schema_version: "cavra.go-backend-pilot.promotion-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
       go_backend_rollback: { schema_version: "cavra.go-backend-pilot.rollback-readiness.v1", mode: "disabled", status: "not_requested", checks: [] },
       go_backend_rollback_rehearsal: { schema_version: "cavra.go-backend-pilot.rollback-rehearsal.v1", mode: "disabled", status: "not_requested", checks: [], rehearsal: {} },
+      go_backend_rollback_drill_history: { schema_version: "cavra.go-backend-pilot.rollback-drill-history.v1", mode: "disabled", status: "not_requested", checks: [], history: {} },
       operator_notes: ["Connect to the API for full persistent-store and evidence-artifact readiness checks."]
     };
   }
@@ -4041,7 +4043,9 @@ function renderDeploymentReadiness(report) {
   const goPromotion = report.go_backend_promotion || {};
   const goRollback = report.go_backend_rollback || {};
   const goRehearsal = report.go_backend_rollback_rehearsal || {};
+  const goDrills = report.go_backend_rollback_drill_history || {};
   const rehearsalEvidence = Array.isArray(goRehearsal.rehearsal?.evidence_refs) ? goRehearsal.rehearsal.evidence_refs : [];
+  const drillEvidence = Array.isArray(goDrills.history?.evidence_refs) ? goDrills.history.evidence_refs : [];
   panel.innerHTML = `
     <dl>
       <dt>Status</dt><dd class="${report.status === "ready" ? "allow" : "require_approval"}">${escapeHtml(report.status || "needs_attention")}</dd>
@@ -4054,6 +4058,9 @@ function renderDeploymentReadiness(report) {
       <dt>Rollback rehearsal</dt><dd class="${goRehearsal.status === "ready" || goRehearsal.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goRehearsal.status || "not_requested")}</dd>
       <dt>Recovery target</dt><dd>${escapeHtml(goRehearsal.rehearsal?.recovery_minutes ? `${goRehearsal.rehearsal.recovery_minutes}m / ${goRehearsal.rehearsal.max_recovery_minutes || "n/a"}m` : "n/a")}</dd>
       <dt>Rehearsal evidence</dt><dd>${escapeHtml(rehearsalEvidence.join(", ") || "n/a")}</dd>
+      <dt>Rollback drills</dt><dd class="${goDrills.status === "ready" || goDrills.status === "not_requested" ? "allow" : "require_approval"}">${escapeHtml(goDrills.status || "not_requested")}</dd>
+      <dt>Latest drill</dt><dd>${escapeHtml(goDrills.history?.latest_drill_id ? `${goDrills.history.latest_drill_id} / ${goDrills.history.latest_executed_at || "n/a"}` : "n/a")}</dd>
+      <dt>Drill evidence</dt><dd>${escapeHtml(drillEvidence.join(", ") || "n/a")}</dd>
     </dl>
     <h3>Checks</h3>
     <ul>${checks.map((item) => `<li><strong class="${item.status === "pass" ? "allow" : "require_approval"}">${escapeHtml(item.status)}</strong> ${escapeHtml(item.id)}<br><small>${escapeHtml(item.message || "")}</small></li>`).join("") || "<li>n/a</li>"}</ul>

@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,8 @@ class GoBackendConfig:
     promotion_evidence_path: str = ""
     rollback_plan_path: str = ""
     rollback_rehearsal_path: str = ""
+    rollback_drill_history_path: str = ""
+    rollback_drill_max_age_days: float = 90.0
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -59,6 +62,8 @@ def go_backend_config_from_env() -> GoBackendConfig:
         promotion_evidence_path=os.environ.get("CAVRA_GO_PROMOTION_EVIDENCE", ""),
         rollback_plan_path=os.environ.get("CAVRA_GO_ROLLBACK_PLAN", ""),
         rollback_rehearsal_path=os.environ.get("CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE", ""),
+        rollback_drill_history_path=os.environ.get("CAVRA_GO_ROLLBACK_DRILL_HISTORY", ""),
+        rollback_drill_max_age_days=_float_env("CAVRA_GO_ROLLBACK_DRILL_MAX_AGE_DAYS", 90.0),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -395,6 +400,81 @@ def go_rollback_rehearsal_report(config: GoBackendConfig | None = None) -> dict[
     }
 
 
+def go_rollback_drill_history_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    history = _rollback_drill_history_summary(
+        config.rollback_drill_history_path,
+        max_age_days=config.rollback_drill_max_age_days,
+    )
+    requested = config.mode == GO_BACKEND_PROMOTED or bool(config.rollback_drill_history_path)
+    checks = [
+        _check(
+            "go_rollback_drill_history_requested",
+            requested,
+            "Rollback drill history is required when CAVRA_GO_BACKEND_MODE=promoted or drill history is configured.",
+            mode=config.mode,
+        ),
+        _check(
+            "go_rollback_drill_history_file",
+            history["valid"],
+            history["message"],
+            path=config.rollback_drill_history_path,
+            history_schema=history["schema_version"],
+        ),
+        _check(
+            "go_rollback_drill_latest_passed",
+            history["latest_status"] == "pass",
+            history["latest_status_message"],
+            latest_drill_id=history["latest_drill_id"],
+        ),
+        _check(
+            "go_rollback_drill_disabled_target",
+            history["latest_target_mode"] == GO_BACKEND_DISABLED,
+            history["target_mode_message"],
+            target_mode=history["latest_target_mode"],
+        ),
+        _check(
+            "go_rollback_drill_fallback_verified",
+            history["fallback_verified"] is True,
+            history["fallback_message"],
+        ),
+        _check(
+            "go_rollback_drill_recovery_sla",
+            history["recovery_sla_met"],
+            history["recovery_message"],
+            recovery_minutes=history["recovery_minutes"],
+            max_recovery_minutes=history["max_recovery_minutes"],
+        ),
+        _check(
+            "go_rollback_drill_freshness",
+            history["fresh"],
+            history["freshness_message"],
+            max_age_days=config.rollback_drill_max_age_days,
+            age_days=history["age_days"],
+        ),
+    ]
+    if not requested:
+        status = "not_requested"
+    elif all(item["status"] == "pass" for item in checks):
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-history.v1",
+        "mode": config.mode,
+        "status": status,
+        "rollback_drill_history_path": config.rollback_drill_history_path,
+        "rollback_drill_max_age_days": config.rollback_drill_max_age_days,
+        "checks": checks,
+        "history": history,
+        "operator_notes": [
+            "Drill history is public-safe metadata that proves promoted environments can return to Python-only mode.",
+            "Record drills from operational runbooks; do not execute rollback from the browser.",
+            "Keep hostnames, private endpoint scripts, secrets, and customer details out of public drill history.",
+        ],
+    }
+
+
 def evaluate_with_go_pilot(
     request: dict[str, Any],
     *,
@@ -447,6 +527,16 @@ def evaluate_with_go_pilot(
             result["promotion_readiness"] = promotion
             result["rollback_readiness"] = rollback
             result["rollback_rehearsal"] = rehearsal
+            return result
+        drills = go_rollback_drill_history_report(config)
+        if drills["status"] != "ready":
+            result["fallback_used"] = True
+            result["fallback_reason"] = "go backend rollback drill history check failed"
+            result["readiness"] = readiness
+            result["promotion_readiness"] = promotion
+            result["rollback_readiness"] = rollback
+            result["rollback_rehearsal"] = rehearsal
+            result["rollback_drill_history"] = drills
             return result
     try:
         go_decision = _run_go_runtime(request, config)
@@ -821,6 +911,137 @@ def _rollback_rehearsal_summary(path_value: str, rollback: dict[str, Any]) -> di
         "recovery_message": "Recovery target was met." if recovery_sla_met else "rollback rehearsal recovery_minutes must be positive and less than or equal to max_recovery_minutes",
         "evidence_message": "Rollback rehearsal evidence references are recorded." if refs_valid and evidence_refs else "rollback rehearsal must include evidence_refs",
     }
+
+
+def _rollback_drill_history_summary(path_value: str, *, max_age_days: float) -> dict[str, Any]:
+    check = _read_json_check(Path(path_value) if path_value else None)
+    if not check.valid:
+        return _empty_drill_history_summary(check.message)
+    payload = check.payload
+    schema = str(payload.get("schema_version", ""))
+    drills = payload.get("drills", [])
+    if schema != "cavra.go-backend-rollback-drill-history.v1" or not isinstance(drills, list) or not drills:
+        messages = []
+        if schema != "cavra.go-backend-rollback-drill-history.v1":
+            messages.append("rollback drill history has an invalid schema_version")
+        if not isinstance(drills, list) or not drills:
+            messages.append("rollback drill history must include a non-empty drills list")
+        return _empty_drill_history_summary("; ".join(messages))
+    valid_drills = [item for item in drills if isinstance(item, dict)]
+    latest = _latest_drill(valid_drills)
+    if latest is None:
+        return _empty_drill_history_summary("rollback drill history has no parseable drills")
+    executed_at = str(latest.get("executed_at", ""))
+    executed = _parse_iso_datetime(executed_at)
+    now = datetime.now(timezone.utc)
+    age_days = None
+    fresh = False
+    if executed is not None and _positive_number(max_age_days):
+        age_days = round((now - executed).total_seconds() / 86400, 4)
+        fresh = age_days <= max_age_days
+    status = str(latest.get("status", ""))
+    target_mode = str(latest.get("target_mode", ""))
+    fallback_verified = latest.get("fallback_verified") is True
+    recovery_minutes = latest.get("recovery_minutes")
+    max_recovery = latest.get("max_recovery_minutes")
+    recovery_valid = _positive_number(recovery_minutes)
+    max_recovery_valid = _positive_number(max_recovery)
+    recovery_sla_met = bool(recovery_valid and max_recovery_valid and recovery_minutes <= max_recovery)
+    evidence_refs = latest.get("evidence_refs", [])
+    refs_valid = isinstance(evidence_refs, list) and all(isinstance(item, str) for item in evidence_refs)
+    runbook_ref = str(latest.get("runbook_ref", ""))
+    valid = (
+        status == "pass"
+        and target_mode == GO_BACKEND_DISABLED
+        and fallback_verified
+        and recovery_sla_met
+        and fresh
+        and refs_valid
+        and bool(evidence_refs)
+        and bool(runbook_ref)
+    )
+    messages = []
+    if not refs_valid or not evidence_refs:
+        messages.append("latest rollback drill must include evidence_refs as a non-empty list of strings")
+    if not bool(runbook_ref):
+        messages.append("latest rollback drill must include runbook_ref")
+    if executed is None:
+        messages.append("latest rollback drill must include valid executed_at timestamp")
+    return {
+        "valid": valid,
+        "schema_version": schema,
+        "environment": str(payload.get("environment", "")),
+        "drill_count": len(valid_drills),
+        "latest_drill_id": str(latest.get("drill_id", "")),
+        "latest_status": status,
+        "latest_target_mode": target_mode,
+        "latest_executed_at": executed_at,
+        "age_days": age_days,
+        "fresh": fresh,
+        "fallback_verified": fallback_verified,
+        "recovery_sla_met": recovery_sla_met,
+        "recovery_minutes": recovery_minutes if recovery_valid else None,
+        "max_recovery_minutes": max_recovery if max_recovery_valid else None,
+        "runbook_ref": runbook_ref,
+        "evidence_refs": evidence_refs if refs_valid else [],
+        "message": "; ".join(messages) if messages else "Rollback drill history is parseable and latest drill is evaluated.",
+        "latest_status_message": "Latest rollback drill passed." if status == "pass" else "latest rollback drill must record status=pass",
+        "target_mode_message": "Latest rollback drill returned to Python-only mode." if target_mode == GO_BACKEND_DISABLED else "latest rollback drill must set target_mode=disabled",
+        "fallback_message": "Latest rollback drill verified Python fallback restoration." if fallback_verified else "latest rollback drill must verify Python fallback restoration",
+        "recovery_message": "Latest rollback drill met the recovery target." if recovery_sla_met else "latest rollback drill recovery_minutes must be positive and less than or equal to max_recovery_minutes",
+        "freshness_message": "Latest rollback drill is within the freshness window." if fresh else "latest rollback drill is missing, invalid, or stale",
+    }
+
+
+def _empty_drill_history_summary(message: str) -> dict[str, Any]:
+    return {
+        "valid": False,
+        "schema_version": "",
+        "environment": "",
+        "drill_count": 0,
+        "latest_drill_id": "",
+        "latest_status": "",
+        "latest_target_mode": "",
+        "latest_executed_at": "",
+        "age_days": None,
+        "fresh": False,
+        "fallback_verified": False,
+        "recovery_sla_met": False,
+        "recovery_minutes": None,
+        "max_recovery_minutes": None,
+        "runbook_ref": "",
+        "evidence_refs": [],
+        "message": message,
+        "latest_status_message": "rollback drill history is missing or invalid",
+        "target_mode_message": "latest rollback drill must set target_mode=disabled",
+        "fallback_message": "latest rollback drill must verify Python fallback restoration",
+        "recovery_message": "latest rollback drill recovery_minutes must be positive and less than or equal to max_recovery_minutes",
+        "freshness_message": "latest rollback drill is missing, invalid, or stale",
+    }
+
+
+def _latest_drill(drills: list[dict[str, Any]]) -> dict[str, Any] | None:
+    dated = []
+    for drill in drills:
+        executed = _parse_iso_datetime(str(drill.get("executed_at", "")))
+        if executed is not None:
+            dated.append((executed, drill))
+    if dated:
+        return max(dated, key=lambda item: item[0])[1]
+    return drills[-1] if drills else None
+
+
+def _parse_iso_datetime(value: str) -> datetime | None:
+    if not value:
+        return None
+    normalized = value.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _positive_number(value: Any) -> bool:

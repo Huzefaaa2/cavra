@@ -44,6 +44,7 @@ export CAVRA_GO_BACKEND_MODE=promoted
 export CAVRA_GO_PROMOTION_EVIDENCE=/etc/cavra/go-backend-promotion-evidence.json
 export CAVRA_GO_ROLLBACK_PLAN=/etc/cavra/go-backend-rollback-plan.json
 export CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE=/etc/cavra/go-backend-rollback-rehearsal.json
+export CAVRA_GO_ROLLBACK_DRILL_HISTORY=/etc/cavra/go-backend-rollback-drills.json
 ```
 
 ## CLI Usage
@@ -67,6 +68,7 @@ cavra runtime go-pilot-evaluate execute_command "terraform plan" \
   --promotion-evidence-path /etc/cavra/go-backend-promotion-evidence.json \
   --rollback-plan-path /etc/cavra/go-backend-rollback-plan.json \
   --rollback-rehearsal-path /etc/cavra/go-backend-rollback-rehearsal.json \
+  --rollback-drill-history-path /etc/cavra/go-backend-rollback-drills.json \
   --json
 ```
 
@@ -77,7 +79,7 @@ curl http://127.0.0.1:8000/runtime/go-pilot/rollback-rehearsal
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Production readiness includes a `go_backend_rollback_rehearsal` section and a `go_backend_rollback_rehearsal` check. The Evidence Console Production Readiness panel displays rehearsal status, recovery target, and evidence references. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without valid rehearsal evidence.
+Production readiness includes a `go_backend_rollback_rehearsal` section and a `go_backend_rollback_rehearsal` check. The Evidence Console Production Readiness panel displays rehearsal status, recovery target, and evidence references. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without valid rehearsal evidence. Ongoing drill history is documented in [Go backend rollback drill history](go-backend-rollback-drill-history.md).
 
 ## User Stories
 
@@ -92,4 +94,4 @@ Promotion without rehearsal leaves teams with a plan that may fail during an inc
 
 ## Next Work
 
-The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
+The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.

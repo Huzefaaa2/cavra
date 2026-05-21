@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to add operational drill history for returning promoted environments to Python-only mode.
+The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.
