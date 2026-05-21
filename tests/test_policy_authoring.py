@@ -130,8 +130,10 @@ def test_production_readiness_report_marks_missing_controls() -> None:
     assert any(item["id"] == "go_backend_deployment_paths" and item["status"] == "pass" for item in report["checks"])
     assert any(item["id"] == "go_backend_promotion_gate" and item["status"] == "pass" for item in report["checks"])
     assert any(item["id"] == "go_backend_rollback_controls" and item["status"] == "pass" for item in report["checks"])
+    assert any(item["id"] == "go_backend_rollback_rehearsal" and item["status"] == "pass" for item in report["checks"])
     assert report["go_backend_pilot"]["status"] == "disabled"
     assert report["go_backend_deployment"]["status"] == "not_configured"
     assert report["go_backend_promotion"]["status"] == "not_requested"
     assert report["go_backend_rollback"]["status"] == "not_requested"
+    assert report["go_backend_rollback_rehearsal"]["status"] == "not_requested"
     assert report["store_summary"]["missing"] == ["activity"]

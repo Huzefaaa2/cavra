@@ -16,6 +16,7 @@ from cavra.go_backend import (
     go_deployment_readiness_report,
     go_promotion_readiness_report,
     go_rollback_readiness_report,
+    go_rollback_rehearsal_report,
 )
 
 
@@ -195,6 +196,45 @@ def test_go_rollback_readiness_accepts_valid_plan(tmp_path: Path) -> None:
     assert report["rollback"]["approval_id"] == "apr_go_backend_rollback"
 
 
+def test_go_rollback_rehearsal_is_not_requested_by_default() -> None:
+    report = go_rollback_rehearsal_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_requested"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_rehearsal_requested")["status"] == "warn"
+
+
+def test_go_rollback_rehearsal_requires_evidence_when_promoted(tmp_path: Path) -> None:
+    rollback = _write_rollback_plan(tmp_path)
+
+    report = go_rollback_rehearsal_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_plan_path=str(rollback),
+            rollback_rehearsal_path=str(tmp_path / "missing-rehearsal.json"),
+        )
+    )
+
+    assert report["status"] == "needs_attention"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_rehearsal_evidence")["status"] == "warn"
+
+
+def test_go_rollback_rehearsal_accepts_valid_evidence(tmp_path: Path) -> None:
+    rollback = _write_rollback_plan(tmp_path)
+    rehearsal = _write_rollback_rehearsal(tmp_path)
+
+    report = go_rollback_rehearsal_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_plan_path=str(rollback),
+            rollback_rehearsal_path=str(rehearsal),
+        )
+    )
+
+    assert report["status"] == "ready"
+    assert report["rehearsal"]["recovery_minutes"] == 6
+    assert report["rehearsal"]["plan_approval_id"] == "apr_go_backend_rollback"
+
+
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
@@ -241,7 +281,7 @@ def test_go_promoted_mode_falls_back_without_rollback_plan(tmp_path: Path) -> No
     assert result["rollback_readiness"]["status"] == "needs_attention"
 
 
-def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+def test_go_promoted_mode_falls_back_without_rollback_rehearsal(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
     policy.write_text("{}", encoding="utf-8")
@@ -258,6 +298,34 @@ def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) 
             package_dir=str(tmp_path),
             promotion_evidence_path=str(promotion),
             rollback_plan_path=str(rollback),
+        ),
+    )
+
+    assert result["selected_backend"] == "python"
+    assert result["fallback_used"] is True
+    assert result["fallback_reason"] == "go backend rollback rehearsal check failed"
+    assert result["rollback_rehearsal"]["status"] == "needs_attention"
+
+
+def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+    rollback = _write_rollback_plan(tmp_path)
+    rehearsal = _write_rollback_rehearsal(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+            rollback_plan_path=str(rollback),
+            rollback_rehearsal_path=str(rehearsal),
         ),
     )
 
@@ -436,3 +504,27 @@ def _write_rollback_plan(path: Path) -> Path:
         encoding="utf-8",
     )
     return plan
+
+
+def _write_rollback_rehearsal(path: Path) -> Path:
+    rehearsal = path / "cavra-runtime.go-backend-rollback-rehearsal.json"
+    rehearsal.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-rehearsal.v1",
+                "status": "pass",
+                "plan_approval_id": "apr_go_backend_rollback",
+                "simulated": True,
+                "fallback_verified": True,
+                "recovery_minutes": 6,
+                "max_recovery_minutes": 15,
+                "runbook_ref": "docs/go-backend-rollback-rehearsal.md",
+                "evidence_refs": [
+                    "go-rollback-rehearsal://ci/fallback-restored",
+                    "go-production-readiness://ci/after-rehearsal",
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return rehearsal

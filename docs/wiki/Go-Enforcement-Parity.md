@@ -26,7 +26,8 @@ The Go enforcement plane starts as a parity scaffold, not as a replacement for t
 - `cavra runtime go-deployment-readiness` and `/runtime/go-pilot/deployment-readiness` validate Go backend CI runner and workstation rollout metadata.
 - `cavra runtime go-promotion-readiness` and `/runtime/go-pilot/promotion-readiness` require approved audited parity evidence before `promoted` mode selects Go as an optional backend.
 - `cavra runtime go-rollback-readiness` and `/runtime/go-pilot/rollback-readiness` require an approved rollback plan before `promoted` mode selects Go as an optional backend.
-- `/deployment/production-readiness` and the Evidence Console Production Readiness panel now surface Go backend pilot, deployment, promotion, and rollback status.
+- `cavra runtime go-rollback-rehearsal` and `/runtime/go-pilot/rollback-rehearsal` require public-safe rollback rehearsal evidence before `promoted` mode selects Go as an optional backend.
+- `/deployment/production-readiness` and the Evidence Console Production Readiness panel now surface Go backend pilot, deployment, promotion, rollback, and rehearsal status.
 - `.github/workflows/test.yml` includes a `go-runtime-parity` job.
 - `.github/workflows/cavra-governance.yml` runs the Go parity suite inside the required governance check.
 

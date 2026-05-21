@@ -1509,11 +1509,13 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     assert response.json()["go_backend_deployment"]["status"] == "not_configured"
     assert response.json()["go_backend_promotion"]["status"] == "not_requested"
     assert response.json()["go_backend_rollback"]["status"] == "not_requested"
+    assert response.json()["go_backend_rollback_rehearsal"]["status"] == "not_requested"
     assert config["endpoints"]["deployment_readiness"] == "/deployment/production-readiness"
     assert config["endpoints"]["go_backend_readiness"] == "/runtime/go-pilot/readiness"
     assert config["endpoints"]["go_deployment_readiness"] == "/runtime/go-pilot/deployment-readiness"
     assert config["endpoints"]["go_promotion_readiness"] == "/runtime/go-pilot/promotion-readiness"
     assert config["endpoints"]["go_rollback_readiness"] == "/runtime/go-pilot/rollback-readiness"
+    assert config["endpoints"]["go_rollback_rehearsal"] == "/runtime/go-pilot/rollback-rehearsal"
 
 
 def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
@@ -1573,6 +1575,18 @@ def test_api_go_backend_rollback_readiness(monkeypatch, tmp_path) -> None:
     assert readiness.status_code == 200
     assert readiness.json()["schema_version"] == "cavra.go-backend-pilot.rollback-readiness.v1"
     assert readiness.json()["status"] == "needs_attention"
+
+
+def test_api_go_backend_rollback_rehearsal(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_GO_BACKEND_MODE", "promoted")
+    monkeypatch.setenv("CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE", str(tmp_path / "missing-rehearsal.json"))
+    client = TestClient(create_app())
+
+    rehearsal = client.get("/runtime/go-pilot/rollback-rehearsal")
+
+    assert rehearsal.status_code == 200
+    assert rehearsal.json()["schema_version"] == "cavra.go-backend-pilot.rollback-rehearsal.v1"
+    assert rehearsal.json()["status"] == "needs_attention"
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:

@@ -1457,7 +1457,7 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 High-Risk Command And Cloud/IaC Parity
 
@@ -1479,7 +1479,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 Release Signing Operations
 
@@ -1501,7 +1501,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 Opt-In Go Backend Pilot
 
@@ -1526,7 +1526,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 Go Backend Deployment Readiness
 
@@ -1551,7 +1551,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 Go Backend Promotion Gate
 
@@ -1578,7 +1578,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
 
 ## Phase 7 Go Backend Rollback Controls
 
@@ -1604,4 +1604,41 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: add automated rollback rehearsal evidence and dashboards for promoted Go backend pilots.
+Recommended next issue: delivered below as rollback rehearsal evidence and dashboard visibility.
+
+## Phase 7 Go Backend Rollback Rehearsal Evidence
+
+Status: complete for the current public-safe promoted backend rollback-rehearsal slice.
+
+Completed implementation:
+- Added `CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE` and `rollback_rehearsal_path` support to the Go backend configuration.
+- Added `go_rollback_rehearsal_report` with rehearsal metadata, fallback verification, recovery SLA, runbook, approval linkage, and evidence-reference checks.
+- Added fail-closed promoted-mode evaluation so Go is selected only when promotion readiness, rollback readiness, and rollback rehearsal evidence are `ready`.
+- Added CLI command `cavra runtime go-rollback-rehearsal`.
+- Added FastAPI endpoint `/runtime/go-pilot/rollback-rehearsal`.
+- Added `go_backend_rollback_rehearsal` to `/deployment/production-readiness`, `/console/config`, and the Evidence Console Production Readiness panel.
+- Added dashboard fields for rehearsal status, recovery target, and rehearsal evidence references.
+- Added tests for default `not_requested`, missing rehearsal evidence, valid rehearsal evidence, promoted-mode rehearsal fallback, and promoted-mode Go selection with rehearsal evidence.
+- Added `docs/go-backend-rollback-rehearsal.md`, `docs/wiki/Go-Backend-Rollback-Rehearsal.md`, and `docs/diagrams/go-backend-rollback-rehearsal.svg`.
+- Updated README, feature inventory, production deployment validation, Go parity docs, pilot/promotion/rollback docs, productization docs, production roadmap, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_rollback_rehearsal tests/test_policy_authoring.py -q`
+- `python3 -m pytest -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
+
+User stories:
+- As an incident commander, I can prove rollback has been rehearsed before Go becomes the selected optional backend.
+- As a platform owner, I can see rehearsal status, recovery time, and evidence references in the Evidence Console.
+- As a security reviewer, I can require that rehearsal evidence maps to the approved rollback plan.
+- As an auditor, I can attach public-safe rehearsal metadata to release evidence without exposing private endpoint details.
+
+Enterprise challenge solved:
+- Turns rollback from a written plan into exercised evidence before promoted Go backend use.
+- Gives enterprise reviewers dashboard visibility into recovery timing and fallback verification.
+- Keeps private runbooks, secrets, endpoint scripts, and customer data outside the public Community Edition.
+
+Recommended next issue: add operational drill history for returning promoted environments to Python-only mode.
