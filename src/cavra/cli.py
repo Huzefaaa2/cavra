@@ -42,11 +42,13 @@ from cavra.evidence import (
 )
 from cavra.go_backend import (
     GO_BACKEND_ENFORCE,
+    GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
     evaluate_with_go_pilot,
     go_backend_readiness_report,
     go_deployment_readiness_report,
+    go_promotion_readiness_report,
 )
 from cavra.integrations import (
     CommandInterceptor,
@@ -243,7 +245,7 @@ def evaluate(
 
 @runtime_app.command("go-pilot-readiness")
 def runtime_go_pilot_readiness(
-    mode: Annotated[str, typer.Option(help="disabled, shadow, or enforce.")] = "disabled",
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
     runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
     policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
     registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
@@ -252,6 +254,7 @@ def runtime_go_pilot_readiness(
     ci_runner_bundles_path: Annotated[str, typer.Option(help="Optional CI runner bundles manifest path.")] = "",
     channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
     updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
+    promotion_evidence_path: Annotated[str, typer.Option(help="Optional Go promotion evidence JSON path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     json_output: bool = typer.Option(False, "--json", help="Print readiness JSON."),
 ) -> None:
@@ -266,6 +269,7 @@ def runtime_go_pilot_readiness(
         ci_runner_bundles_path=ci_runner_bundles_path,
         channel_manifest_path=channel_manifest_path,
         updater_policy_path=updater_policy_path,
+        promotion_evidence_path=promotion_evidence_path,
         timeout_seconds=timeout_seconds,
     )
     report = go_backend_readiness_report(config)
@@ -279,7 +283,7 @@ def runtime_go_pilot_readiness(
 
 @runtime_app.command("go-deployment-readiness")
 def runtime_go_deployment_readiness(
-    mode: Annotated[str, typer.Option(help="disabled, shadow, or enforce.")] = "disabled",
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
     package_dir: Annotated[str, typer.Option(help="Verified Go runtime release package directory.")] = "",
     endpoint_deployment_path: Annotated[str, typer.Option(help="Endpoint deployment manifest path.")] = "",
     ci_runner_bundles_path: Annotated[str, typer.Option(help="CI runner bundles manifest path.")] = "",
@@ -305,12 +309,50 @@ def runtime_go_deployment_readiness(
         console.print(f"  {check['status']} {check['id']}: {check['message']}")
 
 
+@runtime_app.command("go-promotion-readiness")
+def runtime_go_promotion_readiness(
+    mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
+    runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
+    policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
+    registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
+    package_dir: Annotated[str, typer.Option(help="Verified Go runtime release package directory.")] = "",
+    endpoint_deployment_path: Annotated[str, typer.Option(help="Endpoint deployment manifest path.")] = "",
+    ci_runner_bundles_path: Annotated[str, typer.Option(help="CI runner bundles manifest path.")] = "",
+    channel_manifest_path: Annotated[str, typer.Option(help="Workstation release channel manifest path.")] = "",
+    updater_policy_path: Annotated[str, typer.Option(help="Workstation updater policy path.")] = "",
+    promotion_evidence_path: Annotated[str, typer.Option(help="Audited Go promotion evidence JSON path.")] = "",
+    timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
+    json_output: bool = typer.Option(False, "--json", help="Print promotion readiness JSON."),
+) -> None:
+    """Show Go backend promotion readiness for optional backend use."""
+    config = GoBackendConfig(
+        mode=mode,
+        runtime_path=runtime_path,
+        policy_path=policy_path,
+        registry_path=registry_path,
+        package_dir=package_dir,
+        endpoint_deployment_path=endpoint_deployment_path,
+        ci_runner_bundles_path=ci_runner_bundles_path,
+        channel_manifest_path=channel_manifest_path,
+        updater_policy_path=updater_policy_path,
+        promotion_evidence_path=promotion_evidence_path,
+        timeout_seconds=timeout_seconds,
+    )
+    report = go_promotion_readiness_report(config)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+    console.print(f"Go promotion readiness: {report['status']} ({report['mode']})")
+    for check in report["checks"]:
+        console.print(f"  {check['status']} {check['id']}: {check['message']}")
+
+
 @runtime_app.command("go-pilot-evaluate")
 def runtime_go_pilot_evaluate(
     action_type: Annotated[str, typer.Argument(help="read_file, write_file, execute_command, git_operation, mcp_tool_call.")],
     target: Annotated[str, typer.Argument(help="File path, command, Git target, or MCP server.")],
     policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
-    mode: Annotated[str, typer.Option(help="shadow or enforce.")] = GO_BACKEND_SHADOW,
+    mode: Annotated[str, typer.Option(help="shadow, enforce, or promoted.")] = GO_BACKEND_SHADOW,
     runtime_path: Annotated[str, typer.Option(help="Path to the cavra-runtime binary.")] = "",
     policy_path: Annotated[str, typer.Option(help="Path to compiled policy JSON.")] = "",
     registry_path: Annotated[str, typer.Option(help="Optional trust registry JSON path.")] = "",
@@ -319,6 +361,7 @@ def runtime_go_pilot_evaluate(
     ci_runner_bundles_path: Annotated[str, typer.Option(help="Optional CI runner bundles manifest path.")] = "",
     channel_manifest_path: Annotated[str, typer.Option(help="Optional workstation release channel manifest path.")] = "",
     updater_policy_path: Annotated[str, typer.Option(help="Optional workstation updater policy path.")] = "",
+    promotion_evidence_path: Annotated[str, typer.Option(help="Optional audited Go promotion evidence JSON path.")] = "",
     timeout_seconds: Annotated[float, typer.Option(help="Go runtime invocation timeout in seconds.")] = 5.0,
     operation: Annotated[str, typer.Option(help="Optional Git operation or requested operation.")] = "",
     tool: Annotated[str, typer.Option(help="MCP tool name for mcp_tool_call.")] = "unknown",
@@ -326,8 +369,8 @@ def runtime_go_pilot_evaluate(
     json_output: bool = typer.Option(False, "--json", help="Print evaluation JSON."),
 ) -> None:
     """Evaluate through the opt-in Go backend pilot with Python fallback."""
-    if mode not in {GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE}:
-        console.print("[red]mode must be shadow or enforce for go-pilot-evaluate[/red]")
+    if mode not in {GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE, GO_BACKEND_PROMOTED}:
+        console.print("[red]mode must be shadow, enforce, or promoted for go-pilot-evaluate[/red]")
         raise typer.Exit(code=2)
     request = {
         "action_type": action_type,
@@ -350,6 +393,7 @@ def runtime_go_pilot_evaluate(
         ci_runner_bundles_path=ci_runner_bundles_path,
         channel_manifest_path=channel_manifest_path,
         updater_policy_path=updater_policy_path,
+        promotion_evidence_path=promotion_evidence_path,
         timeout_seconds=timeout_seconds,
     )
     result = evaluate_with_go_pilot(request, config=config)

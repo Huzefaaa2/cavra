@@ -78,4 +78,4 @@ Go runtime adoption touches developer laptops and CI runners. Those surfaces nee
 
 ## Next Work
 
-The next recommended implementation step is to promote Go to an optional backend only after audited parity and deployment tests pass.
+The next recommended implementation step is to add production rollback controls for promoted Go backend pilots.

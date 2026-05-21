@@ -60,6 +60,10 @@ See `docs/diagrams/go-backend-pilot.svg` for the guarded backend-selection flow 
 
 See `docs/diagrams/go-backend-deployment-readiness.svg` for the CI runner and workstation readiness path that checks release metadata before Go backend promotion.
 
+## Go Backend Promotion Gate
+
+See `docs/diagrams/go-backend-promotion.svg` for the promotion gate that requires runtime readiness, deployment readiness, audited parity evidence, and approval before `promoted` mode selects Go.
+
 ## SVG Images
 
 Repository diagram images:
@@ -76,6 +80,7 @@ Repository diagram images:
 - `docs/diagrams/high-risk-command-cloud-iac-parity.svg`
 - `docs/diagrams/go-backend-pilot.svg`
 - `docs/diagrams/go-backend-deployment-readiness.svg`
+- `docs/diagrams/go-backend-promotion.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

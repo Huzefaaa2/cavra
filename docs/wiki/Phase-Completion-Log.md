@@ -1457,7 +1457,7 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m ruff check src/cavra/runtime.py scripts/generate_go_enforcement_contracts.py tests/test_go_enforcement_contracts.py tests/test_go_runtime_parity.py`
 
-Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+Recommended next issue: add production rollback controls for promoted Go backend pilots.
 
 ## Phase 7 High-Risk Command And Cloud/IaC Parity
 
@@ -1479,7 +1479,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+Recommended next issue: add production rollback controls for promoted Go backend pilots.
 
 ## Phase 7 Release Signing Operations
 
@@ -1501,7 +1501,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh . && git diff --check`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
 
-Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+Recommended next issue: add production rollback controls for promoted Go backend pilots.
 
 ## Phase 7 Opt-In Go Backend Pilot
 
@@ -1526,7 +1526,7 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+Recommended next issue: add production rollback controls for promoted Go backend pilots.
 
 ## Phase 7 Go Backend Deployment Readiness
 
@@ -1551,4 +1551,31 @@ Validation:
 - `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
 - `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
 
-Recommended next issue: promote Go to an optional backend only after audited parity and deployment tests pass.
+Recommended next issue: add production rollback controls for promoted Go backend pilots.
+
+## Phase 7 Go Backend Promotion Gate
+
+Status: complete for the current public-safe optional backend promotion slice.
+
+Completed implementation:
+- Added `promoted` mode to the opt-in Go backend configuration while keeping Python as the default backend.
+- Added `CAVRA_GO_PROMOTION_EVIDENCE` and `promotion_evidence_path` support for approved public-safe promotion evidence.
+- Added `go_promotion_readiness_report` with runtime readiness, deployment readiness, audited parity evidence, and approval checks.
+- Added fail-closed promoted-mode evaluation so Go is selected only when promotion readiness is `ready`; otherwise CAVRA falls back to Python.
+- Added CLI command `cavra runtime go-promotion-readiness`.
+- Added FastAPI endpoint `/runtime/go-pilot/promotion-readiness`.
+- Added `go_backend_promotion` to `/deployment/production-readiness`, `/console/config`, and the Evidence Console Production Readiness panel.
+- Added tests for default `not_requested`, missing evidence, valid evidence, promoted-mode fallback, and promoted-mode Go selection.
+- Added `docs/go-backend-promotion.md`, `docs/wiki/Go-Backend-Promotion.md`, and `docs/diagrams/go-backend-promotion.svg`.
+- Updated README, feature inventory, production deployment validation, Go parity docs, pilot/deployment docs, productization docs, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_promotion_readiness tests/test_cli.py::test_runtime_go_promotion_readiness_cli_reports_not_requested tests/test_policy_authoring.py::test_production_readiness_report_marks_missing_controls -q`
+- `python3 -m ruff check src/cavra/go_backend.py src/cavra/cli.py src/cavra/api.py src/cavra/policy_authoring.py tests/test_go_backend.py tests/test_api.py tests/test_cli.py tests/test_policy_authoring.py`
+- `python3 -m pytest -q`
+- `cd go/cavra-runtime && go test ./...`
+- `python3 -m ruff check src/ tests/ scripts/package_go_release.py scripts/validate_release_security.py scripts/generate_go_enforcement_contracts.py`
+- `python3 scripts/validate_release_security.py && bash scripts/validate-boundaries.sh .`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js && git diff --check`
+
+Recommended next issue: add production rollback controls for promoted Go backend pilots.

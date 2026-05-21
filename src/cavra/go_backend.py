@@ -12,7 +12,13 @@ from cavra.runtime import ActionDecision, RuntimeGuard
 GO_BACKEND_DISABLED = "disabled"
 GO_BACKEND_SHADOW = "shadow"
 GO_BACKEND_ENFORCE = "enforce"
-GO_BACKEND_MODES = {GO_BACKEND_DISABLED, GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE}
+GO_BACKEND_PROMOTED = "promoted"
+GO_BACKEND_MODES = {
+    GO_BACKEND_DISABLED,
+    GO_BACKEND_SHADOW,
+    GO_BACKEND_ENFORCE,
+    GO_BACKEND_PROMOTED,
+}
 
 
 @dataclass(frozen=True)
@@ -26,6 +32,7 @@ class GoBackendConfig:
     ci_runner_bundles_path: str = ""
     channel_manifest_path: str = ""
     updater_policy_path: str = ""
+    promotion_evidence_path: str = ""
     timeout_seconds: float = 5.0
 
     def __post_init__(self) -> None:
@@ -33,7 +40,7 @@ class GoBackendConfig:
 
     @property
     def enabled(self) -> bool:
-        return self.mode in {GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE}
+        return self.mode in {GO_BACKEND_SHADOW, GO_BACKEND_ENFORCE, GO_BACKEND_PROMOTED}
 
 
 def go_backend_config_from_env() -> GoBackendConfig:
@@ -47,6 +54,7 @@ def go_backend_config_from_env() -> GoBackendConfig:
         ci_runner_bundles_path=os.environ.get("CAVRA_GO_CI_RUNNER_BUNDLES", ""),
         channel_manifest_path=os.environ.get("CAVRA_GO_WORKSTATION_CHANNELS", ""),
         updater_policy_path=os.environ.get("CAVRA_GO_WORKSTATION_UPDATER_POLICY", ""),
+        promotion_evidence_path=os.environ.get("CAVRA_GO_PROMOTION_EVIDENCE", ""),
         timeout_seconds=_float_env("CAVRA_GO_RUNTIME_TIMEOUT_SECONDS", 5.0),
     )
 
@@ -60,7 +68,7 @@ def go_backend_readiness_report(config: GoBackendConfig | None = None) -> dict[s
         _check(
             "go_backend_opt_in",
             config.enabled,
-            "Go backend pilot is explicitly enabled only when CAVRA_GO_BACKEND_MODE is shadow or enforce.",
+            "Go backend is explicitly enabled only when CAVRA_GO_BACKEND_MODE is shadow, enforce, or promoted.",
         ),
         _check(
             "go_runtime_binary",
@@ -109,6 +117,7 @@ def go_backend_readiness_report(config: GoBackendConfig | None = None) -> dict[s
         "operator_notes": [
             "Leave CAVRA_GO_BACKEND_MODE=disabled unless the environment has current parity evidence.",
             "Use shadow mode first; enforce mode still falls back to Python on mismatch or runtime failure.",
+            "Use promoted mode only after runtime readiness, deployment readiness, and audited parity evidence pass.",
             "Attach this readiness report to deployment evidence before piloting Go in CI or workstation paths.",
         ],
     }
@@ -193,6 +202,68 @@ def go_deployment_readiness_report(config: GoBackendConfig | None = None) -> dic
     }
 
 
+def go_promotion_readiness_report(config: GoBackendConfig | None = None) -> dict[str, Any]:
+    config = config or go_backend_config_from_env()
+    backend = go_backend_readiness_report(config)
+    deployment = go_deployment_readiness_report(config)
+    evidence = _promotion_evidence_summary(config.promotion_evidence_path)
+    requested = config.mode == GO_BACKEND_PROMOTED or bool(config.promotion_evidence_path)
+    checks = [
+        _check(
+            "go_promotion_requested",
+            requested,
+            "Promoted Go backend mode is requested with CAVRA_GO_BACKEND_MODE=promoted or promotion evidence.",
+            mode=config.mode,
+        ),
+        _check(
+            "go_runtime_ready",
+            backend["status"] == "ready",
+            "Go runtime readiness must pass before promotion.",
+            go_backend_status=backend["status"],
+        ),
+        _check(
+            "go_deployment_ready",
+            deployment["status"] == "ready",
+            "CI runner and workstation deployment readiness must pass before promotion.",
+            go_deployment_status=deployment["status"],
+        ),
+        _check(
+            "go_parity_evidence",
+            evidence["valid"],
+            evidence["message"],
+            path=config.promotion_evidence_path,
+            evidence_schema=evidence["schema_version"],
+        ),
+        _check(
+            "go_promotion_approval",
+            evidence["approved"],
+            evidence["approval_message"],
+            approval_id=evidence["approval_id"],
+        ),
+    ]
+    if not requested:
+        status = "not_requested"
+    elif all(item["status"] == "pass" for item in checks):
+        status = "ready"
+    else:
+        status = "needs_attention"
+    return {
+        "schema_version": "cavra.go-backend-pilot.promotion-readiness.v1",
+        "mode": config.mode,
+        "status": status,
+        "promotion_evidence_path": config.promotion_evidence_path,
+        "checks": checks,
+        "backend_status": backend["status"],
+        "deployment_status": deployment["status"],
+        "evidence": evidence,
+        "operator_notes": [
+            "Promoted mode is an optional backend path, not the default CAVRA runtime.",
+            "Keep shadow and enforce pilot evidence attached until promoted mode has current audit approval.",
+            "Unset CAVRA_GO_BACKEND_MODE or set disabled to return all decisions to the Python backend.",
+        ],
+    }
+
+
 def evaluate_with_go_pilot(
     request: dict[str, Any],
     *,
@@ -221,6 +292,14 @@ def evaluate_with_go_pilot(
         result["fallback_reason"] = "go backend readiness check failed"
         result["readiness"] = readiness
         return result
+    if config.mode == GO_BACKEND_PROMOTED:
+        promotion = go_promotion_readiness_report(config)
+        if promotion["status"] != "ready":
+            result["fallback_used"] = True
+            result["fallback_reason"] = "go backend promotion readiness check failed"
+            result["readiness"] = readiness
+            result["promotion_readiness"] = promotion
+            return result
     try:
         go_decision = _run_go_runtime(request, config)
     except (subprocess.SubprocessError, OSError, json.JSONDecodeError) as exc:
@@ -235,7 +314,7 @@ def evaluate_with_go_pilot(
         result["fallback_used"] = True
         result["fallback_reason"] = "go decision diverged from Python parity gate"
         return result
-    if config.mode == GO_BACKEND_ENFORCE:
+    if config.mode in {GO_BACKEND_ENFORCE, GO_BACKEND_PROMOTED}:
         result["selected_backend"] = "go"
         result["effective_decision"] = go_decision
     return result
@@ -382,6 +461,57 @@ def _read_json_check(path: Path | None) -> _JsonCheck:
     if not isinstance(payload, dict):
         return _JsonCheck(False, "metadata JSON must be an object", {})
     return _JsonCheck(True, "metadata file is present and parseable", payload)
+
+
+def _promotion_evidence_summary(path_value: str) -> dict[str, Any]:
+    check = _read_json_check(Path(path_value) if path_value else None)
+    if not check.valid:
+        return {
+            "valid": False,
+            "approved": False,
+            "schema_version": "",
+            "approval_id": "",
+            "message": check.message,
+            "approval_message": "promotion evidence is missing or invalid",
+            "evidence_refs": [],
+        }
+    payload = check.payload
+    schema = str(payload.get("schema_version", ""))
+    parity = payload.get("parity") if isinstance(payload.get("parity"), dict) else {}
+    deployment = payload.get("deployment") if isinstance(payload.get("deployment"), dict) else {}
+    approval = payload.get("approval") if isinstance(payload.get("approval"), dict) else {}
+    parity_status = str(payload.get("parity_status") or parity.get("status") or "")
+    deployment_status = str(payload.get("deployment_status") or deployment.get("status") or "")
+    approved = payload.get("approved") is True or approval.get("status") == "approved"
+    approval_id = str(payload.get("approval_id") or approval.get("approval_id") or "")
+    evidence_refs = payload.get("evidence_refs", [])
+    refs_valid = isinstance(evidence_refs, list) and all(isinstance(item, str) for item in evidence_refs)
+    valid = (
+        schema == "cavra.go-backend-promotion-evidence.v1"
+        and parity_status == "pass"
+        and deployment_status == "ready"
+        and refs_valid
+    )
+    messages = []
+    if schema != "cavra.go-backend-promotion-evidence.v1":
+        messages.append("promotion evidence has an invalid schema_version")
+    if parity_status != "pass":
+        messages.append("promotion evidence must record parity_status=pass")
+    if deployment_status != "ready":
+        messages.append("promotion evidence must record deployment_status=ready")
+    if not refs_valid:
+        messages.append("promotion evidence_refs must be a list of strings")
+    return {
+        "valid": valid,
+        "approved": approved,
+        "schema_version": schema,
+        "approval_id": approval_id,
+        "message": "; ".join(messages) if messages else "Promotion evidence records audited parity and deployment readiness.",
+        "approval_message": "Promotion approval is recorded." if approved else "promotion evidence must be approved",
+        "evidence_refs": evidence_refs if refs_valid else [],
+        "parity_status": parity_status,
+        "deployment_status": deployment_status,
+    }
 
 
 def _ci_runner_summary(ci_payload: dict[str, Any], endpoint_payload: dict[str, Any]) -> dict[str, Any]:
