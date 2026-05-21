@@ -1673,4 +1673,37 @@ Enterprise challenge solved:
 - Gives enterprise reviewers evidence that promoted Go backend use remains reversible over time.
 - Keeps private runbooks, endpoint identifiers, customer names, and secrets outside the public Community Edition.
 
-Recommended next issue: add recurring rollback drill scheduling and stale-drill notification delivery.
+Recommended next issue: add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
+
+## Phase 7 Go Backend Rollback Drill Scheduling
+
+Status: complete for the current public-safe promoted backend drill-scheduling and stale-notification slice.
+
+Completed implementation:
+- Added `CAVRA_GO_ROLLBACK_DRILL_SCHEDULE`, `CAVRA_GO_ROLLBACK_DRILL_DUE_SOON_DAYS`, and Go backend configuration fields for recurring rollback drill schedules.
+- Added `go_rollback_drill_schedule_report` with active cadence, next due date, stale detection, due-soon detection, owner, route, and runbook checks.
+- Added fail-closed promoted-mode evaluation so Go is selected only when rollback drill history is fresh and the schedule is `ready` or `due_soon`.
+- Added public-safe notification plan and event builders for stale or due-soon rollback drills.
+- Added CLI commands `cavra runtime go-rollback-drill-schedule` and `cavra runtime go-rollback-drill-notification-plan`.
+- Added FastAPI endpoints `/runtime/go-pilot/rollback-drill-schedule` and `/runtime/go-pilot/rollback-drill-notifications/deliver`.
+- Added `go_backend_rollback_drill_schedule` to `/deployment/production-readiness`, `/console/config`, and the Evidence Console Production Readiness panel.
+- Added dashboard fields for drill schedule status, next due date, and notification providers.
+- Added tests for default `not_requested`, stale schedules, due-soon notification routes, promoted-mode schedule fallback, CLI commands, API schedule status, API notification delivery, and production readiness.
+- Added `docs/go-backend-rollback-drill-scheduling.md`, `docs/wiki/Go-Backend-Rollback-Drill-Scheduling.md`, and `docs/diagrams/go-backend-rollback-drill-scheduling.svg`.
+- Updated README, feature inventory, production deployment validation, Go parity docs, pilot/promotion/rollback/rehearsal/drill-history docs, productization docs, production roadmap, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_go_backend.py tests/test_cli.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_rollback_drills tests/test_api.py::test_api_go_backend_rollback_drill_schedule tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery tests/test_policy_authoring.py -q`
+
+User stories:
+- As a release manager, I can define the cadence for promoted Go backend rollback drills.
+- As an incident commander, I can see when the next Python fallback drill is due.
+- As a platform owner, I can route stale drill notifications to release governance connectors.
+- As an auditor, I can review schedule metadata and delivery evidence without seeing connector secrets.
+
+Enterprise challenge solved:
+- Keeps rollback confidence operational after initial promotion.
+- Turns stale drill schedules into visible readiness failures and connector-backed notification evidence.
+- Keeps connector credentials, private URLs, customer names, and endpoint details outside the public Community Edition.
+
+Recommended next issue: add rollback drill notification acknowledgements and escalation policy for missed drill notifications.

@@ -113,6 +113,24 @@ def test_runtime_go_rollback_drills_cli_reports_not_requested() -> None:
     assert payload["status"] == "not_requested"
 
 
+def test_runtime_go_rollback_drill_schedule_cli_reports_not_requested() -> None:
+    result = runner.invoke(app, ["runtime", "go-rollback-drill-schedule", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.go-backend-pilot.rollback-drill-schedule.v1"
+    assert payload["status"] == "not_requested"
+
+
+def test_runtime_go_rollback_drill_notification_plan_cli_reports_payload() -> None:
+    result = runner.invoke(app, ["runtime", "go-rollback-drill-notification-plan", "--force", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["plan"]["schema_version"] == "cavra.go-backend-pilot.rollback-drill-notification-plan.v1"
+    assert payload["event"]["event_type"] == "cavra.go_backend.rollback_drill.notification"
+
+
 def test_integration_deliver_cli_accepts_config_option(tmp_path: Path) -> None:
     event = tmp_path / "event.json"
     config = tmp_path / "connectors.json"

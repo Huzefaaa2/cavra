@@ -84,7 +84,9 @@ Read-only operations endpoints:
 
 - `GET /operations/stores`: list active persistent API store paths, modes, configuration sources, existence, and size.
 - `GET /operations/retention-plan`: return a retention, backup, and restore-test plan for persistent API stores. Optional query parameters are `retention_days`, `classification`, and `legal_hold`.
-- `GET /deployment/production-readiness`: validate production controls for OIDC, RBAC, CORS, evidence artifact retrieval, policy catalog availability, and persistent store presence.
+- `GET /deployment/production-readiness`: validate production controls for OIDC, RBAC, CORS, evidence artifact retrieval, policy catalog availability, persistent store presence, optional Go backend promotion, rollback, drill history, and drill schedule readiness.
+- `GET /runtime/go-pilot/rollback-drill-schedule`: inspect recurring rollback drill cadence, next due date, stale state, owners, and notification routes.
+- `POST /runtime/go-pilot/rollback-drill-notifications/deliver`: deliver stale or due-soon rollback drill notifications through configured connectors and index redacted delivery evidence.
 
 Backup and restore are intentionally CLI-only through `cavra ops backup` and `cavra ops restore` so the unauthenticated demo API does not gain file-system restore authority.
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import textwrap
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cavra.go_backend import (
@@ -11,6 +11,8 @@ from cavra.go_backend import (
     GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
+    build_go_rollback_drill_notification_event,
+    build_go_rollback_drill_notification_plan,
     evaluate_with_go_pilot,
     go_backend_config_from_env,
     go_backend_readiness_report,
@@ -18,6 +20,7 @@ from cavra.go_backend import (
     go_promotion_readiness_report,
     go_rollback_readiness_report,
     go_rollback_drill_history_report,
+    go_rollback_drill_schedule_report,
     go_rollback_rehearsal_report,
 )
 
@@ -272,6 +275,52 @@ def test_go_rollback_drill_history_accepts_latest_fresh_drill(tmp_path: Path) ->
     assert report["history"]["latest_target_mode"] == GO_BACKEND_DISABLED
 
 
+def test_go_rollback_drill_schedule_is_not_requested_by_default() -> None:
+    report = go_rollback_drill_schedule_report(GoBackendConfig(mode=GO_BACKEND_DISABLED))
+
+    assert report["status"] == "not_requested"
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_drill_schedule_requested")["status"] == "warn"
+
+
+def test_go_rollback_drill_schedule_detects_stale_drills(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) - timedelta(days=1))
+
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+
+    assert report["status"] == "needs_attention"
+    assert report["schedule"]["stale"] is True
+    assert next(item for item in report["checks"] if item["id"] == "go_rollback_drill_schedule_not_stale")["status"] == "warn"
+
+
+def test_go_rollback_drill_schedule_accepts_due_soon_notification_routes(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+            rollback_drill_due_soon_days=14,
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack")
+    event = build_go_rollback_drill_notification_event(report, generated_by="test")
+
+    assert report["status"] == "due_soon"
+    assert report["schedule"]["notification_providers"] == ["slack", "teams"]
+    assert plan["selected_providers"] == ["slack"]
+    assert event["event_type"] == "cavra.go_backend.rollback_drill.notification"
+    assert event["alert_level"] == "warning"
+
+
 def test_go_promoted_mode_falls_back_without_promotion_evidence(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
@@ -372,7 +421,7 @@ def test_go_promoted_mode_falls_back_without_rollback_drill_history(tmp_path: Pa
     assert result["rollback_drill_history"]["status"] == "needs_attention"
 
 
-def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+def test_go_promoted_mode_falls_back_without_rollback_drill_schedule(tmp_path: Path) -> None:
     runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
     policy = tmp_path / "policy.json"
     policy.write_text("{}", encoding="utf-8")
@@ -393,6 +442,38 @@ def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) 
             rollback_plan_path=str(rollback),
             rollback_rehearsal_path=str(rehearsal),
             rollback_drill_history_path=str(drills),
+        ),
+    )
+
+    assert result["selected_backend"] == "python"
+    assert result["fallback_used"] is True
+    assert result["fallback_reason"] == "go backend rollback drill schedule check failed"
+    assert result["rollback_drill_schedule"]["status"] == "needs_attention"
+
+
+def test_go_promoted_mode_selects_go_when_promotion_gate_passes(tmp_path: Path) -> None:
+    runtime = _fake_go_runtime(tmp_path, decision="allow", rule_id="commands.allow", severity="low")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}", encoding="utf-8")
+    _write_deployment_metadata(tmp_path)
+    promotion = _write_promotion_evidence(tmp_path)
+    rollback = _write_rollback_plan(tmp_path)
+    rehearsal = _write_rollback_rehearsal(tmp_path)
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path)
+
+    result = evaluate_with_go_pilot(
+        {"action_type": "execute_command", "target": "terraform plan"},
+        config=GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            runtime_path=str(runtime),
+            policy_path=str(policy),
+            package_dir=str(tmp_path),
+            promotion_evidence_path=str(promotion),
+            rollback_plan_path=str(rollback),
+            rollback_rehearsal_path=str(rehearsal),
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
         ),
     )
 
@@ -627,3 +708,24 @@ def _write_rollback_drill_history(path: Path) -> Path:
         encoding="utf-8",
     )
     return history
+
+
+def _write_rollback_drill_schedule(path: Path, *, next_due_at: datetime | None = None) -> Path:
+    schedule = path / "cavra-runtime.go-backend-rollback-drill-schedule.json"
+    schedule.write_text(
+        json.dumps(
+            {
+                "schema_version": "cavra.go-backend-rollback-drill-schedule.v1",
+                "schedule_id": "go_backend_python_fallback_monthly",
+                "environment": "production-pilot",
+                "status": "active",
+                "interval_days": 30,
+                "next_due_at": (next_due_at or datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+                "owners": ["release-governance"],
+                "notification_providers": ["slack", "teams"],
+                "runbook_ref": "docs/go-backend-rollback-drill-scheduling.md",
+            }
+        ),
+        encoding="utf-8",
+    )
+    return schedule

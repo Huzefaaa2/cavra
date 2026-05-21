@@ -76,6 +76,10 @@ See `docs/diagrams/go-backend-rollback-rehearsal.svg` for the rehearsal evidence
 
 See `docs/diagrams/go-backend-rollback-drill-history.svg` for the operational drill history path that validates fresh fallback drills before `promoted` mode selects Go.
 
+## Go Backend Rollback Drill Scheduling
+
+See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
+
 ## SVG Images
 
 Repository diagram images:
@@ -96,6 +100,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback.svg`
 - `docs/diagrams/go-backend-rollback-rehearsal.svg`
 - `docs/diagrams/go-backend-rollback-drill-history.svg`
+- `docs/diagrams/go-backend-rollback-drill-scheduling.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

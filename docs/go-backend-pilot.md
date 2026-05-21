@@ -9,7 +9,7 @@ The pilot is intentionally conservative:
 - Default mode is `disabled`.
 - `shadow` mode runs Python first, attempts Go, compares decision parity, and keeps Python as the effective decision.
 - `enforce` mode selects Go only when Go succeeds and matches Python on `decision`, `rule_id`, and `severity`.
-- `promoted` mode selects Go only after runtime readiness, deployment readiness, approved audited parity evidence, approved rollback controls, rollback rehearsal evidence, and fresh rollback drill history all pass.
+- `promoted` mode selects Go only after runtime readiness, deployment readiness, approved audited parity evidence, approved rollback controls, rollback rehearsal evidence, and fresh rollback drill history and active rollback drill scheduling all pass.
 - Any Go runtime error, timeout, missing binary, missing compiled policy, or parity mismatch falls back to Python.
 - Readiness is surfaced through the CLI and `/deployment/production-readiness`.
 
@@ -24,6 +24,7 @@ export CAVRA_GO_PROMOTION_EVIDENCE=/etc/cavra/go-backend-promotion-evidence.json
 export CAVRA_GO_ROLLBACK_PLAN=/etc/cavra/go-backend-rollback-plan.json
 export CAVRA_GO_ROLLBACK_REHEARSAL_EVIDENCE=/etc/cavra/go-backend-rollback-rehearsal.json
 export CAVRA_GO_ROLLBACK_DRILL_HISTORY=/etc/cavra/go-backend-rollback-drills.json
+export CAVRA_GO_ROLLBACK_DRILL_SCHEDULE=/etc/cavra/go-backend-rollback-drill-schedule.json
 export CAVRA_GO_RUNTIME_TIMEOUT_SECONDS=5
 ```
 
@@ -32,7 +33,7 @@ Supported modes:
 - `disabled`: default; Python only.
 - `shadow`: run Go for comparison and evidence, use Python decision.
 - `enforce`: use Go only when parity matches; otherwise fall back to Python.
-- `promoted`: use Go as the optional backend only when runtime, deployment, promotion, rollback readiness, rollback rehearsal, and rollback drill history checks pass.
+- `promoted`: use Go as the optional backend only when runtime, deployment, promotion, rollback readiness, rollback rehearsal, and rollback drill history and rollback drill schedule checks pass.
 
 ## CLI Usage
 
@@ -91,7 +92,7 @@ curl -X POST http://127.0.0.1:8000/runtime/go-pilot/evaluate \
   -d '{"action_type":"execute_command","target":"terraform plan","policy_pack":"cavra-ai-agent-baseline"}'
 ```
 
-Production readiness now includes `go_backend_pilot`, `go_backend_deployment`, `go_backend_promotion`, `go_backend_rollback`, `go_backend_rollback_rehearsal`, and `go_backend_rollback_drill_history` sections. A disabled pilot is acceptable. An enabled pilot must have a runtime binary, compiled policy file, optional registry file if configured, Python fallback, and parity gate.
+Production readiness now includes `go_backend_pilot`, `go_backend_deployment`, `go_backend_promotion`, `go_backend_rollback`, `go_backend_rollback_rehearsal`, `go_backend_rollback_drill_history`, and `go_backend_rollback_drill_schedule` sections. A disabled pilot is acceptable. An enabled pilot must have a runtime binary, compiled policy file, optional registry file if configured, Python fallback, and parity gate.
 
 Deployment readiness is reported separately under `go_backend_deployment`. It validates CI runner bundle metadata, workstation channel manifests, and updater policy before a Go pilot is promoted into runner or workstation rollout paths.
 
@@ -114,4 +115,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add recurring rollback drill scheduling and stale-drill notification delivery.
+The next recommended implementation step is to add rollback drill notification acknowledgements and escalation policy for missed drill notifications.
