@@ -37,8 +37,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_escalation_plan_metadata,
     build_go_rollback_drill_notification_plan,
     build_go_rollback_drill_notification_plan_metadata,
+    build_go_rollback_drill_routing_suppression_trend,
+    build_go_rollback_drill_routing_suppression_trend_metadata,
     evaluate_with_go_pilot,
     filter_go_rollback_drill_notification_history,
+    filter_go_rollback_drill_routing_history,
     go_backend_readiness_report,
     go_deployment_readiness_report,
     go_promotion_readiness_report,
@@ -367,6 +370,8 @@ def create_app():
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
+                "go_rollback_drill_notification_routes": "/runtime/go-pilot/rollback-drill-notifications/routes",
+                "go_rollback_drill_notification_suppression_trends": "/runtime/go-pilot/rollback-drill-notifications/suppression-trends",
                 "go_backend_evaluate": "/runtime/go-pilot/evaluate",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
@@ -764,6 +769,44 @@ def create_app():
         return build_go_rollback_drill_notification_dashboard(
             _go_rollback_drill_notification_items(evidence_store)
         )
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications/routes")
+    def runtime_go_pilot_rollback_drill_notification_routes(
+        schedule_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        owner: Optional[str] = None,
+        action: Optional[str] = None,
+        category: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, object]:
+        return filter_go_rollback_drill_routing_history(
+            _go_rollback_drill_notification_items(evidence_store),
+            schedule_id=schedule_id,
+            provider=provider,
+            owner=owner,
+            action=action,
+            category=category,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications/suppression-trends")
+    def runtime_go_pilot_rollback_drill_notification_suppression_trends(
+        schedule_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        owner: Optional[str] = None,
+        generated_by: str = "console",
+    ) -> dict[str, object]:
+        trend = build_go_rollback_drill_routing_suppression_trend(
+            _go_rollback_drill_notification_items(evidence_store),
+            schedule_id=schedule_id,
+            provider=provider,
+            owner=owner,
+            generated_by=generated_by,
+        )
+        metadata = evidence_store.upsert(build_go_rollback_drill_routing_suppression_trend_metadata(trend))
+        return {"trend": trend, "metadata": metadata}
 
     @app.post("/runtime/go-pilot/rollback-drill-notifications/escalation-plan")
     def runtime_go_pilot_rollback_drill_notification_escalation_plan(payload: dict) -> dict[str, object]:
@@ -2997,8 +3040,12 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-notification-escalation-plan",
             limit=500,
         )["items"]
+        suppression_trends = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-routing-suppression-trend",
+            limit=500,
+        )["items"]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
-        return [*plans, *acknowledgements, *escalations, *deliveries]
+        return [*plans, *acknowledgements, *escalations, *suppression_trends, *deliveries]
     return evidence_store.list()
 
 

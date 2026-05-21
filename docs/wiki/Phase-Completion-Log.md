@@ -1802,4 +1802,37 @@ Enterprise challenge solved:
 - Makes missed rollback drill follow-up visible before promoted backend confidence decays.
 - Keeps connector credentials, private URLs, customer data, and Enterprise source outside the public Community Edition.
 
-Recommended next issue: add persisted drill routing history filters and suppression trend summaries.
+Recommended next issue: delivered below as persisted drill routing history filters and suppression trend summaries.
+
+## Phase 7 Go Backend Rollback Drill Routing History and Suppression Trends
+
+Status: complete for the current public-safe routing history and suppression trend slice.
+
+Completed implementation:
+- Added flattened rollback drill notification route history from persisted notification plan metadata.
+- Added route filters for schedule ID, owner, provider, action, suppression category, limit, and offset.
+- Added suppression trend summaries with category, owner, provider, schedule, maintenance-window, owner-calendar, and healthy-schedule counts.
+- Added persisted trend metadata kind `go-backend-rollback-drill-routing-suppression-trend`.
+- Added FastAPI endpoints `/runtime/go-pilot/rollback-drill-notifications/routes` and `/runtime/go-pilot/rollback-drill-notifications/suppression-trends`.
+- Added console config endpoint discovery keys for route history and suppression trend APIs.
+- Added Evidence Console owner/action/category filters, Routing History rows, Suppression Summary rows, and exportable detail payloads.
+- Added `docs/go-backend-rollback-drill-routing-history.md`, `docs/wiki/Go-Backend-Rollback-Drill-Routing-History.md`, and `docs/diagrams/go-backend-rollback-drill-routing-history.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, routing docs, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_go_backend.py tests/test_api.py::test_api_deployment_production_readiness tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can filter rollback drill route decisions by owner, provider, and action.
+- As an incident commander, I can explain why a drill notification was suppressed during a change freeze.
+- As a platform owner, I can trend suppression causes across owner routes.
+- As an auditor, I can review suppression evidence without seeing connector secrets or private calendar exports.
+
+Enterprise challenge solved:
+- Converts embedded route decisions into durable audit evidence.
+- Gives operators a concise suppression trend view for change freezes and owner unavailability.
+- Keeps connector credentials, private URLs, customer data, and internal calendar exports outside the public Community Edition.
+
+Recommended next issue: add drill notification acknowledgement mutation controls in authenticated console deployments.

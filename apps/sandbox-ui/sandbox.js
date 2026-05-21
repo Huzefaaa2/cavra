@@ -1969,9 +1969,12 @@ async function loadEndpointRecurrenceSuppressionTrends() {
 
 function selectedGoDrillNotificationFilters() {
   return {
+    owner: document.querySelector("#filterGoDrillNotificationOwner")?.value.trim().toLowerCase() || "",
     provider: document.querySelector("#filterGoDrillNotificationProvider")?.value || "",
     state: document.querySelector("#filterGoDrillNotificationState")?.value || "",
-    kind: document.querySelector("#filterGoDrillNotificationKind")?.value || ""
+    kind: document.querySelector("#filterGoDrillNotificationKind")?.value || "",
+    action: document.querySelector("#filterGoDrillNotificationAction")?.value || "",
+    category: document.querySelector("#filterGoDrillNotificationCategory")?.value || ""
   };
 }
 
@@ -2078,6 +2081,78 @@ function goDrillEscalationRoutes(historyItems, dashboard = {}) {
   });
 }
 
+function goDrillRouteCategory(route) {
+  if (route.action !== "suppress") return route.action || "deliver";
+  if (route.maintenance_window) return "maintenance_window";
+  if (route.owner_availability && route.owner_availability.available === false) return "owner_calendar";
+  if (String(route.reason || "").toLowerCase().includes("healthy")) return "healthy_schedule";
+  return route.category || "other";
+}
+
+function sampleGoDrillRoutingRows(items) {
+  return items.flatMap((item) => {
+    const plan = item?.plan && typeof item.plan === "object" ? item.plan : {};
+    const routeDecisions = Array.isArray(plan.route_decisions) ? plan.route_decisions : [];
+    return routeDecisions.map((route, index) => ({
+      route_id: `sample-go-drill-route-${index}`,
+      created_at: item.created_at || plan.generated_at || "",
+      plan_id: plan.plan_id || item.plan_id || "",
+      schedule_id: plan.schedule_id || item.schedule_id || route.schedule_id || "",
+      alert_level: plan.alert_level || item.alert_level || "unknown",
+      provider: route.provider || "",
+      owner: route.owner || "release-governance",
+      escalation_owner: route.escalation_owner || route.owner || "release-governance",
+      action: route.action || "deliver",
+      category: goDrillRouteCategory(route),
+      reason: route.reason || "",
+      acknowledgement_minutes: route.acknowledgement_minutes,
+      maintenance_window_id: route.maintenance_window?.window_id || "",
+      maintenance_window_reason: route.maintenance_window?.reason || "",
+      owner_available: route.owner_availability?.available !== false,
+      owner_availability_reason: route.owner_availability?.reason || "",
+      next_due_at: plan.next_due_at || "",
+      route
+    }));
+  });
+}
+
+function filterGoDrillRoutingRows(rows) {
+  const filters = selectedGoDrillNotificationFilters();
+  return rows.filter((route) => {
+    if (filters.owner && !String(`${route.owner} ${route.escalation_owner}`).toLowerCase().includes(filters.owner)) return false;
+    if (filters.provider && route.provider !== filters.provider) return false;
+    if (filters.action && route.action !== filters.action) return false;
+    if (filters.category && route.category !== filters.category) return false;
+    return true;
+  });
+}
+
+function buildSampleGoDrillSuppressionTrend(rows) {
+  const suppressed = rows.filter((route) => route.action === "suppress");
+  const countBy = (key) => suppressed.reduce((counts, route) => {
+    const value = route[key] || "unknown";
+    counts[value] = Number(counts[value] || 0) + 1;
+    return counts;
+  }, {});
+  const categoryCounts = countBy("category");
+  return {
+    schema_version: "cavra.go-backend-pilot.rollback-drill-routing-suppression-trend.v1",
+    product: "CAVRA",
+    trend_id: "sample-go-drill-routing-suppression-trend",
+    generated_at: "2026-05-20T11:15:00+00:00",
+    generated_by: "console",
+    alert_level: suppressed.length ? "warning" : "healthy",
+    suppression_event_count: suppressed.length,
+    category_counts: categoryCounts,
+    owner_counts: countBy("owner"),
+    provider_counts: countBy("provider"),
+    maintenance_suppressed_count: Number(categoryCounts.maintenance_window || 0),
+    calendar_suppressed_count: Number(categoryCounts.owner_calendar || 0),
+    healthy_schedule_suppressed_count: Number(categoryCounts.healthy_schedule || 0),
+    latest_events: suppressed.slice(0, 20)
+  };
+}
+
 async function loadGoRollbackDrillNotificationHistory() {
   await loadConsoleConfig();
   const filters = selectedGoDrillNotificationFilters();
@@ -2093,6 +2168,41 @@ async function loadGoRollbackDrillNotificationHistory() {
     return filterGoDrillNotificationHistory(Array.isArray(payload) ? payload : payload.items || []);
   } catch {
     return filterGoDrillNotificationHistory(goRollbackDrillNotificationCatalog);
+  }
+}
+
+async function loadGoRollbackDrillRoutingHistory() {
+  await loadConsoleConfig();
+  const filters = selectedGoDrillNotificationFilters();
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/routes", {
+      owner: filters.owner,
+      provider: filters.provider,
+      action: filters.action,
+      category: filters.category,
+      limit: 50
+    }));
+    if (!response.ok) throw new Error("Go rollback drill routing history API unavailable");
+    const payload = await response.json();
+    return Array.isArray(payload) ? payload : payload.items || [];
+  } catch {
+    return filterGoDrillRoutingRows(sampleGoDrillRoutingRows(goRollbackDrillNotificationCatalog));
+  }
+}
+
+async function loadGoRollbackDrillSuppressionTrend() {
+  await loadConsoleConfig();
+  const filters = selectedGoDrillNotificationFilters();
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/suppression-trends", {
+      owner: filters.owner,
+      provider: filters.provider
+    }));
+    if (!response.ok) throw new Error("Go rollback drill suppression trend API unavailable");
+    const payload = await response.json();
+    return payload.trend || payload;
+  } catch {
+    return buildSampleGoDrillSuppressionTrend(filterGoDrillRoutingRows(sampleGoDrillRoutingRows(goRollbackDrillNotificationCatalog)));
   }
 }
 
@@ -3670,18 +3780,28 @@ function goDrillNotificationKindLabel(kind) {
     .replace("release-connector-delivery", "connector-delivery");
 }
 
-function renderGoRollbackDrillNotifications(historyItems, dashboard = {}) {
+function topCountLabel(counts) {
+  const [label, count] = Object.entries(counts || {}).sort((left, right) => Number(right[1]) - Number(left[1]))[0] || [];
+  return label ? `${label} (${count})` : "none";
+}
+
+function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routingRows = [], suppressionTrend = {}) {
   const panel = document.querySelector("#goRollbackDrillNotificationDashboard");
   const historyRows = document.querySelector("#goDrillNotificationRows");
   const escalationRows = document.querySelector("#goDrillEscalationRows");
-  if (!panel || !historyRows || !escalationRows) return;
+  const routeRows = document.querySelector("#goDrillRouteRows");
+  const suppressionRows = document.querySelector("#goDrillSuppressionTrendRows");
+  if (!panel || !historyRows || !escalationRows || !routeRows || !suppressionRows) return;
 
   goDrillNotificationDetailPayloads.clear();
   historyRows.innerHTML = "";
   escalationRows.innerHTML = "";
+  routeRows.innerHTML = "";
+  suppressionRows.innerHTML = "";
   const routes = goDrillEscalationRoutes(historyItems, dashboard);
   const breachedRoutes = routes.filter((route) => route.breached);
   const outstandingRoutes = routes.filter((route) => route.acknowledged === false || route.acknowledgement_state === "outstanding");
+  const suppressedRoutes = routingRows.filter((route) => route.action === "suppress");
   const status = dashboard.alert_level || (breachedRoutes.length ? "critical" : outstandingRoutes.length ? "warning" : "healthy");
 
   panel.innerHTML = `
@@ -3716,6 +3836,22 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}) {
     <div class="release-delivery-metric">
       <span>Breached</span>
       <strong class="${breachedRoutes.length ? "block" : "allow"}">${formatMetricNumber(breachedRoutes.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Route Rows</span>
+      <strong>${formatMetricNumber(routingRows.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Suppressed</span>
+      <strong class="${suppressedRoutes.length ? "require_approval" : "allow"}">${formatMetricNumber(suppressedRoutes.length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Maintenance</span>
+      <strong>${formatMetricNumber(suppressionTrend.maintenance_suppressed_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Calendar</span>
+      <strong>${formatMetricNumber(suppressionTrend.calendar_suppressed_count || 0)}</strong>
     </div>
   `;
 
@@ -3764,6 +3900,63 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}) {
     `);
   });
   if (!routes.length) escalationRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No escalation routes are currently indexed.</td></tr>`);
+
+  routingRows.forEach((route, index) => {
+    const payloadId = goDrillPayloadId("routing", index);
+    goDrillNotificationDetailPayloads.set(payloadId, {
+      label: route.route_id || `${route.schedule_id || "schedule"}-${route.provider || "provider"}-${route.action || "route"}`,
+      payload: route
+    });
+    routeRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(route.route_id || route.plan_id || "route")}</td>
+        <td>${escapeHtml(route.owner || "release-governance")}</td>
+        <td>${escapeHtml(route.provider || "unknown")}</td>
+        <td class="${route.action === "suppress" ? "require_approval" : "allow"}">${escapeHtml(route.action || "unknown")}</td>
+        <td>${escapeHtml(route.category || "none")}</td>
+        <td>${escapeHtml(route.reason || "n/a")}</td>
+        <td>${goDrillNotificationActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!routingRows.length) routeRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No routing history rows match the current filters.</td></tr>`);
+
+  const trendPayloadId = goDrillPayloadId("suppression-trend", 0);
+  goDrillNotificationDetailPayloads.set(trendPayloadId, {
+    label: suppressionTrend.trend_id || "go-drill-routing-suppression-trend",
+    payload: suppressionTrend
+  });
+  const categories = Object.entries(suppressionTrend.category_counts || {});
+  if (categories.length) {
+    categories.forEach(([category, count], index) => {
+      const payloadId = index === 0 ? trendPayloadId : goDrillPayloadId("suppression-trend", index);
+      goDrillNotificationDetailPayloads.set(payloadId, {
+        label: `${suppressionTrend.trend_id || "suppression-trend"}-${category}`,
+        payload: { category, count, trend: suppressionTrend }
+      });
+      suppressionRows.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${escapeHtml(category)}</td>
+          <td class="${Number(count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(count)}</td>
+          <td>${escapeHtml(topCountLabel(suppressionTrend.owner_counts))}</td>
+          <td>${escapeHtml(topCountLabel(suppressionTrend.provider_counts))}</td>
+          <td>${escapeHtml(String(suppressionTrend.generated_at || "").slice(0, 19))}</td>
+          <td>${goDrillNotificationActionButtons(payloadId)}</td>
+        </tr>
+      `);
+    });
+  } else {
+    suppressionRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>none</td>
+        <td class="allow">0</td>
+        <td>${escapeHtml(topCountLabel(suppressionTrend.owner_counts))}</td>
+        <td>${escapeHtml(topCountLabel(suppressionTrend.provider_counts))}</td>
+        <td>${escapeHtml(String(suppressionTrend.generated_at || "").slice(0, 19))}</td>
+        <td>${goDrillNotificationActionButtons(trendPayloadId)}</td>
+      </tr>
+    `);
+  }
 }
 
 function showGoDrillNotificationDetail(payloadId) {
@@ -4615,11 +4808,13 @@ async function refreshEndpointRecurrenceOperations() {
 }
 
 async function refreshGoRollbackDrillNotifications() {
-  const [historyItems, dashboard] = await Promise.all([
+  const [historyItems, dashboard, routingRows, suppressionTrend] = await Promise.all([
     loadGoRollbackDrillNotificationHistory(),
-    loadGoRollbackDrillNotificationDashboard()
+    loadGoRollbackDrillNotificationDashboard(),
+    loadGoRollbackDrillRoutingHistory(),
+    loadGoRollbackDrillSuppressionTrend()
   ]);
-  renderGoRollbackDrillNotifications(historyItems, dashboard);
+  renderGoRollbackDrillNotifications(historyItems, dashboard, routingRows, suppressionTrend);
 }
 
 async function deliverEndpointRemediationSlaNotification() {
@@ -5030,7 +5225,7 @@ document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurr
   control.addEventListener("input", refreshEndpointRecurrenceOperations);
   control.addEventListener("change", refreshEndpointRecurrenceOperations);
 });
-document.querySelectorAll("#filterGoDrillNotificationProvider, #filterGoDrillNotificationState, #filterGoDrillNotificationKind").forEach((control) => {
+document.querySelectorAll("#filterGoDrillNotificationOwner, #filterGoDrillNotificationProvider, #filterGoDrillNotificationState, #filterGoDrillNotificationKind, #filterGoDrillNotificationAction, #filterGoDrillNotificationCategory").forEach((control) => {
   control.addEventListener("input", refreshGoRollbackDrillNotifications);
   control.addEventListener("change", refreshGoRollbackDrillNotifications);
 });

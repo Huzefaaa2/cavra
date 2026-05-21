@@ -907,6 +907,197 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
     }
 
 
+def _go_rollback_drill_route_category(route: dict[str, Any]) -> str:
+    if route.get("action") != "suppress":
+        return str(route.get("action") or "deliver")
+    if isinstance(route.get("maintenance_window"), dict):
+        return "maintenance_window"
+    availability = route.get("owner_availability")
+    if isinstance(availability, dict) and not availability.get("available", True):
+        return "owner_calendar"
+    if "healthy" in str(route.get("reason") or "").lower():
+        return "healthy_schedule"
+    return str(route.get("category") or "other")
+
+
+def _go_rollback_drill_route_rows(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    history = filter_go_rollback_drill_notification_history(items, metadata_kind="go-backend-rollback-drill-notification-plan", limit=500)["items"]
+    rows = []
+    for item in history:
+        plan = item.get("plan") if isinstance(item.get("plan"), dict) else item
+        route_decisions = plan.get("route_decisions", []) if isinstance(plan.get("route_decisions"), list) else []
+        for route in route_decisions:
+            if not isinstance(route, dict):
+                continue
+            schedule_id = str(plan.get("schedule_id") or route.get("schedule_id") or item.get("schedule_id") or "")
+            provider = str(route.get("provider") or "")
+            owner = str(route.get("owner") or "release-governance")
+            action = str(route.get("action") or "deliver")
+            reason = str(route.get("reason") or "")
+            category = _go_rollback_drill_route_category(route)
+            created_at = str(item.get("created_at") or plan.get("generated_at") or "")
+            route_material = json.dumps(
+                {
+                    "plan_id": plan.get("plan_id") or item.get("plan_id") or "",
+                    "schedule_id": schedule_id,
+                    "provider": provider,
+                    "owner": owner,
+                    "action": action,
+                    "reason": reason,
+                    "created_at": created_at,
+                },
+                sort_keys=True,
+            )
+            maintenance_window = route.get("maintenance_window") if isinstance(route.get("maintenance_window"), dict) else {}
+            owner_availability = route.get("owner_availability") if isinstance(route.get("owner_availability"), dict) else {}
+            rows.append(
+                {
+                    "route_id": f"gordroute-{hashlib.sha256(route_material.encode('utf-8')).hexdigest()[:16]}",
+                    "created_at": created_at,
+                    "plan_id": str(plan.get("plan_id") or item.get("plan_id") or ""),
+                    "schedule_id": schedule_id,
+                    "alert_level": str(plan.get("alert_level") or item.get("alert_level") or "unknown"),
+                    "provider": provider,
+                    "owner": owner,
+                    "escalation_owner": str(route.get("escalation_owner") or owner),
+                    "action": action,
+                    "category": category,
+                    "reason": reason,
+                    "acknowledgement_minutes": route.get("acknowledgement_minutes"),
+                    "maintenance_window_id": str(maintenance_window.get("window_id") or ""),
+                    "maintenance_window_reason": str(maintenance_window.get("reason") or ""),
+                    "owner_available": bool(owner_availability.get("available", True)),
+                    "owner_availability_reason": str(owner_availability.get("reason") or ""),
+                    "next_due_at": str(plan.get("next_due_at") or ""),
+                }
+            )
+    return sorted(rows, key=lambda row: str(row.get("created_at", "")), reverse=True)
+
+
+def filter_go_rollback_drill_routing_history(
+    items: list[dict[str, Any]],
+    *,
+    schedule_id: str | None = None,
+    provider: str | None = None,
+    owner: str | None = None,
+    action: str | None = None,
+    category: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    routes = _go_rollback_drill_route_rows(items)
+    if schedule_id:
+        routes = [route for route in routes if route.get("schedule_id") == schedule_id]
+    if provider:
+        routes = [route for route in routes if route.get("provider") == provider]
+    if owner:
+        owner_filter = owner.lower()
+        routes = [
+            route
+            for route in routes
+            if owner_filter in str(route.get("owner") or "").lower()
+            or owner_filter in str(route.get("escalation_owner") or "").lower()
+        ]
+    if action:
+        routes = [route for route in routes if route.get("action") == action]
+    if category:
+        routes = [route for route in routes if route.get("category") == category]
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-routing-history.v1",
+        "product": "CAVRA",
+        "items": routes[offset : offset + limit],
+        "total": len(routes),
+        "limit": limit,
+        "offset": offset,
+        "filters": {
+            "schedule_id": schedule_id or "",
+            "provider": provider or "",
+            "owner": owner or "",
+            "action": action or "",
+            "category": category or "",
+        },
+    }
+
+
+def build_go_rollback_drill_routing_suppression_trend(
+    items: list[dict[str, Any]],
+    *,
+    schedule_id: str | None = None,
+    provider: str | None = None,
+    owner: str | None = None,
+    generated_by: str = "release-governance",
+) -> dict[str, Any]:
+    routing_history = filter_go_rollback_drill_routing_history(
+        items,
+        schedule_id=schedule_id,
+        provider=provider,
+        owner=owner,
+        action="suppress",
+        limit=500,
+    )
+    suppressed = routing_history["items"]
+    category_counts: dict[str, int] = {}
+    owner_counts: dict[str, int] = {}
+    provider_counts: dict[str, int] = {}
+    schedule_counts: dict[str, int] = {}
+    for route in suppressed:
+        category = str(route.get("category") or "other")
+        route_owner = str(route.get("owner") or "release-governance")
+        route_provider = str(route.get("provider") or "unknown")
+        route_schedule = str(route.get("schedule_id") or "unknown")
+        category_counts[category] = category_counts.get(category, 0) + 1
+        owner_counts[route_owner] = owner_counts.get(route_owner, 0) + 1
+        provider_counts[route_provider] = provider_counts.get(route_provider, 0) + 1
+        schedule_counts[route_schedule] = schedule_counts.get(route_schedule, 0) + 1
+    material = json.dumps(
+        {
+            "generated_by": generated_by,
+            "filters": routing_history["filters"],
+            "category_counts": category_counts,
+            "owner_counts": owner_counts,
+            "provider_counts": provider_counts,
+            "schedule_counts": schedule_counts,
+        },
+        sort_keys=True,
+    )
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-routing-suppression-trend.v1",
+        "product": "CAVRA",
+        "trend_id": f"gordrtrend-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "alert_level": "warning" if suppressed else "healthy",
+        "suppression_event_count": len(suppressed),
+        "category_counts": category_counts,
+        "owner_counts": owner_counts,
+        "provider_counts": provider_counts,
+        "schedule_counts": schedule_counts,
+        "maintenance_suppressed_count": category_counts.get("maintenance_window", 0),
+        "calendar_suppressed_count": category_counts.get("owner_calendar", 0),
+        "healthy_schedule_suppressed_count": category_counts.get("healthy_schedule", 0),
+        "filters": routing_history["filters"],
+        "latest_events": suppressed[:20],
+    }
+
+
+def build_go_rollback_drill_routing_suppression_trend_metadata(trend: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(trend.get("trend_id") or "go-rollback-drill-routing-suppression-trend"),
+        "created_at": str(trend.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(trend.get("generated_by") or "release-governance"),
+        "decision_count": int(trend.get("suppression_event_count") or 0),
+        "blocked_count": int(trend.get("suppression_event_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-routing-suppression-trend",
+        "trend_id": trend.get("trend_id"),
+        "alert_level": trend.get("alert_level"),
+        "suppression_event_count": trend.get("suppression_event_count", 0),
+        "maintenance_suppressed_count": trend.get("maintenance_suppressed_count", 0),
+        "calendar_suppressed_count": trend.get("calendar_suppressed_count", 0),
+        "routing_suppression_trend": trend,
+    }
+
+
 def build_go_rollback_drill_notification_escalation_plan(
     items: list[dict[str, Any]],
     *,

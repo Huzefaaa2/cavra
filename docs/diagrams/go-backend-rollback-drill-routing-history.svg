@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="640" viewBox="0 0 1180 640" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA rollback drill routing history and suppression trends</title>
+  <desc id="desc">Flow from persisted notification plan route decisions to filtered routing history, suppression trend metadata, and Evidence Console review.</desc>
+  <defs>
+    <style>
+      .bg { fill: #101316; }
+      .panel { fill: #151a1e; stroke: #2d3a40; stroke-width: 2; rx: 14; }
+      .text { fill: #eef3f6; font: 700 24px Inter, Arial, sans-serif; }
+      .small { fill: #cbd5db; font: 500 16px Inter, Arial, sans-serif; }
+      .tiny { fill: #aebbc3; font: 500 13px Inter, Arial, sans-serif; }
+      .accent { fill: #76d6b2; }
+      .warn { fill: #ffd479; }
+      .line { stroke: #76d6b2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .muted { stroke: #3d4c54; stroke-width: 2; fill: none; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#76d6b2"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1180" height="640"/>
+  <text x="52" y="64" class="text">Rollback Drill Routing History</text>
+  <text x="52" y="96" class="small">Route decisions become filterable evidence and suppression trend summaries.</text>
+
+  <rect x="52" y="146" width="270" height="138" class="panel"/>
+  <text x="80" y="188" class="text">Plan Metadata</text>
+  <text x="80" y="220" class="small">route_decisions</text>
+  <text x="80" y="244" class="small">owner/provider/SLO</text>
+  <text x="80" y="266" class="tiny">metadata_kind: notification-plan</text>
+
+  <rect x="454" y="118" width="300" height="164" class="panel"/>
+  <text x="482" y="160" class="text">Route History API</text>
+  <text x="482" y="194" class="small">Filters: owner, provider,</text>
+  <text x="482" y="218" class="small">action, category, schedule</text>
+  <line x1="482" y1="244" x2="720" y2="244" class="muted"/>
+  <text x="482" y="266" class="tiny">GET /rollback-drill-notifications/routes</text>
+
+  <rect x="454" y="354" width="300" height="164" class="panel"/>
+  <text x="482" y="396" class="text">Suppression Trend</text>
+  <text x="482" y="430" class="small">category_counts</text>
+  <text x="482" y="454" class="small">owner/provider counts</text>
+  <line x1="482" y1="480" x2="720" y2="480" class="muted"/>
+  <text x="482" y="502" class="tiny">metadata_kind: routing-suppression-trend</text>
+
+  <rect x="874" y="146" width="250" height="138" class="panel"/>
+  <text x="902" y="188" class="text">Evidence Console</text>
+  <text x="902" y="220" class="accent small">Routing History table</text>
+  <text x="902" y="244" class="warn small">Suppression Summary</text>
+  <text x="902" y="266" class="tiny">Details + JSON export</text>
+
+  <rect x="874" y="382" width="250" height="116" class="panel"/>
+  <text x="902" y="424" class="text">Audit Review</text>
+  <text x="902" y="456" class="small">Explain why alerts</text>
+  <text x="902" y="480" class="small">were suppressed</text>
+
+  <path d="M 322 214 C 372 214 402 202 454 202" class="line"/>
+  <path d="M 604 282 C 604 316 604 326 604 354" class="line"/>
+  <path d="M 754 202 C 806 202 824 214 874 214" class="line"/>
+  <path d="M 754 436 C 806 436 824 440 874 440" class="line"/>
+
+  <rect x="52" y="548" width="1072" height="58" class="panel"/>
+  <text x="78" y="584" class="small">Public-safe boundary: route labels, owners, providers, timestamps, and reasons only; no connector secrets, private URLs, customer data, or internal calendar exports.</text>
+</svg>

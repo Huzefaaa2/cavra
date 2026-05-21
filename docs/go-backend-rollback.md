@@ -108,4 +108,4 @@ Backend promotion is only production-ready when rollback is boring, explicit, an
 
 ## Next Work
 
-The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.
+The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.

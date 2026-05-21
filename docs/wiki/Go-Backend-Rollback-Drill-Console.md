@@ -8,6 +8,8 @@ CAVRA now surfaces Go backend rollback drill notification history in the Evidenc
 - Filters for provider, acknowledgement state, and notification metadata kind.
 - Notification history drill-downs with JSON detail and export actions.
 - Escalation route drill-downs showing schedule ID, provider, owner, acknowledgement state, route age, SLO, breach state, and recommended action.
+- Routing history filters for owner, provider, action, and suppression category.
+- Suppression summary rows for maintenance-window, owner-calendar, healthy-schedule, and other suppressed routes.
 - Local public-safe sample data so the Community Edition dashboard remains useful without a live API.
 
 ## How To Use
@@ -45,4 +47,4 @@ See `docs/diagrams/go-backend-rollback-drill-console.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.
+The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.
