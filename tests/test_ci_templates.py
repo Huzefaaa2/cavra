@@ -93,6 +93,25 @@ def test_github_required_check_templates_parse_and_verify_evidence() -> None:
         assert "cavra evidence verify-attestation" in text
 
 
+def test_github_release_governance_go_runtime_template_uses_typed_daemon_request() -> None:
+    workflow_path = "examples/github-actions/cavra-release-governance-go-runtime.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    job = workflow["jobs"]["cavra-release-governance"]
+    assert job["name"] == "cavra-release-governance-go-runtime"
+    assert "actions/setup-go@v6" in text
+    assert "go-version-file: go/cavra-runtime/go.mod" in text
+    assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
+    assert "--lifecycle start" in text
+    assert "--daemon" in text
+    assert "release-governance-evidence.jsonl" in text
+    assert "release-governance-response.json" in text
+    assert "release_governance.approval.approved" in text
+    assert "cavra-release-governance-go-runtime" in text
+
+
 def test_gitlab_required_check_template_parses_and_exports_artifacts() -> None:
     pipeline_path = "examples/gitlab-ci/cavra-required-check.gitlab-ci.yml"
     pipeline = _load_yaml(pipeline_path)
@@ -103,6 +122,23 @@ def test_gitlab_required_check_template_parses_and_exports_artifacts() -> None:
     assert "cavra evidence verify" in text
     assert "cavra evidence verify-attestation" in text
     assert ".cavra/evidence/attestation/" in job["artifacts"]["paths"]
+
+
+def test_gitlab_release_governance_go_runtime_template_uses_typed_daemon_request() -> None:
+    pipeline_path = "examples/gitlab-ci/cavra-release-governance-go-runtime.gitlab-ci.yml"
+    pipeline = _load_yaml(pipeline_path)
+    text = Path(pipeline_path).read_text(encoding="utf-8")
+
+    job = pipeline["cavra-release-governance-go-runtime"]
+    assert job["stage"] == "release-governance"
+    assert job["image"] == "golang:1.26"
+    assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
+    assert "--lifecycle start" in text
+    assert "--daemon" in text
+    assert "release-governance-evidence.jsonl" in text
+    assert "release_governance.approval.approved" in text
+    assert "go/cavra-runtime/.cavra/go-daemon/" in job["artifacts"]["paths"]
 
 
 def test_azure_pipelines_required_check_template_parses_and_exports_artifacts() -> None:
@@ -120,3 +156,24 @@ def test_azure_pipelines_required_check_template_parses_and_exports_artifacts() 
     assert "cavra evidence verify-attestation" in text
     assert artifact_step["task"] == "PublishPipelineArtifact@1"
     assert artifact_step["inputs"]["artifact"] == "cavra-required-check-evidence"
+
+
+def test_azure_release_governance_go_runtime_template_uses_typed_daemon_request() -> None:
+    pipeline_path = "examples/azure-pipelines/cavra-release-governance-go-runtime.azure-pipelines.yml"
+    pipeline = _load_yaml(pipeline_path)
+    text = Path(pipeline_path).read_text(encoding="utf-8")
+
+    job = pipeline["stages"][0]["jobs"][0]
+    artifact_step = job["steps"][-1]
+    assert pipeline["trigger"] == "none"
+    assert pipeline["pr"] == "none"
+    assert job["displayName"] == "cavra-release-governance-go-runtime"
+    assert "GoTool@0" in text
+    assert "CAVRA_RELEASE_GOVERNANCE_REQUEST" in text
+    assert "examples/go-runtime/typed-release-governance/approved-promotion.json" in text
+    assert "--lifecycle start" in text
+    assert "--daemon" in text
+    assert "release-governance-evidence.jsonl" in text
+    assert "release_governance.approval.approved" in text
+    assert artifact_step["task"] == "PublishPipelineArtifact@1"
+    assert artifact_step["inputs"]["artifact"] == "cavra-release-governance-go-runtime"

@@ -1,0 +1,19 @@
+{
+  "session_id": "release-governance-approved-promotion",
+  "agent_id": "release-agent",
+  "actor": "release.manager@example.com",
+  "action_type": "release_governance_record",
+  "target": "prod",
+  "requested_operation": "verify",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "release_governance": {
+    "metadata_kind": "rollout-promotion-execution",
+    "release_channel": "stable",
+    "release_version": "v0.2.0",
+    "approval_state": "approved",
+    "approval_id": "apr_prod_release",
+    "evidence_refs": [
+      "evidence://release/prod/promotion"
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 
@@ -64,3 +65,26 @@ def test_go_daemon_evidence_hook_is_present() -> None:
     assert "go-daemon-evidence://" in evidence
     assert "HandleConnectionWithEvidence" in server
     assert 'flag.String("evidence-log"' in cli
+
+
+def test_typed_release_governance_daemon_examples_are_present() -> None:
+    examples_dir = Path("examples/go-runtime/typed-release-governance")
+    readme = (examples_dir / "README.md").read_text(encoding="utf-8")
+
+    expected = {
+        "approved-promotion.json": ("allow", "release_governance.approval.approved"),
+        "failed-connector-delivery.json": ("block", "release_governance.delivery.failed"),
+        "critical-inventory-freshness.json": ("require_approval", "release_governance.signal.critical"),
+    }
+    for filename, (decision, rule_id) in expected.items():
+        payload = json.loads((examples_dir / filename).read_text(encoding="utf-8"))
+        assert payload["action_type"] == "release_governance_record"
+        assert "release_governance" in payload
+        assert "record" not in payload
+        assert filename in readme
+        assert decision in readme
+        assert rule_id in readme
+
+    assert "cavra-release-governance-go-runtime.yml" in readme
+    assert "--daemon" in readme
+    assert "release-governance-evidence.jsonl" in readme

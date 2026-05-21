@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add daemon and CI runner examples for typed release governance enforcement requests.
+- Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
 - Validate the hosted sandbox URL after deployment from `main`.

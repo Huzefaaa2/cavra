@@ -43,4 +43,4 @@ commercial policy pack source, customer templates, or customer data.
 
 ## Current Next Recommendation
 
-Add daemon and CI runner examples for typed release governance enforcement requests.
+Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.

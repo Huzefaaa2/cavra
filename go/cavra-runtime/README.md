@@ -50,4 +50,4 @@ python3 scripts/generate_go_enforcement_contracts.py
 
 Next Go work:
 
-- Add daemon and CI runner examples for typed release governance enforcement requests.
+- Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.

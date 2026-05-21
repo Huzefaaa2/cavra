@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is daemon and CI runner examples for typed release governance enforcement requests.
+The next recommended work is signed CI runner binary packaging and reusable runner actions for typed release-governance enforcement requests.

@@ -40,5 +40,5 @@ Activity persistence turns local pre-action decisions into searchable operationa
 
 ## Next
 
-- Add daemon and CI runner examples for typed release governance enforcement requests.
+- Package signed CI runner binaries and reusable runner actions for typed release governance enforcement requests.
 - Validate the hosted sandbox URL after deployment from `main`.
