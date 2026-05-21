@@ -165,5 +165,5 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 ## Next Work
 
-- Add remaining high-risk command and cloud/IaC decision parity cases that are still Python-only.
+- Add an explicitly opt-in Go enforcement backend pilot with audited fallback to Python and parity-gate evidence.
 - Validate the hosted sandbox URL after deployment from `main`.

@@ -48,6 +48,10 @@ See `docs/diagrams/go-reproducible-airgap.svg` for the release path from connect
 
 See `docs/diagrams/release-signing-operations.svg` for the release path from external signing key custody into signed package generation, verifier enforcement, planned key rotation, and emergency revocation evidence.
 
+## High-Risk Command And Cloud/IaC Parity
+
+See `docs/diagrams/high-risk-command-cloud-iac-parity.svg` for the shared fixture path that compares authoritative Python runtime decisions with Go runtime decisions before Go is allowed into deployment paths.
+
 ## SVG Images
 
 Repository diagram images:
@@ -61,6 +65,7 @@ Repository diagram images:
 - `docs/diagrams/go-parity-sandbox-deployment.svg`
 - `docs/diagrams/go-reproducible-airgap.svg`
 - `docs/diagrams/release-signing-operations.svg`
+- `docs/diagrams/high-risk-command-cloud-iac-parity.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

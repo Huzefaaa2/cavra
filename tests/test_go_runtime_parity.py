@@ -226,6 +226,35 @@ def test_go_mcp_registry_fixture_shape_is_supported() -> None:
     assert next(item for item in fixture["mcp_servers"] if item["server_id"] == "github-mcp")["allowed_tools"] == ["create_pull_request"]
 
 
+def test_go_high_risk_command_and_cloud_iac_fixture_shape_is_supported() -> None:
+    cases = json.loads(PARITY_CASES.read_text(encoding="utf-8"))
+    names = {item["name"] for item in cases}
+    policy_packs = {item["request"].get("policy_pack") for item in cases}
+
+    assert names >= {
+        "cloud iam attach role policy blocks",
+        "cloud iam get role allows",
+        "kubernetes prod apply blocks",
+        "kubernetes diff allows",
+        "terraform prod destroy blocks",
+        "opentofu prod apply blocks",
+        "opentofu prod plan allows",
+        "github force push blocks",
+        "github admin merge blocks",
+        "owasp curl pipe shell blocks",
+        "agentic delivery repo settings blocks",
+        "agentic delivery pytest allows",
+    }
+    assert policy_packs >= {
+        "cavra-cloud-iam",
+        "cavra-kubernetes-prod",
+        "cavra-terraform-prod",
+        "cavra-github-enterprise",
+        "cavra-owasp-llm-agentic",
+        "cavra-agentic-delivery",
+    }
+
+
 def test_go_release_governance_record_fixture_shape_is_supported() -> None:
     cases = json.loads(RELEASE_GOVERNANCE_CASES.read_text(encoding="utf-8"))
     metadata_kinds = {item["request"]["record"]["metadata_kind"] for item in cases}

@@ -392,6 +392,59 @@ func builtInPolicy(pack string) Policy {
 			commandBlock:         []string{"terraform apply*", "kubectl delete*", "az role assignment create*", "aws iam create-access-key*", "gcloud projects add-iam-policy-binding*", "git push origin main"},
 			commandAllow:         []string{"terraform fmt*", "terraform validate*", "terraform plan*", "pytest*", "npm test*"},
 		}
+	case "cavra-cloud-iam":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", "**/secrets.*", "**/*.pem"},
+			requireApprovalWrite: []string{"**/iam/**", "**/roles/**", "**/policies/**"},
+			commandBlock:         []string{"az role assignment create*", "aws iam create-access-key*", "aws iam attach-role-policy*", "gcloud projects add-iam-policy-binding*", "terraform apply*"},
+			commandAllow:         []string{"terraform plan*", "aws iam get*", "az role assignment list*", "gcloud projects get-iam-policy*"},
+		}
+	case "cavra-kubernetes-prod":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", "**/kubeconfig", "**/secrets.*"},
+			requireApprovalWrite: []string{"**/rbac/**", "**/clusterrole*.yaml", "**/prod/**"},
+			commandBlock:         []string{"kubectl delete*", "kubectl apply*--context*prod*", "git push origin main"},
+			commandAllow:         []string{"kubectl diff*", "kubectl get*", "kubectl describe*", "pytest*"},
+		}
+	case "cavra-terraform-prod":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", "**/*.tfvars", "**/terraform.tfstate", "**/.terraform/providers/**", "**/secrets.*"},
+			blockWrite:           []string{".github/workflows/**", "**/.terraform/**", "**/modules/**", "**/backend.tf"},
+			requireApprovalWrite: []string{"**/main.tf", "**/providers.tf", "**/variables.tf", "**/outputs.tf"},
+			commandBlock:         []string{"terraform apply*", "tofu apply*", "terraform destroy*", "tofu destroy*", "terraform login*", "terraform console*"},
+			commandAllow:         []string{"terraform fmt*", "terraform validate*", "terraform plan*", "terraform show*", "terraform state list*", "tofu fmt*", "tofu validate*", "tofu plan*", "git*", "grep*", "cat*"},
+		}
+	case "cavra-github-enterprise":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", "**/secrets.*", ".github/dependabot.yml"},
+			requireApprovalWrite: []string{".github/workflows/**", ".github/CODEOWNERS"},
+			commandBlock:         []string{"git push origin main", "git push --force*", "gh pr merge*--admin*"},
+			commandAllow:         []string{"git status*", "git diff*", "gh pr create*", "pytest*"},
+		}
+	case "cavra-owasp-llm-agentic":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", "**/secrets.*", "**/*.pem"},
+			requireApprovalWrite: []string{"**/plugins/**", "**/tools/**", "**/mcp/**"},
+			commandBlock:         []string{"curl *|*sh*", "wget *|*sh*", "terraform apply*", "git push origin main"},
+			commandAllow:         []string{"terraform plan*", "pytest*", "npm test*"},
+			mcpAllowedServers:    []string{"github-enterprise", "jira-enterprise"},
+			mcpBlockUnknown:      true,
+		}
+	case "cavra-agentic-delivery":
+		return Policy{
+			id:                   pack,
+			blockRead:            []string{".env", ".env.*", "**/secrets.*", "**/*credential*", "**/*token*"},
+			requireApprovalWrite: []string{".github/workflows/**", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/agents/**", "src/cavra/runtime.py", "src/cavra/policy_engine.py", "src/cavra/evidence.py", "policies/**", "schemas/**", "proto/**"},
+			commandBlock:         []string{"git push origin main", "git push --force*", "gh pr merge*", "gh repo edit*", "gh api repos/*/branches/main/protection*", "gh api repos/* --method PATCH*", "rm -rf .git", "security find-generic-password*"},
+			commandAllow:         []string{"git status*", "git diff*", "git branch*", "git checkout -b agent/*", "git switch -c agent/*", "gh pr create*", "gh pr view*", "python3 -m pytest*", "pytest*", "ruff*", "cavra policy validate*", "cavra evidence verify*"},
+			mcpAllowedServers:    []string{"github", "filesystem"},
+			mcpBlockUnknown:      true,
+		}
 	case "cavra-mcp-enterprise":
 		return Policy{
 			id:                   pack,
