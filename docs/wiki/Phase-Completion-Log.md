@@ -1301,4 +1301,22 @@ Validation:
 - `cd go/cavra-runtime && go test ./...`
 - `python3 -m json.tool go/cavra-runtime/testdata/release_governance_records.json`
 
-Recommended next issue: continue broadening generated enforcement contracts around release governance evidence payloads.
+Recommended next issue: delivered below as typed release governance enforcement contracts.
+
+## Phase 7 Typed Release Governance Enforcement Contracts
+
+Status: complete for the current public-safe release governance contract slice.
+
+Completed implementation:
+- Added `ReleaseGovernanceEvidence` to `proto/cavra/enforcement/v1/enforcement.proto` for public-safe release metadata fields including approval state, delivery status, alert level, drift status, handoff status, and count-based risk signals.
+- Regenerated `go/cavra-runtime/enforcement/v1/contracts.go` with typed release-governance payload support and conversion into runtime release-governance records.
+- Added contract-level fixtures for approved promotion execution, failed connector delivery, and critical inventory freshness report requests.
+- Added Go contract tests that validate protobuf fields and evaluate typed release-governance contract fixtures through the runtime.
+- Updated README, Go contract docs, roadmap docs, feature inventory, and wiki source.
+
+Validation:
+- `cd go/cavra-runtime && go test ./...`
+- `python3 scripts/generate_go_enforcement_contracts.py`
+- `python3 -m json.tool go/cavra-runtime/testdata/release_governance_contracts.json`
+
+Recommended next issue: add daemon and CI runner examples for typed release governance enforcement requests.

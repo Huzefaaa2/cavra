@@ -57,4 +57,4 @@ Required checks convert CAVRA from advisory tooling into a merge gate. Enterpris
 
 ## Next
 
-The next recommended implementation step is continued generated enforcement contracts around release governance evidence payloads.
+The next recommended implementation step is daemon and CI runner examples for typed release governance enforcement requests.

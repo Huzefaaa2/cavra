@@ -54,4 +54,4 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 ## Next Recommended Work
 
-1. Continue broadening generated enforcement contracts around release governance evidence payloads.
+1. Add daemon and CI runner examples for typed release governance enforcement requests.

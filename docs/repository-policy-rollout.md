@@ -68,4 +68,4 @@ Enterprises adopting AI coding agents need a central answer to: which repositori
 
 ## Next Work
 
-The next recommended step is continued generated enforcement contracts around release governance evidence payloads.
+The next recommended step is daemon and CI runner examples for typed release governance enforcement requests.

@@ -32,4 +32,4 @@ The boundary endpoint reports whether the console/API topology is ready for sign
 
 ## Next
 
-The next recommended work is continued generated enforcement contracts around release governance evidence payloads.
+The next recommended work is daemon and CI runner examples for typed release governance enforcement requests.
