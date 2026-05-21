@@ -14,6 +14,7 @@ Rollback drill scheduling requires:
 - `next_due_at` is present, or CAVRA can derive the next due date from latest drill history plus `interval_days`.
 - Owners and notification providers are configured.
 - A runbook reference is present.
+- Optional `owner_routes`, `maintenance_windows`, and `owner_calendars` contain public-safe routing metadata only.
 
 The public schedule schema is:
 
@@ -27,6 +28,15 @@ The public schedule schema is:
   "next_due_at": "2026-06-20T15:40:00Z",
   "owners": ["release-governance"],
   "notification_providers": ["slack", "teams"],
+  "owner_routes": {
+    "release-governance": {
+      "providers": ["slack", "teams"],
+      "acknowledgement_minutes": 30,
+      "escalation_owner": "platform-lead"
+    }
+  },
+  "maintenance_windows": [],
+  "owner_calendars": {},
   "runbook_ref": "docs/go-backend-rollback-drill-scheduling.md"
 }
 ```
@@ -63,6 +73,7 @@ cavra runtime go-rollback-drill-notification-plan \
   --mode promoted \
   --rollback-drill-history-path /etc/cavra/go-backend-rollback-drills.json \
   --rollback-drill-schedule-path /etc/cavra/go-backend-rollback-drill-schedule.json \
+  --routing-policy /etc/cavra/go-backend-rollback-drill-routing.json \
   --provider slack \
   --json
 ```
@@ -92,9 +103,10 @@ curl -X POST http://127.0.0.1:8000/runtime/go-pilot/rollback-drill-notifications
   -d '{"provider":"slack","retries":2}'
 ```
 
-The delivery endpoint builds `cavra.go-backend-pilot.rollback-drill-notification-plan.v1`, emits `cavra.go_backend.rollback_drill.notification`, and indexes redacted connector delivery evidence as `release-connector-delivery` with source `go_backend_rollback_drill_notification`.
+The delivery endpoint builds `cavra.go-backend-pilot.rollback-drill-notification-plan.v1`, applies optional owner routing, maintenance windows, and owner calendars from `routing_policy`, emits `cavra.go_backend.rollback_drill.notification`, and indexes redacted connector delivery evidence as `release-connector-delivery` with source `go_backend_rollback_drill_notification`.
 
 Acknowledgement and escalation follow-up is documented in [Go Backend Rollback Drill Notification Escalation](go-backend-rollback-drill-notification-escalation.md).
+Owner routing and maintenance-window behavior is documented in [Go Backend Rollback Drill Routing](go-backend-rollback-drill-routing.md).
 
 ## Evidence Console
 
@@ -112,6 +124,7 @@ Production readiness now includes:
 - As a release manager, I can define the cadence for promoted Go backend rollback drills.
 - As an incident commander, I can see when the next Python fallback drill is due.
 - As a platform owner, I can route stale drill notifications to release governance connectors.
+- As a release owner, I can suppress drill notifications during approved maintenance windows while preserving audit metadata.
 - As an auditor, I can review schedule metadata and delivery evidence without seeing connector secrets.
 
 ## Enterprise Challenge Solved
@@ -120,4 +133,4 @@ Rollback readiness decays when teams only prove it once. CAVRA keeps rollback co
 
 ## Next Work
 
-The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.

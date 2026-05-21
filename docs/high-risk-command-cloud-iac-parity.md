@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to add calendar-aware maintenance windows and owner-specific routing policies for promoted backend rollback drills.
+The next recommended implementation step is to add Evidence Console drill notification acknowledgement and escalation drill-down views.

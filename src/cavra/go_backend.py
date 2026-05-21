@@ -567,11 +567,15 @@ def build_go_rollback_drill_notification_event(
     schedule_report: dict[str, Any],
     *,
     generated_by: str = "release-governance",
+    routing_policy: dict[str, Any] | None = None,
+    now: datetime | None = None,
 ) -> dict[str, Any]:
     schedule = schedule_report.get("schedule", {}) if isinstance(schedule_report.get("schedule"), dict) else {}
     history = schedule_report.get("history", {}) if isinstance(schedule_report.get("history"), dict) else {}
+    routing_policy = _go_rollback_drill_effective_routing_policy(schedule, routing_policy)
     status = str(schedule_report.get("status") or "not_requested")
     alert_level = "critical" if status == "needs_attention" else "warning" if status == "due_soon" else "healthy"
+    owner_routes = _go_rollback_drill_owner_routes(schedule, routing_policy, now=now)
     event = {
         "schema_version": "cavra.go-backend-pilot.rollback-drill-notification.v1",
         "product": "CAVRA",
@@ -596,6 +600,7 @@ def build_go_rollback_drill_notification_event(
         },
         "owners": schedule.get("owners", []),
         "notification_providers": schedule.get("notification_providers", []),
+        "owner_routes": owner_routes,
         "runbook_ref": schedule.get("runbook_ref", ""),
         "evidence_refs": history.get("evidence_refs", []),
         "controls": [
@@ -640,20 +645,47 @@ def build_go_rollback_drill_notification_plan(
     available_providers: list[str] | None = None,
     generated_by: str = "release-governance",
     force: bool = False,
+    routing_policy: dict[str, Any] | None = None,
+    now: datetime | None = None,
 ) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
     schedule = schedule_report.get("schedule", {}) if isinstance(schedule_report.get("schedule"), dict) else {}
+    routing_policy = _go_rollback_drill_effective_routing_policy(schedule, routing_policy)
     configured = [str(item) for item in schedule.get("notification_providers", []) if isinstance(item, str)]
     available = [str(item) for item in available_providers or [] if item]
     eligible = configured or available or ["webhook"]
+    requested = []
     if requested_provider != "all":
         requested = [item.strip() for item in str(requested_provider).split(",") if item.strip()]
         eligible = [item for item in eligible if item in requested]
-    selected = eligible if force or schedule_report.get("status") in {"needs_attention", "due_soon"} else []
+    should_notify = force or schedule_report.get("status") in {"needs_attention", "due_soon"}
+    owner_routes = _go_rollback_drill_owner_routes(
+        schedule,
+        routing_policy,
+        eligible_providers=eligible,
+        requested_providers=requested,
+        now=now,
+    )
+    route_decisions = []
+    for route in owner_routes:
+        action = "deliver" if should_notify else "suppress"
+        reason = "rollback drill is stale or due soon"
+        if not should_notify:
+            reason = "rollback drill schedule is healthy; notification suppressed"
+        elif route.get("maintenance_window"):
+            action = "suppress"
+            reason = "matching maintenance window is active"
+        elif not route.get("owner_availability", {}).get("available", True):
+            action = "suppress"
+            reason = str(route.get("owner_availability", {}).get("reason") or "owner calendar marks route unavailable")
+        route_decisions.append(route | {"action": action, "reason": reason})
+    selected = _unique_sorted(item["provider"] for item in route_decisions if item["action"] == "deliver")
+    suppressed = _unique_sorted(item["provider"] for item in route_decisions if item["action"] == "suppress")
     material = json.dumps(
         {
             "schedule_id": schedule.get("schedule_id", ""),
             "status": schedule_report.get("status", ""),
-            "selected": selected,
+            "route_decisions": route_decisions,
             "generated_by": generated_by,
         },
         sort_keys=True,
@@ -671,10 +703,28 @@ def build_go_rollback_drill_notification_plan(
         "eligible_providers": eligible,
         "selected_providers": selected,
         "acknowledgement_required_providers": selected,
-        "suppressed_providers": [provider for provider in eligible if provider not in selected],
+        "suppressed_providers": suppressed or [provider for provider in eligible if provider not in selected],
         "owners": schedule.get("owners", []),
+        "owner_routes": owner_routes,
+        "route_decisions": route_decisions,
+        "deliverable_route_count": len([item for item in route_decisions if item["action"] == "deliver"]),
+        "suppressed_route_count": len([item for item in route_decisions if item["action"] == "suppress"]),
+        "maintenance_suppressed_count": len([item for item in route_decisions if item["action"] == "suppress" and item.get("maintenance_window")]),
+        "calendar_suppressed_count": len(
+            [
+                item
+                for item in route_decisions
+                if item["action"] == "suppress" and not item.get("owner_availability", {}).get("available", True)
+            ]
+        ),
         "next_due_at": schedule.get("next_due_at", ""),
-        "reason": "rollback drill is stale or due soon" if selected else "rollback drill schedule is healthy; notification suppressed",
+        "reason": "rollback drill is stale or due soon" if selected else "rollback drill notification routes are suppressed",
+        "controls": [
+            "routing-policy-derived-from-public-safe-owner-metadata",
+            "maintenance-windows-contain-no-provider-credentials",
+            "owner-calendars-are-public-safe-availability-metadata",
+            "notification-plan-does-not-mutate-runtime-mode",
+        ],
     }
 
 
@@ -692,6 +742,10 @@ def build_go_rollback_drill_notification_plan_metadata(plan: dict[str, Any]) -> 
         "alert_level": plan.get("alert_level"),
         "selected_providers": plan.get("selected_providers", []),
         "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
+        "deliverable_route_count": plan.get("deliverable_route_count", 0),
+        "suppressed_route_count": plan.get("suppressed_route_count", 0),
+        "maintenance_suppressed_count": plan.get("maintenance_suppressed_count", 0),
+        "calendar_suppressed_count": plan.get("calendar_suppressed_count", 0),
         "plan": plan,
     }
 
@@ -862,7 +916,7 @@ def build_go_rollback_drill_notification_escalation_plan(
 ) -> dict[str, Any]:
     now = now or datetime.now(timezone.utc)
     policy = policy or {}
-    acknowledgement_minutes = _positive_int(
+    default_acknowledgement_minutes = _positive_int(
         policy.get("acknowledgement_minutes")
         or (policy.get("default_slo", {}) if isinstance(policy.get("default_slo"), dict) else {}).get("acknowledgement_minutes"),
         60,
@@ -887,18 +941,43 @@ def build_go_rollback_drill_notification_escalation_plan(
         age_minutes = None
         if created is not None:
             age_minutes = round((now - created).total_seconds() / 60, 2)
-        for provider in plan.get("acknowledgement_required_providers", []):
-            key = (str(plan.get("schedule_id") or ""), str(provider))
+        plan_routes = plan.get("route_decisions", [])
+        source_routes = (
+            [route for route in plan_routes if isinstance(route, dict) and route.get("action") == "deliver"]
+            if isinstance(plan_routes, list)
+            else []
+        )
+        if not source_routes:
+            source_routes = [
+                {
+                    "schedule_id": str(plan.get("schedule_id") or ""),
+                    "plan_id": plan.get("plan_id", ""),
+                    "provider": str(provider),
+                    "owner": ", ".join(str(item) for item in plan.get("owners", []) if item) or "release-governance",
+                    "acknowledgement_minutes": default_acknowledgement_minutes,
+                }
+                for provider in plan.get("acknowledgement_required_providers", [])
+            ]
+        for source_route in source_routes:
+            provider = str(source_route.get("provider") or "")
+            owner = str(source_route.get("owner") or "release-governance")
+            key = (str(plan.get("schedule_id") or source_route.get("schedule_id") or ""), provider)
             ack = latest_ack_by_route.get(key)
             ack_state = str(ack.get("acknowledgement_state") or "") if ack else ""
             acknowledged = ack_state in {"acknowledged", "resolved"}
+            acknowledgement_minutes = _go_rollback_drill_owner_acknowledgement_minutes(
+                policy,
+                owner=owner,
+                provider=provider,
+                default=source_route.get("acknowledgement_minutes", default_acknowledgement_minutes),
+            )
             breached = not acknowledged and age_minutes is not None and age_minutes >= acknowledgement_minutes
             routes.append(
                 {
                     "schedule_id": key[0],
                     "plan_id": plan.get("plan_id", ""),
                     "provider": key[1],
-                    "owner": ", ".join(str(item) for item in plan.get("owners", []) if item) or "release-governance",
+                    "owner": owner,
                     "acknowledgement_state": ack_state or "outstanding",
                     "acknowledged": acknowledged,
                     "age_minutes": age_minutes,
@@ -915,7 +994,7 @@ def build_go_rollback_drill_notification_escalation_plan(
             "generated_by": generated_by,
             "alert_level": alert_level,
             "routes": routes,
-            "acknowledgement_minutes": acknowledgement_minutes,
+            "acknowledgement_minutes": default_acknowledgement_minutes,
         },
         sort_keys=True,
     )
@@ -926,7 +1005,7 @@ def build_go_rollback_drill_notification_escalation_plan(
         "generated_at": now.isoformat(),
         "generated_by": generated_by,
         "alert_level": alert_level,
-        "acknowledgement_minutes": acknowledgement_minutes,
+        "acknowledgement_minutes": default_acknowledgement_minutes,
         "route_count": len(routes),
         "outstanding_count": len(outstanding_routes),
         "breached_count": len(breached_routes),
@@ -1498,6 +1577,12 @@ def _rollback_drill_schedule_summary(
     providers = payload.get("notification_providers", [])
     owners_valid = isinstance(owners, list) and all(isinstance(item, str) for item in owners) and bool(owners)
     providers_valid = isinstance(providers, list) and all(isinstance(item, str) for item in providers) and bool(providers)
+    owner_routes = payload.get("owner_routes", payload.get("routing_rules", []))
+    maintenance_windows = payload.get("maintenance_windows", [])
+    owner_calendars = payload.get("owner_calendars", {})
+    owner_routes_valid = owner_routes in ({}, []) or isinstance(owner_routes, (dict, list))
+    maintenance_windows_valid = isinstance(maintenance_windows, list)
+    owner_calendars_valid = isinstance(owner_calendars, dict)
     runbook_ref = str(payload.get("runbook_ref", ""))
     latest_executed = _parse_iso_datetime(str(history.get("latest_executed_at", "")))
     explicit_due = _parse_iso_datetime(str(payload.get("next_due_at", "")))
@@ -1521,6 +1606,9 @@ def _rollback_drill_schedule_summary(
         and not stale
         and owners_valid
         and providers_valid
+        and owner_routes_valid
+        and maintenance_windows_valid
+        and owner_calendars_valid
         and bool(runbook_ref)
     )
     messages = []
@@ -1534,6 +1622,12 @@ def _rollback_drill_schedule_summary(
         messages.append("rollback drill schedule owners must be a non-empty list of strings")
     if not providers_valid:
         messages.append("rollback drill notification_providers must be a non-empty list of strings")
+    if not owner_routes_valid:
+        messages.append("rollback drill owner_routes must be an object or list when configured")
+    if not maintenance_windows_valid:
+        messages.append("rollback drill maintenance_windows must be a list when configured")
+    if not owner_calendars_valid:
+        messages.append("rollback drill owner_calendars must be an object when configured")
     return {
         "valid": valid,
         "schema_version": schema,
@@ -1550,6 +1644,9 @@ def _rollback_drill_schedule_summary(
         "notification_routes_valid": owners_valid and providers_valid,
         "owners": owners if owners_valid else [],
         "notification_providers": providers if providers_valid else [],
+        "owner_routes": owner_routes if owner_routes_valid else [],
+        "maintenance_windows": maintenance_windows if maintenance_windows_valid else [],
+        "owner_calendars": owner_calendars if owner_calendars_valid else {},
         "runbook_ref": runbook_ref,
         "message": "; ".join(messages) if messages else "Rollback drill schedule is active and notification routes are configured.",
         "active_message": "Rollback drill schedule is active." if active else "rollback drill schedule must set status=active",
@@ -1577,6 +1674,9 @@ def _empty_drill_schedule_summary(message: str) -> dict[str, Any]:
         "notification_routes_valid": False,
         "owners": [],
         "notification_providers": [],
+        "owner_routes": [],
+        "maintenance_windows": [],
+        "owner_calendars": {},
         "runbook_ref": "",
         "message": message,
         "active_message": "rollback drill schedule is missing or inactive",
@@ -1654,6 +1754,198 @@ def _latest_go_rollback_drill_plan_by_schedule(plans: list[dict[str, Any]]) -> d
         if current is None or str(candidate.get("created_at", "")) > str(current.get("created_at", "")):
             latest[schedule_id] = candidate
     return latest
+
+
+def _go_rollback_drill_effective_routing_policy(
+    schedule: dict[str, Any],
+    routing_policy: dict[str, Any] | None,
+) -> dict[str, Any]:
+    policy = routing_policy.copy() if isinstance(routing_policy, dict) else {}
+    for key in ("owner_routes", "routing_rules", "maintenance_windows", "owner_calendars"):
+        if key not in policy and key in schedule:
+            policy[key] = schedule.get(key)
+    return policy
+
+
+def _go_rollback_drill_owner_routes(
+    schedule: dict[str, Any],
+    routing_policy: dict[str, Any],
+    *,
+    eligible_providers: list[str] | None = None,
+    requested_providers: list[str] | None = None,
+    now: datetime | None = None,
+) -> list[dict[str, Any]]:
+    now = now or datetime.now(timezone.utc)
+    owners = [str(item) for item in schedule.get("owners", []) if isinstance(item, str)]
+    if not owners:
+        owners = ["release-governance"]
+    base_providers = eligible_providers or [
+        str(item) for item in schedule.get("notification_providers", []) if isinstance(item, str)
+    ] or ["webhook"]
+    requested = {item for item in requested_providers or [] if item}
+    routes: list[dict[str, Any]] = []
+    for owner in owners:
+        owner_rule = _go_rollback_drill_owner_route_rule(routing_policy, owner)
+        providers = _go_rollback_drill_route_providers(owner_rule, base_providers)
+        if requested:
+            providers = [provider for provider in providers if provider in requested]
+        for provider in providers:
+            maintenance_window = _go_rollback_drill_matching_maintenance_window(
+                routing_policy,
+                now=now,
+                schedule_id=str(schedule.get("schedule_id") or ""),
+                provider=provider,
+                owner=owner,
+            )
+            availability = _go_rollback_drill_owner_availability(routing_policy, owner, now=now)
+            routes.append(
+                {
+                    "route_key": _go_rollback_drill_route_key(str(schedule.get("schedule_id") or ""), provider, owner),
+                    "schedule_id": str(schedule.get("schedule_id") or ""),
+                    "provider": provider,
+                    "owner": owner,
+                    "acknowledgement_minutes": _go_rollback_drill_owner_acknowledgement_minutes(
+                        routing_policy,
+                        owner=owner,
+                        provider=provider,
+                        default=owner_rule.get("acknowledgement_minutes"),
+                    ),
+                    "escalation_owner": str(owner_rule.get("escalation_owner") or owner_rule.get("manager") or owner),
+                    "maintenance_window": maintenance_window,
+                    "owner_availability": availability,
+                }
+            )
+    return routes
+
+
+def _go_rollback_drill_owner_route_rule(policy: dict[str, Any], owner: str) -> dict[str, Any]:
+    rules = policy.get("owner_routes", policy.get("routing_rules", {}))
+    if isinstance(rules, dict):
+        direct = rules.get(owner)
+        return direct.copy() if isinstance(direct, dict) else {}
+    if isinstance(rules, list):
+        selected: dict[str, Any] = {}
+        for raw in rules:
+            if not isinstance(raw, dict):
+                continue
+            owners = {str(item) for item in raw.get("owners", [])}
+            if owners and owner not in owners:
+                continue
+            selected.update(raw)
+        return selected
+    return {}
+
+
+def _go_rollback_drill_route_providers(rule: dict[str, Any], default_providers: list[str]) -> list[str]:
+    configured = rule.get("providers", rule.get("notification_providers", []))
+    if isinstance(configured, str):
+        configured = [configured]
+    providers = [str(item) for item in configured if isinstance(item, str)] if isinstance(configured, list) else []
+    return _unique_sorted(providers or default_providers)
+
+
+def _go_rollback_drill_owner_acknowledgement_minutes(
+    policy: dict[str, Any],
+    *,
+    owner: str,
+    provider: str,
+    default: Any = None,
+) -> int:
+    defaults = policy.get("default_slo") if isinstance(policy.get("default_slo"), dict) else {}
+    minutes = policy.get("acknowledgement_minutes") or defaults.get("acknowledgement_minutes") or default or 60
+    owner_rule = _go_rollback_drill_owner_route_rule(policy, owner)
+    providers = _go_rollback_drill_route_providers(owner_rule, [])
+    if owner_rule and (not providers or provider in providers):
+        minutes = owner_rule.get("acknowledgement_minutes", owner_rule.get("ack_minutes", minutes))
+    return _positive_int(minutes, 60)
+
+
+def _go_rollback_drill_matching_maintenance_window(
+    policy: dict[str, Any],
+    *,
+    now: datetime,
+    schedule_id: str,
+    provider: str,
+    owner: str,
+) -> dict[str, Any] | None:
+    windows = policy.get("maintenance_windows", policy.get("suppression_windows", []))
+    if not isinstance(windows, list):
+        return None
+    for raw in windows:
+        if not isinstance(raw, dict):
+            continue
+        start = _parse_iso_datetime(str(raw.get("start_at") or raw.get("starts_at") or ""))
+        end = _parse_iso_datetime(str(raw.get("end_at") or raw.get("ends_at") or ""))
+        if start is None or end is None or not (start <= now <= end):
+            continue
+        if not _go_rollback_drill_window_matches(raw, schedule_id=schedule_id, provider=provider, owner=owner):
+            continue
+        return {
+            "window_id": str(raw.get("window_id") or raw.get("id") or "maintenance-window"),
+            "start_at": start.isoformat(),
+            "end_at": end.isoformat(),
+            "reason": str(raw.get("reason") or raw.get("description") or "maintenance window"),
+        }
+    return None
+
+
+def _go_rollback_drill_window_matches(
+    window: dict[str, Any],
+    *,
+    schedule_id: str,
+    provider: str,
+    owner: str,
+) -> bool:
+    matchers = {
+        "schedule_ids": schedule_id,
+        "providers": provider,
+        "owners": owner,
+    }
+    for field, value in matchers.items():
+        configured = {str(item).lower() for item in window.get(field, []) if isinstance(item, str)}
+        if configured and str(value).lower() not in configured:
+            return False
+    return True
+
+
+def _go_rollback_drill_owner_availability(
+    policy: dict[str, Any],
+    owner: str,
+    *,
+    now: datetime,
+) -> dict[str, Any]:
+    calendars = policy.get("owner_calendars", policy.get("calendars", {}))
+    if not isinstance(calendars, dict):
+        return {"available": True, "reason": "no owner calendar configured"}
+    raw = calendars.get(owner)
+    if not isinstance(raw, dict):
+        return {"available": True, "reason": "no owner calendar configured"}
+    unavailable = raw.get("unavailable_windows", raw.get("blackout_windows", []))
+    if isinstance(unavailable, list):
+        for window in unavailable:
+            if not isinstance(window, dict):
+                continue
+            start = _parse_iso_datetime(str(window.get("start_at") or window.get("starts_at") or ""))
+            end = _parse_iso_datetime(str(window.get("end_at") or window.get("ends_at") or ""))
+            if start is not None and end is not None and start <= now <= end:
+                return {
+                    "available": False,
+                    "reason": str(window.get("reason") or "owner calendar unavailable"),
+                    "start_at": start.isoformat(),
+                    "end_at": end.isoformat(),
+                }
+    if raw.get("available") is False:
+        return {"available": False, "reason": str(raw.get("reason") or "owner calendar unavailable")}
+    return {"available": True, "reason": str(raw.get("reason") or "owner calendar available")}
+
+
+def _go_rollback_drill_route_key(schedule_id: str, provider: str, owner: str) -> str:
+    material = "|".join([schedule_id, provider, owner])
+    return f"gordroute-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+
+
+def _unique_sorted(values: Any) -> list[str]:
+    return sorted({str(item) for item in values if item})
 
 
 def _positive_number(value: Any) -> bool:

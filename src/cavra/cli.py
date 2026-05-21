@@ -477,11 +477,13 @@ def runtime_go_rollback_drill_notification_plan(
     mode: Annotated[str, typer.Option(help="disabled, shadow, enforce, or promoted.")] = "disabled",
     rollback_drill_history_path: Annotated[str, typer.Option(help="Go rollback drill history JSON path.")] = "",
     rollback_drill_schedule_path: Annotated[str, typer.Option(help="Go rollback drill schedule JSON path.")] = "",
+    routing_policy: Annotated[Optional[Path], typer.Option(help="Optional owner routing, calendar, and maintenance window policy JSON/YAML.")] = None,
     provider: Annotated[str, typer.Option(help="Connector provider to select, or all.")] = "all",
     force: Annotated[bool, typer.Option(help="Select providers even when the schedule is healthy.")] = False,
     json_output: bool = typer.Option(False, "--json", help="Print notification plan JSON."),
 ) -> None:
     """Build a public-safe stale rollback drill notification plan."""
+    policy = load_connector_config(routing_policy) if routing_policy else None
     report = go_rollback_drill_schedule_report(
         GoBackendConfig(
             mode=mode,
@@ -494,8 +496,9 @@ def runtime_go_rollback_drill_notification_plan(
         requested_provider=provider,
         generated_by="cli",
         force=force,
+        routing_policy=policy,
     )
-    event = build_go_rollback_drill_notification_event(report, generated_by="cli")
+    event = build_go_rollback_drill_notification_event(report, generated_by="cli", routing_policy=policy)
     payload = {"schedule": report, "plan": plan, "event": event}
     if json_output:
         typer.echo(json.dumps(payload, indent=2))
@@ -541,12 +544,15 @@ def runtime_go_rollback_drill_notification_ack(
 @runtime_app.command("go-rollback-drill-escalation-plan")
 def runtime_go_rollback_drill_escalation_plan(
     acknowledgement_minutes: Annotated[int, typer.Option(help="Minutes before outstanding notifications breach.")] = 60,
+    routing_policy: Annotated[Optional[Path], typer.Option(help="Optional owner routing and acknowledgement SLO policy JSON/YAML.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print escalation plan JSON."),
 ) -> None:
     """Build an empty public-safe rollback drill notification escalation plan template."""
+    policy = load_connector_config(routing_policy) if routing_policy else {}
+    policy.setdefault("acknowledgement_minutes", acknowledgement_minutes)
     plan = build_go_rollback_drill_notification_escalation_plan(
         [],
-        policy={"acknowledgement_minutes": acknowledgement_minutes},
+        policy=policy,
         generated_by="cli",
     )
     if json_output:

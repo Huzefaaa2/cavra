@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go backend rollback drill routing</title>
+  <desc id="desc">Owner routing, maintenance windows, owner calendars, and notification route decisions for promoted Go backend rollback drills.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071113; }
+      .panel { fill: #101a1d; stroke: #58d6bf; stroke-width: 2; rx: 12; }
+      .panel2 { fill: #132327; stroke: #9cc8ff; stroke-width: 2; rx: 12; }
+      .panel3 { fill: #18211d; stroke: #ffd166; stroke-width: 2; rx: 12; }
+      .text { fill: #eef7f6; font-family: Arial, sans-serif; }
+      .muted { fill: #b6c7c8; font-family: Arial, sans-serif; }
+      .accent { fill: #6fe3c1; font-family: Arial, sans-serif; font-weight: 700; }
+      .line { stroke: #6fe3c1; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .warn { stroke: #ffd166; stroke-width: 3; fill: none; marker-end: url(#arrowWarn); }
+      .small { font-size: 18px; }
+      .body { font-size: 21px; }
+      .head { font-size: 28px; font-weight: 700; }
+      .title { font-size: 42px; font-weight: 800; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6fe3c1" />
+    </marker>
+    <marker id="arrowWarn" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#ffd166" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="720" />
+  <text x="60" y="70" class="text title">CAVRA Rollback Drill Routing</text>
+  <text x="60" y="105" class="muted body">Public-safe owner routing, maintenance windows, and calendar-aware suppression</text>
+
+  <rect x="60" y="155" width="260" height="150" class="panel" />
+  <text x="85" y="200" class="text head">Drill Schedule</text>
+  <text x="85" y="235" class="muted small">owners</text>
+  <text x="85" y="262" class="muted small">notification providers</text>
+  <text x="85" y="289" class="muted small">next due date</text>
+
+  <rect x="455" y="135" width="300" height="190" class="panel2" />
+  <text x="485" y="178" class="text head">Routing Policy</text>
+  <text x="485" y="215" class="muted small">owner route providers</text>
+  <text x="485" y="242" class="muted small">acknowledgement SLOs</text>
+  <text x="485" y="269" class="muted small">escalation owners</text>
+  <text x="485" y="296" class="muted small">public-safe only</text>
+
+  <rect x="865" y="135" width="280" height="190" class="panel3" />
+  <text x="895" y="178" class="text head">Calendars</text>
+  <text x="895" y="215" class="muted small">maintenance windows</text>
+  <text x="895" y="242" class="muted small">owner availability</text>
+  <text x="895" y="269" class="muted small">change freeze reasons</text>
+  <text x="895" y="296" class="muted small">no private exports</text>
+
+  <rect x="305" y="425" width="295" height="150" class="panel" />
+  <text x="335" y="470" class="text head">Route Decisions</text>
+  <text x="335" y="508" class="muted small">deliver</text>
+  <text x="335" y="535" class="muted small">suppress: maintenance</text>
+  <text x="335" y="562" class="muted small">suppress: owner calendar</text>
+
+  <rect x="755" y="425" width="300" height="150" class="panel2" />
+  <text x="785" y="470" class="text head">Evidence</text>
+  <text x="785" y="508" class="muted small">selected providers</text>
+  <text x="785" y="535" class="muted small">suppression counts</text>
+  <text x="785" y="562" class="muted small">owner-specific SLOs</text>
+
+  <path class="line" d="M320 230 C370 230 395 230 455 230" />
+  <path class="line" d="M755 230 C805 230 830 230 865 230" />
+  <path class="line" d="M605 325 C570 365 515 390 470 425" />
+  <path class="warn" d="M1005 325 C980 370 940 395 905 425" />
+  <path class="line" d="M600 500 C655 500 690 500 755 500" />
+
+  <text x="360" y="205" class="accent small">schedule context</text>
+  <text x="775" y="205" class="accent small">policy filters</text>
+  <text x="610" y="390" class="accent small">per owner/provider</text>
+  <text x="930" y="390" class="accent small">suppress when active</text>
+  <text x="630" y="485" class="accent small">audit metadata</text>
+
+  <rect x="60" y="635" width="1085" height="42" fill="#0d171a" stroke="#29444a" rx="10" />
+  <text x="85" y="663" class="muted small">Secrets, private connector URLs, customer identifiers, and private calendar exports stay outside the Community repository.</text>
+</svg>

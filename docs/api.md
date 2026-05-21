@@ -86,7 +86,7 @@ Read-only operations endpoints:
 - `GET /operations/retention-plan`: return a retention, backup, and restore-test plan for persistent API stores. Optional query parameters are `retention_days`, `classification`, and `legal_hold`.
 - `GET /deployment/production-readiness`: validate production controls for OIDC, RBAC, CORS, evidence artifact retrieval, policy catalog availability, persistent store presence, optional Go backend promotion, rollback, drill history, and drill schedule readiness.
 - `GET /runtime/go-pilot/rollback-drill-schedule`: inspect recurring rollback drill cadence, next due date, stale state, owners, and notification routes.
-- `POST /runtime/go-pilot/rollback-drill-notifications/deliver`: deliver stale or due-soon rollback drill notifications through configured connectors and index redacted delivery evidence.
+- `POST /runtime/go-pilot/rollback-drill-notifications/deliver`: deliver stale or due-soon rollback drill notifications through configured connectors and index redacted delivery evidence; accepts optional public-safe `routing_policy` with owner routes, maintenance windows, and owner calendars.
 - `POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`: record public-safe acknowledgement, dismissal, escalation, or resolution metadata for a drill notification route.
 - `GET /runtime/go-pilot/rollback-drill-notifications`: search rollback drill notification plans, redacted delivery records, acknowledgements, and escalation plans.
 - `GET /runtime/go-pilot/rollback-drill-notifications/dashboard`: summarize drill notification delivery, acknowledgement, and outstanding route counts.
