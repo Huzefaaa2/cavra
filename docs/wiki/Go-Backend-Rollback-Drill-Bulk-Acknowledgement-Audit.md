@@ -9,7 +9,7 @@ CAVRA now supports bulk rollback drill acknowledgement actions and exportable ac
 - `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package` for producing and persisting a public-safe route acknowledgement audit package.
 - Audit packages that include route state, owner, provider, latest acknowledgement actor, acknowledgement timestamp, external reference, and operator notes.
 - Local sample-mode bulk acknowledgement and audit export behavior for the Community Edition sandbox when the API is unavailable.
-- Roadmap and wiki updates that move the next implementation target to acknowledgement audit delivery history filters and delivery health dashboards.
+- Roadmap and wiki updates that move the next implementation target to acknowledgement audit delivery retry automation and scheduled worker execution.
 
 ## How To Use
 
@@ -57,4 +57,4 @@ See `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.
+The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.

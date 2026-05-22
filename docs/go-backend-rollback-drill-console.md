@@ -55,4 +55,4 @@ See `docs/diagrams/go-backend-rollback-drill-console.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.
+The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.
