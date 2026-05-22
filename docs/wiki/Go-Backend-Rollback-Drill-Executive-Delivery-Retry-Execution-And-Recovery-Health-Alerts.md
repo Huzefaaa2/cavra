@@ -44,6 +44,6 @@ This release adds operational assurance for recovery retry health and executive 
 
 See `go-backend-rollback-drill-executive-delivery-retry-execution-and-recovery-health-alerts.svg`.
 
-## Next Work
+## Follow-On Work Completed
 
-Closed-loop executive delivery retry health reporting and recovery health alert retry planning.
+Closed-loop executive delivery retry health reporting and recovery health alert retry planning are documented in `Go-Backend-Rollback-Drill-Executive-Retry-Health-And-Recovery-Health-Alert-Retry.md`.
