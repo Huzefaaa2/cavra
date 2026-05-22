@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="780" viewBox="0 0 1360 780" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA recovery health alert retry worker and executive retry health alerts</title>
+  <desc id="desc">Public-safe flow for retrying failed recovery health alert delivery and sending executive retry health alerts.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071112; }
+      .panel { fill: #0f1a1d; stroke: #28424a; stroke-width: 2; }
+      .box { fill: #12272a; stroke: #71e3c7; stroke-width: 2; rx: 12; }
+      .box2 { fill: #172a33; stroke: #8bd9ff; stroke-width: 2; rx: 12; }
+      .box3 { fill: #2b2630; stroke: #f6c85f; stroke-width: 2; rx: 12; }
+      .title { fill: #f5fbfb; font-family: Inter, Arial, sans-serif; font-size: 30px; font-weight: 700; }
+      .label { fill: #79e1c8; font-family: Inter, Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .text { fill: #edf7f7; font-family: Inter, Arial, sans-serif; font-size: 17px; }
+      .small { fill: #b7c8cb; font-family: Inter, Arial, sans-serif; font-size: 13px; }
+      .warn { fill: #f6c85f; font-family: Inter, Arial, sans-serif; font-size: 14px; font-weight: 700; }
+      .arrow { stroke: #79e1c8; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#79e1c8" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1360" height="780" />
+  <text x="48" y="58" class="title">Recovery Health Alert Retry Worker And Executive Retry Health Alerts</text>
+  <text x="48" y="86" class="small">Governed redelivery and executive escalation for rollback drill recovery notification reliability.</text>
+
+  <rect x="40" y="120" width="610" height="535" class="panel" rx="18" />
+  <text x="70" y="156" class="label">Recovery Health Alert Redelivery</text>
+  <rect x="80" y="190" width="230" height="72" class="box" />
+  <text x="102" y="220" class="text">Failed alert delivery</text>
+  <text x="102" y="246" class="small">redacted connector metadata</text>
+  <rect x="370" y="190" width="220" height="72" class="box2" />
+  <text x="392" y="220" class="text">Retry plan</text>
+  <text x="392" y="246" class="small">retry, wait, suppress</text>
+  <path d="M310 226 L370 226" class="arrow" />
+  <rect x="80" y="318" width="230" height="72" class="box3" />
+  <text x="102" y="348" class="text">Retry worker</text>
+  <text x="102" y="374" class="small">dry-run or execute=true</text>
+  <path d="M195 318 L195 262" class="arrow" />
+  <rect x="370" y="318" width="220" height="72" class="box" />
+  <text x="392" y="348" class="text">Execution record</text>
+  <text x="392" y="374" class="small">delivered, failed, skipped</text>
+  <path d="M310 354 L370 354" class="arrow" />
+  <rect x="80" y="465" width="510" height="90" class="box2" />
+  <text x="102" y="500" class="text">Evidence Console</text>
+  <text x="102" y="526" class="small">Run Health Alert Retry creates public-safe worker, delivery, and execution evidence.</text>
+  <path d="M480 390 L480 465" class="arrow" />
+
+  <rect x="710" y="120" width="610" height="535" class="panel" rx="18" />
+  <text x="740" y="156" class="label">Executive Retry Health Alerting</text>
+  <rect x="750" y="190" width="230" height="72" class="box" />
+  <text x="772" y="220" class="text">Retry health report</text>
+  <text x="772" y="246" class="small">missed workers, failures</text>
+  <rect x="1040" y="190" width="220" height="72" class="box3" />
+  <text x="1062" y="220" class="text">Alert plan</text>
+  <text x="1062" y="246" class="small">selected providers</text>
+  <path d="M980 226 L1040 226" class="arrow" />
+  <rect x="750" y="318" width="230" height="72" class="box2" />
+  <text x="772" y="348" class="text">Connector delivery</text>
+  <text x="772" y="374" class="small">redacted status only</text>
+  <path d="M1150 262 L865 318" class="arrow" />
+  <rect x="1040" y="318" width="220" height="72" class="box" />
+  <text x="1062" y="348" class="text">Acknowledgement</text>
+  <text x="1062" y="374" class="small">review outcome</text>
+  <path d="M980 354 L1040 354" class="arrow" />
+  <rect x="750" y="465" width="510" height="90" class="box2" />
+  <text x="772" y="500" class="text">Executive Health Alert Dashboard</text>
+  <text x="772" y="526" class="small">Tracks alert plans, acknowledgements, failed deliveries, and outstanding reviews.</text>
+  <path d="M1150 390 L1150 465" class="arrow" />
+
+  <rect x="155" y="690" width="1050" height="50" class="box" />
+  <text x="184" y="722" class="warn">Open-core boundary: connector credentials, private enterprise routing, and SaaS license validation remain outside this public Community repo.</text>
+</svg>
