@@ -13,6 +13,10 @@ The repository workflow `.github/workflows/cavra-governance.yml` is now structur
 
 To enforce it on `main`, add `cavra-required-check` to required status checks in GitHub branch protection.
 
+For AI coding agents, this check is part of the anti-bypass model documented in `AI-Agent-Enforcement-And-Anti-Bypass-Model.md`. Agent prompts and local wrappers are not enough; protected branches and required checks must reject work that lacks CAVRA evidence.
+
+Run `cavra agent enforcement-readiness --json` to inspect whether the repository has the expected CAVRA enforcement files and exported platform controls.
+
 ## Repository Setup
 
 1. Go to repository settings.

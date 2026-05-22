@@ -23,6 +23,12 @@ CAVRA uses transparent AI engineering agents to build and govern CAVRA itself. T
 - Require human approval for protected branches, security settings, policy relaxations, and releases.
 - Do not create fake human identities or misleading authorship.
 
+## Anti-Bypass Enforcement
+
+Transparent automation is necessary but not sufficient. Agents must not be trusted to voluntarily use CAVRA when they also hold raw credentials or direct write access. Production repositories should enforce CAVRA through protected branches, required `cavra-required-check`, PR attestation, governed CI runners, signed release evidence, and deployment approvals.
+
+See `AI-Agent-Enforcement-And-Anti-Bypass-Model.md` for the full enforcement baseline and bypass scenarios.
+
 ## Enterprise Value
 
 This model demonstrates CAVRA's core promise: enterprises can adopt autonomous coding agents without losing control over identity, authorization, evidence, approvals, and audit.

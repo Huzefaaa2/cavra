@@ -22,6 +22,8 @@ CAVRA's transparent engineering agents operate through GitHub while CAVRA remain
 - Generate evidence bundles and PR attestations.
 - Preserve transparent bot identity and audit trails.
 
+Anti-bypass enforcement is handled at boundaries outside the orchestrator: protected branches, required CAVRA checks, PR attestation, governed runner identity, signed release evidence, and deployment approvals. The detailed baseline is documented in `AI-Agent-Enforcement-And-Anti-Bypass-Model.md`.
+
 ## Diagram
 
 See `agent-orchestration.svg` in the Wiki files and `docs/diagrams/agent-orchestration.svg` in the repository.

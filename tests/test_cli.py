@@ -68,6 +68,16 @@ def test_runtime_go_pilot_readiness_cli_reports_disabled() -> None:
     assert payload["status"] == "disabled"
 
 
+def test_agent_enforcement_readiness_cli_reports_schema() -> None:
+    result = runner.invoke(app, ["agent", "enforcement-readiness", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.agent-enforcement-readiness.v1"
+    assert payload["required_check_name"] == "cavra-required-check"
+    assert payload["status"] in {"ready", "needs_attention", "blocked"}
+
+
 def test_runtime_go_deployment_readiness_cli_reports_not_configured() -> None:
     result = runner.invoke(app, ["runtime", "go-deployment-readiness", "--json"])
 

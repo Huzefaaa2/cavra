@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra.agent import AgentSessionManager
+from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -717,6 +718,34 @@ def generate_attestation(
     else:
         console.print(f"[red]✗[/red] Unknown format: {format}")
         raise typer.Exit(code=1)
+
+
+@agent_app.command("enforcement-readiness")
+def agent_enforcement_readiness(
+    repo_root: Annotated[Path, typer.Option(help="Repository root to inspect.")] = Path("."),
+    settings: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional JSON export of branch protection, required checks, and security checks."),
+    ] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print the full readiness report JSON."),
+) -> None:
+    """Report whether a repository can enforce CAVRA for AI coding agents."""
+    report = agent_enforcement_readiness_report(repo_root=repo_root, settings_path=settings)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+        return
+
+    status = str(report["status"])
+    color = "green" if status == "ready" else "yellow" if status == "needs_attention" else "red"
+    summary = report["summary"]
+    console.print(f"[{color}]Agent enforcement readiness: {status}[/{color}]")
+    console.print(
+        f"Checks: {summary['check_count']} "
+        f"passed={summary['pass_count']} warnings={summary['warning_count']} failed={summary['failed_count']}"
+    )
+    for check in report["checks"]:
+        marker = "✓" if check["status"] == "pass" else "!" if check["status"] == "warn" else "✗"
+        console.print(f"{marker} {check['id']}: {check['message']}")
 
 
 @policy_app.command("list")

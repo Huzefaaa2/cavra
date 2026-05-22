@@ -59,6 +59,8 @@ CAVRA evaluates agent actions before execution:
 
 The current implementation is Python-based. The Go enforcement plane remains on the roadmap for lower latency local enforcement, CI runner enforcement, and air-gapped single-binary deployments.
 
+Anti-bypass enforcement is handled at boundaries outside the orchestrator: protected branches, required CAVRA checks, PR attestation, governed runner identity, signed release evidence, and deployment approvals. The detailed baseline is documented in [AI Agent Enforcement And Anti-Bypass Model](ai-agent-enforcement.md).
+
 ## Orchestrator Responsibilities
 
 A future orchestrator service should:

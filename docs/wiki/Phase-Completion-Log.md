@@ -1,5 +1,30 @@
 # Phase Completion Log
 
+## Phase 6 AI Agent Enforcement Readiness
+
+Status: complete for the current Community Edition readiness-report slice.
+
+Completed implementation:
+- Added the AI agent enforcement and anti-bypass model to README, docs, and wiki.
+- Added `cavra agent enforcement-readiness` for local repository enforcement inspection.
+- Added `GET /agents/enforcement-readiness` for console/API visibility.
+- Added optional provider settings input through `--settings` and `CAVRA_AGENT_ENFORCEMENT_SETTINGS`.
+- Added checks for `cavra-required-check`, evidence artifacts, agent manifests, PR templates, CODEOWNERS, branch protection expectations, required checks, security checks, and risky workflow permissions.
+
+Validation:
+- `python3 -m pytest tests/test_agent_enforcement.py tests/test_cli.py::test_agent_enforcement_readiness_cli_reports_schema tests/test_api.py::test_api_agent_enforcement_readiness -q`
+- `python3 -m ruff check src/cavra/agent_enforcement.py src/cavra/cli.py src/cavra/api.py tests/test_agent_enforcement.py tests/test_cli.py tests/test_api.py`
+
+User stories:
+- As a platform owner, I can prove whether an AI-agent repository has the enforcement files and external branch controls CAVRA expects.
+- As a security architect, I can see when required checks, branch protection, or workflow permissions create bypass risk.
+- As an auditor, I can export a public-safe readiness report without exposing repository tokens or private provider secrets.
+
+Enterprise challenge solved:
+- Turns the anti-bypass methodology into an inspectable control, making CAVRA easier to adopt in regulated repositories before centralized Enterprise enforcement exists.
+
+Recommended next issue: add recovery health alert retry worker execution and executive retry health alert delivery.
+
 ## Phase 1: Productization Foundation
 
 Status: complete.
@@ -246,6 +271,20 @@ Completed:
 - Entra ID and Okta OIDC/RBAC deployment references.
 
 Recommended next issue: expand Go parity, validate the public sandbox URL after merge, and add post-deploy smoke checks.
+
+## AI Agent Enforcement And Anti-Bypass Model
+
+Status: complete for the current documentation and product-positioning slice.
+
+Completed implementation:
+- Added `docs/ai-agent-enforcement.md`.
+- Added `docs/wiki/AI-Agent-Enforcement-And-Anti-Bypass-Model.md`.
+- Updated README, transparent agent methodology, agent orchestration architecture, and wiki navigation.
+
+Product decision:
+- This feature is required for enterprise credibility. CAVRA should be enforced at repository, CI, runner, release, and deployment boundaries rather than relying only on agent prompts or local wrappers.
+
+Recommended next issue: add an automated agent enforcement readiness report that detects missing required checks, branch protection gaps, stale PR attestations, missing agent manifests, and risky workflow permissions.
 
 ## Transparent Agent Methodology Enablement
 

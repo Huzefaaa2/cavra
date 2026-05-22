@@ -6,6 +6,7 @@ from typing import Optional
 from urllib.parse import quote
 
 from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
+from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -495,6 +496,7 @@ def create_app():
                 "integrations": "/integrations",
                 "integration_deliver": "/integrations/{integration_id}/deliver",
                 "agents": "/agents",
+                "agent_enforcement_readiness": "/agents/enforcement-readiness",
                 "mcp_servers": "/mcp/servers",
                 "mcp_trust": "/mcp/trust",
                 "sandbox_scenarios": "/api/sandbox/scenarios",
@@ -2551,6 +2553,10 @@ def create_app():
     @app.get("/agents/profiles")
     def agent_profiles() -> dict:
         return default_agent_profiles()
+
+    @app.get("/agents/enforcement-readiness")
+    def agent_enforcement_readiness() -> dict[str, object]:
+        return agent_enforcement_readiness_report(repo_root=Path.cwd())
 
     @app.post("/agents")
     def upsert_agent(payload: dict) -> dict:
