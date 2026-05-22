@@ -100,6 +100,10 @@ See `docs/diagrams/go-backend-rollback-drill-console.svg` for the Evidence Conso
 
 See `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg` for the authenticated console mutation flow that records route acknowledgements with verified actor identity.
 
+## Go Backend Rollback Drill Bulk Acknowledgement Audit
+
+See `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg` for the filtered bulk acknowledgement and acknowledgement audit package export flow.
+
 ## SVG Images
 
 Repository diagram images:
@@ -126,6 +130,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-routing-history.svg`
 - `docs/diagrams/go-backend-rollback-drill-console.svg`
 - `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`
+- `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

@@ -88,6 +88,8 @@ Read-only operations endpoints:
 - `GET /runtime/go-pilot/rollback-drill-schedule`: inspect recurring rollback drill cadence, next due date, stale state, owners, and notification routes.
 - `POST /runtime/go-pilot/rollback-drill-notifications/deliver`: deliver stale or due-soon rollback drill notifications through configured connectors and index redacted delivery evidence; accepts optional public-safe `routing_policy` with owner routes, maintenance windows, and owner calendars.
 - `POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`: record public-safe acknowledgement, dismissal, escalation, or resolution metadata for a drill notification route; when OIDC or RBAC is configured, this endpoint requires verified console actor context and records that actor as `acknowledged_by`.
+- `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk`: record acknowledgement, escalation, dismissal, or resolution metadata for up to 100 drill notification routes.
+- `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package`: build and persist a public-safe acknowledgement audit package with route state, actor, notes, and external references.
 - `GET /runtime/go-pilot/rollback-drill-notifications`: search rollback drill notification plans, redacted delivery records, acknowledgements, and escalation plans.
 - `GET /runtime/go-pilot/rollback-drill-notifications/dashboard`: summarize drill notification delivery, acknowledgement, and outstanding route counts.
 - `GET /runtime/go-pilot/rollback-drill-notifications/routes`: flatten persisted notification plan route decisions with optional `schedule_id`, `provider`, `owner`, `action`, and `category` filters.

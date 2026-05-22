@@ -83,4 +83,4 @@ Connector delivery is not enough for regulated operations. CAVRA now tracks whet
 
 The Evidence Console drill notification acknowledgement and escalation drill-down views are documented in `docs/go-backend-rollback-drill-console.md`.
 
-The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
+The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.

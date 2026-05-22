@@ -8,6 +8,8 @@ CAVRA now lets operators record rollback drill notification acknowledgements dir
 - Console API calls that include the stored bearer token through `Authorization: Bearer ...`.
 - Server-side actor enforcement for `POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements` whenever console OIDC or RBAC is configured.
 - Authenticated acknowledgement records that use the verified actor identity instead of trusting browser-supplied `acknowledged_by` values.
+- Bulk acknowledgement and escalation actions for currently filtered drill routes.
+- Acknowledgement audit package export for route state, actor identity, notes, and external references.
 - Local sample-mode acknowledgement mutation so the Community Edition sandbox remains useful without a live API.
 - Console session permission reporting through `acknowledge_drill_notifications`.
 
@@ -48,4 +50,4 @@ See `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add bulk acknowledgement workflows and exportable acknowledgement audit packages for drill notification routes.
+The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.

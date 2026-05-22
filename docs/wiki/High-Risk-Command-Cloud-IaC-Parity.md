@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
+The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.

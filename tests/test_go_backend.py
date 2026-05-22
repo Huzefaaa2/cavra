@@ -12,6 +12,8 @@ from cavra.go_backend import (
     GO_BACKEND_SHADOW,
     GoBackendConfig,
     acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_acknowledgement_audit_package,
+    build_go_rollback_drill_acknowledgement_audit_package_metadata,
     build_go_rollback_drill_notification_ack_metadata,
     build_go_rollback_drill_notification_dashboard,
     build_go_rollback_drill_notification_escalation_plan,
@@ -486,6 +488,49 @@ def test_go_rollback_drill_notification_acknowledgement_and_dashboard(tmp_path: 
     assert ack_metadata["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
     assert dashboard_after["outstanding_acknowledgement_count"] == 0
     assert history["total"] == 2
+
+
+def test_go_rollback_drill_acknowledgement_audit_package_summarizes_routes(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    policy = {
+        "owner_routes": {
+            "release-governance": {"providers": ["slack"], "acknowledgement_minutes": 30},
+            "platform-operations": {"providers": ["teams"], "acknowledgement_minutes": 60},
+        }
+    }
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, routing_policy=policy)
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    acknowledgement = acknowledge_go_rollback_drill_notification(
+        "go_backend_python_fallback_monthly",
+        provider="slack",
+        acknowledged_by="release-manager",
+        plan_id=plan["plan_id"],
+        external_ref="CHG-123",
+        notes="Reviewed during release governance.",
+    )
+    ack_metadata = build_go_rollback_drill_notification_ack_metadata(acknowledgement)
+
+    package = build_go_rollback_drill_acknowledgement_audit_package(
+        [plan_metadata, ack_metadata],
+        owner="release-governance",
+        generated_by="test",
+    )
+    metadata = build_go_rollback_drill_acknowledgement_audit_package_metadata(package)
+
+    assert package["route_count"] == 1
+    assert package["acknowledged_count"] == 1
+    assert package["outstanding_count"] == 0
+    assert package["routes"][0]["acknowledged_by"] == "release-manager"
+    assert package["routes"][0]["external_ref"] == "CHG-123"
+    assert metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-package"
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:
