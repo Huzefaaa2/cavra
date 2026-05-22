@@ -9,7 +9,7 @@ CAVRA now exposes acknowledgement audit delivery history filters and delivery he
 - Evidence Console filtering for **Delivery source** across drill notifications and acknowledgement audit delivery.
 - Evidence Console provider filtering for SIEM, ITSM, ChatOps, and webhook destinations.
 - Evidence Console health cards for audit delivery health, audit delivery plans, audit sends, failed audit sends, and audit success rate.
-- Roadmap and wiki updates that move the next implementation target to acknowledgement audit delivery retry automation and scheduled worker execution.
+- Roadmap and wiki updates that move the next implementation target to acknowledgement audit worker health alerts and retry acknowledgements.
 
 ## How To Use
 
@@ -79,4 +79,4 @@ See `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.
+The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.

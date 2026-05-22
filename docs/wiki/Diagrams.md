@@ -112,6 +112,10 @@ See `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`
 
 See `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg` for acknowledgement audit delivery history filtering and health dashboards.
 
+## Go Backend Rollback Drill Audit Delivery Retry Worker
+
+See `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg` for governed retry planning, scheduled worker dry-runs, and public-safe retry evidence indexing.
+
 ## SVG Images
 
 Repository diagram images:
@@ -141,6 +145,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`
 - `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`
 - `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg`
+- `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

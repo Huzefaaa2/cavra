@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA acknowledgement audit delivery retry worker</title>
+  <desc id="desc">CAVRA detects failed acknowledgement audit delivery, creates a public-safe retry plan, runs a scheduled worker in dry-run mode by default, and indexes retry evidence without exposing connector secrets.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071013; }
+      .panel { fill: #101a1f; stroke: #31505b; stroke-width: 2; rx: 14; }
+      .accent { fill: #70e0c2; }
+      .warn { fill: #ffd166; }
+      .danger { fill: #ff6b6b; }
+      .text { fill: #edf7f5; font-family: Inter, Arial, sans-serif; font-size: 28px; font-weight: 700; }
+      .small { fill: #b8c9c7; font-family: Inter, Arial, sans-serif; font-size: 19px; }
+      .tiny { fill: #9fb2af; font-family: Inter, Arial, sans-serif; font-size: 16px; }
+      .label { fill: #071013; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .line { stroke: #70e0c2; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .softline { stroke: #48636a; stroke-width: 3; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrowSoft); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#70e0c2"/>
+    </marker>
+    <marker id="arrowSoft" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#48636a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="720"/>
+  <text class="text" x="48" y="64">CAVRA Audit Delivery Retry Worker</text>
+  <text class="small" x="48" y="98">Governed recovery for failed rollback drill acknowledgement audit delivery.</text>
+
+  <rect class="panel" x="48" y="150" width="250" height="150"/>
+  <circle class="danger" cx="82" cy="188" r="12"/>
+  <text class="text" x="108" y="198">Failed Delivery</text>
+  <text class="small" x="78" y="235">Redacted connector delivery</text>
+  <text class="small" x="78" y="263">metadata records failure,</text>
+  <text class="small" x="78" y="291">provider, audit ID, and time.</text>
+
+  <rect class="panel" x="378" y="150" width="250" height="150"/>
+  <circle class="warn" cx="412" cy="188" r="12"/>
+  <text class="text" x="438" y="198">Retry Plan</text>
+  <text class="small" x="408" y="235">Backoff policy decides retry,</text>
+  <text class="small" x="408" y="263">wait, or suppress without</text>
+  <text class="small" x="408" y="291">performing delivery.</text>
+
+  <rect class="panel" x="708" y="150" width="250" height="150"/>
+  <circle class="accent" cx="742" cy="188" r="12"/>
+  <text class="text" x="768" y="198">Worker Run</text>
+  <text class="small" x="738" y="235">Scheduled window selects</text>
+  <text class="small" x="738" y="263">eligible retries. Dry-run is</text>
+  <text class="small" x="738" y="291">the safe default.</text>
+
+  <rect class="panel" x="1038" y="150" width="194" height="150"/>
+  <circle class="accent" cx="1072" cy="188" r="12"/>
+  <text class="text" x="1098" y="198">Evidence</text>
+  <text class="small" x="1068" y="235">Plan and worker</text>
+  <text class="small" x="1068" y="263">metadata are indexed</text>
+  <text class="small" x="1068" y="291">for audit review.</text>
+
+  <path class="line" d="M300 225 H372"/>
+  <path class="line" d="M630 225 H702"/>
+  <path class="line" d="M960 225 H1032"/>
+
+  <rect class="panel" x="120" y="400" width="300" height="170"/>
+  <text class="text" x="156" y="450">Public-Safe Inputs</text>
+  <text class="small" x="156" y="492">No connector secrets</text>
+  <text class="small" x="156" y="522">No private URLs</text>
+  <text class="small" x="156" y="552">No Enterprise source</text>
+
+  <rect class="panel" x="490" y="400" width="300" height="170"/>
+  <text class="text" x="526" y="450">Operator Controls</text>
+  <text class="small" x="526" y="492">Plan Audit Retry</text>
+  <text class="small" x="526" y="522">Run Audit Worker</text>
+  <text class="small" x="526" y="552">Review selected retries</text>
+
+  <rect class="panel" x="860" y="400" width="300" height="170"/>
+  <text class="text" x="896" y="450">Dashboard Metrics</text>
+  <text class="small" x="896" y="492">Retry plans and retryable count</text>
+  <text class="small" x="896" y="522">Worker runs and dry-runs</text>
+  <text class="small" x="896" y="552">Failed delivery health</text>
+
+  <path class="softline" d="M270 400 C315 345, 420 335, 503 300"/>
+  <path class="softline" d="M640 400 C650 350, 720 330, 800 300"/>
+  <path class="softline" d="M1010 400 C1025 350, 1080 330, 1135 300"/>
+
+  <rect class="accent" x="48" y="638" width="1184" height="42" rx="21"/>
+  <text class="label" x="80" y="665">Next: acknowledgement audit worker health alerts and retry acknowledgements.</text>
+</svg>

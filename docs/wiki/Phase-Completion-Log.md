@@ -1964,4 +1964,36 @@ Enterprise challenge solved:
 - Gives operations teams a searchable delivery health trail across SIEM, ITSM, ChatOps, and webhook destinations.
 - Prepares the product for governed retry automation and recurring scheduled workers.
 
-Recommended next issue: add acknowledgement audit delivery retry automation and scheduled worker execution.
+Recommended next issue: delivered below as acknowledgement audit delivery retry automation and scheduled worker execution.
+
+## Phase 7 Go Backend Rollback Drill Audit Delivery Retry Worker
+
+Status: complete for the current acknowledgement audit delivery retry worker slice.
+
+Completed implementation:
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-plan` for public-safe retry plans derived from failed acknowledgement audit delivery metadata.
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-run` for scheduled worker execution with dry-run mode enabled by default.
+- Added `GET /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-runs` and `/worker-dashboard` for worker history and health summaries.
+- Added retry plan and worker run records to rollback drill notification history and dashboard metrics.
+- Added Evidence Console **Plan Audit Retry** and **Run Audit Worker** actions plus retry and worker dashboard cards.
+- Added `docs/go-backend-rollback-drill-audit-delivery-retry-worker.md`, `docs/wiki/Go-Backend-Rollback-Drill-Audit-Delivery-Retry-Worker.md`, and `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can plan retries for failed acknowledgement audit delivery attempts.
+- As a platform owner, I can dry-run the scheduled retry worker before executing retries.
+- As a SOC analyst, I can verify that failed SIEM audit delivery is queued for recovery.
+- As an auditor, I can review retry and worker evidence without seeing connector secrets.
+
+Enterprise challenge solved:
+- Makes rollback acknowledgement audit delivery recoverable after transient connector failures.
+- Creates public-safe retry worker evidence without committing Enterprise scheduler or connector secret logic.
+- Gives operators an auditable path from failed delivery to governed retry selection.
+
+Recommended next issue: add acknowledgement audit worker health alerts and retry acknowledgements.
