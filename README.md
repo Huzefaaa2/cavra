@@ -107,6 +107,7 @@ Architecture references:
 - [Go backend rollback drill live retry closure evidence SVG](docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg)
 - [Go backend rollback drill retry recovery reporting SVG](docs/diagrams/go-backend-rollback-drill-retry-recovery-reporting.svg)
 - [Go backend rollback drill recovery escalation and executive reporting SVG](docs/diagrams/go-backend-rollback-drill-recovery-escalation-executive-reporting.svg)
+- [Go backend rollback drill recovery escalation acknowledgement and scheduling SVG](docs/diagrams/go-backend-rollback-drill-recovery-escalation-ack-retry-scheduling.svg)
 
 Brand assets:
 
@@ -408,7 +409,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add recovery escalation acknowledgements, delivery retry policies, and executive report scheduling.
+- Add automated recovery escalation retry execution and scheduled executive report delivery.
 
 ## User stories and enterprise value
 

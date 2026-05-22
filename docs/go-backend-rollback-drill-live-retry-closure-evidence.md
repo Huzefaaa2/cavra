@@ -89,4 +89,4 @@ See `docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg`.
 
 ## Next Work
 
-The next recommended implementation step is automated recovery escalation notifications and executive reporting.
+The next recommended implementation step is automated recovery escalation retry execution and scheduled executive report delivery.
