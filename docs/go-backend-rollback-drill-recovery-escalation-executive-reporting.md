@@ -78,4 +78,4 @@ See `docs/diagrams/go-backend-rollback-drill-recovery-escalation-executive-repor
 
 ## Next Work
 
-The next recommended implementation step is automated recovery escalation retry execution and scheduled executive report delivery.
+Automated recovery escalation retry execution and scheduled executive report delivery are now covered in `docs/go-backend-rollback-drill-recovery-escalation-retry-execution-and-executive-delivery.md`.
