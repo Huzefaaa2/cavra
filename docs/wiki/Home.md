@@ -50,6 +50,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Recurrence Automation Deployment: `Recurrence-Automation-Deployment.md`
 - Go Release Packaging: `Go-Release-Packaging.md`
 - Go Backend Rollback Drill Audit Delivery Retry Worker: `Go-Backend-Rollback-Drill-Audit-Delivery-Retry-Worker.md`
+- Go Backend Rollback Drill Audit Worker Health Alerts: `Go-Backend-Rollback-Drill-Audit-Worker-Health-Alerts.md`
 - Vulnerability Disclosure: `Vulnerability-Disclosure.md`
 - Release Security Advisories: `Release-Security-Advisories.md`
 - Implementation Plan: `Implementation-Plan.md`

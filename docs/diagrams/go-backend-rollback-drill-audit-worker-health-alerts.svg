@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA acknowledgement audit worker health alerts</title>
+  <desc id="desc">CAVRA evaluates retry worker health, routes public-safe health alerts, records health alert acknowledgement, and records retry acknowledgement evidence.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071013; }
+      .panel { fill: #101a1f; stroke: #31505b; stroke-width: 2; rx: 14; }
+      .accent { fill: #70e0c2; }
+      .warn { fill: #ffd166; }
+      .text { fill: #edf7f5; font-family: Inter, Arial, sans-serif; font-size: 28px; font-weight: 700; }
+      .small { fill: #b8c9c7; font-family: Inter, Arial, sans-serif; font-size: 19px; }
+      .label { fill: #071013; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .line { stroke: #70e0c2; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .soft { stroke: #48636a; stroke-width: 3; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrowSoft); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#70e0c2"/>
+    </marker>
+    <marker id="arrowSoft" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#48636a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="720"/>
+  <text class="text" x="48" y="64">CAVRA Audit Worker Health Alerts</text>
+  <text class="small" x="48" y="98">Operational closure for failed acknowledgement audit delivery retries.</text>
+
+  <rect class="panel" x="48" y="150" width="250" height="155"/>
+  <circle class="warn" cx="82" cy="188" r="12"/>
+  <text class="text" x="108" y="198">Worker Health</text>
+  <text class="small" x="78" y="238">Missed runs, stale retry</text>
+  <text class="small" x="78" y="268">plans, retryable failures,</text>
+  <text class="small" x="78" y="298">and connector errors.</text>
+
+  <rect class="panel" x="378" y="150" width="250" height="155"/>
+  <circle class="accent" cx="412" cy="188" r="12"/>
+  <text class="text" x="438" y="198">Alert Plan</text>
+  <text class="small" x="408" y="238">Selects configured</text>
+  <text class="small" x="408" y="268">providers with duplicate</text>
+  <text class="small" x="408" y="298">suppression controls.</text>
+
+  <rect class="panel" x="708" y="150" width="250" height="155"/>
+  <circle class="accent" cx="742" cy="188" r="12"/>
+  <text class="text" x="768" y="198">Health Ack</text>
+  <text class="small" x="738" y="238">Records review state for</text>
+  <text class="small" x="738" y="268">provider-specific worker</text>
+  <text class="small" x="738" y="298">health alerts.</text>
+
+  <rect class="panel" x="1038" y="150" width="194" height="155"/>
+  <circle class="accent" cx="1072" cy="188" r="12"/>
+  <text class="text" x="1098" y="198">Retry Ack</text>
+  <text class="small" x="1068" y="238">Accept, defer, escalate,</text>
+  <text class="small" x="1068" y="268">resolve, or dismiss the</text>
+  <text class="small" x="1068" y="298">retry decision.</text>
+
+  <path class="line" d="M300 226 H372"/>
+  <path class="line" d="M630 226 H702"/>
+  <path class="line" d="M960 226 H1032"/>
+
+  <rect class="panel" x="100" y="410" width="310" height="160"/>
+  <text class="text" x="138" y="460">Evidence Console</text>
+  <text class="small" x="138" y="502">Send Worker Alert</text>
+  <text class="small" x="138" y="532">Ack Retry</text>
+
+  <rect class="panel" x="485" y="410" width="310" height="160"/>
+  <text class="text" x="523" y="460">Public Boundary</text>
+  <text class="small" x="523" y="502">No connector secrets</text>
+  <text class="small" x="523" y="532">No private recovery logic</text>
+
+  <rect class="panel" x="870" y="410" width="310" height="160"/>
+  <text class="text" x="908" y="460">Audit Outcome</text>
+  <text class="small" x="908" y="502">Worker alerts visible</text>
+  <text class="small" x="908" y="532">Retry decisions accountable</text>
+
+  <path class="soft" d="M250 410 C350 355, 470 335, 520 305"/>
+  <path class="soft" d="M640 410 C720 352, 805 335, 835 305"/>
+  <path class="soft" d="M1025 410 C1085 350, 1125 330, 1135 305"/>
+
+  <rect class="accent" x="48" y="638" width="1184" height="42" rx="21"/>
+  <text class="label" x="80" y="665">Next: acknowledgement audit retry execution approvals and connector recovery playbooks.</text>
+</svg>

@@ -11,13 +11,22 @@ from cavra.go_backend import (
     GO_BACKEND_PROMOTED,
     GO_BACKEND_SHADOW,
     GoBackendConfig,
+    acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry,
+    acknowledge_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert,
     acknowledge_go_rollback_drill_notification,
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_ack_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_run,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_package,
@@ -31,6 +40,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_plan,
     build_go_rollback_drill_routing_suppression_trend,
     build_go_rollback_drill_routing_suppression_trend_metadata,
+    filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history,
     filter_go_rollback_drill_notification_history,
     filter_go_rollback_drill_routing_history,
@@ -723,6 +733,124 @@ def test_go_rollback_drill_acknowledgement_audit_delivery_retry_worker(tmp_path:
     assert dashboard["retryable_count"] == 1
     assert notification_dashboard["acknowledgement_audit_delivery_retry_plan_count"] == 1
     assert notification_dashboard["acknowledgement_audit_delivery_worker_run_count"] == 1
+
+
+def test_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alerts_and_retry_acks(
+    tmp_path: Path,
+) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="webhook")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    package = build_go_rollback_drill_acknowledgement_audit_package([plan_metadata], generated_by="test")
+    package_metadata = build_go_rollback_drill_acknowledgement_audit_package_metadata(package)
+    delivery_plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+        package,
+        requested_provider="webhook",
+        available_providers=["webhook"],
+        generated_by="test",
+    )
+    delivery_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(delivery_plan)
+    connector_metadata = {
+        "session_id": "connector-delivery-retry-health",
+        "created_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit",
+        "audit_id": package["audit_id"],
+        "delivery_id": delivery_plan["delivery_id"],
+        "event_id": delivery_plan["delivery_id"],
+        "delivery_success": False,
+        "providers": ["webhook"],
+        "failed_providers": ["webhook"],
+    }
+    items = [plan_metadata, package_metadata, delivery_metadata, connector_metadata]
+    retry_plan = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan(
+        items,
+        policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        generated_by="test",
+        now=datetime.now(timezone.utc),
+    )
+    retry_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata(retry_plan)
+    worker_run = build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
+        [*items, retry_metadata],
+        retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        schedule={"interval_minutes": 30, "cadence": "every_30_minutes"},
+        generated_by="test",
+        dry_run=True,
+        now=datetime.now(timezone.utc),
+    )
+    worker_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_worker_run_metadata(worker_run)
+    health = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health(
+        [*items, retry_metadata, worker_metadata],
+        expected_interval_minutes=30,
+        stale_metadata_minutes=120,
+        now=datetime.now(timezone.utc),
+    )
+    health_alert_plan = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan(
+        health,
+        requested_provider="webhook",
+        available_providers=["webhook"],
+        generated_by="test",
+        force=True,
+    )
+    health_alert_event = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_event(
+        health,
+        generated_by="test",
+    )
+    health_alert_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan_metadata(
+        health_alert_plan
+    )
+    health_ack = acknowledge_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert(
+        health["health_id"],
+        provider="webhook",
+        acknowledged_by="release-manager",
+        plan_id=health_alert_plan["plan_id"],
+    )
+    health_ack_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_ack_metadata(
+        health_ack
+    )
+    retry_ack = acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry(
+        retry_plan["retry_plan_id"],
+        provider="webhook",
+        acknowledged_by="release-manager",
+        delivery_id=delivery_plan["delivery_id"],
+        audit_id=package["audit_id"],
+    )
+    retry_ack_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata(retry_ack)
+    alert_history = filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history(
+        [health_alert_metadata, health_ack_metadata],
+        health_id=health["health_id"],
+    )
+    alert_dashboard = build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_dashboard(
+        [health_alert_metadata, health_ack_metadata]
+    )
+    notification_dashboard = build_go_rollback_drill_notification_dashboard(
+        [*items, retry_metadata, worker_metadata, health_alert_metadata, health_ack_metadata, retry_ack_metadata]
+    )
+
+    assert health["alert_level"] == "warning"
+    assert health["retryable_count"] == 1
+    assert health_alert_plan["selected_providers"] == ["webhook"]
+    assert health_alert_event["event_type"] == "cavra.go_backend.rollback_drill.acknowledgement_audit_worker_health_alert"
+    assert (
+        health_alert_metadata["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan"
+    )
+    assert health_ack_metadata["metadata_kind"].endswith("worker-health-alert-ack")
+    assert retry_ack["acknowledgement_state"] == "accepted"
+    assert retry_ack_metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack"
+    assert alert_history["total"] == 2
+    assert alert_dashboard["acknowledgement_count"] == 1
+    assert notification_dashboard["acknowledgement_audit_delivery_retry_ack_count"] == 1
+    assert notification_dashboard["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
+    assert notification_dashboard["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

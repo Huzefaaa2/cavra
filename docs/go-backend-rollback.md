@@ -108,4 +108,4 @@ Backend promotion is only production-ready when rollback is boring, explicit, an
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.
+The next recommended implementation step is to add acknowledgement audit retry execution approvals and connector recovery playbooks.
