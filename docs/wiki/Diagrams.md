@@ -90,6 +90,10 @@ See `docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg` fo
 
 See `docs/diagrams/go-backend-rollback-drill-retry-recovery-reporting.svg` for the retry execution dashboard, recovery SLO, provider summary, and closure trend analytics flow.
 
+## Go Backend Rollback Drill Recovery Escalation And Executive Reporting
+
+See `docs/diagrams/go-backend-rollback-drill-recovery-escalation-executive-reporting.svg` for the public-safe flow from retry recovery evidence into escalation plans, connector delivery, executive reports, dashboard counts, and audit history.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation

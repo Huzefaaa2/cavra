@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA recovery escalation and executive reporting flow</title>
+  <desc id="desc">Public-safe recovery evidence flows into escalation planning, connector delivery, executive reporting, dashboard counts, and audit history.</desc>
+  <defs>
+    <style>
+      .bg{fill:#071114}
+      .lane{fill:#0f1b20;stroke:#25424a;stroke-width:2}
+      .box{fill:#14242a;stroke:#6ee7c2;stroke-width:2;rx:12}
+      .box2{fill:#172934;stroke:#7cc7ff;stroke-width:2;rx:12}
+      .warn{fill:#2d2415;stroke:#f6c760;stroke-width:2;rx:12}
+      .text{font-family:Inter,Arial,sans-serif;fill:#eef7f8;font-size:22px;font-weight:700}
+      .small{font-family:Inter,Arial,sans-serif;fill:#b9c9cc;font-size:16px}
+      .label{font-family:Inter,Arial,sans-serif;fill:#76e4c0;font-size:18px;font-weight:700}
+      .arrow{stroke:#76e4c0;stroke-width:4;fill:none;marker-end:url(#arrow)}
+      .arrow2{stroke:#7cc7ff;stroke-width:4;fill:none;marker-end:url(#arrow2)}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#76e4c0"/>
+    </marker>
+    <marker id="arrow2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#7cc7ff"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="56" y="58" class="text">CAVRA Recovery Escalation And Executive Reporting</text>
+  <text x="56" y="88" class="small">Public-safe rollback drill recovery evidence, notifications, and leadership reporting</text>
+
+  <rect x="48" y="128" width="1184" height="146" class="lane"/>
+  <text x="72" y="162" class="label">Evidence Inputs</text>
+  <rect x="82" y="184" width="250" height="60" class="box"/>
+  <text x="104" y="221" class="small">Retry execution records</text>
+  <rect x="382" y="184" width="250" height="60" class="box"/>
+  <text x="404" y="221" class="small">Recovery playbooks</text>
+  <rect x="682" y="184" width="250" height="60" class="box"/>
+  <text x="704" y="221" class="small">Recovery closures</text>
+
+  <rect x="48" y="320" width="1184" height="148" class="lane"/>
+  <text x="72" y="354" class="label">CAVRA Processing</text>
+  <rect x="82" y="376" width="250" height="60" class="box2"/>
+  <text x="104" y="413" class="small">Retry recovery report</text>
+  <rect x="382" y="376" width="250" height="60" class="warn"/>
+  <text x="404" y="413" class="small">Escalation plan</text>
+  <rect x="682" y="376" width="250" height="60" class="box2"/>
+  <text x="704" y="413" class="small">Executive report</text>
+  <rect x="982" y="376" width="190" height="60" class="box"/>
+  <text x="1004" y="413" class="small">Dashboard counts</text>
+
+  <rect x="48" y="514" width="1184" height="132" class="lane"/>
+  <text x="72" y="548" class="label">Operational Outputs</text>
+  <rect x="82" y="570" width="250" height="52" class="box"/>
+  <text x="104" y="603" class="small">Connector escalation delivery</text>
+  <rect x="382" y="570" width="250" height="52" class="box"/>
+  <text x="404" y="603" class="small">Evidence Console actions</text>
+  <rect x="682" y="570" width="250" height="52" class="box"/>
+  <text x="704" y="603" class="small">Audit history search</text>
+  <rect x="982" y="570" width="190" height="52" class="box"/>
+  <text x="1004" y="603" class="small">Leadership review</text>
+
+  <path class="arrow" d="M207 244 L207 376"/>
+  <path class="arrow" d="M507 244 L507 376"/>
+  <path class="arrow" d="M807 244 L807 376"/>
+  <path class="arrow" d="M332 406 L382 406"/>
+  <path class="arrow" d="M632 406 L682 406"/>
+  <path class="arrow2" d="M932 406 L982 406"/>
+  <path class="arrow" d="M507 436 L207 570"/>
+  <path class="arrow2" d="M807 436 L1100 570"/>
+  <path class="arrow" d="M1077 436 L807 570"/>
+  <path class="arrow2" d="M507 436 L507 570"/>
+
+  <text x="72" y="682" class="small">Boundary: reports contain public-safe evidence only; connector secrets, private ticket payloads, Enterprise source, policy packs, and license logic stay outside the public repository.</text>
+</svg>

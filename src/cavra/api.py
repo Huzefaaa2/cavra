@@ -38,6 +38,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_closure_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook,
     build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_decision_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan,
@@ -418,6 +423,9 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_playbook": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbook",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_close": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbooks/{playbook_id}/closures",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_retry_recovery_report": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalation-plan",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_deliver": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/{plan_id}/deliver",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -1170,6 +1178,114 @@ def create_app():
         )
         metadata = evidence_store.upsert(
             build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata(report)
+        )
+        return {"report": report, "metadata": metadata}
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalation-plan")
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_plan(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        plan = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan(
+            _go_rollback_drill_notification_items(evidence_store),
+            recovery_slo_minutes=int(payload.get("recovery_slo_minutes", 240)),
+            generated_by=str(generated_by),
+        )
+        metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata(plan)
+        )
+        return {"plan": plan, "metadata": metadata, "actor": _public_actor_context(actor_context) if actor_context else None}
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/{plan_id}/deliver"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_deliver(
+        plan_id: str,
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        items = _go_rollback_drill_notification_items(evidence_store)
+        plan_metadata = next(
+            (
+                item
+                for item in items
+                if item.get("metadata_kind")
+                == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan"
+                and item.get("plan_id") == plan_id
+                and isinstance(item.get("recovery_escalation_plan"), dict)
+            ),
+            None,
+        )
+        plan = plan_metadata["recovery_escalation_plan"] if plan_metadata else None
+        if plan is None and plan_id == "latest":
+            plan = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan(
+                items,
+                recovery_slo_minutes=int(payload.get("recovery_slo_minutes", 240)),
+                generated_by=str(generated_by),
+            )
+            plan_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata(plan)
+            )
+        if plan is None:
+            raise HTTPException(status_code=404, detail="recovery escalation plan not found")
+        event = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_event(
+            plan,
+            generated_by=str(generated_by),
+            max_routes=int(payload.get("max_routes", 20)),
+        )
+        requested_provider = str(payload.get("provider") or ",".join(plan.get("selected_providers") or []) or "webhook")
+        result = deliver_connector_event(
+            event,
+            connector_config,
+            provider=requested_provider,
+            retries=int(payload.get("retries", 2)),
+            timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+        )
+        metadata = evidence_store.upsert(
+            build_connector_delivery_metadata(
+                result,
+                source="go_backend_rollback_drill_acknowledgement_audit_recovery_escalation",
+            )
+            | {"plan_id": plan.get("plan_id"), "selected_providers": result.get("providers", [])}
+        )
+        return {
+            "plan": plan,
+            "delivery": result,
+            "plan_metadata": plan_metadata,
+            "metadata": metadata,
+            "success": bool(result.get("success")),
+            "event_id": plan.get("plan_id"),
+            "actor": _public_actor_context(actor_context) if actor_context else None,
+        }
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report")
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report(
+        recovery_slo_minutes: int = 240,
+        generated_by: str = "console",
+    ) -> dict[str, object]:
+        report = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report(
+            _go_rollback_drill_notification_items(evidence_store),
+            recovery_slo_minutes=recovery_slo_minutes,
+            generated_by=generated_by,
+        )
+        metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_metadata(report)
         )
         return {"report": report, "metadata": metadata}
 
@@ -3855,6 +3971,14 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
             limit=500,
         )["items"]
+        audit_delivery_recovery_escalation_plans = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+            limit=500,
+        )["items"]
+        audit_delivery_recovery_executive_reports = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
+            limit=500,
+        )["items"]
         audit_delivery_worker_runs = evidence_store.search(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
             limit=500,
@@ -3883,6 +4007,8 @@ def _go_rollback_drill_notification_items(
             *audit_delivery_connector_recovery_playbooks,
             *audit_delivery_connector_recovery_closures,
             *audit_delivery_retry_recovery_reports,
+            *audit_delivery_recovery_escalation_plans,
+            *audit_delivery_recovery_executive_reports,
             *audit_delivery_worker_runs,
             *audit_delivery_worker_health_alerts,
             *audit_delivery_worker_health_alert_acks,
