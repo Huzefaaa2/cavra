@@ -84,6 +84,26 @@ curl -X POST http://127.0.0.1:8000/runtime/go-pilot/rollback-drill-notifications
 
 The API accepts the same public-safe routing policy object. Private connector credentials still come only from `CAVRA_CONNECTOR_CONFIG` or private secret stores.
 
+## Persisted Route History
+
+CAVRA now flattens persisted notification plan route decisions into a filterable route history:
+
+```bash
+curl 'http://127.0.0.1:8000/runtime/go-pilot/rollback-drill-notifications/routes?owner=release-governance&action=suppress&category=maintenance_window'
+```
+
+Each route row includes plan ID, schedule ID, owner, escalation owner, provider, action, suppression category, acknowledgement SLO, reason, maintenance-window ID, owner availability, and creation time. Supported categories are `maintenance_window`, `owner_calendar`, `healthy_schedule`, `other`, and the delivered action category.
+
+## Suppression Trends
+
+CAVRA also builds and persists suppression trend metadata:
+
+```bash
+curl 'http://127.0.0.1:8000/runtime/go-pilot/rollback-drill-notifications/suppression-trends?owner=release-governance'
+```
+
+The trend summarizes suppressed routes by category, owner, provider, and schedule. It writes metadata kind `go-backend-rollback-drill-routing-suppression-trend` so auditors can review suppression activity later without private connector credentials or internal calendar exports.
+
 ## Escalation SLOs
 
 Owner-specific `acknowledgement_minutes` values are used by rollback drill notification escalation plans. This lets one owner route use a shorter acknowledgement SLO without changing the global default:
@@ -107,4 +127,4 @@ Enterprise release teams need rollback drills to respect change freezes, owner a
 
 ## Next Work
 
-The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.
+The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.

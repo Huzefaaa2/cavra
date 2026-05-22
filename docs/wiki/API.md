@@ -90,6 +90,8 @@ Read-only operations endpoints:
 - `POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`: record public-safe acknowledgement, dismissal, escalation, or resolution metadata for a drill notification route.
 - `GET /runtime/go-pilot/rollback-drill-notifications`: search rollback drill notification plans, redacted delivery records, acknowledgements, and escalation plans.
 - `GET /runtime/go-pilot/rollback-drill-notifications/dashboard`: summarize drill notification delivery, acknowledgement, and outstanding route counts.
+- `GET /runtime/go-pilot/rollback-drill-notifications/routes`: flatten persisted notification plan route decisions with optional `schedule_id`, `provider`, `owner`, `action`, and `category` filters.
+- `GET /runtime/go-pilot/rollback-drill-notifications/suppression-trends`: summarize and persist public-safe routing suppression trends by category, owner, provider, and schedule.
 - `POST /runtime/go-pilot/rollback-drill-notifications/escalation-plan`: generate a missed-notification escalation plan from acknowledgement SLO policy.
 
 Backup and restore are intentionally CLI-only through `cavra ops backup` and `cavra ops restore` so the unauthenticated demo API does not gain file-system restore authority.

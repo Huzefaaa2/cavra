@@ -115,4 +115,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add persisted drill routing history filters and suppression trend summaries.
+The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.

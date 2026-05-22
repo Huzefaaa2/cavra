@@ -1534,6 +1534,14 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         config["endpoints"]["go_rollback_drill_notification_escalation_plan"]
         == "/runtime/go-pilot/rollback-drill-notifications/escalation-plan"
     )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_routes"]
+        == "/runtime/go-pilot/rollback-drill-notifications/routes"
+    )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_suppression_trends"]
+        == "/runtime/go-pilot/rollback-drill-notifications/suppression-trends"
+    )
 
 
 def test_api_go_backend_pilot_readiness_and_evaluation(monkeypatch, tmp_path) -> None:
@@ -1729,6 +1737,14 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         },
     )
     history = client.get("/runtime/go-pilot/rollback-drill-notifications")
+    routes = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/routes",
+        params={"owner": "release-governance", "provider": "webhook"},
+    )
+    suppression_trend = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/suppression-trends",
+        params={"owner": "release-governance"},
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -1745,6 +1761,14 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert acknowledgement.json()["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
     assert history.status_code == 200
     assert history.json()["total"] >= 4
+    assert routes.status_code == 200
+    assert routes.json()["total"] == 1
+    assert routes.json()["items"][0]["action"] == "deliver"
+    assert suppression_trend.status_code == 200
+    assert (
+        suppression_trend.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-routing-suppression-trend"
+    )
     assert dashboard_after.status_code == 200
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
 

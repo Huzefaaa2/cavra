@@ -19,7 +19,10 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_event,
     build_go_rollback_drill_notification_plan_metadata,
     build_go_rollback_drill_notification_plan,
+    build_go_rollback_drill_routing_suppression_trend,
+    build_go_rollback_drill_routing_suppression_trend_metadata,
     filter_go_rollback_drill_notification_history,
+    filter_go_rollback_drill_routing_history,
     evaluate_with_go_pilot,
     go_backend_config_from_env,
     go_backend_readiness_report,
@@ -369,6 +372,57 @@ def test_go_rollback_drill_notification_plan_applies_owner_routes_and_maintenanc
     teams = next(route for route in plan["route_decisions"] if route["provider"] == "teams")
     assert teams["acknowledgement_minutes"] == 15
     assert teams["escalation_owner"] == "platform-lead"
+
+
+def test_go_rollback_drill_routing_history_and_suppression_trends(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    now = datetime.now(timezone.utc)
+    policy = {
+        "owner_routes": {
+            "release-governance": {
+                "providers": ["slack", "teams"],
+                "acknowledgement_minutes": 15,
+                "escalation_owner": "platform-lead",
+            }
+        },
+        "maintenance_windows": [
+            {
+                "window_id": "change-freeze",
+                "start_at": (now - timedelta(minutes=5)).isoformat(),
+                "end_at": (now + timedelta(minutes=30)).isoformat(),
+                "providers": ["slack"],
+                "owners": ["release-governance"],
+                "reason": "production change freeze",
+            }
+        ],
+    }
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+            rollback_drill_due_soon_days=14,
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, routing_policy=policy, now=now)
+    metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+
+    history = filter_go_rollback_drill_routing_history(
+        [metadata],
+        owner="platform-lead",
+        category="maintenance_window",
+    )
+    trend = build_go_rollback_drill_routing_suppression_trend([metadata], owner="release-governance")
+    trend_metadata = build_go_rollback_drill_routing_suppression_trend_metadata(trend)
+
+    assert history["total"] == 1
+    assert history["items"][0]["provider"] == "slack"
+    assert history["items"][0]["maintenance_window_id"] == "change-freeze"
+    assert trend["suppression_event_count"] == 1
+    assert trend["category_counts"]["maintenance_window"] == 1
+    assert trend["maintenance_suppressed_count"] == 1
+    assert trend_metadata["metadata_kind"] == "go-backend-rollback-drill-routing-suppression-trend"
 
 
 def test_go_rollback_drill_notification_plan_applies_owner_calendar(tmp_path: Path) -> None:

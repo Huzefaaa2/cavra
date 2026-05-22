@@ -700,9 +700,12 @@
         </div>
         <div id="goRollbackDrillNotificationDashboard" class="release-delivery-dashboard"></div>
         <div class="search-controls">
+          <label>Owner <input id="filterGoDrillNotificationOwner" placeholder="release-governance" /></label>
           <label>Provider <select id="filterGoDrillNotificationProvider"><option value="">Any</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="email">Email</option><option value="pagerduty">PagerDuty</option></select></label>
           <label>State <select id="filterGoDrillNotificationState"><option value="">Any</option><option value="acknowledged">Acknowledged</option><option value="dismissed">Dismissed</option><option value="escalated">Escalated</option><option value="resolved">Resolved</option><option value="outstanding">Outstanding</option></select></label>
           <label>Kind <select id="filterGoDrillNotificationKind"><option value="">Any</option><option value="go-backend-rollback-drill-notification-plan">Notification plan</option><option value="go-backend-rollback-drill-notification-ack">Acknowledgement</option><option value="go-backend-rollback-drill-notification-escalation-plan">Escalation plan</option><option value="release-connector-delivery">Connector delivery</option></select></label>
+          <label>Route action <select id="filterGoDrillNotificationAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="suppress">Suppress</option></select></label>
+          <label>Suppression <select id="filterGoDrillNotificationCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="healthy_schedule">Healthy schedule</option><option value="other">Other</option></select></label>
         </div>
         <div class="recurrence-grid">
           <div>
@@ -740,6 +743,45 @@
                   </tr>
                 </thead>
                 <tbody id="goDrillEscalationRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="recurrence-grid">
+          <div>
+            <h3>Routing History</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Route</th>
+                    <th>Owner</th>
+                    <th>Provider</th>
+                    <th>Action</th>
+                    <th>Category</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="goDrillRouteRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>Suppression Summary</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Events</th>
+                    <th>Top Owner</th>
+                    <th>Top Provider</th>
+                    <th>Generated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="goDrillSuppressionTrendRows"></tbody>
               </table>
             </div>
           </div>
