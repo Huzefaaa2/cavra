@@ -56,6 +56,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Backend Rollback Drill Retry Recovery Reporting: `Go-Backend-Rollback-Drill-Retry-Recovery-Reporting.md`
 - Go Backend Rollback Drill Recovery Escalation And Executive Reporting: `Go-Backend-Rollback-Drill-Recovery-Escalation-And-Executive-Reporting.md`
 - Go Backend Rollback Drill Recovery Escalation Acknowledgements And Scheduling: `Go-Backend-Rollback-Drill-Recovery-Escalation-Acknowledgements-And-Scheduling.md`
+- Go Backend Rollback Drill Recovery Escalation Retry Execution And Executive Delivery: `Go-Backend-Rollback-Drill-Recovery-Escalation-Retry-Execution-And-Executive-Delivery.md`
 - Vulnerability Disclosure: `Vulnerability-Disclosure.md`
 - Release Security Advisories: `Release-Security-Advisories.md`
 - Implementation Plan: `Implementation-Plan.md`

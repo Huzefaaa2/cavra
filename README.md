@@ -407,9 +407,13 @@ Current phase status:
 - Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console, optional API configuration for backend-driven scenario runs, telemetry-free public run counters, and post-deploy smoke validation.
 - Phase 10: Production Readiness and Release.
 
+Latest delivery:
+
+- Automated recovery escalation retry execution and scheduled executive report delivery are now documented in [docs/go-backend-rollback-drill-recovery-escalation-retry-execution-and-executive-delivery.md](docs/go-backend-rollback-drill-recovery-escalation-retry-execution-and-executive-delivery.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-recovery-escalation-retry-execution-and-executive-delivery.svg](docs/diagrams/go-backend-rollback-drill-recovery-escalation-retry-execution-and-executive-delivery.svg).
+
 Next recommended implementation work:
 
-- Add automated recovery escalation retry execution and scheduled executive report delivery.
+- Add recovery escalation retry health reporting and executive report delivery retry planning.
 
 ## User stories and enterprise value
 
