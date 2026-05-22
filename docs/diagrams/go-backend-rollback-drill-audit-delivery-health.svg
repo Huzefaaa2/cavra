@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="title desc">
+  <title id="title">Go Backend Rollback Drill Audit Delivery Health</title>
+  <desc id="desc">CAVRA filters acknowledgement audit delivery history and summarizes delivery health across SIEM, ITSM, ChatOps, and webhook destinations.</desc>
+  <defs>
+    <style>
+      .bg { fill: #081113; }
+      .panel { fill: #101a1e; stroke: #6bdcc2; stroke-width: 2; rx: 12; }
+      .panel-alt { fill: #152229; stroke: #8bb3c0; stroke-width: 1.5; rx: 12; }
+      .title { fill: #f4fbff; font: 700 30px Arial, sans-serif; }
+      .heading { fill: #78e0c5; font: 700 18px Arial, sans-serif; }
+      .text { fill: #e7f1f5; font: 14px Arial, sans-serif; }
+      .muted { fill: #aac1c8; font: 13px Arial, sans-serif; }
+      .good { fill: #6bdcc2; }
+      .bad { fill: #f47c7c; }
+      .line { stroke: #6bdcc2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #8bb3c0; stroke-width: 2; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrow-muted); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6bdcc2" />
+    </marker>
+    <marker id="arrow-muted" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#8bb3c0" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1180" height="720" />
+  <text class="title" x="48" y="54">Acknowledgement Audit Delivery Health</text>
+  <text class="muted" x="48" y="82">Searchable public-safe delivery metadata for rollback drill acknowledgement audit routing.</text>
+
+  <rect class="panel" x="48" y="126" width="260" height="128" />
+  <text class="heading" x="72" y="162">Evidence Store</text>
+  <text class="text" x="72" y="192">Audit packages</text>
+  <text class="text" x="72" y="216">Delivery plans</text>
+  <text class="text" x="72" y="240">Connector delivery records</text>
+
+  <rect class="panel" x="388" y="126" width="300" height="128" />
+  <text class="heading" x="412" y="162">History Filters</text>
+  <text class="text" x="412" y="192">Source, provider, status</text>
+  <text class="text" x="412" y="216">Audit ID, delivery ID</text>
+  <text class="text" x="412" y="240">Cadence and alert level</text>
+
+  <rect class="panel" x="768" y="126" width="320" height="128" />
+  <text class="heading" x="792" y="162">Health Summary</text>
+  <text class="text" x="792" y="192">Plan count and send count</text>
+  <text class="text" x="792" y="216">Failed audit deliveries</text>
+  <text class="text" x="792" y="240">Success rate and providers</text>
+
+  <rect class="panel-alt" x="90" y="342" width="220" height="120" />
+  <text class="heading" x="114" y="378">SIEM</text>
+  <text class="text" x="114" y="408">Splunk</text>
+  <text class="text" x="114" y="432">Sentinel, Datadog</text>
+
+  <rect class="panel-alt" x="370" y="342" width="220" height="120" />
+  <text class="heading" x="394" y="378">ITSM</text>
+  <text class="text" x="394" y="408">Jira</text>
+  <text class="text" x="394" y="432">ServiceNow</text>
+
+  <rect class="panel-alt" x="650" y="342" width="220" height="120" />
+  <text class="heading" x="674" y="378">ChatOps</text>
+  <text class="text" x="674" y="408">Slack</text>
+  <text class="text" x="674" y="432">Teams, Webhook</text>
+
+  <rect class="panel" x="930" y="342" width="190" height="120" />
+  <text class="heading" x="954" y="378">Dashboard</text>
+  <text class="good" x="954" y="408">Healthy routes</text>
+  <text class="bad" x="954" y="432">Failed routes</text>
+
+  <rect class="panel" x="250" y="558" width="680" height="92" />
+  <text class="heading" x="274" y="594">Next: Retry Automation and Scheduled Worker Execution</text>
+  <text class="muted" x="274" y="622">Health metrics make failed acknowledgement audit delivery visible enough for governed retry workers.</text>
+
+  <path class="line" d="M308 190 H378" />
+  <path class="line" d="M688 190 H758" />
+  <path class="dash" d="M928 254 V332" />
+  <path class="dash" d="M200 342 V284 H928" />
+  <path class="dash" d="M480 342 V284 H928" />
+  <path class="dash" d="M760 342 V284 H928" />
+  <path class="line" d="M1025 462 V548" />
+</svg>

@@ -1781,6 +1781,25 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         },
     )
     history = client.get("/runtime/go-pilot/rollback-drill-notifications")
+    audit_delivery_history = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications",
+        params={"connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit"},
+    )
+    failed_audit_delivery_history = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications",
+        params={
+            "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit",
+            "delivery_success": False,
+        },
+    )
+    cadence_history = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications",
+        params={"cadence": "hourly"},
+    )
+    audit_id_history = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications",
+        params={"audit_id": acknowledgement_audit_delivery.json()["audit_package"]["audit_id"]},
+    )
     routes = client.get(
         "/runtime/go-pilot/rollback-drill-notifications/routes",
         params={"owner": "release-governance", "provider": "webhook"},
@@ -1827,6 +1846,15 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert history.status_code == 200
     assert history.json()["total"] >= 7
+    assert audit_delivery_history.status_code == 200
+    assert audit_delivery_history.json()["total"] >= 3
+    assert failed_audit_delivery_history.status_code == 200
+    assert failed_audit_delivery_history.json()["total"] == 1
+    assert cadence_history.status_code == 200
+    assert cadence_history.json()["total"] == 1
+    assert cadence_history.json()["items"][0]["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-plan"
+    assert audit_id_history.status_code == 200
+    assert audit_id_history.json()["total"] >= 3
     assert routes.status_code == 200
     assert routes.json()["total"] == 1
     assert routes.json()["items"][0]["action"] == "deliver"
@@ -1837,6 +1865,10 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert dashboard_after.status_code == 200
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
+    assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_count"] == 1
+    assert dashboard_after.json()["failed_acknowledgement_audit_delivery_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_health"] == "critical"
 
 
 def test_api_integration_delivery_uses_connector_config(monkeypatch, tmp_path) -> None:

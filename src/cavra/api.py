@@ -902,6 +902,10 @@ def create_app():
                         result,
                         source="go_backend_rollback_drill_acknowledgement_audit",
                     )
+                    | {
+                        "audit_id": package.get("audit_id"),
+                        "delivery_id": plan.get("delivery_id"),
+                    }
                 )
             return {
                 "audit_package": package,
@@ -922,6 +926,12 @@ def create_app():
         provider: Optional[str] = None,
         metadata_kind: Optional[str] = None,
         acknowledgement_state: Optional[str] = None,
+        connector_delivery_source: Optional[str] = None,
+        delivery_success: Optional[bool] = None,
+        alert_level: Optional[str] = None,
+        audit_id: Optional[str] = None,
+        delivery_id: Optional[str] = None,
+        cadence: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, object]:
@@ -931,6 +941,12 @@ def create_app():
             provider=provider,
             metadata_kind=metadata_kind,
             acknowledgement_state=acknowledgement_state,
+            connector_delivery_source=connector_delivery_source,
+            delivery_success=delivery_success,
+            alert_level=alert_level,
+            audit_id=audit_id,
+            delivery_id=delivery_id,
+            cadence=cadence,
             limit=limit,
             offset=offset,
         )

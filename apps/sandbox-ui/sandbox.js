@@ -1975,6 +1975,7 @@ function selectedGoDrillNotificationFilters() {
     provider: document.querySelector("#filterGoDrillNotificationProvider")?.value || "",
     state: document.querySelector("#filterGoDrillNotificationState")?.value || "",
     kind: document.querySelector("#filterGoDrillNotificationKind")?.value || "",
+    deliverySource: document.querySelector("#filterGoDrillDeliverySource")?.value || "",
     action: document.querySelector("#filterGoDrillNotificationAction")?.value || "",
     category: document.querySelector("#filterGoDrillNotificationCategory")?.value || ""
   };
@@ -2008,6 +2009,13 @@ function goDrillNotificationProviders(item) {
   return [...new Set(providers.map(String))];
 }
 
+function goDrillDeliverySource(item) {
+  if (item?.connector_delivery_source) return String(item.connector_delivery_source);
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-package") return "go_backend_rollback_drill_acknowledgement_audit";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-plan") return "go_backend_rollback_drill_acknowledgement_audit";
+  return "go_backend_rollback_drill_notification";
+}
+
 function goDrillNotificationStatus(item) {
   if (item?.acknowledgement_state) return String(item.acknowledgement_state);
   if (item?.delivery_success === false) return "delivery_failed";
@@ -2020,6 +2028,7 @@ function filterGoDrillNotificationHistory(items) {
   const filters = selectedGoDrillNotificationFilters();
   return items.filter((item) => {
     if (filters.kind && item.metadata_kind !== filters.kind) return false;
+    if (filters.deliverySource && goDrillDeliverySource(item) !== filters.deliverySource) return false;
     if (filters.provider && !goDrillNotificationProviders(item).includes(filters.provider)) return false;
     if (filters.state) {
       const status = goDrillNotificationStatus(item);
@@ -2037,6 +2046,9 @@ function filterGoDrillNotificationHistory(items) {
 function buildSampleGoDrillNotificationDashboard(items) {
   const plans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-plan");
   const deliveries = items.filter((item) => item.metadata_kind === "release-connector-delivery");
+  const auditPackages = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-package");
+  const auditDeliveryPlans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-plan");
+  const auditDeliveries = deliveries.filter((item) => item.connector_delivery_source === "go_backend_rollback_drill_acknowledgement_audit");
   const acknowledgements = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-ack");
   const escalationRoutes = items.flatMap((item) => {
     const plan = item.escalation_plan && typeof item.escalation_plan === "object" ? item.escalation_plan : {};
@@ -2044,12 +2056,21 @@ function buildSampleGoDrillNotificationDashboard(items) {
   });
   const outstanding = escalationRoutes.filter((route) => route.acknowledged === false || route.acknowledgement_state === "outstanding");
   const failedDeliveries = deliveries.filter((item) => item.delivery_success === false);
+  const failedAuditDeliveries = auditDeliveries.filter((item) => item.delivery_success === false);
+  const auditDeliverySuccessCount = auditDeliveries.filter((item) => item.delivery_success === true).length;
   return {
     alert_level: failedDeliveries.length || outstanding.length ? "critical" : "healthy",
     plan_count: plans.length,
     delivery_count: deliveries.length,
     failed_delivery_count: failedDeliveries.length,
     acknowledgement_count: acknowledgements.length,
+    acknowledgement_audit_package_count: auditPackages.length,
+    acknowledgement_audit_delivery_plan_count: auditDeliveryPlans.length,
+    acknowledgement_audit_delivery_count: auditDeliveries.length,
+    failed_acknowledgement_audit_delivery_count: failedAuditDeliveries.length,
+    acknowledgement_audit_delivery_success_count: auditDeliverySuccessCount,
+    acknowledgement_audit_delivery_success_rate: auditDeliveries.length ? auditDeliverySuccessCount / auditDeliveries.length : null,
+    acknowledgement_audit_delivery_health: failedAuditDeliveries.length ? "critical" : "healthy",
     outstanding_acknowledgement_count: outstanding.length,
     outstanding_acknowledgements: outstanding.map((route) => ({
       schedule_id: route.schedule_id,
@@ -3841,6 +3862,26 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
       <strong>${formatMetricNumber(dashboard.delivery_count || historyItems.filter((item) => item.metadata_kind === "release-connector-delivery").length)}</strong>
     </div>
     <div class="release-delivery-metric">
+      <span>Audit Delivery Health</span>
+      <strong class="${dashboard.acknowledgement_audit_delivery_health === "critical" ? "block" : "allow"}">${escapeHtml(dashboard.acknowledgement_audit_delivery_health || "healthy")}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Audit Plans</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_plan_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-plan").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Audit Sends</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_count || historyItems.filter((item) => item.connector_delivery_source === "go_backend_rollback_drill_acknowledgement_audit").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Audit Failed</span>
+      <strong class="${Number(dashboard.failed_acknowledgement_audit_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_acknowledgement_audit_delivery_count || historyItems.filter((item) => item.connector_delivery_source === "go_backend_rollback_drill_acknowledgement_audit" && item.delivery_success === false).length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Audit Success</span>
+      <strong>${dashboard.acknowledgement_audit_delivery_success_rate == null ? "n/a" : `${Math.round(Number(dashboard.acknowledgement_audit_delivery_success_rate) * 100)}%`}</strong>
+    </div>
+    <div class="release-delivery-metric">
       <span>Failed Delivery</span>
       <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || historyItems.filter((item) => item.delivery_success === false).length)}</strong>
     </div>
@@ -5580,7 +5621,7 @@ document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurr
   control.addEventListener("input", refreshEndpointRecurrenceOperations);
   control.addEventListener("change", refreshEndpointRecurrenceOperations);
 });
-document.querySelectorAll("#filterGoDrillNotificationOwner, #filterGoDrillNotificationProvider, #filterGoDrillNotificationState, #filterGoDrillNotificationKind, #filterGoDrillNotificationAction, #filterGoDrillNotificationCategory").forEach((control) => {
+document.querySelectorAll("#filterGoDrillNotificationOwner, #filterGoDrillNotificationProvider, #filterGoDrillNotificationState, #filterGoDrillNotificationKind, #filterGoDrillDeliverySource, #filterGoDrillNotificationAction, #filterGoDrillNotificationCategory").forEach((control) => {
   control.addEventListener("input", refreshGoRollbackDrillNotifications);
   control.addEventListener("change", refreshGoRollbackDrillNotifications);
 });

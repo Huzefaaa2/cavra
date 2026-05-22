@@ -108,6 +108,10 @@ See `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg` for
 
 See `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg` for the scheduled acknowledgement audit delivery routing flow.
 
+## Go Backend Rollback Drill Audit Delivery Health
+
+See `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg` for acknowledgement audit delivery history filtering and health dashboards.
+
 ## SVG Images
 
 Repository diagram images:
@@ -136,6 +140,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`
 - `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`
 - `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`
+- `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

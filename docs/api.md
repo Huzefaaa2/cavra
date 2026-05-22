@@ -93,6 +93,7 @@ Read-only operations endpoints:
 - `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery`: build an acknowledgement audit package, create a public-safe scheduled delivery plan, route it through configured SIEM/ITSM/ChatOps connectors, and index redacted connector delivery evidence.
 - `GET /runtime/go-pilot/rollback-drill-notifications`: search rollback drill notification plans, redacted delivery records, acknowledgements, escalation plans, acknowledgement audit packages, and acknowledgement audit delivery plans.
 - `GET /runtime/go-pilot/rollback-drill-notifications/dashboard`: summarize drill notification delivery, acknowledgement, and outstanding route counts.
+- Rollback drill notification history supports `connector_delivery_source`, `delivery_success`, `alert_level`, `audit_id`, `delivery_id`, and `cadence` filters; the dashboard includes acknowledgement audit delivery health, success rate, failed audit delivery count, and destination provider summaries.
 - `GET /runtime/go-pilot/rollback-drill-notifications/routes`: flatten persisted notification plan route decisions with optional `schedule_id`, `provider`, `owner`, `action`, and `category` filters.
 - `GET /runtime/go-pilot/rollback-drill-notifications/suppression-trends`: summarize and persist public-safe routing suppression trends by category, owner, provider, and schedule.
 - `POST /runtime/go-pilot/rollback-drill-notifications/escalation-plan`: generate a missed-notification escalation plan from acknowledgement SLO policy.

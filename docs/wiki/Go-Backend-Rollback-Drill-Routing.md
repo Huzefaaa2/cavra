@@ -127,4 +127,4 @@ Enterprise release teams need rollback drills to respect change freezes, owner a
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.
+The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.

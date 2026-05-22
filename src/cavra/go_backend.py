@@ -1114,6 +1114,12 @@ def filter_go_rollback_drill_notification_history(
     provider: str | None = None,
     metadata_kind: str | None = None,
     acknowledgement_state: str | None = None,
+    connector_delivery_source: str | None = None,
+    delivery_success: bool | None = None,
+    alert_level: str | None = None,
+    audit_id: str | None = None,
+    delivery_id: str | None = None,
+    cadence: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
@@ -1153,12 +1159,70 @@ def filter_go_rollback_drill_notification_history(
             if item.get("provider") == provider
             or provider in item.get("selected_providers", [])
             or provider in item.get("providers", [])
+            or provider in item.get("failed_providers", [])
+            or (
+                isinstance(item.get("acknowledgement_audit_package"), dict)
+                and any(
+                    isinstance(route, dict) and route.get("provider") == provider
+                    for route in item["acknowledgement_audit_package"].get("routes", [])
+                )
+            )
         ]
     if metadata_kind:
         filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
     if acknowledgement_state:
         state = acknowledgement_state.strip().lower().replace("-", "_")
         filtered = [item for item in filtered if item.get("acknowledgement_state") == state]
+    if connector_delivery_source:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("connector_delivery_source") == connector_delivery_source
+            or (
+                connector_delivery_source == "go_backend_rollback_drill_acknowledgement_audit"
+                and item.get("metadata_kind")
+                in {
+                    "go-backend-rollback-drill-acknowledgement-audit-package",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
+                }
+            )
+        ]
+    if delivery_success is not None:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("metadata_kind") == "release-connector-delivery"
+            and bool(item.get("delivery_success")) is delivery_success
+        ]
+    if alert_level:
+        filtered = [item for item in filtered if item.get("alert_level") == alert_level]
+    if audit_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("audit_id") == audit_id
+            or (
+                isinstance(item.get("acknowledgement_audit_delivery_plan"), dict)
+                and item["acknowledgement_audit_delivery_plan"].get("audit_id") == audit_id
+            )
+        ]
+    if delivery_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("delivery_id") == delivery_id
+            or item.get("event_id") == delivery_id
+            or item.get("session_id") == delivery_id
+        ]
+    if cadence:
+        filtered = [
+            item
+            for item in filtered
+            if (
+                isinstance(item.get("acknowledgement_audit_delivery_plan"), dict)
+                and item["acknowledgement_audit_delivery_plan"].get("cadence") == cadence
+            )
+        ]
     filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
     return {
         "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-history.v1",
@@ -1174,6 +1238,24 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
     history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
     plans = [item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-plan"]
     deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    audit_packages = [
+        item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-package"
+    ]
+    audit_delivery_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-plan"
+    ]
+    audit_deliveries = [
+        item
+        for item in deliveries
+        if item.get("connector_delivery_source") == "go_backend_rollback_drill_acknowledgement_audit"
+    ]
+    notification_deliveries = [
+        item
+        for item in deliveries
+        if item.get("connector_delivery_source") == "go_backend_rollback_drill_notification"
+    ]
     acknowledgements = [
         item for item in history if item.get("metadata_kind") == "go-backend-rollback-drill-notification-ack"
     ]
@@ -1190,7 +1272,26 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
             if key not in acknowledged:
                 outstanding.append({"schedule_id": key[0], "provider": key[1], "plan_id": plan.get("plan_id")})
     failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    failed_audit_deliveries = [item for item in audit_deliveries if not item.get("delivery_success")]
+    audit_delivery_success_count = len([item for item in audit_deliveries if item.get("delivery_success")])
+    audit_delivery_attempt_count = len(audit_deliveries)
+    audit_delivery_success_rate = (
+        round(audit_delivery_success_count / audit_delivery_attempt_count, 4)
+        if audit_delivery_attempt_count
+        else None
+    )
+    audit_delivery_providers = _unique_sorted(
+        provider
+        for item in [*audit_delivery_plans, *audit_deliveries]
+        for provider in [
+            *(item.get("selected_providers") or []),
+            *(item.get("providers") or []),
+            *(item.get("failed_providers") or []),
+        ]
+        if provider
+    )
     alert_level = "critical" if failed_deliveries or outstanding else "healthy"
+    audit_delivery_health = "critical" if failed_audit_deliveries else "healthy"
     return {
         "schema_version": "cavra.go-backend-pilot.rollback-drill-notification-dashboard.v1",
         "product": "CAVRA",
@@ -1198,8 +1299,17 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         "alert_level": alert_level,
         "plan_count": len(plans),
         "delivery_count": len(deliveries),
+        "notification_delivery_count": len(notification_deliveries),
         "failed_delivery_count": len(failed_deliveries),
         "acknowledgement_count": len(acknowledgements),
+        "acknowledgement_audit_package_count": len(audit_packages),
+        "acknowledgement_audit_delivery_plan_count": len(audit_delivery_plans),
+        "acknowledgement_audit_delivery_count": audit_delivery_attempt_count,
+        "failed_acknowledgement_audit_delivery_count": len(failed_audit_deliveries),
+        "acknowledgement_audit_delivery_success_count": audit_delivery_success_count,
+        "acknowledgement_audit_delivery_success_rate": audit_delivery_success_rate,
+        "acknowledgement_audit_delivery_providers": audit_delivery_providers,
+        "acknowledgement_audit_delivery_health": audit_delivery_health,
         "outstanding_acknowledgement_count": len(outstanding),
         "outstanding_acknowledgements": outstanding[:20],
         "latest": history[:10],

@@ -579,6 +579,68 @@ def test_go_rollback_drill_acknowledgement_audit_delivery_redacts_route_notes(tm
     assert metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-plan"
 
 
+def test_go_rollback_drill_acknowledgement_audit_delivery_history_filters_and_dashboard(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    package = build_go_rollback_drill_acknowledgement_audit_package([plan_metadata], generated_by="test")
+    package_metadata = build_go_rollback_drill_acknowledgement_audit_package_metadata(package)
+    delivery_plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+        package,
+        requested_provider="splunk",
+        available_providers=["splunk"],
+        generated_by="test",
+        cadence="hourly",
+    )
+    delivery_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(delivery_plan)
+    connector_metadata = {
+        "session_id": "connector-delivery-1",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit",
+        "audit_id": package["audit_id"],
+        "delivery_id": delivery_plan["delivery_id"],
+        "event_id": delivery_plan["delivery_id"],
+        "delivery_success": False,
+        "providers": ["splunk"],
+        "failed_providers": ["splunk"],
+    }
+    items = [plan_metadata, package_metadata, delivery_metadata, connector_metadata]
+
+    source_history = filter_go_rollback_drill_notification_history(
+        items,
+        connector_delivery_source="go_backend_rollback_drill_acknowledgement_audit",
+    )
+    failed_history = filter_go_rollback_drill_notification_history(
+        items,
+        connector_delivery_source="go_backend_rollback_drill_acknowledgement_audit",
+        delivery_success=False,
+    )
+    cadence_history = filter_go_rollback_drill_notification_history(items, cadence="hourly")
+    audit_id_history = filter_go_rollback_drill_notification_history(items, audit_id=package["audit_id"])
+    provider_history = filter_go_rollback_drill_notification_history(items, provider="splunk")
+    dashboard = build_go_rollback_drill_notification_dashboard(items)
+
+    assert source_history["total"] == 3
+    assert failed_history["total"] == 1
+    assert cadence_history["items"][0]["delivery_id"] == delivery_plan["delivery_id"]
+    assert audit_id_history["total"] == 3
+    assert provider_history["total"] == 2
+    assert dashboard["acknowledgement_audit_delivery_plan_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_count"] == 1
+    assert dashboard["failed_acknowledgement_audit_delivery_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_health"] == "critical"
+    assert dashboard["acknowledgement_audit_delivery_providers"] == ["splunk"]
+
+
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:
     drills = _write_rollback_drill_history(tmp_path)
     schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
