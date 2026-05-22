@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA retry recovery reporting</title>
+  <desc id="desc">Retry execution dashboards, recovery SLO reporting, and closure trend analytics.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071214"/>
+      <stop offset="100%" stop-color="#10282e"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#70e0c2"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #eef7f6; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b8c9cb; }
+      .box { fill: #0c1a1f; stroke: #31535a; stroke-width: 1.5; rx: 16; filter: url(#shadow); }
+      .panel { fill: #102a2f; stroke: #70e0c2; stroke-width: 1.5; rx: 14; }
+      .label { font: 700 18px Arial, sans-serif; fill: #eef7f6; }
+      .text { font: 400 14px Arial, sans-serif; fill: #c6d6d8; }
+      .small { font: 400 12px Arial, sans-serif; fill: #9fb4b8; }
+      .arrow { stroke: #70e0c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .muted { stroke: #42616a; stroke-width: 2; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+      .ok { fill: #70e0c2; }
+      .warn { fill: #f9c85f; }
+      .bad { fill: #ff7a7a; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="64" y="72" class="title">Retry Recovery Reporting</text>
+  <text x="64" y="104" class="subtitle">Execution dashboards, recovery SLOs, and closure trends from public-safe evidence</text>
+
+  <rect x="70" y="162" width="260" height="130" class="box"/>
+  <circle cx="102" cy="196" r="8" class="ok"/>
+  <text x="122" y="202" class="label">Execution Records</text>
+  <text x="102" y="238" class="text">Approved live retry results</text>
+  <text x="102" y="258" class="small">delivered / failed / skipped</text>
+
+  <rect x="70" y="374" width="260" height="130" class="box"/>
+  <circle cx="102" cy="408" r="8" class="warn"/>
+  <text x="122" y="414" class="label">Recovery Evidence</text>
+  <text x="102" y="450" class="text">Playbooks and closure records</text>
+  <text x="102" y="470" class="small">resolved / mitigated / open</text>
+
+  <rect x="462" y="146" width="356" height="382" class="panel"/>
+  <text x="502" y="188" class="label">Retry Recovery Report</text>
+  <text x="502" y="226" class="text">Provider execution summaries</text>
+  <text x="502" y="254" class="text">Recovery SLO rows and breach state</text>
+  <text x="502" y="282" class="text">Daily closure trend analytics</text>
+  <text x="502" y="310" class="text">Latest execution audit references</text>
+  <rect x="502" y="354" width="276" height="42" rx="10" fill="#071214" stroke="#31535a"/>
+  <text x="526" y="381" class="small">No secrets, private URLs, or ticket payloads</text>
+  <rect x="502" y="420" width="276" height="42" rx="10" fill="#071214" stroke="#31535a"/>
+  <text x="526" y="447" class="small">SLO threshold defaults to 240 minutes</text>
+
+  <rect x="950" y="154" width="250" height="116" class="box"/>
+  <circle cx="982" cy="188" r="8" class="bad"/>
+  <text x="1002" y="194" class="label">SLO Breaches</text>
+  <text x="982" y="230" class="text">Open recoveries past threshold</text>
+
+  <rect x="950" y="314" width="250" height="116" class="box"/>
+  <circle cx="982" cy="348" r="8" class="ok"/>
+  <text x="1002" y="354" class="label">Provider Health</text>
+  <text x="982" y="390" class="text">Execution and closure counts</text>
+
+  <rect x="950" y="474" width="250" height="116" class="box"/>
+  <circle cx="982" cy="508" r="8" class="warn"/>
+  <text x="1002" y="514" class="label">Trend Analytics</text>
+  <text x="982" y="550" class="text">Daily closure state rollups</text>
+
+  <path d="M330 226 C392 226 392 214 454 214" class="arrow"/>
+  <path d="M330 438 C392 438 392 456 454 456" class="arrow"/>
+  <path d="M818 244 C886 244 886 212 942 212" class="arrow"/>
+  <path d="M818 338 C886 338 886 372 942 372" class="arrow"/>
+  <path d="M818 456 C886 456 886 532 942 532" class="arrow"/>
+
+  <rect x="70" y="618" width="1140" height="52" rx="14" fill="#0a181c" stroke="#31535a"/>
+  <text x="100" y="650" class="text">Evidence Console surfaces retry recovery SLO rows beside notification history, escalation routes, routing history, and suppression summaries.</text>
+</svg>

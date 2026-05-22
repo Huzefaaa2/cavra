@@ -1136,6 +1136,7 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1202,6 +1203,7 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1310,6 +1312,12 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure"
+    ]
+    audit_delivery_retry_recovery_reports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1437,6 +1445,9 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
                 for item in audit_delivery_connector_recovery_closures
                 if item.get("closure_state") in {"resolved", "mitigated"}
             ]
+        ),
+        "acknowledgement_audit_delivery_retry_recovery_report_count": len(
+            audit_delivery_retry_recovery_reports
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -1759,6 +1770,281 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard(
         "retryable_count": retryable_count,
         "selected_retry_count": selected_retry_count,
         "latest": runs[:10],
+    }
+
+
+def _go_metadata_payload(item: dict[str, Any], key: str) -> dict[str, Any]:
+    payload = item.get(key)
+    return payload if isinstance(payload, dict) else item
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report(
+    items: list[dict[str, Any]],
+    *,
+    recovery_slo_minutes: int = 240,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    recovery_slo_minutes = max(1, int(recovery_slo_minutes or 240))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    execution_records = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record"
+    ]
+    recovery_playbooks = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook"
+    ]
+    recovery_closures = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure"
+    ]
+
+    execution_status_counts: dict[str, int] = {}
+    provider_summary: dict[str, dict[str, Any]] = {}
+    latest_executions = []
+    for item in execution_records:
+        record = _go_metadata_payload(item, "retry_execution_record")
+        provider = str(record.get("provider") or item.get("provider") or "unknown")
+        status = str(record.get("execution_status") or item.get("execution_status") or "unknown")
+        execution_status_counts[status] = execution_status_counts.get(status, 0) + 1
+        summary = provider_summary.setdefault(
+            provider,
+            {
+                "provider": provider,
+                "execution_count": 0,
+                "execution_delivered_count": 0,
+                "execution_failed_count": 0,
+                "execution_skipped_count": 0,
+                "recovery_playbook_count": 0,
+                "recovery_closure_count": 0,
+                "open_recovery_count": 0,
+                "slo_breached_count": 0,
+                "latest_execution_at": "",
+                "latest_closure_at": "",
+            },
+        )
+        summary["execution_count"] += 1
+        if status == "delivered":
+            summary["execution_delivered_count"] += 1
+        elif status == "skipped":
+            summary["execution_skipped_count"] += 1
+        elif status == "failed":
+            summary["execution_failed_count"] += 1
+        executed_at = str(record.get("executed_at") or item.get("created_at") or "")
+        if executed_at > str(summary.get("latest_execution_at") or ""):
+            summary["latest_execution_at"] = executed_at
+        latest_executions.append(
+            {
+                "execution_id": record.get("execution_id") or item.get("execution_id"),
+                "provider": provider,
+                "execution_status": status,
+                "executed_at": executed_at,
+                "delivery_success": bool(record.get("delivery_success")),
+                "approval_decision_id": record.get("approval_decision_id") or item.get("approval_decision_id"),
+                "run_id": record.get("run_id") or item.get("run_id"),
+            }
+        )
+
+    closure_by_playbook_provider: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    closure_state_counts: dict[str, int] = {}
+    closure_trends: dict[str, dict[str, Any]] = {}
+    for item in recovery_closures:
+        closure = _go_metadata_payload(item, "connector_recovery_closure")
+        provider = str(closure.get("provider") or item.get("provider") or "unknown")
+        playbook_id = str(closure.get("playbook_id") or item.get("playbook_id") or "")
+        state = str(closure.get("closure_state") or item.get("closure_state") or "unknown")
+        closed_at = str(closure.get("closed_at") or item.get("created_at") or "")
+        closure_by_playbook_provider.setdefault((playbook_id, provider), []).append(closure)
+        closure_state_counts[state] = closure_state_counts.get(state, 0) + 1
+        day = closed_at[:10] or "unknown"
+        trend = closure_trends.setdefault(
+            day,
+            {
+                "date": day,
+                "closure_count": 0,
+                "resolved_count": 0,
+                "mitigated_count": 0,
+                "deferred_count": 0,
+                "escalated_count": 0,
+                "reopened_count": 0,
+                "provider_counts": {},
+            },
+        )
+        trend["closure_count"] += 1
+        trend[f"{state}_count"] = int(trend.get(f"{state}_count") or 0) + 1
+        trend["provider_counts"][provider] = trend["provider_counts"].get(provider, 0) + 1
+        summary = provider_summary.setdefault(
+            provider,
+            {
+                "provider": provider,
+                "execution_count": 0,
+                "execution_delivered_count": 0,
+                "execution_failed_count": 0,
+                "execution_skipped_count": 0,
+                "recovery_playbook_count": 0,
+                "recovery_closure_count": 0,
+                "open_recovery_count": 0,
+                "slo_breached_count": 0,
+                "latest_execution_at": "",
+                "latest_closure_at": "",
+            },
+        )
+        summary["recovery_closure_count"] += 1
+        if closed_at > str(summary.get("latest_closure_at") or ""):
+            summary["latest_closure_at"] = closed_at
+
+    recovery_rows = []
+    for item in recovery_playbooks:
+        playbook = _go_metadata_payload(item, "connector_recovery_playbook")
+        playbook_id = str(playbook.get("playbook_id") or item.get("playbook_id") or "")
+        generated_at = str(playbook.get("generated_at") or item.get("created_at") or "")
+        generated_dt = _parse_iso_datetime(generated_at)
+        age_minutes = int((now - generated_dt).total_seconds() // 60) if generated_dt else None
+        for provider_playbook in playbook.get("provider_playbooks", []) or []:
+            if not isinstance(provider_playbook, dict):
+                continue
+            provider = str(provider_playbook.get("provider") or "unknown")
+            summary = provider_summary.setdefault(
+                provider,
+                {
+                    "provider": provider,
+                    "execution_count": 0,
+                    "execution_delivered_count": 0,
+                    "execution_failed_count": 0,
+                    "execution_skipped_count": 0,
+                    "recovery_playbook_count": 0,
+                    "recovery_closure_count": 0,
+                    "open_recovery_count": 0,
+                    "slo_breached_count": 0,
+                    "latest_execution_at": "",
+                    "latest_closure_at": "",
+                },
+            )
+            summary["recovery_playbook_count"] += 1
+            closures = sorted(
+                closure_by_playbook_provider.get((playbook_id, provider), []),
+                key=lambda closure: str(closure.get("closed_at") or ""),
+                reverse=True,
+            )
+            latest_closure = closures[0] if closures else {}
+            closure_state = str(latest_closure.get("closure_state") or "open")
+            closed = closure_state in {"resolved", "mitigated"}
+            breached = not closed and age_minutes is not None and age_minutes > recovery_slo_minutes
+            if not closed:
+                summary["open_recovery_count"] += 1
+            if breached:
+                summary["slo_breached_count"] += 1
+            closed_at = str(latest_closure.get("closed_at") or "")
+            closed_dt = _parse_iso_datetime(closed_at) if closed_at else None
+            closure_minutes = (
+                int((closed_dt - generated_dt).total_seconds() // 60)
+                if generated_dt is not None and closed_dt is not None
+                else None
+            )
+            recovery_rows.append(
+                {
+                    "playbook_id": playbook_id,
+                    "provider": provider,
+                    "category": provider_playbook.get("category", "unknown"),
+                    "failure_count": int(provider_playbook.get("failure_count") or 0),
+                    "generated_at": generated_at,
+                    "age_minutes": age_minutes,
+                    "recovery_slo_minutes": recovery_slo_minutes,
+                    "closure_state": closure_state,
+                    "closure_id": latest_closure.get("closure_id", ""),
+                    "closed_at": closed_at,
+                    "closure_minutes": closure_minutes,
+                    "slo_status": "breached" if breached else "closed" if closed else "open",
+                    "slo_breached": breached,
+                }
+            )
+
+    execution_count = len(execution_records)
+    execution_success_count = execution_status_counts.get("delivered", 0)
+    execution_failed_count = execution_status_counts.get("failed", 0) + execution_status_counts.get("skipped", 0)
+    recovery_closed_count = len([row for row in recovery_rows if row["closure_state"] in {"resolved", "mitigated"}])
+    recovery_open_count = len([row for row in recovery_rows if row["closure_state"] not in {"resolved", "mitigated"}])
+    recovery_slo_breached_count = len([row for row in recovery_rows if row["slo_breached"]])
+    alert_level = (
+        "critical"
+        if recovery_slo_breached_count or execution_failed_count
+        else "warning"
+        if recovery_open_count
+        else "healthy"
+    )
+    material = json.dumps(
+        {
+            "generated_at": now.isoformat(),
+            "execution_count": execution_count,
+            "recovery_rows": recovery_rows,
+            "recovery_slo_minutes": recovery_slo_minutes,
+        },
+        sort_keys=True,
+    )
+    report_id = f"gordackretryreport-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-retry-recovery-report.v1",
+        "product": "CAVRA",
+        "report_id": report_id,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "recovery_slo_minutes": recovery_slo_minutes,
+        "execution_count": execution_count,
+        "execution_success_count": execution_success_count,
+        "execution_failed_count": execution_failed_count,
+        "execution_success_rate": round(execution_success_count / execution_count, 4) if execution_count else None,
+        "execution_status_counts": execution_status_counts,
+        "recovery_playbook_provider_count": len(recovery_rows),
+        "recovery_closed_count": recovery_closed_count,
+        "recovery_open_count": recovery_open_count,
+        "recovery_slo_breached_count": recovery_slo_breached_count,
+        "closure_state_counts": closure_state_counts,
+        "provider_summary": sorted(provider_summary.values(), key=lambda item: item["provider"]),
+        "recovery_rows": sorted(
+            recovery_rows,
+            key=lambda item: (bool(item.get("slo_breached")), str(item.get("generated_at") or "")),
+            reverse=True,
+        ),
+        "closure_trends": sorted(closure_trends.values(), key=lambda item: item["date"], reverse=True),
+        "latest_executions": sorted(
+            latest_executions,
+            key=lambda item: str(item.get("executed_at") or ""),
+            reverse=True,
+        )[:20],
+        "controls": [
+            "retry-recovery-report-derived-from-public-safe-execution-and-closure-metadata",
+            "recovery-slo-report-contains-no-connector-secrets",
+            "closure-trends-aggregate-provider-and-state-counts-only",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata(
+    report: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": report.get("report_id"),
+        "created_at": report.get("generated_at"),
+        "signer": report.get("generated_by", "release-governance"),
+        "decision_count": int(report.get("recovery_playbook_provider_count") or 0),
+        "blocked_count": int(report.get("recovery_slo_breached_count") or 0) + int(report.get("execution_failed_count") or 0),
+        "approval_required_count": int(report.get("recovery_open_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
+        "report_id": report.get("report_id"),
+        "alert_level": report.get("alert_level"),
+        "execution_count": report.get("execution_count", 0),
+        "execution_failed_count": report.get("execution_failed_count", 0),
+        "recovery_slo_breached_count": report.get("recovery_slo_breached_count", 0),
+        "retry_recovery_report": report,
     }
 
 

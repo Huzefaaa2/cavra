@@ -46,6 +46,8 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_health,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_ack_metadata,
@@ -415,6 +417,7 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_retry_execution_approval_decide": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-execution-approval-plans/{approval_plan_id}/decisions",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_playbook": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbook",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_close": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbooks/{playbook_id}/closures",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_retry_recovery_report": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -1154,6 +1157,21 @@ def create_app():
         return build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard(
             _go_rollback_drill_notification_items(evidence_store)
         )
+
+    @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report")
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_retry_recovery_report(
+        recovery_slo_minutes: int = 240,
+        generated_by: str = "console",
+    ) -> dict[str, object]:
+        report = build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report(
+            _go_rollback_drill_notification_items(evidence_store),
+            recovery_slo_minutes=recovery_slo_minutes,
+            generated_by=generated_by,
+        )
+        metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata(report)
+        )
+        return {"report": report, "metadata": metadata}
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health")
     def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_worker_health(
@@ -3833,6 +3851,10 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
             limit=500,
         )["items"]
+        audit_delivery_retry_recovery_reports = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
+            limit=500,
+        )["items"]
         audit_delivery_worker_runs = evidence_store.search(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
             limit=500,
@@ -3860,6 +3882,7 @@ def _go_rollback_drill_notification_items(
             *audit_delivery_retry_execution_records,
             *audit_delivery_connector_recovery_playbooks,
             *audit_delivery_connector_recovery_closures,
+            *audit_delivery_retry_recovery_reports,
             *audit_delivery_worker_runs,
             *audit_delivery_worker_health_alerts,
             *audit_delivery_worker_health_alert_acks,

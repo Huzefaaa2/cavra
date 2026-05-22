@@ -86,6 +86,10 @@ See `docs/diagrams/go-backend-rollback-drill-retry-approvals-recovery-playbooks.
 
 See `docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg` for the live retry execution and recovery closure path that links failed delivery, retry acknowledgement, approval, worker execution, connector recovery playbooks, and closure evidence.
 
+## Go Backend Rollback Drill Retry Recovery Reporting
+
+See `docs/diagrams/go-backend-rollback-drill-retry-recovery-reporting.svg` for the retry execution dashboard, recovery SLO, provider summary, and closure trend analytics flow.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation
