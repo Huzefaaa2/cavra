@@ -34,4 +34,4 @@ See `docs/diagrams/go-backend-rollback-drill-routing-history.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit retry execution approvals and connector recovery playbooks.
+The next recommended implementation step is to add approval-bound live retry execution records and connector recovery closure evidence.

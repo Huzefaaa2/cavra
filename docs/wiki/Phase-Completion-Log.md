@@ -2027,6 +2027,36 @@ User stories:
 Enterprise challenge solved:
 - Closes the loop between failed acknowledgement audit delivery, retry planning, worker health, alert routing, and operator review.
 - Keeps worker health and retry acknowledgements public-safe without exposing connector credentials or Enterprise automation code.
-- Establishes the governance record needed before non-dry-run retry execution is introduced.
+- Establishes the governance record needed before approval-bound live retry execution records are introduced.
 
-Recommended next issue: add acknowledgement audit retry execution approvals and connector recovery playbooks.
+Recommended next issue: add approval-bound live retry execution records and connector recovery closure evidence.
+
+## Phase 7 Go Backend Rollback Drill Retry Approvals And Recovery Playbooks
+
+Status: complete for the current retry execution approval and connector recovery playbook slice.
+
+Completed implementation:
+- Added retry execution approval plans and approval decisions for acknowledgement audit retry delivery.
+- Enforced approved retry execution evidence before non-dry-run retry workers select live delivery work.
+- Added connector recovery playbooks for repeated SIEM, ITSM, ChatOps, and webhook delivery failures.
+- Added Evidence Console controls for retry approval planning, retry approval decisions, and recovery playbook generation.
+- Added `docs/go-backend-rollback-drill-retry-approvals-recovery-playbooks.md`, `docs/wiki/Go-Backend-Rollback-Drill-Retry-Approvals-And-Recovery-Playbooks.md`, and `docs/diagrams/go-backend-rollback-drill-retry-approvals-recovery-playbooks.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m ruff check src tests`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can approve retry execution before live delivery is attempted.
+- As a platform owner, I can prove retry workers do not execute unapproved retry decisions.
+- As a SOC analyst, I can review recovery guidance for repeated connector failures.
+- As an auditor, I can trace failed delivery, retry acknowledgement, execution approval, and recovery playbook evidence.
+
+Enterprise challenge solved:
+- Adds the governance boundary buyers expect between failed audit delivery recovery planning and live retry side effects.
+- Keeps recovery playbooks public-safe while leaving credential rotation, ticket updates, and chat side effects to private connectors or operator runbooks.
+
+Recommended next issue: add approval-bound live retry execution records and connector recovery closure evidence.
