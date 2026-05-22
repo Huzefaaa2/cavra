@@ -127,4 +127,4 @@ Enterprise release teams need rollback drills to respect change freezes, owner a
 
 ## Next Work
 
-The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.
+The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.

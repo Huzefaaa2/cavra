@@ -707,6 +707,12 @@
           <label>Route action <select id="filterGoDrillNotificationAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="suppress">Suppress</option></select></label>
           <label>Suppression <select id="filterGoDrillNotificationCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="healthy_schedule">Healthy schedule</option><option value="other">Other</option></select></label>
         </div>
+        <div class="search-controls">
+          <label>Ack actor <input id="goDrillAckActor" placeholder="release-manager" /></label>
+          <label>External ref <input id="goDrillAckExternalRef" placeholder="CHG-123" /></label>
+          <label>Notes <input id="goDrillAckNotes" placeholder="Acknowledgement context" /></label>
+          <span id="goDrillAckStatus" class="status-line">Authenticated deployments use the signed console actor.</span>
+        </div>
         <div class="recurrence-grid">
           <div>
             <h3>Notification History</h3>

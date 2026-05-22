@@ -1835,4 +1835,38 @@ Enterprise challenge solved:
 - Gives operators a concise suppression trend view for change freezes and owner unavailability.
 - Keeps connector credentials, private URLs, customer data, and internal calendar exports outside the public Community Edition.
 
-Recommended next issue: add drill notification acknowledgement mutation controls in authenticated console deployments.
+Recommended next issue: delivered below as authenticated drill acknowledgement controls.
+
+## Phase 7 Go Backend Rollback Drill Acknowledgement Controls
+
+Status: complete for the current authenticated console acknowledgement mutation slice.
+
+Completed implementation:
+- Added route-level **Ack**, **Escalate**, and **Resolve** controls to the Go Rollback Drill Notifications console section.
+- Added acknowledgement actor, external reference, notes, and status controls for operator context.
+- Wired console mutation calls to `POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements` with the stored console bearer token.
+- Updated the acknowledgement endpoint to require verified actor context whenever console OIDC or RBAC is configured.
+- Updated the endpoint to persist the verified console actor as `acknowledged_by` in authenticated deployments.
+- Added console session permission reporting for `acknowledge_drill_notifications`.
+- Added local sample acknowledgement mutation behavior for Community Edition sandbox use without a live API.
+- Added `docs/go-backend-rollback-drill-acknowledgement-controls.md`, `docs/wiki/Go-Backend-Rollback-Drill-Acknowledgement-Controls.md`, and `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, drill console docs, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_api.py::test_api_go_drill_acknowledgement_requires_authenticated_console_actor tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can acknowledge a missed rollback drill notification from the console.
+- As an incident commander, I can escalate or resolve a drill route while preserving who performed the action.
+- As a platform owner, I can require signed console identity for drill acknowledgement mutations.
+- As an auditor, I can review route acknowledgement evidence with actor identity and public-safe notes.
+
+Enterprise challenge solved:
+- Prevents spoofed browser-supplied acknowledgement identities in authenticated deployments.
+- Brings drill notification mutation behavior into the same console security boundary as approvals and break-glass.
+- Keeps identity provider secrets, connector credentials, customer data, and Enterprise source outside the public Community Edition.
+
+Recommended next issue: add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.

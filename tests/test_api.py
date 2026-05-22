@@ -2193,6 +2193,46 @@ def test_api_console_session_and_authorization_header_enforce_rbac(monkeypatch, 
     assert accepted.json()["decided_by"] == "owner@example.com"
 
 
+def test_api_go_drill_acknowledgement_requires_authenticated_console_actor(monkeypatch, tmp_path) -> None:
+    token, jwks = _signed_rs256_token(
+        {
+            "iss": "https://issuer.example",
+            "aud": "cavra-console",
+            "sub": "release-user",
+            "email": "release@example.com",
+            "groups": ["Release Governance"],
+            "exp": int(time.time()) + 300,
+        }
+    )
+    oidc_config = tmp_path / "oidc.json"
+    oidc_config.write_text(
+        json.dumps({"issuer": "https://issuer.example", "audience": "cavra-console", "jwks": jwks}),
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    monkeypatch.setenv("CAVRA_APPROVAL_OIDC_CONFIG", str(oidc_config))
+    client = TestClient(create_app())
+
+    unauthenticated = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/go_backend_stale_schedule/acknowledgements",
+        json={"provider": "slack", "acknowledged_by": "spoofed-user"},
+    )
+    authenticated = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/go_backend_stale_schedule/acknowledgements",
+        headers={"authorization": f"Bearer {token}"},
+        json={"provider": "slack", "acknowledgement_state": "resolved"},
+    )
+    session = client.get("/console/session", headers={"authorization": f"Bearer {token}"})
+
+    assert unauthenticated.status_code == 401
+    assert authenticated.status_code == 200
+    assert authenticated.json()["acknowledgement"]["acknowledged_by"] == "release@example.com"
+    assert authenticated.json()["acknowledgement"]["acknowledgement_state"] == "resolved"
+    assert authenticated.json()["actor"]["actor"] == "release@example.com"
+    assert session.json()["permissions"]["acknowledge_drill_notifications"] is True
+
+
 def test_api_console_break_glass_requires_authorized_oidc_actor(monkeypatch, tmp_path) -> None:
     cab_token, jwks = _signed_rs256_token(
         {

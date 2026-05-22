@@ -725,23 +725,38 @@ def create_app():
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements")
-    def runtime_go_pilot_rollback_drill_notification_acknowledge(schedule_id: str, payload: dict) -> dict[str, object]:
+    def runtime_go_pilot_rollback_drill_notification_acknowledge(
+        schedule_id: str,
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
         if not payload.get("provider"):
             raise HTTPException(status_code=400, detail="provider is required")
-        if not payload.get("acknowledged_by"):
+        acknowledged_by = actor_context.get("actor") if actor_context else payload.get("acknowledged_by")
+        if not acknowledged_by:
             raise HTTPException(status_code=400, detail="acknowledged_by is required")
         try:
             acknowledgement = acknowledge_go_rollback_drill_notification(
                 schedule_id,
                 provider=payload["provider"],
-                acknowledged_by=payload["acknowledged_by"],
+                acknowledged_by=str(acknowledged_by),
                 acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
                 external_ref=payload.get("external_ref"),
                 notes=payload.get("notes"),
                 plan_id=payload.get("plan_id"),
             )
             metadata = evidence_store.upsert(build_go_rollback_drill_notification_ack_metadata(acknowledgement))
-            return {"acknowledgement": acknowledgement, "metadata": metadata}
+            return {
+                "acknowledgement": acknowledgement,
+                "metadata": metadata,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -3340,6 +3355,7 @@ def _console_security_boundary(
             "read_integrations",
             "read_evidence_metadata",
             "read_console_session",
+            "acknowledge_drill_notifications_requires_oidc_context_when_configured",
             "policy_publish_requires_digest_bound_approval",
             "approval_decision_requires_oidc_context_when_configured",
             "break_glass_requires_oidc_context_when_configured",
@@ -3420,6 +3436,7 @@ def _console_permissions(
         "read_evidence_metadata": True,
         "decide_approvals": can_decide,
         "publish_policy_packs": can_decide,
+        "acknowledge_drill_notifications": bool(actor_context),
         "create_break_glass": bool(actor_context and "Change Advisory Board" in actor_context.get("groups", [])),
     }
 

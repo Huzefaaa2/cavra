@@ -94,4 +94,4 @@ Promotion without rehearsal leaves teams with a plan that may fail during an inc
 
 ## Next Work
 
-The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.
+The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
