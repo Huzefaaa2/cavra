@@ -10,6 +10,7 @@ CAVRA now surfaces Go backend rollback drill notification history in the Evidenc
 - Escalation route drill-downs showing schedule ID, provider, owner, acknowledgement state, route age, SLO, breach state, and recommended action.
 - Routing history filters for owner, provider, action, and suppression category.
 - Suppression summary rows for maintenance-window, owner-calendar, healthy-schedule, and other suppressed routes.
+- Authenticated route mutation controls for **Ack**, **Escalate**, and **Resolve** actions.
 - Local public-safe sample data so the Community Edition dashboard remains useful without a live API.
 
 ## How To Use
@@ -26,9 +27,10 @@ Open `http://127.0.0.1:5173/index.html` and use the **Go Rollback Drill Notifica
 ```text
 GET /runtime/go-pilot/rollback-drill-notifications
 GET /runtime/go-pilot/rollback-drill-notifications/dashboard
+POST /runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements
 ```
 
-If the API is unavailable, the console uses bundled sample metadata.
+If the API is unavailable, the console uses bundled sample metadata. In authenticated API deployments, acknowledgement mutations require a verified console actor and are documented in `Go-Backend-Rollback-Drill-Acknowledgement-Controls.md`.
 
 ## User Stories
 
@@ -47,4 +49,4 @@ See `docs/diagrams/go-backend-rollback-drill-console.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.
+The next recommended implementation step is to add bulk acknowledgement workflows and exportable acknowledgement audit packages for drill notification routes.

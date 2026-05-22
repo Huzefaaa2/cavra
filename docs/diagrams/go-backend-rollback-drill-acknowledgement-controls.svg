@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="620" viewBox="0 0 1240 620" role="img" aria-labelledby="title desc">
+  <title id="title">Go Backend Rollback Drill Acknowledgement Controls</title>
+  <desc id="desc">Authenticated Evidence Console acknowledgement controls for rollback drill notification routes.</desc>
+  <defs>
+    <style>
+      .bg{fill:#081214}
+      .panel{fill:#101b1f;stroke:#75e3c1;stroke-width:2;rx:12}
+      .muted{fill:#9fb7b8;font:16px Arial, sans-serif}
+      .title{fill:#eef8f8;font:bold 25px Arial, sans-serif}
+      .small{fill:#cde3e1;font:14px Arial, sans-serif}
+      .accent{fill:#75e3c1;font:bold 17px Arial, sans-serif}
+      .warn{fill:#ffd166;font:bold 16px Arial, sans-serif}
+      .arrow{stroke:#75e3c1;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .deny{stroke:#ff6b6b;stroke-width:3;fill:none;marker-end:url(#arrow-red)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#75e3c1"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ff6b6b"/>
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1240" height="620"/>
+  <text class="title" x="52" y="58">CAVRA Rollback Drill Acknowledgement Controls</text>
+  <text class="muted" x="52" y="86">Route-level mutations use the same authenticated console boundary as approval and break-glass actions.</text>
+
+  <rect class="panel" x="52" y="130" width="250" height="150"/>
+  <text class="title" x="78" y="168">Evidence Console</text>
+  <text class="small" x="78" y="202">Ack / Escalate / Resolve</text>
+  <text class="small" x="78" y="228">Bearer token from session</text>
+  <text class="small" x="78" y="254">Route notes and external ref</text>
+
+  <rect class="panel" x="370" y="130" width="250" height="150"/>
+  <text class="title" x="396" y="168">Console Auth</text>
+  <text class="small" x="396" y="202">OIDC bearer token</text>
+  <text class="small" x="396" y="228">actor_token or actor_claims</text>
+  <text class="small" x="396" y="254">Local demo fallback</text>
+
+  <rect class="panel" x="688" y="130" width="250" height="150"/>
+  <text class="title" x="714" y="168">Ack API</text>
+  <text class="small" x="714" y="202">Validates provider</text>
+  <text class="small" x="714" y="228">Requires actor if OIDC/RBAC</text>
+  <text class="small" x="714" y="254">Ignores spoofed browser actor</text>
+
+  <rect class="panel" x="1006" y="130" width="182" height="150"/>
+  <text class="title" x="1032" y="168">Evidence</text>
+  <text class="small" x="1032" y="202">Ack metadata</text>
+  <text class="small" x="1032" y="228">Verified actor</text>
+  <text class="small" x="1032" y="254">Audit history</text>
+
+  <path class="arrow" d="M302 205 H370"/>
+  <path class="arrow" d="M620 205 H688"/>
+  <path class="arrow" d="M938 205 H1006"/>
+
+  <rect class="panel" x="168" y="372" width="285" height="138"/>
+  <text class="title" x="194" y="410">Authenticated Mode</text>
+  <text class="accent" x="194" y="444">Allowed</text>
+  <text class="small" x="194" y="472">OIDC token validates</text>
+  <text class="small" x="194" y="496">Stored actor writes acknowledgement</text>
+
+  <rect class="panel" x="786" y="372" width="285" height="138"/>
+  <text class="title" x="812" y="410">Missing Actor</text>
+  <text class="warn" x="812" y="444">Rejected</text>
+  <text class="small" x="812" y="472">401 response</text>
+  <text class="small" x="812" y="496">No acknowledgement metadata</text>
+
+  <path class="arrow" d="M495 280 C470 330,410 352,330 372"/>
+  <path class="deny" d="M748 280 C774 330,840 352,920 372"/>
+
+  <text class="muted" x="52" y="570">Public repository contains only safe hooks, public docs, sample metadata, and the Community Edition console. Identity provider secrets stay outside source control.</text>
+</svg>

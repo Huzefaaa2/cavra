@@ -96,6 +96,10 @@ See `docs/diagrams/go-backend-rollback-drill-routing-history.svg` for the route-
 
 See `docs/diagrams/go-backend-rollback-drill-console.svg` for the Evidence Console drill-down flow across notification history, acknowledgement state, escalation routes, detail panels, and exportable public-safe evidence.
 
+## Go Backend Rollback Drill Acknowledgement Controls
+
+See `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg` for the authenticated console mutation flow that records route acknowledgements with verified actor identity.
+
 ## SVG Images
 
 Repository diagram images:
@@ -121,6 +125,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-routing.svg`
 - `docs/diagrams/go-backend-rollback-drill-routing-history.svg`
 - `docs/diagrams/go-backend-rollback-drill-console.svg`
+- `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

@@ -692,6 +692,7 @@ const endpointRecurrenceAutomationCatalog = [
 
 const endpointRecurrenceDetailPayloads = new Map();
 const goDrillNotificationDetailPayloads = new Map();
+let consoleSessionCache = null;
 
 const endpointManagementExportArtifactCatalog = {
   "eme-stable-v0.2.0-rc.1": {
@@ -3774,6 +3775,20 @@ function goDrillNotificationActionButtons(payloadId) {
   `;
 }
 
+function goDrillNotificationMutationButtons(payloadId, route) {
+  if (!route?.schedule_id || !route?.provider || route.action === "suppress") return goDrillNotificationActionButtons(payloadId);
+  const state = route.acknowledgement_state || (route.acknowledged ? "acknowledged" : "outstanding");
+  return `
+    <div class="row-actions">
+      <button class="goDrillNotificationDetailAction secondary" data-payload="${escapeHtml(payloadId)}">Details</button>
+      <button class="goDrillNotificationExportAction secondary" data-payload="${escapeHtml(payloadId)}">Export</button>
+      <button class="goDrillAckAction" data-payload="${escapeHtml(payloadId)}" data-state="acknowledged" ${state === "acknowledged" ? "disabled" : ""}>Ack</button>
+      <button class="goDrillAckAction secondary" data-payload="${escapeHtml(payloadId)}" data-state="escalated">Escalate</button>
+      <button class="goDrillAckAction secondary" data-payload="${escapeHtml(payloadId)}" data-state="resolved">Resolve</button>
+    </div>
+  `;
+}
+
 function goDrillNotificationKindLabel(kind) {
   return String(kind || "record")
     .replace("go-backend-rollback-drill-notification-", "")
@@ -3895,7 +3910,7 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
         <td class="${route.breached ? "block" : state === "outstanding" ? "require_approval" : "allow"}">${escapeHtml(state)}</td>
         <td>${escapeHtml(`${age} / ${slo}`)}</td>
         <td>${escapeHtml(route.recommended_action || "n/a")}</td>
-        <td>${goDrillNotificationActionButtons(payloadId)}</td>
+        <td>${goDrillNotificationMutationButtons(payloadId, route)}</td>
       </tr>
     `);
   });
@@ -3985,6 +4000,97 @@ function exportGoDrillNotificationPayload(payloadId) {
   link.click();
   link.remove();
   URL.revokeObjectURL(href);
+}
+
+function goDrillAckActor() {
+  const configured = document.querySelector("#goDrillAckActor")?.value.trim();
+  const sessionActor = consoleSessionCache?.actor?.actor;
+  return configured || sessionActor || "console-user";
+}
+
+function addSampleGoDrillAcknowledgement(route, acknowledgementState, payload) {
+  const acknowledgedAt = new Date().toISOString();
+  const acknowledgementId = `gordack-${route.schedule_id}-${route.provider}-${acknowledgementState}-${Date.now()}`;
+  const acknowledgement = {
+    schema_version: "cavra.go-backend-pilot.rollback-drill-notification-ack.v1",
+    product: "CAVRA",
+    acknowledgement_id: acknowledgementId,
+    schedule_id: route.schedule_id,
+    plan_id: route.plan_id || "",
+    provider: route.provider,
+    acknowledged_by: payload.acknowledged_by,
+    acknowledgement_state: acknowledgementState,
+    acknowledged_at: acknowledgedAt,
+    external_ref: payload.external_ref || "",
+    notes: payload.notes || ""
+  };
+  goRollbackDrillNotificationCatalog.unshift({
+    session_id: acknowledgementId,
+    metadata_kind: "go-backend-rollback-drill-notification-ack",
+    created_at: acknowledgedAt,
+    signer: payload.acknowledged_by,
+    acknowledgement_id: acknowledgementId,
+    schedule_id: route.schedule_id,
+    plan_id: route.plan_id || "",
+    provider: route.provider,
+    acknowledgement_state: acknowledgementState,
+    acknowledgement
+  });
+  for (const item of goRollbackDrillNotificationCatalog) {
+    const routes = item?.escalation_plan?.routes;
+    if (!Array.isArray(routes)) continue;
+    for (const escalationRoute of routes) {
+      if (escalationRoute.schedule_id === route.schedule_id && escalationRoute.provider === route.provider) {
+        escalationRoute.acknowledgement_state = acknowledgementState;
+        escalationRoute.acknowledged = ["acknowledged", "resolved"].includes(acknowledgementState);
+        escalationRoute.breached = acknowledgementState === "escalated";
+        escalationRoute.recommended_action = acknowledgementState === "escalated" ? "follow_escalation_runbook" : "no_action";
+      }
+    }
+  }
+}
+
+async function recordGoDrillAcknowledgement(payloadId, acknowledgementState) {
+  const status = document.querySelector("#goDrillAckStatus");
+  const entry = goDrillNotificationDetailPayloads.get(payloadId);
+  const route = entry?.payload || {};
+  if (!route.schedule_id || !route.provider) {
+    if (status) status.textContent = "Select a deliverable drill route before recording an acknowledgement.";
+    return;
+  }
+  const payload = {
+    provider: route.provider,
+    plan_id: route.plan_id || "",
+    acknowledged_by: goDrillAckActor(),
+    acknowledgement_state: acknowledgementState,
+    external_ref: document.querySelector("#goDrillAckExternalRef")?.value.trim() || "",
+    notes: document.querySelector("#goDrillAckNotes")?.value.trim() || `Console marked route ${acknowledgementState}.`
+  };
+  if (status) status.textContent = `Recording ${acknowledgementState} for ${route.provider}...`;
+  try {
+    const response = await fetch(apiUrl(`/runtime/go-pilot/rollback-drill-notifications/${encodeURIComponent(route.schedule_id)}/acknowledgements`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      if ([401, 403].includes(response.status)) {
+        if (status) status.textContent = `Acknowledgement requires an authorized console session: ${detail || response.statusText}`;
+        return;
+      }
+      throw new Error(detail || "acknowledgement API unavailable");
+    }
+    const result = await response.json();
+    if (status) {
+      const actor = result.actor?.actor || result.acknowledgement?.acknowledged_by || payload.acknowledged_by;
+      status.textContent = `Recorded ${acknowledgementState} for ${route.provider} as ${actor}.`;
+    }
+  } catch (error) {
+    addSampleGoDrillAcknowledgement(route, acknowledgementState, payload);
+    if (status) status.textContent = `Using local sample acknowledgement: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
 }
 
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
@@ -4591,6 +4697,7 @@ function renderSecurityBoundary(boundary) {
 }
 
 function renderConsoleSession(session) {
+  consoleSessionCache = session;
   const panel = document.querySelector("#consoleSession");
   const actor = session.actor || {};
   const permissions = session.permissions || {};
@@ -5306,7 +5413,14 @@ document.addEventListener("click", (event) => {
     return;
   }
   const goDrillExportButton = event.target.closest(".goDrillNotificationExportAction");
-  if (goDrillExportButton) exportGoDrillNotificationPayload(goDrillExportButton.dataset.payload);
+  if (goDrillExportButton) {
+    exportGoDrillNotificationPayload(goDrillExportButton.dataset.payload);
+    return;
+  }
+  const goDrillAckButton = event.target.closest(".goDrillAckAction");
+  if (goDrillAckButton) {
+    recordGoDrillAcknowledgement(goDrillAckButton.dataset.payload, goDrillAckButton.dataset.state || "acknowledged");
+  }
 });
 document.querySelector("#approvalRows").addEventListener("click", async (event) => {
   if (!(event.target instanceof Element)) return;

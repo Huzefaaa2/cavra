@@ -102,4 +102,4 @@ Enterprise rollback plans decay unless they are rehearsed and tracked. CAVRA tur
 
 ## Next Work
 
-The next recommended implementation step is to add drill notification acknowledgement mutation controls in authenticated console deployments.
+The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
