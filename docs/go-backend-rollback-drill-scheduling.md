@@ -133,4 +133,4 @@ Rollback readiness decays when teams only prove it once. CAVRA keeps rollback co
 
 ## Next Work
 
-The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.

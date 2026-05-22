@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.

@@ -30,6 +30,9 @@ from cavra.evidence import (
 )
 from cavra.go_backend import (
     acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_acknowledgement_audit_delivery_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_package,
     build_go_rollback_drill_acknowledgement_audit_package_metadata,
     build_go_rollback_drill_notification_ack_metadata,
@@ -371,6 +374,7 @@ def create_app():
                 "go_rollback_drill_notification_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements",
                 "go_rollback_drill_notification_bulk_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk",
                 "go_rollback_drill_notification_acknowledgement_audit": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -842,6 +846,75 @@ def create_app():
             "metadata": metadata,
             "actor": _public_actor_context(actor_context) if actor_context else None,
         }
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery")
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        package = build_go_rollback_drill_acknowledgement_audit_package(
+            _go_rollback_drill_notification_items(evidence_store),
+            schedule_id=payload.get("schedule_id"),
+            provider=payload.get("provider"),
+            owner=payload.get("owner"),
+            generated_by=str(generated_by),
+        )
+        audit_metadata = evidence_store.upsert(build_go_rollback_drill_acknowledgement_audit_package_metadata(package))
+        try:
+            plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+                package,
+                requested_provider=payload.get("delivery_provider", payload.get("provider", "all")),
+                available_providers=_configured_connector_providers(connector_config),
+                generated_by=str(generated_by),
+                cadence=str(payload.get("cadence") or "on_demand"),
+                schedule_ref=payload.get("schedule_ref"),
+                next_delivery_at=payload.get("next_delivery_at"),
+            )
+            plan_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(plan)
+            )
+            event = build_go_rollback_drill_acknowledgement_audit_delivery_event(
+                package,
+                plan,
+                generated_by=str(generated_by),
+            )
+            result = None
+            delivery_metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                delivery_metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="go_backend_rollback_drill_acknowledgement_audit",
+                    )
+                )
+            return {
+                "audit_package": package,
+                "audit_metadata": audit_metadata,
+                "delivery_plan": plan,
+                "plan_metadata": plan_metadata,
+                "delivery": result,
+                "metadata": delivery_metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else bool(plan["selected_providers"]),
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications")
     def runtime_go_pilot_rollback_drill_notification_history(
@@ -3142,8 +3215,24 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-routing-suppression-trend",
             limit=500,
         )["items"]
+        audit_packages = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-package",
+            limit=500,
+        )["items"]
+        audit_delivery_plans = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
+            limit=500,
+        )["items"]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
-        return [*plans, *acknowledgements, *escalations, *suppression_trends, *deliveries]
+        return [
+            *plans,
+            *acknowledgements,
+            *escalations,
+            *suppression_trends,
+            *audit_packages,
+            *audit_delivery_plans,
+            *deliveries,
+        ]
     return evidence_store.list()
 
 

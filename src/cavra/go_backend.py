@@ -933,6 +933,180 @@ def build_go_rollback_drill_acknowledgement_audit_package_metadata(package: dict
     }
 
 
+def build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+    package: dict[str, Any],
+    *,
+    requested_provider: str = "all",
+    available_providers: list[str] | None = None,
+    generated_by: str = "release-governance",
+    cadence: str = "on_demand",
+    schedule_ref: str | None = None,
+    next_delivery_at: str | None = None,
+) -> dict[str, Any]:
+    available = [str(item) for item in available_providers or [] if item]
+    eligible = available or ["webhook"]
+    requested = []
+    if requested_provider != "all":
+        requested = [item.strip() for item in str(requested_provider).split(",") if item.strip()]
+        eligible = [item for item in eligible if item in requested]
+    material = json.dumps(
+        {
+            "audit_id": package.get("audit_id", ""),
+            "eligible": eligible,
+            "generated_by": generated_by,
+            "cadence": cadence,
+            "schedule_ref": schedule_ref or "",
+            "next_delivery_at": next_delivery_at or "",
+        },
+        sort_keys=True,
+    )
+    delivery_id = f"gordackdelivery-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-plan.v1",
+        "product": "CAVRA",
+        "delivery_id": delivery_id,
+        "audit_id": package.get("audit_id", ""),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "cadence": cadence or "on_demand",
+        "schedule_ref": schedule_ref or "",
+        "next_delivery_at": next_delivery_at or "",
+        "requested_provider": requested_provider,
+        "requested_providers": requested,
+        "selected_providers": eligible,
+        "destination_count": len(eligible),
+        "route_count": int(package.get("route_count") or 0),
+        "outstanding_count": int(package.get("outstanding_count") or 0),
+        "escalated_count": int(package.get("escalated_count") or 0),
+        "alert_level": package.get("alert_level", "healthy"),
+        "filters": package.get("filters", {}),
+        "controls": [
+            "acknowledgement-audit-delivery-uses-public-safe-package",
+            "connector-secrets-not-included-in-delivery-plan",
+            "scheduled-delivery-is-metadata-only-in-community-edition",
+        ],
+    }
+
+
+def _go_rollback_drill_ack_audit_route_delivery_rows(package: dict[str, Any]) -> list[dict[str, Any]]:
+    routes = package.get("routes", []) if isinstance(package.get("routes"), list) else []
+    return [
+        {
+            "route_id": route.get("route_id", ""),
+            "schedule_id": route.get("schedule_id", ""),
+            "plan_id": route.get("plan_id", ""),
+            "provider": route.get("provider", ""),
+            "owner": route.get("owner", ""),
+            "escalation_owner": route.get("escalation_owner", ""),
+            "acknowledgement_state": route.get("acknowledgement_state", "outstanding"),
+            "acknowledged": bool(route.get("acknowledged")),
+            "acknowledged_by": route.get("acknowledged_by", ""),
+            "acknowledged_at": route.get("acknowledged_at", ""),
+            "external_ref": route.get("external_ref", ""),
+            "acknowledgement_id": route.get("acknowledgement_id", ""),
+        }
+        for route in routes
+        if isinstance(route, dict)
+    ]
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_event(
+    package: dict[str, Any],
+    plan: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+) -> dict[str, Any]:
+    routes = _go_rollback_drill_ack_audit_route_delivery_rows(package)
+    summary = {
+        "audit_id": package.get("audit_id", ""),
+        "delivery_id": plan.get("delivery_id", ""),
+        "route_count": package.get("route_count", 0),
+        "acknowledged_count": package.get("acknowledged_count", 0),
+        "resolved_count": package.get("resolved_count", 0),
+        "escalated_count": package.get("escalated_count", 0),
+        "dismissed_count": package.get("dismissed_count", 0),
+        "outstanding_count": package.get("outstanding_count", 0),
+        "alert_level": package.get("alert_level", "healthy"),
+        "filters": package.get("filters", {}),
+        "cadence": plan.get("cadence", "on_demand"),
+        "schedule_ref": plan.get("schedule_ref", ""),
+        "next_delivery_at": plan.get("next_delivery_at", ""),
+    }
+    title = f"CAVRA rollback drill acknowledgement audit {summary['alert_level']}"
+    description = (
+        f"Audit package {summary['audit_id']} has {summary['outstanding_count']} outstanding "
+        f"route(s) and {summary['escalated_count']} escalated route(s)."
+    )
+    event = {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.go_backend.rollback_drill.acknowledgement_audit_delivery",
+        "session_id": str(plan.get("delivery_id") or package.get("audit_id") or "go-rollback-drill-ack-audit-delivery"),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "title": title,
+        "alert_level": summary["alert_level"],
+        "blocked_count": int(package.get("outstanding_count") or 0) + int(package.get("escalated_count") or 0),
+        "max_severity": "high" if summary["alert_level"] == "critical" else "low",
+        "audit_package_summary": summary,
+        "delivery_plan": plan,
+        "routes": routes,
+        "controls": [
+            "delivery-event-redacts-connector-secrets",
+            "route-notes-are-not-sent-to-connectors",
+            "siem-itsm-routing-uses-public-safe-acknowledgement-state",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "splunk": {"event": event | {"provider": "splunk"}, "sourcetype": "cavra:rollback_drill_ack_audit"},
+        "sentinel": {"records": [event | {"provider": "sentinel"}]},
+        "datadog": {"events": [event | {"provider": "datadog"}]},
+        "slack": {
+            "text": f"{title}: {description}",
+            "metadata": summary,
+        },
+        "teams": {
+            "type": "message",
+            "title": title,
+            "text": description,
+            "sections": [{"facts": [{"name": key, "value": str(value)} for key, value in summary.items()]}],
+        },
+        "jira": {
+            "summary": title,
+            "description": json.dumps(event, indent=2, sort_keys=True),
+            "labels": ["cavra", "go-backend", "rollback-drill", "acknowledgement-audit"],
+        },
+        "servicenow": {
+            "short_description": title,
+            "description": json.dumps(event, indent=2, sort_keys=True),
+            "category": "software",
+            "correlation_id": event["session_id"],
+        },
+    }
+    return event
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(plan.get("delivery_id") or "go-rollback-drill-acknowledgement-audit-delivery-plan"),
+        "created_at": str(plan.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(plan.get("generated_by") or "release-governance"),
+        "decision_count": int(plan.get("destination_count") or 0),
+        "blocked_count": int(plan.get("outstanding_count") or 0) + int(plan.get("escalated_count") or 0),
+        "approval_required_count": int(plan.get("outstanding_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
+        "delivery_id": plan.get("delivery_id"),
+        "audit_id": plan.get("audit_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "destination_count": plan.get("destination_count", 0),
+        "route_count": plan.get("route_count", 0),
+        "outstanding_count": plan.get("outstanding_count", 0),
+        "acknowledgement_audit_delivery_plan": plan,
+    }
+
+
 def filter_go_rollback_drill_notification_history(
     items: list[dict[str, Any]],
     *,
@@ -948,6 +1122,7 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-notification-ack",
         "go-backend-rollback-drill-notification-escalation-plan",
         "go-backend-rollback-drill-acknowledgement-audit-package",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
         "release-connector-delivery",
     }
     filtered = [
@@ -956,7 +1131,11 @@ def filter_go_rollback_drill_notification_history(
         if item.get("metadata_kind") in allowed_kinds
         and (
             item.get("metadata_kind") != "release-connector-delivery"
-            or item.get("connector_delivery_source") == "go_backend_rollback_drill_notification"
+            or item.get("connector_delivery_source")
+            in {
+                "go_backend_rollback_drill_notification",
+                "go_backend_rollback_drill_acknowledgement_audit",
+            }
         )
     ]
     if schedule_id:

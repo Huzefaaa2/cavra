@@ -50,4 +50,4 @@ See `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.

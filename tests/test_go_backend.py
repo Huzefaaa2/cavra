@@ -12,6 +12,9 @@ from cavra.go_backend import (
     GO_BACKEND_SHADOW,
     GoBackendConfig,
     acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_acknowledgement_audit_delivery_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_package,
     build_go_rollback_drill_acknowledgement_audit_package_metadata,
     build_go_rollback_drill_notification_ack_metadata,
@@ -531,6 +534,49 @@ def test_go_rollback_drill_acknowledgement_audit_package_summarizes_routes(tmp_p
     assert package["routes"][0]["acknowledged_by"] == "release-manager"
     assert package["routes"][0]["external_ref"] == "CHG-123"
     assert metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-package"
+
+
+def test_go_rollback_drill_acknowledgement_audit_delivery_redacts_route_notes(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="slack")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    acknowledgement = acknowledge_go_rollback_drill_notification(
+        "go_backend_python_fallback_monthly",
+        provider="slack",
+        acknowledged_by="release-manager",
+        plan_id=plan["plan_id"],
+        notes="Internal change-room context must stay out of connector payloads.",
+    )
+    ack_metadata = build_go_rollback_drill_notification_ack_metadata(acknowledgement)
+    package = build_go_rollback_drill_acknowledgement_audit_package(
+        [plan_metadata, ack_metadata],
+        generated_by="test",
+    )
+    delivery_plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+        package,
+        requested_provider="splunk,jira",
+        available_providers=["splunk", "jira", "webhook"],
+        generated_by="test",
+        cadence="hourly",
+        schedule_ref="release-governance-hourly",
+    )
+    event = build_go_rollback_drill_acknowledgement_audit_delivery_event(package, delivery_plan, generated_by="test")
+    metadata = build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(delivery_plan)
+
+    assert delivery_plan["selected_providers"] == ["splunk", "jira"]
+    assert delivery_plan["cadence"] == "hourly"
+    assert event["event_type"] == "cavra.go_backend.rollback_drill.acknowledgement_audit_delivery"
+    assert "notes" not in event["routes"][0]
+    assert event["provider_payloads"]["splunk"]["sourcetype"] == "cavra:rollback_drill_ack_audit"
+    assert metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-plan"
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

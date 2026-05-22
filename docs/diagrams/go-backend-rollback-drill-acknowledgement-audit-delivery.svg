@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="title desc">
+  <title id="title">Go Backend Rollback Drill Acknowledgement Audit Delivery</title>
+  <desc id="desc">CAVRA creates a rollback drill acknowledgement audit package, schedules delivery, routes it to SIEM, ITSM, ChatOps, and webhook connectors, and indexes redacted delivery evidence.</desc>
+  <defs>
+    <style>
+      .bg { fill: #081113; }
+      .panel { fill: #101a1e; stroke: #6bdcc2; stroke-width: 2; rx: 12; }
+      .panel-alt { fill: #152229; stroke: #88a9b7; stroke-width: 1.5; rx: 12; }
+      .title { fill: #f3fbff; font: 700 30px Arial, sans-serif; }
+      .heading { fill: #78e0c5; font: 700 18px Arial, sans-serif; }
+      .text { fill: #e7f1f5; font: 14px Arial, sans-serif; }
+      .muted { fill: #aac1c8; font: 13px Arial, sans-serif; }
+      .line { stroke: #6bdcc2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #88a9b7; stroke-width: 2; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrow-muted); }
+      .badge { fill: #214047; stroke: #6bdcc2; stroke-width: 1; rx: 14; }
+      .warn { fill: #f8c55a; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#6bdcc2" />
+    </marker>
+    <marker id="arrow-muted" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#88a9b7" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1180" height="720" />
+  <text class="title" x="48" y="54">CAVRA Acknowledgement Audit Delivery</text>
+  <text class="muted" x="48" y="82">Scheduled delivery plans route public-safe rollback drill acknowledgement evidence to operational systems without exposing connector secrets.</text>
+
+  <rect class="panel" x="48" y="126" width="240" height="120" />
+  <text class="heading" x="72" y="162">Evidence Console</text>
+  <text class="text" x="72" y="192">Filter drill routes</text>
+  <text class="text" x="72" y="216">Choose audit destination</text>
+
+  <rect class="panel" x="360" y="126" width="260" height="120" />
+  <text class="heading" x="384" y="162">Audit Package Builder</text>
+  <text class="text" x="384" y="192">Route state and actor evidence</text>
+  <text class="text" x="384" y="216">No connector credentials</text>
+
+  <rect class="panel" x="692" y="126" width="250" height="120" />
+  <text class="heading" x="716" y="162">Delivery Plan</text>
+  <text class="text" x="716" y="192">Cadence, schedule ref</text>
+  <text class="text" x="716" y="216">Selected providers</text>
+
+  <rect class="panel" x="360" y="322" width="260" height="130" />
+  <text class="heading" x="384" y="358">Redacted Event</text>
+  <text class="text" x="384" y="388">Counts, filters, route status</text>
+  <text class="text" x="384" y="412">Route notes omitted</text>
+
+  <rect class="panel-alt" x="706" y="314" width="340" height="146" />
+  <text class="heading" x="730" y="350">Connector Routing</text>
+  <text class="text" x="730" y="380">SIEM: Splunk, Sentinel, Datadog</text>
+  <text class="text" x="730" y="404">ITSM: Jira, ServiceNow</text>
+  <text class="text" x="730" y="428">ChatOps: Slack, Teams, Webhook</text>
+
+  <rect class="panel" x="360" y="546" width="260" height="110" />
+  <text class="heading" x="384" y="582">Evidence Store</text>
+  <text class="text" x="384" y="612">Audit package metadata</text>
+  <text class="text" x="384" y="636">Delivery attempt metadata</text>
+
+  <rect class="panel-alt" x="706" y="546" width="340" height="110" />
+  <text class="heading" x="730" y="582">Operator Review</text>
+  <text class="text" x="730" y="612">Notification history table</text>
+  <text class="text" x="730" y="636">Delivery health follow-up</text>
+
+  <path class="line" d="M288 186 H350" />
+  <path class="line" d="M620 186 H682" />
+  <path class="line" d="M817 246 V304" />
+  <path class="line" d="M692 387 H630" />
+  <path class="line" d="M490 452 V536" />
+  <path class="line" d="M620 601 H696" />
+  <path class="dash" d="M876 460 V536" />
+
+  <rect class="badge" x="72" y="284" width="216" height="36" />
+  <text class="muted" x="92" y="307">Authenticated actor required when OIDC/RBAC is configured</text>
+
+  <circle class="warn" cx="72" cy="620" r="7" />
+  <text class="muted" x="92" y="625">Community Edition schedules delivery metadata only; Enterprise automation can later run recurring jobs from private modules.</text>
+</svg>

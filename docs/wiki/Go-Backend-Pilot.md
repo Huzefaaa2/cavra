@@ -115,4 +115,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+The next recommended implementation step is to add acknowledgement audit delivery history filters and delivery health dashboards.
