@@ -17,7 +17,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook,
+    build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_decision_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
@@ -40,6 +45,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_plan,
     build_go_rollback_drill_routing_suppression_trend,
     build_go_rollback_drill_routing_suppression_trend_metadata,
+    decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history,
     filter_go_rollback_drill_notification_history,
@@ -851,6 +857,123 @@ def test_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alerts_a
     assert notification_dashboard["acknowledgement_audit_delivery_retry_ack_count"] == 1
     assert notification_dashboard["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert notification_dashboard["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1
+
+
+def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_recovery_playbooks(
+    tmp_path: Path,
+) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="webhook")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    package = build_go_rollback_drill_acknowledgement_audit_package([plan_metadata], generated_by="test")
+    package_metadata = build_go_rollback_drill_acknowledgement_audit_package_metadata(package)
+    delivery_plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+        package,
+        requested_provider="webhook",
+        available_providers=["webhook"],
+        generated_by="test",
+    )
+    delivery_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(delivery_plan)
+    connector_metadata = {
+        "session_id": "connector-delivery-approval",
+        "created_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit",
+        "audit_id": package["audit_id"],
+        "delivery_id": delivery_plan["delivery_id"],
+        "event_id": delivery_plan["delivery_id"],
+        "delivery_success": False,
+        "providers": ["webhook"],
+        "failed_providers": ["webhook"],
+        "status_codes": [503],
+    }
+    items = [plan_metadata, package_metadata, delivery_metadata, connector_metadata]
+    retry_plan = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan(
+        items,
+        policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        generated_by="test",
+        now=datetime.now(timezone.utc),
+    )
+    retry_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata(retry_plan)
+    retry_decision = retry_plan["retry_decisions"][0]
+    retry_ack = acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry(
+        retry_plan["retry_plan_id"],
+        provider="webhook",
+        acknowledged_by="release-manager",
+        delivery_id=retry_decision["delivery_id"],
+        audit_id=retry_decision["audit_id"],
+    )
+    retry_ack_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata(retry_ack)
+    approval_plan = build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan(
+        [*items, retry_metadata, retry_ack_metadata],
+        generated_by="test",
+    )
+    approval_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan_metadata(
+        approval_plan
+    )
+    approval_decision = decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval(
+        approval_plan["approval_plan_id"],
+        provider="webhook",
+        decided_by="release-manager",
+        retry_plan_id=retry_plan["retry_plan_id"],
+        delivery_id=retry_decision["delivery_id"],
+        audit_id=retry_decision["audit_id"],
+        external_ref="CHG-789",
+    )
+    approval_decision_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_decision_metadata(
+            approval_decision
+        )
+    )
+    worker_run = build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
+        [*items, retry_metadata, retry_ack_metadata, approval_metadata, approval_decision_metadata],
+        retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        generated_by="test",
+        dry_run=False,
+        max_retry_deliveries=2,
+        now=datetime.now(timezone.utc),
+    )
+    playbook = build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook(
+        [*items, retry_metadata, retry_ack_metadata, approval_metadata, approval_decision_metadata],
+        generated_by="test",
+        min_failure_count=1,
+    )
+    playbook_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata(
+        playbook
+    )
+    dashboard = build_go_rollback_drill_notification_dashboard(
+        [
+            *items,
+            retry_metadata,
+            retry_ack_metadata,
+            approval_metadata,
+            approval_decision_metadata,
+            playbook_metadata,
+        ]
+    )
+
+    assert approval_plan["approval_required_count"] == 1
+    assert approval_metadata["metadata_kind"].endswith("retry-execution-approval-plan")
+    assert approval_decision["approval_state"] == "approved"
+    assert approval_decision_metadata["metadata_kind"].endswith("retry-execution-approval-decision")
+    assert worker_run["dry_run"] is False
+    assert worker_run["summary"]["selected_retry_count"] == 1
+    assert worker_run["summary"]["approval_pending_count"] == 0
+    assert playbook["provider_count"] == 1
+    assert playbook["provider_playbooks"][0]["category"] == "webhook"
+    assert playbook_metadata["metadata_kind"].endswith("connector-recovery-playbook")
+    assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_connector_recovery_playbook_count"] == 1
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

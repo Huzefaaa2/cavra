@@ -405,7 +405,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add acknowledgement audit retry execution approvals and connector recovery playbooks.
+- Add approval-bound live retry execution records and connector recovery closure evidence.
 
 ## User stories and enterprise value
 

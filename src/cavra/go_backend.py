@@ -1131,6 +1131,9 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1192,6 +1195,9 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1270,6 +1276,24 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         item
         for item in history
         if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack"
+    ]
+    audit_delivery_retry_execution_approval_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan"
+    ]
+    audit_delivery_retry_execution_approval_decisions = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision"
+    ]
+    audit_delivery_connector_recovery_playbooks = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1355,6 +1379,22 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
             int(item.get("retryable_count") or 0) for item in audit_delivery_retry_plans
         ),
         "acknowledgement_audit_delivery_retry_ack_count": len(audit_delivery_retry_acks),
+        "acknowledgement_audit_delivery_retry_execution_approval_plan_count": len(
+            audit_delivery_retry_execution_approval_plans
+        ),
+        "acknowledgement_audit_delivery_retry_execution_approval_decision_count": len(
+            audit_delivery_retry_execution_approval_decisions
+        ),
+        "acknowledgement_audit_delivery_retry_execution_approved_count": len(
+            [
+                item
+                for item in audit_delivery_retry_execution_approval_decisions
+                if item.get("approval_state") == "approved"
+            ]
+        ),
+        "acknowledgement_audit_delivery_connector_recovery_playbook_count": len(
+            audit_delivery_connector_recovery_playbooks
+        ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
             [item for item in audit_delivery_worker_runs if item.get("dry_run", True)]
@@ -1511,11 +1551,27 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
         generated_by=generated_by,
         now=now,
     )
-    selected_retries = [
+    approved_keys = _approved_go_retry_execution_keys(items)
+    retry_decisions = [
         decision
         for decision in retry_plan.get("retry_decisions", [])
         if isinstance(decision, dict) and decision.get("action") == "retry"
+    ]
+    selected_retries = [
+        decision
+        for decision in retry_decisions
+        if dry_run
+        or _go_retry_execution_key(
+            {
+                "retry_plan_id": retry_plan.get("retry_plan_id"),
+                "provider": decision.get("provider"),
+                "delivery_id": decision.get("delivery_id"),
+                "audit_id": decision.get("audit_id"),
+            }
+        )
+        in approved_keys
     ][:max_retry_deliveries]
+    approval_pending_count = max(0, len(retry_decisions) - len(selected_retries)) if not dry_run else 0
     follow_up_actions = [
         {
             "action": decision.get("action"),
@@ -1523,6 +1579,13 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
             "audit_id": decision.get("audit_id", ""),
             "delivery_id": decision.get("delivery_id", ""),
             "reason": decision.get("reason", ""),
+            "approval_state": (
+                "dry_run_not_required"
+                if dry_run
+                else "approved"
+                if decision in selected_retries
+                else "approval_required"
+            ),
         }
         for decision in retry_plan.get("retry_decisions", [])
         if isinstance(decision, dict)
@@ -1558,6 +1621,7 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
             "waiting_retry_count": int(retry_plan.get("waiting_count") or 0),
             "suppressed_retry_count": int(retry_plan.get("suppressed_count") or 0),
             "selected_retry_count": len(selected_retries),
+            "approval_pending_count": approval_pending_count,
             "follow_up_action_count": len(follow_up_actions),
         },
         "retry_plan": retry_plan,
@@ -1567,6 +1631,7 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
             "worker-run-derived-from-public-audit-delivery-metadata",
             "scheduled-worker-run-contains-no-connector-secrets",
             "dry-run-default-prevents-accidental-retry-delivery",
+            "live-retry-delivery-requires-approved-retry-execution-decision",
             "idempotency-key-derived-from-schedule-window-and-input-metadata",
         ],
     }
@@ -2118,6 +2183,338 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata(
         "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
         "external_ref": acknowledgement.get("external_ref"),
         "acknowledgement": acknowledgement,
+    }
+
+
+def _go_retry_execution_key(item: dict[str, Any]) -> tuple[str, str, str, str]:
+    return (
+        "",
+        str(item.get("provider") or ""),
+        str(item.get("delivery_id") or ""),
+        str(item.get("audit_id") or ""),
+    )
+
+
+def _approved_go_retry_execution_keys(items: list[dict[str, Any]]) -> set[tuple[str, str, str, str]]:
+    approved = set()
+    for item in filter_go_rollback_drill_notification_history(items, limit=500)["items"]:
+        if (
+            item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision"
+            and item.get("approval_state") == "approved"
+        ):
+            approved.add(_go_retry_execution_key(item))
+    return approved
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-governance",
+    policy: dict[str, Any] | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    require_retry_ack = bool(policy.get("require_retry_ack", True))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    retry_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan"
+    ]
+    retry_acks = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack"
+        and item.get("acknowledgement_state") in {"accepted", "resolved"}
+    ]
+    acked_keys = {_go_retry_execution_key(item) for item in retry_acks}
+    approved_keys = _approved_go_retry_execution_keys(items)
+    approval_decisions: list[dict[str, Any]] = []
+    seen_keys: set[tuple[str, str, str, str]] = set()
+    for metadata in retry_plans:
+        plan = metadata.get("acknowledgement_audit_delivery_retry_plan")
+        if not isinstance(plan, dict):
+            plan = metadata
+        retry_plan_id = str(plan.get("retry_plan_id") or metadata.get("retry_plan_id") or "")
+        for decision in plan.get("retry_decisions", []):
+            if not isinstance(decision, dict) or decision.get("action") not in {"retry", "wait"}:
+                continue
+            candidate = {
+                "retry_plan_id": retry_plan_id,
+                "provider": str(decision.get("provider") or ""),
+                "delivery_id": str(decision.get("delivery_id") or ""),
+                "audit_id": str(decision.get("audit_id") or ""),
+            }
+            key = _go_retry_execution_key(candidate)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            if key in approved_keys:
+                action = "already_approved"
+                reason = "retry execution already has approved execution evidence"
+                approval_required = False
+            elif require_retry_ack and key not in acked_keys:
+                action = "wait_for_retry_ack"
+                reason = "retry execution requires accepted retry acknowledgement before approval"
+                approval_required = False
+            else:
+                action = "request_approval"
+                reason = "retry execution is acknowledged and ready for governed approval"
+                approval_required = True
+            approval_decisions.append(
+                {
+                    **candidate,
+                    "action": action,
+                    "reason": reason,
+                    "approval_required": approval_required,
+                    "retry_count": decision.get("retry_count", 0),
+                    "next_retry_at": decision.get("next_retry_at"),
+                    "failed_status_codes": decision.get("failed_status_codes", []),
+                    "retry_action": decision.get("action"),
+                }
+            )
+    approval_required_count = len([item for item in approval_decisions if item["approval_required"]])
+    approved_count = len([item for item in approval_decisions if item["action"] == "already_approved"])
+    waiting_count = len([item for item in approval_decisions if item["action"] in {"wait_for_retry_ack", "wait_for_retry_window"}])
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"generated_at": generated_at, "approval_decisions": approval_decisions},
+        sort_keys=True,
+    )
+    approval_plan_id = f"gordackretryapproval-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan.v1",
+        "product": "CAVRA",
+        "approval_plan_id": approval_plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if approval_required_count else "warning" if waiting_count else "healthy",
+        "decision_count": len(approval_decisions),
+        "approval_required_count": approval_required_count,
+        "approved_count": approved_count,
+        "waiting_count": waiting_count,
+        "require_retry_ack": require_retry_ack,
+        "approval_decisions": approval_decisions,
+        "controls": [
+            "retry-execution-approval-derived-from-public-retry-metadata",
+            "retry-execution-requires-explicit-approval-before-live-worker-delivery",
+            "approval-plan-contains-no-provider-credentials",
+            "private-connectors-remain-responsible-for-side-effects",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("approval_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": int(plan.get("decision_count") or 0),
+        "blocked_count": int(plan.get("waiting_count") or 0),
+        "approval_required_count": int(plan.get("approval_required_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan",
+        "approval_plan_id": plan.get("approval_plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "approved_count": plan.get("approved_count", 0),
+        "waiting_count": plan.get("waiting_count", 0),
+        "retry_execution_approval_plan": plan,
+    }
+
+
+def decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval(
+    approval_plan_id: str,
+    *,
+    provider: str,
+    decided_by: str,
+    approval_state: str = "approved",
+    retry_plan_id: str | None = None,
+    delivery_id: str | None = None,
+    audit_id: str | None = None,
+    external_ref: str | None = None,
+    notes: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    if not approval_plan_id:
+        raise ValueError("approval_plan_id is required")
+    provider = str(provider or "").strip().lower().replace("-", "_")
+    if not provider:
+        raise ValueError("provider is required")
+    if not decided_by:
+        raise ValueError("decided_by is required")
+    state = approval_state.strip().lower().replace("-", "_")
+    if state not in {"approved", "denied", "deferred", "expired"}:
+        raise ValueError("approval_state must be approved, denied, deferred, or expired")
+    now = now or datetime.now(timezone.utc)
+    decided_at = now.isoformat()
+    material = f"{approval_plan_id}|{retry_plan_id or ''}|{provider}|{delivery_id or ''}|{state}|{decided_by}|{decided_at}"
+    decision_id = f"gordackretryapprovaldecision-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision.v1",
+        "product": "CAVRA",
+        "decision_id": decision_id,
+        "approval_plan_id": approval_plan_id,
+        "retry_plan_id": retry_plan_id or "",
+        "delivery_id": delivery_id or "",
+        "audit_id": audit_id or "",
+        "provider": provider,
+        "approval_state": state,
+        "decided_by": decided_by,
+        "decided_at": decided_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "controls": [
+            "retry-execution-approval-decision-records-governed-operator-intent",
+            "approval-decision-contains-no-provider-token-or-secret",
+            "live-retry-worker-execution-must-reference-approved-decision",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_decision_metadata(
+    decision: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": decision.get("decision_id"),
+        "created_at": decision.get("decided_at"),
+        "signer": decision.get("decided_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0 if decision.get("approval_state") == "approved" else 1,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision",
+        "decision_id": decision.get("decision_id"),
+        "approval_plan_id": decision.get("approval_plan_id"),
+        "retry_plan_id": decision.get("retry_plan_id"),
+        "delivery_id": decision.get("delivery_id"),
+        "audit_id": decision.get("audit_id"),
+        "provider": decision.get("provider"),
+        "approval_state": decision.get("approval_state"),
+        "external_ref": decision.get("external_ref"),
+        "retry_execution_approval_decision": decision,
+    }
+
+
+def _go_connector_recovery_category(provider: str) -> str:
+    normalized = provider.strip().lower().replace("-", "_")
+    if normalized in {"splunk", "sentinel", "datadog"}:
+        return "siem"
+    if normalized in {"jira", "servicenow"}:
+        return "itsm"
+    if normalized in {"slack", "teams", "pagerduty", "email"}:
+        return "chatops"
+    return "webhook"
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-governance",
+    min_failure_count: int = 2,
+    lookback_hours: int = 24,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    min_failure_count = max(1, int(min_failure_count or 2))
+    lookback_hours = max(1, int(lookback_hours or 24))
+    cutoff = now - timedelta(hours=lookback_hours)
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    failures = []
+    for item in history:
+        if item.get("metadata_kind") != "release-connector-delivery" or item.get("delivery_success"):
+            continue
+        if item.get("connector_delivery_source") not in {
+            "go_backend_rollback_drill_acknowledgement_audit",
+            "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert",
+        }:
+            continue
+        created_at = _parse_iso_datetime(str(item.get("created_at") or ""))
+        if created_at is not None and created_at < cutoff:
+            continue
+        providers = [str(provider) for provider in item.get("failed_providers", []) if provider]
+        if not providers:
+            providers = [str(provider) for provider in item.get("providers", []) if provider]
+        for provider in providers:
+            failures.append({"provider": provider.strip().lower().replace("-", "_"), "item": item})
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for failure in failures:
+        grouped.setdefault(failure["provider"], []).append(failure["item"])
+    provider_playbooks = []
+    for provider, provider_failures in sorted(grouped.items()):
+        if len(provider_failures) < min_failure_count:
+            continue
+        category = _go_connector_recovery_category(provider)
+        provider_playbooks.append(
+            {
+                "provider": provider,
+                "category": category,
+                "failure_count": len(provider_failures),
+                "latest_failure_at": max(str(item.get("created_at") or "") for item in provider_failures),
+                "status_codes": _unique_sorted(
+                    str(code)
+                    for item in provider_failures
+                    for code in item.get("status_codes", [])
+                    if code is not None
+                ),
+                "recovery_steps": [
+                    "confirm connector destination ownership and maintenance status",
+                    "verify outbound network path and endpoint allowlist",
+                    "rotate or reissue connector credential in private secret manager if authentication failed",
+                    "run acknowledgement audit delivery worker in dry-run mode",
+                    "request retry execution approval before live retry delivery",
+                    "record external incident or change reference after recovery",
+                ],
+                "private_connector_boundary": (
+                    "Community Edition records the public-safe recovery playbook only; connector credential "
+                    "rotation and ticket/chat side effects remain private connector or operator runbook work."
+                ),
+            }
+        )
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"generated_at": generated_at, "provider_playbooks": provider_playbooks},
+        sort_keys=True,
+    )
+    playbook_id = f"gordackrecovery-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook.v1",
+        "product": "CAVRA",
+        "playbook_id": playbook_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if provider_playbooks else "healthy",
+        "lookback_hours": lookback_hours,
+        "min_failure_count": min_failure_count,
+        "provider_count": len(provider_playbooks),
+        "failure_count": sum(item["failure_count"] for item in provider_playbooks),
+        "provider_playbooks": provider_playbooks,
+        "controls": [
+            "connector-recovery-playbook-derived-from-redacted-delivery-metadata",
+            "playbook-contains-no-connector-secrets",
+            "credential-rotation-remains-private-operator-or-enterprise-connector-responsibility",
+            "live-retry-delivery-remains-approval-bound",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata(
+    playbook: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": playbook.get("playbook_id"),
+        "created_at": playbook.get("generated_at"),
+        "signer": playbook.get("generated_by", "release-governance"),
+        "decision_count": int(playbook.get("provider_count") or 0),
+        "blocked_count": int(playbook.get("failure_count") or 0),
+        "approval_required_count": int(playbook.get("provider_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
+        "playbook_id": playbook.get("playbook_id"),
+        "alert_level": playbook.get("alert_level"),
+        "provider_count": playbook.get("provider_count", 0),
+        "failure_count": playbook.get("failure_count", 0),
+        "connector_recovery_playbook": playbook,
     }
 
 

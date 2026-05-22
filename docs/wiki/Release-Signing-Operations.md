@@ -111,4 +111,4 @@ Regulated enterprises need more than a signed binary. They need evidence that pr
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit retry execution approvals and connector recovery playbooks.
+The next recommended implementation step is to add approval-bound live retry execution records and connector recovery closure evidence.

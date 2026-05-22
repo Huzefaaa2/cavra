@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA retry execution approvals and connector recovery playbooks</title>
+  <desc id="desc">Flow from failed acknowledgement audit delivery to retry plan, retry acknowledgement, execution approval, dry-run or live worker execution, and connector recovery playbooks.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071114; }
+      .panel { fill: #101a1f; stroke: #65d6bd; stroke-width: 2; rx: 14; }
+      .panel2 { fill: #132129; stroke: #78a6ff; stroke-width: 2; rx: 14; }
+      .warn { fill: #211c11; stroke: #f4c35f; stroke-width: 2; rx: 14; }
+      .text { fill: #eef7f6; font-family: Inter, Arial, sans-serif; font-size: 20px; font-weight: 700; }
+      .small { fill: #bfd4d0; font-family: Inter, Arial, sans-serif; font-size: 15px; }
+      .label { fill: #77e4c8; font-family: Inter, Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .arrow { stroke: #65d6bd; stroke-width: 3; marker-end: url(#arrow); fill: none; }
+      .arrow2 { stroke: #f4c35f; stroke-width: 3; marker-end: url(#arrow); fill: none; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#65d6bd"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1180" height="760"/>
+  <text class="text" x="60" y="55">CAVRA Acknowledgement Audit Retry Governance</text>
+  <text class="small" x="60" y="82">Public-safe approval and recovery evidence before live retry execution</text>
+
+  <rect class="panel" x="60" y="125" width="250" height="112"/>
+  <text class="text" x="86" y="165">Failed Delivery</text>
+  <text class="small" x="86" y="194">Redacted connector metadata</text>
+  <text class="small" x="86" y="216">SIEM, ITSM, ChatOps, webhook</text>
+
+  <rect class="panel" x="370" y="125" width="250" height="112"/>
+  <text class="text" x="397" y="165">Retry Plan</text>
+  <text class="small" x="397" y="194">Backoff and eligibility</text>
+  <text class="small" x="397" y="216">No connector secrets</text>
+
+  <rect class="panel" x="680" y="125" width="250" height="112"/>
+  <text class="text" x="705" y="165">Retry Ack</text>
+  <text class="small" x="705" y="194">Operator accepts or defers</text>
+  <text class="small" x="705" y="216">Review-only evidence</text>
+
+  <rect class="warn" x="370" y="315" width="250" height="124"/>
+  <text class="text" x="397" y="355">Execution Approval</text>
+  <text class="small" x="397" y="384">Approved, denied, deferred, expired</text>
+  <text class="small" x="397" y="406">Required before live retry</text>
+
+  <rect class="panel2" x="680" y="315" width="250" height="124"/>
+  <text class="text" x="705" y="355">Retry Worker</text>
+  <text class="small" x="705" y="384">Dry-run selects retryable work</text>
+  <text class="small" x="705" y="406">Live mode selects approved work</text>
+
+  <rect class="panel2" x="60" y="515" width="250" height="124"/>
+  <text class="text" x="86" y="555">Recovery Playbook</text>
+  <text class="small" x="86" y="584">Provider failure grouping</text>
+  <text class="small" x="86" y="606">Runbook steps, no secrets</text>
+
+  <rect class="panel" x="370" y="515" width="250" height="124"/>
+  <text class="text" x="397" y="555">Evidence Console</text>
+  <text class="small" x="397" y="584">Approval and recovery metrics</text>
+  <text class="small" x="397" y="606">Searchable governance history</text>
+
+  <rect class="panel" x="680" y="515" width="250" height="124"/>
+  <text class="text" x="705" y="555">Private Connectors</text>
+  <text class="small" x="705" y="584">Credential rotation and tickets</text>
+  <text class="small" x="705" y="606">Remain outside public repo</text>
+
+  <path class="arrow" d="M310 181 L370 181"/>
+  <path class="arrow" d="M620 181 L680 181"/>
+  <path class="arrow2" d="M805 237 C805 285 620 292 550 315"/>
+  <path class="arrow" d="M620 377 L680 377"/>
+  <path class="arrow" d="M185 237 C170 320 168 440 185 515"/>
+  <path class="arrow" d="M310 577 L370 577"/>
+  <path class="arrow" d="M620 577 L680 577"/>
+  <path class="arrow" d="M805 439 L805 515"/>
+
+  <text class="label" x="60" y="700">Next: approval-bound live retry execution records and connector recovery closure evidence.</text>
+</svg>
