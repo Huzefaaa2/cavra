@@ -1525,6 +1525,14 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         config["endpoints"]["go_rollback_drill_notification_acknowledge"]
         == "/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements"
     )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_bulk_acknowledge"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk"
+    )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -1736,6 +1744,25 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
             "plan_id": response.json()["plan"]["plan_id"],
         },
     )
+    bulk_acknowledgement = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk",
+        json={
+            "acknowledgement_state": "resolved",
+            "acknowledged_by": "release-manager",
+            "external_ref": "CHG-456",
+            "routes": [
+                {
+                    "schedule_id": "go_backend_stale_schedule",
+                    "provider": "webhook",
+                    "plan_id": response.json()["plan"]["plan_id"],
+                }
+            ],
+        },
+    )
+    acknowledgement_audit = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package",
+        json={"owner": "release-governance", "provider": "webhook", "generated_by": "release-manager"},
+    )
     history = client.get("/runtime/go-pilot/rollback-drill-notifications")
     routes = client.get(
         "/runtime/go-pilot/rollback-drill-notifications/routes",
@@ -1759,6 +1786,16 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert escalation.json()["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-escalation-plan"
     assert acknowledgement.status_code == 200
     assert acknowledgement.json()["metadata"]["metadata_kind"] == "go-backend-rollback-drill-notification-ack"
+    assert bulk_acknowledgement.status_code == 200
+    assert bulk_acknowledgement.json()["acknowledgement_count"] == 1
+    assert bulk_acknowledgement.json()["acknowledgements"][0]["acknowledgement_state"] == "resolved"
+    assert acknowledgement_audit.status_code == 200
+    assert (
+        acknowledgement_audit.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-package"
+    )
+    assert acknowledgement_audit.json()["audit_package"]["route_count"] == 1
+    assert acknowledgement_audit.json()["audit_package"]["resolved_count"] == 1
     assert history.status_code == 200
     assert history.json()["total"] >= 4
     assert routes.status_code == 200

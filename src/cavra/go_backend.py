@@ -814,6 +814,125 @@ def build_go_rollback_drill_notification_ack_metadata(acknowledgement: dict[str,
     }
 
 
+def build_go_rollback_drill_acknowledgement_audit_package(
+    items: list[dict[str, Any]],
+    *,
+    schedule_id: str | None = None,
+    provider: str | None = None,
+    owner: str | None = None,
+    generated_by: str = "release-governance",
+) -> dict[str, Any]:
+    routes = filter_go_rollback_drill_routing_history(
+        items,
+        schedule_id=schedule_id,
+        provider=provider,
+        owner=owner,
+        action="deliver",
+        limit=500,
+    )["items"]
+    acknowledgements = filter_go_rollback_drill_notification_history(
+        items,
+        schedule_id=schedule_id,
+        provider=provider,
+        metadata_kind="go-backend-rollback-drill-notification-ack",
+        limit=500,
+    )["items"]
+    latest_ack_by_route: dict[tuple[str, str], dict[str, Any]] = {}
+    for acknowledgement in acknowledgements:
+        key = (str(acknowledgement.get("schedule_id") or ""), str(acknowledgement.get("provider") or ""))
+        if not key[0] or not key[1]:
+            continue
+        current = latest_ack_by_route.get(key)
+        if current is None or str(acknowledgement.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_ack_by_route[key] = acknowledgement
+    route_entries = []
+    acknowledged_count = 0
+    resolved_count = 0
+    escalated_count = 0
+    dismissed_count = 0
+    for route in routes:
+        key = (str(route.get("schedule_id") or ""), str(route.get("provider") or ""))
+        ack = latest_ack_by_route.get(key)
+        ack_payload = ack.get("acknowledgement") if isinstance(ack, dict) and isinstance(ack.get("acknowledgement"), dict) else ack
+        state = str((ack_payload or {}).get("acknowledgement_state") or "outstanding")
+        if state == "acknowledged":
+            acknowledged_count += 1
+        elif state == "resolved":
+            resolved_count += 1
+        elif state == "escalated":
+            escalated_count += 1
+        elif state == "dismissed":
+            dismissed_count += 1
+        route_entries.append(
+            {
+                "route_id": route.get("route_id"),
+                "schedule_id": key[0],
+                "plan_id": route.get("plan_id", ""),
+                "provider": key[1],
+                "owner": route.get("owner", "release-governance"),
+                "escalation_owner": route.get("escalation_owner", route.get("owner", "release-governance")),
+                "route_action": route.get("action", "deliver"),
+                "route_created_at": route.get("created_at", ""),
+                "acknowledgement_state": state,
+                "acknowledged": state in {"acknowledged", "resolved"},
+                "acknowledged_by": (ack_payload or {}).get("acknowledged_by", ""),
+                "acknowledged_at": (ack_payload or {}).get("acknowledged_at", ""),
+                "external_ref": (ack_payload or {}).get("external_ref", ""),
+                "notes": (ack_payload or {}).get("notes", ""),
+                "acknowledgement_id": (ack_payload or {}).get("acknowledgement_id", ""),
+            }
+        )
+    outstanding_count = len([entry for entry in route_entries if not entry["acknowledged"]])
+    material = json.dumps(
+        {
+            "generated_by": generated_by,
+            "filters": {"schedule_id": schedule_id or "", "provider": provider or "", "owner": owner or ""},
+            "route_entries": route_entries,
+        },
+        sort_keys=True,
+    )
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-package.v1",
+        "product": "CAVRA",
+        "audit_id": f"gordackaudit-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "filters": {"schedule_id": schedule_id or "", "provider": provider or "", "owner": owner or ""},
+        "route_count": len(route_entries),
+        "acknowledgement_count": len(acknowledgements),
+        "acknowledged_count": acknowledged_count,
+        "resolved_count": resolved_count,
+        "escalated_count": escalated_count,
+        "dismissed_count": dismissed_count,
+        "outstanding_count": outstanding_count,
+        "alert_level": "critical" if escalated_count or outstanding_count else "healthy",
+        "routes": route_entries,
+        "controls": [
+            "public-safe-acknowledgement-audit-package",
+            "connector-secrets-not-included",
+            "latest-route-acknowledgement-state-only",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_package_metadata(package: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "session_id": str(package.get("audit_id") or "go-rollback-drill-acknowledgement-audit-package"),
+        "created_at": str(package.get("generated_at") or datetime.now(timezone.utc).isoformat()),
+        "signer": str(package.get("generated_by") or "release-governance"),
+        "decision_count": int(package.get("route_count") or 0),
+        "blocked_count": int(package.get("outstanding_count") or 0) + int(package.get("escalated_count") or 0),
+        "approval_required_count": int(package.get("outstanding_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-package",
+        "audit_id": package.get("audit_id"),
+        "alert_level": package.get("alert_level"),
+        "route_count": package.get("route_count", 0),
+        "acknowledgement_count": package.get("acknowledgement_count", 0),
+        "outstanding_count": package.get("outstanding_count", 0),
+        "acknowledgement_audit_package": package,
+    }
+
+
 def filter_go_rollback_drill_notification_history(
     items: list[dict[str, Any]],
     *,
@@ -828,6 +947,7 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-notification-plan",
         "go-backend-rollback-drill-notification-ack",
         "go-backend-rollback-drill-notification-escalation-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-package",
         "release-connector-delivery",
     }
     filtered = [

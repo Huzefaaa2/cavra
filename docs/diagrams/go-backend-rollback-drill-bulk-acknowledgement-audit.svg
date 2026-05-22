@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="620" viewBox="0 0 1240 620" role="img" aria-labelledby="title desc">
+  <title id="title">Go Backend Rollback Drill Bulk Acknowledgement Audit</title>
+  <desc id="desc">Bulk acknowledgement and acknowledgement audit package flow for rollback drill notification routes.</desc>
+  <defs>
+    <style>
+      .bg{fill:#081214}
+      .panel{fill:#101b1f;stroke:#75e3c1;stroke-width:2;rx:12}
+      .title{fill:#eef8f8;font:bold 24px Arial, sans-serif}
+      .muted{fill:#9fb7b8;font:16px Arial, sans-serif}
+      .small{fill:#cde3e1;font:14px Arial, sans-serif}
+      .accent{fill:#75e3c1;font:bold 16px Arial, sans-serif}
+      .warn{fill:#ffd166;font:bold 16px Arial, sans-serif}
+      .arrow{stroke:#75e3c1;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#75e3c1"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1240" height="620"/>
+  <text class="title" x="52" y="58">CAVRA Bulk Drill Acknowledgement and Audit Export</text>
+  <text class="muted" x="52" y="86">Filtered routes can be bulk acknowledged or escalated, then exported as a public-safe audit package.</text>
+
+  <rect class="panel" x="52" y="130" width="240" height="160"/>
+  <text class="title" x="78" y="168">Console Filters</text>
+  <text class="small" x="78" y="204">Owner</text>
+  <text class="small" x="78" y="230">Provider</text>
+  <text class="small" x="78" y="256">State and route action</text>
+
+  <rect class="panel" x="356" y="130" width="240" height="160"/>
+  <text class="title" x="382" y="168">Bulk Action</text>
+  <text class="accent" x="382" y="204">Ack Outstanding</text>
+  <text class="warn" x="382" y="230">Escalate Breached</text>
+  <text class="small" x="382" y="256">Signed console actor</text>
+
+  <rect class="panel" x="660" y="130" width="240" height="160"/>
+  <text class="title" x="686" y="168">Ack API</text>
+  <text class="small" x="686" y="204">Validates route list</text>
+  <text class="small" x="686" y="230">Records ack metadata</text>
+  <text class="small" x="686" y="256">Persists latest route state</text>
+
+  <rect class="panel" x="964" y="130" width="224" height="160"/>
+  <text class="title" x="990" y="168">Audit Package</text>
+  <text class="small" x="990" y="204">Route state</text>
+  <text class="small" x="990" y="230">Actor and timestamp</text>
+  <text class="small" x="990" y="256">Notes and references</text>
+
+  <path class="arrow" d="M292 210 H356"/>
+  <path class="arrow" d="M596 210 H660"/>
+  <path class="arrow" d="M900 210 H964"/>
+
+  <rect class="panel" x="170" y="380" width="285" height="130"/>
+  <text class="title" x="196" y="418">Public-Safe Scope</text>
+  <text class="small" x="196" y="452">No connector credentials</text>
+  <text class="small" x="196" y="478">No identity provider secrets</text>
+
+  <rect class="panel" x="478" y="380" width="285" height="130"/>
+  <text class="title" x="504" y="418">Evidence Store</text>
+  <text class="small" x="504" y="452">Ack metadata records</text>
+  <text class="small" x="504" y="478">Audit metadata record</text>
+
+  <rect class="panel" x="786" y="380" width="285" height="130"/>
+  <text class="title" x="812" y="418">Operator Export</text>
+  <text class="small" x="812" y="452">Download JSON audit package</text>
+  <text class="small" x="812" y="478">Attach to release governance review</text>
+
+  <path class="arrow" d="M780 290 C760 338,700 366,620 380"/>
+  <path class="arrow" d="M1010 290 C1000 336,958 364,910 380"/>
+  <text class="muted" x="52" y="570">Next: schedule acknowledgement audit delivery to SIEM, ITSM, and ChatOps connectors.</text>
+</svg>

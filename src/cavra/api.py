@@ -30,6 +30,8 @@ from cavra.evidence import (
 )
 from cavra.go_backend import (
     acknowledge_go_rollback_drill_notification,
+    build_go_rollback_drill_acknowledgement_audit_package,
+    build_go_rollback_drill_acknowledgement_audit_package_metadata,
     build_go_rollback_drill_notification_ack_metadata,
     build_go_rollback_drill_notification_event,
     build_go_rollback_drill_notification_dashboard,
@@ -367,6 +369,8 @@ def create_app():
                 "go_rollback_drill_schedule": "/runtime/go-pilot/rollback-drill-schedule",
                 "go_rollback_drill_notifications": "/runtime/go-pilot/rollback-drill-notifications/deliver",
                 "go_rollback_drill_notification_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements",
+                "go_rollback_drill_notification_bulk_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk",
+                "go_rollback_drill_notification_acknowledgement_audit": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -759,6 +763,85 @@ def create_app():
             }
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk")
+    def runtime_go_pilot_rollback_drill_notification_bulk_acknowledge(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        routes = payload.get("routes")
+        if not isinstance(routes, list) or not routes:
+            raise HTTPException(status_code=400, detail="routes are required")
+        if len(routes) > 100:
+            raise HTTPException(status_code=400, detail="bulk acknowledgement is limited to 100 routes")
+        acknowledged_by = actor_context.get("actor") if actor_context else payload.get("acknowledged_by")
+        if not acknowledged_by:
+            raise HTTPException(status_code=400, detail="acknowledged_by is required")
+        acknowledgements = []
+        metadata_items = []
+        try:
+            for route in routes:
+                if not isinstance(route, dict):
+                    raise ValueError("each route must be an object")
+                schedule_id = str(route.get("schedule_id") or "").strip()
+                provider = str(route.get("provider") or "").strip()
+                if not schedule_id or not provider:
+                    raise ValueError("each route requires schedule_id and provider")
+                acknowledgement = acknowledge_go_rollback_drill_notification(
+                    schedule_id,
+                    provider=provider,
+                    acknowledged_by=str(acknowledged_by),
+                    acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
+                    external_ref=route.get("external_ref") or payload.get("external_ref"),
+                    notes=route.get("notes") or payload.get("notes"),
+                    plan_id=route.get("plan_id") or payload.get("plan_id"),
+                )
+                acknowledgements.append(acknowledgement)
+                metadata_items.append(evidence_store.upsert(build_go_rollback_drill_notification_ack_metadata(acknowledgement)))
+            return {
+                "schema_version": "cavra.go-backend-pilot.rollback-drill-bulk-acknowledgement.v1",
+                "product": "CAVRA",
+                "bulk_id": f"gordbulkack-{len(acknowledgements)}-{acknowledgements[0]['acknowledgement_id']}",
+                "acknowledgement_state": payload.get("acknowledgement_state", "acknowledged"),
+                "acknowledgement_count": len(acknowledgements),
+                "acknowledgements": acknowledgements,
+                "metadata": metadata_items,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package")
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        package = build_go_rollback_drill_acknowledgement_audit_package(
+            _go_rollback_drill_notification_items(evidence_store),
+            schedule_id=payload.get("schedule_id"),
+            provider=payload.get("provider"),
+            owner=payload.get("owner"),
+            generated_by=str(generated_by),
+        )
+        metadata = evidence_store.upsert(build_go_rollback_drill_acknowledgement_audit_package_metadata(package))
+        return {
+            "audit_package": package,
+            "metadata": metadata,
+            "actor": _public_actor_context(actor_context) if actor_context else None,
+        }
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications")
     def runtime_go_pilot_rollback_drill_notification_history(

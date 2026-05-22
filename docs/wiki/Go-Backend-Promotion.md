@@ -97,4 +97,4 @@ Runtime backend changes are high-risk because a silent drift can alter enforceme
 
 ## Next Work
 
-The next recommended implementation step is to add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
+The next recommended implementation step is to add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.

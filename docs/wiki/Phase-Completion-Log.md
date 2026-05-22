@@ -1869,4 +1869,36 @@ Enterprise challenge solved:
 - Brings drill notification mutation behavior into the same console security boundary as approvals and break-glass.
 - Keeps identity provider secrets, connector credentials, customer data, and Enterprise source outside the public Community Edition.
 
-Recommended next issue: add bulk drill acknowledgement workflows and exportable acknowledgement audit packages.
+Recommended next issue: delivered below as bulk drill acknowledgement workflows and acknowledgement audit packages.
+
+## Phase 7 Go Backend Rollback Drill Bulk Acknowledgement Audit
+
+Status: complete for the current bulk acknowledgement and public-safe audit export slice.
+
+Completed implementation:
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk` for recording acknowledgement, escalation, dismissal, or resolution metadata across up to 100 routes.
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package` for route-level acknowledgement audit package generation and metadata persistence.
+- Added public-safe audit package builders with route state, owner, provider, latest acknowledgement actor, timestamp, external reference, and notes.
+- Added Evidence Console controls for **Bulk Ack Outstanding**, **Bulk Escalate Breached**, and **Export Ack Audit**.
+- Added local sample-mode bulk acknowledgement and audit export behavior for Community Edition sandbox use without a live API.
+- Added `docs/go-backend-rollback-drill-bulk-acknowledgement-audit.md`, `docs/wiki/Go-Backend-Rollback-Drill-Bulk-Acknowledgement-Audit.md`, and `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, drill console docs, acknowledgement controls docs, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_go_backend.py::test_go_rollback_drill_acknowledgement_audit_package_summarizes_routes tests/test_api.py::test_api_console_config_and_cors tests/test_api.py::test_api_go_backend_rollback_drill_notification_delivery -q`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can acknowledge outstanding rollback drill routes in bulk.
+- As an incident commander, I can escalate breached rollback drill routes in one operation.
+- As a platform owner, I can export route-level acknowledgement audit packages from the current filter scope.
+- As an auditor, I can review actor identity, route state, notes, and external references without seeing connector secrets.
+
+Enterprise challenge solved:
+- Reduces operator toil across multi-owner and multi-provider rollback drill notification workflows.
+- Preserves public-safe, route-level evidence for release governance and audit review.
+- Keeps connector credentials, identity provider secrets, private URLs, customer data, and Enterprise source outside the public Community Edition.
+
+Recommended next issue: add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
