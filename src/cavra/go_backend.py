@@ -1138,7 +1138,10 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1208,7 +1211,10 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1330,11 +1336,29 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan"
     ]
+    audit_delivery_recovery_escalation_acks = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack"
+    ]
+    audit_delivery_recovery_escalation_retry_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan"
+    ]
     audit_delivery_recovery_executive_reports = [
         item
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report"
+    ]
+    audit_delivery_recovery_executive_report_schedule_runs = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1472,8 +1496,20 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         "acknowledgement_audit_delivery_recovery_escalation_route_count": sum(
             int(item.get("escalation_count") or 0) for item in audit_delivery_recovery_escalation_plans
         ),
+        "acknowledgement_audit_delivery_recovery_escalation_ack_count": len(
+            audit_delivery_recovery_escalation_acks
+        ),
+        "acknowledgement_audit_delivery_recovery_escalation_retry_plan_count": len(
+            audit_delivery_recovery_escalation_retry_plans
+        ),
+        "acknowledgement_audit_delivery_recovery_escalation_retryable_count": sum(
+            int(item.get("retryable_count") or 0) for item in audit_delivery_recovery_escalation_retry_plans
+        ),
         "acknowledgement_audit_delivery_recovery_executive_report_count": len(
             audit_delivery_recovery_executive_reports
+        ),
+        "acknowledgement_audit_delivery_recovery_executive_report_schedule_run_count": len(
+            audit_delivery_recovery_executive_report_schedule_runs
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -2380,6 +2416,269 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_re
         "alert_level": report.get("alert_level"),
         "escalation_count": summary.get("escalation_count", 0),
         "recovery_executive_report": report,
+    }
+
+
+def acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation(
+    plan_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "acknowledged",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    escalation_reason: str | None = None,
+) -> dict[str, Any]:
+    if not plan_id:
+        raise ValueError("plan_id is required")
+    if not provider:
+        raise ValueError("provider is required")
+    if not acknowledged_by:
+        raise ValueError("acknowledged_by is required")
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    if state not in {"acknowledged", "accepted", "deferred", "escalated", "resolved", "dismissed"}:
+        raise ValueError(
+            "acknowledgement_state must be acknowledged, accepted, deferred, escalated, resolved, or dismissed"
+        )
+    acknowledged_at = datetime.now(timezone.utc).isoformat()
+    material = json.dumps(
+        {
+            "plan_id": plan_id,
+            "provider": provider,
+            "acknowledged_by": acknowledged_by,
+            "acknowledgement_state": state,
+            "acknowledged_at": acknowledged_at,
+        },
+        sort_keys=True,
+    )
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": f"gordackrecoveryescack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}",
+        "plan_id": plan_id,
+        "provider": provider,
+        "acknowledged_by": acknowledged_by,
+        "acknowledgement_state": state,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "escalation_reason": escalation_reason or "",
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_ack_metadata(
+    acknowledgement: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": acknowledgement.get("acknowledgement_id"),
+        "created_at": acknowledgement.get("acknowledged_at"),
+        "signer": acknowledgement.get("acknowledged_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "plan_id": acknowledgement.get("plan_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "recovery_escalation_acknowledgement": acknowledgement,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_delivery_retry_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    max_retry_attempts = max(1, int(policy.get("max_retry_attempts", policy.get("max_retries", 3)) or 3))
+    allow_immediate_retry = bool(policy.get("allow_immediate_retry", False))
+    default_retry_delay_minutes = 0 if allow_immediate_retry else 15
+    retry_delay_floor = 0 if allow_immediate_retry else 1
+    retry_delay_minutes = max(
+        retry_delay_floor,
+        int(policy.get("retry_delay_minutes", policy.get("delay_minutes", default_retry_delay_minutes)) or 0),
+    )
+    backoff_multiplier = max(1.0, float(policy.get("backoff_multiplier", policy.get("multiplier", 2.0)) or 2.0))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    failed_deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_recovery_escalation"
+        and not item.get("delivery_success")
+    ]
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for item in failed_deliveries:
+        plan_id = str(item.get("plan_id") or item.get("event_id") or "")
+        providers = [str(provider) for provider in item.get("failed_providers", []) if provider]
+        if not providers:
+            providers = [str(provider) for provider in item.get("providers", []) if provider]
+        for provider in providers:
+            grouped.setdefault((plan_id, provider), []).append(item)
+
+    retry_decisions: list[dict[str, Any]] = []
+    for (plan_id, provider), failures in sorted(grouped.items()):
+        failures = sorted(failures, key=lambda item: str(item.get("created_at", "")), reverse=True)
+        latest = failures[0]
+        retry_count = len(failures)
+        delay = retry_delay_minutes * (backoff_multiplier ** max(0, retry_count - 1))
+        latest_at = _parse_iso_datetime(str(latest.get("created_at") or ""))
+        next_retry_at = (latest_at + timedelta(minutes=delay)).isoformat() if latest_at else now.isoformat()
+        action = "retry"
+        reason = "failed recovery escalation delivery is eligible for retry"
+        if retry_count >= max_retry_attempts:
+            action = "suppress"
+            reason = f"maximum retry attempts {max_retry_attempts} reached"
+        elif latest_at is not None and now < latest_at + timedelta(minutes=delay):
+            action = "wait"
+            reason = f"retry delay {int(delay)} minutes has not elapsed"
+        retry_decisions.append(
+            {
+                "plan_id": plan_id,
+                "provider": provider,
+                "action": action,
+                "reason": reason,
+                "retry_count": retry_count,
+                "max_retry_attempts": max_retry_attempts,
+                "retry_delay_minutes": int(delay),
+                "latest_delivery_id": latest.get("session_id"),
+                "latest_delivery_at": latest.get("created_at"),
+                "next_retry_at": next_retry_at,
+                "failed_status_codes": latest.get("status_codes", []),
+            }
+        )
+
+    retryable = [item for item in retry_decisions if item["action"] == "retry"]
+    waiting = [item for item in retry_decisions if item["action"] == "wait"]
+    suppressed = [item for item in retry_decisions if item["action"] == "suppress"]
+    generated_at = now.isoformat()
+    material = json.dumps({"generated_at": generated_at, "retry_decisions": retry_decisions}, sort_keys=True)
+    retry_plan_id = f"gordackrecoveryescretry-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan.v1",
+        "product": "CAVRA",
+        "retry_plan_id": retry_plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if retryable else "warning" if waiting else "healthy",
+        "decision_count": len(retry_decisions),
+        "retryable_count": len(retryable),
+        "waiting_count": len(waiting),
+        "suppressed_count": len(suppressed),
+        "max_retry_attempts": max_retry_attempts,
+        "base_retry_delay_minutes": retry_delay_minutes,
+        "allow_immediate_retry": allow_immediate_retry,
+        "backoff_multiplier": backoff_multiplier,
+        "retry_decisions": retry_decisions,
+        "controls": [
+            "recovery-escalation-retry-plan-derived-from-redacted-connector-delivery-metadata",
+            "retry-plan-contains-no-provider-credentials",
+            "operator-or-private-connector-executes-side-effects",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_delivery_retry_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("retry_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": int(plan.get("decision_count") or 0),
+        "blocked_count": int(plan.get("suppressed_count") or 0),
+        "approval_required_count": int(plan.get("retryable_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan",
+        "retry_plan_id": plan.get("retry_plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "retryable_count": plan.get("retryable_count", 0),
+        "waiting_count": plan.get("waiting_count", 0),
+        "suppressed_count": plan.get("suppressed_count", 0),
+        "recovery_escalation_delivery_retry_plan": plan,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run(
+    items: list[dict[str, Any]],
+    *,
+    schedule: dict[str, Any] | None = None,
+    recovery_slo_minutes: int = 240,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    schedule = schedule or {}
+    interval_minutes = max(1, int(schedule.get("interval_minutes", 1440) or 1440))
+    minute = (now.minute // interval_minutes) * interval_minutes if interval_minutes < 60 else 0
+    window_start = now.replace(minute=minute, second=0, microsecond=0)
+    window_end = window_start + timedelta(minutes=interval_minutes)
+    report = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report(
+        items,
+        recovery_slo_minutes=recovery_slo_minutes,
+        generated_by=generated_by,
+        now=now,
+    )
+    material = json.dumps(
+        {
+            "window_start": window_start.isoformat(),
+            "report_id": report.get("executive_report_id"),
+            "generated_by": generated_by,
+        },
+        sort_keys=True,
+    )
+    run_id = f"gordackexecsched-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run.v1",
+        "product": "CAVRA",
+        "run_id": run_id,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "alert_level": report.get("alert_level", "healthy"),
+        "schedule": {
+            "interval_minutes": interval_minutes,
+            "window_start": window_start.isoformat(),
+            "window_end": window_end.isoformat(),
+            "enabled": bool(schedule.get("enabled", True)),
+            "cadence": str(schedule.get("cadence") or f"every_{interval_minutes}_minutes"),
+        },
+        "summary": {
+            "executive_report_count": 1,
+            "escalation_count": int(summary.get("escalation_count") or 0),
+            "failed_execution_count": int(summary.get("failed_execution_count") or 0),
+            "open_recovery_count": int(summary.get("open_recovery_count") or 0),
+            "slo_breached_count": int(summary.get("slo_breached_count") or 0),
+        },
+        "executive_report": report,
+        "controls": [
+            "scheduled-executive-report-derived-from-public-safe-recovery-evidence",
+            "schedule-run-contains-no-connector-secrets",
+            "private-notification-or-report-distribution-remains-outside-public-repo",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run_metadata(
+    run: dict[str, Any],
+) -> dict[str, Any]:
+    summary = run.get("summary", {}) if isinstance(run.get("summary"), dict) else {}
+    return {
+        "session_id": run.get("run_id"),
+        "created_at": run.get("generated_at"),
+        "signer": run.get("generated_by", "release-governance"),
+        "decision_count": int(summary.get("executive_report_count") or 0),
+        "blocked_count": int(summary.get("slo_breached_count") or 0) + int(summary.get("failed_execution_count") or 0),
+        "approval_required_count": int(summary.get("open_recovery_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run",
+        "run_id": run.get("run_id"),
+        "alert_level": run.get("alert_level"),
+        "escalation_count": summary.get("escalation_count", 0),
+        "recovery_executive_report_schedule_run": run,
     }
 
 

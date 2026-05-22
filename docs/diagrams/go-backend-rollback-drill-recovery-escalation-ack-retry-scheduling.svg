@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA recovery escalation acknowledgements and scheduling</title>
+  <desc id="desc">Recovery escalation plans flow into acknowledgements, failed delivery retry planning, scheduled executive reporting, dashboard counts, and audit history.</desc>
+  <defs>
+    <style>
+      .bg{fill:#071114}
+      .lane{fill:#0f1b20;stroke:#25424a;stroke-width:2}
+      .box{fill:#14242a;stroke:#6ee7c2;stroke-width:2;rx:12}
+      .box2{fill:#172934;stroke:#7cc7ff;stroke-width:2;rx:12}
+      .warn{fill:#2d2415;stroke:#f6c760;stroke-width:2;rx:12}
+      .text{font-family:Inter,Arial,sans-serif;fill:#eef7f8;font-size:22px;font-weight:700}
+      .small{font-family:Inter,Arial,sans-serif;fill:#b9c9cc;font-size:16px}
+      .label{font-family:Inter,Arial,sans-serif;fill:#76e4c0;font-size:18px;font-weight:700}
+      .arrow{stroke:#76e4c0;stroke-width:4;fill:none;marker-end:url(#arrow)}
+      .arrow2{stroke:#7cc7ff;stroke-width:4;fill:none;marker-end:url(#arrow2)}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#76e4c0"/>
+    </marker>
+    <marker id="arrow2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#7cc7ff"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="56" y="58" class="text">Recovery Escalation Acknowledgements And Scheduling</text>
+  <text x="56" y="88" class="small">Public-safe review, retry planning, and scheduled reporting for rollback drill recovery escalation</text>
+
+  <rect x="48" y="130" width="1184" height="120" class="lane"/>
+  <text x="72" y="164" class="label">Escalation Inputs</text>
+  <rect x="88" y="180" width="260" height="48" class="box"/>
+  <text x="110" y="211" class="small">Recovery escalation plan</text>
+  <rect x="398" y="180" width="260" height="48" class="box"/>
+  <text x="420" y="211" class="small">Connector delivery evidence</text>
+  <rect x="708" y="180" width="260" height="48" class="box"/>
+  <text x="730" y="211" class="small">Executive report model</text>
+
+  <rect x="48" y="302" width="1184" height="148" class="lane"/>
+  <text x="72" y="336" class="label">Governed Actions</text>
+  <rect x="88" y="360" width="260" height="58" class="box2"/>
+  <text x="110" y="396" class="small">Escalation acknowledgement</text>
+  <rect x="398" y="360" width="260" height="58" class="warn"/>
+  <text x="420" y="396" class="small">Delivery retry plan</text>
+  <rect x="708" y="360" width="260" height="58" class="box2"/>
+  <text x="730" y="396" class="small">Scheduled report run</text>
+
+  <rect x="48" y="506" width="1184" height="126" class="lane"/>
+  <text x="72" y="540" class="label">Evidence Outputs</text>
+  <rect x="88" y="562" width="260" height="48" class="box"/>
+  <text x="110" y="593" class="small">Provider review trail</text>
+  <rect x="398" y="562" width="260" height="48" class="box"/>
+  <text x="420" y="593" class="small">Retryable failure list</text>
+  <rect x="708" y="562" width="260" height="48" class="box"/>
+  <text x="730" y="593" class="small">Leadership report evidence</text>
+  <rect x="1018" y="562" width="160" height="48" class="box"/>
+  <text x="1040" y="593" class="small">Dashboard counts</text>
+
+  <path class="arrow" d="M218 228 L218 360"/>
+  <path class="arrow" d="M528 228 L528 360"/>
+  <path class="arrow2" d="M838 228 L838 360"/>
+  <path class="arrow" d="M218 418 L218 562"/>
+  <path class="arrow" d="M528 418 L528 562"/>
+  <path class="arrow2" d="M838 418 L838 562"/>
+  <path class="arrow2" d="M968 389 L1098 562"/>
+
+  <text x="72" y="682" class="small">Boundary: acknowledgements, retry plans, and schedules contain public-safe metadata only. Private connector secrets, ticket content, and Enterprise implementation stay outside this public repository.</text>
+</svg>
