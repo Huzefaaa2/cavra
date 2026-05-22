@@ -152,6 +152,10 @@ See `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg` fo
 
 See `docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg` for worker health alerts, health alert acknowledgements, and retry acknowledgement evidence.
 
+## Go Backend Rollback Drill Executive Retry Health And Recovery Health Alert Retry
+
+See `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.svg` for executive retry health reporting and recovery health alert delivery retry planning.
+
 ## SVG Images
 
 Repository diagram images:
@@ -183,6 +187,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-audit-delivery-health.svg`
 - `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg`
 - `docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg`
+- `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

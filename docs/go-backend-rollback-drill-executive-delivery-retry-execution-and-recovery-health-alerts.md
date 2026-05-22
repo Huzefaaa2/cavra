@@ -77,6 +77,6 @@ Regulated release operations need proof that operational reporting is delivered,
 
 See `docs/diagrams/go-backend-rollback-drill-executive-delivery-retry-execution-and-recovery-health-alerts.svg`.
 
-## Next Work
+## Follow-On Work Completed
 
-The next recommended implementation step is closed-loop executive delivery retry health reporting and recovery health alert retry planning.
+Closed-loop executive delivery retry health reporting and recovery health alert retry planning are documented in `docs/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.md`.
