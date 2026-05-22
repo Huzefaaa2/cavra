@@ -9,7 +9,7 @@ CAVRA now supports scheduled and on-demand delivery plans for rollback drill ack
 - Redacted connector events for Splunk, Microsoft Sentinel, Datadog, Jira, ServiceNow, Slack, Teams, and generic webhooks.
 - Evidence Console **Audit delivery** destination selection and **Deliver Ack Audit** action.
 - Metadata history support for acknowledgement audit packages, acknowledgement audit delivery plans, and connector delivery records.
-- Roadmap and wiki updates that move the next implementation target to acknowledgement audit worker health alerts and retry acknowledgements.
+- Roadmap and wiki updates that move the next implementation target to acknowledgement audit retry execution approvals and connector recovery playbooks.
 
 ## How To Use
 
@@ -77,4 +77,4 @@ See `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.
+The next recommended implementation step is to add acknowledgement audit retry execution approvals and connector recovery playbooks.

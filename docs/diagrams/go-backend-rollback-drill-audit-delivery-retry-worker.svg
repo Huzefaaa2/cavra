@@ -82,5 +82,5 @@
   <path class="softline" d="M1010 400 C1025 350, 1080 330, 1135 300"/>
 
   <rect class="accent" x="48" y="638" width="1184" height="42" rx="21"/>
-  <text class="label" x="80" y="665">Next: acknowledgement audit worker health alerts and retry acknowledgements.</text>
+  <text class="label" x="80" y="665">Next: acknowledgement audit retry execution approvals and connector recovery playbooks.</text>
 </svg>

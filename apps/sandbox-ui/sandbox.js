@@ -1989,6 +1989,7 @@ function goDrillNotificationPayload(item) {
   if (item?.acknowledgement_audit_delivery_plan && typeof item.acknowledgement_audit_delivery_plan === "object") return item.acknowledgement_audit_delivery_plan;
   if (item?.acknowledgement_audit_delivery_retry_plan && typeof item.acknowledgement_audit_delivery_retry_plan === "object") return item.acknowledgement_audit_delivery_retry_plan;
   if (item?.acknowledgement_audit_delivery_worker_run && typeof item.acknowledgement_audit_delivery_worker_run === "object") return item.acknowledgement_audit_delivery_worker_run;
+  if (item?.worker_health_alert_plan && typeof item.worker_health_alert_plan === "object") return item.worker_health_alert_plan;
   return item || {};
 }
 
@@ -2016,7 +2017,10 @@ function goDrillDeliverySource(item) {
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-package") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-plan") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan") return "go_backend_rollback_drill_acknowledgement_audit";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run") return "go_backend_rollback_drill_acknowledgement_audit";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
   return "go_backend_rollback_drill_notification";
 }
 
@@ -2053,7 +2057,10 @@ function buildSampleGoDrillNotificationDashboard(items) {
   const auditPackages = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-package");
   const auditDeliveryPlans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-plan");
   const auditRetryPlans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan");
+  const auditRetryAcks = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack");
   const auditWorkerRuns = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run");
+  const auditWorkerHealthAlerts = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan");
+  const auditWorkerHealthAcks = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack");
   const auditDeliveries = deliveries.filter((item) => item.connector_delivery_source === "go_backend_rollback_drill_acknowledgement_audit");
   const acknowledgements = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-notification-ack");
   const escalationRoutes = items.flatMap((item) => {
@@ -2079,9 +2086,12 @@ function buildSampleGoDrillNotificationDashboard(items) {
     acknowledgement_audit_delivery_health: failedAuditDeliveries.length ? "critical" : "healthy",
     acknowledgement_audit_delivery_retry_plan_count: auditRetryPlans.length,
     acknowledgement_audit_delivery_retryable_count: auditRetryPlans.reduce((total, item) => total + Number(item.retryable_count || 0), 0),
+    acknowledgement_audit_delivery_retry_ack_count: auditRetryAcks.length,
     acknowledgement_audit_delivery_worker_run_count: auditWorkerRuns.length,
     acknowledgement_audit_delivery_worker_dry_run_count: auditWorkerRuns.filter((item) => item.dry_run !== false).length,
     acknowledgement_audit_delivery_worker_executed_count: auditWorkerRuns.filter((item) => item.dry_run === false).length,
+    acknowledgement_audit_delivery_worker_health_alert_count: auditWorkerHealthAlerts.length,
+    acknowledgement_audit_delivery_worker_health_alert_ack_count: auditWorkerHealthAcks.length,
     outstanding_acknowledgement_count: outstanding.length,
     outstanding_acknowledgements: outstanding.map((route) => ({
       schedule_id: route.schedule_id,
@@ -3909,6 +3919,14 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
       <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_worker_dry_run_count || 0)}</strong>
     </div>
     <div class="release-delivery-metric">
+      <span>Worker Alerts</span>
+      <strong class="${Number(dashboard.acknowledgement_audit_delivery_worker_health_alert_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_worker_health_alert_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Retry Acks</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_retry_ack_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
       <span>Failed Delivery</span>
       <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || historyItems.filter((item) => item.delivery_success === false).length)}</strong>
     </div>
@@ -4538,6 +4556,133 @@ async function runGoDrillAckAuditWorker() {
       acknowledgement_audit_delivery_worker_run: workerRun
     });
     if (status) status.textContent = `Using local sample worker dry-run: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
+function latestGoDrillRetryPlan() {
+  return goRollbackDrillNotificationCatalog.find(
+    (item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan"
+  )?.acknowledgement_audit_delivery_retry_plan;
+}
+
+function addSampleGoDrillAckAuditWorkerHealthAlert() {
+  const generatedAt = new Date().toISOString();
+  const retryPlan = latestGoDrillRetryPlan() || addSampleGoDrillAckAuditRetryPlan();
+  const healthId = `sample-go-drill-ack-health-${Date.now()}`;
+  const planId = `sample-go-drill-ack-health-alert-${Date.now()}`;
+  const healthAlertPlan = {
+    schema_version: "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan.v1",
+    product: "CAVRA",
+    plan_id: planId,
+    health_id: healthId,
+    generated_at: generatedAt,
+    generated_by: goDrillAckActor(),
+    alert_level: Number(retryPlan.retryable_count || 0) ? "warning" : "healthy",
+    summary: {
+      run_count: goRollbackDrillNotificationCatalog.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run").length,
+      retryable_count: retryPlan.retryable_count || 0,
+      missed_run_count: 0,
+      failed_job_count: 0,
+      alert_count: Number(retryPlan.retryable_count || 0) ? 1 : 0
+    },
+    requested_provider: "webhook",
+    eligible_providers: ["webhook"],
+    selected_providers: Number(retryPlan.retryable_count || 0) ? ["webhook"] : [],
+    suppressed_providers: [],
+    acknowledgement_required_providers: Number(retryPlan.retryable_count || 0) ? ["webhook"] : [],
+    controls: ["sample-public-safe-acknowledgement-audit-worker-health-alert"]
+  };
+  goRollbackDrillNotificationCatalog.unshift({
+    session_id: planId,
+    created_at: generatedAt,
+    signer: healthAlertPlan.generated_by,
+    metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
+    plan_id: planId,
+    health_id: healthId,
+    alert_level: healthAlertPlan.alert_level,
+    selected_providers: healthAlertPlan.selected_providers,
+    acknowledgement_required_providers: healthAlertPlan.acknowledgement_required_providers,
+    worker_health_alert_plan: healthAlertPlan
+  });
+  return healthAlertPlan;
+}
+
+async function sendGoDrillAckAuditWorkerHealthAlert() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const provider = document.querySelector("#goDrillAckAuditDeliveryProvider")?.value || "webhook";
+  if (status) status.textContent = "Sending acknowledgement audit worker health alert...";
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health-alerts/deliver"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        generated_by: goDrillAckActor(),
+        provider,
+        force: true,
+        expected_interval_minutes: 30,
+        stale_metadata_minutes: 120,
+        retries: 0,
+        timeout_seconds: 0.1
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "acknowledgement audit worker health alert API unavailable");
+    const result = await response.json();
+    if (status) status.textContent = `Worker health alert ${result.plan?.plan_id || ""} selected ${formatMetricNumber(result.plan?.selected_providers?.length || 0)} destinations.`;
+  } catch (error) {
+    const plan = addSampleGoDrillAckAuditWorkerHealthAlert();
+    if (status) status.textContent = `Using local sample worker health alert ${plan.plan_id}: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
+async function acknowledgeGoDrillAckAuditRetry() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const retryPlan = latestGoDrillRetryPlan() || addSampleGoDrillAckAuditRetryPlan();
+  const decision = (retryPlan.retry_decisions || [])[0] || {};
+  const provider = decision.provider || document.querySelector("#goDrillAckAuditDeliveryProvider")?.value || "webhook";
+  if (status) status.textContent = "Acknowledging acknowledgement audit retry decision...";
+  try {
+    const response = await fetch(apiUrl(`/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-plans/${encodeURIComponent(retryPlan.retry_plan_id)}/acknowledgements`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        provider,
+        acknowledged_by: goDrillAckActor(),
+        acknowledgement_state: "accepted",
+        delivery_id: decision.delivery_id || "",
+        audit_id: decision.audit_id || "",
+        external_ref: document.querySelector("#goDrillAckExternalRef")?.value || "",
+        notes: document.querySelector("#goDrillAckNotes")?.value || ""
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "acknowledgement audit retry acknowledgement API unavailable");
+    const result = await response.json();
+    if (status) status.textContent = `Acknowledged retry decision ${result.acknowledgement?.acknowledgement_id || ""}.`;
+  } catch (error) {
+    const acknowledgedAt = new Date().toISOString();
+    const acknowledgementId = `sample-go-drill-ack-retry-ack-${Date.now()}`;
+    goRollbackDrillNotificationCatalog.unshift({
+      session_id: acknowledgementId,
+      created_at: acknowledgedAt,
+      signer: goDrillAckActor(),
+      metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
+      acknowledgement_id: acknowledgementId,
+      retry_plan_id: retryPlan.retry_plan_id,
+      delivery_id: decision.delivery_id || "",
+      audit_id: decision.audit_id || "",
+      provider,
+      acknowledgement_state: "accepted",
+      acknowledgement: {
+        acknowledgement_id: acknowledgementId,
+        retry_plan_id: retryPlan.retry_plan_id,
+        provider,
+        acknowledgement_state: "accepted",
+        acknowledged_by: goDrillAckActor(),
+        acknowledged_at: acknowledgedAt
+      }
+    });
+    if (status) status.textContent = `Using local sample retry acknowledgement: ${error.message || "API unavailable"}.`;
   }
   await refreshGoRollbackDrillNotifications();
 }
@@ -5782,6 +5927,8 @@ document.querySelector("#goDrillExportAckAudit").addEventListener("click", expor
 document.querySelector("#goDrillDeliverAckAudit").addEventListener("click", deliverGoDrillAckAuditPackage);
 document.querySelector("#goDrillPlanAckAuditRetry").addEventListener("click", planGoDrillAckAuditRetry);
 document.querySelector("#goDrillRunAckAuditWorker").addEventListener("click", runGoDrillAckAuditWorker);
+document.querySelector("#goDrillSendAckAuditWorkerAlert").addEventListener("click", sendGoDrillAckAuditWorkerHealthAlert);
+document.querySelector("#goDrillAckAuditRetryAck").addEventListener("click", acknowledgeGoDrillAckAuditRetry);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory, #filterEndpointRecurrenceWorkerMode").forEach((control) => {
   control.addEventListener("input", refreshEndpointRecurrenceOperations);

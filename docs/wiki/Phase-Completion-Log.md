@@ -1996,4 +1996,37 @@ Enterprise challenge solved:
 - Creates public-safe retry worker evidence without committing Enterprise scheduler or connector secret logic.
 - Gives operators an auditable path from failed delivery to governed retry selection.
 
-Recommended next issue: add acknowledgement audit worker health alerts and retry acknowledgements.
+Recommended next issue: delivered below as acknowledgement audit worker health alerts and retry acknowledgements.
+
+## Phase 7 Go Backend Rollback Drill Audit Worker Health Alerts
+
+Status: complete for the current acknowledgement audit worker health alert and retry acknowledgement slice.
+
+Completed implementation:
+- Added `GET /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health` for missed worker runs, stale retry metadata, retryable delivery count, connector delivery failures, and recommendations.
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health-alerts/deliver` for routing public-safe worker health alerts through configured connectors.
+- Added worker health alert acknowledgement endpoints, alert history, and alert dashboard views.
+- Added retry acknowledgement endpoint for accepted, deferred, escalated, resolved, and dismissed retry decisions.
+- Added worker health alert plans, alert acknowledgements, and retry acknowledgements to rollback drill notification history and dashboard metrics.
+- Added Evidence Console **Send Worker Alert** and **Ack Retry** actions plus worker alert and retry acknowledgement dashboard cards.
+- Added `docs/go-backend-rollback-drill-audit-worker-health-alerts.md`, `docs/wiki/Go-Backend-Rollback-Drill-Audit-Worker-Health-Alerts.md`, and `docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can route retry worker health into operational channels.
+- As a platform owner, I can acknowledge retry decisions before execution.
+- As a SOC analyst, I can confirm repeated SIEM delivery failures were reviewed.
+- As an auditor, I can see the accountable review state for failed audit delivery retries.
+
+Enterprise challenge solved:
+- Closes the loop between failed acknowledgement audit delivery, retry planning, worker health, alert routing, and operator review.
+- Keeps worker health and retry acknowledgements public-safe without exposing connector credentials or Enterprise automation code.
+- Establishes the governance record needed before non-dry-run retry execution is introduced.
+
+Recommended next issue: add acknowledgement audit retry execution approvals and connector recovery playbooks.

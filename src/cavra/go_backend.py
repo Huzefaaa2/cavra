@@ -1130,7 +1130,10 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-package",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
         "release-connector-delivery",
     }
     filtered = [
@@ -1143,6 +1146,7 @@ def filter_go_rollback_drill_notification_history(
             in {
                 "go_backend_rollback_drill_notification",
                 "go_backend_rollback_drill_acknowledgement_audit",
+                "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert",
             }
         )
     ]
@@ -1186,6 +1190,11 @@ def filter_go_rollback_drill_notification_history(
                 in {
                     "go-backend-rollback-drill-acknowledgement-audit-package",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
                 }
             )
         ]
@@ -1257,10 +1266,25 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan"
     ]
+    audit_delivery_retry_acks = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack"
+    ]
     audit_delivery_worker_runs = [
         item
         for item in history
         if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run"
+    ]
+    audit_delivery_worker_health_alerts = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan"
+    ]
+    audit_delivery_worker_health_alert_acks = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack"
     ]
     audit_deliveries = [
         item
@@ -1330,12 +1354,17 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         "acknowledgement_audit_delivery_retryable_count": sum(
             int(item.get("retryable_count") or 0) for item in audit_delivery_retry_plans
         ),
+        "acknowledgement_audit_delivery_retry_ack_count": len(audit_delivery_retry_acks),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
             [item for item in audit_delivery_worker_runs if item.get("dry_run", True)]
         ),
         "acknowledgement_audit_delivery_worker_executed_count": len(
             [item for item in audit_delivery_worker_runs if not item.get("dry_run", True)]
+        ),
+        "acknowledgement_audit_delivery_worker_health_alert_count": len(audit_delivery_worker_health_alerts),
+        "acknowledgement_audit_delivery_worker_health_alert_ack_count": len(
+            audit_delivery_worker_health_alert_acks
         ),
         "outstanding_acknowledgement_count": len(outstanding),
         "outstanding_acknowledgements": outstanding[:20],
@@ -1615,6 +1644,598 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard(
         "retryable_count": retryable_count,
         "selected_retry_count": selected_retry_count,
         "latest": runs[:10],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health(
+    items: list[dict[str, Any]],
+    *,
+    expected_interval_minutes: int = 30,
+    stale_metadata_minutes: int = 120,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    expected_interval_minutes = max(1, int(expected_interval_minutes or 30))
+    stale_metadata_minutes = max(1, int(stale_metadata_minutes or 120))
+    missed_after_minutes = expected_interval_minutes * 2
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    runs = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run"
+    ]
+    retry_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan"
+    ]
+    latest_run = runs[0] if runs else {}
+    latest_run_at = _parse_iso_datetime(str(latest_run.get("created_at") or ""))
+    latest_run_age_minutes = (
+        int((now - latest_run_at).total_seconds() // 60)
+        if latest_run_at is not None and now >= latest_run_at
+        else None
+    )
+    missed_run_count = 1 if latest_run_at is None or (latest_run_age_minutes or 0) > missed_after_minutes else 0
+    failed_job_count = 0
+    disabled_schedule_count = 0
+    retryable_count = 0
+    selected_retry_count = 0
+    for item in runs:
+        run = (
+            item.get("acknowledgement_audit_delivery_worker_run")
+            if isinstance(item.get("acknowledgement_audit_delivery_worker_run"), dict)
+            else item
+        )
+        summary = run.get("summary", {}) if isinstance(run.get("summary"), dict) else {}
+        schedule = run.get("schedule", {}) if isinstance(run.get("schedule"), dict) else {}
+        retryable_count += int(summary.get("retryable_count") or item.get("retryable_count") or 0)
+        selected_retry_count += int(summary.get("selected_retry_count") or item.get("selected_retry_count") or 0)
+        status = str(run.get("status") or item.get("status") or "").lower()
+        if status in {"failed", "error", "timeout", "cancelled"}:
+            failed_job_count += 1
+        if schedule.get("enabled") is False:
+            disabled_schedule_count += 1
+
+    latest_retry_plan = retry_plans[0] if retry_plans else {}
+    latest_retry_plan_at = _parse_iso_datetime(str(latest_retry_plan.get("created_at") or ""))
+    latest_retry_plan_age_minutes = (
+        int((now - latest_retry_plan_at).total_seconds() // 60)
+        if latest_retry_plan_at is not None and now >= latest_retry_plan_at
+        else None
+    )
+    stale_retry_plan_count = (
+        1
+        if latest_retry_plan_at is None or (latest_retry_plan_age_minutes or 0) > stale_metadata_minutes
+        else 0
+    )
+    connector_failures = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source") == "go_backend_rollback_drill_acknowledgement_audit"
+        and not item.get("delivery_success")
+    ]
+    alerts: list[dict[str, Any]] = []
+    if missed_run_count:
+        alerts.append(
+            {
+                "severity": "critical",
+                "category": "missed_worker_run",
+                "message": "No acknowledgement audit retry worker run completed inside the expected schedule window.",
+            }
+        )
+    if failed_job_count:
+        alerts.append(
+            {
+                "severity": "critical",
+                "category": "failed_worker_run",
+                "message": f"{failed_job_count} acknowledgement audit retry worker runs reported a failed status.",
+            }
+        )
+    if retryable_count:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "retryable_deliveries",
+                "message": f"{retryable_count} failed acknowledgement audit deliveries remain retryable.",
+            }
+        )
+    if connector_failures:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "connector_failure",
+                "message": f"{len(connector_failures)} acknowledgement audit connector delivery attempts failed.",
+            }
+        )
+    if stale_retry_plan_count:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "stale_retry_plan",
+                "message": "Acknowledgement audit retry plan metadata is missing or stale.",
+            }
+        )
+    if disabled_schedule_count:
+        alerts.append(
+            {
+                "severity": "warning",
+                "category": "disabled_schedule",
+                "message": f"{disabled_schedule_count} worker runs reported disabled schedules.",
+            }
+        )
+    alert_level = "critical" if any(item["severity"] == "critical" for item in alerts) else "warning" if alerts else "healthy"
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "latest_run_id": latest_run.get("run_id") or latest_run.get("session_id"),
+            "retryable_count": retryable_count,
+            "alerts": alerts,
+        },
+        sort_keys=True,
+    )
+    health_id = f"gordackhealth-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health.v1",
+        "product": "CAVRA",
+        "health_id": health_id,
+        "generated_at": generated_at,
+        "alert_level": alert_level,
+        "expected_interval_minutes": expected_interval_minutes,
+        "missed_after_minutes": missed_after_minutes,
+        "stale_metadata_minutes": stale_metadata_minutes,
+        "run_count": len(runs),
+        "retry_plan_count": len(retry_plans),
+        "retryable_count": retryable_count,
+        "selected_retry_count": selected_retry_count,
+        "missed_run_count": missed_run_count,
+        "failed_job_count": failed_job_count,
+        "disabled_schedule_count": disabled_schedule_count,
+        "stale_retry_plan_count": stale_retry_plan_count,
+        "connector_delivery_failure_count": len(connector_failures),
+        "latest_run_id": latest_run.get("run_id") or latest_run.get("session_id"),
+        "latest_run_at": latest_run_at.isoformat() if latest_run_at else None,
+        "latest_run_age_minutes": latest_run_age_minutes,
+        "latest_retry_plan_id": latest_retry_plan.get("retry_plan_id") or latest_retry_plan.get("session_id"),
+        "latest_retry_plan_age_minutes": latest_retry_plan_age_minutes,
+        "failed_deliveries": connector_failures[:10],
+        "alerts": alerts,
+        "recommendations": [
+            "Review retryable acknowledgement audit deliveries and acknowledge the retry decision owner.",
+            "Run the worker in dry-run mode before enabling guarded retry execution.",
+            "Check connector delivery evidence for repeated SIEM, ITSM, ChatOps, or webhook failures.",
+            "Refresh retry plans when retry metadata is stale.",
+        ],
+        "latest": runs[:10],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_event(
+    health: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+    max_alerts: int = 20,
+) -> dict[str, Any]:
+    max_alerts = max(1, min(int(max_alerts or 20), 100))
+    alerts = [item for item in health.get("alerts", []) if isinstance(item, dict)]
+    selected_alerts = alerts[:max_alerts]
+    health_id = str(health.get("health_id") or "go-rollback-drill-ack-audit-worker-health")
+    alert_level = str(health.get("alert_level") or "healthy")
+    summary = {
+        "run_count": int(health.get("run_count") or 0),
+        "retry_plan_count": int(health.get("retry_plan_count") or 0),
+        "retryable_count": int(health.get("retryable_count") or 0),
+        "missed_run_count": int(health.get("missed_run_count") or 0),
+        "failed_job_count": int(health.get("failed_job_count") or 0),
+        "stale_retry_plan_count": int(health.get("stale_retry_plan_count") or 0),
+        "connector_delivery_failure_count": int(health.get("connector_delivery_failure_count") or 0),
+        "latest_run_id": health.get("latest_run_id"),
+        "latest_run_age_minutes": health.get("latest_run_age_minutes"),
+        "omitted_alert_count": max(0, len(alerts) - len(selected_alerts)),
+    }
+    title = f"CAVRA rollback drill audit worker health {alert_level}: {health_id}"
+    description = json.dumps({"summary": summary, "alerts": selected_alerts}, indent=2, sort_keys=True)
+    event = {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.go_backend.rollback_drill.acknowledgement_audit_worker_health_alert",
+        "session_id": health_id,
+        "health_id": health_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "source_health_generated_at": health.get("generated_at"),
+        "title": title,
+        "alert_level": alert_level,
+        "max_severity": "critical" if alert_level == "critical" else "warning" if alert_level == "warning" else "low",
+        "blocked_count": summary["missed_run_count"] + summary["failed_job_count"],
+        "approval_required_count": len(selected_alerts),
+        "decision_count": summary["run_count"],
+        "summary": summary,
+        "alerts": selected_alerts,
+        "omitted_alert_count": max(0, len(alerts) - len(selected_alerts)),
+        "recommendations": health.get("recommendations", []),
+        "controls": [
+            "worker-health-alert-derived-from-public-health-metadata",
+            "connector-delivery-evidence-redacts-secrets",
+            "health-alert-acknowledgements-record-review-only",
+            "private-connectors-remain-responsible-for-ticket-or-chat-side-effects",
+        ],
+    }
+    event["provider_payloads"] = {
+        "webhook": event | {"provider": "webhook"},
+        "splunk": {"event": event | {"provider": "splunk"}, "sourcetype": "cavra:rollback_drill_ack_worker_health"},
+        "sentinel": {"records": [event | {"provider": "sentinel"}]},
+        "datadog": {"events": [event | {"provider": "datadog"}]},
+        "slack": {"text": f"{title}: {summary}", "metadata": summary},
+        "teams": {"type": "message", "title": title, "text": description},
+        "jira": {
+            "summary": title,
+            "description": description,
+            "labels": ["cavra", "go-backend", "rollback-drill", "audit-worker-health"],
+        },
+        "servicenow": {
+            "short_description": title,
+            "description": description,
+            "category": "software",
+            "correlation_id": health_id,
+        },
+    }
+    return event
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan(
+    health: dict[str, Any],
+    *,
+    delivery_items: list[dict[str, Any]] | None = None,
+    requested_provider: str = "all",
+    available_providers: list[str] | None = None,
+    generated_by: str = "release-governance",
+    suppression_window_minutes: int = 60,
+    force: bool = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    suppression_window_minutes = max(1, int(suppression_window_minutes or 60))
+    health_id = str(health.get("health_id") or "go-rollback-drill-ack-audit-worker-health")
+    alert_level = str(health.get("alert_level") or "healthy")
+    available = [str(provider).strip().lower().replace("-", "_") for provider in available_providers or [] if provider]
+    if not available:
+        available = ["webhook"]
+    if requested_provider != "all":
+        requested = {item.strip().lower().replace("-", "_") for item in str(requested_provider).split(",") if item.strip()}
+        eligible = [provider for provider in available if provider in requested]
+    else:
+        eligible = available
+    delivery_items = delivery_items or []
+    suppressed = []
+    if not force:
+        cutoff = now - timedelta(minutes=suppression_window_minutes)
+        for item in delivery_items:
+            if (
+                item.get("metadata_kind") == "release-connector-delivery"
+                and item.get("connector_delivery_source")
+                == "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert"
+                and item.get("event_id") == health_id
+            ):
+                created_at = _parse_iso_datetime(str(item.get("created_at") or ""))
+                if created_at and created_at >= cutoff:
+                    for provider in item.get("providers", []):
+                        suppressed.append({"provider": str(provider), "last_delivery_at": item.get("created_at")})
+    suppressed_names = {str(item.get("provider")) for item in suppressed}
+    selected = [provider for provider in eligible if provider not in suppressed_names and alert_level != "healthy"]
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"health_id": health_id, "generated_at": generated_at, "eligible": eligible, "selected": selected},
+        sort_keys=True,
+    )
+    plan_id = f"gordackhealthalert-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "health_id": health_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "source_health_generated_at": health.get("generated_at"),
+        "alert_level": alert_level,
+        "summary": {
+            "run_count": int(health.get("run_count") or 0),
+            "retryable_count": int(health.get("retryable_count") or 0),
+            "missed_run_count": int(health.get("missed_run_count") or 0),
+            "failed_job_count": int(health.get("failed_job_count") or 0),
+            "alert_count": len([item for item in health.get("alerts", []) if isinstance(item, dict)]),
+        },
+        "requested_provider": requested_provider,
+        "eligible_providers": eligible,
+        "selected_providers": selected,
+        "suppressed_providers": suppressed,
+        "suppression_window_minutes": suppression_window_minutes,
+        "force": bool(force),
+        "acknowledgement_required_providers": selected,
+        "controls": [
+            "worker-health-alert-routing-derived-from-public-health-metadata",
+            "duplicate-suppression-uses-redacted-delivery-metadata",
+            "acknowledgements-record-human-or-automation-review",
+            "no-connector-credentials-stored-in-worker-health-alert-plan",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": len(plan.get("eligible_providers", [])),
+        "blocked_count": len(plan.get("suppressed_providers", [])),
+        "approval_required_count": len(plan.get("acknowledgement_required_providers", [])),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
+        "plan_id": plan.get("plan_id"),
+        "health_id": plan.get("health_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "suppressed_providers": [item.get("provider") for item in plan.get("suppressed_providers", [])],
+        "suppressed_provider_count": len(plan.get("suppressed_providers", [])),
+        "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
+        "suppression_window_minutes": plan.get("suppression_window_minutes"),
+        "worker_health_alert_plan": plan,
+    }
+
+
+def acknowledge_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert(
+    health_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "acknowledged",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    plan_id: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    if not health_id:
+        raise ValueError("health_id is required")
+    provider = str(provider or "").strip().lower().replace("-", "_")
+    if not provider:
+        raise ValueError("provider is required")
+    if not acknowledged_by:
+        raise ValueError("acknowledged_by is required")
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    if state not in {"acknowledged", "dismissed", "escalated", "resolved"}:
+        raise ValueError("acknowledgement_state must be acknowledged, dismissed, escalated, or resolved")
+    now = now or datetime.now(timezone.utc)
+    acknowledged_at = now.isoformat()
+    material = f"{health_id}|{provider}|{state}|{acknowledged_by}|{acknowledged_at}"
+    acknowledgement_id = f"gordackhealthack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": acknowledgement_id,
+        "health_id": health_id,
+        "plan_id": plan_id or "",
+        "provider": provider,
+        "acknowledgement_state": state,
+        "acknowledged_by": acknowledged_by,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "controls": [
+            "worker-health-alert-acknowledgement-records-review-only",
+            "no-provider-token-or-secret-stored",
+            "retry-worker-recovery-remains-operator-or-private-connector-responsibility",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_ack_metadata(
+    acknowledgement: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": acknowledgement.get("acknowledgement_id"),
+        "created_at": acknowledgement.get("acknowledged_at"),
+        "signer": acknowledgement.get("acknowledged_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "health_id": acknowledgement.get("health_id"),
+        "plan_id": acknowledgement.get("plan_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "external_ref": acknowledgement.get("external_ref"),
+        "acknowledgement": acknowledgement,
+    }
+
+
+def acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry(
+    retry_plan_id: str,
+    *,
+    provider: str,
+    acknowledged_by: str,
+    acknowledgement_state: str = "accepted",
+    delivery_id: str | None = None,
+    audit_id: str | None = None,
+    external_ref: str | None = None,
+    notes: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    if not retry_plan_id:
+        raise ValueError("retry_plan_id is required")
+    provider = str(provider or "").strip().lower().replace("-", "_")
+    if not provider:
+        raise ValueError("provider is required")
+    if not acknowledged_by:
+        raise ValueError("acknowledged_by is required")
+    state = acknowledgement_state.strip().lower().replace("-", "_")
+    if state not in {"accepted", "deferred", "escalated", "resolved", "dismissed"}:
+        raise ValueError("acknowledgement_state must be accepted, deferred, escalated, resolved, or dismissed")
+    now = now or datetime.now(timezone.utc)
+    acknowledged_at = now.isoformat()
+    material = f"{retry_plan_id}|{provider}|{delivery_id or ''}|{state}|{acknowledged_by}|{acknowledged_at}"
+    acknowledgement_id = f"gordackretryack-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-retry-ack.v1",
+        "product": "CAVRA",
+        "acknowledgement_id": acknowledgement_id,
+        "retry_plan_id": retry_plan_id,
+        "delivery_id": delivery_id or "",
+        "audit_id": audit_id or "",
+        "provider": provider,
+        "acknowledgement_state": state,
+        "acknowledged_by": acknowledged_by,
+        "acknowledged_at": acknowledged_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "controls": [
+            "retry-acknowledgement-records-review-only",
+            "retry-delivery-execution-remains-governed-by-worker",
+            "no-connector-token-or-secret-stored",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata(
+    acknowledgement: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": acknowledgement.get("acknowledgement_id"),
+        "created_at": acknowledgement.get("acknowledged_at"),
+        "signer": acknowledgement.get("acknowledged_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack",
+        "acknowledgement_id": acknowledgement.get("acknowledgement_id"),
+        "retry_plan_id": acknowledgement.get("retry_plan_id"),
+        "delivery_id": acknowledgement.get("delivery_id"),
+        "audit_id": acknowledgement.get("audit_id"),
+        "provider": acknowledgement.get("provider"),
+        "acknowledgement_state": acknowledgement.get("acknowledgement_state"),
+        "external_ref": acknowledgement.get("external_ref"),
+        "acknowledgement": acknowledgement,
+    }
+
+
+def filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history(
+    items: list[dict[str, Any]],
+    *,
+    health_id: str | None = None,
+    provider: str | None = None,
+    metadata_kind: str | None = None,
+    acknowledgement_state: str | None = None,
+    suppressed: bool | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    filtered = [
+        item
+        for item in filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+        if item.get("metadata_kind")
+        in {
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
+            "release-connector-delivery",
+        }
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or item.get("connector_delivery_source")
+            == "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert"
+        )
+    ]
+    if health_id:
+        filtered = [
+            item
+            for item in filtered
+            if item.get("health_id") == health_id or item.get("event_id") == health_id or item.get("session_id") == health_id
+        ]
+    if provider:
+        provider_key = provider.strip().lower().replace("-", "_")
+        filtered = [
+            item
+            for item in filtered
+            if item.get("provider") == provider_key
+            or provider_key in {str(value) for value in item.get("providers", [])}
+            or provider_key in {str(value) for value in item.get("selected_providers", [])}
+            or provider_key in {str(value) for value in item.get("suppressed_providers", [])}
+        ]
+    if metadata_kind:
+        filtered = [item for item in filtered if item.get("metadata_kind") == metadata_kind]
+    if acknowledgement_state:
+        state = acknowledgement_state.strip().lower().replace("-", "_")
+        filtered = [item for item in filtered if item.get("acknowledgement_state") == state]
+    if suppressed is not None:
+        filtered = [item for item in filtered if (len(item.get("suppressed_providers", [])) > 0) is suppressed]
+    filtered = sorted(filtered, key=lambda item: str(item.get("created_at", "")), reverse=True)
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert-history.v1",
+        "product": "CAVRA",
+        "items": filtered[offset : offset + limit],
+        "total": len(filtered),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_dashboard(
+    items: list[dict[str, Any]],
+) -> dict[str, Any]:
+    history = filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history(
+        items,
+        limit=500,
+    )["items"]
+    plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan"
+    ]
+    deliveries = [item for item in history if item.get("metadata_kind") == "release-connector-delivery"]
+    acknowledgements = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack"
+    ]
+    latest_plan_by_health: dict[str, dict[str, Any]] = {}
+    for plan in plans:
+        health_id = str(plan.get("health_id") or "")
+        if not health_id:
+            continue
+        current = latest_plan_by_health.get(health_id)
+        if current is None or str(plan.get("created_at", "")) > str(current.get("created_at", "")):
+            latest_plan_by_health[health_id] = plan
+    acknowledged = {
+        (str(item.get("health_id")), str(item.get("provider")))
+        for item in acknowledgements
+        if item.get("acknowledgement_state") in {"acknowledged", "resolved"}
+    }
+    outstanding = []
+    for plan in latest_plan_by_health.values():
+        for provider in plan.get("acknowledgement_required_providers", []):
+            key = (str(plan.get("health_id")), str(provider))
+            if key not in acknowledged:
+                outstanding.append({"health_id": key[0], "provider": key[1], "plan_id": plan.get("plan_id")})
+    failed_deliveries = [item for item in deliveries if not item.get("delivery_success")]
+    suppressed_count = sum(len(item.get("suppressed_providers", [])) for item in plans)
+    alert_level = "critical" if failed_deliveries or outstanding else "warning" if suppressed_count else "healthy"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-worker-health-alert-dashboard.v1",
+        "product": "CAVRA",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "alert_level": alert_level,
+        "plan_count": len(plans),
+        "delivery_count": len(deliveries),
+        "failed_delivery_count": len(failed_deliveries),
+        "acknowledgement_count": len(acknowledgements),
+        "outstanding_acknowledgement_count": len(outstanding),
+        "suppressed_provider_count": suppressed_count,
+        "outstanding_acknowledgements": outstanding[:20],
+        "latest": history[:10],
     }
 
 
