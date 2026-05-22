@@ -105,6 +105,7 @@ Architecture references:
 - [Go backend rollback drill audit delivery retry worker SVG](docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg)
 - [Go backend rollback drill audit worker health alerts SVG](docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg)
 - [Go backend rollback drill live retry closure evidence SVG](docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg)
+- [Go backend rollback drill retry recovery reporting SVG](docs/diagrams/go-backend-rollback-drill-retry-recovery-reporting.svg)
 
 Brand assets:
 
@@ -406,7 +407,7 @@ Current phase status:
 
 Next recommended implementation work:
 
-- Add retry execution dashboards, recovery SLO reporting, and closure trend analytics.
+- Add automated recovery escalation notifications and executive reporting.
 
 ## User stories and enterprise value
 

@@ -28,6 +28,8 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_health,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_ack_metadata,
@@ -986,6 +988,25 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     closure_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_closure_metadata(
         closure
     )
+    retry_recovery_report = build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report(
+        [
+            *items,
+            retry_metadata,
+            retry_ack_metadata,
+            approval_metadata,
+            approval_decision_metadata,
+            execution_metadata,
+            playbook_metadata,
+            closure_metadata,
+        ],
+        recovery_slo_minutes=120,
+        generated_by="test",
+    )
+    retry_recovery_report_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report_metadata(
+            retry_recovery_report
+        )
+    )
     dashboard = build_go_rollback_drill_notification_dashboard(
         [
             *items,
@@ -996,6 +1017,7 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             execution_metadata,
             playbook_metadata,
             closure_metadata,
+            retry_recovery_report_metadata,
         ]
     )
 
@@ -1014,6 +1036,13 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert playbook_metadata["metadata_kind"].endswith("connector-recovery-playbook")
     assert closure["closure_state"] == "resolved"
     assert closure_metadata["metadata_kind"].endswith("connector-recovery-closure")
+    assert retry_recovery_report["execution_count"] == 1
+    assert retry_recovery_report["execution_success_count"] == 1
+    assert retry_recovery_report["recovery_closed_count"] == 1
+    assert retry_recovery_report["recovery_slo_breached_count"] == 0
+    assert retry_recovery_report["provider_summary"][0]["provider"] == "webhook"
+    assert retry_recovery_report["closure_trends"][0]["resolved_count"] == 1
+    assert retry_recovery_report_metadata["metadata_kind"].endswith("retry-recovery-report")
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -1022,6 +1051,7 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert dashboard["acknowledgement_audit_delivery_connector_recovery_playbook_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_connector_recovery_closure_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_connector_recovery_closed_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_retry_recovery_report_count"] == 1
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

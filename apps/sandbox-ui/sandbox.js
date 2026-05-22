@@ -1993,6 +1993,7 @@ function goDrillNotificationPayload(item) {
   if (item?.retry_execution_record && typeof item.retry_execution_record === "object") return item.retry_execution_record;
   if (item?.connector_recovery_playbook && typeof item.connector_recovery_playbook === "object") return item.connector_recovery_playbook;
   if (item?.connector_recovery_closure && typeof item.connector_recovery_closure === "object") return item.connector_recovery_closure;
+  if (item?.retry_recovery_report && typeof item.retry_recovery_report === "object") return item.retry_recovery_report;
   if (item?.acknowledgement_audit_delivery_worker_run && typeof item.acknowledgement_audit_delivery_worker_run === "object") return item.acknowledgement_audit_delivery_worker_run;
   if (item?.worker_health_alert_plan && typeof item.worker_health_alert_plan === "object") return item.worker_health_alert_plan;
   return item || {};
@@ -2288,6 +2289,21 @@ async function loadGoRollbackDrillNotificationDashboard() {
     return await response.json();
   } catch {
     return buildSampleGoDrillNotificationDashboard(goRollbackDrillNotificationCatalog);
+  }
+}
+
+async function loadGoRollbackDrillRetryRecoveryReport() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report", {
+      recovery_slo_minutes: 240,
+      generated_by: "console"
+    }));
+    if (!response.ok) throw new Error("Go rollback drill retry recovery report API unavailable");
+    const payload = await response.json();
+    return payload.report || payload;
+  } catch {
+    return buildSampleGoDrillRetryRecoveryReport(goRollbackDrillNotificationCatalog);
   }
 }
 
@@ -3873,19 +3889,83 @@ function topCountLabel(counts) {
   return label ? `${label} (${count})` : "none";
 }
 
-function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routingRows = [], suppressionTrend = {}) {
+function buildSampleGoDrillRetryRecoveryReport(historyItems) {
+  const executionRecords = historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record");
+  const recoveryClosures = historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure");
+  const recoveryPlaybooks = historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook");
+  const providers = new Map();
+  const ensureProvider = (provider) => {
+    const key = provider || "unknown";
+    if (!providers.has(key)) {
+      providers.set(key, {
+        provider: key,
+        execution_count: 0,
+        execution_delivered_count: 0,
+        execution_failed_count: 0,
+        execution_skipped_count: 0,
+        recovery_playbook_count: 0,
+        recovery_closure_count: 0,
+        open_recovery_count: 0,
+        slo_breached_count: 0,
+        latest_closure_at: ""
+      });
+    }
+    return providers.get(key);
+  };
+  executionRecords.forEach((item) => {
+    const payload = goDrillNotificationPayload(item);
+    const summary = ensureProvider(payload.provider || item.provider);
+    const status = payload.execution_status || item.execution_status || "unknown";
+    summary.execution_count += 1;
+    if (status === "delivered") summary.execution_delivered_count += 1;
+    if (status === "failed") summary.execution_failed_count += 1;
+    if (status === "skipped") summary.execution_skipped_count += 1;
+  });
+  recoveryPlaybooks.forEach((item) => {
+    const payload = goDrillNotificationPayload(item);
+    (payload.provider_playbooks || []).forEach((playbook) => {
+      const summary = ensureProvider(playbook.provider);
+      summary.recovery_playbook_count += 1;
+    });
+  });
+  recoveryClosures.forEach((item) => {
+    const payload = goDrillNotificationPayload(item);
+    const summary = ensureProvider(payload.provider || item.provider);
+    summary.recovery_closure_count += 1;
+    summary.latest_closure_at = [summary.latest_closure_at, payload.closed_at || item.created_at || ""].sort().pop() || "";
+  });
+  providers.forEach((summary) => {
+    summary.open_recovery_count = Math.max(0, summary.recovery_playbook_count - summary.recovery_closure_count);
+  });
+  return {
+    schema_version: "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-retry-recovery-report.v1",
+    alert_level: executionRecords.some((item) => ["failed", "skipped"].includes(item.execution_status)) ? "critical" : "healthy",
+    execution_count: executionRecords.length,
+    execution_failed_count: executionRecords.filter((item) => ["failed", "skipped"].includes(item.execution_status)).length,
+    recovery_playbook_provider_count: recoveryPlaybooks.length,
+    recovery_closed_count: recoveryClosures.filter((item) => ["resolved", "mitigated"].includes(item.closure_state)).length,
+    recovery_open_count: Array.from(providers.values()).reduce((total, item) => total + Number(item.open_recovery_count || 0), 0),
+    recovery_slo_breached_count: 0,
+    provider_summary: Array.from(providers.values()).sort((left, right) => left.provider.localeCompare(right.provider)),
+    closure_trends: []
+  };
+}
+
+function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routingRows = [], suppressionTrend = {}, retryRecoveryReport = {}) {
   const panel = document.querySelector("#goRollbackDrillNotificationDashboard");
   const historyRows = document.querySelector("#goDrillNotificationRows");
   const escalationRows = document.querySelector("#goDrillEscalationRows");
   const routeRows = document.querySelector("#goDrillRouteRows");
   const suppressionRows = document.querySelector("#goDrillSuppressionTrendRows");
-  if (!panel || !historyRows || !escalationRows || !routeRows || !suppressionRows) return;
+  const retryRecoveryRows = document.querySelector("#goDrillRetryRecoveryRows");
+  if (!panel || !historyRows || !escalationRows || !routeRows || !suppressionRows || !retryRecoveryRows) return;
 
   goDrillNotificationDetailPayloads.clear();
   historyRows.innerHTML = "";
   escalationRows.innerHTML = "";
   routeRows.innerHTML = "";
   suppressionRows.innerHTML = "";
+  retryRecoveryRows.innerHTML = "";
   const routes = goDrillEscalationRoutes(historyItems, dashboard);
   currentGoDrillEscalationRoutes = routes;
   const breachedRoutes = routes.filter((route) => route.breached);
@@ -3973,6 +4053,14 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
     <div class="release-delivery-metric">
       <span>Recovery Closed</span>
       <strong class="${Number(dashboard.acknowledgement_audit_delivery_connector_recovery_closed_count || 0) ? "allow" : "require_approval"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_connector_recovery_closed_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure" && ["resolved", "mitigated"].includes(item.closure_state)).length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Recovery Open</span>
+      <strong class="${Number(retryRecoveryReport.recovery_open_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(retryRecoveryReport.recovery_open_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Recovery SLO Breached</span>
+      <strong class="${Number(retryRecoveryReport.recovery_slo_breached_count || 0) ? "block" : "allow"}">${formatMetricNumber(retryRecoveryReport.recovery_slo_breached_count || 0)}</strong>
     </div>
     <div class="release-delivery-metric">
       <span>Failed Delivery</span>
@@ -4113,6 +4201,28 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
         <td>${goDrillNotificationActionButtons(trendPayloadId)}</td>
       </tr>
     `);
+  }
+
+  (retryRecoveryReport.provider_summary || []).forEach((summary, index) => {
+    const payloadId = goDrillPayloadId("retry-recovery", index);
+    goDrillNotificationDetailPayloads.set(payloadId, {
+      label: `${summary.provider || "provider"}-retry-recovery`,
+      payload: summary
+    });
+    retryRecoveryRows.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${escapeHtml(summary.provider || "unknown")}</td>
+        <td>${formatMetricNumber(summary.execution_count || 0)}</td>
+        <td class="${Number(summary.execution_failed_count || 0) || Number(summary.execution_skipped_count || 0) ? "block" : "allow"}">${formatMetricNumber(Number(summary.execution_failed_count || 0) + Number(summary.execution_skipped_count || 0))}</td>
+        <td class="${Number(summary.open_recovery_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(summary.open_recovery_count || 0)}</td>
+        <td class="${Number(summary.slo_breached_count || 0) ? "block" : "allow"}">${formatMetricNumber(summary.slo_breached_count || 0)}</td>
+        <td>${escapeHtml(String(summary.latest_closure_at || "").slice(0, 19) || "n/a")}</td>
+        <td>${goDrillNotificationActionButtons(payloadId)}</td>
+      </tr>
+    `);
+  });
+  if (!(retryRecoveryReport.provider_summary || []).length) {
+    retryRecoveryRows.insertAdjacentHTML("beforeend", `<tr><td colspan="7">No retry recovery SLO rows are currently indexed.</td></tr>`);
   }
 }
 
@@ -5827,13 +5937,14 @@ async function refreshEndpointRecurrenceOperations() {
 }
 
 async function refreshGoRollbackDrillNotifications() {
-  const [historyItems, dashboard, routingRows, suppressionTrend] = await Promise.all([
+  const [historyItems, dashboard, routingRows, suppressionTrend, retryRecoveryReport] = await Promise.all([
     loadGoRollbackDrillNotificationHistory(),
     loadGoRollbackDrillNotificationDashboard(),
     loadGoRollbackDrillRoutingHistory(),
-    loadGoRollbackDrillSuppressionTrend()
+    loadGoRollbackDrillSuppressionTrend(),
+    loadGoRollbackDrillRetryRecoveryReport()
   ]);
-  renderGoRollbackDrillNotifications(historyItems, dashboard, routingRows, suppressionTrend);
+  renderGoRollbackDrillNotifications(historyItems, dashboard, routingRows, suppressionTrend, retryRecoveryReport);
 }
 
 async function deliverEndpointRemediationSlaNotification() {

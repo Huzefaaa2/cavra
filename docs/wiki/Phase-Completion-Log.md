@@ -2062,6 +2062,39 @@ Enterprise challenge solved:
 
 Recommended next issue: add retry execution dashboards, recovery SLO reporting, and closure trend analytics.
 
+## Phase 7 Go Backend Rollback Drill Retry Recovery Reporting
+
+Status: complete for the current retry execution dashboard and recovery reporting slice.
+
+Completed implementation:
+- Added a public-safe retry recovery report builder for retry execution records, connector recovery playbooks, and recovery closures.
+- Added `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report`.
+- Added persisted retry recovery report metadata for audit search and dashboard counts.
+- Added provider summaries for execution counts, failed/skipped executions, recovery playbooks, closures, open recoveries, and SLO breaches.
+- Added closure trend analytics by day, closure state, and provider.
+- Added an Evidence Console **Retry Recovery SLO** table.
+- Added `docs/go-backend-rollback-drill-retry-recovery-reporting.md`, `docs/wiki/Go-Backend-Rollback-Drill-Retry-Recovery-Reporting.md`, and `docs/diagrams/go-backend-rollback-drill-retry-recovery-reporting.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m pytest -q`
+- `python3 -m ruff check src tests`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can review approved retry execution health by provider.
+- As a platform owner, I can see open connector recovery work and breached recovery SLOs.
+- As a SOC analyst, I can track closure trends without exposing private incident content.
+- As an auditor, I can review retry execution, recovery state, and closure proof from one report.
+
+Enterprise challenge solved:
+- Converts retry execution and recovery closure evidence into operational reporting for regulated release teams.
+- Keeps provider reliability and recovery SLO management visible without exposing connector secrets or private ticket payloads.
+
+Recommended next issue: add automated recovery escalation notifications and executive reporting.
+
 ## Phase 7 Go Backend Rollback Drill Retry Approvals And Recovery Playbooks
 
 Status: complete for the current retry execution approval and connector recovery playbook slice.

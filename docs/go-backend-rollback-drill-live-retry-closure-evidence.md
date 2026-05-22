@@ -89,4 +89,4 @@ See `docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg`.
 
 ## Next Work
 
-The next recommended implementation step is retry execution dashboards, recovery SLO reporting, and closure trend analytics.
+The next recommended implementation step is automated recovery escalation notifications and executive reporting.
