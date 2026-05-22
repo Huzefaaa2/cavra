@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA live retry execution and recovery closure evidence</title>
+  <desc id="desc">Flow from failed acknowledgement audit delivery through retry acknowledgement, approval, live execution, recovery playbook, and closure evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071214"/>
+      <stop offset="100%" stop-color="#10272c"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#122025"/>
+      <stop offset="100%" stop-color="#0b171b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#70e0c2"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #eef7f6; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #b8c9cb; }
+      .label { font: 700 18px Arial, sans-serif; fill: #eef7f6; }
+      .text { font: 400 14px Arial, sans-serif; fill: #c6d6d8; }
+      .small { font: 400 12px Arial, sans-serif; fill: #9fb4b8; }
+      .box { fill: url(#panel); stroke: #31535a; stroke-width: 1.5; rx: 16; filter: url(#shadow); }
+      .accent { stroke: #70e0c2; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .muted { stroke: #42616a; stroke-width: 2; fill: none; stroke-dasharray: 6 6; marker-end: url(#arrow); }
+      .pill { fill: #102f33; stroke: #70e0c2; stroke-width: 1; rx: 12; }
+      .warn { fill: #f9c85f; }
+      .ok { fill: #70e0c2; }
+      .fail { fill: #ff7a7a; }
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="64" y="72" class="title">Live Retry Execution &amp; Recovery Closure Evidence</text>
+  <text x="64" y="104" class="subtitle">Approval-bound acknowledgement audit retry delivery with public-safe closure proof</text>
+
+  <rect x="54" y="150" width="186" height="130" class="box"/>
+  <circle cx="84" cy="182" r="8" class="fail"/>
+  <text x="104" y="188" class="label">Failed Delivery</text>
+  <text x="76" y="224" class="text">Redacted connector</text>
+  <text x="76" y="244" class="text">delivery evidence</text>
+  <text x="76" y="264" class="small">SIEM / ITSM / ChatOps</text>
+
+  <rect x="282" y="150" width="186" height="130" class="box"/>
+  <circle cx="312" cy="182" r="8" class="warn"/>
+  <text x="332" y="188" class="label">Retry Review</text>
+  <text x="304" y="224" class="text">Retry plan and</text>
+  <text x="304" y="244" class="text">acknowledgement</text>
+  <text x="304" y="264" class="small">Operator accepts retry</text>
+
+  <rect x="510" y="150" width="186" height="130" class="box"/>
+  <circle cx="540" cy="182" r="8" class="ok"/>
+  <text x="560" y="188" class="label">Approval Gate</text>
+  <text x="532" y="224" class="text">Approval plan and</text>
+  <text x="532" y="244" class="text">approved decision</text>
+  <text x="532" y="264" class="small">Required for live retry</text>
+
+  <rect x="738" y="150" width="186" height="130" class="box"/>
+  <circle cx="768" cy="182" r="8" class="ok"/>
+  <text x="788" y="188" class="label">Live Worker</text>
+  <text x="760" y="224" class="text">Non-dry-run worker</text>
+  <text x="760" y="244" class="text">executes approved retry</text>
+  <text x="760" y="264" class="small">No unapproved side effects</text>
+
+  <rect x="966" y="150" width="220" height="130" class="box"/>
+  <circle cx="996" cy="182" r="8" class="ok"/>
+  <text x="1016" y="188" class="label">Execution Record</text>
+  <text x="988" y="224" class="text">Hash-bound execution proof</text>
+  <text x="988" y="244" class="text">links approval + delivery</text>
+  <text x="988" y="264" class="small">delivered / failed / skipped</text>
+
+  <path d="M240 215 H274" class="accent"/>
+  <path d="M468 215 H502" class="accent"/>
+  <path d="M696 215 H730" class="accent"/>
+  <path d="M924 215 H958" class="accent"/>
+
+  <rect x="168" y="394" width="230" height="140" class="box"/>
+  <text x="196" y="430" class="label">Recovery Playbook</text>
+  <text x="196" y="466" class="text">Classifies repeated provider</text>
+  <text x="196" y="486" class="text">failures and recovery actions</text>
+  <rect x="196" y="506" width="164" height="26" class="pill"/>
+  <text x="214" y="524" class="small">public-safe guidance</text>
+
+  <rect x="526" y="394" width="230" height="140" class="box"/>
+  <text x="554" y="430" class="label">Closure Evidence</text>
+  <text x="554" y="466" class="text">Resolved, mitigated, deferred,</text>
+  <text x="554" y="486" class="text">escalated, or reopened</text>
+  <rect x="554" y="506" width="158" height="26" class="pill"/>
+  <text x="572" y="524" class="small">ticket + verification refs</text>
+
+  <rect x="884" y="394" width="230" height="140" class="box"/>
+  <text x="912" y="430" class="label">Dashboard &amp; History</text>
+  <text x="912" y="466" class="text">Execution counts, failures,</text>
+  <text x="912" y="486" class="text">closures, and closed state</text>
+  <rect x="912" y="506" width="150" height="26" class="pill"/>
+  <text x="930" y="524" class="small">audit-ready view</text>
+
+  <path d="M1076 280 C1076 342 283 330 283 386" class="muted"/>
+  <path d="M398 464 H518" class="accent"/>
+  <path d="M756 464 H876" class="accent"/>
+
+  <rect x="64" y="594" width="1152" height="58" rx="14" fill="#0a181c" stroke="#31535a"/>
+  <text x="94" y="628" class="text">Security boundary: records contain public-safe IDs, hashes, states, timestamps, providers, and evidence references only. Secrets, private connector logic, customer data, and Enterprise implementations stay outside the public repository.</text>
+</svg>

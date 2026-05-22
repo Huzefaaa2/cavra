@@ -35,12 +35,15 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_closure_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook,
     build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_ack_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_decision_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
@@ -63,6 +66,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_plan_metadata,
     build_go_rollback_drill_routing_suppression_trend,
     build_go_rollback_drill_routing_suppression_trend_metadata,
+    close_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery,
     decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval,
     evaluate_with_go_pilot,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history,
@@ -410,6 +414,7 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_retry_execution_approval_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-execution-approval-plan",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_retry_execution_approval_decide": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-execution-approval-plans/{approval_plan_id}/decisions",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_playbook": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbook",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_close": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbooks/{playbook_id}/closures",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -1011,6 +1016,24 @@ def create_app():
             if item.get("metadata_kind") == "go-backend-rollback-drill-acknowledgement-audit-package"
             and isinstance(item.get("acknowledgement_audit_package"), dict)
         }
+        approved_retry_execution_decisions = {}
+        for item in items:
+            if (
+                item.get("metadata_kind")
+                == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision"
+                and item.get("approval_state") == "approved"
+            ):
+                approved_retry_execution_decisions[
+                    (
+                        str(item.get("provider") or ""),
+                        str(item.get("delivery_id") or ""),
+                        str(item.get("audit_id") or ""),
+                    )
+                ] = (
+                    item.get("retry_execution_approval_decision")
+                    if isinstance(item.get("retry_execution_approval_decision"), dict)
+                    else item
+                )
         retry_results = []
         for decision in run.get("selected_retries", []):
             if not isinstance(decision, dict):
@@ -1022,6 +1045,15 @@ def create_app():
             plan_metadata = None
             delivery = None
             delivery_metadata = None
+            execution_record = None
+            execution_metadata = None
+            approval_decision = approved_retry_execution_decisions.get(
+                (
+                    str(decision.get("provider") or ""),
+                    str(decision.get("delivery_id") or ""),
+                    str(decision.get("audit_id") or ""),
+                )
+            )
             if package is None:
                 skipped = "audit_package_not_found"
             else:
@@ -1065,6 +1097,22 @@ def create_app():
                             "worker_run_id": run.get("run_id"),
                         }
                     )
+            if not dry_run and approval_decision is not None:
+                execution_record = build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record(
+                    run,
+                    decision,
+                    approval_decision=approval_decision,
+                    delivery_plan=plan,
+                    delivery=delivery,
+                    delivery_metadata=delivery_metadata,
+                    skipped=skipped,
+                    executed_by=str(generated_by),
+                )
+                execution_metadata = evidence_store.upsert(
+                    build_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_record_metadata(
+                        execution_record
+                    )
+                )
             retry_results.append(
                 {
                     "decision": decision,
@@ -1072,6 +1120,8 @@ def create_app():
                     "plan_metadata": plan_metadata,
                     "delivery": delivery,
                     "delivery_metadata": delivery_metadata,
+                    "execution_record": execution_record,
+                    "execution_metadata": execution_metadata,
                     "skipped": skipped,
                 }
             )
@@ -1391,6 +1441,50 @@ def create_app():
             build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_playbook_metadata(playbook)
         )
         return {"playbook": playbook, "metadata": metadata, "actor": _public_actor_context(actor_context) if actor_context else None}
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/connector-recovery-playbooks/{playbook_id}/closures"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_connector_recovery_close(
+        playbook_id: str,
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        closed_by = actor_context.get("actor") if actor_context else payload.get("closed_by")
+        if not payload.get("provider"):
+            raise HTTPException(status_code=400, detail="provider is required")
+        if not closed_by:
+            raise HTTPException(status_code=400, detail="closed_by is required")
+        try:
+            closure = close_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery(
+                playbook_id,
+                provider=payload["provider"],
+                closed_by=str(closed_by),
+                closure_state=payload.get("closure_state", "resolved"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+                verification_refs=payload.get("verification_refs")
+                if isinstance(payload.get("verification_refs"), list)
+                else None,
+            )
+            metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery_closure_metadata(
+                    closure
+                )
+            )
+            return {
+                "closure": closure,
+                "metadata": metadata,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications")
     def runtime_go_pilot_rollback_drill_notification_history(
@@ -3727,8 +3821,16 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision",
             limit=500,
         )["items"]
+        audit_delivery_retry_execution_records = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record",
+            limit=500,
+        )["items"]
         audit_delivery_connector_recovery_playbooks = evidence_store.search(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
+            limit=500,
+        )["items"]
+        audit_delivery_connector_recovery_closures = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
             limit=500,
         )["items"]
         audit_delivery_worker_runs = evidence_store.search(
@@ -3755,7 +3857,9 @@ def _go_rollback_drill_notification_items(
             *audit_delivery_retry_acks,
             *audit_delivery_retry_execution_approval_plans,
             *audit_delivery_retry_execution_approval_decisions,
+            *audit_delivery_retry_execution_records,
             *audit_delivery_connector_recovery_playbooks,
+            *audit_delivery_connector_recovery_closures,
             *audit_delivery_worker_runs,
             *audit_delivery_worker_health_alerts,
             *audit_delivery_worker_health_alert_acks,
