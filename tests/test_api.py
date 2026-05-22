@@ -1597,6 +1597,18 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery_retry_recovery_report"]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report"
     )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_plan"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalation-plan"
+    )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_deliver"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/{plan_id}/deliver"
+    )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -1960,6 +1972,24 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/retry-recovery-report",
         params={"recovery_slo_minutes": 120, "generated_by": "release-manager"},
     )
+    audit_delivery_recovery_escalation_plan = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalation-plan",
+        json={"recovery_slo_minutes": 120, "generated_by": "release-manager"},
+    )
+    audit_delivery_recovery_escalation_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/"
+        f"recovery-escalations/{audit_delivery_recovery_escalation_plan.json()['plan']['plan_id']}/deliver",
+        json={
+            "generated_by": "release-manager",
+            "provider": "webhook",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    audit_delivery_recovery_executive_report = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report",
+        params={"recovery_slo_minutes": 120, "generated_by": "release-manager"},
+    )
     history = client.get("/runtime/go-pilot/rollback-drill-notifications")
     audit_delivery_history = client.get(
         "/runtime/go-pilot/rollback-drill-notifications",
@@ -2101,8 +2131,26 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert audit_delivery_retry_recovery_report.json()["report"]["recovery_closed_count"] == 1
     assert audit_delivery_retry_recovery_report.json()["report"]["recovery_slo_breached_count"] == 0
     assert audit_delivery_retry_recovery_report.json()["report"]["closure_trends"][0]["resolved_count"] == 1
+    assert audit_delivery_recovery_escalation_plan.status_code == 200
+    assert (
+        audit_delivery_recovery_escalation_plan.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan"
+    )
+    assert audit_delivery_recovery_escalation_plan.json()["plan"]["failed_execution_count"] == 1
+    assert audit_delivery_recovery_escalation_plan.json()["plan"]["escalation_count"] == 1
+    assert audit_delivery_recovery_escalation_delivery.status_code == 200
+    assert (
+        audit_delivery_recovery_escalation_delivery.json()["metadata"]["connector_delivery_source"]
+        == "go_backend_rollback_drill_acknowledgement_audit_recovery_escalation"
+    )
+    assert audit_delivery_recovery_executive_report.status_code == 200
+    assert (
+        audit_delivery_recovery_executive_report.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report"
+    )
+    assert audit_delivery_recovery_executive_report.json()["report"]["executive_summary"]["failed_execution_count"] == 1
     assert history.status_code == 200
-    assert history.json()["total"] >= 18
+    assert history.json()["total"] >= 21
     assert audit_delivery_history.status_code == 200
     assert audit_delivery_history.json()["total"] >= 3
     assert failed_audit_delivery_history.status_code == 200
@@ -2137,6 +2185,9 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert dashboard_after.json()["acknowledgement_audit_delivery_connector_recovery_closure_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_connector_recovery_closed_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_retry_recovery_report_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_recovery_escalation_plan_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_recovery_escalation_route_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_recovery_executive_report_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1

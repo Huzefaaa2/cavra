@@ -1137,6 +1137,8 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1153,6 +1155,7 @@ def filter_go_rollback_drill_notification_history(
                 "go_backend_rollback_drill_notification",
                 "go_backend_rollback_drill_acknowledgement_audit",
                 "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert",
+                "go_backend_rollback_drill_acknowledgement_audit_recovery_escalation",
             }
         )
     ]
@@ -1204,6 +1207,8 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1318,6 +1323,18 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report"
+    ]
+    audit_delivery_recovery_escalation_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan"
+    ]
+    audit_delivery_recovery_executive_reports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1448,6 +1465,15 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         ),
         "acknowledgement_audit_delivery_retry_recovery_report_count": len(
             audit_delivery_retry_recovery_reports
+        ),
+        "acknowledgement_audit_delivery_recovery_escalation_plan_count": len(
+            audit_delivery_recovery_escalation_plans
+        ),
+        "acknowledgement_audit_delivery_recovery_escalation_route_count": sum(
+            int(item.get("escalation_count") or 0) for item in audit_delivery_recovery_escalation_plans
+        ),
+        "acknowledgement_audit_delivery_recovery_executive_report_count": len(
+            audit_delivery_recovery_executive_reports
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -2045,6 +2071,315 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report
         "execution_failed_count": report.get("execution_failed_count", 0),
         "recovery_slo_breached_count": report.get("recovery_slo_breached_count", 0),
         "retry_recovery_report": report,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan(
+    items: list[dict[str, Any]],
+    *,
+    recovery_slo_minutes: int = 240,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    report = build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report(
+        items,
+        recovery_slo_minutes=recovery_slo_minutes,
+        generated_by=generated_by,
+        now=now,
+    )
+    routes: list[dict[str, Any]] = []
+    for row in report.get("recovery_rows", []) or []:
+        if not isinstance(row, dict):
+            continue
+        slo_breached = bool(row.get("slo_breached"))
+        open_recovery = str(row.get("slo_status") or "") == "open"
+        if not slo_breached and not open_recovery:
+            continue
+        severity = "critical" if slo_breached else "warning"
+        reason = "recovery SLO breached" if slo_breached else "connector recovery remains open"
+        routes.append(
+            {
+                "provider": row.get("provider", "unknown"),
+                "category": row.get("category", "unknown"),
+                "severity": severity,
+                "reason": reason,
+                "recommended_action": (
+                    "page release owner and require executive visibility"
+                    if slo_breached
+                    else "notify release owner for recovery follow-up"
+                ),
+                "playbook_id": row.get("playbook_id", ""),
+                "closure_state": row.get("closure_state", "open"),
+                "age_minutes": row.get("age_minutes"),
+                "recovery_slo_minutes": row.get("recovery_slo_minutes", recovery_slo_minutes),
+                "failure_count": int(row.get("failure_count") or 0),
+                "slo_status": row.get("slo_status", "open"),
+                "slo_breached": slo_breached,
+            }
+        )
+
+    route_keys = {
+        (
+            str(route.get("provider") or "unknown"),
+            str(route.get("playbook_id") or ""),
+            str(route.get("reason") or ""),
+        )
+        for route in routes
+    }
+    for summary in report.get("provider_summary", []) or []:
+        if not isinstance(summary, dict):
+            continue
+        provider = str(summary.get("provider") or "unknown")
+        failed = int(summary.get("execution_failed_count") or 0) + int(summary.get("execution_skipped_count") or 0)
+        if not failed:
+            continue
+        key = (provider, "", "failed or skipped retry execution")
+        if key in route_keys:
+            continue
+        routes.append(
+            {
+                "provider": provider,
+                "category": "retry-execution",
+                "severity": "critical",
+                "reason": "failed or skipped retry execution",
+                "recommended_action": "notify release owner and verify connector recovery closure evidence",
+                "playbook_id": "",
+                "closure_state": "review_required",
+                "age_minutes": None,
+                "recovery_slo_minutes": recovery_slo_minutes,
+                "failure_count": failed,
+                "slo_status": "review_required",
+                "slo_breached": False,
+            }
+        )
+
+    routes = sorted(
+        routes,
+        key=lambda item: (
+            item.get("severity") == "critical",
+            int(item.get("failure_count") or 0),
+            int(item.get("age_minutes") or 0),
+        ),
+        reverse=True,
+    )
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"generated_at": generated_at, "recovery_report_id": report.get("report_id"), "routes": routes},
+        sort_keys=True,
+    )
+    plan_id = f"gordackrecoveryesc-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    critical_count = len([route for route in routes if route.get("severity") == "critical"])
+    alert_level = "critical" if critical_count else "warning" if routes else "healthy"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "recovery_slo_minutes": int(report.get("recovery_slo_minutes") or recovery_slo_minutes),
+        "recovery_report_id": report.get("report_id"),
+        "escalation_count": len(routes),
+        "critical_escalation_count": critical_count,
+        "slo_breached_count": int(report.get("recovery_slo_breached_count") or 0),
+        "failed_execution_count": int(report.get("execution_failed_count") or 0),
+        "open_recovery_count": int(report.get("recovery_open_count") or 0),
+        "provider_count": len({str(route.get("provider") or "unknown") for route in routes}),
+        "selected_providers": _unique_sorted(route.get("provider") for route in routes if route.get("provider")),
+        "escalation_routes": routes,
+        "executive_summary": {
+            "status": alert_level,
+            "tracked_provider_count": len(report.get("provider_summary", []) or []),
+            "execution_count": int(report.get("execution_count") or 0),
+            "failed_execution_count": int(report.get("execution_failed_count") or 0),
+            "open_recovery_count": int(report.get("recovery_open_count") or 0),
+            "slo_breached_count": int(report.get("recovery_slo_breached_count") or 0),
+            "closure_rate": (
+                round(
+                    int(report.get("recovery_closed_count") or 0)
+                    / int(report.get("recovery_playbook_provider_count") or 1),
+                    4,
+                )
+                if int(report.get("recovery_playbook_provider_count") or 0)
+                else None
+            ),
+        },
+        "controls": [
+            "recovery-escalation-derived-from-public-safe-retry-recovery-report",
+            "escalation-plan-contains-no-connector-secrets",
+            "delivery-requires-explicit-connector-endpoint-configuration",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": int(plan.get("escalation_count") or 0),
+        "blocked_count": int(plan.get("critical_escalation_count") or 0),
+        "approval_required_count": int(plan.get("open_recovery_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan",
+        "plan_id": plan.get("plan_id"),
+        "recovery_report_id": plan.get("recovery_report_id"),
+        "alert_level": plan.get("alert_level"),
+        "escalation_count": plan.get("escalation_count", 0),
+        "slo_breached_count": plan.get("slo_breached_count", 0),
+        "failed_execution_count": plan.get("failed_execution_count", 0),
+        "selected_providers": plan.get("selected_providers", []),
+        "recovery_escalation_plan": plan,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_event(
+    plan: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+    max_routes: int = 20,
+) -> dict[str, Any]:
+    routes = [route for route in plan.get("escalation_routes", []) or [] if isinstance(route, dict)]
+    return {
+        "event_type": "cavra.go_backend.rollback_drill.acknowledgement_audit_delivery.recovery_escalation",
+        "product": "CAVRA",
+        "event_id": plan.get("plan_id"),
+        "generated_at": plan.get("generated_at"),
+        "generated_by": generated_by,
+        "alert_level": plan.get("alert_level", "healthy"),
+        "summary": plan.get("executive_summary", {}),
+        "escalation_count": int(plan.get("escalation_count") or 0),
+        "slo_breached_count": int(plan.get("slo_breached_count") or 0),
+        "failed_execution_count": int(plan.get("failed_execution_count") or 0),
+        "open_recovery_count": int(plan.get("open_recovery_count") or 0),
+        "routes": routes[: max(1, int(max_routes or 20))],
+        "controls": [
+            "recovery-escalation-event-redacts-connector-credentials",
+            "event-routes-include-public-safe-provider-and-status-metadata",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report(
+    items: list[dict[str, Any]],
+    *,
+    recovery_slo_minutes: int = 240,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    report = build_go_rollback_drill_acknowledgement_audit_delivery_retry_recovery_report(
+        items,
+        recovery_slo_minutes=recovery_slo_minutes,
+        generated_by=generated_by,
+        now=now,
+    )
+    escalation_plan = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan(
+        items,
+        recovery_slo_minutes=recovery_slo_minutes,
+        generated_by=generated_by,
+        now=now,
+    )
+    key_risks = []
+    if int(report.get("execution_failed_count") or 0):
+        key_risks.append(
+            {
+                "severity": "critical",
+                "risk": "Retry execution failed or was skipped",
+                "count": int(report.get("execution_failed_count") or 0),
+                "owner": "release-governance",
+            }
+        )
+    if int(report.get("recovery_slo_breached_count") or 0):
+        key_risks.append(
+            {
+                "severity": "critical",
+                "risk": "Connector recovery SLO breached",
+                "count": int(report.get("recovery_slo_breached_count") or 0),
+                "owner": "release-governance",
+            }
+        )
+    if int(report.get("recovery_open_count") or 0):
+        key_risks.append(
+            {
+                "severity": "warning",
+                "risk": "Connector recovery remains open",
+                "count": int(report.get("recovery_open_count") or 0),
+                "owner": "release-governance",
+            }
+        )
+    recommended_actions = [
+        "deliver recovery escalation notifications to the selected operations channels"
+        if int(escalation_plan.get("escalation_count") or 0)
+        else "continue routine retry recovery monitoring",
+        "verify recovery closure evidence for each failed connector provider",
+        "review retry execution trends before enabling promoted Go backend mode",
+    ]
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {
+            "generated_at": generated_at,
+            "recovery_report_id": report.get("report_id"),
+            "escalation_plan_id": escalation_plan.get("plan_id"),
+        },
+        sort_keys=True,
+    )
+    executive_report_id = f"gordackexecreport-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-recovery-executive-report.v1",
+        "product": "CAVRA",
+        "executive_report_id": executive_report_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": escalation_plan.get("alert_level", report.get("alert_level", "healthy")),
+        "recovery_slo_minutes": int(report.get("recovery_slo_minutes") or recovery_slo_minutes),
+        "recovery_report_id": report.get("report_id"),
+        "escalation_plan_id": escalation_plan.get("plan_id"),
+        "executive_summary": {
+            "status": escalation_plan.get("alert_level", "healthy"),
+            "business_impact": (
+                "Connector recovery requires leadership attention"
+                if int(escalation_plan.get("critical_escalation_count") or 0)
+                else "Connector recovery is being monitored within operating tolerances"
+            ),
+            "execution_count": int(report.get("execution_count") or 0),
+            "failed_execution_count": int(report.get("execution_failed_count") or 0),
+            "open_recovery_count": int(report.get("recovery_open_count") or 0),
+            "slo_breached_count": int(report.get("recovery_slo_breached_count") or 0),
+            "escalation_count": int(escalation_plan.get("escalation_count") or 0),
+        },
+        "provider_summary": report.get("provider_summary", []),
+        "closure_trends": report.get("closure_trends", []),
+        "key_risks": key_risks,
+        "recommended_actions": recommended_actions,
+        "controls": [
+            "executive-report-derived-from-public-safe-retry-and-recovery-evidence",
+            "executive-report-contains-no-provider-secrets",
+            "report-links-escalation-plan-without-embedding-private-connector-config",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_metadata(
+    report: dict[str, Any],
+) -> dict[str, Any]:
+    summary = report.get("executive_summary", {}) if isinstance(report.get("executive_summary"), dict) else {}
+    return {
+        "session_id": report.get("executive_report_id"),
+        "created_at": report.get("generated_at"),
+        "signer": report.get("generated_by", "release-governance"),
+        "decision_count": int(summary.get("escalation_count") or 0),
+        "blocked_count": int(summary.get("slo_breached_count") or 0) + int(summary.get("failed_execution_count") or 0),
+        "approval_required_count": int(summary.get("open_recovery_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
+        "executive_report_id": report.get("executive_report_id"),
+        "recovery_report_id": report.get("recovery_report_id"),
+        "escalation_plan_id": report.get("escalation_plan_id"),
+        "alert_level": report.get("alert_level"),
+        "escalation_count": summary.get("escalation_count", 0),
+        "recovery_executive_report": report,
     }
 
 
