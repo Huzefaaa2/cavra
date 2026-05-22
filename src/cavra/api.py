@@ -31,6 +31,7 @@ from cavra.evidence import (
 from cavra.go_backend import (
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation,
+    acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert,
     acknowledge_go_rollback_drill_notification,
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
@@ -46,6 +47,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_execution_record,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_ack_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_worker_run,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_worker_run_metadata,
@@ -53,8 +59,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run_metadata,
@@ -92,6 +102,7 @@ from cavra.go_backend import (
     decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval,
     evaluate_with_go_pilot,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history,
+    filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history,
     filter_go_rollback_drill_notification_history,
     filter_go_rollback_drill_routing_history,
@@ -444,10 +455,15 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-plan",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_worker": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-worker-run",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_deliver": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts/deliver",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_acknowledge": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts/{health_id}/acknowledgements",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alerts": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alert-dashboard",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_schedule_run": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/schedule-run",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_deliver": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/schedule-runs/{run_id}/deliver",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-plan",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-worker-run",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -1226,6 +1242,32 @@ def create_app():
         return {"plan": plan, "metadata": metadata, "actor": _public_actor_context(actor_context) if actor_context else None}
 
     @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts/deliver"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_deliver_route(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        return runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_deliver(
+            payload,
+            authorization,
+        )
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts/{health_id}/acknowledgements"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_acknowledge_route(
+        health_id: str,
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        return runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_acknowledge(
+            health_id,
+            payload,
+            authorization,
+        )
+
+    @app.post(
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/{plan_id}/deliver"
     )
     def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_deliver(
@@ -1500,6 +1542,154 @@ def create_app():
         )
         return {"health": health, "metadata": metadata}
 
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_deliver(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        try:
+            health = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health(
+                _go_rollback_drill_notification_items(evidence_store),
+                expected_interval_minutes=int(payload.get("expected_interval_minutes", 30)),
+                stale_metadata_minutes=int(payload.get("stale_metadata_minutes", 120)),
+                generated_by=str(generated_by),
+            )
+            existing_deliveries = _search_evidence_metadata(
+                evidence_store,
+                metadata_kind="release-connector-delivery",
+                limit=500,
+                offset=0,
+            )["items"]
+            plan = (
+                build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan(
+                    health,
+                    delivery_items=existing_deliveries,
+                    requested_provider=payload.get("provider", "all"),
+                    available_providers=_configured_connector_providers(connector_config),
+                    generated_by=str(generated_by),
+                    suppression_window_minutes=int(payload.get("suppression_window_minutes", 60)),
+                    force=bool(payload.get("force", False)),
+                )
+            )
+            event = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_event(
+                health,
+                generated_by=str(generated_by),
+                max_alerts=int(payload.get("max_alerts", 20)),
+            )
+            event["recovery_escalation_retry_health_alert_plan"] = plan
+            plan_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan_metadata(
+                    plan
+                )
+            )
+            result = None
+            metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source="go_backend_rollback_drill_acknowledgement_audit_recovery_escalation_retry_health_alert",
+                    )
+                    | {"health_id": plan.get("health_id"), "plan_id": plan.get("plan_id")}
+                )
+            return {
+                "health": health,
+                "plan": plan,
+                "delivery": result,
+                "plan_metadata": plan_metadata,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "event_id": plan.get("health_id"),
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_acknowledge(
+        health_id: str,
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        acknowledged_by = actor_context.get("actor") if actor_context else payload.get("acknowledged_by")
+        if not payload.get("provider"):
+            raise HTTPException(status_code=400, detail="provider is required")
+        if not acknowledged_by:
+            raise HTTPException(status_code=400, detail="acknowledged_by is required")
+        try:
+            acknowledgement = acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert(
+                health_id,
+                provider=payload["provider"],
+                acknowledged_by=str(acknowledged_by),
+                acknowledgement_state=payload.get("acknowledgement_state", "acknowledged"),
+                external_ref=payload.get("external_ref"),
+                notes=payload.get("notes"),
+                plan_id=payload.get("plan_id"),
+            )
+            metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_ack_metadata(
+                    acknowledgement
+                )
+            )
+            return {
+                "acknowledgement": acknowledgement,
+                "metadata": metadata,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alerts"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alerts(
+        health_id: Optional[str] = None,
+        provider: Optional[str] = None,
+        metadata_kind: Optional[str] = None,
+        acknowledgement_state: Optional[str] = None,
+        suppressed: Optional[bool] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, object]:
+        return filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_history(
+            _go_rollback_drill_notification_items(evidence_store),
+            health_id=health_id,
+            provider=provider,
+            metadata_kind=metadata_kind,
+            acknowledgement_state=acknowledgement_state,
+            suppressed=suppressed,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-escalations/retry-health-alert-dashboard"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard() -> dict[str, object]:
+        return build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard(
+            _go_rollback_drill_notification_items(evidence_store)
+        )
+
     @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report")
     def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report(
         recovery_slo_minutes: int = 240,
@@ -1657,6 +1847,129 @@ def create_app():
             )
         )
         return {"plan": plan, "metadata": metadata, "actor": _public_actor_context(actor_context) if actor_context else None}
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-worker-run"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        dry_run = bool(payload.get("dry_run", not bool(payload.get("execute", False))))
+        if not dry_run and connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        items = _go_rollback_drill_notification_items(evidence_store)
+        run = (
+            build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run(
+                items,
+                retry_policy=payload.get("retry_policy") if isinstance(payload.get("retry_policy"), dict) else None,
+                schedule=payload.get("schedule") if isinstance(payload.get("schedule"), dict) else None,
+                generated_by=str(generated_by),
+                dry_run=dry_run,
+                max_retry_deliveries=int(payload.get("max_retry_deliveries", 5)),
+            )
+        )
+        retry_metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata(
+                run["retry_plan"]
+            )
+        )
+        schedule_runs = {
+            str(item.get("run_id") or ""): item.get("recovery_executive_report_schedule_run")
+            for item in items
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run"
+            and isinstance(item.get("recovery_executive_report_schedule_run"), dict)
+        }
+        retry_results = []
+        for decision in run.get("selected_retries", []):
+            if not isinstance(decision, dict):
+                continue
+            schedule_run = schedule_runs.get(str(decision.get("run_id") or ""))
+            delivery = None
+            delivery_metadata = None
+            execution_record = None
+            execution_metadata = None
+            skipped = None
+            if schedule_run is None:
+                skipped = "recovery_executive_report_schedule_run_not_found"
+            elif dry_run:
+                skipped = "dry_run"
+            else:
+                event = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_event(
+                    schedule_run,
+                    generated_by=str(generated_by),
+                    max_risks=int(payload.get("max_risks", 10)),
+                )
+                delivery = deliver_connector_event(
+                    event,
+                    connector_config or {},
+                    provider=str(decision.get("provider") or payload.get("provider", "webhook")),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                report = (
+                    schedule_run.get("executive_report", {})
+                    if isinstance(schedule_run.get("executive_report"), dict)
+                    else {}
+                )
+                delivery_metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        delivery,
+                        source="go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report",
+                    )
+                    | {
+                        "run_id": schedule_run.get("run_id"),
+                        "executive_report_id": report.get("executive_report_id", ""),
+                        "retry_plan_id": run["retry_plan"].get("retry_plan_id"),
+                        "worker_run_id": run.get("run_id"),
+                    }
+                )
+            if not dry_run:
+                execution_record = build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record(
+                    run,
+                    decision,
+                    schedule_run=schedule_run,
+                    delivery=delivery,
+                    delivery_metadata=delivery_metadata,
+                    skipped=skipped,
+                    executed_by=str(generated_by),
+                )
+                execution_metadata = evidence_store.upsert(
+                    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record_metadata(
+                        execution_record
+                    )
+                )
+            retry_results.append(
+                {
+                    "decision": decision,
+                    "schedule_run": schedule_run,
+                    "delivery": delivery,
+                    "delivery_metadata": delivery_metadata,
+                    "execution_record": execution_record,
+                    "execution_metadata": execution_metadata,
+                    "skipped": skipped,
+                }
+            )
+        metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run_metadata(
+                run
+            )
+        )
+        return {
+            "run": run,
+            "metadata": metadata,
+            "retry_metadata": retry_metadata,
+            "retry_results": retry_results,
+            "actor": _public_actor_context(actor_context) if actor_context else None,
+        }
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health")
     def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_worker_health(
@@ -4364,6 +4677,14 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health",
             limit=500,
         )["items"]
+        audit_delivery_recovery_escalation_retry_health_alerts = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-plan",
+            limit=500,
+        )["items"]
+        audit_delivery_recovery_escalation_retry_health_alert_acks = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-ack",
+            limit=500,
+        )["items"]
         audit_delivery_recovery_executive_reports = evidence_store.search(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report",
             limit=500,
@@ -4374,6 +4695,14 @@ def _go_rollback_drill_notification_items(
         )["items"]
         audit_delivery_recovery_executive_report_delivery_retry_plans = evidence_store.search(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-plan",
+            limit=500,
+        )["items"]
+        audit_delivery_recovery_executive_report_delivery_retry_worker_runs = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-worker-run",
+            limit=500,
+        )["items"]
+        audit_delivery_recovery_executive_report_delivery_retry_execution_records = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-execution-record",
             limit=500,
         )["items"]
         audit_delivery_worker_runs = evidence_store.search(
@@ -4410,9 +4739,13 @@ def _go_rollback_drill_notification_items(
             *audit_delivery_recovery_escalation_retry_worker_runs,
             *audit_delivery_recovery_escalation_retry_execution_records,
             *audit_delivery_recovery_escalation_retry_health_reports,
+            *audit_delivery_recovery_escalation_retry_health_alerts,
+            *audit_delivery_recovery_escalation_retry_health_alert_acks,
             *audit_delivery_recovery_executive_reports,
             *audit_delivery_recovery_executive_report_schedule_runs,
             *audit_delivery_recovery_executive_report_delivery_retry_plans,
+            *audit_delivery_recovery_executive_report_delivery_retry_worker_runs,
+            *audit_delivery_recovery_executive_report_delivery_retry_execution_records,
             *audit_delivery_worker_runs,
             *audit_delivery_worker_health_alerts,
             *audit_delivery_worker_health_alert_acks,

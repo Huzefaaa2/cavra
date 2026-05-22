@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA rollback drill executive delivery retry execution and recovery health alerts</title>
+  <desc id="desc">Flow from public-safe rollback drill metadata into recovery retry health alert delivery, acknowledgement, executive report retry worker execution, connector delivery metadata, and dashboards.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071112; }
+      .band { fill: #0d1b1e; stroke: #274149; stroke-width: 2; }
+      .box { fill: #122327; stroke: #66d9c0; stroke-width: 2; rx: 12; }
+      .box2 { fill: #162a30; stroke: #8bd9ff; stroke-width: 2; rx: 12; }
+      .box3 { fill: #1f2630; stroke: #f6c85f; stroke-width: 2; rx: 12; }
+      .text { fill: #edf7f7; font-family: Inter, Arial, sans-serif; font-size: 18px; }
+      .small { fill: #b8c8cb; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+      .title { fill: #ffffff; font-family: Inter, Arial, sans-serif; font-size: 30px; font-weight: 700; }
+      .label { fill: #79e1c8; font-family: Inter, Arial, sans-serif; font-size: 15px; font-weight: 700; }
+      .arrow { stroke: #79e1c8; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .warn { fill: #f6c85f; font-family: Inter, Arial, sans-serif; font-size: 14px; font-weight: 700; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#79e1c8" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1320" height="760" />
+  <text x="48" y="58" class="title">Executive Delivery Retry Execution And Recovery Health Alerts</text>
+  <text x="48" y="86" class="small">Public-safe Go rollback drill evidence loop for recovery retry health and executive report delivery reliability.</text>
+
+  <rect x="40" y="124" width="1240" height="142" class="band" rx="18" />
+  <text x="70" y="158" class="label">1. Public Evidence Inputs</text>
+  <rect x="70" y="182" width="230" height="58" class="box" />
+  <text x="92" y="214" class="text">Retry plans</text>
+  <rect x="330" y="182" width="230" height="58" class="box" />
+  <text x="352" y="214" class="text">Worker runs</text>
+  <rect x="590" y="182" width="230" height="58" class="box" />
+  <text x="612" y="214" class="text">Execution records</text>
+  <rect x="850" y="182" width="230" height="58" class="box" />
+  <text x="872" y="214" class="text">Schedule runs</text>
+  <rect x="1110" y="182" width="130" height="58" class="box" />
+  <text x="1130" y="214" class="text">Delivery</text>
+
+  <path d="M185 240 L185 312" class="arrow" />
+  <path d="M445 240 L445 312" class="arrow" />
+  <path d="M705 240 L705 312" class="arrow" />
+  <path d="M965 240 L965 312" class="arrow" />
+
+  <rect x="40" y="310" width="1240" height="176" class="band" rx="18" />
+  <text x="70" y="344" class="label">2. Runtime Automation</text>
+  <rect x="70" y="372" width="300" height="74" class="box2" />
+  <text x="92" y="402" class="text">Recovery retry health alert</text>
+  <text x="92" y="426" class="small">plan, suppress, deliver</text>
+  <rect x="420" y="372" width="300" height="74" class="box2" />
+  <text x="442" y="402" class="text">Health acknowledgement</text>
+  <text x="442" y="426" class="small">review evidence by provider</text>
+  <rect x="770" y="372" width="300" height="74" class="box2" />
+  <text x="792" y="402" class="text">Executive retry worker</text>
+  <text x="792" y="426" class="small">dry-run default or execute=true</text>
+  <rect x="1110" y="372" width="130" height="74" class="box3" />
+  <text x="1128" y="402" class="text">Connector</text>
+  <text x="1128" y="426" class="small">side effects</text>
+
+  <path d="M370 409 L420 409" class="arrow" />
+  <path d="M1070 409 L1110 409" class="arrow" />
+
+  <path d="M220 446 L220 536" class="arrow" />
+  <path d="M570 446 L570 536" class="arrow" />
+  <path d="M920 446 L920 536" class="arrow" />
+  <path d="M1175 446 L1175 536" class="arrow" />
+
+  <rect x="40" y="534" width="1240" height="160" class="band" rx="18" />
+  <text x="70" y="568" class="label">3. Evidence And Operator Surface</text>
+  <rect x="70" y="596" width="260" height="58" class="box" />
+  <text x="92" y="629" class="text">Alert history</text>
+  <rect x="370" y="596" width="260" height="58" class="box" />
+  <text x="392" y="629" class="text">Retry execution records</text>
+  <rect x="670" y="596" width="260" height="58" class="box" />
+  <text x="692" y="629" class="text">Notification dashboard</text>
+  <rect x="970" y="596" width="260" height="58" class="box" />
+  <text x="992" y="629" class="text">Evidence Console</text>
+
+  <text x="70" y="718" class="warn">Boundary: source code and secrets for private connector behavior stay outside the public Community repository.</text>
+</svg>

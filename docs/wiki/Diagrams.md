@@ -78,6 +78,10 @@ See `docs/diagrams/go-backend-rollback-drill-history.svg` for the operational dr
 
 ## Go Backend Rollback Drill Scheduling
 
+## Go Backend Rollback Drill Executive Delivery Retry Execution And Recovery Health Alerts
+
+See `docs/diagrams/go-backend-rollback-drill-executive-delivery-retry-execution-and-recovery-health-alerts.svg` for the public-safe recovery retry health alert and executive report delivery retry execution loop.
+
 ## Go Backend Rollback Drill Retry Approvals And Recovery Playbooks
 
 See `docs/diagrams/go-backend-rollback-drill-retry-approvals-recovery-playbooks.svg` for the approval path from failed acknowledgement audit delivery through retry acknowledgement, execution approval, approval-bound worker selection, and connector recovery playbooks.
