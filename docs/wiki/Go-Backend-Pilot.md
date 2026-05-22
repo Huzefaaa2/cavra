@@ -115,4 +115,4 @@ Fast local enforcement is useful only if it cannot silently drift from the autho
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.
+The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.

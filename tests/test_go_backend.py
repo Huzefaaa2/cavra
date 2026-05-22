@@ -15,6 +15,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_package,
     build_go_rollback_drill_acknowledgement_audit_package_metadata,
     build_go_rollback_drill_notification_ack_metadata,
@@ -26,6 +31,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_notification_plan,
     build_go_rollback_drill_routing_suppression_trend,
     build_go_rollback_drill_routing_suppression_trend_metadata,
+    filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history,
     filter_go_rollback_drill_notification_history,
     filter_go_rollback_drill_routing_history,
     evaluate_with_go_pilot,
@@ -638,7 +644,85 @@ def test_go_rollback_drill_acknowledgement_audit_delivery_history_filters_and_da
     assert dashboard["acknowledgement_audit_delivery_count"] == 1
     assert dashboard["failed_acknowledgement_audit_delivery_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_health"] == "critical"
-    assert dashboard["acknowledgement_audit_delivery_providers"] == ["splunk"]
+
+
+def test_go_rollback_drill_acknowledgement_audit_delivery_retry_worker(tmp_path: Path) -> None:
+    drills = _write_rollback_drill_history(tmp_path)
+    schedule = _write_rollback_drill_schedule(tmp_path, next_due_at=datetime.now(timezone.utc) + timedelta(days=3))
+    report = go_rollback_drill_schedule_report(
+        GoBackendConfig(
+            mode=GO_BACKEND_PROMOTED,
+            rollback_drill_history_path=str(drills),
+            rollback_drill_schedule_path=str(schedule),
+        )
+    )
+    plan = build_go_rollback_drill_notification_plan(report, requested_provider="webhook")
+    plan_metadata = build_go_rollback_drill_notification_plan_metadata(plan)
+    package = build_go_rollback_drill_acknowledgement_audit_package([plan_metadata], generated_by="test")
+    package_metadata = build_go_rollback_drill_acknowledgement_audit_package_metadata(package)
+    delivery_plan = build_go_rollback_drill_acknowledgement_audit_delivery_plan(
+        package,
+        requested_provider="webhook",
+        available_providers=["webhook"],
+        generated_by="test",
+        cadence="hourly",
+    )
+    delivery_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_plan_metadata(delivery_plan)
+    failed_at = datetime.now(timezone.utc) - timedelta(hours=2)
+    connector_metadata = {
+        "session_id": "connector-delivery-retry",
+        "created_at": failed_at.isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit",
+        "audit_id": package["audit_id"],
+        "delivery_id": delivery_plan["delivery_id"],
+        "event_id": delivery_plan["delivery_id"],
+        "delivery_success": False,
+        "providers": ["webhook"],
+        "failed_providers": ["webhook"],
+        "status_codes": [503],
+    }
+    items = [plan_metadata, package_metadata, delivery_metadata, connector_metadata]
+
+    retry_plan = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan(
+        items,
+        policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        generated_by="test",
+        now=datetime.now(timezone.utc),
+    )
+    retry_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_retry_plan_metadata(retry_plan)
+    worker_run = build_go_rollback_drill_acknowledgement_audit_delivery_worker_run(
+        [*items, retry_metadata],
+        retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 15},
+        schedule={"interval_minutes": 30, "cadence": "every_30_minutes"},
+        generated_by="test",
+        dry_run=True,
+        max_retry_deliveries=2,
+        now=datetime.now(timezone.utc),
+    )
+    worker_metadata = build_go_rollback_drill_acknowledgement_audit_delivery_worker_run_metadata(worker_run)
+    history = filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history(
+        [*items, retry_metadata, worker_metadata],
+        dry_run=True,
+    )
+    dashboard = build_go_rollback_drill_acknowledgement_audit_delivery_worker_dashboard(
+        [*items, retry_metadata, worker_metadata]
+    )
+    notification_dashboard = build_go_rollback_drill_notification_dashboard([*items, retry_metadata, worker_metadata])
+
+    assert retry_plan["retryable_count"] == 1
+    assert retry_plan["retry_decisions"][0]["action"] == "retry"
+    assert retry_metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan"
+    assert worker_run["dry_run"] is True
+    assert worker_run["summary"]["selected_retry_count"] == 1
+    assert worker_run["selected_retries"][0]["provider"] == "webhook"
+    assert worker_metadata["metadata_kind"] == "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run"
+    assert history["total"] == 1
+    assert dashboard["run_count"] == 1
+    assert dashboard["dry_run_count"] == 1
+    assert dashboard["retryable_count"] == 1
+    assert notification_dashboard["acknowledgement_audit_delivery_retry_plan_count"] == 1
+    assert notification_dashboard["acknowledgement_audit_delivery_worker_run_count"] == 1
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

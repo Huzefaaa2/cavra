@@ -34,4 +34,4 @@ See `docs/diagrams/go-backend-rollback-drill-routing-history.svg`.
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.
+The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.

@@ -75,4 +75,4 @@ Enterprises cannot adopt a low-latency enforcement runtime if it behaves differe
 
 ## Next Work
 
-The next recommended implementation step is to add acknowledgement audit delivery retry automation and scheduled worker execution.
+The next recommended implementation step is to add acknowledgement audit worker health alerts and retry acknowledgements.
