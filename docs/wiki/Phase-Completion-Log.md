@@ -2031,6 +2031,37 @@ Enterprise challenge solved:
 
 Recommended next issue: add approval-bound live retry execution records and connector recovery closure evidence.
 
+## Phase 7 Go Backend Rollback Drill Live Retry Closure Evidence
+
+Status: complete for the current live retry execution and recovery closure slice.
+
+Completed implementation:
+- Added approval-bound live retry execution records for non-dry-run acknowledgement audit delivery workers.
+- Bound retry execution records to worker runs, retry plans, approval decisions, delivery plans, connector delivery results, selected providers, and public evidence references.
+- Added connector recovery closure records for resolved, mitigated, deferred, escalated, and reopened recovery states.
+- Added rollback drill notification history and dashboard metrics for retry execution records, execution success/failure, recovery closures, and closed recoveries.
+- Added Evidence Console controls for approved live retry execution and connector recovery closure.
+- Added `docs/go-backend-rollback-drill-live-retry-closure-evidence.md`, `docs/wiki/Go-Backend-Rollback-Drill-Live-Retry-Closure-Evidence.md`, and `docs/diagrams/go-backend-rollback-drill-live-retry-closure-evidence.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, diagrams, and wiki navigation.
+
+Validation:
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m ruff check src tests`
+- `node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can prove live retry execution happened only after approval.
+- As a platform owner, I can see whether approved retries were delivered, failed, or skipped.
+- As a SOC analyst, I can close connector recovery work with verification evidence.
+- As an auditor, I can trace failed delivery, retry acknowledgement, approval, execution, playbook, and closure evidence.
+
+Enterprise challenge solved:
+- Completes the governed recovery chain for failed acknowledgement audit delivery without exposing connector secrets or private recovery logic.
+- Makes live retry side effects auditable and closure-ready for regulated release operations.
+
+Recommended next issue: add retry execution dashboards, recovery SLO reporting, and closure trend analytics.
+
 ## Phase 7 Go Backend Rollback Drill Retry Approvals And Recovery Playbooks
 
 Status: complete for the current retry execution approval and connector recovery playbook slice.
