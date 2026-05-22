@@ -104,6 +104,10 @@ See `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg` for t
 
 See `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg` for the filtered bulk acknowledgement and acknowledgement audit package export flow.
 
+## Go Backend Rollback Drill Acknowledgement Audit Delivery
+
+See `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg` for the scheduled acknowledgement audit delivery routing flow.
+
 ## SVG Images
 
 Repository diagram images:
@@ -131,6 +135,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-console.svg`
 - `docs/diagrams/go-backend-rollback-drill-acknowledgement-controls.svg`
 - `docs/diagrams/go-backend-rollback-drill-bulk-acknowledgement-audit.svg`
+- `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

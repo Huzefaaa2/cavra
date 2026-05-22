@@ -65,5 +65,5 @@
 
   <path class="arrow" d="M780 290 C760 338,700 366,620 380"/>
   <path class="arrow" d="M1010 290 C1000 336,958 364,910 380"/>
-  <text class="muted" x="52" y="570">Next: schedule acknowledgement audit delivery to SIEM, ITSM, and ChatOps connectors.</text>
+  <text class="muted" x="52" y="570">Next: review acknowledgement audit delivery health dashboards.</text>
 </svg>

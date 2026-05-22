@@ -50,7 +50,7 @@ Go backend rollback drill history: `cavra runtime go-rollback-drills`, `/runtime
 
 Go backend rollback drill scheduling: `cavra runtime go-rollback-drill-schedule`, `cavra runtime go-rollback-drill-notification-plan`, `/runtime/go-pilot/rollback-drill-schedule`, and `/runtime/go-pilot/rollback-drill-notifications/deliver` require `CAVRA_GO_ROLLBACK_DRILL_SCHEDULE`, active cadence metadata, owners, notification providers, and runbook references. Promoted mode selects Go only when the schedule is ready or due soon; stale schedules fall back to Python and can deliver redacted connector notification evidence.
 
-Go backend rollback drill notification acknowledgements: `cavra runtime go-rollback-drill-notification-ack`, `cavra runtime go-rollback-drill-escalation-plan`, `/runtime/go-pilot/rollback-drill-notifications`, `/runtime/go-pilot/rollback-drill-notifications/dashboard`, `/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`, `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk`, `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package`, and `/runtime/go-pilot/rollback-drill-notifications/escalation-plan` record public-safe acknowledgement metadata, dashboard outstanding routes, bulk route acknowledgements, acknowledgement audit packages, and missed-notification escalation plans.
+Go backend rollback drill notification acknowledgements: `cavra runtime go-rollback-drill-notification-ack`, `cavra runtime go-rollback-drill-escalation-plan`, `/runtime/go-pilot/rollback-drill-notifications`, `/runtime/go-pilot/rollback-drill-notifications/dashboard`, `/runtime/go-pilot/rollback-drill-notifications/{schedule_id}/acknowledgements`, `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/bulk`, `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package`, `/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery`, and `/runtime/go-pilot/rollback-drill-notifications/escalation-plan` record public-safe acknowledgement metadata, dashboard outstanding routes, bulk route acknowledgements, acknowledgement audit packages, acknowledgement audit delivery routing, and missed-notification escalation plans.
 
 Go backend rollback drill routing: `cavra runtime go-rollback-drill-notification-plan --routing-policy` and `/runtime/go-pilot/rollback-drill-notifications/deliver` accept public-safe `owner_routes`, `maintenance_windows`, and `owner_calendars` to select per-owner providers, apply owner-specific acknowledgement SLOs, and suppress connector delivery during approved change freezes or owner unavailability.
 
@@ -68,7 +68,7 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+Known gaps: acknowledgement audit delivery history filters and delivery health dashboards.
 
 Recent parity expansion: Go and Python now share high-risk command and cloud/IaC fixtures for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery controls.
 

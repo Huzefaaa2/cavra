@@ -1901,4 +1901,36 @@ Enterprise challenge solved:
 - Preserves public-safe, route-level evidence for release governance and audit review.
 - Keeps connector credentials, identity provider secrets, private URLs, customer data, and Enterprise source outside the public Community Edition.
 
-Recommended next issue: add scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+Recommended next issue: delivered below as scheduled acknowledgement audit delivery and SIEM/ITSM export routing.
+
+## Phase 7 Go Backend Rollback Drill Acknowledgement Audit Delivery
+
+Status: complete for the current acknowledgement audit delivery routing slice.
+
+Completed implementation:
+- Added `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery` for building an acknowledgement audit package, creating a delivery plan, routing it through configured connectors, and indexing redacted delivery evidence.
+- Added public-safe delivery plans with selected providers, cadence, schedule reference, route count, outstanding count, escalation count, and alert level.
+- Added redacted connector events for Splunk, Microsoft Sentinel, Datadog, Jira, ServiceNow, Slack, Teams, and Webhook.
+- Added Evidence Console **Audit delivery** destination selection and **Deliver Ack Audit** action.
+- Added history support for acknowledgement audit packages, acknowledgement audit delivery plans, and acknowledgement audit connector delivery records.
+- Added `docs/go-backend-rollback-drill-acknowledgement-audit-delivery.md`, `docs/wiki/Go-Backend-Rollback-Drill-Acknowledgement-Audit-Delivery.md`, and `docs/diagrams/go-backend-rollback-drill-acknowledgement-audit-delivery.svg`.
+- Updated README, API docs, feature inventory, production roadmap, productization report, drill docs, diagrams, and wiki navigation.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js apps/sandbox-ui/sandbox.js`
+- `python3 -m pytest tests/test_api.py tests/test_go_backend.py -q`
+- `python3 -m ruff check src tests`
+- `bash scripts/validate-boundaries.sh`
+
+User stories:
+- As a release manager, I can route acknowledgement audit evidence to operational connectors from the drill console.
+- As a SOC analyst, I can receive acknowledgement coverage events in SIEM tooling.
+- As an ITSM owner, I can capture missed or escalated drill acknowledgement evidence in Jira or ServiceNow.
+- As an auditor, I can verify delivery metadata without seeing connector credentials or Enterprise source.
+
+Enterprise challenge solved:
+- Moves rollback assurance evidence from console-only review into governed operational systems.
+- Preserves a public-safe boundary between Community Edition audit routing and private Enterprise automation.
+- Creates the foundation for recurring Enterprise delivery workers without committing private scheduling logic.
+
+Recommended next issue: add acknowledgement audit delivery history filters and delivery health dashboards.

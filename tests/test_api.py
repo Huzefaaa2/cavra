@@ -1533,6 +1533,10 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit"]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package"
     )
+    assert (
+        config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery"]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -1763,6 +1767,19 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-package",
         json={"owner": "release-governance", "provider": "webhook", "generated_by": "release-manager"},
     )
+    acknowledgement_audit_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery",
+        json={
+            "owner": "release-governance",
+            "provider": "webhook",
+            "delivery_provider": "webhook",
+            "generated_by": "release-manager",
+            "cadence": "hourly",
+            "schedule_ref": "release-governance-hourly",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
     history = client.get("/runtime/go-pilot/rollback-drill-notifications")
     routes = client.get(
         "/runtime/go-pilot/rollback-drill-notifications/routes",
@@ -1796,8 +1813,20 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert acknowledgement_audit.json()["audit_package"]["route_count"] == 1
     assert acknowledgement_audit.json()["audit_package"]["resolved_count"] == 1
+    assert acknowledgement_audit_delivery.status_code == 200
+    assert acknowledgement_audit_delivery.json()["audit_package"]["route_count"] == 1
+    assert acknowledgement_audit_delivery.json()["delivery_plan"]["selected_providers"] == ["webhook"]
+    assert acknowledgement_audit_delivery.json()["delivery_plan"]["cadence"] == "hourly"
+    assert (
+        acknowledgement_audit_delivery.json()["plan_metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-plan"
+    )
+    assert (
+        acknowledgement_audit_delivery.json()["metadata"]["connector_delivery_source"]
+        == "go_backend_rollback_drill_acknowledgement_audit"
+    )
     assert history.status_code == 200
-    assert history.json()["total"] >= 4
+    assert history.json()["total"] >= 7
     assert routes.status_code == 200
     assert routes.json()["total"] == 1
     assert routes.json()["items"][0]["action"] == "deliver"

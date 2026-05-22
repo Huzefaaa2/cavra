@@ -1984,6 +1984,8 @@ function goDrillNotificationPayload(item) {
   if (item?.plan && typeof item.plan === "object") return item.plan;
   if (item?.acknowledgement && typeof item.acknowledgement === "object") return item.acknowledgement;
   if (item?.escalation_plan && typeof item.escalation_plan === "object") return item.escalation_plan;
+  if (item?.acknowledgement_audit_package && typeof item.acknowledgement_audit_package === "object") return item.acknowledgement_audit_package;
+  if (item?.acknowledgement_audit_delivery_plan && typeof item.acknowledgement_audit_delivery_plan === "object") return item.acknowledgement_audit_delivery_plan;
   return item || {};
 }
 
@@ -1991,13 +1993,17 @@ function goDrillNotificationProviders(item) {
   const escalationRoutes = item?.escalation_plan && typeof item.escalation_plan === "object" && Array.isArray(item.escalation_plan.routes)
     ? item.escalation_plan.routes
     : [];
+  const auditRoutes = item?.acknowledgement_audit_package && typeof item.acknowledgement_audit_package === "object" && Array.isArray(item.acknowledgement_audit_package.routes)
+    ? item.acknowledgement_audit_package.routes
+    : [];
   const providers = [
     item?.provider,
     ...(Array.isArray(item?.selected_providers) ? item.selected_providers : []),
     ...(Array.isArray(item?.acknowledgement_required_providers) ? item.acknowledgement_required_providers : []),
     ...(Array.isArray(item?.providers) ? item.providers : []),
     ...(Array.isArray(item?.failed_providers) ? item.failed_providers : []),
-    ...escalationRoutes.map((route) => route.provider)
+    ...escalationRoutes.map((route) => route.provider),
+    ...auditRoutes.map((route) => route.provider)
   ].filter(Boolean);
   return [...new Set(providers.map(String))];
 }
@@ -4247,6 +4253,90 @@ async function exportGoDrillAckAuditPackage() {
   URL.revokeObjectURL(href);
 }
 
+function addSampleGoDrillAckAuditDelivery(auditPackage, provider) {
+  const deliveredAt = new Date().toISOString();
+  const deliveryId = `sample-go-drill-ack-delivery-${Date.now()}`;
+  const deliveryPlan = {
+    schema_version: "cavra.go-backend-pilot.rollback-drill-acknowledgement-audit-delivery-plan.v1",
+    product: "CAVRA",
+    delivery_id: deliveryId,
+    audit_id: auditPackage.audit_id || "",
+    generated_at: deliveredAt,
+    generated_by: goDrillAckActor(),
+    cadence: "on_demand",
+    schedule_ref: "console-sample",
+    requested_provider: provider,
+    selected_providers: [provider],
+    destination_count: 1,
+    route_count: auditPackage.route_count || 0,
+    outstanding_count: auditPackage.outstanding_count || 0,
+    alert_level: auditPackage.alert_level || "healthy",
+    controls: ["sample-public-safe-acknowledgement-audit-delivery"]
+  };
+  goRollbackDrillNotificationCatalog.unshift({
+    session_id: deliveryId,
+    metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-plan",
+    created_at: deliveredAt,
+    signer: deliveryPlan.generated_by,
+    delivery_id: deliveryId,
+    audit_id: deliveryPlan.audit_id,
+    selected_providers: [provider],
+    acknowledgement_audit_delivery_plan: deliveryPlan
+  });
+  goRollbackDrillNotificationCatalog.unshift({
+    session_id: `${deliveryId}-connector`,
+    metadata_kind: "release-connector-delivery",
+    connector_delivery_source: "go_backend_rollback_drill_acknowledgement_audit",
+    created_at: deliveredAt,
+    signer: "sample-connector",
+    event_id: deliveryId,
+    event_type: "cavra.go_backend.rollback_drill.acknowledgement_audit_delivery",
+    delivery_success: false,
+    providers: [provider],
+    failed_providers: [provider],
+    delivery: { success: false, provider, mode: "sample" }
+  });
+}
+
+async function deliverGoDrillAckAuditPackage() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const filters = selectedGoDrillNotificationFilters();
+  const deliveryProvider = document.querySelector("#goDrillAckAuditDeliveryProvider")?.value || "webhook";
+  if (status) status.textContent = `Delivering acknowledgement audit package to ${deliveryProvider}...`;
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        owner: filters.owner,
+        provider: filters.provider,
+        delivery_provider: deliveryProvider,
+        generated_by: goDrillAckActor(),
+        cadence: "on_demand",
+        schedule_ref: "evidence-console"
+      })
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      if ([401, 403].includes(response.status)) {
+        if (status) status.textContent = `Audit delivery requires an authorized console session: ${detail || response.statusText}`;
+        return;
+      }
+      throw new Error(detail || "acknowledgement audit delivery API unavailable");
+    }
+    const result = await response.json();
+    if (status) {
+      const selected = result.delivery_plan?.selected_providers?.join(", ") || deliveryProvider;
+      status.textContent = `Delivered acknowledgement audit package ${result.audit_package?.audit_id || ""} to ${selected}.`;
+    }
+  } catch (error) {
+    const auditPackage = buildSampleGoDrillAckAuditPackage();
+    addSampleGoDrillAckAuditDelivery(auditPackage, deliveryProvider);
+    if (status) status.textContent = `Using local sample audit delivery: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
 function renderReleaseChannelPublishing(promotions, exports, dashboard) {
   const promotionRows = document.querySelector("#releaseChannelRows");
   const exportRows = document.querySelector("#endpointExportRows");
@@ -5484,6 +5574,7 @@ document.querySelector("#refreshGoRollbackDrillNotifications").addEventListener(
 document.querySelector("#goDrillBulkAckOutstanding").addEventListener("click", () => recordGoDrillBulkAcknowledgements("acknowledged"));
 document.querySelector("#goDrillBulkEscalateBreached").addEventListener("click", () => recordGoDrillBulkAcknowledgements("escalated"));
 document.querySelector("#goDrillExportAckAudit").addEventListener("click", exportGoDrillAckAuditPackage);
+document.querySelector("#goDrillDeliverAckAudit").addEventListener("click", deliverGoDrillAckAuditPackage);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory, #filterEndpointRecurrenceWorkerMode").forEach((control) => {
   control.addEventListener("input", refreshEndpointRecurrenceOperations);
