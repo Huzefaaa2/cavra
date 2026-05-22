@@ -13,6 +13,7 @@ from cavra.go_backend import (
     GoBackendConfig,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation,
+    acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert,
     acknowledge_go_rollback_drill_notification,
     build_go_rollback_drill_acknowledgement_audit_delivery_event,
@@ -28,6 +29,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_execution_record,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_ack_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_worker_run,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_worker_run_metadata,
@@ -35,8 +41,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_schedule_run_metadata,
@@ -72,6 +82,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_routing_suppression_trend_metadata,
     close_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery,
     decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval,
+    filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_worker_history,
     filter_go_rollback_drill_notification_history,
@@ -1202,6 +1213,56 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             recovery_escalation_retry_health
         )
     )
+    recovery_escalation_retry_health_alert_plan = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan(
+            recovery_escalation_retry_health,
+            requested_provider="webhook",
+            available_providers=["webhook"],
+            generated_by="test",
+            force=True,
+        )
+    )
+    recovery_escalation_retry_health_alert_event = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_event(
+            recovery_escalation_retry_health,
+            generated_by="test",
+        )
+    )
+    recovery_escalation_retry_health_alert_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan_metadata(
+            recovery_escalation_retry_health_alert_plan
+        )
+    )
+    recovery_escalation_retry_health_alert_ack = (
+        acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert(
+            recovery_escalation_retry_health["health_id"],
+            provider="webhook",
+            acknowledged_by="release-manager",
+            acknowledgement_state="acknowledged",
+            plan_id=recovery_escalation_retry_health_alert_plan["plan_id"],
+        )
+    )
+    recovery_escalation_retry_health_alert_ack_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_ack_metadata(
+            recovery_escalation_retry_health_alert_ack
+        )
+    )
+    recovery_escalation_retry_health_alert_history = (
+        filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_history(
+            [
+                recovery_escalation_retry_health_alert_metadata,
+                recovery_escalation_retry_health_alert_ack_metadata,
+            ]
+        )
+    )
+    recovery_escalation_retry_health_alert_dashboard = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_dashboard(
+            [
+                recovery_escalation_retry_health_alert_metadata,
+                recovery_escalation_retry_health_alert_ack_metadata,
+            ]
+        )
+    )
     executive_report_delivery_event = (
         build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_event(
             executive_schedule_run,
@@ -1232,6 +1293,38 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             executive_report_delivery_retry_plan
         )
     )
+    executive_report_delivery_retry_worker_run = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run(
+            [executive_schedule_metadata, failed_executive_report_delivery],
+            retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+            generated_by="test",
+            dry_run=False,
+            max_retry_deliveries=2,
+        )
+    )
+    executive_report_delivery_retry_worker_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run_metadata(
+            executive_report_delivery_retry_worker_run
+        )
+    )
+    executive_report_delivery_retry_execution = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record(
+            executive_report_delivery_retry_worker_run,
+            executive_report_delivery_retry_worker_run["selected_retries"][0],
+            schedule_run=executive_schedule_run,
+            delivery={"success": True, "providers": ["webhook"]},
+            delivery_metadata={
+                "session_id": "connector-delivery-recovery-executive-report-live-retry",
+                "delivery_success": True,
+            },
+            executed_by="release-manager",
+        )
+    )
+    executive_report_delivery_retry_execution_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record_metadata(
+            executive_report_delivery_retry_execution
+        )
+    )
     dashboard = build_go_rollback_drill_notification_dashboard(
         [
             *items,
@@ -1252,7 +1345,11 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             recovery_escalation_retry_execution_metadata,
             failed_recovery_escalation_retry_execution_metadata,
             recovery_escalation_retry_health_metadata,
+            recovery_escalation_retry_health_alert_metadata,
+            recovery_escalation_retry_health_alert_ack_metadata,
             executive_report_delivery_retry_metadata,
+            executive_report_delivery_retry_worker_metadata,
+            executive_report_delivery_retry_execution_metadata,
             {
                 "session_id": "connector-delivery-recovery-executive-report",
                 "created_at": datetime.now(timezone.utc).isoformat(),
@@ -1317,10 +1414,31 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert recovery_escalation_retry_health_metadata["metadata_kind"].endswith(
         "recovery-escalation-retry-health"
     )
+    assert recovery_escalation_retry_health_alert_plan["selected_providers"] == ["webhook"]
+    assert recovery_escalation_retry_health_alert_event["event_type"].endswith(
+        "recovery_escalation_retry_health_alert"
+    )
+    assert recovery_escalation_retry_health_alert_metadata["metadata_kind"].endswith(
+        "recovery-escalation-retry-health-alert-plan"
+    )
+    assert recovery_escalation_retry_health_alert_ack["acknowledgement_state"] == "acknowledged"
+    assert recovery_escalation_retry_health_alert_ack_metadata["metadata_kind"].endswith(
+        "recovery-escalation-retry-health-alert-ack"
+    )
+    assert recovery_escalation_retry_health_alert_history["total"] == 2
+    assert recovery_escalation_retry_health_alert_dashboard["acknowledgement_count"] == 1
     assert executive_report_delivery_event["event_type"].endswith("recovery_executive_report")
     assert executive_report_delivery_retry_plan["retryable_count"] == 1
     assert executive_report_delivery_retry_metadata["metadata_kind"].endswith(
         "recovery-executive-report-delivery-retry-plan"
+    )
+    assert executive_report_delivery_retry_worker_run["summary"]["selected_retry_count"] == 1
+    assert executive_report_delivery_retry_worker_metadata["metadata_kind"].endswith(
+        "recovery-executive-report-delivery-retry-worker-run"
+    )
+    assert executive_report_delivery_retry_execution["execution_status"] == "delivered"
+    assert executive_report_delivery_retry_execution_metadata["metadata_kind"].endswith(
+        "recovery-executive-report-delivery-retry-execution-record"
     )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
@@ -1342,12 +1460,17 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert dashboard["acknowledgement_audit_delivery_recovery_escalation_retry_execution_failed_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_escalation_retry_health_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_plan_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_ack_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_schedule_run_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_count"] == 2
     assert dashboard["failed_acknowledgement_audit_delivery_recovery_executive_report_delivery_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_retryable_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_record_count"] == 1
+    assert dashboard["acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_execution_success_count"] == 1
 
 
 def test_go_rollback_drill_notification_escalation_plan_flags_breaches(tmp_path: Path) -> None:

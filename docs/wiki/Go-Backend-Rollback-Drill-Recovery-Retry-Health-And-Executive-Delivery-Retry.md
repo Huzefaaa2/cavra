@@ -67,6 +67,6 @@ Escalation retry automation needs operational health, not just execution records
 
 See `go-backend-rollback-drill-recovery-retry-health-and-executive-delivery-retry.svg`.
 
-## Next Work
+## Follow-On Work Completed
 
-The next recommended implementation step is automated executive report delivery retry execution and recovery escalation retry health alert delivery.
+Automated executive report delivery retry execution and recovery escalation retry health alert delivery are now covered in [[Go Backend Rollback Drill Executive Delivery Retry Execution And Recovery Health Alerts]].
