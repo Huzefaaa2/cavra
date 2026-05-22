@@ -1196,7 +1196,20 @@ def test_api_console_config_and_cors(monkeypatch, tmp_path) -> None:
     assert config["activity_mode"] == "json"
     assert config["endpoints"]["sandbox_metrics"] == "/api/sandbox/metrics"
     assert config["endpoints"]["sandbox_run"] == "/api/sandbox/run"
+    assert config["endpoints"]["agent_enforcement_readiness"] == "/agents/enforcement-readiness"
     assert cors.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+
+
+def test_api_agent_enforcement_readiness(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_AGENT_ENFORCEMENT_SETTINGS", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+
+    response = client.get("/agents/enforcement-readiness")
+
+    assert response.status_code == 200
+    assert response.json()["schema_version"] == "cavra.agent-enforcement-readiness.v1"
+    assert response.json()["required_check_name"] == "cavra-required-check"
 
 
 def test_api_sandbox_run_uses_backend_policy_and_persists_metadata(monkeypatch, tmp_path) -> None:

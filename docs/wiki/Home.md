@@ -78,6 +78,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Release Documentation Policy: `Release-Documentation-Policy.md`
 - Transparent Agent Methodology: `Transparent-Agent-Methodology.md`
 - Agent Orchestration Architecture: `Agent-Orchestration-Architecture.md`
+- AI Agent Enforcement and Anti-Bypass Model: `AI-Agent-Enforcement-And-Anti-Bypass-Model.md`
 - Agent Registry and MCP Trust Registry: `Agent-Registry-and-MCP-Trust.md`
 - Activity Persistence: `Activity-Persistence.md`
 - Repository Inventory and Policy Rollout: `Repository-Policy-Rollout.md`

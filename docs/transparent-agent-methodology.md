@@ -92,6 +92,12 @@ Every agent-delivered PR should include:
 
 The policy pack `policies/cavra-agentic-delivery` captures these requirements as CAVRA runtime governance.
 
+## Anti-Bypass Enforcement
+
+Transparent automation is necessary but not sufficient. Agents must not be trusted to voluntarily use CAVRA when they also hold raw credentials or direct write access. Production repositories should enforce CAVRA through protected branches, required `cavra-required-check`, PR attestation, governed CI runners, signed release evidence, and deployment approvals.
+
+See [AI Agent Enforcement And Anti-Bypass Model](ai-agent-enforcement.md) for the full enforcement baseline and bypass scenarios.
+
 ## Acceptable Automation
 
 - Transparent GitHub Apps or bot accounts.

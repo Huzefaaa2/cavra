@@ -361,6 +361,8 @@ CAVRA uses a transparent AI engineering-team methodology for its own repository 
 
 Agent manifests live under [.github/agents](.github/agents). They define each role's identity, allowed triggers, allowed paths, approval gates, prohibited actions, and required evidence. The [Transparent Agent Methodology](docs/transparent-agent-methodology.md) and [Agent Orchestration Architecture](docs/agent-orchestration-architecture.md) explain the operating model.
 
+Anti-bypass enforcement is documented in [docs/ai-agent-enforcement.md](docs/ai-agent-enforcement.md). The production model does not rely on agent cooperation alone: protected branches, required `cavra-required-check`, PR attestation, governed CI runners, signed release evidence, and deployment gates must reject work that did not pass through CAVRA. Use `cavra agent enforcement-readiness --json` or `GET /agents/enforcement-readiness` to report whether a repository has the local files and exported platform controls needed to make that claim credible.
+
 The policy pack [policies/cavra-agentic-delivery](policies/cavra-agentic-delivery/policy.yaml) governs agent-driven delivery with protected branch requirements, bot identity requirements, PR attestation, documentation freshness, and human approval for protected actions.
 
 ## Infrastructure, Kubernetes, and cloud CLI governance
@@ -448,6 +450,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Release Documentation Policy](docs/wiki/Release-Documentation-Policy.md)
 - [Transparent Agent Methodology](docs/wiki/Transparent-Agent-Methodology.md)
 - [Agent Orchestration Architecture](docs/wiki/Agent-Orchestration-Architecture.md)
+- [AI Agent Enforcement and Anti-Bypass Model](docs/wiki/AI-Agent-Enforcement-And-Anti-Bypass-Model.md)
 - [Go Backend Rollback Drill Routing History](docs/wiki/Go-Backend-Rollback-Drill-Routing-History.md)
 - [Go Backend Rollback Drill Console](docs/wiki/Go-Backend-Rollback-Drill-Console.md)
 - [Go Backend Rollback Drill Acknowledgement Controls](docs/wiki/Go-Backend-Rollback-Drill-Acknowledgement-Controls.md)
