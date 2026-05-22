@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="780" viewBox="0 0 1440 780" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA recovery retry health and executive delivery retry flow</title>
+  <desc id="desc">A public-safe architecture diagram showing recovery escalation retry metadata flowing into health reports, dashboard metrics, executive delivery retry planning, and audit history.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#071114"/>
+      <stop offset="1" stop-color="#10272a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0" stop-color="#77e7c8"/>
+      <stop offset="1" stop-color="#56b7df"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#77e7c8"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #f2fbff; }
+      .subtitle { font: 400 16px Arial, sans-serif; fill: #b6cbd2; }
+      .box { fill: #122126; stroke: #31515a; stroke-width: 2; rx: 14; filter: url(#shadow); }
+      .box2 { fill: #0d1b20; stroke: #77e7c8; stroke-width: 2; rx: 14; filter: url(#shadow); }
+      .label { font: 700 18px Arial, sans-serif; fill: #f2fbff; }
+      .body { font: 400 14px Arial, sans-serif; fill: #c6d8dd; }
+      .small { font: 400 12px Arial, sans-serif; fill: #99b4bc; }
+      .pill { fill: #17353a; stroke: #77e7c8; stroke-width: 1; rx: 16; }
+      .pillText { font: 700 12px Arial, sans-serif; fill: #77e7c8; }
+      .line { stroke: #77e7c8; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .mutedLine { stroke: #5d7880; stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-dasharray: 7 7; }
+    </style>
+  </defs>
+  <rect width="1440" height="780" fill="url(#bg)"/>
+  <text x="70" y="70" class="title">Recovery Retry Health and Executive Delivery Retry</text>
+  <text x="70" y="100" class="subtitle">Public-safe metadata powers health reporting, executive retry planning, dashboard counts, and audit history.</text>
+
+  <rect x="70" y="150" width="245" height="160" class="box"/>
+  <text x="95" y="190" class="label">Retry Inputs</text>
+  <text x="95" y="220" class="body">Escalation retry plans</text>
+  <text x="95" y="245" class="body">Worker runs</text>
+  <text x="95" y="270" class="body">Execution records</text>
+  <rect x="95" y="285" width="150" height="28" class="pill"/>
+  <text x="112" y="304" class="pillText">redacted metadata</text>
+
+  <rect x="405" y="120" width="270" height="205" class="box2"/>
+  <text x="430" y="160" class="label">Retry Health Builder</text>
+  <text x="430" y="193" class="body">Detects missed worker cadence</text>
+  <text x="430" y="218" class="body">Flags stale retry plans</text>
+  <text x="430" y="243" class="body">Reports acknowledgement gaps</text>
+  <text x="430" y="268" class="body">Counts failed retry executions</text>
+  <text x="430" y="296" class="small">No connector secrets serialized</text>
+
+  <rect x="405" y="430" width="270" height="185" class="box"/>
+  <text x="430" y="470" class="label">Executive Delivery Failures</text>
+  <text x="430" y="503" class="body">Failed provider metadata</text>
+  <text x="430" y="528" class="body">Attempt counts</text>
+  <text x="430" y="553" class="body">Status codes</text>
+  <text x="430" y="578" class="small">Delivery evidence remains redacted</text>
+
+  <rect x="765" y="150" width="260" height="160" class="box"/>
+  <text x="790" y="190" class="label">Health Metadata</text>
+  <text x="790" y="220" class="body">alert_level</text>
+  <text x="790" y="245" class="body">alert_count</text>
+  <text x="790" y="270" class="body">recommended_actions</text>
+
+  <rect x="765" y="430" width="260" height="185" class="box2"/>
+  <text x="790" y="470" class="label">Executive Retry Plan</text>
+  <text x="790" y="503" class="body">retry / wait / suppress</text>
+  <text x="790" y="528" class="body">backoff and max attempts</text>
+  <text x="790" y="553" class="body">provider-level decisions</text>
+  <text x="790" y="582" class="small">Future execution stays approval-bound</text>
+
+  <rect x="1115" y="145" width="255" height="205" class="box"/>
+  <text x="1140" y="185" class="label">Evidence Console</text>
+  <text x="1140" y="218" class="body">Retry Health action</text>
+  <text x="1140" y="243" class="body">Plan Executive Retry action</text>
+  <text x="1140" y="268" class="body">Dashboard counts</text>
+  <text x="1140" y="293" class="body">History filters</text>
+
+  <rect x="1115" y="450" width="255" height="145" class="box"/>
+  <text x="1140" y="490" class="label">Audit History</text>
+  <text x="1140" y="523" class="body">Health reports</text>
+  <text x="1140" y="548" class="body">Retry plans</text>
+  <text x="1140" y="573" class="body">Connector delivery outcomes</text>
+
+  <path d="M315 230 H390" class="line"/>
+  <path d="M675 230 H750" class="line"/>
+  <path d="M1025 230 H1100" class="line"/>
+  <path d="M315 255 C365 350 360 470 390 515" class="mutedLine"/>
+  <path d="M675 525 H750" class="line"/>
+  <path d="M1025 525 H1100" class="line"/>
+  <path d="M895 430 V330" class="mutedLine"/>
+  <path d="M1242 350 V435" class="mutedLine"/>
+
+  <text x="70" y="705" class="small">Security boundary: public Community code creates extension points and metadata reports only. Runtime connector credentials, commercial modules, and SaaS services are not committed to this repository.</text>
+</svg>

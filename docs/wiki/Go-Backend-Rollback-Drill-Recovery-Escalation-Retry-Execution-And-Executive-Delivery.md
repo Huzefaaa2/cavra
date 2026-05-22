@@ -42,4 +42,4 @@ The feature turns recovery escalation follow-through into an auditable operating
 
 ## Next Work
 
-The next recommended implementation step is recovery escalation retry health reporting and executive report delivery retry planning.
+Recovery escalation retry health reporting and executive report delivery retry planning are now covered in `Go-Backend-Rollback-Drill-Recovery-Retry-Health-And-Executive-Delivery-Retry.md`.

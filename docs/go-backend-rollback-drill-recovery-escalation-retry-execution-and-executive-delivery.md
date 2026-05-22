@@ -79,4 +79,4 @@ See `docs/diagrams/go-backend-rollback-drill-recovery-escalation-retry-execution
 
 ## Next Work
 
-The next recommended implementation step is recovery escalation retry health reporting and executive report delivery retry planning.
+Recovery escalation retry health reporting and executive report delivery retry planning are now covered in `docs/go-backend-rollback-drill-recovery-retry-health-and-executive-delivery-retry.md`.
