@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA final closeout retention health and retry automation</title>
+  <desc id="desc">Workflow showing closeout bundles, retention health checks, alerts, failed delivery retry planning, retry worker execution, and dashboard evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#081317"/>
+      <stop offset="1" stop-color="#142025"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#72e2c1"/>
+    </marker>
+    <style>
+      .title{font:700 30px Arial,sans-serif;fill:#eef7f7}
+      .subtitle{font:500 16px Arial,sans-serif;fill:#a8bec4}
+      .box{fill:#101a1f;stroke:#39505a;stroke-width:2;rx:8}
+      .accent{fill:#10352f;stroke:#72e2c1}
+      .warn{fill:#362a14;stroke:#f4c95d}
+      .text{font:700 17px Arial,sans-serif;fill:#f1f7f7}
+      .small{font:500 13px Arial,sans-serif;fill:#b8c8cc}
+      .line{stroke:#72e2c1;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .mutedline{stroke:#536872;stroke-width:2;fill:none;stroke-dasharray:6 6}
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="54" y="64" class="title">Final Closeout Retention Health and Retry Automation</text>
+  <text x="54" y="92" class="subtitle">Public-safe Community workflow for monitoring retained closeout evidence and recovering failed final delivery attempts.</text>
+
+  <rect x="54" y="148" width="220" height="116" class="box accent"/>
+  <text x="82" y="188" class="text">Closeout Evidence</text>
+  <text x="82" y="216" class="small">Summary, signed manifest,</text>
+  <text x="82" y="238" class="small">retention decision, bundle</text>
+
+  <rect x="354" y="148" width="230" height="116" class="box"/>
+  <text x="382" y="188" class="text">Retention Health</text>
+  <text x="382" y="216" class="small">Checks approval state,</text>
+  <text x="382" y="238" class="small">expiry windows, delivery failures</text>
+
+  <rect x="664" y="148" width="230" height="116" class="box warn"/>
+  <text x="692" y="188" class="text">Retention Alert Plan</text>
+  <text x="692" y="216" class="small">Routes warnings without</text>
+  <text x="692" y="238" class="small">connector secrets</text>
+
+  <rect x="974" y="148" width="230" height="116" class="box"/>
+  <text x="1002" y="188" class="text">Alert Delivery</text>
+  <text x="1002" y="216" class="small">Webhook, SIEM, ITSM,</text>
+  <text x="1002" y="238" class="small">ChatOps evidence</text>
+
+  <path class="line" d="M274 206 H354"/>
+  <path class="line" d="M584 206 H664"/>
+  <path class="line" d="M894 206 H974"/>
+
+  <rect x="206" y="372" width="236" height="124" class="box warn"/>
+  <text x="236" y="414" class="text">Failed Closeout Delivery</text>
+  <text x="236" y="442" class="small">Redacted connector metadata</text>
+  <text x="236" y="464" class="small">marks retry eligibility</text>
+
+  <rect x="522" y="372" width="236" height="124" class="box"/>
+  <text x="552" y="414" class="text">Retry Plan</text>
+  <text x="552" y="442" class="small">Attempts, delay window,</text>
+  <text x="552" y="464" class="small">retry/wait/suppress decision</text>
+
+  <rect x="838" y="372" width="236" height="124" class="box accent"/>
+  <text x="868" y="414" class="text">Retry Worker</text>
+  <text x="868" y="442" class="small">Dry-run by default;</text>
+  <text x="868" y="464" class="small">live execution is explicit</text>
+
+  <path class="line" d="M442 434 H522"/>
+  <path class="line" d="M758 434 H838"/>
+  <path class="mutedline" d="M1089 264 V546 H169 V264"/>
+
+  <rect x="354" y="560" width="572" height="92" class="box accent"/>
+  <text x="386" y="602" class="text">Evidence Console and Audit Dashboard</text>
+  <text x="386" y="630" class="small">Shows health counts, alert deliveries, retryable closeouts, worker runs, and retry execution status.</text>
+</svg>

@@ -106,6 +106,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_decision_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request_metadata,
@@ -113,6 +118,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_readiness_bundle_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification,
@@ -560,6 +571,10 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_signed_archive_manifest": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-signed-archive-manifest",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_summary": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_deliver": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/deliver",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_health": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_deliver": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health-alerts/deliver",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-plan",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-worker-run",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_review": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-review",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_decision": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-review/{review_id}/decisions",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-artifact-bundle",
@@ -3370,6 +3385,252 @@ def create_app():
                 "event_metadata": event_metadata,
                 "summary_metadata": summary_metadata,
                 "success": bool(result.get("success")),
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_health(
+        expiry_warning_days: int = 30,
+        generated_by: str = "console",
+        persist: bool = True,
+    ) -> dict[str, object]:
+        health = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health(
+            _go_rollback_drill_notification_items(evidence_store),
+            expiry_warning_days=expiry_warning_days,
+            generated_by=generated_by,
+        )
+        metadata = (
+            evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata(
+                    health
+                )
+            )
+            if persist
+            else build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata(
+                health
+            )
+        )
+        return {"health": health, "metadata": metadata}
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health-alerts/deliver"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_deliver(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        if connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        try:
+            health = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health(
+                _go_rollback_drill_notification_items(evidence_store),
+                expiry_warning_days=int(payload.get("expiry_warning_days", 30)),
+                generated_by=str(generated_by),
+            )
+            health_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata(
+                    health
+                )
+            )
+            provider = str(payload.get("provider") or payload.get("delivery_provider") or "webhook")
+            plan = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan(
+                health,
+                provider=provider,
+                generated_by=str(generated_by),
+                force=bool(payload.get("force", False)),
+            )
+            event = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_event(
+                plan,
+                generated_by=str(generated_by),
+            )
+            event["final_reporting_closeout_retention_health_alert_plan"] = plan
+            plan_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_metadata(
+                    plan
+                )
+            )
+            result = None
+            metadata = None
+            if plan["selected_providers"]:
+                result = deliver_connector_event(
+                    event,
+                    connector_config,
+                    provider=",".join(plan["selected_providers"]),
+                    retries=int(payload.get("retries", 2)),
+                    timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                )
+                metadata = evidence_store.upsert(
+                    build_connector_delivery_metadata(
+                        result,
+                        source=(
+                            "go_backend_rollback_drill_acknowledgement_audit_final_reporting_"
+                            "closeout_retention_health_alert"
+                        ),
+                    )
+                    | {"health_id": plan.get("health_id"), "plan_id": plan.get("plan_id")}
+                )
+            return {
+                "health": health,
+                "health_metadata": health_metadata,
+                "plan": plan,
+                "plan_metadata": plan_metadata,
+                "event": event,
+                "delivery": result,
+                "metadata": metadata,
+                "success": bool(result.get("success")) if isinstance(result, dict) else True,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-plan"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        try:
+            plan = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan(
+                _go_rollback_drill_notification_items(evidence_store),
+                policy=payload.get("retry_policy") if isinstance(payload.get("retry_policy"), dict) else payload,
+                generated_by=str(generated_by),
+            )
+            metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata(
+                    plan
+                )
+            )
+            return {
+                "plan": plan,
+                "metadata": metadata,
+                "actor": _public_actor_context(actor_context) if actor_context else None,
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-worker-run"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        execute = bool(payload.get("execute", False))
+        dry_run = bool(payload.get("dry_run", not execute))
+        if execute and connector_config is None:
+            raise HTTPException(status_code=400, detail="connector config is not configured")
+        try:
+            run = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run(
+                _go_rollback_drill_notification_items(evidence_store),
+                retry_policy=payload.get("retry_policy") if isinstance(payload.get("retry_policy"), dict) else payload,
+                schedule=payload.get("schedule") if isinstance(payload.get("schedule"), dict) else payload,
+                generated_by=str(generated_by),
+                dry_run=dry_run,
+                max_retry_deliveries=int(payload.get("max_retry_deliveries", 5)),
+            )
+            retry_metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata(
+                    run["retry_plan"]
+                )
+            )
+            retry_results = []
+            for decision in run.get("selected_retries", []):
+                skipped = "dry_run" if dry_run else None
+                summary = None
+                event = None
+                delivery = None
+                delivery_metadata = None
+                if not dry_run:
+                    summary = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary(
+                        _go_rollback_drill_notification_items(evidence_store),
+                        release_record_ref=decision.get("release_record_ref") or payload.get("release_record_ref"),
+                        generated_by=str(generated_by),
+                    )
+                    event = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_event(
+                        summary,
+                        generated_by=str(generated_by),
+                        max_summary_chars=int(payload.get("max_summary_chars", 12000)),
+                    )
+                    delivery = deliver_connector_event(
+                        event,
+                        connector_config,
+                        provider=str(decision.get("provider") or payload.get("provider") or "webhook"),
+                        retries=int(payload.get("retries", 1)),
+                        timeout_seconds=float(payload.get("timeout_seconds", 10.0)),
+                    )
+                    delivery_metadata = evidence_store.upsert(
+                        build_connector_delivery_metadata(
+                            delivery,
+                            source="go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout",
+                        )
+                        | {
+                            "summary_id": summary.get("summary_id"),
+                            "bundle_id": summary.get("bundle_id"),
+                            "manifest_id": summary.get("manifest_id"),
+                            "release_record_ref": summary.get("release_record_ref"),
+                        }
+                    )
+                execution_record = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record(
+                    run,
+                    decision,
+                    summary=summary,
+                    delivery=delivery,
+                    delivery_metadata=delivery_metadata,
+                    skipped=skipped,
+                    executed_by=str(generated_by),
+                )
+                execution_metadata = evidence_store.upsert(
+                    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_metadata(
+                        execution_record
+                    )
+                )
+                retry_results.append(
+                    {
+                        "decision": decision,
+                        "event": event,
+                        "delivery": delivery,
+                        "delivery_metadata": delivery_metadata,
+                        "execution_record": execution_record,
+                        "execution_metadata": execution_metadata,
+                        "skipped": skipped,
+                    }
+                )
+            metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_metadata(
+                    run
+                )
+            )
+            return {
+                "run": run,
+                "metadata": metadata,
+                "retry_metadata": retry_metadata,
+                "retry_results": retry_results,
                 "actor": _public_actor_context(actor_context) if actor_context else None,
             }
         except ValueError as exc:
@@ -6410,6 +6671,38 @@ def _go_rollback_drill_notification_items(
             metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
             limit=500,
         )["items"]
+        audit_delivery_final_reporting_closeout_retention_health_reports = evidence_store.search(
+            metadata_kind="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+            limit=500,
+        )["items"]
+        audit_delivery_final_reporting_closeout_retention_health_alerts = evidence_store.search(
+            metadata_kind=(
+                "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+                "closeout-retention-health-alert-plan"
+            ),
+            limit=500,
+        )["items"]
+        audit_delivery_final_reporting_release_closeout_delivery_retry_plans = evidence_store.search(
+            metadata_kind=(
+                "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+                "release-closeout-delivery-retry-plan"
+            ),
+            limit=500,
+        )["items"]
+        audit_delivery_final_reporting_release_closeout_delivery_retry_worker_runs = evidence_store.search(
+            metadata_kind=(
+                "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+                "release-closeout-delivery-retry-worker-run"
+            ),
+            limit=500,
+        )["items"]
+        audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records = evidence_store.search(
+            metadata_kind=(
+                "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+                "release-closeout-delivery-retry-execution-record"
+            ),
+            limit=500,
+        )["items"]
         deliveries = evidence_store.search(metadata_kind="release-connector-delivery", limit=500)["items"]
         return [
             *plans,
@@ -6461,6 +6754,11 @@ def _go_rollback_drill_notification_items(
             *audit_delivery_final_reporting_closeout_retention_review_requests,
             *audit_delivery_final_reporting_closeout_retention_review_decisions,
             *audit_delivery_final_reporting_closeout_artifact_bundles,
+            *audit_delivery_final_reporting_closeout_retention_health_reports,
+            *audit_delivery_final_reporting_closeout_retention_health_alerts,
+            *audit_delivery_final_reporting_release_closeout_delivery_retry_plans,
+            *audit_delivery_final_reporting_release_closeout_delivery_retry_worker_runs,
+            *audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records,
             *audit_delivery_worker_runs,
             *audit_delivery_worker_health_alerts,
             *audit_delivery_worker_health_alert_acks,

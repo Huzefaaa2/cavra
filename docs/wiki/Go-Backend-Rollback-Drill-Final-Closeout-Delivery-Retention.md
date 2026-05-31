@@ -20,4 +20,4 @@ Security boundary:
 - Retention review records approval state without implementing private retention policy enforcement.
 - The downloadable bundle excludes private signing keys, archive credentials, customer data, and connector secrets.
 
-Recommended next issue: add final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.
+Recommended next issue: delivered in `Go-Backend-Rollback-Drill-Final-Closeout-Health-Retry.md`.

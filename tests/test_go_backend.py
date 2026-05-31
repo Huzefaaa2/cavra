@@ -86,6 +86,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_decision_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request_metadata,
@@ -93,6 +98,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_readiness_bundle_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification,
@@ -2018,6 +2029,99 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_closeout_artifact_bundle
         )
     )
+    final_reporting_release_closeout_failed_delivery_metadata = {
+        "session_id": "delivery-final-closeout-failed-1",
+        "delivery_id": "delivery-final-closeout-failed-1",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout",
+        "event_id": final_reporting_release_closeout_summary["summary_id"],
+        "summary_id": final_reporting_release_closeout_summary["summary_id"],
+        "bundle_id": final_reporting_release_closeout_summary["bundle_id"],
+        "manifest_id": final_reporting_release_closeout_summary["manifest_id"],
+        "release_record_ref": final_reporting_release_closeout_summary["release_record_ref"],
+        "provider": "webhook",
+        "attempts": 1,
+        "delivery_success": False,
+    }
+    closeout_health_items = [
+        *dashboard_items,
+        final_reporting_release_closeout_summary_metadata,
+        final_reporting_release_closeout_delivery_metadata,
+        final_reporting_release_closeout_failed_delivery_metadata,
+        final_reporting_closeout_retention_review_decision_metadata,
+        final_reporting_closeout_artifact_bundle_metadata,
+    ]
+    final_reporting_closeout_retention_health = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health(
+            closeout_health_items,
+            generated_by="test",
+        )
+    )
+    final_reporting_closeout_retention_health_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata(
+            final_reporting_closeout_retention_health
+        )
+    )
+    final_reporting_closeout_retention_health_alert_plan = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan(
+            final_reporting_closeout_retention_health,
+            provider="webhook",
+            generated_by="test",
+            force=True,
+        )
+    )
+    final_reporting_closeout_retention_health_alert_event = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_event(
+            final_reporting_closeout_retention_health_alert_plan,
+            generated_by="test",
+        )
+    )
+    final_reporting_closeout_retention_health_alert_plan_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_metadata(
+            final_reporting_closeout_retention_health_alert_plan
+        )
+    )
+    final_reporting_release_closeout_retry_plan = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan(
+            closeout_health_items,
+            policy={"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+            generated_by="test",
+        )
+    )
+    final_reporting_release_closeout_retry_plan_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata(
+            final_reporting_release_closeout_retry_plan
+        )
+    )
+    final_reporting_release_closeout_retry_worker_run = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run(
+            closeout_health_items,
+            retry_policy={"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+            generated_by="test",
+            dry_run=False,
+        )
+    )
+    final_reporting_release_closeout_retry_worker_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_metadata(
+            final_reporting_release_closeout_retry_worker_run
+        )
+    )
+    final_reporting_release_closeout_retry_execution = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record(
+            final_reporting_release_closeout_retry_worker_run,
+            final_reporting_release_closeout_retry_worker_run["selected_retries"][0],
+            summary=final_reporting_release_closeout_summary,
+            delivery={"success": True},
+            delivery_metadata={"delivery_id": "delivery-final-closeout-retry-success-1"},
+            executed_by="test",
+        )
+    )
+    final_reporting_release_closeout_retry_execution_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_metadata(
+            final_reporting_release_closeout_retry_execution
+        )
+    )
     dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
         [
             *dashboard_items,
@@ -2042,9 +2146,15 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_release_closeout_summary_metadata,
             final_reporting_release_closeout_delivery_event_metadata,
             final_reporting_release_closeout_delivery_metadata,
+            final_reporting_release_closeout_failed_delivery_metadata,
             final_reporting_closeout_retention_review_request_metadata,
             final_reporting_closeout_retention_review_decision_metadata,
             final_reporting_closeout_artifact_bundle_metadata,
+            final_reporting_closeout_retention_health_metadata,
+            final_reporting_closeout_retention_health_alert_plan_metadata,
+            final_reporting_release_closeout_retry_plan_metadata,
+            final_reporting_release_closeout_retry_worker_metadata,
+            final_reporting_release_closeout_retry_execution_metadata,
         ]
     )
 
@@ -2272,6 +2382,30 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_closeout_artifact_bundle["retention_decision_state"] == "approved"
     assert final_reporting_closeout_artifact_bundle_metadata["metadata_kind"].endswith(
         "final-reporting-closeout-artifact-bundle"
+    )
+    assert final_reporting_closeout_retention_health["alert_count"] == 1
+    assert final_reporting_closeout_retention_health["failed_closeout_delivery_count"] == 1
+    assert final_reporting_closeout_retention_health_metadata["metadata_kind"].endswith(
+        "final-reporting-closeout-retention-health"
+    )
+    assert final_reporting_closeout_retention_health_alert_plan["selected_providers"] == ["webhook"]
+    assert final_reporting_closeout_retention_health_alert_event["event_type"].endswith(
+        "closeout_retention_health_alert"
+    )
+    assert final_reporting_closeout_retention_health_alert_plan_metadata["metadata_kind"].endswith(
+        "final-reporting-closeout-retention-health-alert-plan"
+    )
+    assert final_reporting_release_closeout_retry_plan["retryable_count"] == 1
+    assert final_reporting_release_closeout_retry_plan_metadata["metadata_kind"].endswith(
+        "final-reporting-release-closeout-delivery-retry-plan"
+    )
+    assert final_reporting_release_closeout_retry_worker_run["summary"]["selected_retry_count"] == 1
+    assert final_reporting_release_closeout_retry_worker_metadata["metadata_kind"].endswith(
+        "final-reporting-release-closeout-delivery-retry-worker-run"
+    )
+    assert final_reporting_release_closeout_retry_execution["execution_status"] == "delivered"
+    assert final_reporting_release_closeout_retry_execution_metadata["metadata_kind"].endswith(
+        "final-reporting-release-closeout-delivery-retry-execution-record"
     )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
@@ -2508,7 +2642,7 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_count"
         ]
-        == 1
+        == 2
     )
     assert (
         dashboard_with_final_reporting[
@@ -2525,6 +2659,48 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert (
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retryable_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_success_count"
         ]
         == 1
     )

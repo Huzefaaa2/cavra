@@ -2532,6 +2532,40 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-artifact-bundle",
         json={"generated_by": "release-manager", "release_record_ref": "REL-123"},
     )
+    final_reporting_closeout_retention_health = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health",
+        params={"generated_by": "release-manager", "expiry_warning_days": 30},
+    )
+    final_reporting_closeout_retention_health_alert_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-health-alerts/deliver",
+        json={
+            "generated_by": "release-manager",
+            "provider": "webhook",
+            "force": True,
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    final_reporting_release_closeout_delivery_retry_plan = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-plan",
+        json={
+            "generated_by": "release-manager",
+            "max_retry_attempts": 3,
+            "retry_delay_minutes": 0,
+            "allow_immediate_retry": True,
+        },
+    )
+    final_reporting_release_closeout_delivery_retry_worker = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/delivery-retry-worker-run",
+        json={
+            "generated_by": "release-manager",
+            "dry_run": True,
+            "max_retry_deliveries": 2,
+            "max_retry_attempts": 3,
+            "retry_delay_minutes": 0,
+            "allow_immediate_retry": True,
+        },
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -2962,6 +2996,39 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle"
     )
     assert final_reporting_closeout_artifact_bundle.json()["artifact_bundle"]["artifact_count"] == 3
+    assert final_reporting_closeout_retention_health.status_code == 200
+    assert (
+        final_reporting_closeout_retention_health.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health"
+    )
+    assert final_reporting_closeout_retention_health.json()["health"]["failed_closeout_delivery_count"] >= 1
+    assert final_reporting_closeout_retention_health_alert_delivery.status_code == 200
+    assert (
+        final_reporting_closeout_retention_health_alert_delivery.json()["plan_metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan"
+    )
+    assert (
+        final_reporting_closeout_retention_health_alert_delivery.json()["metadata"]["connector_delivery_source"]
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_closeout_retention_health_alert"
+    )
+    assert final_reporting_release_closeout_delivery_retry_plan.status_code == 200
+    assert (
+        final_reporting_release_closeout_delivery_retry_plan.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan"
+    )
+    assert final_reporting_release_closeout_delivery_retry_plan.json()["plan"]["retryable_count"] >= 1
+    assert final_reporting_release_closeout_delivery_retry_worker.status_code == 200
+    assert (
+        final_reporting_release_closeout_delivery_retry_worker.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run"
+    )
+    assert final_reporting_release_closeout_delivery_retry_worker.json()["run"]["dry_run"] is True
+    assert (
+        final_reporting_release_closeout_delivery_retry_worker.json()["retry_results"][0]["execution_metadata"][
+            "metadata_kind"
+        ]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record"
+    )
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -3215,6 +3282,54 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert (
         dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_count"] == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_count"
+        ]
+        == 2
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_count"
+        ]
+        >= 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_delivery_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_count"
+        ]
+        == 2
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retryable_count"
+        ]
+        >= 2
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_count"
+        ]
+        == 1
     )
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
