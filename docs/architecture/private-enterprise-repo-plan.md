@@ -29,6 +29,7 @@ Initial private implementation status:
 - JSON-backed archive health dashboard API persistence and query helpers;
 - managed database-backed archive health dashboard persistence;
 - live provider alert transport adapters for Slack, Teams, Splunk HEC, Jira, ServiceNow, and PagerDuty;
+- production deployment wiring for archive alert dashboard storage, transport selection, retry policy, and readiness validation;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
