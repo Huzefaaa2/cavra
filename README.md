@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes HTTP alert transport packages for email, ChatOps, SIEM, ITSM, and pager systems, runtime endpoint validation, auth-provider support, rate-limit retry handling, public-safe delivery results, JSON-backed archive health dashboard API persistence, query helpers, and operator acknowledgement mutation flows.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes managed database-backed archive health dashboard persistence through the tenant database adapter contract, shared dashboard persistence protocols, live provider alert transport adapters for Slack, Teams, Splunk HEC, Jira, ServiceNow, and PagerDuty, webhook/no-token delivery support, runtime-auth provider delivery, and expanded transport/dashboard API tests.
 
 Next recommended implementation work:
 
-- Add managed database-backed archive dashboard APIs and live provider transport adapters.
+- Add production deployment wiring for managed archive dashboard storage and live alert transport providers.
 
 ## User stories and enterprise value
 
