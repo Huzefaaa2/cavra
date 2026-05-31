@@ -13,12 +13,13 @@ The workflow:
 - Copies `apps/sandbox-ui` into a static `public/` artifact.
 - Writes `public/config.js` from the optional `CAVRA_PUBLIC_API_BASE_URL` repository variable.
 - Packages the generated Before the Agent Acts sample evidence at `evidence/before-the-agent-acts/evidence.json`.
+- Packages the final closeout trial sample evidence at `evidence/final-closeout-trial/sample-evidence-package.json`.
 - Includes SVG diagrams from `docs/diagrams`.
 - Configures the already-enabled GitHub Pages site for GitHub Actions publishing.
 - Uploads a Pages artifact.
 - Deploys only when the workflow runs on `refs/heads/main`.
 - Opts JavaScript-based GitHub Actions into Node.js 24 to avoid the hosted-runner Node.js 20 deprecation path.
-- Runs a post-deploy smoke check against the public page, JavaScript, stylesheet, brand assets, C4 diagram asset, and downloadable evidence file.
+- Runs a post-deploy smoke check against the public page, JavaScript, stylesheet, brand assets, C4 diagram asset, and downloadable evidence files.
 
 ## How To Run
 
@@ -40,6 +41,7 @@ https://huzefaaa2.github.io/cavra/
 - As a CISO, I can see CAVRA decisions, evidence, and deployment readiness from a browser.
 - As a developer, I can copy the Claude Code MCP setup command from the same product surface.
 - As a platform evaluator, I can point the public sandbox at a deployed CAVRA API and run backend-generated policy decisions.
+- As a customer evaluator, I can select the final closeout trial scenario and download synthetic release-governance evidence.
 
 ## Enterprise Challenge Solved
 
@@ -49,9 +51,10 @@ Security and platform buyers need a short, credible product walkthrough before d
 
 - Public URL validation requires the workflow to run from `main`.
 - The static sandbox uses built-in sample data when no API is configured.
+- The final closeout trial sample is synthetic and does not perform live Enterprise connector, archive, license, SSO, or RBAC enforcement.
 - Backend-driven sandbox runs require a reachable API URL and matching `CAVRA_CORS_ORIGINS`.
 - Public counters require the API activity store to retain sandbox session rows.
 
 ## Next Recommended Work
 
-1. Promote Go to an optional backend only after audited parity and deployment tests pass.
+1. Add a final closeout production pilot intake package with repository, agent, CI/CD, connector, SSO/RBAC, retention, and Enterprise/SaaS handoff worksheets.

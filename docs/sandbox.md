@@ -14,7 +14,7 @@ gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
 
 The workflow at `.github/workflows/deploy-sandbox.yml` validates `config.js` and `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, writes `public/config.js` from `CAVRA_PUBLIC_API_BASE_URL`, includes the repository SVG diagrams, uploads the artifact with `actions/upload-pages-artifact`, opts JavaScript-based GitHub Actions into Node.js 24, and deploys with `actions/deploy-pages` only when the workflow runs on `main`.
 
-The sandbox is a simulated AI-agent scenario using real CAVRA policy decisions. It shows agent actions, CAVRA decisions, policy rules, risk, evidence, compliance mapping, and Claude Code install CTA.
+The sandbox includes selectable scenarios. The flagship simulated AI-agent scenario uses real CAVRA policy decisions for pre-action governance. The final closeout trial scenario uses synthetic public-safe release evidence to demonstrate release criteria, retention health, retry planning, and the Community-to-Enterprise upgrade path.
 
 The sandbox uses the CAVRA mark from `apps/sandbox-ui/brand/` as a top-right hero lockup, sourced from the canonical brand files under `assets/brand/`.
 
@@ -23,6 +23,7 @@ The same surface now includes the first hosted evidence console views:
 - Evidence metadata search with signer, blocked-action, approval-state, and limit filters.
 - Telemetry-free public demo counters sourced from persisted backend sandbox activity metadata.
 - Release-note links for design-partner demos, current public sandbox changes, release integrity work, and roadmap context.
+- Final closeout trial onboarding with a scenario selector, downloadable synthetic sample evidence, release-criteria summary cards, and links to the walkthrough, sample evidence guide, sales-engineering demo script, and release criteria.
 - Evidence artifact listing with individual artifact and bundle download links when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured.
 - PR attestation verification for selected sessions.
 - Console Session panel for validating signed OIDC bearer-token context and repository permissions.
@@ -35,7 +36,7 @@ The same surface now includes the first hosted evidence console views:
 - Recurrence Operations panel for endpoint remediation retry plans, owner digest evidence, suppression trend analytics, scheduled worker history, dry-run versus executed status, missed-run health, stale metadata, connector delivery failures, health alert delivery and acknowledgement records, owner/provider/action/category/worker filters, JSON detail views, and local export drill-downs.
 - Operational readiness summary for trust roots, SQLite search, attestation verification, and database migrations.
 
-When the API is available at the same origin, the console posts scenario runs to `/api/sandbox/run`, persists the resulting metadata through the API, loads public counters from `/api/sandbox/metrics`, loads `GET /evidence?limit=50`, and loads artifact detail from `/evidence/{session_id}/artifacts`. If the API is not available, it uses built-in sample evidence metadata and sample scenario events so the console remains usable as a static demo.
+When the API is available at the same origin, the console posts scenario runs to `/api/sandbox/run`, persists the resulting metadata through the API, loads public counters from `/api/sandbox/metrics`, loads `GET /evidence?limit=50`, and loads artifact detail from `/evidence/{session_id}/artifacts`. If the API is not available, it uses built-in sample evidence metadata and sample scenario events so the console remains usable as a static demo. The final closeout trial sample package is published at `evidence/final-closeout-trial/sample-evidence-package.json` in the Pages artifact.
 
 ## API Wiring
 

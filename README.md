@@ -428,11 +428,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final closeout trial onboarding assets are now documented in [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), and [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), with a synthetic evidence package at [examples/demos/final-closeout-trial/sample-evidence-package.json](examples/demos/final-closeout-trial/sample-evidence-package.json) and a new onboarding diagram at [docs/diagrams/final-closeout-trial-onboarding.svg](docs/diagrams/final-closeout-trial-onboarding.svg).
+- The public Evidence Console now includes a final closeout trial scenario selector, downloadable synthetic sample evidence, release-criteria summary cards, and docs links for the walkthrough, sample evidence guide, sales-engineering demo script, and release criteria. The Pages workflow packages [examples/demos/final-closeout-trial/sample-evidence-package.json](examples/demos/final-closeout-trial/sample-evidence-package.json) as a static download.
 
 Next recommended implementation work:
 
-- Convert the final closeout onboarding package into an interactive public sandbox flow with a scenario selector, downloadable sample evidence, release-criteria summary, and docs links in the Evidence Console.
+- Add a final closeout production pilot intake package: repository/agent/CI inventory worksheet, connector and SSO/RBAC readiness checklist, retention requirement capture, and Enterprise/SaaS handoff plan for converting trials into paid pilots.
 
 ## User stories and enterprise value
 

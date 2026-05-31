@@ -8,6 +8,102 @@ const scenario = [
   ["pull_request", "create PR", "allow_with_attestation", "git.pull_request.allow_with_attestation", "PR is allowed with CAVRA evidence and reviewer guidance."]
 ];
 
+const finalCloseoutTrialSample = {
+  schema_version: "cavra.final_closeout_trial.v1",
+  generated_at: "2026-05-31T08:30:00Z",
+  scenario: {
+    name: "synthetic-final-closeout-trial",
+    edition: "community",
+    purpose: "Public-safe final closeout trial evidence for customer onboarding",
+    data_classification: "synthetic_public_demo",
+    boundary_note: "Community records evidence metadata. Enterprise or SaaS provides authenticated connectors, SSO/RBAC, license validation, private archive operations, and paid policy packs."
+  },
+  final_readiness_bundle: {
+    bundle_id: "frb-demo-2026-05-31-001",
+    release_id: "release-demo-go-backend-rollback-001",
+    state: "ready",
+    evidence_refs: [
+      "readiness-summary-demo-001",
+      "approval-decision-demo-001",
+      "release-record-attachment-demo-001",
+      "closure-packet-verification-demo-001",
+      "auditor-export-demo-001",
+      "archive-health-demo-001"
+    ]
+  },
+  signed_archive_manifest: {
+    manifest_id: "sam-demo-2026-05-31-001",
+    signature_state: "external_signature_attached",
+    private_key_stored: false,
+    manifest_digest: "sha256:9bc1b59d0f7f16b3a15f5b9952d845b4bb3e9fdde4d34c3c8b273b0acb4f0001"
+  },
+  release_closeout_summary: {
+    closeout_id: "closeout-demo-001",
+    closeout_state: "closed",
+    blocker_count: 0,
+    delivery_state: "partial_failure",
+    public_evidence_refs: ["closeout-summary-demo-001", "connector-delivery-demo-001"]
+  },
+  retention_review: {
+    review_id: "retention-review-demo-001",
+    decision_state: "approved",
+    approved_by: "demo-release-risk-owner",
+    retention_until: "2027-05-31",
+    legal_hold: false
+  },
+  closeout_artifact_bundle: {
+    artifact_bundle_id: "closeout-artifact-demo-001",
+    download_state: "available",
+    retention_decision_state: "approved",
+    files: [
+      { name: "closeout-summary.json", sha256: "f71c3a0b0b52c2d6fc4f94094d3bf1cfb2e61a1990fd45749a06f5d6d3480001" },
+      { name: "final-readiness-bundle.json", sha256: "8b4fd20e6cde936da74ac5592f4b9336cb45e21f51a0a0ed85f9106f2c3a0002" },
+      { name: "signed-archive-manifest.json", sha256: "a0e621f248f69d41c42b1b3d88f10cf9f42b3fc39e9fedaf5f3b37d67c9a0003" }
+    ]
+  },
+  retention_health_report: {
+    report_id: "retention-health-demo-001",
+    health_state: "warning",
+    summary: { critical_findings: 0, warning_findings: 1, healthy_checks: 5 },
+    findings: [
+      {
+        finding_id: "retention-warning-demo-001",
+        severity: "warning",
+        category: "delivery_retry_required",
+        message: "One final closeout delivery failed and has a retry plan."
+      }
+    ]
+  },
+  retention_alert_delivery: {
+    alert_id: "retention-alert-demo-001",
+    providers: [{ provider: "webhook", route: "demo-non-production-webhook", delivery_state: "delivered", redacted: true }]
+  },
+  closeout_retry_plan: {
+    retry_plan_id: "closeout-retry-plan-demo-001",
+    source_delivery_id: "connector-delivery-demo-001",
+    decision: "retry",
+    mode: "dry_run_first",
+    owner: "demo-platform-owner",
+    target_resolution_date: "2026-06-07"
+  },
+  retry_worker_run: {
+    worker_run_id: "closeout-retry-worker-demo-001",
+    mode: "dry_run",
+    state: "completed",
+    would_retry_delivery_ids: ["connector-delivery-demo-001"],
+    live_connector_used: false
+  },
+  release_decision: {
+    criteria_document: "docs/release-governance-final-closeout-release-criteria.md",
+    state: "ready_with_accepted_risk",
+    accepted_risk: {
+      owner: "demo-release-risk-owner",
+      reason: "Synthetic failed delivery has reviewed retry plan and dry-run worker evidence.",
+      expires_at: "2026-06-07"
+    }
+  }
+};
+
 const evidenceCatalog = [
   {
     session_id: "demo-session",
@@ -132,6 +228,23 @@ const evidenceCatalog = [
     decisions: [],
     attestation_targets: [],
     artifact_count: 0
+  },
+  {
+    session_id: "final-closeout-trial-sample",
+    signer: "sales-engineering",
+    metadata_kind: "final-closeout-trial",
+    rollout_status: "ready_with_accepted_risk",
+    environment: "trial",
+    deployment_targets: ["synthetic-public-demo"],
+    trial_evidence_package: "./evidence/final-closeout-trial/sample-evidence-package.json",
+    release_criteria: finalCloseoutTrialSample.release_decision,
+    decision_count: 7,
+    blocked_count: 0,
+    approval_required_count: 1,
+    retention: { retention_days: 365, retain_until: "2027-05-31T00:00:00Z" },
+    decisions: finalCloseoutEvents(finalCloseoutTrialSample),
+    attestation_targets: ["final readiness bundle", "approved retention review", "dry-run retry worker"],
+    artifact_count: 1
   }
 ];
 
@@ -729,6 +842,15 @@ const endpointManagementExportArtifactCatalog = {
 
 const releaseNoteCatalog = [
   {
+    title: "Final Closeout Trial Flow",
+    date: "2026-05-31",
+    summary: "The public Evidence Console now includes a final closeout trial scenario, synthetic sample evidence download, release-criteria summary, and onboarding documentation links.",
+    links: [
+      ["Trial walkthrough", "https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-walkthrough.md"],
+      ["Sample evidence", "https://github.com/Huzefaaa2/cavra/blob/main/examples/demos/final-closeout-trial/sample-evidence-package.json"]
+    ]
+  },
+  {
     title: "Backend-Driven Sandbox Runs",
     date: "2026-05-18",
     summary: "The public sandbox can now call a deployed CAVRA API, run the flagship scenario with backend policy decisions, and refresh evidence and activity records.",
@@ -1065,6 +1187,22 @@ function eventPayload(row, index) {
   };
 }
 
+function selectedScenarioId() {
+  return document.querySelector("#scenarioSelector")?.value || "before-the-agent-acts";
+}
+
+function finalCloseoutEvents(sample) {
+  return [
+    ["release_governance", "final readiness bundle", "allow_with_attestation", "release.readiness.ready", `Readiness bundle ${sample.final_readiness_bundle.bundle_id} is ready.`],
+    ["archive_manifest", "external signature metadata", "allow_with_attestation", "archive.signature.external", "Archive manifest uses external signature metadata and stores no private signing key."],
+    ["release_closeout", "closed release summary", "allow", "release.closeout.closed", "Release closeout is closed with zero blockers."],
+    ["retention_review", "approved retention review", "allow_with_attestation", "retention.review.approved", `Retention is approved until ${sample.retention_review.retention_until}.`],
+    ["retention_health", "closeout health report", "warn", "retention.health.warning", "Retention health has one warning because a simulated delivery failure requires retry evidence."],
+    ["connector_delivery", "redacted alert delivery", "allow_with_attestation", "connector.delivery.redacted", "Alert delivery uses redacted non-production connector metadata."],
+    ["delivery_retry", "dry-run retry worker", "require_approval", "delivery.retry.dry_run_first", "Live redelivery requires approved connector path after dry-run worker evidence."]
+  ].map(eventPayload);
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -1105,6 +1243,11 @@ function apiHeaders(json = false) {
   return headers;
 }
 
+function resolveDownloadUrl(value) {
+  if (!value) return "";
+  return value.startsWith(".") || value.startsWith("http") ? value : apiUrl(value);
+}
+
 async function loadConsoleConfig() {
   if (consoleConfig) return consoleConfig;
   try {
@@ -1134,8 +1277,9 @@ async function runScenario() {
   const status = document.querySelector("#scenarioStatus");
   actions.innerHTML = "";
   decisions.innerHTML = "";
+  const scenarioId = selectedScenarioId();
   if (status) {
-    status.textContent = "Scenario source: running";
+    status.textContent = `Scenario source: running ${scenarioId}`;
     status.className = "status-line";
   }
   evidence.textContent = "Running...";
@@ -1156,12 +1300,17 @@ async function runScenario() {
   if (run.source === "cavra-api") {
     await Promise.all([refreshEvidence(), refreshActivity()]);
   }
+  await refreshTrialOnboardingSummary(run);
 }
 
 async function loadSandboxRun() {
   await loadConsoleConfig();
   const persona = document.querySelector("#persona")?.value || "Developer";
   const policyMode = document.querySelector("#policyMode")?.value || "Enforce";
+  const scenarioId = selectedScenarioId();
+  if (scenarioId === "final-closeout-trial") {
+    return loadFinalCloseoutTrialRun(persona, policyMode);
+  }
   try {
     const response = await fetch(apiUrl(consoleConfig?.endpoints?.sandbox_run || "/api/sandbox/run"), {
       method: "POST",
@@ -1199,12 +1348,60 @@ async function loadSandboxRun() {
   }
 }
 
+async function loadFinalCloseoutTrialSample() {
+  try {
+    const response = await fetch("./evidence/final-closeout-trial/sample-evidence-package.json");
+    if (!response.ok) throw new Error("sample unavailable");
+    return await response.json();
+  } catch {
+    return finalCloseoutTrialSample;
+  }
+}
+
+async function loadFinalCloseoutTrialRun(persona, policyMode) {
+  const sample = await loadFinalCloseoutTrialSample();
+  const events = finalCloseoutEvents(sample);
+  const blocked = events.filter((event) => event.decision === "block").length;
+  const approvals = events.filter((event) => event.decision === "require_approval").length;
+  return {
+    schema_version: "cavra.sandbox.run.v1",
+    product: "CAVRA",
+    run_id: `final_closeout_trial_${Date.now()}`,
+    scenario: "final-closeout-trial",
+    persona,
+    policy_mode: policyMode.toLowerCase().replaceAll(" ", "_"),
+    policy_pack: "cavra-release-governance",
+    source: "local-sample",
+    tagline: "Before release closes, CAVRA proves the evidence chain.",
+    decision_count: events.length,
+    blocked_count: blocked,
+    approval_required_count: approvals,
+    events,
+    trial_sample: sample,
+    release_criteria: {
+      state: sample.release_decision?.state || "ready_with_accepted_risk",
+      closeout_state: sample.release_closeout_summary?.closeout_state || "unknown",
+      retention_state: sample.retention_review?.decision_state || "unknown",
+      retention_health: sample.retention_health_report?.health_state || "unknown",
+      retry_state: sample.retry_worker_run?.state || "unknown"
+    },
+    artifacts: [
+      {
+        artifact: "sample-evidence-package.json",
+        kind: "evidence",
+        media_type: "application/json",
+        download_url: "./evidence/final-closeout-trial/sample-evidence-package.json"
+      }
+    ]
+  };
+}
+
 function updateScenarioDownloads(run) {
   const evidenceLink = document.querySelector("#downloadEvidence");
   if (!evidenceLink) return;
   const evidenceArtifact = (run.artifacts || []).find((item) => item.artifact === "evidence.json" || item.kind === "evidence");
-  const downloadUrl = evidenceArtifact?.download_url || "./evidence/before-the-agent-acts/evidence.json";
-  evidenceLink.href = downloadUrl.startsWith(".") || downloadUrl.startsWith("http") ? downloadUrl : apiUrl(downloadUrl);
+  const url = evidenceArtifact?.download_url || "./evidence/before-the-agent-acts/evidence.json";
+  evidenceLink.href = resolveDownloadUrl(url);
 }
 
 async function loadEvidenceMetadata() {
@@ -1238,7 +1435,18 @@ async function loadEvidenceArtifacts(sessionId) {
   } catch {
     const metadata = evidenceCatalog.find((item) => item.session_id === sessionId) || {};
     const isRollout = metadata.metadata_kind === "managed-endpoint-rollout";
-    const artifacts = isRollout ? rolloutArtifactCatalog : evidenceArtifactCatalog;
+    const isFinalCloseoutTrial = metadata.metadata_kind === "final-closeout-trial";
+    const artifacts = isFinalCloseoutTrial ? [
+      {
+        artifact: "sample-evidence-package.json",
+        kind: "final-closeout-trial",
+        media_type: "application/json",
+        description: "Synthetic final closeout trial evidence package.",
+        bytes: 4718,
+        sha256: "sample",
+        download_url: "./evidence/final-closeout-trial/sample-evidence-package.json"
+      }
+    ] : (isRollout ? rolloutArtifactCatalog : evidenceArtifactCatalog);
     return {
       schema_version: "cavra.evidence.artifacts.v1",
       product: "CAVRA",
@@ -1246,7 +1454,7 @@ async function loadEvidenceArtifacts(sessionId) {
       metadata_kind: metadata.metadata_kind || "session",
       artifact_root_configured: false,
       artifact_count: artifacts.length,
-      artifacts: artifacts.map((item) => ({ ...item, download_url: "" })),
+      artifacts: artifacts.map((item) => ({ ...item, download_url: item.download_url || "" })),
       ...(isRollout ? {
         rollout_artifact_integrity: {
           status: "verified",
@@ -3233,6 +3441,7 @@ function evidenceKindLabel(item) {
   if (item.metadata_kind === "managed-endpoint-rollout") return "Endpoint rollout";
   if (item.metadata_kind === "rollout-promotion-execution") return "Promotion execution";
   if (item.metadata_kind === "rollout-rollback-execution") return "Rollback execution";
+  if (item.metadata_kind === "final-closeout-trial") return "Final closeout trial";
   return "Session";
 }
 
@@ -3243,6 +3452,7 @@ function renderEvidenceArtifacts(payload) {
   const readiness = payload.promotion_readiness || {};
   const integrity = payload.rollout_artifact_integrity || {};
   const isRollout = payload.metadata_kind === "managed-endpoint-rollout";
+  const isFinalCloseoutTrial = payload.metadata_kind === "final-closeout-trial";
   panel.innerHTML = `
     <dl>
       <dt>Session</dt><dd>${escapeHtml(payload.session_id || "unknown")}</dd>
@@ -3253,6 +3463,11 @@ function renderEvidenceArtifacts(payload) {
         <dt>Integrity</dt><dd class="${escapeHtml(statusClass(integrity.status))}">${escapeHtml(integrity.status || "unknown")}</dd>
         <dt>Readiness</dt><dd class="${escapeHtml(statusClass(readiness.status))}">${escapeHtml(readiness.status || "review")}</dd>
         <dt>Rationale</dt><dd>${escapeHtml(readiness.rationale || "Review rollout artifact integrity before promotion.")}</dd>
+      ` : ""}
+      ${isFinalCloseoutTrial ? `
+        <dt>Criteria</dt><dd class="require_approval">ready_with_accepted_risk</dd>
+        <dt>Docs</dt><dd><a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-walkthrough.md" target="_blank" rel="noreferrer">Walkthrough</a> · <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/release-governance-final-closeout-release-criteria.md" target="_blank" rel="noreferrer">Release criteria</a></dd>
+        <dt>Boundary</dt><dd>Community sample only; Enterprise or SaaS owns private enforcement.</dd>
       ` : ""}
     </dl>
     ${isRollout ? `
@@ -3271,7 +3486,7 @@ function renderEvidenceArtifacts(payload) {
     ` : ""}
     <h3>Bundle Files</h3>
     <ul>${artifacts.map((item) => {
-      const href = item.download_url ? apiUrl(item.download_url) : "";
+      const href = resolveDownloadUrl(item.download_url);
       const label = `${item.artifact} (${item.kind || item.media_type || "artifact"})`;
       const suffix = item.bytes ? ` - ${Number(item.bytes)} bytes` : "";
       return `<li>${href ? `<a href="${escapeHtml(href)}">${escapeHtml(label)}</a>` : escapeHtml(label)}${escapeHtml(suffix)}<br><small>${escapeHtml(item.description || "")}</small></li>`;
@@ -3280,6 +3495,10 @@ function renderEvidenceArtifacts(payload) {
 }
 
 function evidenceReadiness(item) {
+  if (item.metadata_kind === "final-closeout-trial") {
+    const status = item.release_criteria?.state || "ready_with_accepted_risk";
+    return { label: status, className: statusClass(status) };
+  }
   if (item.metadata_kind !== "managed-endpoint-rollout") {
     return { label: "n/a", className: "" };
   }
@@ -3290,8 +3509,8 @@ function evidenceReadiness(item) {
 }
 
 function statusClass(status) {
-  if (["ready", "verified", "succeeded"].includes(status)) return "allow";
-  if (["blocked", "failed"].includes(status)) return "block";
+  if (["approved", "closed", "completed", "ready", "verified", "succeeded"].includes(status)) return "allow";
+  if (["blocked", "critical", "failed"].includes(status)) return "block";
   return "require_approval";
 }
 
@@ -3342,6 +3561,34 @@ function renderDemoMetrics(metrics) {
       <strong>${escapeHtml(formatMetricDate(metrics.latest_run_at))}</strong>
     </div>
   `;
+}
+
+function renderTrialOnboardingSummary(runOrSample) {
+  const panel = document.querySelector("#trialOnboardingSummary");
+  if (!panel) return;
+  const sample = runOrSample?.trial_sample || runOrSample || finalCloseoutTrialSample;
+  const releaseDecision = sample.release_decision?.state || runOrSample?.release_criteria?.state || "ready_with_accepted_risk";
+  const cards = [
+    ["Release Criteria", releaseDecision, "Sample classifies as ready with accepted risk because retry evidence exists."],
+    ["Closeout", sample.release_closeout_summary?.closeout_state || "closed", "Final release closeout is closed with zero blockers."],
+    ["Retention", sample.retention_review?.decision_state || "approved", `Approved until ${sample.retention_review?.retention_until || "2027-05-31"}.`],
+    ["Retry", sample.retry_worker_run?.mode || "dry_run", "Failed delivery has retry plan and dry-run worker evidence."]
+  ];
+  panel.innerHTML = cards.map(([label, value, detail]) => `
+    <article class="trial-onboarding-card">
+      <span>${escapeHtml(label)}</span>
+      <strong class="${statusClass(value)}">${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+}
+
+async function refreshTrialOnboardingSummary(run = null) {
+  if (run?.trial_sample) {
+    renderTrialOnboardingSummary(run);
+    return;
+  }
+  renderTrialOnboardingSummary(await loadFinalCloseoutTrialSample());
 }
 
 function renderReleaseConnectorDeliveries(items, dashboard) {
@@ -8920,6 +9167,20 @@ async function verifyAttestation() {
 }
 
 document.querySelector("#runScenario").addEventListener("click", runScenario);
+document.querySelector("#scenarioSelector").addEventListener("change", async () => {
+  const selected = selectedScenarioId();
+  const status = document.querySelector("#scenarioStatus");
+  if (status) {
+    status.textContent = selected === "final-closeout-trial"
+      ? "Scenario source: local final closeout sample until the CAVRA API is reachable."
+      : "Scenario source: local sample until the CAVRA API is reachable.";
+    status.className = "status-line";
+  }
+  document.querySelector("#downloadEvidence").href = selected === "final-closeout-trial"
+    ? "./evidence/final-closeout-trial/sample-evidence-package.json"
+    : "./evidence/before-the-agent-acts/evidence.json";
+  await refreshTrialOnboardingSummary();
+});
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
 document.querySelector("#refreshEndpointPublicationDelivery").addEventListener("click", refreshEndpointPublicationDelivery);
@@ -9112,6 +9373,7 @@ refreshEndpointRemediationHandoffStatus();
 refreshEndpointRemediationSla();
 refreshEndpointRecurrenceOperations();
 refreshGoRollbackDrillNotifications();
+refreshTrialOnboardingSummary();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

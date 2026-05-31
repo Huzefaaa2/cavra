@@ -24,7 +24,13 @@
       </nav>
       <section class="hero-content">
         <div class="hero-copy">
-          <p>Run the flagship agent scenario, search evidence metadata, and verify PR attestation coverage from one operational surface.</p>
+          <p>Run the flagship agent scenario, evaluate final closeout trial evidence, and verify governance coverage from one operational surface.</p>
+          <label class="scenario-picker">Scenario
+            <select id="scenarioSelector">
+              <option value="before-the-agent-acts">Before the Agent Acts</option>
+              <option value="final-closeout-trial">Final Closeout Trial</option>
+            </select>
+          </label>
           <div class="actions">
             <button id="runScenario">Run Agent Scenario</button>
             <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download Evidence</a>
@@ -51,6 +57,22 @@
         <div>
           <h2>Evidence</h2>
           <pre id="evidence">Simulated AI-agent scenario using real CAVRA policy decisions.</pre>
+        </div>
+      </section>
+      <section class="console trial-onboarding-console">
+        <div class="console-header">
+          <div>
+            <h2>Final Closeout Trial Onboarding</h2>
+            <p>Review synthetic trial evidence, release criteria, and the Community-to-Enterprise upgrade path.</p>
+          </div>
+          <a class="secondary-link" href="./evidence/final-closeout-trial/sample-evidence-package.json" download>Download Sample Package</a>
+        </div>
+        <div id="trialOnboardingSummary" class="trial-onboarding-grid"></div>
+        <div class="trial-doc-links">
+          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-walkthrough.md" target="_blank" rel="noreferrer">Walkthrough</a>
+          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-sample-evidence.md" target="_blank" rel="noreferrer">Sample Evidence Guide</a>
+          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-sales-engineering-demo.md" target="_blank" rel="noreferrer">Demo Script</a>
+          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/release-governance-final-closeout-release-criteria.md" target="_blank" rel="noreferrer">Release Criteria</a>
         </div>
       </section>
       <section class="console release-console">
@@ -886,11 +908,11 @@
         </div>
         <div class="search-controls">
           <label>Signer <input id="filterSigner" placeholder="security" /></label>
-          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option><option value="rollout-promotion-execution">Promotion execution</option><option value="rollout-rollback-execution">Rollback execution</option></select></label>
+          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option><option value="rollout-promotion-execution">Promotion execution</option><option value="rollout-rollback-execution">Rollback execution</option><option value="final-closeout-trial">Final closeout trial</option></select></label>
           <label>Rollout status <select id="filterRolloutStatus"><option value="">Any</option><option value="planned">Planned</option><option value="staged">Staged</option><option value="succeeded">Succeeded</option><option value="promoted">Promoted</option><option value="failed">Failed</option><option value="rolled_back">Rolled back</option></select></label>
           <label>Environment <input id="filterEnvironment" placeholder="production" /></label>
           <label>Deployment target <input id="filterDeploymentTarget" placeholder="github-actions-linux-amd64-runner" /></label>
-          <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="1" /></label>
+          <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="0" /></label>
           <label>Approval required <select id="filterApprovals"><option value="">Any</option><option value="true">Yes</option><option value="false">No</option></select></label>
           <label>Limit <input id="filterLimit" type="number" min="1" max="50" value="10" /></label>
         </div>
