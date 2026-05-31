@@ -32,4 +32,4 @@ See `go-backend-rollback-drill-closure-packet-auditor-export.svg`.
 
 ## Next Recommended Work
 
-Add final reporting release closure packet SIEM/GRC delivery routing and immutable archive references.
+Delivered in [Go Backend Rollback Drill Auditor Export Routing Archive](Go-Backend-Rollback-Drill-Auditor-Export-Routing-Archive). Next: add auditor export delivery retry planning, archive reference verification health checks, and Evidence Console drill-downs for archive custody gaps.

@@ -65,7 +65,10 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_event,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification,
@@ -1690,6 +1693,42 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_auditor_export
         )
     )
+    final_reporting_auditor_export_delivery_event = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_event(
+            final_reporting_auditor_export,
+            generated_by="test",
+        )
+    )
+    final_reporting_auditor_export_delivery_metadata = {
+        "session_id": "connector-delivery-final-auditor-export",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export",
+        "event_id": final_reporting_auditor_export["export_id"],
+        "export_id": final_reporting_auditor_export["export_id"],
+        "verification_id": final_reporting_auditor_export["verification_id"],
+        "release_record_ref": "REL-123",
+        "delivery_success": True,
+        "providers": ["webhook"],
+        "failed_providers": [],
+        "status_codes": [200],
+    }
+    final_reporting_immutable_archive_reference = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference(
+            final_reporting_auditor_export,
+            archive_ref="s3-object-lock://audit-cavra/REL-123/auditor-export.json",
+            archive_provider="aws_s3_object_lock",
+            archived_by="release-manager",
+            retention_until="2031-01-01T00:00:00Z",
+            legal_hold=True,
+            notes="Archived after auditor export delivery.",
+        )
+    )
+    final_reporting_immutable_archive_reference_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_metadata(
+            final_reporting_immutable_archive_reference
+        )
+    )
     dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
         [
             *dashboard_items,
@@ -1699,6 +1738,8 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_release_record_attachment_metadata,
             final_reporting_release_closure_packet_verification_metadata,
             final_reporting_auditor_export_metadata,
+            final_reporting_auditor_export_delivery_metadata,
+            final_reporting_immutable_archive_reference_metadata,
         ]
     )
 
@@ -1861,6 +1902,13 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_auditor_export_metadata["metadata_kind"].endswith(
         "final-reporting-auditor-export"
     )
+    assert final_reporting_auditor_export_delivery_event["event_type"].endswith("auditor_export")
+    assert final_reporting_auditor_export_delivery_event["event_id"] == final_reporting_auditor_export["export_id"]
+    assert final_reporting_immutable_archive_reference["archive_provider"] == "aws_s3_object_lock"
+    assert final_reporting_immutable_archive_reference["legal_hold"] is True
+    assert final_reporting_immutable_archive_reference_metadata["metadata_kind"].endswith(
+        "final-reporting-immutable-archive-reference"
+    )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -1999,6 +2047,24 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert (
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_auditor_export_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "failed_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_count"
+        ]
+        == 0
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_count"
         ]
         == 1
     )

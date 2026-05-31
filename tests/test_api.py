@@ -1736,6 +1736,18 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export"
     )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_auditor_export_deliver"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/deliver"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -2371,6 +2383,28 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export",
         json={"generated_by": "release-manager", "release_record_ref": "REL-123"},
     )
+    final_reporting_auditor_export_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/deliver",
+        json={
+            "generated_by": "release-manager",
+            "release_record_ref": "REL-123",
+            "provider": "webhook",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    final_reporting_immutable_archive_reference = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference",
+        json={
+            "archived_by": "release-manager",
+            "release_record_ref": "REL-123",
+            "archive_ref": "s3-object-lock://audit-cavra/REL-123/auditor-export.json",
+            "archive_provider": "aws_s3_object_lock",
+            "retention_until": "2031-01-01T00:00:00Z",
+            "legal_hold": True,
+            "notes": "Archived after auditor export delivery.",
+        },
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -2703,6 +2737,18 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert "CAVRA Rollback Drill Final Reporting Auditor Export" in final_reporting_auditor_export.json()["export"][
         "markdown"
     ]
+    assert final_reporting_auditor_export_delivery.status_code == 200
+    assert (
+        final_reporting_auditor_export_delivery.json()["metadata"]["connector_delivery_source"]
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export"
+    )
+    assert final_reporting_auditor_export_delivery.json()["event"]["event_type"].endswith("auditor_export")
+    assert final_reporting_immutable_archive_reference.status_code == 200
+    assert (
+        final_reporting_immutable_archive_reference.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference"
+    )
+    assert final_reporting_immutable_archive_reference.json()["reference"]["legal_hold"] is True
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -2874,7 +2920,19 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         ]
         >= 1
     )
-    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_auditor_export_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_auditor_export_count"] >= 1
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_count"
+        ]
+        == 1
+    )
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1
