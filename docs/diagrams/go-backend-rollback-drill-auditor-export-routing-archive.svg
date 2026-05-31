@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA rollback drill auditor export routing and archive references</title>
+  <desc id="desc">Public-safe flow from verified closure packet to auditor export delivery, connector metadata, immutable archive reference, dashboard, and private enterprise connector boundaries.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#07191a"/>
+      <stop offset="1" stop-color="#10151f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0" stop-color="#74e0c0"/>
+      <stop offset="1" stop-color="#4bb3d3"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#74e0c0"/>
+    </marker>
+  </defs>
+  <rect width="1320" height="760" fill="url(#bg)"/>
+  <text x="60" y="72" fill="#eaf7f5" font-family="Inter,Arial,sans-serif" font-size="34" font-weight="700">CAVRA Final Auditor Export Routing</text>
+  <text x="60" y="108" fill="#9fb7b8" font-family="Inter,Arial,sans-serif" font-size="18">Verified rollback drill closure packets are delivered and archived as public-safe evidence references.</text>
+
+  <g font-family="Inter,Arial,sans-serif" filter="url(#shadow)">
+    <rect x="60" y="170" width="220" height="120" rx="8" fill="#122024" stroke="#35515a"/>
+    <text x="88" y="212" fill="#74e0c0" font-size="18" font-weight="700">Verified Closure Packet</text>
+    <text x="88" y="244" fill="#c9d7d8" font-size="14">Readiness, approval, runbook,</text>
+    <text x="88" y="266" fill="#c9d7d8" font-size="14">release record, verification</text>
+
+    <rect x="365" y="170" width="220" height="120" rx="8" fill="#122024" stroke="#35515a"/>
+    <text x="393" y="212" fill="#74e0c0" font-size="18" font-weight="700">Auditor Export</text>
+    <text x="393" y="244" fill="#c9d7d8" font-size="14">Markdown packet and JSON index</text>
+    <text x="393" y="266" fill="#c9d7d8" font-size="14">with public evidence refs</text>
+
+    <rect x="670" y="108" width="230" height="120" rx="8" fill="#122024" stroke="#35515a"/>
+    <text x="698" y="150" fill="#74e0c0" font-size="18" font-weight="700">Connector Delivery</text>
+    <text x="698" y="182" fill="#c9d7d8" font-size="14">SIEM, GRC, ITSM, webhook</text>
+    <text x="698" y="204" fill="#c9d7d8" font-size="14">redacted delivery metadata</text>
+
+    <rect x="670" y="294" width="230" height="120" rx="8" fill="#122024" stroke="#35515a"/>
+    <text x="698" y="336" fill="#74e0c0" font-size="18" font-weight="700">Archive Reference</text>
+    <text x="698" y="368" fill="#c9d7d8" font-size="14">Immutable object pointer, hash,</text>
+    <text x="698" y="390" fill="#c9d7d8" font-size="14">retention, legal hold flag</text>
+
+    <rect x="985" y="170" width="245" height="120" rx="8" fill="#122024" stroke="#35515a"/>
+    <text x="1013" y="212" fill="#74e0c0" font-size="18" font-weight="700">Evidence Console</text>
+    <text x="1013" y="244" fill="#c9d7d8" font-size="14">Delivery counts, archive refs,</text>
+    <text x="1013" y="266" fill="#c9d7d8" font-size="14">search filters, drill-downs</text>
+  </g>
+
+  <g stroke="#74e0c0" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M280 230 H365"/>
+    <path d="M585 230 C620 230 630 168 670 168"/>
+    <path d="M585 230 C620 230 630 354 670 354"/>
+    <path d="M900 168 C940 168 945 230 985 230"/>
+    <path d="M900 354 C950 354 945 250 985 250"/>
+  </g>
+
+  <g font-family="Inter,Arial,sans-serif">
+    <rect x="210" y="520" width="900" height="110" rx="8" fill="#0e1518" stroke="#29424a"/>
+    <text x="250" y="562" fill="#eaf7f5" font-size="20" font-weight="700">Open-core boundary</text>
+    <text x="250" y="594" fill="#c9d7d8" font-size="15">Community Edition persists public-safe event, delivery, and archive reference metadata only.</text>
+    <text x="250" y="620" fill="#c9d7d8" font-size="15">Private Enterprise connectors own credentials, private payload transforms, customer mappings, and archive write operations.</text>
+    <line x1="210" y1="496" x2="1110" y2="496" stroke="url(#accent)" stroke-width="4"/>
+  </g>
+</svg>

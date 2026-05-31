@@ -8,7 +8,7 @@ CAVRA now verifies attached final reporting release packets and generates a publ
 - `POST /runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export` generates a Markdown and JSON auditor packet from the verified public-safe evidence chain.
 - Evidence Console now includes **Verify Packet** and **Auditor Export** controls.
 - Dashboard metrics show packet verification volume, verified packet count, and auditor export count.
-- Community Edition stores metadata references only. External GRC, SIEM, ticketing, release-management, and archival delivery remain private connector or operator-owned work.
+- Community Edition stores metadata references only. External GRC, SIEM, ticketing, release-management, and archival implementation remain private connector or operator-owned work.
 
 ## How To Use
 
@@ -62,4 +62,4 @@ See `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg`.
 
 ## Next Recommended Work
 
-Add final reporting release closure packet SIEM/GRC delivery routing and immutable archive references.
+Delivered in [Go Backend Rollback Drill Auditor Export Routing and Archive References](go-backend-rollback-drill-auditor-export-routing-archive.md). Next: add auditor export delivery retry planning, archive reference verification health checks, and Evidence Console drill-downs for archive custody gaps.
