@@ -33,3 +33,7 @@ This phase closes the evidence loop for notification reliability. Recovery healt
 ## Diagram
 
 See `go-backend-rollback-drill-recovery-health-alert-retry-worker-and-executive-retry-health-alerts.svg`.
+
+## Delivered Follow-Up
+
+Executive retry health alert retry planning, retry worker execution, and final reporting closure dashboards are documented in `Go-Backend-Rollback-Drill-Executive-Health-Alert-Retry-And-Final-Closure.md`.

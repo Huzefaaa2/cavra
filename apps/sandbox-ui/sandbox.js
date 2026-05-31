@@ -2011,6 +2011,9 @@ function goDrillNotificationPayload(item) {
   if (item?.recovery_executive_report_delivery_retry_execution_record && typeof item.recovery_executive_report_delivery_retry_execution_record === "object") return item.recovery_executive_report_delivery_retry_execution_record;
   if (item?.recovery_executive_report_delivery_retry_health && typeof item.recovery_executive_report_delivery_retry_health === "object") return item.recovery_executive_report_delivery_retry_health;
   if (item?.recovery_executive_report_delivery_retry_health_alert_plan && typeof item.recovery_executive_report_delivery_retry_health_alert_plan === "object") return item.recovery_executive_report_delivery_retry_health_alert_plan;
+  if (item?.recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan && typeof item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan === "object") return item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan;
+  if (item?.recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run && typeof item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run === "object") return item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run;
+  if (item?.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record && typeof item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record === "object") return item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record;
   if (item?.acknowledgement_audit_delivery_worker_run && typeof item.acknowledgement_audit_delivery_worker_run === "object") return item.acknowledgement_audit_delivery_worker_run;
   if (item?.worker_health_alert_plan && typeof item.worker_health_alert_plan === "object") return item.worker_health_alert_plan;
   return item || {};
@@ -2069,6 +2072,9 @@ function goDrillDeliverySource(item) {
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-plan") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-ack") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
@@ -2135,6 +2141,9 @@ function buildSampleGoDrillNotificationDashboard(items) {
   const auditRecoveryExecutiveDeliveryRetryHealthAlerts = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-plan");
   const auditRecoveryExecutiveDeliveryRetryHealthAcks = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-ack");
   const auditRecoveryExecutiveDeliveryRetryHealthAlertDeliveries = deliveries.filter((item) => item.connector_delivery_source === "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert");
+  const auditRecoveryExecutiveDeliveryRetryHealthAlertRetryPlans = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan");
+  const auditRecoveryExecutiveDeliveryRetryHealthAlertRetryWorkerRuns = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run");
+  const auditRecoveryExecutiveDeliveryRetryHealthAlertRetryExecutions = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record");
   const auditWorkerRuns = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run");
   const auditWorkerHealthAlerts = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan");
   const auditWorkerHealthAcks = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack");
@@ -2207,6 +2216,11 @@ function buildSampleGoDrillNotificationDashboard(items) {
     acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_ack_count: auditRecoveryExecutiveDeliveryRetryHealthAcks.length,
     acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_count: auditRecoveryExecutiveDeliveryRetryHealthAlertDeliveries.length,
     failed_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_count: auditRecoveryExecutiveDeliveryRetryHealthAlertDeliveries.filter((item) => item.delivery_success === false).length,
+    acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan_count: auditRecoveryExecutiveDeliveryRetryHealthAlertRetryPlans.length,
+    acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retryable_count: auditRecoveryExecutiveDeliveryRetryHealthAlertRetryPlans.reduce((total, item) => total + Number(item.retryable_count || 0), 0),
+    acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run_count: auditRecoveryExecutiveDeliveryRetryHealthAlertRetryWorkerRuns.length,
+    acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record_count: auditRecoveryExecutiveDeliveryRetryHealthAlertRetryExecutions.length,
+    acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_failed_count: auditRecoveryExecutiveDeliveryRetryHealthAlertRetryExecutions.filter((item) => ["failed", "skipped"].includes(item.execution_status)).length,
     acknowledgement_audit_delivery_worker_run_count: auditWorkerRuns.length,
     acknowledgement_audit_delivery_worker_dry_run_count: auditWorkerRuns.filter((item) => item.dry_run !== false).length,
     acknowledgement_audit_delivery_worker_executed_count: auditWorkerRuns.filter((item) => item.dry_run === false).length,
@@ -4281,6 +4295,18 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
       <strong class="${Number(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_plan_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_plan_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-plan").length)}</strong>
     </div>
     <div class="release-delivery-metric">
+      <span>Exec Alert Retryable</span>
+      <strong class="${Number(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retryable_count || 0) ? "require_approval" : "allow"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retryable_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Exec Alert Retry Runs</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Exec Alert Retry Failed</span>
+      <strong class="${Number(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_failed_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_failed_count || 0)}</strong>
+    </div>
+    <div class="release-delivery-metric">
       <span>Failed Delivery</span>
       <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || historyItems.filter((item) => item.delivery_success === false).length)}</strong>
     </div>
@@ -5909,6 +5935,139 @@ async function sendGoDrillExecutiveDeliveryRetryHealthAlert() {
   await refreshGoRollbackDrillNotifications();
 }
 
+async function planGoDrillExecutiveRetryHealthAlertRetry() {
+  const status = document.querySelector("#goDrillAckStatus");
+  if (status) status.textContent = "Planning executive retry health alert redelivery...";
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-plan"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        generated_by: goDrillAckActor(),
+        retry_policy: { max_retry_attempts: 3, retry_delay_minutes: 0, allow_immediate_retry: true, backoff_multiplier: 2 }
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "executive retry health alert retry plan API unavailable");
+    const result = await response.json();
+    if (status) status.textContent = `Planned ${formatMetricNumber(result.plan?.retryable_count || 0)} executive health alert retries.`;
+  } catch (error) {
+    const generatedAt = new Date().toISOString();
+    const retryPlanId = `sample-go-drill-executive-health-alert-retry-${Date.now()}`;
+    goRollbackDrillNotificationCatalog.unshift({
+      session_id: retryPlanId,
+      created_at: generatedAt,
+      signer: goDrillAckActor(),
+      metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan",
+      retry_plan_id: retryPlanId,
+      alert_level: "warning",
+      retryable_count: 1,
+      recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan: {
+        retry_plan_id: retryPlanId,
+        generated_at: generatedAt,
+        generated_by: goDrillAckActor(),
+        retryable_count: 1,
+        waiting_count: 0,
+        suppressed_count: 0,
+        retry_decisions: [{ provider: "webhook", action: "retry", reason: "sample executive health alert retry" }]
+      }
+    });
+    if (status) status.textContent = `Using local sample executive health alert retry plan: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
+async function runGoDrillExecutiveRetryHealthAlertRetryWorker() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const provider = document.querySelector("#goDrillAckAuditDeliveryProvider")?.value || "webhook";
+  if (status) status.textContent = "Running executive retry health alert retry worker...";
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-worker-run"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        generated_by: goDrillAckActor(),
+        execute: true,
+        provider,
+        max_retry_deliveries: 2,
+        retry_policy: { max_retry_attempts: 3, retry_delay_minutes: 0, allow_immediate_retry: true, backoff_multiplier: 2 },
+        schedule: { interval_minutes: 30, cadence: "manual_executive_health_alert_retry", enabled: true },
+        retries: 0,
+        timeout_seconds: 0.1
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "executive health alert retry worker API unavailable");
+    const result = await response.json();
+    if (status) status.textContent = `Executive health alert retry worker selected ${formatMetricNumber(result.run?.summary?.selected_retry_count || 0)} retries.`;
+  } catch (error) {
+    const generatedAt = new Date().toISOString();
+    const runId = `sample-go-drill-executive-health-alert-retry-worker-${Date.now()}`;
+    goRollbackDrillNotificationCatalog.unshift({
+      session_id: runId,
+      created_at: generatedAt,
+      signer: goDrillAckActor(),
+      metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run",
+      run_id: runId,
+      dry_run: false,
+      retryable_count: 1,
+      selected_retry_count: 1,
+      recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run: {
+        run_id: runId,
+        generated_at: generatedAt,
+        generated_by: goDrillAckActor(),
+        dry_run: false,
+        summary: { retryable_count: 1, selected_retry_count: 1, follow_up_action_count: 1 },
+        selected_retries: [{ provider, action: "retry", reason: "sample executive health alert retry" }]
+      }
+    });
+    if (status) status.textContent = `Using local sample executive health alert retry worker: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
+async function showGoDrillFinalReportingClosureDashboard() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const panel = document.querySelector("#goDrillNotificationDetail");
+  if (status) status.textContent = "Loading final reporting closure dashboard...";
+  try {
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard"));
+    if (!response.ok) throw new Error(await response.text() || "final reporting closure dashboard API unavailable");
+    const dashboard = await response.json();
+    if (panel) {
+      panel.innerHTML = `
+        <dl>
+          <dt>Closure</dt><dd class="${dashboard.closure_state === "closed" ? "allow" : "block"}">${escapeHtml(dashboard.closure_state || "unknown")}</dd>
+          <dt>Open Items</dt><dd>${formatMetricNumber(dashboard.open_item_count || 0)}</dd>
+          <dt>Alert Level</dt><dd class="${escapeHtml(statusClass(dashboard.alert_level))}">${escapeHtml(dashboard.alert_level || "unknown")}</dd>
+        </dl>
+        <pre>${escapeHtml(JSON.stringify(dashboard, null, 2))}</pre>
+      `;
+    }
+    if (status) status.textContent = `Final reporting closure is ${dashboard.closure_state || "unknown"} with ${formatMetricNumber(dashboard.open_item_count || 0)} open items.`;
+  } catch (error) {
+    const dashboard = {
+      schema_version: "cavra.go-backend-pilot.rollback-drill-final-reporting-closure-dashboard.sample.v1",
+      product: "CAVRA",
+      generated_at: new Date().toISOString(),
+      closure_state: "open",
+      alert_level: "warning",
+      open_item_count: 1,
+      open_items: ["sample_final_reporting_closure_pending"],
+      summary: buildSampleGoDrillNotificationDashboard(goRollbackDrillNotificationCatalog)
+    };
+    if (panel) {
+      panel.innerHTML = `
+        <dl>
+          <dt>Closure</dt><dd class="require_approval">${escapeHtml(dashboard.closure_state)}</dd>
+          <dt>Open Items</dt><dd>${formatMetricNumber(dashboard.open_item_count)}</dd>
+          <dt>Source</dt><dd>local sample</dd>
+        </dl>
+        <pre>${escapeHtml(JSON.stringify(dashboard, null, 2))}</pre>
+      `;
+    }
+    if (status) status.textContent = `Using local sample final closure dashboard: ${error.message || "API unavailable"}.`;
+  }
+}
+
 function addSampleGoDrillAckAuditWorkerHealthAlert() {
   const generatedAt = new Date().toISOString();
   const retryPlan = latestGoDrillRetryPlan() || addSampleGoDrillAckAuditRetryPlan();
@@ -7294,6 +7453,9 @@ document.querySelector("#goDrillPlanExecutiveDeliveryRetry").addEventListener("c
 document.querySelector("#goDrillRunExecutiveDeliveryRetry").addEventListener("click", runGoDrillRecoveryExecutiveDeliveryRetryWorker);
 document.querySelector("#goDrillBuildExecutiveDeliveryRetryHealth").addEventListener("click", buildGoDrillExecutiveDeliveryRetryHealth);
 document.querySelector("#goDrillSendExecutiveDeliveryRetryHealthAlert").addEventListener("click", sendGoDrillExecutiveDeliveryRetryHealthAlert);
+document.querySelector("#goDrillPlanExecutiveRetryHealthAlertRetry").addEventListener("click", planGoDrillExecutiveRetryHealthAlertRetry);
+document.querySelector("#goDrillRunExecutiveRetryHealthAlertRetry").addEventListener("click", runGoDrillExecutiveRetryHealthAlertRetryWorker);
+document.querySelector("#goDrillShowFinalReportingClosure").addEventListener("click", showGoDrillFinalReportingClosureDashboard);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory, #filterEndpointRecurrenceWorkerMode").forEach((control) => {
   control.addEventListener("input", refreshEndpointRecurrenceOperations);

@@ -70,7 +70,7 @@ Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, 
 
 Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
 
-Known gaps: executive retry health alert retry planning, retry worker execution, and final reporting closure dashboards.
+Known gaps: release-readiness summary and operator runbook export for the completed rollback drill reporting loop.
 
 Recent parity expansion: Go and Python now share high-risk command and cloud/IaC fixtures for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery controls.
 
