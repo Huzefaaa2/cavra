@@ -34,6 +34,7 @@ Initial private implementation status:
 - archive alert smoke-test execution jobs and post-delivery dashboard assertions;
 - archive alert smoke-test scheduling, evidence export, and customer-facing deployment verification reports;
 - archive alert verification report delivery routing and customer-success handoff automation;
+- archive alert verification delivery health dashboards and retry planning;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
