@@ -2016,6 +2016,8 @@ function goDrillNotificationPayload(item) {
   if (item?.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record && typeof item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record === "object") return item.recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record;
   if (item?.final_reporting_release_readiness_summary && typeof item.final_reporting_release_readiness_summary === "object") return item.final_reporting_release_readiness_summary;
   if (item?.final_reporting_operator_runbook_export && typeof item.final_reporting_operator_runbook_export === "object") return item.final_reporting_operator_runbook_export;
+  if (item?.final_reporting_release_readiness_approval_decision && typeof item.final_reporting_release_readiness_approval_decision === "object") return item.final_reporting_release_readiness_approval_decision;
+  if (item?.final_reporting_release_record_attachment && typeof item.final_reporting_release_record_attachment === "object") return item.final_reporting_release_record_attachment;
   if (item?.acknowledgement_audit_delivery_worker_run && typeof item.acknowledgement_audit_delivery_worker_run === "object") return item.acknowledgement_audit_delivery_worker_run;
   if (item?.worker_health_alert_plan && typeof item.worker_health_alert_plan === "object") return item.worker_health_alert_plan;
   return item || {};
@@ -2079,6 +2081,8 @@ function goDrillDeliverySource(item) {
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record") return "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export") return "go_backend_rollback_drill_acknowledgement_audit";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision") return "go_backend_rollback_drill_acknowledgement_audit";
+  if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run") return "go_backend_rollback_drill_acknowledgement_audit";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
   if (item?.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack") return "go_backend_rollback_drill_acknowledgement_audit_worker_health_alert";
@@ -2150,6 +2154,8 @@ function buildSampleGoDrillNotificationDashboard(items) {
   const auditRecoveryExecutiveDeliveryRetryHealthAlertRetryExecutions = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record");
   const auditFinalReportingReadinessSummaries = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary");
   const auditFinalReportingRunbookExports = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export");
+  const auditFinalReportingReadinessApprovals = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision");
+  const auditFinalReportingReleaseRecordAttachments = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment");
   const auditWorkerRuns = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run");
   const auditWorkerHealthAlerts = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan");
   const auditWorkerHealthAcks = items.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack");
@@ -2230,6 +2236,9 @@ function buildSampleGoDrillNotificationDashboard(items) {
     acknowledgement_audit_delivery_final_reporting_release_readiness_summary_count: auditFinalReportingReadinessSummaries.length,
     acknowledgement_audit_delivery_final_reporting_release_ready_count: auditFinalReportingReadinessSummaries.filter((item) => item.readiness_state === "ready").length,
     acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count: auditFinalReportingRunbookExports.length,
+    acknowledgement_audit_delivery_final_reporting_release_readiness_approval_decision_count: auditFinalReportingReadinessApprovals.length,
+    acknowledgement_audit_delivery_final_reporting_release_readiness_approved_count: auditFinalReportingReadinessApprovals.filter((item) => item.approval_state === "approved").length,
+    acknowledgement_audit_delivery_final_reporting_release_record_attachment_count: auditFinalReportingReleaseRecordAttachments.length,
     acknowledgement_audit_delivery_worker_run_count: auditWorkerRuns.length,
     acknowledgement_audit_delivery_worker_dry_run_count: auditWorkerRuns.filter((item) => item.dry_run !== false).length,
     acknowledgement_audit_delivery_worker_executed_count: auditWorkerRuns.filter((item) => item.dry_run === false).length,
@@ -4324,6 +4333,14 @@ function renderGoRollbackDrillNotifications(historyItems, dashboard = {}, routin
       <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export").length)}</strong>
     </div>
     <div class="release-delivery-metric">
+      <span>Final Approvals</span>
+      <strong class="${Number(dashboard.acknowledgement_audit_delivery_final_reporting_release_readiness_approved_count || 0) ? "allow" : "require_approval"}">${formatMetricNumber(dashboard.acknowledgement_audit_delivery_final_reporting_release_readiness_approval_decision_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
+      <span>Release Attachments</span>
+      <strong>${formatMetricNumber(dashboard.acknowledgement_audit_delivery_final_reporting_release_record_attachment_count || historyItems.filter((item) => item.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment").length)}</strong>
+    </div>
+    <div class="release-delivery-metric">
       <span>Failed Delivery</span>
       <strong class="${Number(dashboard.failed_delivery_count || 0) ? "block" : "allow"}">${formatMetricNumber(dashboard.failed_delivery_count || historyItems.filter((item) => item.delivery_success === false).length)}</strong>
     </div>
@@ -4519,6 +4536,10 @@ function goDrillAckActor() {
   const configured = document.querySelector("#goDrillAckActor")?.value.trim();
   const sessionActor = consoleSessionCache?.actor?.actor;
   return configured || sessionActor || "console-user";
+}
+
+function goDrillAckExternalRef() {
+  return document.querySelector("#goDrillAckExternalRef")?.value.trim() || "";
 }
 
 function addSampleGoDrillAcknowledgement(route, acknowledgementState, payload) {
@@ -6188,6 +6209,158 @@ async function exportGoDrillOperatorRunbook() {
   await refreshGoRollbackDrillNotifications();
 }
 
+function latestGoDrillReleaseReadinessSummary() {
+  const item = goRollbackDrillNotificationCatalog.find((record) => (
+    record.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary"
+  ));
+  return item?.final_reporting_release_readiness_summary && typeof item.final_reporting_release_readiness_summary === "object"
+    ? item.final_reporting_release_readiness_summary
+    : item;
+}
+
+function latestGoDrillReleaseReadinessApproval() {
+  const item = goRollbackDrillNotificationCatalog.find((record) => (
+    record.metadata_kind === "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision"
+    && record.approval_state === "approved"
+  ));
+  return item?.final_reporting_release_readiness_approval_decision && typeof item.final_reporting_release_readiness_approval_decision === "object"
+    ? item.final_reporting_release_readiness_approval_decision
+    : item;
+}
+
+async function approveGoDrillReleaseReadiness() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const panel = document.querySelector("#goDrillNotificationDetail");
+  if (status) status.textContent = "Approving final reporting release readiness...";
+  try {
+    let summary = latestGoDrillReleaseReadinessSummary();
+    if (!summary?.summary_id) {
+      await showGoDrillReleaseReadinessSummary();
+      summary = latestGoDrillReleaseReadinessSummary();
+    }
+    if (!summary?.summary_id) throw new Error("release readiness summary unavailable");
+    const response = await fetch(apiUrl(`/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-readiness/${encodeURIComponent(summary.summary_id)}/approval-decisions`), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        decided_by: goDrillAckActor(),
+        approval_state: "approved",
+        override_blockers: true,
+        external_ref: goDrillAckExternalRef() || "REL-local",
+        notes: document.querySelector("#goDrillAckNotes")?.value || "Approved from Evidence Console"
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "release readiness approval API unavailable");
+    const result = await response.json();
+    const decision = result.decision || {};
+    if (panel) {
+      panel.innerHTML = `
+        <dl>
+          <dt>Decision</dt><dd>${escapeHtml(decision.decision_id || "unknown")}</dd>
+          <dt>State</dt><dd class="${decision.approval_state === "approved" ? "allow" : "require_approval"}">${escapeHtml(decision.approval_state || "unknown")}</dd>
+          <dt>Summary</dt><dd>${escapeHtml(decision.summary_id || "")}</dd>
+        </dl>
+        <pre>${escapeHtml(JSON.stringify(decision, null, 2))}</pre>
+      `;
+    }
+    if (status) status.textContent = `Release readiness approval ${decision.decision_id || ""} recorded.`;
+  } catch (error) {
+    const summary = latestGoDrillReleaseReadinessSummary() || { summary_id: `sample-go-drill-final-readiness-${Date.now()}`, readiness_state: "blocked", closure_state: "open" };
+    const decidedAt = new Date().toISOString();
+    const decisionId = `sample-go-drill-final-approval-${Date.now()}`;
+    const decision = {
+      decision_id: decisionId,
+      summary_id: summary.summary_id,
+      readiness_state: summary.readiness_state || "blocked",
+      closure_state: summary.closure_state || "open",
+      approval_state: "approved",
+      override_blockers: true,
+      decided_by: goDrillAckActor(),
+      decided_at: decidedAt,
+      external_ref: goDrillAckExternalRef() || "REL-local"
+    };
+    goRollbackDrillNotificationCatalog.unshift({
+      session_id: decisionId,
+      created_at: decidedAt,
+      signer: decision.decided_by,
+      metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+      decision_id: decisionId,
+      summary_id: decision.summary_id,
+      approval_state: "approved",
+      readiness_state: decision.readiness_state,
+      final_reporting_release_readiness_approval_decision: decision
+    });
+    if (panel) panel.innerHTML = `<pre>${escapeHtml(JSON.stringify(decision, null, 2))}</pre>`;
+    if (status) status.textContent = `Using local sample release readiness approval: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
+async function attachGoDrillReleaseRecord() {
+  const status = document.querySelector("#goDrillAckStatus");
+  const panel = document.querySelector("#goDrillNotificationDetail");
+  if (status) status.textContent = "Attaching final reporting evidence to release record...";
+  try {
+    let approval = latestGoDrillReleaseReadinessApproval();
+    if (!approval?.decision_id) {
+      await approveGoDrillReleaseReadiness();
+      approval = latestGoDrillReleaseReadinessApproval();
+    }
+    if (!approval?.decision_id) throw new Error("approved release readiness decision unavailable");
+    const response = await fetch(apiUrl("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-record-attachment"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        attached_by: goDrillAckActor(),
+        approval_decision_id: approval.decision_id,
+        release_record_ref: goDrillAckExternalRef() || "REL-local",
+        notes: document.querySelector("#goDrillAckNotes")?.value || "Attached from Evidence Console"
+      })
+    });
+    if (!response.ok) throw new Error(await response.text() || "release record attachment API unavailable");
+    const result = await response.json();
+    const attachment = result.attachment || {};
+    if (panel) {
+      panel.innerHTML = `
+        <dl>
+          <dt>Attachment</dt><dd>${escapeHtml(attachment.attachment_id || "unknown")}</dd>
+          <dt>Release Record</dt><dd>${escapeHtml(attachment.release_record_ref || "")}</dd>
+          <dt>State</dt><dd class="allow">${escapeHtml(attachment.attachment_state || "unknown")}</dd>
+        </dl>
+        <pre>${escapeHtml(JSON.stringify(attachment, null, 2))}</pre>
+      `;
+    }
+    if (status) status.textContent = `Release record attachment ${attachment.attachment_id || ""} captured.`;
+  } catch (error) {
+    const approval = latestGoDrillReleaseReadinessApproval() || { decision_id: `sample-go-drill-final-approval-${Date.now()}`, summary_id: "sample" };
+    const attachedAt = new Date().toISOString();
+    const attachmentId = `sample-go-drill-final-attachment-${Date.now()}`;
+    const attachment = {
+      attachment_id: attachmentId,
+      release_record_ref: goDrillAckExternalRef() || "REL-local",
+      attachment_state: "attached",
+      attached_at: attachedAt,
+      attached_by: goDrillAckActor(),
+      approval_decision_id: approval.decision_id,
+      summary_id: approval.summary_id
+    };
+    goRollbackDrillNotificationCatalog.unshift({
+      session_id: attachmentId,
+      created_at: attachedAt,
+      signer: attachment.attached_by,
+      metadata_kind: "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+      attachment_id: attachmentId,
+      release_record_ref: attachment.release_record_ref,
+      attachment_state: "attached",
+      approval_decision_id: attachment.approval_decision_id,
+      final_reporting_release_record_attachment: attachment
+    });
+    if (panel) panel.innerHTML = `<pre>${escapeHtml(JSON.stringify(attachment, null, 2))}</pre>`;
+    if (status) status.textContent = `Using local sample release record attachment: ${error.message || "API unavailable"}.`;
+  }
+  await refreshGoRollbackDrillNotifications();
+}
+
 function addSampleGoDrillAckAuditWorkerHealthAlert() {
   const generatedAt = new Date().toISOString();
   const retryPlan = latestGoDrillRetryPlan() || addSampleGoDrillAckAuditRetryPlan();
@@ -7578,6 +7751,8 @@ document.querySelector("#goDrillRunExecutiveRetryHealthAlertRetry").addEventList
 document.querySelector("#goDrillShowFinalReportingClosure").addEventListener("click", showGoDrillFinalReportingClosureDashboard);
 document.querySelector("#goDrillShowReleaseReadiness").addEventListener("click", showGoDrillReleaseReadinessSummary);
 document.querySelector("#goDrillExportOperatorRunbook").addEventListener("click", exportGoDrillOperatorRunbook);
+document.querySelector("#goDrillApproveReleaseReadiness").addEventListener("click", approveGoDrillReleaseReadiness);
+document.querySelector("#goDrillAttachReleaseRecord").addEventListener("click", attachGoDrillReleaseRecord);
 document.querySelector("#deliverEndpointRemediationSla").addEventListener("click", deliverEndpointRemediationSlaNotification);
 document.querySelectorAll("#filterEndpointRecurrenceOwner, #filterEndpointRecurrenceProvider, #filterEndpointRecurrenceAction, #filterEndpointRecurrenceCategory, #filterEndpointRecurrenceWorkerMode").forEach((control) => {
   control.addEventListener("input", refreshEndpointRecurrenceOperations);
