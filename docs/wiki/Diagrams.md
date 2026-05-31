@@ -196,6 +196,10 @@ See `docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg` for
 
 See `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.svg` for executive retry health reporting and recovery health alert delivery retry planning.
 
+## Go Backend Rollback Drill Final Closeout Health And Retry
+
+See `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg` for closeout retention health checks, retention alert delivery, failed closeout delivery retry planning, and retry worker evidence.
+
 ## SVG Images
 
 Repository diagram images:
@@ -230,6 +234,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.svg`
 - `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg`
 - `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg`
+- `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

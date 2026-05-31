@@ -120,6 +120,7 @@ Architecture references:
 - [Go backend rollback drill auditor export retry and archive health SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-archive-health.svg)
 - [Go backend rollback drill auditor retry worker and archive alert acknowledgements SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg)
 - [Go backend rollback drill final closeout delivery and retention SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg)
+- [Go backend rollback drill final closeout health and retry SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg)
 
 Brand assets:
 
@@ -423,11 +424,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final rollback drill closeout delivery, retention review approvals, and downloadable closeout artifact bundles are now documented in [docs/go-backend-rollback-drill-final-closeout-delivery-retention.md](docs/go-backend-rollback-drill-final-closeout-delivery-retention.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg).
+- Final rollback drill closeout retention health, bundle expiry alerts, and failed closeout delivery retry automation are now documented in [docs/go-backend-rollback-drill-final-closeout-health-retry.md](docs/go-backend-rollback-drill-final-closeout-health-retry.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg).
 
 Next recommended implementation work:
 
-- Add final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.
+- Package the completed final closeout workflow into release-governance operator guidance, including runbook checklists, release criteria, and customer-facing trial documentation for open-core adoption.
 
 ## User stories and enterprise value
 

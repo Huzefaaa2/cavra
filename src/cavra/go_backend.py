@@ -1179,6 +1179,11 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1202,6 +1207,7 @@ def filter_go_rollback_drill_notification_history(
                 "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export",
                 "go_backend_rollback_drill_acknowledgement_audit_final_reporting_archive_reference_health_alert",
                 "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout",
+                "go_backend_rollback_drill_acknowledgement_audit_final_reporting_closeout_retention_health_alert",
             }
         )
     ]
@@ -1295,6 +1301,11 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1328,6 +1339,20 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record",
+                }
+            )
+            or (
+                connector_delivery_source
+                == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_closeout_retention_health_alert"
+                and item.get("metadata_kind")
+                in {
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan",
                 }
             )
         ]
@@ -1715,6 +1740,42 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle"
+    ]
+    audit_delivery_final_reporting_closeout_retention_health_reports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health"
+    ]
+    audit_delivery_final_reporting_closeout_retention_health_alerts = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan"
+    ]
+    audit_delivery_final_reporting_closeout_retention_health_alert_deliveries = [
+        item
+        for item in deliveries
+        if item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_closeout_retention_health_alert"
+    ]
+    audit_delivery_final_reporting_release_closeout_delivery_retry_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan"
+    ]
+    audit_delivery_final_reporting_release_closeout_delivery_retry_worker_runs = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run"
+    ]
+    audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record"
     ]
     audit_delivery_worker_runs = [
         item
@@ -2159,6 +2220,53 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         ),
         "acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_count": len(
             audit_delivery_final_reporting_closeout_artifact_bundles
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_count": len(
+            audit_delivery_final_reporting_closeout_retention_health_reports
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_count": sum(
+            int(item.get("alert_count") or 0)
+            for item in audit_delivery_final_reporting_closeout_retention_health_reports
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_count": len(
+            audit_delivery_final_reporting_closeout_retention_health_alerts
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_delivery_count": len(
+            audit_delivery_final_reporting_closeout_retention_health_alert_deliveries
+        ),
+        "failed_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_delivery_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_closeout_retention_health_alert_deliveries
+                if not item.get("delivery_success")
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_count": len(
+            audit_delivery_final_reporting_release_closeout_delivery_retry_plans
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retryable_count": sum(
+            int(item.get("retryable_count") or 0)
+            for item in audit_delivery_final_reporting_release_closeout_delivery_retry_plans
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_count": len(
+            audit_delivery_final_reporting_release_closeout_delivery_retry_worker_runs
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_count": len(
+            audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_success_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records
+                if item.get("execution_status") == "delivered"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_failed_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_closeout_delivery_retry_execution_records
+                if item.get("execution_status") in {"failed", "skipped"}
+            ]
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -7656,6 +7764,582 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_close
         "retention_decision_id": artifact_bundle.get("retention_decision_id"),
         "retention_decision_state": artifact_bundle.get("retention_decision_state"),
         "final_reporting_closeout_artifact_bundle": artifact_bundle,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health(
+    items: list[dict[str, Any]],
+    *,
+    expiry_warning_days: int = 30,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    expiry_warning_days = max(1, int(expiry_warning_days or 30))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    artifact_bundles = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle"
+    ]
+    retention_decisions = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision"
+    ]
+    failed_closeout_deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout"
+        and not item.get("delivery_success")
+    ]
+    decisions_by_id = {str(item.get("decision_id") or ""): item for item in retention_decisions}
+    findings: list[dict[str, Any]] = []
+    bundle_statuses: list[dict[str, Any]] = []
+    warning_threshold = now + timedelta(days=expiry_warning_days)
+    for metadata in artifact_bundles:
+        bundle = (
+            metadata.get("final_reporting_closeout_artifact_bundle")
+            if isinstance(metadata.get("final_reporting_closeout_artifact_bundle"), dict)
+            else metadata
+        )
+        retention_decision_id = str(bundle.get("retention_decision_id") or "")
+        decision = decisions_by_id.get(retention_decision_id, {})
+        retention_until = str(bundle.get("retention_until") or decision.get("retention_until") or "")
+        retention_until_dt = _parse_iso_datetime(retention_until)
+        decision_state = str(bundle.get("retention_decision_state") or decision.get("decision_state") or "")
+        bundle_status = {
+            "artifact_bundle_id": bundle.get("artifact_bundle_id"),
+            "summary_id": bundle.get("summary_id"),
+            "release_record_ref": bundle.get("release_record_ref"),
+            "retention_decision_id": retention_decision_id,
+            "retention_decision_state": decision_state or "missing",
+            "retention_until": retention_until,
+            "legal_hold": bool(bundle.get("legal_hold") or decision.get("legal_hold", False)),
+            "artifact_count": int(bundle.get("artifact_count") or 0),
+            "status": "healthy",
+        }
+        if decision_state != "approved":
+            bundle_status["status"] = "approval_missing"
+            findings.append(
+                {
+                    "severity": "critical",
+                    "category": "retention_approval_missing",
+                    "artifact_bundle_id": bundle.get("artifact_bundle_id"),
+                    "message": "Closeout artifact bundle does not have an approved retention decision.",
+                }
+            )
+        elif retention_until_dt is None:
+            bundle_status["status"] = "retention_expiry_missing"
+            findings.append(
+                {
+                    "severity": "warning",
+                    "category": "retention_expiry_missing",
+                    "artifact_bundle_id": bundle.get("artifact_bundle_id"),
+                    "message": "Closeout artifact bundle has an approved retention decision without retention_until.",
+                }
+            )
+        elif retention_until_dt <= now:
+            bundle_status["status"] = "retention_expired"
+            findings.append(
+                {
+                    "severity": "critical",
+                    "category": "retention_expired",
+                    "artifact_bundle_id": bundle.get("artifact_bundle_id"),
+                    "retention_until": retention_until,
+                    "message": "Closeout artifact bundle retention date has passed.",
+                }
+            )
+        elif retention_until_dt <= warning_threshold:
+            bundle_status["status"] = "retention_expiring"
+            findings.append(
+                {
+                    "severity": "warning",
+                    "category": "retention_expiring",
+                    "artifact_bundle_id": bundle.get("artifact_bundle_id"),
+                    "retention_until": retention_until,
+                    "message": "Closeout artifact bundle retention date is inside the warning window.",
+                }
+            )
+        bundle_statuses.append(bundle_status)
+    if failed_closeout_deliveries:
+        findings.append(
+            {
+                "severity": "warning",
+                "category": "failed_closeout_delivery",
+                "failed_delivery_count": len(failed_closeout_deliveries),
+                "message": "One or more final closeout deliveries failed and may require retry automation.",
+            }
+        )
+    if any(item.get("severity") == "critical" for item in findings):
+        alert_level = "critical"
+    elif findings:
+        alert_level = "warning"
+    else:
+        alert_level = "healthy"
+    material = {
+        "generated_at": now.isoformat(),
+        "bundle_statuses": bundle_statuses,
+        "finding_categories": [item.get("category") for item in findings],
+    }
+    health_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    health_id = f"gordackfinalretentionhealth-{health_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-retention-health.v1",
+        "product": "CAVRA",
+        "health_id": health_id,
+        "health_hash": health_hash,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "alert_level": alert_level,
+        "expiry_warning_days": expiry_warning_days,
+        "artifact_bundle_count": len(artifact_bundles),
+        "approved_retention_count": len(
+            [item for item in bundle_statuses if item.get("retention_decision_state") == "approved"]
+        ),
+        "expiring_bundle_count": len([item for item in bundle_statuses if item.get("status") == "retention_expiring"]),
+        "expired_bundle_count": len([item for item in bundle_statuses if item.get("status") == "retention_expired"]),
+        "failed_closeout_delivery_count": len(failed_closeout_deliveries),
+        "alert_count": len(findings),
+        "findings": findings,
+        "bundle_statuses": bundle_statuses,
+        "public_evidence_refs": [
+            f"go-rollback-drill-final-retention-health://{health_id}",
+            *[
+                f"go-rollback-drill-final-artifact-bundle://{item.get('artifact_bundle_id')}"
+                for item in bundle_statuses
+                if item.get("artifact_bundle_id")
+            ],
+        ],
+        "controls": [
+            "retention-health-derived-from-public-safe-closeout-metadata",
+            "health-report-does-not-enforce-private-retention-policy",
+            "failed-closeout-delivery-findings-use-redacted-connector-metadata",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_metadata(
+    health: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": health.get("health_id"),
+        "created_at": health.get("generated_at"),
+        "signer": health.get("generated_by", "release-governance"),
+        "decision_count": int(health.get("artifact_bundle_count") or 0),
+        "blocked_count": int(health.get("expired_bundle_count") or 0),
+        "approval_required_count": int(health.get("alert_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health",
+        "health_id": health.get("health_id"),
+        "alert_level": health.get("alert_level"),
+        "artifact_bundle_count": health.get("artifact_bundle_count", 0),
+        "expiring_bundle_count": health.get("expiring_bundle_count", 0),
+        "expired_bundle_count": health.get("expired_bundle_count", 0),
+        "failed_closeout_delivery_count": health.get("failed_closeout_delivery_count", 0),
+        "alert_count": health.get("alert_count", 0),
+        "final_reporting_closeout_retention_health": health,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan(
+    health: dict[str, Any],
+    *,
+    provider: str = "webhook",
+    generated_by: str = "release-governance",
+    force: bool = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    health_id = str(health.get("health_id") or "").strip()
+    if not health_id:
+        raise ValueError("retention health_id is required")
+    now = now or datetime.now(timezone.utc)
+    requested_provider = provider.strip().lower() or "webhook"
+    selected = [requested_provider] if force or health.get("alert_level") != "healthy" else []
+    material = {
+        "health_id": health_id,
+        "generated_at": now.isoformat(),
+        "provider": requested_provider,
+        "selected": selected,
+    }
+    plan_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    plan_id = f"gordackfinalretenalert-{plan_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-retention-health-alert-plan.v1",
+        "product": "CAVRA",
+        "plan_id": plan_id,
+        "health_id": health_id,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "alert_level": health.get("alert_level", "unknown"),
+        "requested_provider": requested_provider,
+        "selected_providers": selected,
+        "acknowledgement_required_providers": selected,
+        "force": bool(force),
+        "summary": {
+            "artifact_bundle_count": int(health.get("artifact_bundle_count") or 0),
+            "expiring_bundle_count": int(health.get("expiring_bundle_count") or 0),
+            "expired_bundle_count": int(health.get("expired_bundle_count") or 0),
+            "failed_closeout_delivery_count": int(health.get("failed_closeout_delivery_count") or 0),
+            "alert_count": int(health.get("alert_count") or 0),
+        },
+        "findings": health.get("findings", []),
+        "public_evidence_refs": health.get("public_evidence_refs", []),
+        "controls": [
+            "retention-health-alert-plan-derived-from-public-safe-health-report",
+            "selected-provider-does-not-include-connector-secret-material",
+            "enterprise-or-operator-owned-systems-enforce-real-retention-actions",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_event(
+    plan: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+) -> dict[str, Any]:
+    plan_id = str(plan.get("plan_id") or "").strip()
+    if not plan_id:
+        raise ValueError("retention health alert plan_id is required")
+    public_summary = {
+        "plan_id": plan_id,
+        "health_id": plan.get("health_id", ""),
+        "alert_level": plan.get("alert_level", "unknown"),
+        "summary": plan.get("summary", {}),
+        "findings": plan.get("findings", []),
+    }
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-retention-health-alert-event.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.go_backend.rollback_drill.final_reporting.closeout_retention_health_alert",
+        "event_id": plan_id,
+        "session_id": plan_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "health_id": plan.get("health_id", ""),
+        "plan_id": plan_id,
+        "alert_level": plan.get("alert_level", "unknown"),
+        "provider_payloads": {
+            "webhook": public_summary,
+            "splunk": {"event": public_summary, "sourcetype": "cavra:go:rollback_drill:retention_health"},
+            "sentinel": {"records": [public_summary], "table": "CavraGoRetentionHealth_CL"},
+            "datadog": {"title": "CAVRA closeout retention health", "text": public_summary},
+            "slack": {
+                "text": (
+                    f"CAVRA closeout retention health is {plan.get('alert_level', 'unknown')} "
+                    f"for {plan.get('health_id', '')}"
+                )
+            },
+            "teams": {"title": "CAVRA closeout retention health", "summary": public_summary},
+            "jira": {"summary": "CAVRA closeout retention health alert", "description": public_summary},
+            "servicenow": {
+                "short_description": "CAVRA closeout retention health alert",
+                "description": public_summary,
+            },
+        },
+        "controls": [
+            "retention-health-alert-event-contains-public-safe-health-summary-only",
+            "connector-delivery-redacts-provider-credentials",
+            "private-retention-systems-remain-outside-community-repository",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_health_alert_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": len(plan.get("selected_providers", [])),
+        "blocked_count": 0,
+        "approval_required_count": len(plan.get("acknowledgement_required_providers", [])),
+        "metadata_kind": (
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+            "closeout-retention-health-alert-plan"
+        ),
+        "plan_id": plan.get("plan_id"),
+        "health_id": plan.get("health_id"),
+        "alert_level": plan.get("alert_level"),
+        "selected_providers": plan.get("selected_providers", []),
+        "acknowledgement_required_providers": plan.get("acknowledgement_required_providers", []),
+        "final_reporting_closeout_retention_health_alert_plan": plan,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    max_retry_attempts = max(1, int(policy.get("max_retry_attempts", 3) or 3))
+    retry_delay_minutes = max(0, int(policy.get("retry_delay_minutes", 15) or 0))
+    allow_immediate_retry = bool(policy.get("allow_immediate_retry", retry_delay_minutes == 0))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    failed_deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout"
+        and not item.get("delivery_success")
+    ]
+    retry_decisions: list[dict[str, Any]] = []
+    for delivery in failed_deliveries:
+        created_at = _parse_iso_datetime(str(delivery.get("created_at") or ""))
+        age_minutes = int((now - created_at).total_seconds() // 60) if created_at and now >= created_at else None
+        attempts = int(delivery.get("attempts") or delivery.get("attempt_count") or 1)
+        if attempts >= max_retry_attempts:
+            action = "suppress"
+            reason = "max_retry_attempts_reached"
+        elif allow_immediate_retry or age_minutes is None or age_minutes >= retry_delay_minutes:
+            action = "retry"
+            reason = "eligible_for_closeout_redelivery"
+        else:
+            action = "wait"
+            reason = "retry_delay_window_not_elapsed"
+        retry_decisions.append(
+            {
+                "delivery_id": delivery.get("delivery_id") or delivery.get("session_id") or "",
+                "summary_id": delivery.get("summary_id") or delivery.get("event_id") or "",
+                "bundle_id": delivery.get("bundle_id", ""),
+                "manifest_id": delivery.get("manifest_id", ""),
+                "release_record_ref": delivery.get("release_record_ref", ""),
+                "provider": delivery.get("provider", "webhook"),
+                "action": action,
+                "reason": reason,
+                "attempts": attempts,
+                "age_minutes": age_minutes,
+            }
+        )
+    material = {
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "decisions": retry_decisions,
+    }
+    retry_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    retry_plan_id = f"gordackfinalcloseoutretry-{retry_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closeout-delivery-retry-plan.v1",
+        "product": "CAVRA",
+        "retry_plan_id": retry_plan_id,
+        "retry_hash": retry_hash,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "max_retry_attempts": max_retry_attempts,
+        "retry_delay_minutes": retry_delay_minutes,
+        "allow_immediate_retry": allow_immediate_retry,
+        "failed_delivery_count": len(failed_deliveries),
+        "retryable_count": len([item for item in retry_decisions if item.get("action") == "retry"]),
+        "waiting_count": len([item for item in retry_decisions if item.get("action") == "wait"]),
+        "suppressed_count": len([item for item in retry_decisions if item.get("action") == "suppress"]),
+        "retry_decisions": retry_decisions,
+        "controls": [
+            "closeout-delivery-retry-plan-derived-from-redacted-connector-delivery-metadata",
+            "community-edition-does-not-store-connector-credentials",
+            "live-redelivery-requires-explicit-worker-execute-request",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("retry_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": len(plan.get("retry_decisions", [])),
+        "blocked_count": int(plan.get("suppressed_count") or 0),
+        "approval_required_count": int(plan.get("retryable_count") or 0),
+        "metadata_kind": (
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+            "release-closeout-delivery-retry-plan"
+        ),
+        "retry_plan_id": plan.get("retry_plan_id"),
+        "retryable_count": plan.get("retryable_count", 0),
+        "waiting_count": plan.get("waiting_count", 0),
+        "suppressed_count": plan.get("suppressed_count", 0),
+        "final_reporting_release_closeout_delivery_retry_plan": plan,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run(
+    items: list[dict[str, Any]],
+    *,
+    retry_policy: dict[str, Any] | None = None,
+    schedule: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    dry_run: bool = True,
+    max_retry_deliveries: int = 5,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    schedule = schedule or {}
+    interval_minutes = max(1, int(schedule.get("interval_minutes", schedule.get("schedule_interval_minutes", 60)) or 60))
+    minute = (now.minute // interval_minutes) * interval_minutes if interval_minutes < 60 else 0
+    window_start = now.replace(minute=minute, second=0, microsecond=0)
+    window_end = window_start + timedelta(minutes=interval_minutes)
+    max_retry_deliveries = max(1, min(int(max_retry_deliveries or 5), 25))
+    retry_plan = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_plan(
+            items,
+            policy=retry_policy,
+            generated_by=generated_by,
+            now=now,
+        )
+    )
+    retry_decisions = [
+        item
+        for item in retry_plan.get("retry_decisions", [])
+        if isinstance(item, dict) and item.get("action") == "retry"
+    ]
+    selected_retries = retry_decisions[:max_retry_deliveries]
+    material = {
+        "window_start": window_start.isoformat(),
+        "generated_by": generated_by,
+        "dry_run": dry_run,
+        "retry_plan_id": retry_plan.get("retry_plan_id"),
+        "selected": selected_retries,
+    }
+    run_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    run_id = f"gordackfinalcloseoutworker-{run_hash[:16]}"
+    return {
+        "schema_version": (
+            "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closeout-delivery-"
+            "retry-worker-run.v1"
+        ),
+        "product": "CAVRA",
+        "run_id": run_id,
+        "generated_at": now.isoformat(),
+        "generated_by": generated_by,
+        "dry_run": bool(dry_run),
+        "schedule": {
+            "interval_minutes": interval_minutes,
+            "window_start": window_start.isoformat(),
+            "window_end": window_end.isoformat(),
+            "enabled": bool(schedule.get("enabled", True)),
+            "cadence": str(schedule.get("cadence") or f"every_{interval_minutes}_minutes"),
+        },
+        "summary": {
+            "retry_plan_count": 1,
+            "retryable_count": int(retry_plan.get("retryable_count") or 0),
+            "selected_retry_count": len(selected_retries),
+            "waiting_retry_count": int(retry_plan.get("waiting_count") or 0),
+            "suppressed_retry_count": int(retry_plan.get("suppressed_count") or 0),
+        },
+        "retry_plan": retry_plan,
+        "selected_retries": selected_retries,
+        "controls": [
+            "closeout-delivery-retry-worker-is-dry-run-by-default",
+            "live-closeout-redelivery-requires-explicit-execute-request",
+            "worker-run-contains-no-connector-secret-or-private-endpoint",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_worker_run_metadata(
+    run: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": run.get("run_id"),
+        "created_at": run.get("generated_at"),
+        "signer": run.get("generated_by", "release-governance"),
+        "decision_count": int(run.get("summary", {}).get("selected_retry_count") or 0),
+        "blocked_count": int(run.get("summary", {}).get("suppressed_retry_count") or 0),
+        "approval_required_count": 0 if run.get("dry_run") else int(run.get("summary", {}).get("selected_retry_count") or 0),
+        "metadata_kind": (
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+            "release-closeout-delivery-retry-worker-run"
+        ),
+        "run_id": run.get("run_id"),
+        "retry_plan_id": run.get("retry_plan", {}).get("retry_plan_id"),
+        "dry_run": run.get("dry_run", True),
+        "selected_retry_count": int(run.get("summary", {}).get("selected_retry_count") or 0),
+        "final_reporting_release_closeout_delivery_retry_worker_run": run,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record(
+    worker_run: dict[str, Any],
+    retry_decision: dict[str, Any],
+    *,
+    summary: dict[str, Any] | None = None,
+    delivery: dict[str, Any] | None = None,
+    delivery_metadata: dict[str, Any] | None = None,
+    skipped: str | None = None,
+    executed_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    status = "skipped" if skipped else ("delivered" if delivery and delivery.get("success") else "failed")
+    material = {
+        "run_id": worker_run.get("run_id", ""),
+        "delivery_id": retry_decision.get("delivery_id", ""),
+        "executed_at": now.isoformat(),
+        "status": status,
+    }
+    execution_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    execution_id = f"gordackfinalcloseoutexec-{execution_hash[:16]}"
+    return {
+        "schema_version": (
+            "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closeout-delivery-"
+            "retry-execution-record.v1"
+        ),
+        "product": "CAVRA",
+        "execution_id": execution_id,
+        "execution_hash": execution_hash,
+        "executed_at": now.isoformat(),
+        "executed_by": executed_by,
+        "execution_status": status,
+        "skip_reason": skipped or "",
+        "run_id": worker_run.get("run_id", ""),
+        "retry_plan_id": worker_run.get("retry_plan", {}).get("retry_plan_id", ""),
+        "delivery_id": retry_decision.get("delivery_id", ""),
+        "summary_id": retry_decision.get("summary_id") or (summary or {}).get("summary_id", ""),
+        "release_record_ref": retry_decision.get("release_record_ref") or (summary or {}).get("release_record_ref", ""),
+        "provider": retry_decision.get("provider", ""),
+        "delivery_success": bool(delivery.get("success")) if isinstance(delivery, dict) else False,
+        "new_delivery_id": (delivery_metadata or {}).get("delivery_id") or (delivery_metadata or {}).get("session_id", ""),
+        "controls": [
+            "closeout-delivery-retry-execution-record-links-worker-decision-and-delivery-result",
+            "execution-record-contains-redacted-delivery-metadata-only",
+            "community-edition-does-not-store-provider-credentials",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_retry_execution_record_metadata(
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": record.get("execution_id"),
+        "created_at": record.get("executed_at"),
+        "signer": record.get("executed_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0 if record.get("execution_status") == "delivered" else 1,
+        "approval_required_count": 0,
+        "metadata_kind": (
+            "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-"
+            "release-closeout-delivery-retry-execution-record"
+        ),
+        "execution_id": record.get("execution_id"),
+        "execution_status": record.get("execution_status"),
+        "run_id": record.get("run_id"),
+        "retry_plan_id": record.get("retry_plan_id"),
+        "delivery_id": record.get("delivery_id"),
+        "summary_id": record.get("summary_id"),
+        "release_record_ref": record.get("release_record_ref"),
+        "provider": record.get("provider"),
+        "final_reporting_release_closeout_delivery_retry_execution_record": record,
     }
 
 

@@ -37,4 +37,4 @@ Enterprises need a closeout artifact that is easy to hand to audit teams while p
 
 ## Next recommendation
 
-Add final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.
+Delivered in [go-backend-rollback-drill-final-closeout-health-retry.md](go-backend-rollback-drill-final-closeout-health-retry.md): final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.
