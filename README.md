@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes production SSO claim binding for pilot-intake authorization. Verified IdP claims can be mapped into tenant-scoped CAVRA Enterprise claims with issuer, audience, tenant, role, and group checks before private record mutation.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes customer/SaaS KMS-style envelope encryption for private pilot-intake payloads. Payloads are encrypted with per-record data keys, data keys are wrapped through a provider contract, and decrypt operations are bound to tenant and intake context.
 
 Next recommended implementation work:
 
-- Add customer/SaaS KMS envelope encryption for private pilot-intake payloads, then move storage to a managed tenant database and add real CRM/ITSM/GRC/customer-success connector workers.
+- Move private pilot-intake storage from local SQLite to managed tenant database storage, then add real CRM/ITSM/GRC/customer-success connector workers.
 
 ## User stories and enterprise value
 
