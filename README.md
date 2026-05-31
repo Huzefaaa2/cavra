@@ -408,7 +408,7 @@ The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
 
-The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package plus pilot intake template for customer onboarding. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), and [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md).
+The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package plus pilot intake template for customer onboarding. The public Evidence Console now renders the pilot intake template as production pilot readiness cards, a readiness checklist, and Enterprise/SaaS handoff links. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), and [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md).
 
 ## Roadmap
 
@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final closeout production pilot intake is now documented in [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md), [docs/enterprise/final-closeout-pilot-readiness-checklists.md](docs/enterprise/final-closeout-pilot-readiness-checklists.md), and [docs/enterprise/final-closeout-enterprise-saas-handoff.md](docs/enterprise/final-closeout-enterprise-saas-handoff.md), with a synthetic pilot template at [examples/demos/final-closeout-trial/pilot-intake-template.json](examples/demos/final-closeout-trial/pilot-intake-template.json) and diagram at [docs/diagrams/final-closeout-production-pilot-intake.svg](docs/diagrams/final-closeout-production-pilot-intake.svg).
+- The Evidence Console now includes a production pilot readiness panel with downloadable pilot intake template, readiness status cards, checklist guidance, and Enterprise/SaaS handoff links. The GitHub Pages sandbox publishes both [sample evidence](examples/demos/final-closeout-trial/sample-evidence-package.json) and [pilot intake template](examples/demos/final-closeout-trial/pilot-intake-template.json) as public-safe artifacts.
 
 Next recommended implementation work:
 
-- Convert the production pilot intake package into an Evidence Console pilot readiness panel with downloadable intake template, readiness status cards, and handoff checklist links.
+- Add pilot intake upload/save APIs and persistence so customer-specific readiness evidence can be captured in self-hosted Enterprise or SaaS without committing customer data to the public repository.
 
 ## User stories and enterprise value
 

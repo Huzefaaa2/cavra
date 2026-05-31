@@ -104,6 +104,72 @@ const finalCloseoutTrialSample = {
   }
 };
 
+const pilotIntakeTemplate = {
+  schema_version: "cavra.final_closeout_pilot_intake.v1",
+  generated_for: "synthetic-public-template",
+  pilot_objective: "Convert final closeout trial evaluation into a scoped production pilot.",
+  repositories: [
+    {
+      repository: "example/release-service",
+      owner: "release-platform",
+      protected_branches: ["main", "release/*"],
+      required_checks: ["cavra-required-check", "CodeQL"],
+      release_workflow: "production-release-closeout",
+      pilot_mode: "enforce"
+    }
+  ],
+  agents: [
+    {
+      agent: "codex",
+      identity: "transparent-ai-agent",
+      allowed_actions: ["code_edit", "test", "pull_request"],
+      approval_required_actions: ["release_closeout_retry", "policy_change"],
+      blocked_actions: ["direct_protected_branch_push"]
+    }
+  ],
+  ci_cd: {
+    platform: "github-actions",
+    runner_scope: "pilot-runners",
+    required_check: "cavra-required-check",
+    evidence_artifact_path: ".cavra/evidence",
+    failure_behavior: "block"
+  },
+  connectors: [
+    {
+      provider: "webhook",
+      environment: "non-production",
+      purpose: "release-closeout-alert",
+      owner: "platform-operations",
+      status: "planned"
+    }
+  ],
+  identity_and_rbac: {
+    identity_provider: "to-be-confirmed",
+    release_manager_group: "release-managers",
+    security_reviewer_group: "security-architects",
+    platform_owner_group: "platform-operations",
+    auditor_group: "audit-reviewers"
+  },
+  retention: {
+    retention_days: 365,
+    legal_hold_required: false,
+    exception_owner: "release-risk-owner",
+    archive_destination: "to-be-confirmed"
+  },
+  enterprise_or_saas_handoff: {
+    preferred_deployment: "to-be-confirmed",
+    paid_policy_packs: [],
+    commercial_owner: "to-be-confirmed",
+    target_pilot_start: "to-be-confirmed"
+  },
+  success_criteria: [
+    "CAVRA required check runs on the selected release workflow.",
+    "Final closeout evidence is reviewed by release, security, and audit stakeholders.",
+    "Connector and retention requirements are documented.",
+    "Enterprise or SaaS deployment path is selected."
+  ]
+};
+
 const evidenceCatalog = [
   {
     session_id: "demo-session",
@@ -842,6 +908,15 @@ const endpointManagementExportArtifactCatalog = {
 
 const releaseNoteCatalog = [
   {
+    title: "Pilot Readiness Panel",
+    date: "2026-05-31",
+    summary: "The Evidence Console now turns the final closeout intake template into readiness cards, a buyer checklist, and Enterprise/SaaS handoff links.",
+    links: [
+      ["Pilot intake", "https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-production-pilot-intake.md"],
+      ["Handoff", "https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-enterprise-saas-handoff.md"]
+    ]
+  },
+  {
     title: "Final Closeout Trial Flow",
     date: "2026-05-31",
     summary: "The public Evidence Console now includes a final closeout trial scenario, synthetic sample evidence download, release-criteria summary, and onboarding documentation links.",
@@ -1355,6 +1430,16 @@ async function loadFinalCloseoutTrialSample() {
     return await response.json();
   } catch {
     return finalCloseoutTrialSample;
+  }
+}
+
+async function loadPilotIntakeTemplate() {
+  try {
+    const response = await fetch("./evidence/final-closeout-trial/pilot-intake-template.json");
+    if (!response.ok) throw new Error("pilot intake unavailable");
+    return await response.json();
+  } catch {
+    return pilotIntakeTemplate;
   }
 }
 
@@ -3589,6 +3674,86 @@ async function refreshTrialOnboardingSummary(run = null) {
     return;
   }
   renderTrialOnboardingSummary(await loadFinalCloseoutTrialSample());
+}
+
+function pilotReadinessValue(value) {
+  if (Array.isArray(value)) return value.length ? String(value.length) : "0";
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (value === undefined || value === null || value === "") return "missing";
+  return String(value);
+}
+
+function pilotReadinessStatus(value) {
+  const text = pilotReadinessValue(value).toLowerCase();
+  if (["missing", "0", "to-be-confirmed", "false"].includes(text)) return "needs input";
+  if (["planned", "audit-only"].includes(text)) return "planned";
+  return "ready";
+}
+
+function renderPilotReadiness(template) {
+  const summary = document.querySelector("#pilotReadinessSummary");
+  const checklist = document.querySelector("#pilotReadinessChecklist");
+  const evidence = document.querySelector("#pilotReadinessEvidence");
+  if (!summary || !checklist || !evidence) return;
+
+  const repository = template.repositories?.[0] || {};
+  const agent = template.agents?.[0] || {};
+  const connector = template.connectors?.[0] || {};
+  const handoff = template.enterprise_or_saas_handoff || {};
+  const identity = template.identity_and_rbac || {};
+  const retention = template.retention || {};
+  const cards = [
+    ["Repositories", template.repositories?.length || 0, repository.repository || "No repository selected"],
+    ["Agents", template.agents?.length || 0, agent.identity || "No agent identity captured"],
+    ["CI/CD", template.ci_cd?.required_check || "missing", template.ci_cd?.failure_behavior || "No failure behavior captured"],
+    ["Connectors", connector.status || "missing", connector.provider || "No connector selected"],
+    ["SSO/RBAC", identity.identity_provider || "to-be-confirmed", "Approver groups are mapped in the intake template."],
+    ["Retention", `${retention.retention_days || 0} days`, retention.archive_destination || "Archive destination to be confirmed"]
+  ];
+
+  summary.innerHTML = cards.map(([label, value, detail]) => {
+    const state = pilotReadinessStatus(value);
+    return `
+      <article class="pilot-readiness-card">
+        <span>${escapeHtml(label)}</span>
+        <strong class="${statusClass(state)}">${escapeHtml(pilotReadinessValue(value))}</strong>
+        <p>${escapeHtml(detail)}</p>
+      </article>
+    `;
+  }).join("");
+
+  const criteria = Array.isArray(template.success_criteria) ? template.success_criteria : [];
+  const handoffMissing = [handoff.preferred_deployment, handoff.commercial_owner, handoff.target_pilot_start]
+    .filter((item) => pilotReadinessStatus(item) !== "ready").length;
+  const checklistItems = [
+    `Scope ${template.repositories?.length || 0} repository and confirm protected branches.`,
+    `Validate required check ${template.ci_cd?.required_check || "missing"} blocks failed governance runs.`,
+    `Confirm ${template.agents?.length || 0} transparent agent identity and approval-required actions.`,
+    `Prepare ${template.connectors?.length || 0} connector route for non-production delivery testing.`,
+    `Map identity provider and approver groups before Enterprise or SaaS enablement.`,
+    `Confirm ${retention.retention_days || 0}-day retention and archive destination.`,
+    handoffMissing ? "Resolve Enterprise/SaaS deployment, commercial owner, and pilot start date." : "Enterprise/SaaS deployment handoff is ready to schedule.",
+    ...criteria
+  ];
+  checklist.innerHTML = checklistItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  evidence.textContent = JSON.stringify({
+    schema_version: template.schema_version,
+    generated_for: template.generated_for,
+    pilot_objective: template.pilot_objective,
+    readiness_summary: {
+      repositories: template.repositories?.length || 0,
+      agents: template.agents?.length || 0,
+      required_check: template.ci_cd?.required_check || "missing",
+      connector_status: connector.status || "missing",
+      identity_provider: identity.identity_provider || "to-be-confirmed",
+      retention_days: retention.retention_days || 0,
+      handoff_missing_fields: handoffMissing
+    }
+  }, null, 2);
+}
+
+async function refreshPilotReadiness() {
+  renderPilotReadiness(await loadPilotIntakeTemplate());
 }
 
 function renderReleaseConnectorDeliveries(items, dashboard) {
@@ -9180,6 +9345,7 @@ document.querySelector("#scenarioSelector").addEventListener("change", async () 
     ? "./evidence/final-closeout-trial/sample-evidence-package.json"
     : "./evidence/before-the-agent-acts/evidence.json";
   await refreshTrialOnboardingSummary();
+  await refreshPilotReadiness();
 });
 document.querySelector("#refreshEvidence").addEventListener("click", refreshEvidence);
 document.querySelector("#refreshReleaseDelivery").addEventListener("click", refreshReleaseDelivery);
@@ -9374,6 +9540,7 @@ refreshEndpointRemediationSla();
 refreshEndpointRecurrenceOperations();
 refreshGoRollbackDrillNotifications();
 refreshTrialOnboardingSummary();
+refreshPilotReadiness();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

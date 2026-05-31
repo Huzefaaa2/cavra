@@ -38,7 +38,12 @@ This page converts a successful CAVRA final closeout trial into a scoped product
 
 Use `examples/demos/final-closeout-trial/pilot-intake-template.json` as the public-safe starting template.
 
+## Evidence Console Readiness Panel
+
+The public Evidence Console now loads the same synthetic intake template and renders readiness cards, a pilot checklist, downloadable template access, and Enterprise/SaaS handoff links.
+
+Customer-specific intake responses, private connector routes, identity mappings, commercial details, and production evidence must remain in private Enterprise or SaaS systems.
+
 ## Recommended Next Issue
 
-Convert the production pilot intake package into an Evidence Console pilot readiness panel with downloadable intake template, readiness status cards, and handoff checklist links.
-
+Add pilot intake upload/save APIs and persistence for self-hosted Enterprise or SaaS readiness evidence while keeping customer-specific material out of the public Community repository.
