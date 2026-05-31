@@ -408,7 +408,7 @@ The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
 
-The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package plus pilot intake template for customer onboarding. The public Evidence Console now renders the pilot intake template as production pilot readiness cards, a readiness checklist, and Enterprise/SaaS handoff links. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), and [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md).
+The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package plus pilot intake template for customer onboarding. The public Evidence Console now renders the pilot intake template as production pilot readiness cards, a readiness checklist, Enterprise/SaaS handoff links, and a backend save action when the CAVRA API is configured. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md), and [docs/enterprise/final-closeout-pilot-intake-api.md](docs/enterprise/final-closeout-pilot-intake-api.md).
 
 ## Roadmap
 
@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The Evidence Console now includes a production pilot readiness panel with downloadable pilot intake template, readiness status cards, checklist guidance, and Enterprise/SaaS handoff links. The GitHub Pages sandbox publishes both [sample evidence](examples/demos/final-closeout-trial/sample-evidence-package.json) and [pilot intake template](examples/demos/final-closeout-trial/pilot-intake-template.json) as public-safe artifacts.
+- CAVRA now includes pilot intake upload/save API scaffolding and local JSON persistence for self-hosted pilot readiness records. The Evidence Console can save the public-safe intake template to a configured CAVRA API, and [docs/enterprise/final-closeout-pilot-intake-api.md](docs/enterprise/final-closeout-pilot-intake-api.md) documents the boundary for private Enterprise or SaaS persistence.
 
 Next recommended implementation work:
 
-- Add pilot intake upload/save APIs and persistence so customer-specific readiness evidence can be captured in self-hosted Enterprise or SaaS without committing customer data to the public repository.
+- Add tenant-scoped private persistence, authenticated update permissions, encrypted storage, and connector-backed handoff tasks in Enterprise or SaaS.
 
 ## User stories and enterprise value
 

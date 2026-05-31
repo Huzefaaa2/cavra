@@ -44,6 +44,10 @@ The public Evidence Console now loads the same synthetic intake template and ren
 
 Customer-specific intake responses, private connector routes, identity mappings, commercial details, and production evidence must remain in private Enterprise or SaaS systems.
 
+## Pilot Intake API
+
+See `Final-Closeout-Pilot-Intake-API.md` for the public-safe API scaffold, readiness scoring, local persistence configuration, and Evidence Console save behavior.
+
 ## Recommended Next Issue
 
-Add pilot intake upload/save APIs and persistence for self-hosted Enterprise or SaaS readiness evidence while keeping customer-specific material out of the public Community repository.
+Add tenant-scoped private persistence, authenticated update permissions, encrypted storage, and connector-backed handoff tasks in Enterprise or SaaS.

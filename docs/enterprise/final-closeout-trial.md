@@ -87,6 +87,7 @@ Use non-production connectors and synthetic evidence for public demos. Do not us
 - [Final Closeout Trial Sample Evidence](final-closeout-trial-sample-evidence.md)
 - [Final Closeout Sales Engineering Demo Script](final-closeout-sales-engineering-demo.md)
 - [Final Closeout Production Pilot Intake](final-closeout-production-pilot-intake.md)
+- [Final Closeout Pilot Intake API](final-closeout-pilot-intake-api.md)
 - [Final Closeout Pilot Readiness Checklists](final-closeout-pilot-readiness-checklists.md)
 - [Final Closeout Enterprise And SaaS Handoff](final-closeout-enterprise-saas-handoff.md)
 - [Synthetic Sample Evidence Package](../../examples/demos/final-closeout-trial/sample-evidence-package.json)

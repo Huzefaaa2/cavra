@@ -86,6 +86,7 @@ jobs:
           test -n "$CAVRA_SANDBOX_URL"
           curl --fail --silent --show-error --location "$CAVRA_SANDBOX_URL" | tee index.html
           grep -q "Evidence Console" index.html
+          grep -q "Production Pilot Readiness" index.html
           grep -q "sandbox.js" index.html
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}styles.css" >/dev/null

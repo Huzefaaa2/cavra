@@ -1,5 +1,33 @@
 # Phase Completion Log
 
+## Phase 9 Pilot Intake API And Persistence
+
+Status: complete for the current public-safe pilot intake API scaffold and Evidence Console save integration.
+
+Completed implementation:
+- Added pilot intake normalization, readiness scoring, sensitive-field rejection, and JSON persistence in `src/cavra/pilot_intake.py`.
+- Added `POST /pilot-intakes`, `GET /pilot-intakes`, `GET /pilot-intakes/{intake_id}`, and `GET /pilot-intakes/{intake_id}/readiness`.
+- Added `CAVRA_PILOT_INTAKE_STORE` for self-hosted/local persistence.
+- Added Evidence Console save action for configured CAVRA API deployments and local-only messaging for hosted public demo mode.
+- Added API/docs coverage for open-core storage boundaries.
+
+Validation:
+- `node --check apps/sandbox-ui/config.js`
+- `node --check apps/sandbox-ui/sandbox.js`
+- `bash scripts/validate-boundaries.sh && git diff --check`
+- `python3 -m ruff check src tests`
+- `python3 -m pytest -q`
+
+User stories:
+- As a sales engineer, I can save a pilot intake snapshot into a configured CAVRA API during a self-hosted demo.
+- As a platform owner, I can retrieve pilot intake readiness and see which areas still need input.
+- As a security architect, I can rely on the public scaffold rejecting obvious secret-bearing fields before persistence.
+
+Enterprise challenge solved:
+- Turns buyer readiness into a structured API object that can later move into private tenant storage without placing customer records or commercial implementation logic in the public Community repository.
+
+Recommended next issue: add tenant-scoped private persistence, authenticated update permissions, encrypted storage, and connector-backed handoff tasks in Enterprise or SaaS.
+
 ## Phase 9 Evidence Console Production Pilot Readiness
 
 Status: complete for the current public Evidence Console pilot readiness panel slice.
@@ -27,7 +55,7 @@ User stories:
 Enterprise challenge solved:
 - Converts a static pilot intake template into a buyer-facing readiness experience while preserving the open-core boundary for customer data, private connectors, production identities, and commercial implementation.
 
-Recommended next issue: add pilot intake upload/save APIs and persistence for self-hosted Enterprise or SaaS readiness evidence while keeping customer-specific material out of the public Community repository.
+Recommended next issue: delivered above as the public-safe pilot intake API and persistence scaffold.
 
 ## Phase 9 Final Closeout Production Pilot Intake
 

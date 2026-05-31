@@ -111,3 +111,7 @@ The public Evidence Console loads the same synthetic intake template and renders
 - links to the pilot readiness checklist and Enterprise/SaaS handoff guide.
 
 Customer-specific intake responses, private connector routes, identity mappings, commercial details, and production evidence must be captured in a private Enterprise repository, customer tenant, or SaaS control plane. Do not commit customer pilot responses to this public Community repository.
+
+## Pilot Intake API
+
+The self-hosted API scaffold is documented in [final-closeout-pilot-intake-api.md](final-closeout-pilot-intake-api.md). It provides `POST /pilot-intakes`, `GET /pilot-intakes`, `GET /pilot-intakes/{intake_id}`, and `GET /pilot-intakes/{intake_id}/readiness` for local/private persistence and readiness scoring.

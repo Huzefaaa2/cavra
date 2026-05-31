@@ -1245,6 +1245,7 @@ let consoleConfig = null;
 let consoleAuthToken = window.sessionStorage?.getItem("cavraConsoleToken") || "";
 let lastPolicyPublishApprovalId = "";
 let lastSandboxRun = null;
+let latestPilotIntakeTemplate = null;
 
 function eventPayload(row, index) {
   const [action_type, target, decision, rule_id, reason] = row;
@@ -3753,7 +3754,40 @@ function renderPilotReadiness(template) {
 }
 
 async function refreshPilotReadiness() {
-  renderPilotReadiness(await loadPilotIntakeTemplate());
+  latestPilotIntakeTemplate = await loadPilotIntakeTemplate();
+  renderPilotReadiness(latestPilotIntakeTemplate);
+}
+
+async function savePilotIntakeSnapshot() {
+  const status = document.querySelector("#pilotReadinessStatus");
+  await loadConsoleConfig();
+  const template = latestPilotIntakeTemplate || await loadPilotIntakeTemplate();
+  if (!window.CAVRA_API_BASE && !consoleConfig?.api_base_url) {
+    if (status) {
+      status.textContent = "Hosted public demo mode: pilot intake persistence requires a configured CAVRA API.";
+      status.className = "status-line warn";
+    }
+    return;
+  }
+  try {
+    const response = await fetch(apiUrl("/pilot-intakes"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({ ...template, created_by: "evidence-console" })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    const saved = await response.json();
+    if (status) {
+      status.textContent = `Saved pilot intake ${saved.intake_id} with ${saved.readiness?.overall_status || "unknown"} readiness.`;
+      status.className = "status-line ok";
+    }
+    renderPilotReadiness(saved);
+  } catch (error) {
+    if (status) {
+      status.textContent = `Pilot intake save failed: ${error.message || error}`;
+      status.className = "status-line warn";
+    }
+  }
 }
 
 function renderReleaseConnectorDeliveries(items, dashboard) {
@@ -9522,6 +9556,7 @@ document.querySelector("#approvalRows").addEventListener("click", async (event) 
   await submitApprovalAction(actionButton.dataset.id, actionButton.dataset.action);
 });
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
+document.querySelector("#savePilotIntake").addEventListener("click", savePilotIntakeSnapshot);
 document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });

@@ -212,6 +212,7 @@ from cavra.policy_authoring import (
     publish_policy_pack,
     summarize_policy,
 )
+from cavra.pilot_intake import PilotIntakeStore
 from cavra.policy_registry import PolicyRegistry, PolicyRegistryError
 from cavra.registry import (
     RegistryStore,
@@ -385,6 +386,7 @@ def create_app():
         if os.environ.get("CAVRA_INTEGRATION_DB")
         else IntegrationStore(Path(os.environ.get("CAVRA_INTEGRATION_STORE", ".cavra/api/integrations.json")))
     )
+    pilot_intake_store = PilotIntakeStore(Path(os.environ.get("CAVRA_PILOT_INTAKE_STORE", ".cavra/api/pilot-intakes.json")))
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -411,6 +413,7 @@ def create_app():
             "activity_mode": activity_mode,
             "inventory_mode": inventory_mode,
             "integration_mode": integration_mode,
+            "pilot_intake_mode": "json",
             "approval_provider_delivery": "configured" if provider_config is not None else "disabled",
             "connector_delivery": "configured" if connector_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
@@ -602,6 +605,9 @@ def create_app():
                 "operations_retention_plan": "/operations/retention-plan",
                 "integrations": "/integrations",
                 "integration_deliver": "/integrations/{integration_id}/deliver",
+                "pilot_intakes": "/pilot-intakes",
+                "pilot_intake": "/pilot-intakes/{intake_id}",
+                "pilot_intake_readiness": "/pilot-intakes/{intake_id}/readiness",
                 "agents": "/agents",
                 "agent_enforcement_readiness": "/agents/enforcement-readiness",
                 "mcp_servers": "/mcp/servers",
@@ -4472,6 +4478,41 @@ def create_app():
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/pilot-intakes")
+    def pilot_intake_index(
+        overall_status: Optional[str] = None,
+        repository: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict:
+        return pilot_intake_store.list(
+            overall_status=overall_status,
+            repository=repository,
+            limit=limit,
+            offset=offset,
+        )
+
+    @app.post("/pilot-intakes")
+    def upsert_pilot_intake(payload: dict) -> dict:
+        try:
+            return pilot_intake_store.upsert(payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/pilot-intakes/{intake_id}")
+    def pilot_intake_item(intake_id: str) -> dict:
+        item = pilot_intake_store.get(intake_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="pilot intake not found")
+        return item
+
+    @app.get("/pilot-intakes/{intake_id}/readiness")
+    def pilot_intake_readiness(intake_id: str) -> dict:
+        item = pilot_intake_store.get(intake_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="pilot intake not found")
+        return item["readiness"]
 
     @app.get("/risk/events")
     @app.get("/compliance/mappings")
