@@ -48,6 +48,6 @@ Final reporting often fails silently after lower-level recovery automation is co
 
 See `docs/diagrams/go-backend-rollback-drill-executive-health-alert-retry-final-closure.svg`.
 
-## Next Work
+## Delivered Follow-Up
 
-The next recommended implementation step is release-readiness summary and operator runbook export for the completed rollback drill reporting loop.
+Release-readiness summary and operator runbook export are documented in `Go-Backend-Rollback-Drill-Final-Readiness-Runbook-Export.md`.

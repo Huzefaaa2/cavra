@@ -83,6 +83,10 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run,
@@ -497,6 +501,8 @@ def create_app():
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_retry_plan": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-plan",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_retry_worker": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-worker-run",
                 "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closure_dashboard": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_readiness": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-readiness",
+                "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_operator_runbook_export": "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-operator-runbook-export",
                 "go_rollback_drill_notification_history": "/runtime/go-pilot/rollback-drill-notifications",
                 "go_rollback_drill_notification_dashboard": "/runtime/go-pilot/rollback-drill-notifications/dashboard",
                 "go_rollback_drill_notification_escalation_plan": "/runtime/go-pilot/rollback-drill-notifications/escalation-plan",
@@ -2469,6 +2475,61 @@ def create_app():
         return build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard(
             _go_rollback_drill_notification_items(evidence_store)
         )
+
+    @app.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-readiness"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_readiness(
+        generated_by: str = "console",
+        persist: bool = True,
+    ) -> dict[str, object]:
+        summary = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary(
+            _go_rollback_drill_notification_items(evidence_store),
+            generated_by=generated_by,
+        )
+        metadata = None
+        if persist:
+            metadata = evidence_store.upsert(
+                build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata(
+                    summary
+                )
+            )
+        return {"summary": summary, "metadata": metadata}
+
+    @app.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-operator-runbook-export"
+    )
+    def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_operator_runbook_export(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        actor_context = _console_mutation_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        generated_by = actor_context.get("actor") if actor_context else payload.get("generated_by", "console")
+        export = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export(
+            _go_rollback_drill_notification_items(evidence_store),
+            generated_by=str(generated_by),
+        )
+        metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata(
+                export
+            )
+        )
+        readiness_metadata = evidence_store.upsert(
+            build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata(
+                export["readiness_summary"]
+            )
+        )
+        return {
+            "export": export,
+            "metadata": metadata,
+            "readiness_metadata": readiness_metadata,
+            "actor": _public_actor_context(actor_context) if actor_context else None,
+        }
 
     @app.get("/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/worker-health")
     def runtime_go_pilot_rollback_drill_notification_acknowledgement_audit_delivery_worker_health(

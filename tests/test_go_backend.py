@@ -64,6 +64,10 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run,
@@ -1585,6 +1589,35 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     final_reporting_closure_dashboard = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard(
         dashboard_items
     )
+    final_reporting_release_readiness = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary(
+            dashboard_items,
+            generated_by="test",
+        )
+    )
+    final_reporting_release_readiness_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata(
+            final_reporting_release_readiness
+        )
+    )
+    final_reporting_operator_runbook = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export(
+            dashboard_items,
+            generated_by="test",
+        )
+    )
+    final_reporting_operator_runbook_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata(
+            final_reporting_operator_runbook
+        )
+    )
+    dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
+        [
+            *dashboard_items,
+            final_reporting_release_readiness_metadata,
+            final_reporting_operator_runbook_metadata,
+        ]
+    )
 
     assert approval_plan["approval_required_count"] == 1
     assert approval_metadata["metadata_kind"].endswith("retry-execution-approval-plan")
@@ -1708,6 +1741,19 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_closure_dashboard["summary"][
         "executive_retry_health_alert_retry_worker_run_count"
     ] == 1
+    assert final_reporting_release_readiness["readiness_state"] == "blocked"
+    assert final_reporting_release_readiness["failed_check_count"] >= 1
+    assert final_reporting_release_readiness_metadata["metadata_kind"].endswith(
+        "final-reporting-release-readiness-summary"
+    )
+    assert (
+        final_reporting_operator_runbook["readiness_summary_id"]
+        == final_reporting_operator_runbook["readiness_summary"]["summary_id"]
+    )
+    assert "CAVRA Rollback Drill Final Reporting Runbook Export" in final_reporting_operator_runbook["markdown"]
+    assert final_reporting_operator_runbook_metadata["metadata_kind"].endswith(
+        "final-reporting-operator-runbook-export"
+    )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -1798,6 +1844,18 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert (
         dashboard[
             "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_readiness_summary_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count"
         ]
         == 1
     )

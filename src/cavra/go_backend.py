@@ -1159,6 +1159,8 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1252,6 +1254,8 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1510,6 +1514,18 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record"
+    ]
+    audit_delivery_final_reporting_release_readiness_summaries = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary"
+    ]
+    audit_delivery_final_reporting_operator_runbook_exports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1803,6 +1819,19 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
                 for item in audit_delivery_recovery_executive_report_delivery_retry_health_alert_retry_execution_records
                 if item.get("execution_status") in {"failed", "skipped"}
             ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_readiness_summary_count": len(
+            audit_delivery_final_reporting_release_readiness_summaries
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_ready_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_readiness_summaries
+                if item.get("readiness_state") == "ready"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count": len(
+            audit_delivery_final_reporting_operator_runbook_exports
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -5288,6 +5317,276 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closu
             "final-reporting-closure-dashboard-derived-from-public-safe-metadata",
             "closure-dashboard-contains-no-connector-secret-or-private-endpoint",
         ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    history = filter_go_rollback_drill_notification_history(items)
+    dashboard = build_go_rollback_drill_notification_dashboard(items)
+    closure_dashboard = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard(items)
+    summary = closure_dashboard.get("summary", {}) if isinstance(closure_dashboard.get("summary"), dict) else {}
+    checks = [
+        {
+            "id": "final_reporting_closure_state",
+            "title": "Final reporting closure state",
+            "status": "pass" if closure_dashboard.get("closure_state") == "closed" else "fail",
+            "evidence": f"closure_state={closure_dashboard.get('closure_state', 'unknown')}",
+            "operator_action": "Resolve final closure open items before release closure.",
+        },
+        {
+            "id": "executive_retry_health_alert_delivery",
+            "title": "Executive retry health alert delivery",
+            "status": "pass"
+            if int(summary.get("executive_retry_health_alert_delivery_failed_count") or 0) == 0
+            else "fail",
+            "evidence": (
+                "failed_delivery_count="
+                f"{int(summary.get('executive_retry_health_alert_delivery_failed_count') or 0)}"
+            ),
+            "operator_action": "Retry failed executive retry health alert deliveries.",
+        },
+        {
+            "id": "executive_retry_health_alert_retry_execution",
+            "title": "Executive retry health alert retry execution",
+            "status": "pass"
+            if int(summary.get("executive_retry_health_alert_retry_execution_failed_count") or 0) == 0
+            else "fail",
+            "evidence": (
+                "failed_execution_count="
+                f"{int(summary.get('executive_retry_health_alert_retry_execution_failed_count') or 0)}"
+            ),
+            "operator_action": "Review failed executive retry health alert retry executions.",
+        },
+        {
+            "id": "recovery_retry_health_alert_retry_execution",
+            "title": "Recovery retry health alert retry execution",
+            "status": "pass"
+            if int(summary.get("recovery_retry_health_alert_retry_execution_failed_count") or 0) == 0
+            else "fail",
+            "evidence": (
+                "failed_execution_count="
+                f"{int(summary.get('recovery_retry_health_alert_retry_execution_failed_count') or 0)}"
+            ),
+            "operator_action": "Review failed recovery retry health alert retry executions.",
+        },
+        {
+            "id": "notification_acknowledgements",
+            "title": "Notification acknowledgements",
+            "status": "pass" if int(dashboard.get("outstanding_acknowledgement_count") or 0) == 0 else "fail",
+            "evidence": f"outstanding_acknowledgement_count={int(dashboard.get('outstanding_acknowledgement_count') or 0)}",
+            "operator_action": "Acknowledge or resolve outstanding rollback drill routes.",
+        },
+        {
+            "id": "release_readiness_artifacts",
+            "title": "Release readiness artifacts",
+            "status": "pass",
+            "evidence": "summary generated from public-safe rollback drill metadata",
+            "operator_action": "Attach this summary and the operator runbook export to the release record.",
+        },
+    ]
+    failed_checks = [check for check in checks if check["status"] == "fail"]
+    warning_checks = [check for check in checks if check["status"] == "warning"]
+    readiness_state = "ready" if not failed_checks else "blocked"
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"generated_at": generated_at, "readiness_state": readiness_state, "checks": checks},
+        sort_keys=True,
+    )
+    summary_id = f"gordackfinalready-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-readiness-summary.v1",
+        "product": "CAVRA",
+        "summary_id": summary_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "readiness_state": readiness_state,
+        "alert_level": "healthy" if readiness_state == "ready" else "critical",
+        "check_count": len(checks),
+        "passed_check_count": len([check for check in checks if check["status"] == "pass"]),
+        "failed_check_count": len(failed_checks),
+        "warning_check_count": len(warning_checks),
+        "closure_state": closure_dashboard.get("closure_state"),
+        "open_item_count": int(closure_dashboard.get("open_item_count") or 0),
+        "open_items": closure_dashboard.get("open_items", []),
+        "checks": checks,
+        "release_decision": {
+            "recommended_state": "approve_release_closure" if readiness_state == "ready" else "hold_release_closure",
+            "reason": "final rollback drill reporting loop is closed"
+            if readiness_state == "ready"
+            else "final rollback drill reporting loop has unresolved blockers",
+        },
+        "evidence_counts": {
+            "notification_history_total": len(history),
+            "executive_retry_health_alert_retry_plan_count": summary.get(
+                "executive_retry_health_alert_retry_plan_count", 0
+            ),
+            "executive_retry_health_alert_retry_worker_run_count": summary.get(
+                "executive_retry_health_alert_retry_worker_run_count", 0
+            ),
+            "recovery_retry_health_alert_retry_worker_run_count": summary.get(
+                "recovery_retry_health_alert_retry_worker_run_count", 0
+            ),
+            "operator_runbook_export_count": dashboard.get(
+                "acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count", 0
+            ),
+        },
+        "recommended_actions": closure_dashboard.get("recommended_actions", []),
+        "controls": [
+            "release-readiness-summary-derived-from-public-safe-metadata",
+            "release-readiness-summary-contains-no-connector-secret-or-private-endpoint",
+            "release-readiness-summary-does-not-execute-rollback-or-connector-side-effects",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata(
+    summary: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": summary.get("summary_id"),
+        "created_at": summary.get("generated_at"),
+        "signer": summary.get("generated_by", "release-governance"),
+        "decision_count": int(summary.get("check_count") or 0),
+        "blocked_count": int(summary.get("failed_check_count") or 0),
+        "approval_required_count": 1 if summary.get("readiness_state") != "ready" else 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
+        "summary_id": summary.get("summary_id"),
+        "readiness_state": summary.get("readiness_state"),
+        "alert_level": summary.get("alert_level"),
+        "failed_check_count": summary.get("failed_check_count", 0),
+        "warning_check_count": summary.get("warning_check_count", 0),
+        "closure_state": summary.get("closure_state"),
+        "open_item_count": summary.get("open_item_count", 0),
+        "final_reporting_release_readiness_summary": summary,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    readiness = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary(
+        items,
+        generated_by=generated_by,
+        now=now,
+    )
+    generated_at = now.isoformat()
+    sections = [
+        {
+            "title": "Purpose",
+            "items": [
+                "Use this public-safe runbook export to review the completed rollback drill reporting loop.",
+                "Do not place connector credentials, customer data, private endpoints, or enterprise implementation details in this document.",
+            ],
+        },
+        {
+            "title": "Readiness Gate",
+            "items": [
+                f"Readiness state: {readiness.get('readiness_state')}",
+                f"Closure state: {readiness.get('closure_state')}",
+                f"Failed checks: {readiness.get('failed_check_count')}",
+            ],
+        },
+        {
+            "title": "Operator Steps",
+            "items": [
+                "Review failed checks and open items.",
+                "Retry failed executive or recovery health alert deliveries through configured connectors.",
+                "Acknowledge executive and recovery retry health alerts after release governance review.",
+                "Attach readiness summary and runbook export evidence to the release record.",
+            ],
+        },
+        {
+            "title": "Evidence To Attach",
+            "items": [
+                "Final reporting closure dashboard JSON.",
+                "Release readiness summary JSON.",
+                "Operator runbook export JSON or Markdown.",
+                "Relevant connector delivery and retry execution evidence references.",
+            ],
+        },
+        {
+            "title": "Private Boundary",
+            "items": [
+                "Keep connector secrets, private URLs, customer payloads, and enterprise automation outside the Community repository.",
+                "Perform credential rotation, ticket mutation, and chat updates through private connectors or operator-owned systems.",
+            ],
+        },
+    ]
+    markdown_lines = [
+        "# CAVRA Rollback Drill Final Reporting Runbook Export",
+        "",
+        f"- Generated at: {generated_at}",
+        f"- Generated by: {generated_by}",
+        f"- Readiness state: {readiness.get('readiness_state')}",
+        f"- Closure state: {readiness.get('closure_state')}",
+        "",
+    ]
+    for section in sections:
+        markdown_lines.extend([f"## {section['title']}", ""])
+        markdown_lines.extend([f"- {item}" for item in section["items"]])
+        markdown_lines.append("")
+    markdown_lines.extend(["## Checks", ""])
+    for check in readiness.get("checks", []):
+        markdown_lines.append(
+            f"- {check.get('id')}: {check.get('status')} - {check.get('evidence')} - {check.get('operator_action')}"
+        )
+    markdown = "\n".join(markdown_lines).strip() + "\n"
+    material = json.dumps(
+        {"generated_at": generated_at, "readiness_summary_id": readiness.get("summary_id"), "sections": sections},
+        sort_keys=True,
+    )
+    export_id = f"gordackfinalrunbook-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-operator-runbook-export.v1",
+        "product": "CAVRA",
+        "export_id": export_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "readiness_summary": readiness,
+        "readiness_summary_id": readiness.get("summary_id"),
+        "readiness_state": readiness.get("readiness_state"),
+        "closure_state": readiness.get("closure_state"),
+        "sections": sections,
+        "markdown": markdown,
+        "public_evidence_refs": [
+            f"go-rollback-drill-final-readiness://{readiness.get('summary_id')}",
+            "go-rollback-drill-final-closure-dashboard://latest",
+        ],
+        "controls": [
+            "operator-runbook-export-derived-from-public-safe-metadata",
+            "operator-runbook-export-contains-no-connector-secret-or-private-endpoint",
+            "operator-runbook-export-does-not-execute-rollback-or-connector-side-effects",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata(
+    export: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": export.get("export_id"),
+        "created_at": export.get("generated_at"),
+        "signer": export.get("generated_by", "release-governance"),
+        "decision_count": len(export.get("sections", [])),
+        "blocked_count": 1 if export.get("readiness_state") != "ready" else 0,
+        "approval_required_count": 1 if export.get("readiness_state") != "ready" else 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
+        "export_id": export.get("export_id"),
+        "readiness_summary_id": export.get("readiness_summary_id"),
+        "readiness_state": export.get("readiness_state"),
+        "closure_state": export.get("closure_state"),
+        "section_count": len(export.get("sections", [])),
+        "final_reporting_operator_runbook_export": export,
     }
 
 

@@ -1700,6 +1700,18 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard"
     )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_readiness"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-readiness"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_operator_runbook_export"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-operator-runbook-export"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -2299,6 +2311,15 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     final_reporting_closure_dashboard = client.get(
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard"
     )
+    final_reporting_release_readiness = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-readiness",
+        params={"generated_by": "release-manager"},
+    )
+    final_reporting_operator_runbook = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-operator-runbook-export",
+        json={"generated_by": "release-manager"},
+    )
+    dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
     assert response.json()["plan"]["alert_level"] == "critical"
@@ -2590,6 +2611,20 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert final_reporting_closure_dashboard.json()["summary"][
         "executive_retry_health_alert_retry_worker_run_count"
     ] == 1
+    assert final_reporting_release_readiness.status_code == 200
+    assert (
+        final_reporting_release_readiness.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary"
+    )
+    assert final_reporting_release_readiness.json()["summary"]["readiness_state"] == "blocked"
+    assert final_reporting_operator_runbook.status_code == 200
+    assert (
+        final_reporting_operator_runbook.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+    )
+    assert "CAVRA Rollback Drill Final Reporting Runbook Export" in final_reporting_operator_runbook.json()["export"][
+        "markdown"
+    ]
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -2731,6 +2766,14 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         dashboard_after.json()[
             "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record_count"
         ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_readiness_summary_count"]
+        >= 1
+    )
+    assert (
+        dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count"]
         == 1
     )
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2

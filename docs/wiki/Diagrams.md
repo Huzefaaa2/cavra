@@ -122,6 +122,10 @@ See `docs/diagrams/go-backend-rollback-drill-recovery-health-alert-retry-worker-
 
 See `docs/diagrams/go-backend-rollback-drill-executive-health-alert-retry-final-closure.svg` for the public-safe flow from failed executive retry health alert delivery through retry planning, worker execution, execution evidence, and final reporting closure.
 
+## Go Backend Rollback Drill Final Readiness Runbook Export
+
+See `docs/diagrams/go-backend-rollback-drill-final-readiness-runbook-export.svg` for the public-safe flow from final closure evidence into release-readiness checks, operator runbook export, and release evidence attachment.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation
