@@ -1,5 +1,33 @@
 # Phase Completion Log
 
+## Phase 9 Enterprise Archive Alert Deployment Runbooks
+
+Status: complete for the private Enterprise archive alert deployment runbook and smoke-test guidance slice.
+
+Completed implementation:
+- Added archive alert deployment runbook helpers in `Huzefaaa2/cavra-enterprise`.
+- Added public-safe readiness packet generation with operator rollout steps and provider smoke-test plans.
+- Added Kubernetes deployment examples and Helm values for private archive alert workers.
+- Added an operator runbook covering runtime configuration, readiness checks, provider smoke tests, Kubernetes rollout, Helm rollout, and rollback.
+- Added tests for required environment variable mapping, provider smoke-test command generation, and readiness summaries.
+- Kept provider endpoints, webhook URLs, API tokens, routing keys, account IDs, customer destinations, and tenant-specific metadata outside public source control.
+
+Validation:
+- `.venv/bin/python -m ruff check src tests` in the private repo.
+- `.venv/bin/python -m pytest -q` in the private repo.
+- `git diff --check` in the private repo.
+- GitHub `test` passed on private PR #13.
+
+User stories:
+- As a platform owner, I can deploy archive alert workers from private Kubernetes or Helm examples without committing secrets.
+- As an operator, I can run readiness and provider smoke-test guidance before enabling scheduled archive health workers.
+- As a security owner, I can verify that alert provider configuration is injected from a secret manager and never printed in evidence.
+
+Enterprise challenge solved:
+- Converts production archive alert wiring into repeatable deployment guidance with public-safe readiness output, reducing implementation variance across self-hosted Enterprise and future SaaS deployments.
+
+Recommended next issue: add provider-specific archive alert smoke-test execution jobs and post-delivery dashboard assertions.
+
 ## Phase 9 Enterprise Archive Alert Deployment Wiring
 
 Status: complete for the private Enterprise archive alert deployment wiring slice.
@@ -26,7 +54,7 @@ User stories:
 Enterprise challenge solved:
 - Turns private archive alert capabilities into deployable production wiring with readiness validation and provider selection.
 
-Recommended next issue: add archive alert deployment runbooks, Kubernetes/Helm examples, and provider smoke-test commands.
+Recommended next issue: delivered above as archive alert deployment runbooks, Kubernetes/Helm examples, and provider smoke-test guidance.
 
 ## Phase 9 Enterprise Managed Archive Dashboard Storage And Live Alert Transports
 

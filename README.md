@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes production deployment wiring for archive alert dashboard storage and live alert transports, public-safe readiness validation for missing runtime configuration, dashboard backend selection, retry policy wiring, enabled transport selection, dispatcher/coordinator construction, and deployment tests.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert deployment runbook helpers, Kubernetes deployment examples, Helm values, provider smoke-test guidance, public-safe readiness output, and deployment documentation that keeps provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert deployment runbooks, Kubernetes/Helm examples, and provider smoke-test commands.
+- Add provider-specific archive alert smoke-test execution jobs and post-delivery dashboard assertions.
 
 ## User stories and enterprise value
 

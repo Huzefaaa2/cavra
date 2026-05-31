@@ -30,6 +30,7 @@ Initial private implementation status:
 - managed database-backed archive health dashboard persistence
 - live provider alert transport adapters for Slack, Teams, Splunk HEC, Jira, ServiceNow, and PagerDuty
 - production deployment wiring for archive alert dashboard storage, transport selection, retry policy, and readiness validation
+- archive alert deployment runbook helpers, Kubernetes examples, Helm values, and provider smoke-test guidance
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
