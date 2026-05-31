@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import uuid
+from hashlib import sha256
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,15 @@ RISKY_VALUE_PATTERNS = (
     re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{16,}\b"),
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 )
+HANDOFF_TASK_PROVIDERS = {
+    "crm",
+    "customer_success",
+    "enterprise_repo",
+    "grc",
+    "itsm",
+    "saas_tenant",
+    "security_review",
+}
 
 
 def utc_now() -> str:
@@ -153,6 +163,102 @@ def build_pilot_readiness(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_private_persistence_handoff_plan(
+    record: dict[str, Any],
+    *,
+    tenant_id: str,
+    providers: list[str] | None = None,
+    requested_by: str = "console",
+) -> dict[str, Any]:
+    """Build a public-safe plan for private Enterprise/SaaS intake persistence."""
+
+    tenant = _safe_tenant_id(tenant_id)
+    selected_providers = _normalize_handoff_providers(providers)
+    intake_id = str(record.get("intake_id") or "")
+    if not intake_id:
+        raise ValueError("pilot intake record must include intake_id")
+    readiness = record.get("readiness") if isinstance(record.get("readiness"), dict) else build_pilot_readiness(record)
+    generated_at = utc_now()
+    tasks = [
+        _handoff_task(
+            record,
+            tenant_id=tenant,
+            provider=provider,
+            requested_by=requested_by,
+            generated_at=generated_at,
+        )
+        for provider in selected_providers
+    ]
+    return {
+        "schema_version": "cavra.pilot_intake.private_handoff_plan.v1",
+        "product": "CAVRA",
+        "plan_id": _stable_plan_id(tenant, intake_id, selected_providers),
+        "intake_id": intake_id,
+        "tenant_id": tenant,
+        "generated_at": generated_at,
+        "generated_by": requested_by,
+        "readiness_status": readiness.get("overall_status", "unknown"),
+        "private_implementation_required": True,
+        "community_boundary": {
+            "contains_customer_payload": False,
+            "contains_connector_credentials": False,
+            "contains_license_or_signing_secrets": False,
+            "purpose": "Public-safe plan for private Enterprise or SaaS implementation.",
+        },
+        "tenant_persistence_contract": {
+            "storage_owner": "private-enterprise-or-saas",
+            "tenant_scope_required": True,
+            "record_key": f"{tenant}:{intake_id}",
+            "required_controls": [
+                "tenant-isolated-records",
+                "authenticated-update-permissions",
+                "encrypted-storage",
+                "audit-log-for-create-update-export",
+                "retention-policy-bound-to-customer-contract",
+                "customer-owned-export-and-deletion-workflow",
+            ],
+        },
+        "authorization_contract": {
+            "authenticated_updates_required": True,
+            "minimum_roles": [
+                "pilot_owner",
+                "platform_owner",
+                "security_reviewer",
+                "commercial_owner",
+            ],
+            "recommended_claims": [
+                "tenant_id",
+                "subject",
+                "email",
+                "groups",
+                "role",
+            ],
+        },
+        "encrypted_storage_contract": {
+            "required": True,
+            "key_ownership": "customer-or-saas-kms",
+            "recommended_controls": [
+                "envelope-encryption",
+                "per-tenant-key-separation",
+                "key-rotation",
+                "backup-encryption",
+                "data-residency-policy",
+            ],
+        },
+        "handoff_tasks": tasks,
+        "blocked_until_private_implementation": [
+            "tenant database writes",
+            "credentialed connector execution",
+            "commercial workflow mutation",
+            "customer-specific exports",
+        ],
+        "public_evidence_refs": [
+            f"pilot-intake://{intake_id}",
+            f"pilot-intake-readiness://{intake_id}",
+        ],
+    }
+
+
 class PilotIntakeStore:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -211,6 +317,69 @@ class PilotIntakeStore:
 
 def _area(area: str, status: str, message: str) -> dict[str, str]:
     return {"area": area, "status": status, "message": message}
+
+
+def _handoff_task(
+    record: dict[str, Any],
+    *,
+    tenant_id: str,
+    provider: str,
+    requested_by: str,
+    generated_at: str,
+) -> dict[str, Any]:
+    intake_id = str(record.get("intake_id"))
+    readiness = record.get("readiness", {})
+    status = "ready_for_private_connector" if readiness.get("overall_status") == READY else "needs_review"
+    return {
+        "task_id": _stable_plan_id(tenant_id, intake_id, [provider]),
+        "provider": provider,
+        "status": status,
+        "created_at": generated_at,
+        "requested_by": requested_by,
+        "private_connector_required": True,
+        "mutation_allowed_in_community": False,
+        "summary": _handoff_summary(provider),
+        "inputs": {
+            "tenant_id": tenant_id,
+            "intake_id": intake_id,
+            "readiness_status": readiness.get("overall_status", "unknown"),
+        },
+    }
+
+
+def _handoff_summary(provider: str) -> str:
+    summaries = {
+        "crm": "Create or update the paid pilot opportunity in the private CRM workflow.",
+        "customer_success": "Create customer success onboarding tasks for pilot owners and timeline.",
+        "enterprise_repo": "Prepare private Enterprise repository or package access for the scoped pilot.",
+        "grc": "Create GRC evidence intake or compliance-review placeholder.",
+        "itsm": "Create ITSM implementation ticket for connector, runner, and retention setup.",
+        "saas_tenant": "Provision or update the SaaS tenant using private tenant-management services.",
+        "security_review": "Create security review task for SSO/RBAC, retention, and data-handling signoff.",
+    }
+    return summaries.get(provider, "Prepare private handoff task.")
+
+
+def _safe_tenant_id(value: str) -> str:
+    tenant_id = str(value or "").strip()
+    if not re.fullmatch(r"[A-Za-z0-9_.:-]{3,128}", tenant_id):
+        raise ValueError("tenant_id must be 3-128 characters using letters, numbers, dot, underscore, colon, or dash")
+    return tenant_id
+
+
+def _normalize_handoff_providers(providers: list[str] | None) -> list[str]:
+    selected = [str(item).strip().lower().replace("-", "_") for item in (providers or []) if str(item).strip()]
+    if not selected:
+        selected = ["saas_tenant", "security_review", "customer_success"]
+    unknown = sorted(set(selected) - HANDOFF_TASK_PROVIDERS)
+    if unknown:
+        raise ValueError(f"unsupported handoff task provider: {', '.join(unknown)}")
+    return sorted(set(selected))
+
+
+def _stable_plan_id(tenant_id: str, intake_id: str, providers: list[str]) -> str:
+    digest = sha256(f"{tenant_id}:{intake_id}:{','.join(sorted(providers))}".encode("utf-8")).hexdigest()[:16]
+    return f"pih-{digest}"
 
 
 def _connector_status(connectors: list[dict[str, Any]]) -> str:

@@ -212,7 +212,7 @@ from cavra.policy_authoring import (
     publish_policy_pack,
     summarize_policy,
 )
-from cavra.pilot_intake import PilotIntakeStore
+from cavra.pilot_intake import PilotIntakeStore, build_private_persistence_handoff_plan
 from cavra.policy_registry import PolicyRegistry, PolicyRegistryError
 from cavra.registry import (
     RegistryStore,
@@ -608,6 +608,7 @@ def create_app():
                 "pilot_intakes": "/pilot-intakes",
                 "pilot_intake": "/pilot-intakes/{intake_id}",
                 "pilot_intake_readiness": "/pilot-intakes/{intake_id}/readiness",
+                "pilot_intake_private_handoff_plan": "/pilot-intakes/{intake_id}/private-handoff-plan",
                 "agents": "/agents",
                 "agent_enforcement_readiness": "/agents/enforcement-readiness",
                 "mcp_servers": "/mcp/servers",
@@ -4513,6 +4514,21 @@ def create_app():
         if item is None:
             raise HTTPException(status_code=404, detail="pilot intake not found")
         return item["readiness"]
+
+    @app.post("/pilot-intakes/{intake_id}/private-handoff-plan")
+    def pilot_intake_private_handoff_plan(intake_id: str, payload: dict) -> dict:
+        item = pilot_intake_store.get(intake_id)
+        if item is None:
+            raise HTTPException(status_code=404, detail="pilot intake not found")
+        try:
+            return build_private_persistence_handoff_plan(
+                item,
+                tenant_id=payload.get("tenant_id", ""),
+                providers=payload.get("providers"),
+                requested_by=payload.get("requested_by", "console"),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/risk/events")
     @app.get("/compliance/mappings")
