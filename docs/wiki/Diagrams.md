@@ -200,6 +200,10 @@ See `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery
 
 See `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg` for closeout retention health checks, retention alert delivery, failed closeout delivery retry planning, and retry worker evidence.
 
+## Release Governance Final Closeout Operator Guide
+
+See `docs/diagrams/release-governance-final-closeout-operator-guide.svg` for the public-safe operator workflow from final readiness evidence through signed archive manifest metadata, closeout delivery, retention approval, artifact bundle review, retention health, alerting, retry planning, release criteria, and trial handoff.
+
 ## SVG Images
 
 Repository diagram images:
@@ -235,6 +239,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg`
 - `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg`
 - `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg`
+- `docs/diagrams/release-governance-final-closeout-operator-guide.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

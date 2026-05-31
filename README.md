@@ -121,6 +121,7 @@ Architecture references:
 - [Go backend rollback drill auditor retry worker and archive alert acknowledgements SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg)
 - [Go backend rollback drill final closeout delivery and retention SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg)
 - [Go backend rollback drill final closeout health and retry SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg)
+- [Release governance final closeout operator guide SVG](docs/diagrams/release-governance-final-closeout-operator-guide.svg)
 
 Brand assets:
 
@@ -424,11 +425,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final rollback drill closeout retention health, bundle expiry alerts, and failed closeout delivery retry automation are now documented in [docs/go-backend-rollback-drill-final-closeout-health-retry.md](docs/go-backend-rollback-drill-final-closeout-health-retry.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg).
+- Final closeout operator guidance, release criteria, and trial documentation are now documented in [docs/release-governance-final-closeout-operator-guide.md](docs/release-governance-final-closeout-operator-guide.md), [docs/release-governance-final-closeout-release-criteria.md](docs/release-governance-final-closeout-release-criteria.md), and [docs/enterprise/final-closeout-trial.md](docs/enterprise/final-closeout-trial.md) with a new operator diagram at [docs/diagrams/release-governance-final-closeout-operator-guide.svg](docs/diagrams/release-governance-final-closeout-operator-guide.svg).
 
 Next recommended implementation work:
 
-- Package the completed final closeout workflow into release-governance operator guidance, including runbook checklists, release criteria, and customer-facing trial documentation for open-core adoption.
+- Add customer onboarding assets for final closeout trials: a trial walkthrough, sample evidence package, and sales-engineering demo script that show the Community-to-Enterprise upgrade path without exposing Enterprise source code.
 
 ## User stories and enterprise value
 

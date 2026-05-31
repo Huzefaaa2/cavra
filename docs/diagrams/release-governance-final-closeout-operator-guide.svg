@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA final closeout operator runbook</title>
+  <desc id="desc">Operator workflow for release closeout evidence, retention health, retry decisions, release criteria, trial handoff, and Enterprise responsibilities.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#72e2c1"/>
+    </marker>
+    <style>
+      .bg{fill:#081216}
+      .title{font:700 30px Arial,sans-serif;fill:#eef7f7}
+      .subtitle{font:500 16px Arial,sans-serif;fill:#a9bdc4}
+      .stage{fill:#101b20;stroke:#39535c;stroke-width:2;rx:8}
+      .gate{fill:#13372f;stroke:#72e2c1;stroke-width:2;rx:8}
+      .trial{fill:#1b2430;stroke:#8db8ff;stroke-width:2;rx:8}
+      .text{font:700 17px Arial,sans-serif;fill:#f5fbfb}
+      .small{font:500 13px Arial,sans-serif;fill:#b8c8cc}
+      .line{stroke:#72e2c1;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#5f737b;stroke-width:2;fill:none;stroke-dasharray:6 6}
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="54" y="62" class="title">Final Closeout Operator Guidance</text>
+  <text x="54" y="92" class="subtitle">Runbook, release criteria, and trial handoff for public-safe CAVRA closeout operations.</text>
+
+  <rect x="54" y="145" width="220" height="116" class="stage"/>
+  <text x="82" y="184" class="text">1. Prepare Evidence</text>
+  <text x="82" y="214" class="small">Readiness bundle, signed</text>
+  <text x="82" y="236" class="small">manifest, closeout summary</text>
+
+  <rect x="342" y="145" width="220" height="116" class="stage"/>
+  <text x="370" y="184" class="text">2. Approve Retention</text>
+  <text x="370" y="214" class="small">Review request, decision,</text>
+  <text x="370" y="236" class="small">retention date, legal hold</text>
+
+  <rect x="630" y="145" width="220" height="116" class="gate"/>
+  <text x="658" y="184" class="text">3. Health Gate</text>
+  <text x="658" y="214" class="small">Expiry, approval, and</text>
+  <text x="658" y="236" class="small">failed delivery checks</text>
+
+  <rect x="918" y="145" width="220" height="116" class="stage"/>
+  <text x="946" y="184" class="text">4. Retry And Alert</text>
+  <text x="946" y="214" class="small">Public-safe alert plan,</text>
+  <text x="946" y="236" class="small">retry plan, worker dry-run</text>
+
+  <path class="line" d="M274 203 H342"/>
+  <path class="line" d="M562 203 H630"/>
+  <path class="line" d="M850 203 H918"/>
+
+  <rect x="164" y="365" width="260" height="124" class="gate"/>
+  <text x="194" y="406" class="text">Release Criteria</text>
+  <text x="194" y="436" class="small">No blockers, approved retention,</text>
+  <text x="194" y="458" class="small">healthy or accepted risk, retry</text>
+  <text x="194" y="480" class="small">worker reviewed</text>
+
+  <rect x="510" y="365" width="260" height="124" class="trial"/>
+  <text x="540" y="406" class="text">Trial Handoff</text>
+  <text x="540" y="436" class="small">Private image or SaaS trial,</text>
+  <text x="540" y="458" class="small">license validation, connector</text>
+  <text x="540" y="480" class="small">responsibilities</text>
+
+  <rect x="856" y="365" width="260" height="124" class="stage"/>
+  <text x="886" y="406" class="text">Enterprise Boundary</text>
+  <text x="886" y="436" class="small">Private retention enforcement,</text>
+  <text x="886" y="458" class="small">archive mutation, SSO/RBAC,</text>
+  <text x="886" y="480" class="small">paid policy packs</text>
+
+  <path class="line" d="M740 261 V330 H294 V365"/>
+  <path class="line" d="M740 261 V330 H640 V365"/>
+  <path class="line" d="M1028 261 V330 H986 V365"/>
+  <path class="dash" d="M294 489 V612 H986 V489"/>
+
+  <rect x="342" y="588" width="596" height="76" class="gate"/>
+  <text x="374" y="630" class="text">Documented Release Decision</text>
+  <text x="374" y="652" class="small">Evidence Console, API metadata, wiki guidance, and trial/Enterprise handoff stay aligned after every release.</text>
+</svg>

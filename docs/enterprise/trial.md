@@ -14,3 +14,9 @@ docker login ghcr.io
 docker pull ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
 docker run -e CAVRA_LICENSE_KEY=... ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
 ```
+
+## Final Closeout Trial Workflow
+
+Use [final-closeout-trial.md](final-closeout-trial.md) for the customer-facing final closeout walkthrough. It covers final readiness evidence, signed archive manifest metadata, release closeout delivery, retention approval, artifact bundle download, retention health alerts, failed delivery retry planning, and the Community-to-Enterprise boundary.
+
+Trial teams must use synthetic or non-production evidence. Do not place Enterprise source code, private policy packs, customer templates, connector credentials, archive mutation logic, signing keys, or license validation secrets in this public repository.
