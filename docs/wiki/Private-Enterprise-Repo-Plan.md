@@ -32,6 +32,7 @@ Initial private implementation status:
 - production deployment wiring for archive alert dashboard storage, transport selection, retry policy, and readiness validation
 - archive alert deployment runbook helpers, Kubernetes examples, Helm values, and provider smoke-test guidance
 - archive alert smoke-test execution jobs and post-delivery dashboard assertions
+- archive alert smoke-test scheduling, evidence export, and customer-facing deployment verification reports
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
