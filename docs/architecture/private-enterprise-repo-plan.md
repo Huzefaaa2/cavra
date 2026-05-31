@@ -2,9 +2,25 @@
 
 Recommended private repository name: `cavra-enterprise`
 
-If I cannot create the private repository from the current environment, prepare
-it manually in GitHub under `Huzefaaa2` as a private repository with branch
-protection, secret scanning, CodeQL, Dependabot, and required reviews.
+Status: created as private repository `Huzefaaa2/cavra-enterprise`.
+
+Initial private implementation status:
+
+- Python package `cavra_enterprise`;
+- private pilot-intake tenant store;
+- encrypted-at-rest payload codec;
+- authenticated update authorization;
+- audit-event persistence;
+- connector handoff dispatcher interfaces;
+- private CI workflow.
+
+Repository hardening status:
+
+- Dependabot vulnerability alerts: enabled.
+- Squash-only merge policy and delete-branch-on-merge: enabled.
+- Branch protection and secret scanning: blocked by the current GitHub plan for
+  private repositories. Enable these in GitHub when the account plan supports
+  private-repository branch protection and secret scanning.
 
 ## Suggested Structure
 
@@ -12,6 +28,7 @@ protection, secret scanning, CodeQL, Dependabot, and required reviews.
 cavra-enterprise/
   src/
     cavra_enterprise/
+      pilot_intake/
       sso/
       rbac/
       audit/
