@@ -138,6 +138,10 @@ See `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg` 
 
 See `docs/diagrams/go-backend-rollback-drill-auditor-export-routing-archive.svg` for the public-safe flow from verified auditor exports into connector delivery metadata, immutable archive references, Evidence Console metrics, and private enterprise connector boundaries.
 
+## Go Backend Rollback Drill Auditor Export Retry Archive Health
+
+See `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-archive-health.svg` for the public-safe flow from failed auditor export delivery metadata into retry planning, archive custody health, Evidence Console drill-downs, and private execution boundaries.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation

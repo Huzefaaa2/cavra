@@ -46,6 +46,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Backend Rollback Drill Readiness Approval Release Record: `Go-Backend-Rollback-Drill-Readiness-Approval-Release-Record.md`
 - Go Backend Rollback Drill Closure Packet Auditor Export: `Go-Backend-Rollback-Drill-Closure-Packet-Auditor-Export.md`
 - Go Backend Rollback Drill Auditor Export Routing Archive: `Go-Backend-Rollback-Drill-Auditor-Export-Routing-Archive.md`
+- Go Backend Rollback Drill Auditor Export Retry Archive Health: `Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health.md`
 - High-Risk Command And Cloud/IaC Parity: `High-Risk-Command-Cloud-IaC-Parity.md`
 - Edition Boundaries: `Edition-Boundaries.md`
 - Private Enterprise Repo Plan: `Private-Enterprise-Repo-Plan.md`
@@ -68,6 +69,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Go Backend Rollback Drill Final Readiness Runbook Export: `Go-Backend-Rollback-Drill-Final-Readiness-Runbook-Export.md`
 - Go Backend Rollback Drill Closure Packet Auditor Export: `Go-Backend-Rollback-Drill-Closure-Packet-Auditor-Export.md`
 - Go Backend Rollback Drill Auditor Export Routing Archive: `Go-Backend-Rollback-Drill-Auditor-Export-Routing-Archive.md`
+- Go Backend Rollback Drill Auditor Export Retry Archive Health: `Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health.md`
 - Vulnerability Disclosure: `Vulnerability-Disclosure.md`
 - Release Security Advisories: `Release-Security-Advisories.md`
 - Implementation Plan: `Implementation-Plan.md`

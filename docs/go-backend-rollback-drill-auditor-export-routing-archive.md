@@ -68,4 +68,4 @@ See `docs/diagrams/go-backend-rollback-drill-auditor-export-routing-archive.svg`
 
 ## Next Recommended Work
 
-Add auditor export delivery retry planning, archive reference verification health checks, and Evidence Console drill-downs for archive custody gaps.
+Delivered in [Go Backend Rollback Drill Auditor Export Retry and Archive Health](go-backend-rollback-drill-auditor-export-retry-archive-health.md). Next: add final auditor export retry worker execution records and archive health alert delivery acknowledgements.

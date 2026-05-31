@@ -1165,7 +1165,9 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1266,7 +1268,9 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1279,7 +1283,9 @@ def filter_go_rollback_drill_notification_history(
                 in {
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
                 }
             )
         ]
@@ -1578,11 +1584,23 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         if item.get("connector_delivery_source")
         == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export"
     ]
+    audit_delivery_final_reporting_auditor_export_delivery_retry_plans = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan"
+    ]
     audit_delivery_final_reporting_immutable_archive_references = [
         item
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference"
+    ]
+    audit_delivery_final_reporting_archive_reference_health_reports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1926,8 +1944,22 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
                 if not item.get("delivery_success")
             ]
         ),
+        "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan_count": len(
+            audit_delivery_final_reporting_auditor_export_delivery_retry_plans
+        ),
+        "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retryable_count": sum(
+            int(item.get("retryable_count") or 0)
+            for item in audit_delivery_final_reporting_auditor_export_delivery_retry_plans
+        ),
         "acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_count": len(
             audit_delivery_final_reporting_immutable_archive_references
+        ),
+        "acknowledgement_audit_delivery_final_reporting_archive_reference_health_count": len(
+            audit_delivery_final_reporting_archive_reference_health_reports
+        ),
+        "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_count": sum(
+            int(item.get("alert_count") or 0)
+            for item in audit_delivery_final_reporting_archive_reference_health_reports
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -6349,6 +6381,253 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immut
         "retention_until": reference.get("retention_until"),
         "legal_hold": reference.get("legal_hold", False),
         "final_reporting_immutable_archive_reference": reference,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan(
+    items: list[dict[str, Any]],
+    *,
+    policy: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    policy = policy or {}
+    max_retry_attempts = max(1, int(policy.get("max_retry_attempts", policy.get("max_retries", 3)) or 3))
+    allow_immediate_retry = bool(policy.get("allow_immediate_retry", False))
+    default_retry_delay_minutes = 0 if allow_immediate_retry else 15
+    retry_delay_floor = 0 if allow_immediate_retry else 1
+    retry_delay_minutes = max(
+        retry_delay_floor,
+        int(policy.get("retry_delay_minutes", policy.get("delay_minutes", default_retry_delay_minutes)) or 0),
+    )
+    backoff_multiplier = max(1.0, float(policy.get("backoff_multiplier", policy.get("multiplier", 2.0)) or 2.0))
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    failed_deliveries = [
+        item
+        for item in history
+        if item.get("metadata_kind") == "release-connector-delivery"
+        and item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export"
+        and not item.get("delivery_success")
+    ]
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for item in failed_deliveries:
+        export_id = str(item.get("export_id") or item.get("event_id") or "")
+        providers = [str(provider) for provider in item.get("failed_providers", []) if provider]
+        if not providers:
+            providers = [str(provider) for provider in item.get("providers", []) if provider]
+        for provider in providers:
+            grouped.setdefault((export_id, provider), []).append(item)
+
+    retry_decisions: list[dict[str, Any]] = []
+    for (export_id, provider), failures in sorted(grouped.items()):
+        failures = sorted(failures, key=lambda item: str(item.get("created_at", "")), reverse=True)
+        latest = failures[0]
+        retry_count = len(failures)
+        delay = retry_delay_minutes * (backoff_multiplier ** max(0, retry_count - 1))
+        latest_at = _parse_iso_datetime(str(latest.get("created_at") or ""))
+        next_retry_at = (latest_at + timedelta(minutes=delay)).isoformat() if latest_at else now.isoformat()
+        action = "retry"
+        reason = "failed final auditor export delivery is eligible for retry"
+        if retry_count >= max_retry_attempts:
+            action = "suppress"
+            reason = f"maximum retry attempts {max_retry_attempts} reached"
+        elif latest_at is not None and now < latest_at + timedelta(minutes=delay):
+            action = "wait"
+            reason = f"retry delay {int(delay)} minutes has not elapsed"
+        retry_decisions.append(
+            {
+                "export_id": export_id,
+                "verification_id": latest.get("verification_id", ""),
+                "release_record_ref": latest.get("release_record_ref", ""),
+                "provider": provider,
+                "action": action,
+                "reason": reason,
+                "retry_count": retry_count,
+                "max_retry_attempts": max_retry_attempts,
+                "retry_delay_minutes": int(delay),
+                "latest_delivery_id": latest.get("session_id"),
+                "latest_delivery_at": latest.get("created_at"),
+                "next_retry_at": next_retry_at,
+                "failed_status_codes": latest.get("status_codes", []),
+            }
+        )
+
+    retryable = [item for item in retry_decisions if item["action"] == "retry"]
+    waiting = [item for item in retry_decisions if item["action"] == "wait"]
+    suppressed = [item for item in retry_decisions if item["action"] == "suppress"]
+    generated_at = now.isoformat()
+    material = json.dumps({"generated_at": generated_at, "retry_decisions": retry_decisions}, sort_keys=True)
+    retry_plan_id = f"gordackfinalaudretry-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-auditor-export-delivery-retry-plan.v1",
+        "product": "CAVRA",
+        "retry_plan_id": retry_plan_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if retryable else "warning" if waiting else "healthy",
+        "decision_count": len(retry_decisions),
+        "retryable_count": len(retryable),
+        "waiting_count": len(waiting),
+        "suppressed_count": len(suppressed),
+        "max_retry_attempts": max_retry_attempts,
+        "base_retry_delay_minutes": retry_delay_minutes,
+        "allow_immediate_retry": allow_immediate_retry,
+        "backoff_multiplier": backoff_multiplier,
+        "retry_decisions": retry_decisions,
+        "controls": [
+            "final-auditor-export-retry-plan-derived-from-redacted-delivery-metadata",
+            "retry-plan-contains-no-provider-credentials",
+            "public-plan-does-not-perform-grc-siem-or-archive-side-effects",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan_metadata(
+    plan: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": plan.get("retry_plan_id"),
+        "created_at": plan.get("generated_at"),
+        "signer": plan.get("generated_by", "release-governance"),
+        "decision_count": int(plan.get("decision_count") or 0),
+        "blocked_count": int(plan.get("suppressed_count") or 0),
+        "approval_required_count": int(plan.get("retryable_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
+        "retry_plan_id": plan.get("retry_plan_id"),
+        "alert_level": plan.get("alert_level"),
+        "retryable_count": plan.get("retryable_count", 0),
+        "waiting_count": plan.get("waiting_count", 0),
+        "suppressed_count": plan.get("suppressed_count", 0),
+        "final_reporting_auditor_export_delivery_retry_plan": plan,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health(
+    items: list[dict[str, Any]],
+    *,
+    generated_by: str = "release-governance",
+    require_archive_hash: bool = True,
+    require_retention_until: bool = True,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    exports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export"
+        and item.get("verification_state") == "verified"
+    ]
+    archive_refs = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference"
+    ]
+    archive_by_export: dict[str, list[dict[str, Any]]] = {}
+    for item in archive_refs:
+        archive_by_export.setdefault(str(item.get("export_id") or ""), []).append(item)
+
+    alerts: list[dict[str, Any]] = []
+    checked_exports = 0
+    archived_export_count = 0
+    for export in exports:
+        export_id = str(export.get("export_id") or "")
+        if not export_id:
+            continue
+        checked_exports += 1
+        refs = archive_by_export.get(export_id, [])
+        if not refs:
+            alerts.append(
+                {
+                    "alert_id": "archive_reference_missing",
+                    "severity": "critical",
+                    "export_id": export_id,
+                    "release_record_ref": export.get("release_record_ref", ""),
+                    "message": "verified auditor export has no immutable archive reference",
+                }
+            )
+            continue
+        archived_export_count += 1
+        latest_ref = sorted(refs, key=lambda item: str(item.get("created_at", "")), reverse=True)[0]
+        if require_archive_hash and not latest_ref.get("archive_hash"):
+            alerts.append(
+                {
+                    "alert_id": "archive_hash_missing",
+                    "severity": "warning",
+                    "export_id": export_id,
+                    "reference_id": latest_ref.get("reference_id", ""),
+                    "message": "archive reference does not include an external object hash",
+                }
+            )
+        if require_retention_until and not latest_ref.get("retention_until"):
+            alerts.append(
+                {
+                    "alert_id": "retention_until_missing",
+                    "severity": "warning",
+                    "export_id": export_id,
+                    "reference_id": latest_ref.get("reference_id", ""),
+                    "message": "archive reference does not include a retention_until timestamp",
+                }
+            )
+    generated_at = now.isoformat()
+    material = json.dumps(
+        {"generated_at": generated_at, "checked_exports": checked_exports, "alerts": alerts},
+        sort_keys=True,
+    )
+    health_id = f"gordackfinalarchivehealth-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:16]}"
+    critical_alerts = [item for item in alerts if item.get("severity") == "critical"]
+    warning_alerts = [item for item in alerts if item.get("severity") == "warning"]
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-archive-reference-health.v1",
+        "product": "CAVRA",
+        "health_id": health_id,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "alert_level": "critical" if critical_alerts else "warning" if warning_alerts else "healthy",
+        "checked_export_count": checked_exports,
+        "archived_export_count": archived_export_count,
+        "missing_archive_reference_count": len(
+            [item for item in alerts if item.get("alert_id") == "archive_reference_missing"]
+        ),
+        "alert_count": len(alerts),
+        "critical_alert_count": len(critical_alerts),
+        "warning_alert_count": len(warning_alerts),
+        "alerts": alerts,
+        "recommended_actions": [
+            "capture immutable archive references for verified auditor exports",
+            "include retention_until and archive_hash when archive provider supports them",
+            "route archive writes through private enterprise connectors or operator-owned archive tooling",
+        ],
+        "controls": [
+            "archive-health-derived-from-public-safe-auditor-export-and-archive-reference-metadata",
+            "archive-health-does-not-perform-storage-writes",
+            "archive-health-contains-no-archive-credentials-or-private-endpoints",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_metadata(
+    health: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": health.get("health_id"),
+        "created_at": health.get("generated_at"),
+        "signer": health.get("generated_by", "release-governance"),
+        "decision_count": int(health.get("checked_export_count") or 0),
+        "blocked_count": int(health.get("critical_alert_count") or 0),
+        "approval_required_count": int(health.get("alert_count") or 0),
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
+        "health_id": health.get("health_id"),
+        "alert_level": health.get("alert_level"),
+        "alert_count": health.get("alert_count", 0),
+        "critical_alert_count": health.get("critical_alert_count", 0),
+        "warning_alert_count": health.get("warning_alert_count", 0),
+        "missing_archive_reference_count": health.get("missing_archive_reference_count", 0),
+        "final_reporting_archive_reference_health": health,
     }
 
 

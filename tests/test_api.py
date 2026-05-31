@@ -1744,9 +1744,21 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     )
     assert (
         config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/delivery-retry-plan"
+    )
+    assert (
+        config["endpoints"][
             "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference"
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_archive_reference_health"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health"
     )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
@@ -2393,6 +2405,13 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
             "timeout_seconds": 0.1,
         },
     )
+    final_reporting_auditor_export_delivery_retry_plan = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/delivery-retry-plan",
+        json={
+            "generated_by": "release-manager",
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+        },
+    )
     final_reporting_immutable_archive_reference = client.post(
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference",
         json={
@@ -2404,6 +2423,10 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
             "legal_hold": True,
             "notes": "Archived after auditor export delivery.",
         },
+    )
+    final_reporting_archive_reference_health = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health",
+        params={"generated_by": "release-manager"},
     )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
@@ -2743,12 +2766,24 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export"
     )
     assert final_reporting_auditor_export_delivery.json()["event"]["event_type"].endswith("auditor_export")
+    assert final_reporting_auditor_export_delivery_retry_plan.status_code == 200
+    assert (
+        final_reporting_auditor_export_delivery_retry_plan.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan"
+    )
+    assert final_reporting_auditor_export_delivery_retry_plan.json()["plan"]["retryable_count"] >= 1
     assert final_reporting_immutable_archive_reference.status_code == 200
     assert (
         final_reporting_immutable_archive_reference.json()["metadata"]["metadata_kind"]
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference"
     )
     assert final_reporting_immutable_archive_reference.json()["reference"]["legal_hold"] is True
+    assert final_reporting_archive_reference_health.status_code == 200
+    assert (
+        final_reporting_archive_reference_health.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health"
+    )
+    assert final_reporting_archive_reference_health.json()["health"]["archived_export_count"] >= 1
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -2929,7 +2964,25 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert (
         dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retryable_count"
+        ]
+        >= 1
+    )
+    assert (
+        dashboard_after.json()[
             "acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_count"
         ]
         == 1
     )
