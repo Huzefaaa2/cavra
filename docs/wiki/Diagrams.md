@@ -206,7 +206,7 @@ See `docs/diagrams/release-governance-final-closeout-operator-guide.svg` for the
 
 ## Final Closeout Trial Onboarding
 
-See `docs/diagrams/final-closeout-trial-onboarding.svg` for the customer onboarding flow across evaluator walkthrough, synthetic sample evidence, sales-engineering script, release criteria, upgrade path, and production pilot planning.
+See `docs/diagrams/final-closeout-trial-onboarding.svg` for the customer onboarding and public sandbox flow across evaluator walkthrough, synthetic sample evidence, sales-engineering script, release criteria, upgrade path, and production pilot planning.
 
 ## SVG Images
 

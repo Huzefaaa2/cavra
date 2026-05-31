@@ -8,6 +8,7 @@ on:
       - "apps/sandbox-ui/**"
       - "assets/brand/**"
       - "docs/**"
+      - "examples/demos/final-closeout-trial/**"
       - ".github/workflows/deploy-sandbox.yml"
 
 permissions:
@@ -45,6 +46,8 @@ jobs:
           cp -R assets/brand public/assets/
           mkdir -p public/evidence/before-the-agent-acts
           cp examples/demos/before-the-agent-acts/generated/evidence.json public/evidence/before-the-agent-acts/evidence.json
+          mkdir -p public/evidence/final-closeout-trial
+          cp examples/demos/final-closeout-trial/sample-evidence-package.json public/evidence/final-closeout-trial/sample-evidence-package.json
           cp docs/diagrams/*.svg public/
       - name: Configure Pages
         uses: actions/configure-pages@v6
@@ -89,3 +92,4 @@ jobs:
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}assets/brand/cavra-logo-horizontal.svg" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}c4-container.svg" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/before-the-agent-acts/evidence.json" | grep -q "cavra"
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/final-closeout-trial/sample-evidence-package.json" | grep -q "synthetic-final-closeout-trial"
