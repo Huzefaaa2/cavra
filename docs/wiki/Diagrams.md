@@ -118,6 +118,10 @@ See `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery
 
 See `docs/diagrams/go-backend-rollback-drill-recovery-health-alert-retry-worker-and-executive-retry-health-alerts.svg` for the public-safe flow from failed recovery health alert delivery through retry worker execution and executive retry health alert delivery.
 
+## Go Backend Rollback Drill Executive Health Alert Retry And Final Closure
+
+See `docs/diagrams/go-backend-rollback-drill-executive-health-alert-retry-final-closure.svg` for the public-safe flow from failed executive retry health alert delivery through retry planning, worker execution, execution evidence, and final reporting closure.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation

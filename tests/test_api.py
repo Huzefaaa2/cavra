@@ -1682,6 +1682,24 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         config["endpoints"]["go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health"]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health"
     )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_retry_plan"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-plan"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_retry_worker"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/recovery-executive-report/delivery-retry-health-alerts/retry-worker-run"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_closure_dashboard"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -2210,6 +2228,27 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     executive_retry_health_alert_plan = audit_delivery_recovery_executive_delivery_retry_health_alert_delivery.json().get(
         "plan", {}
     )
+    audit_delivery_recovery_executive_delivery_retry_health_alert_retry_plan = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/"
+        "recovery-executive-report/delivery-retry-health-alerts/retry-plan",
+        json={
+            "generated_by": "release-manager",
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+        },
+    )
+    audit_delivery_recovery_executive_delivery_retry_health_alert_retry_worker = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/"
+        "recovery-executive-report/delivery-retry-health-alerts/retry-worker-run",
+        json={
+            "generated_by": "release-manager",
+            "execute": True,
+            "max_retry_deliveries": 2,
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+            "schedule": {"interval_minutes": 30, "cadence": "manual_executive_health_alert_retry"},
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
     audit_delivery_recovery_executive_delivery_retry_health_alert_ack = client.post(
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/"
         f"recovery-executive-report/delivery-retry-health-alerts/{executive_retry_health_alert_plan.get('health_id', 'missing')}/acknowledgements",
@@ -2257,6 +2296,9 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         params={"owner": "release-governance"},
     )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
+    final_reporting_closure_dashboard = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closure-dashboard"
+    )
 
     assert response.status_code == 200
     assert response.json()["plan"]["alert_level"] == "critical"
@@ -2495,6 +2537,26 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         ]
         == "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert"
     )
+    assert audit_delivery_recovery_executive_delivery_retry_health_alert_retry_plan.status_code == 200
+    assert (
+        audit_delivery_recovery_executive_delivery_retry_health_alert_retry_plan.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan"
+    )
+    assert audit_delivery_recovery_executive_delivery_retry_health_alert_retry_plan.json()["plan"]["retryable_count"] == 1
+    assert audit_delivery_recovery_executive_delivery_retry_health_alert_retry_worker.status_code == 200
+    assert (
+        audit_delivery_recovery_executive_delivery_retry_health_alert_retry_worker.json()["metadata"][
+            "metadata_kind"
+        ]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run"
+    )
+    assert audit_delivery_recovery_executive_delivery_retry_health_alert_retry_worker.json()["run"]["dry_run"] is False
+    assert (
+        audit_delivery_recovery_executive_delivery_retry_health_alert_retry_worker.json()["retry_results"][0][
+            "execution_metadata"
+        ]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record"
+    )
     assert audit_delivery_recovery_executive_delivery_retry_health_alert_ack.status_code == 200
     assert (
         audit_delivery_recovery_executive_delivery_retry_health_alert_ack.json()["metadata"]["metadata_kind"]
@@ -2524,6 +2586,10 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-routing-suppression-trend"
     )
     assert dashboard_after.status_code == 200
+    assert final_reporting_closure_dashboard.status_code == 200
+    assert final_reporting_closure_dashboard.json()["summary"][
+        "executive_retry_health_alert_retry_worker_run_count"
+    ] == 1
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -2634,6 +2700,36 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert (
         dashboard_after.json()[
             "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "failed_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_plan_count"
+        ]
+        == 2
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retryable_count"
+        ]
+        == 2
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_worker_run_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_delivery_retry_execution_record_count"
         ]
         == 1
     )

@@ -43,4 +43,4 @@ See `go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-
 
 ## Next Work
 
-Delivered in the next phase: recovery health alert retry worker execution and executive retry health alert delivery. The next recommended implementation step is executive retry health alert retry planning, retry worker execution, and final reporting closure dashboards.
+Delivered in later phases: recovery health alert retry worker execution, executive retry health alert delivery, executive health alert retry planning, retry worker execution, and final reporting closure dashboards.

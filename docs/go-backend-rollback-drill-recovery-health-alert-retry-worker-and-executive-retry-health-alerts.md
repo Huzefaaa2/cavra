@@ -81,6 +81,6 @@ Enterprise rollback governance fails when the final alerting path is not itself 
 
 See `docs/diagrams/go-backend-rollback-drill-recovery-health-alert-retry-worker-and-executive-retry-health-alerts.svg`.
 
-## Next Work
+## Delivered Follow-Up
 
-The next recommended implementation step is executive retry health alert retry planning, retry worker execution, and final reporting closure dashboards.
+Executive retry health alert retry planning, retry worker execution, and final reporting closure dashboards are documented in `docs/go-backend-rollback-drill-executive-health-alert-retry-and-final-closure.md`.
