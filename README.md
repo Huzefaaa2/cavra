@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes customer/SaaS KMS-style envelope encryption for private pilot-intake payloads. Payloads are encrypted with per-record data keys, data keys are wrapped through a provider contract, and decrypt operations are bound to tenant and intake context.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes five Enterprise MVP slices: managed tenant database configuration and adapter contracts, schema migration metadata, CRM handoff worker, ITSM/GRC handoff workers, and customer-success/tenant-management handoff workers. Runtime database and connector credentials remain outside source control.
 
 Next recommended implementation work:
 
-- Move private pilot-intake storage from local SQLite to managed tenant database storage, then add real CRM/ITSM/GRC/customer-success connector workers.
+- Add provider-native adapters for customer-selected CRM/ITSM/GRC systems and immutable audit export/retention enforcement.
 
 ## User stories and enterprise value
 

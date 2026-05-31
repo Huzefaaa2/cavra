@@ -12,6 +12,8 @@ Initial private implementation status:
 - customer/SaaS KMS-style envelope encryption contract;
 - authenticated update authorization;
 - production SSO claim binding;
+- managed tenant database adapter contract;
+- CRM/ITSM/GRC/customer-success/tenant-management handoff workers;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
