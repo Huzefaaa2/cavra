@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes scheduled archive health workers, schedule advancement, and public-safe operator alert routing for unhealthy immutable archive bundles.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes alert delivery connector contracts, local delivery validation, managed delivery boundaries for email, ChatOps, SIEM, ITSM, and pager systems, archive health dashboard persistence, retry planning, and operator acknowledgement records.
 
 Next recommended implementation work:
 
-- Add alert delivery connectors and health dashboard persistence.
+- Add transport delivery packages and dashboard API persistence.
 
 ## User stories and enterprise value
 

@@ -22,6 +22,9 @@ Initial private implementation status:
 - AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries
 - cloud object-lock deployment recipes and archive health validation
 - scheduled archive health workers and operator alert routing
+- alert delivery connector contracts and local delivery validation
+- email, ChatOps, SIEM, ITSM, and pager delivery provider-package boundaries
+- archive health dashboard persistence, retry planning, and operator acknowledgements
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
