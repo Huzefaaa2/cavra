@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert smoke-test scheduling, public-safe evidence export, customer-facing deployment verification reports, Kubernetes CronJob guidance, and private operator documentation that keeps provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification report delivery routing, customer-success handoff automation, private connector dispatch helpers, and public-safe handoff plans that keep provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert verification report delivery routing and customer-success handoff automation.
+- Add archive alert verification delivery health dashboards and retry planning.
 
 ## User stories and enterprise value
 
