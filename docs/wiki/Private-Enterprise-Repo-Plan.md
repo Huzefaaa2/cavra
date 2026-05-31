@@ -14,6 +14,8 @@ Initial private implementation status:
 - production SSO claim binding
 - managed tenant database adapter contract
 - CRM/ITSM/GRC/customer-success/tenant-management handoff workers
+- provider-native Salesforce, HubSpot, Jira, ServiceNow, and Archer payload adapters
+- immutable audit export and retention enforcement
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
