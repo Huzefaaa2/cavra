@@ -64,4 +64,4 @@ See `docs/diagrams/go-backend-rollback-drill-final-readiness-runbook-export.svg`
 
 ## Next Work
 
-The next recommended implementation step is release-readiness approval evidence and release record attachment for the rollback drill final reporting package.
+The next recommended implementation step is final reporting release closure packet verification and auditor export for attached release records.

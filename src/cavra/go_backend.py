@@ -1161,6 +1161,8 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1256,6 +1258,8 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1526,6 +1530,18 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+    ]
+    audit_delivery_final_reporting_release_readiness_approval_decisions = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision"
+    ]
+    audit_delivery_final_reporting_release_record_attachments = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1832,6 +1848,19 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         ),
         "acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count": len(
             audit_delivery_final_reporting_operator_runbook_exports
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_readiness_approval_decision_count": len(
+            audit_delivery_final_reporting_release_readiness_approval_decisions
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_readiness_approved_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_readiness_approval_decisions
+                if item.get("approval_state") == "approved"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_record_attachment_count": len(
+            audit_delivery_final_reporting_release_record_attachments
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -5587,6 +5616,228 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_opera
         "closure_state": export.get("closure_state"),
         "section_count": len(export.get("sections", [])),
         "final_reporting_operator_runbook_export": export,
+    }
+
+
+def decide_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval(
+    readiness_summary: dict[str, Any],
+    *,
+    decided_by: str,
+    approval_state: str = "approved",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    override_blockers: bool = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    summary_id = str(readiness_summary.get("summary_id") or "").strip()
+    if not summary_id:
+        raise ValueError("readiness summary_id is required")
+    if not decided_by:
+        raise ValueError("decided_by is required")
+    state = approval_state.strip().lower().replace("-", "_")
+    if state not in {"approved", "denied", "deferred", "expired"}:
+        raise ValueError("approval_state must be approved, denied, deferred, or expired")
+    readiness_state = str(readiness_summary.get("readiness_state") or "unknown")
+    failed_check_count = int(readiness_summary.get("failed_check_count") or 0)
+    if state == "approved" and readiness_state != "ready" and not override_blockers:
+        raise ValueError("blocked release readiness requires override_blockers=true before approval")
+    now = now or datetime.now(timezone.utc)
+    decided_at = now.isoformat()
+    material = {
+        "summary_id": summary_id,
+        "readiness_state": readiness_state,
+        "approval_state": state,
+        "decided_by": decided_by,
+        "decided_at": decided_at,
+        "override_blockers": bool(override_blockers),
+    }
+    decision_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    decision_id = f"gordackfinalapproval-{decision_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-readiness-approval-decision.v1",
+        "product": "CAVRA",
+        "decision_id": decision_id,
+        "decision_hash": decision_hash,
+        "summary_id": summary_id,
+        "readiness_state": readiness_state,
+        "closure_state": readiness_summary.get("closure_state", "unknown"),
+        "failed_check_count": failed_check_count,
+        "approval_state": state,
+        "override_blockers": bool(override_blockers),
+        "decided_by": decided_by,
+        "decided_at": decided_at,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "release_decision": {
+            "recommended_state": "release_closure_approved"
+            if state == "approved"
+            else "release_closure_not_approved",
+            "reason": "readiness summary approved for release record attachment"
+            if state == "approved"
+            else f"readiness approval state is {state}",
+        },
+        "public_evidence_refs": [
+            f"go-rollback-drill-final-readiness://{summary_id}",
+            "go-rollback-drill-final-closure-dashboard://latest",
+        ],
+        "controls": [
+            "release-readiness-approval-bound-to-summary-id",
+            "blocked-readiness-approval-requires-explicit-override",
+            "approval-decision-contains-no-connector-secret-or-private-endpoint",
+            "release-record-mutation-remains-private-or-operator-owned",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval_metadata(
+    decision: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": decision.get("decision_id"),
+        "created_at": decision.get("decided_at"),
+        "signer": decision.get("decided_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0 if decision.get("approval_state") == "approved" else 1,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+        "decision_id": decision.get("decision_id"),
+        "decision_hash": decision.get("decision_hash"),
+        "summary_id": decision.get("summary_id"),
+        "readiness_state": decision.get("readiness_state"),
+        "closure_state": decision.get("closure_state"),
+        "approval_state": decision.get("approval_state"),
+        "override_blockers": decision.get("override_blockers", False),
+        "external_ref": decision.get("external_ref"),
+        "final_reporting_release_readiness_approval_decision": decision,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment(
+    items: list[dict[str, Any]],
+    approval_decision: dict[str, Any],
+    *,
+    release_record_ref: str,
+    attached_by: str = "release-governance",
+    notes: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    if not release_record_ref:
+        raise ValueError("release_record_ref is required")
+    if not attached_by:
+        raise ValueError("attached_by is required")
+    if approval_decision.get("approval_state") != "approved":
+        raise ValueError("release record attachment requires an approved readiness decision")
+    summary_id = str(approval_decision.get("summary_id") or "").strip()
+    if not summary_id:
+        raise ValueError("approval decision summary_id is required")
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    readiness_metadata = next(
+        (
+            item
+            for item in history
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary"
+            and item.get("summary_id") == summary_id
+        ),
+        {},
+    )
+    runbook_metadata = next(
+        (
+            item
+            for item in history
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+            and (
+                item.get("readiness_summary_id") == summary_id
+                or (
+                    isinstance(item.get("final_reporting_operator_runbook_export"), dict)
+                    and item["final_reporting_operator_runbook_export"].get("readiness_summary_id") == summary_id
+                )
+            )
+        ),
+        {},
+    )
+    now = now or datetime.now(timezone.utc)
+    attached_at = now.isoformat()
+    attached_evidence = [
+        {
+            "type": "release_readiness_summary",
+            "ref": f"go-rollback-drill-final-readiness://{summary_id}",
+            "metadata_session_id": readiness_metadata.get("session_id", ""),
+        },
+        {
+            "type": "release_readiness_approval",
+            "ref": f"go-rollback-drill-final-readiness-approval://{approval_decision.get('decision_id')}",
+            "metadata_session_id": approval_decision.get("decision_id", ""),
+        },
+        {
+            "type": "operator_runbook_export",
+            "ref": f"go-rollback-drill-final-runbook://{runbook_metadata.get('export_id', 'latest')}",
+            "metadata_session_id": runbook_metadata.get("session_id", ""),
+        },
+        {
+            "type": "final_closure_dashboard",
+            "ref": "go-rollback-drill-final-closure-dashboard://latest",
+            "metadata_session_id": "",
+        },
+    ]
+    material = {
+        "release_record_ref": release_record_ref,
+        "approval_decision_id": approval_decision.get("decision_id"),
+        "summary_id": summary_id,
+        "attached_at": attached_at,
+        "attached_evidence": attached_evidence,
+    }
+    attachment_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    attachment_id = f"gordackfinalrecord-{attachment_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-record-attachment.v1",
+        "product": "CAVRA",
+        "attachment_id": attachment_id,
+        "attachment_hash": attachment_hash,
+        "release_record_ref": release_record_ref,
+        "attachment_state": "attached",
+        "attached_at": attached_at,
+        "attached_by": attached_by,
+        "summary_id": summary_id,
+        "readiness_state": approval_decision.get("readiness_state", "unknown"),
+        "approval_decision_id": approval_decision.get("decision_id"),
+        "approval_state": approval_decision.get("approval_state"),
+        "override_blockers": bool(approval_decision.get("override_blockers")),
+        "runbook_export_id": runbook_metadata.get("export_id", ""),
+        "attached_evidence": attached_evidence,
+        "notes": notes or "",
+        "public_evidence_refs": [item["ref"] for item in attached_evidence],
+        "controls": [
+            "release-record-attachment-bound-to-approved-readiness-decision",
+            "attachment-records-public-safe-evidence-references-only",
+            "attachment-does-not-call-external-release-systems",
+            "external-ticket-or-release-record-mutation-remains-private-or-operator-owned",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment_metadata(
+    attachment: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": attachment.get("attachment_id"),
+        "created_at": attachment.get("attached_at"),
+        "signer": attachment.get("attached_by", "release-governance"),
+        "decision_count": len(attachment.get("attached_evidence", [])),
+        "blocked_count": 0 if attachment.get("attachment_state") == "attached" else 1,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+        "attachment_id": attachment.get("attachment_id"),
+        "attachment_hash": attachment.get("attachment_hash"),
+        "release_record_ref": attachment.get("release_record_ref"),
+        "attachment_state": attachment.get("attachment_state"),
+        "summary_id": attachment.get("summary_id"),
+        "approval_decision_id": attachment.get("approval_decision_id"),
+        "approval_state": attachment.get("approval_state"),
+        "readiness_state": attachment.get("readiness_state"),
+        "runbook_export_id": attachment.get("runbook_export_id"),
+        "final_reporting_release_record_attachment": attachment,
     }
 
 

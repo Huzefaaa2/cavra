@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA rollback drill readiness approval and release record attachment</title>
+  <desc id="desc">Public-safe flow from final readiness summary to approval decision, operator runbook export, and release record attachment evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#071316"/>
+      <stop offset="1" stop-color="#10232b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#73e1c0"/>
+      <stop offset="1" stop-color="#49a6d8"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#73e1c0"/>
+    </marker>
+    <style>
+      .label{font:700 24px Arial,sans-serif;fill:#f2fbff}
+      .small{font:500 16px Arial,sans-serif;fill:#c8d7dd}
+      .tiny{font:500 14px Arial,sans-serif;fill:#9fb2bb}
+      .box{fill:#112027;stroke:#35515c;stroke-width:2;rx:14}
+      .accent{stroke:url(#accent);stroke-width:4}
+      .line{stroke:#73e1c0;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .guard{fill:#173127;stroke:#73e1c0;stroke-width:2;rx:12}
+      .private{fill:#281b1b;stroke:#d8995b;stroke-width:2;rx:12}
+    </style>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="70" y="78" class="label">CAVRA Final Reporting Release Evidence</text>
+  <text x="70" y="108" class="small">Approval-bound readiness and release record attachment without public enterprise connector code</text>
+
+  <rect x="70" y="170" width="230" height="135" class="box accent"/>
+  <text x="94" y="215" class="label">Readiness</text>
+  <text x="94" y="247" class="small">Summary checks</text>
+  <text x="94" y="273" class="tiny">closure, alerts, acks</text>
+
+  <rect x="375" y="170" width="230" height="135" class="guard"/>
+  <text x="399" y="215" class="label">Approval</text>
+  <text x="399" y="247" class="small">Decision evidence</text>
+  <text x="399" y="273" class="tiny">override required if blocked</text>
+
+  <rect x="680" y="170" width="230" height="135" class="box"/>
+  <text x="704" y="215" class="label">Runbook</text>
+  <text x="704" y="247" class="small">Operator export</text>
+  <text x="704" y="273" class="tiny">Markdown and JSON</text>
+
+  <rect x="985" y="170" width="230" height="135" class="guard"/>
+  <text x="1009" y="215" class="label">Release Record</text>
+  <text x="1009" y="247" class="small">Attachment evidence</text>
+  <text x="1009" y="273" class="tiny">public refs only</text>
+
+  <path d="M300 238 H365" class="line"/>
+  <path d="M605 238 H670" class="line"/>
+  <path d="M910 238 H975" class="line"/>
+
+  <rect x="125" y="400" width="430" height="160" class="box"/>
+  <text x="155" y="445" class="label">Community Repository</text>
+  <text x="155" y="482" class="small">Stores metadata, dashboard counts, docs, and diagrams</text>
+  <text x="155" y="512" class="tiny">No credentials, private policy packs, customer payloads, or proprietary automation</text>
+
+  <rect x="725" y="400" width="430" height="160" class="private"/>
+  <text x="755" y="445" class="label">Private Connectors</text>
+  <text x="755" y="482" class="small">Optional enterprise ticket, release, chat, and ITSM mutation</text>
+  <text x="755" y="512" class="tiny">Implemented outside the public Community Edition</text>
+
+  <path d="M490 305 C490 350 340 350 340 390" class="line"/>
+  <path d="M1100 305 C1100 350 940 350 940 390" class="line"/>
+  <text x="440" y="640" class="small">Result: auditable release closure evidence with a clean public/private boundary.</text>
+</svg>

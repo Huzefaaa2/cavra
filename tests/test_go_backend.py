@@ -66,8 +66,11 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_worker_run,
@@ -106,6 +109,7 @@ from cavra.go_backend import (
     build_go_rollback_drill_routing_suppression_trend,
     build_go_rollback_drill_routing_suppression_trend_metadata,
     close_go_rollback_drill_acknowledgement_audit_delivery_connector_recovery,
+    decide_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval,
     decide_go_rollback_drill_acknowledgement_audit_delivery_retry_execution_approval,
     filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert_history,
     filter_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_history,
@@ -1611,11 +1615,47 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_operator_runbook
         )
     )
+    final_reporting_release_readiness_approval = (
+        decide_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval(
+            final_reporting_release_readiness,
+            decided_by="release-manager",
+            approval_state="approved",
+            external_ref="REL-123",
+            notes="Approved with public rollback drill evidence attached.",
+            override_blockers=True,
+        )
+    )
+    final_reporting_release_readiness_approval_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval_metadata(
+            final_reporting_release_readiness_approval
+        )
+    )
+    final_reporting_release_record_attachment = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment(
+            [
+                *dashboard_items,
+                final_reporting_release_readiness_metadata,
+                final_reporting_operator_runbook_metadata,
+                final_reporting_release_readiness_approval_metadata,
+            ],
+            final_reporting_release_readiness_approval,
+            release_record_ref="REL-123",
+            attached_by="release-manager",
+            notes="Release record attachment captured for audit review.",
+        )
+    )
+    final_reporting_release_record_attachment_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_record_attachment_metadata(
+            final_reporting_release_record_attachment
+        )
+    )
     dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
         [
             *dashboard_items,
             final_reporting_release_readiness_metadata,
             final_reporting_operator_runbook_metadata,
+            final_reporting_release_readiness_approval_metadata,
+            final_reporting_release_record_attachment_metadata,
         ]
     )
 
@@ -1754,6 +1794,20 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_operator_runbook_metadata["metadata_kind"].endswith(
         "final-reporting-operator-runbook-export"
     )
+    assert final_reporting_release_readiness_approval["approval_state"] == "approved"
+    assert final_reporting_release_readiness_approval["override_blockers"] is True
+    assert final_reporting_release_readiness_approval_metadata["metadata_kind"].endswith(
+        "final-reporting-release-readiness-approval-decision"
+    )
+    assert final_reporting_release_record_attachment["attachment_state"] == "attached"
+    assert final_reporting_release_record_attachment["release_record_ref"] == "REL-123"
+    assert (
+        final_reporting_release_record_attachment["approval_decision_id"]
+        == final_reporting_release_readiness_approval["decision_id"]
+    )
+    assert final_reporting_release_record_attachment_metadata["metadata_kind"].endswith(
+        "final-reporting-release-record-attachment"
+    )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -1856,6 +1910,24 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert (
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_operator_runbook_export_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_readiness_approval_decision_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_readiness_approved_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_record_attachment_count"
         ]
         == 1
     )
