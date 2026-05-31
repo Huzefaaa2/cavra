@@ -57,6 +57,18 @@ pre { white-space: pre-wrap; font-size: 13px; color: #cbd5db; }
 .trial-onboarding-card p { margin: 8px 0 0; color: #cbd5db; line-height: 1.4; }
 .trial-doc-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .trial-doc-links a { background: #0f1418; color: #eef3f6; border-color: #3d4c54; }
+.pilot-readiness-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.pilot-readiness-card { border: 1px solid #2d3a40; border-radius: 8px; padding: 14px; background: #101316; min-height: 112px; box-sizing: border-box; }
+.pilot-readiness-card span { display: block; color: #aebbc3; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.pilot-readiness-card strong { display: block; margin-top: 8px; color: #eef3f6; font-size: 22px; overflow-wrap: anywhere; }
+.pilot-readiness-card p { margin: 8px 0 0; color: #cbd5db; line-height: 1.4; }
+.pilot-readiness-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 18px; }
+.pilot-readiness-layout h3 { margin: 0 0 10px; }
+.pilot-readiness-checklist { margin: 0; padding-left: 20px; color: #cbd5db; }
+.pilot-readiness-checklist li { padding-left: 4px; }
+.pilot-handoff-links { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.pilot-handoff-links a { background: #0f1418; color: #eef3f6; border-color: #3d4c54; }
+.pilot-readiness-evidence { min-height: 180px; border: 1px solid #2d3a40; border-radius: 8px; padding: 12px; background: #0f1418; box-sizing: border-box; }
 .release-delivery-dashboard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
 .release-delivery-metric { border: 1px solid #2d3a40; border-radius: 8px; padding: 12px; background: #101316; min-height: 92px; box-sizing: border-box; }
 .release-delivery-metric span { display: block; color: #aebbc3; font-size: 12px; font-weight: 700; text-transform: uppercase; }
@@ -106,4 +118,4 @@ tr:last-child td { border-bottom: 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }
-@media (max-width: 900px) { .grid, .split, .recurrence-grid, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .trial-onboarding-grid, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 900px) { .grid, .split, .recurrence-grid, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .trial-onboarding-grid, .pilot-readiness-grid, .pilot-readiness-layout, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }

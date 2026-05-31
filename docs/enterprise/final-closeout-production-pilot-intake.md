@@ -101,3 +101,13 @@ The intake should produce:
 
 A machine-readable public-safe intake template is available at `examples/demos/final-closeout-trial/pilot-intake-template.json`.
 
+## Evidence Console Readiness Panel
+
+The public Evidence Console loads the same synthetic intake template and renders:
+
+- readiness cards for repository, agent, CI/CD, connector, SSO/RBAC, and retention scope,
+- a checklist for converting trial evidence into pilot prerequisites,
+- downloadable access to the public-safe intake template,
+- links to the pilot readiness checklist and Enterprise/SaaS handoff guide.
+
+Customer-specific intake responses, private connector routes, identity mappings, commercial details, and production evidence must be captured in a private Enterprise repository, customer tenant, or SaaS control plane. Do not commit customer pilot responses to this public Community repository.
