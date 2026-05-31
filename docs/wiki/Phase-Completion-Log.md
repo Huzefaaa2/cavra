@@ -1,5 +1,32 @@
 # Phase Completion Log
 
+## Phase 9 Enterprise Provider Auth And Rate Limits
+
+Status: complete for the private Enterprise provider authentication and rate-limit handling slice.
+
+Completed implementation:
+- Added private connector auth providers for OAuth client credentials, bearer tokens, API keys, and HTTP basic API-token flows in `Huzefaaa2/cavra-enterprise`.
+- Added provider helper factories for Salesforce, HubSpot, Jira, ServiceNow, and Archer runtime auth.
+- Added retryable rate-limit handling for provider `429`, `500`, `502`, `503`, and `504` responses.
+- Added `Retry-After` support with configurable maximum retry delay.
+- Updated private HTTP handoff workers so explicit auth providers can run without legacy endpoint bearer tokens.
+- Kept provider credentials, customer data, token values, and connector secrets outside source control.
+
+Validation:
+- `.venv/bin/python -m ruff check src tests` in the private repo.
+- `.venv/bin/python -m pytest -q` in the private repo.
+- GitHub `enterprise-ci` passed on private PR #5.
+
+User stories:
+- As an enterprise platform engineer, I can configure provider-specific connector auth from the deployment secret manager.
+- As a service owner, I can tolerate provider rate limits and transient service failures without losing handoff work immediately.
+- As a security owner, I can verify that connector auth secrets are runtime-only and not committed to source.
+
+Enterprise challenge solved:
+- Moves Enterprise connector execution closer to production provider integrations by separating runtime authentication and retry policy from public-safe payload contracts.
+
+Recommended next issue: add immutable object storage adapters for audit export bundles.
+
 ## Phase 9 Enterprise Provider-Native Adapters And Audit Retention
 
 Status: complete for the private Enterprise provider-native adapter and audit-retention slice.
@@ -24,7 +51,7 @@ User stories:
 Enterprise challenge solved:
 - Moves Enterprise handoff from generic HTTP task delivery toward customer-selected operational systems, and adds retention-ready audit exports for regulated pilots.
 
-Recommended next issue: add provider-specific authentication and rate-limit handling, then add immutable object storage adapters for audit export bundles.
+Recommended next issue: delivered above as provider-specific authentication and rate-limit handling.
 
 ## Phase 9 Enterprise Managed Storage And Connector Workers
 

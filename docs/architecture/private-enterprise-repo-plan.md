@@ -16,6 +16,8 @@ Initial private implementation status:
 - CRM/ITSM/GRC/customer-success/tenant-management handoff workers;
 - provider-native Salesforce, HubSpot, Jira, ServiceNow, and Archer payload adapters;
 - immutable audit export and retention enforcement;
+- provider-specific OAuth, bearer, API-key, and basic-token auth providers;
+- retryable provider rate-limit handling;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
