@@ -112,4 +112,4 @@ Community Edition records evidence and public-safe metadata. Enterprise Edition 
 
 ## Next Recommended Issue
 
-Add customer onboarding assets for final closeout trials: a trial walkthrough, sample evidence package, and sales-engineering demo script that show the Community-to-Enterprise upgrade path without exposing Enterprise source code.
+Delivered in enterprise/final-closeout-trial-walkthrough.md, enterprise/final-closeout-trial-sample-evidence.md, enterprise/final-closeout-sales-engineering-demo.md, and examples/demos/final-closeout-trial/sample-evidence-package.json. Continue by converting the onboarding package into an interactive public sandbox flow.

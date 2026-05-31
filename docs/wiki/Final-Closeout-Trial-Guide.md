@@ -43,3 +43,10 @@ The trial proves that CAVRA can create a public-safe final closeout evidence cha
 ## Security Notes
 
 Use non-production connectors and synthetic evidence. Do not use production customer tickets, archive paths, private policy packs, license keys, or secrets in Community trial walkthroughs.
+
+## Onboarding Assets
+
+- Final Closeout Trial Walkthrough: `Final-Closeout-Trial-Walkthrough.md`
+- Final Closeout Trial Sample Evidence: `Final-Closeout-Trial-Sample-Evidence.md`
+- Final Closeout Sales Engineering Demo: `Final-Closeout-Sales-Engineering-Demo.md`
+- Synthetic sample evidence package: `examples/demos/final-closeout-trial/sample-evidence-package.json`

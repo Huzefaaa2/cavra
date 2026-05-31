@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA final closeout trial onboarding</title>
+  <desc id="desc">Customer onboarding flow for final closeout trial walkthrough, sample evidence, demo script, release criteria, and Enterprise upgrade path.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#72e2c1"/>
+    </marker>
+    <style>
+      .bg{fill:#081216}
+      .title{font:700 30px Arial,sans-serif;fill:#eef7f7}
+      .subtitle{font:500 16px Arial,sans-serif;fill:#a9bdc4}
+      .box{fill:#101b20;stroke:#39535c;stroke-width:2;rx:8}
+      .asset{fill:#12332d;stroke:#72e2c1;stroke-width:2;rx:8}
+      .upgrade{fill:#1b2430;stroke:#8db8ff;stroke-width:2;rx:8}
+      .text{font:700 17px Arial,sans-serif;fill:#f5fbfb}
+      .small{font:500 13px Arial,sans-serif;fill:#b8c8cc}
+      .line{stroke:#72e2c1;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#5f737b;stroke-width:2;fill:none;stroke-dasharray:6 6}
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="54" y="62" class="title">Final Closeout Trial Onboarding Assets</text>
+  <text x="54" y="92" class="subtitle">Public-safe customer walkthrough, sample evidence package, sales demo script, and upgrade path.</text>
+
+  <rect x="70" y="146" width="230" height="122" class="asset"/>
+  <text x="98" y="186" class="text">Trial Walkthrough</text>
+  <text x="98" y="216" class="small">Evaluator sequence,</text>
+  <text x="98" y="238" class="small">success checklist,</text>
+  <text x="98" y="260" class="small">discovery questions</text>
+
+  <rect x="370" y="146" width="230" height="122" class="asset"/>
+  <text x="398" y="186" class="text">Sample Evidence</text>
+  <text x="398" y="216" class="small">Synthetic closeout</text>
+  <text x="398" y="238" class="small">package with health,</text>
+  <text x="398" y="260" class="small">alert, and retry data</text>
+
+  <rect x="670" y="146" width="230" height="122" class="asset"/>
+  <text x="698" y="186" class="text">Demo Script</text>
+  <text x="698" y="216" class="small">Sales-engineering</text>
+  <text x="698" y="238" class="small">talk track and</text>
+  <text x="698" y="260" class="small">customer questions</text>
+
+  <rect x="970" y="146" width="230" height="122" class="box"/>
+  <text x="998" y="186" class="text">Release Criteria</text>
+  <text x="998" y="216" class="small">Ready, accepted risk,</text>
+  <text x="998" y="238" class="small">or blocked decision</text>
+
+  <path class="line" d="M300 207 H370"/>
+  <path class="line" d="M600 207 H670"/>
+  <path class="line" d="M900 207 H970"/>
+
+  <rect x="190" y="386" width="260" height="126" class="box"/>
+  <text x="222" y="427" class="text">Customer Evaluation</text>
+  <text x="222" y="457" class="small">Release manager, platform</text>
+  <text x="222" y="479" class="small">owner, security architect,</text>
+  <text x="222" y="501" class="small">and auditor review evidence</text>
+
+  <rect x="510" y="386" width="260" height="126" class="upgrade"/>
+  <text x="542" y="427" class="text">Upgrade Path</text>
+  <text x="542" y="457" class="small">Private trial image,</text>
+  <text x="542" y="479" class="small">self-hosted Enterprise,</text>
+  <text x="542" y="501" class="small">or SaaS control plane</text>
+
+  <rect x="830" y="386" width="260" height="126" class="box"/>
+  <text x="862" y="427" class="text">Pilot Plan</text>
+  <text x="862" y="457" class="small">Repos, agents, CI/CD,</text>
+  <text x="862" y="479" class="small">connectors, retention,</text>
+  <text x="862" y="501" class="small">and approval groups</text>
+
+  <path class="line" d="M185 268 V330 H320 V386"/>
+  <path class="line" d="M485 268 V330 H320"/>
+  <path class="line" d="M785 268 V330 H640 V386"/>
+  <path class="line" d="M1085 268 V330 H960 V386"/>
+  <path class="line" d="M450 449 H510"/>
+  <path class="line" d="M770 449 H830"/>
+
+  <path class="dash" d="M640 512 V614"/>
+  <rect x="300" y="590" width="680" height="76" class="asset"/>
+  <text x="332" y="632" class="text">Public Repository Remains Community-Only</text>
+  <text x="332" y="654" class="small">Onboarding assets explain the commercial path without adding Enterprise source, secrets, connector credentials, or customer material.</text>
+</svg>

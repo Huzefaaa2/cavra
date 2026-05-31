@@ -122,6 +122,7 @@ Architecture references:
 - [Go backend rollback drill final closeout delivery and retention SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg)
 - [Go backend rollback drill final closeout health and retry SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg)
 - [Release governance final closeout operator guide SVG](docs/diagrams/release-governance-final-closeout-operator-guide.svg)
+- [Final closeout trial onboarding SVG](docs/diagrams/final-closeout-trial-onboarding.svg)
 
 Brand assets:
 
@@ -406,6 +407,8 @@ The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
 
+The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package for customer onboarding. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), and [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md).
+
 ## Roadmap
 
 The production roadmap is priority-based, not calendar-based. See [docs/production-roadmap.md](docs/production-roadmap.md) and [docs/implementation-plan.md](docs/implementation-plan.md).
@@ -425,11 +428,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final closeout operator guidance, release criteria, and trial documentation are now documented in [docs/release-governance-final-closeout-operator-guide.md](docs/release-governance-final-closeout-operator-guide.md), [docs/release-governance-final-closeout-release-criteria.md](docs/release-governance-final-closeout-release-criteria.md), and [docs/enterprise/final-closeout-trial.md](docs/enterprise/final-closeout-trial.md) with a new operator diagram at [docs/diagrams/release-governance-final-closeout-operator-guide.svg](docs/diagrams/release-governance-final-closeout-operator-guide.svg).
+- Final closeout trial onboarding assets are now documented in [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), and [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), with a synthetic evidence package at [examples/demos/final-closeout-trial/sample-evidence-package.json](examples/demos/final-closeout-trial/sample-evidence-package.json) and a new onboarding diagram at [docs/diagrams/final-closeout-trial-onboarding.svg](docs/diagrams/final-closeout-trial-onboarding.svg).
 
 Next recommended implementation work:
 
-- Add customer onboarding assets for final closeout trials: a trial walkthrough, sample evidence package, and sales-engineering demo script that show the Community-to-Enterprise upgrade path without exposing Enterprise source code.
+- Convert the final closeout onboarding package into an interactive public sandbox flow with a scenario selector, downloadable sample evidence, release-criteria summary, and docs links in the Evidence Console.
 
 ## User stories and enterprise value
 

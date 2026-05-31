@@ -83,5 +83,9 @@ Use non-production connectors and synthetic evidence for public demos. Do not us
 
 - [Release Governance Final Closeout Operator Guide](../release-governance-final-closeout-operator-guide.md)
 - [Release Governance Final Closeout Release Criteria](../release-governance-final-closeout-release-criteria.md)
+- [Final Closeout Trial Walkthrough](final-closeout-trial-walkthrough.md)
+- [Final Closeout Trial Sample Evidence](final-closeout-trial-sample-evidence.md)
+- [Final Closeout Sales Engineering Demo Script](final-closeout-sales-engineering-demo.md)
+- [Synthetic Sample Evidence Package](../../examples/demos/final-closeout-trial/sample-evidence-package.json)
 - [Enterprise Trial](trial.md)
 - [Open-Core Model](../architecture/open-core-model.md)
