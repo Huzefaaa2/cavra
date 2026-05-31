@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Go Backend Rollback Drill Final Closeout Delivery and Retention</title>
+  <desc id="desc">Public-safe flow from closeout summary through connector delivery, retention review approval, and downloadable artifact bundle.</desc>
+  <defs>
+    <style>
+      .bg { fill: #081014; }
+      .band { fill: #0f1a1f; stroke: #24424a; stroke-width: 2; }
+      .box { fill: #13242b; stroke: #73e0c0; stroke-width: 2; rx: 10; }
+      .private { fill: #241a22; stroke: #f3c766; stroke-width: 2; rx: 10; }
+      .text { fill: #eef7f5; font: 18px Arial, sans-serif; }
+      .small { fill: #bed2d0; font: 14px Arial, sans-serif; }
+      .title { fill: #73e0c0; font: 28px Arial, sans-serif; font-weight: 700; }
+      .arrow { stroke: #73e0c0; stroke-width: 3; marker-end: url(#arrow); fill: none; }
+      .warn { fill: #f3c766; font: 14px Arial, sans-serif; font-weight: 700; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#73e0c0"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text x="58" y="62" class="title">Final Closeout Delivery and Retention</text>
+  <text x="58" y="92" class="small">Community Edition records public-safe evidence. Enterprise or operator-owned systems enforce private retention and archive side effects.</text>
+
+  <rect x="50" y="130" width="1180" height="190" class="band" rx="14"/>
+  <text x="78" y="165" class="warn">Public Community Evidence Chain</text>
+  <rect x="80" y="195" width="210" height="84" class="box"/>
+  <text x="105" y="230" class="text">Closeout Summary</text>
+  <text x="105" y="255" class="small">closed state, blockers, refs</text>
+  <rect x="370" y="195" width="210" height="84" class="box"/>
+  <text x="397" y="230" class="text">Delivery Event</text>
+  <text x="397" y="255" class="small">redacted connector payload</text>
+  <rect x="660" y="195" width="210" height="84" class="box"/>
+  <text x="689" y="230" class="text">Delivery Metadata</text>
+  <text x="689" y="255" class="small">provider, result, ids</text>
+  <rect x="950" y="195" width="210" height="84" class="box"/>
+  <text x="981" y="230" class="text">Dashboard Counts</text>
+  <text x="981" y="255" class="small">delivery and failures</text>
+  <path d="M 290 237 H 370" class="arrow"/>
+  <path d="M 580 237 H 660" class="arrow"/>
+  <path d="M 870 237 H 950" class="arrow"/>
+
+  <rect x="50" y="365" width="1180" height="220" class="band" rx="14"/>
+  <text x="78" y="400" class="warn">Retention Review and Artifact Bundle</text>
+  <rect x="80" y="430" width="220" height="96" class="box"/>
+  <text x="105" y="466" class="text">Retention Request</text>
+  <text x="105" y="491" class="small">retention date, legal hold</text>
+  <rect x="360" y="430" width="220" height="96" class="box"/>
+  <text x="387" y="466" class="text">Retention Decision</text>
+  <text x="387" y="491" class="small">approved, denied, deferred</text>
+  <rect x="640" y="430" width="230" height="96" class="box"/>
+  <text x="668" y="466" class="text">Artifact Bundle</text>
+  <text x="668" y="491" class="small">summary, bundle, manifest</text>
+  <rect x="930" y="430" width="230" height="96" class="box"/>
+  <text x="961" y="466" class="text">Download JSON</text>
+  <text x="961" y="491" class="small">hashes and public refs</text>
+  <path d="M 300 478 H 360" class="arrow"/>
+  <path d="M 580 478 H 640" class="arrow"/>
+  <path d="M 870 478 H 930" class="arrow"/>
+
+  <rect x="364" y="610" width="552" height="68" class="private"/>
+  <text x="395" y="638" class="text">Private Boundary</text>
+  <text x="395" y="662" class="small">archive writes, retention enforcement, KMS signatures, GRC side effects</text>
+  <path d="M 755 526 C 755 580 640 580 640 610" class="arrow"/>
+</svg>

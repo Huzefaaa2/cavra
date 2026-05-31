@@ -1175,6 +1175,10 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1197,6 +1201,7 @@ def filter_go_rollback_drill_notification_history(
                 "go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert",
                 "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export",
                 "go_backend_rollback_drill_acknowledgement_audit_final_reporting_archive_reference_health_alert",
+                "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout",
             }
         )
     ]
@@ -1277,8 +1282,19 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-worker-run",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-execution-record",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1298,6 +1314,20 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack",
+                }
+            )
+            or (
+                connector_delivery_source
+                == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout"
+                and item.get("metadata_kind")
+                in {
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
                 }
             )
         ]
@@ -1661,6 +1691,30 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary"
+    ]
+    audit_delivery_final_reporting_release_closeout_deliveries = [
+        item
+        for item in deliveries
+        if item.get("connector_delivery_source")
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout"
+    ]
+    audit_delivery_final_reporting_closeout_retention_review_requests = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request"
+    ]
+    audit_delivery_final_reporting_closeout_retention_review_decisions = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision"
+    ]
+    audit_delivery_final_reporting_closeout_artifact_bundles = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle"
     ]
     audit_delivery_worker_runs = [
         item
@@ -2079,6 +2133,32 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
                 for item in audit_delivery_final_reporting_release_closeout_summaries
                 if item.get("closeout_state") == "closed"
             ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_count": len(
+            audit_delivery_final_reporting_release_closeout_deliveries
+        ),
+        "failed_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_closeout_deliveries
+                if not item.get("delivery_success")
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request_count": len(
+            audit_delivery_final_reporting_closeout_retention_review_requests
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_review_decision_count": len(
+            audit_delivery_final_reporting_closeout_retention_review_decisions
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_retention_review_approved_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_closeout_retention_review_decisions
+                if item.get("decision_state") == "approved"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_count": len(
+            audit_delivery_final_reporting_closeout_artifact_bundles
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -7206,6 +7286,376 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_relea
         "archive_object_count": summary.get("archive_object_count", 0),
         "blocker_count": summary.get("blocker_count", 0),
         "final_reporting_release_closeout_summary": summary,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_event(
+    summary: dict[str, Any],
+    *,
+    generated_by: str = "release-governance",
+    max_summary_chars: int = 12000,
+) -> dict[str, Any]:
+    summary_id = str(summary.get("summary_id") or "").strip()
+    if not summary_id:
+        raise ValueError("release closeout summary_id is required")
+    if summary.get("closeout_state") != "closed":
+        raise ValueError("release closeout delivery requires a closed closeout summary")
+    max_summary_chars = max(1000, min(int(max_summary_chars or 12000), 50000))
+    public_summary = {
+        "summary_id": summary_id,
+        "summary_hash": summary.get("summary_hash", ""),
+        "release_record_ref": summary.get("release_record_ref", ""),
+        "closeout_state": summary.get("closeout_state"),
+        "alert_level": summary.get("alert_level"),
+        "bundle_id": summary.get("bundle_id", ""),
+        "manifest_id": summary.get("manifest_id", ""),
+        "signature_state": summary.get("signature_state", "unknown"),
+        "archive_object_count": int(summary.get("archive_object_count") or 0),
+        "evidence_count": int(summary.get("evidence_count") or 0),
+        "executive_summary": summary.get("executive_summary", {}),
+        "public_evidence_refs": summary.get("public_evidence_refs", []),
+    }
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closeout-delivery-event.v1",
+        "product": "CAVRA",
+        "event_type": "cavra.go_backend.rollback_drill.final_reporting.release_closeout",
+        "event_id": summary_id,
+        "session_id": summary_id,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_by": generated_by,
+        "release_record_ref": summary.get("release_record_ref", ""),
+        "summary_id": summary_id,
+        "summary_hash": summary.get("summary_hash", ""),
+        "bundle_id": summary.get("bundle_id", ""),
+        "manifest_id": summary.get("manifest_id", ""),
+        "closeout_state": summary.get("closeout_state"),
+        "archive_object_count": int(summary.get("archive_object_count") or 0),
+        "evidence_count": int(summary.get("evidence_count") or 0),
+        "public_evidence_refs": summary.get("public_evidence_refs", []),
+        "payload": json.dumps(public_summary, sort_keys=True)[:max_summary_chars],
+        "payload_truncated": len(json.dumps(public_summary, sort_keys=True)) > max_summary_chars,
+        "provider_payloads": {
+            "webhook": public_summary,
+            "splunk": {"event": public_summary, "sourcetype": "cavra:go:rollback_drill:closeout"},
+            "sentinel": {"records": [public_summary], "table": "CavraGoRollbackDrillCloseout_CL"},
+            "datadog": {"title": "CAVRA Go rollback drill closeout", "text": public_summary},
+            "slack": {
+                "text": (
+                    f"CAVRA Go rollback drill closeout {summary_id} is "
+                    f"{summary.get('closeout_state', 'unknown')}"
+                )
+            },
+            "teams": {
+                "title": "CAVRA Go rollback drill closeout",
+                "summary": public_summary,
+            },
+            "jira": {
+                "summary": f"CAVRA Go rollback drill closeout {summary.get('release_record_ref', '')}".strip(),
+                "description": public_summary,
+            },
+            "servicenow": {
+                "short_description": "CAVRA Go rollback drill closeout",
+                "description": public_summary,
+            },
+        },
+        "controls": [
+            "closeout-delivery-event-contains-public-safe-release-evidence-only",
+            "connector-delivery-redacts-provider-credentials",
+            "private-grc-siem-archive-side-effects-remain-outside-community-repository",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_metadata(
+    event: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": event.get("event_id"),
+        "created_at": event.get("generated_at"),
+        "signer": event.get("generated_by", "release-governance"),
+        "decision_count": int(event.get("evidence_count") or 0),
+        "blocked_count": 0,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery",
+        "summary_id": event.get("summary_id"),
+        "summary_hash": event.get("summary_hash"),
+        "release_record_ref": event.get("release_record_ref"),
+        "bundle_id": event.get("bundle_id"),
+        "manifest_id": event.get("manifest_id"),
+        "closeout_state": event.get("closeout_state"),
+        "archive_object_count": event.get("archive_object_count", 0),
+        "final_reporting_release_closeout_delivery": event,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request(
+    summary: dict[str, Any],
+    *,
+    requested_by: str = "release-governance",
+    retention_until: str | None = None,
+    legal_hold: bool = False,
+    review_reason: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    summary_id = str(summary.get("summary_id") or "").strip()
+    if not summary_id:
+        raise ValueError("release closeout summary_id is required")
+    if summary.get("closeout_state") != "closed":
+        raise ValueError("retention review requires a closed closeout summary")
+    now = now or datetime.now(timezone.utc)
+    requested_at = now.isoformat()
+    material = {
+        "summary_id": summary_id,
+        "summary_hash": summary.get("summary_hash", ""),
+        "release_record_ref": summary.get("release_record_ref", ""),
+        "retention_until": retention_until or "",
+        "legal_hold": bool(legal_hold),
+        "requested_at": requested_at,
+        "requested_by": requested_by,
+    }
+    review_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    review_id = f"gordackfinalretention-{review_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-retention-review-request.v1",
+        "product": "CAVRA",
+        "review_id": review_id,
+        "review_hash": review_hash,
+        "requested_at": requested_at,
+        "requested_by": requested_by,
+        "review_state": "pending",
+        "summary_id": summary_id,
+        "summary_hash": summary.get("summary_hash", ""),
+        "release_record_ref": summary.get("release_record_ref", ""),
+        "bundle_id": summary.get("bundle_id", ""),
+        "manifest_id": summary.get("manifest_id", ""),
+        "retention_until": retention_until or "",
+        "legal_hold": bool(legal_hold),
+        "review_reason": review_reason or "release closeout artifact retention review",
+        "public_evidence_refs": [
+            *summary.get("public_evidence_refs", []),
+            f"go-rollback-drill-final-retention-review://{review_id}",
+        ],
+        "controls": [
+            "retention-review-request-is-public-safe-metadata-only",
+            "community-edition-does-not-delete-or-mutate-archive-objects",
+            "retention-approval-enables-operator-owned-download-or-archive-workflows",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request_metadata(
+    request: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": request.get("review_id"),
+        "created_at": request.get("requested_at"),
+        "signer": request.get("requested_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0,
+        "approval_required_count": 1,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request",
+        "review_id": request.get("review_id"),
+        "review_hash": request.get("review_hash"),
+        "review_state": request.get("review_state"),
+        "summary_id": request.get("summary_id"),
+        "release_record_ref": request.get("release_record_ref"),
+        "bundle_id": request.get("bundle_id"),
+        "manifest_id": request.get("manifest_id"),
+        "retention_until": request.get("retention_until"),
+        "legal_hold": request.get("legal_hold", False),
+        "final_reporting_closeout_retention_review_request": request,
+    }
+
+
+def decide_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review(
+    request: dict[str, Any],
+    *,
+    decision: str,
+    decided_by: str = "release-governance",
+    external_ref: str | None = None,
+    notes: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    review_id = str(request.get("review_id") or "").strip()
+    if not review_id:
+        raise ValueError("retention review_id is required")
+    decision_state = decision.strip().lower().replace("-", "_")
+    if decision_state not in {"approved", "denied", "deferred", "expired"}:
+        raise ValueError("decision must be approved, denied, deferred, or expired")
+    now = now or datetime.now(timezone.utc)
+    decided_at = now.isoformat()
+    material = {
+        "review_id": review_id,
+        "decision_state": decision_state,
+        "decided_at": decided_at,
+        "decided_by": decided_by,
+        "external_ref": external_ref or "",
+    }
+    decision_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    decision_id = f"gordackfinalretentiondecision-{decision_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-retention-review-decision.v1",
+        "product": "CAVRA",
+        "decision_id": decision_id,
+        "decision_hash": decision_hash,
+        "review_id": review_id,
+        "decided_at": decided_at,
+        "decided_by": decided_by,
+        "decision_state": decision_state,
+        "external_ref": external_ref or "",
+        "notes": notes or "",
+        "summary_id": request.get("summary_id", ""),
+        "release_record_ref": request.get("release_record_ref", ""),
+        "bundle_id": request.get("bundle_id", ""),
+        "manifest_id": request.get("manifest_id", ""),
+        "retention_until": request.get("retention_until", ""),
+        "legal_hold": bool(request.get("legal_hold", False)),
+        "public_evidence_refs": [
+            *request.get("public_evidence_refs", []),
+            f"go-rollback-drill-final-retention-decision://{decision_id}",
+        ],
+        "controls": [
+            "retention-review-decision-records-approval-state-only",
+            "community-edition-does-not-embed-private-retention-policy-logic",
+            "operator-owned-or-enterprise-services-enforce-actual-retention-actions",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_retention_review_decision_metadata(
+    decision: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": decision.get("decision_id"),
+        "created_at": decision.get("decided_at"),
+        "signer": decision.get("decided_by", "release-governance"),
+        "decision_count": 1,
+        "blocked_count": 0 if decision.get("decision_state") == "approved" else 1,
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision",
+        "decision_id": decision.get("decision_id"),
+        "review_id": decision.get("review_id"),
+        "decision_state": decision.get("decision_state"),
+        "summary_id": decision.get("summary_id"),
+        "release_record_ref": decision.get("release_record_ref"),
+        "bundle_id": decision.get("bundle_id"),
+        "manifest_id": decision.get("manifest_id"),
+        "retention_until": decision.get("retention_until"),
+        "legal_hold": decision.get("legal_hold", False),
+        "final_reporting_closeout_retention_review_decision": decision,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle(
+    summary: dict[str, Any],
+    *,
+    readiness_bundle: dict[str, Any] | None = None,
+    signed_manifest: dict[str, Any] | None = None,
+    retention_decision: dict[str, Any] | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    summary_id = str(summary.get("summary_id") or "").strip()
+    if not summary_id:
+        raise ValueError("release closeout summary_id is required")
+    if summary.get("closeout_state") != "closed":
+        raise ValueError("artifact bundle requires a closed closeout summary")
+    retention_decision = retention_decision or {}
+    if retention_decision and retention_decision.get("decision_state") != "approved":
+        raise ValueError("artifact bundle requires an approved retention review decision when a decision is supplied")
+    now = now or datetime.now(timezone.utc)
+    generated_at = now.isoformat()
+    files: list[dict[str, Any]] = [
+        {
+            "path": "release-closeout-summary.json",
+            "media_type": "application/json",
+            "sha256": hashlib.sha256(json.dumps(summary, sort_keys=True).encode("utf-8")).hexdigest(),
+            "content": summary,
+        }
+    ]
+    if readiness_bundle:
+        files.append(
+            {
+                "path": "readiness-bundle.json",
+                "media_type": "application/json",
+                "sha256": hashlib.sha256(json.dumps(readiness_bundle, sort_keys=True).encode("utf-8")).hexdigest(),
+                "content": readiness_bundle,
+            }
+        )
+    if signed_manifest:
+        files.append(
+            {
+                "path": "signed-archive-manifest.json",
+                "media_type": "application/json",
+                "sha256": hashlib.sha256(json.dumps(signed_manifest, sort_keys=True).encode("utf-8")).hexdigest(),
+                "content": signed_manifest,
+            }
+        )
+    material = {
+        "generated_at": generated_at,
+        "summary_id": summary_id,
+        "file_hashes": [item["sha256"] for item in files],
+        "retention_decision_id": retention_decision.get("decision_id", ""),
+    }
+    artifact_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    artifact_bundle_id = f"gordackfinalartifact-{artifact_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-closeout-artifact-bundle.v1",
+        "product": "CAVRA",
+        "artifact_bundle_id": artifact_bundle_id,
+        "artifact_bundle_hash": artifact_hash,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "summary_id": summary_id,
+        "summary_hash": summary.get("summary_hash", ""),
+        "release_record_ref": summary.get("release_record_ref", ""),
+        "bundle_id": summary.get("bundle_id", ""),
+        "manifest_id": summary.get("manifest_id", ""),
+        "closeout_state": summary.get("closeout_state"),
+        "retention_decision_id": retention_decision.get("decision_id", ""),
+        "retention_decision_state": retention_decision.get("decision_state", "not_attached"),
+        "retention_until": retention_decision.get("retention_until", ""),
+        "legal_hold": bool(retention_decision.get("legal_hold", False)),
+        "artifact_count": len(files),
+        "files": files,
+        "download_manifest": [
+            {key: value for key, value in item.items() if key != "content"}
+            for item in files
+        ],
+        "public_evidence_refs": [
+            *summary.get("public_evidence_refs", []),
+            f"go-rollback-drill-final-artifact-bundle://{artifact_bundle_id}",
+        ],
+        "controls": [
+            "artifact-bundle-is-json-metadata-for-download-and-review",
+            "bundle-contains-public-safe-closeout-evidence-only",
+            "private-archive-objects-and-signing-material-remain-outside-community-repository",
+            "retention-decision-is-referenced-without-embedding-private-retention-service-logic",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_metadata(
+    artifact_bundle: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": artifact_bundle.get("artifact_bundle_id"),
+        "created_at": artifact_bundle.get("generated_at"),
+        "signer": artifact_bundle.get("generated_by", "release-governance"),
+        "decision_count": int(artifact_bundle.get("artifact_count") or 0),
+        "blocked_count": 0,
+        "approval_required_count": 0 if artifact_bundle.get("retention_decision_state") == "approved" else 1,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle",
+        "artifact_bundle_id": artifact_bundle.get("artifact_bundle_id"),
+        "artifact_bundle_hash": artifact_bundle.get("artifact_bundle_hash"),
+        "summary_id": artifact_bundle.get("summary_id"),
+        "release_record_ref": artifact_bundle.get("release_record_ref"),
+        "bundle_id": artifact_bundle.get("bundle_id"),
+        "manifest_id": artifact_bundle.get("manifest_id"),
+        "artifact_count": artifact_bundle.get("artifact_count", 0),
+        "retention_decision_id": artifact_bundle.get("retention_decision_id"),
+        "retention_decision_state": artifact_bundle.get("retention_decision_state"),
+        "final_reporting_closeout_artifact_bundle": artifact_bundle,
     }
 
 
