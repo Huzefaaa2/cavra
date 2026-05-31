@@ -5,6 +5,7 @@ This demo folder contains public-safe onboarding assets for CAVRA final closeout
 ## Files
 
 - `sample-evidence-package.json`: synthetic evidence package for the final closeout workflow.
+- `pilot-intake-template.json`: synthetic public-safe pilot intake template for converting trial findings into a scoped production pilot.
 
 ## How To Use
 
@@ -12,8 +13,8 @@ This demo folder contains public-safe onboarding assets for CAVRA final closeout
 2. Open `sample-evidence-package.json`.
 3. Compare the sample with `docs/release-governance-final-closeout-release-criteria.md`.
 4. Use `docs/enterprise/final-closeout-sales-engineering-demo.md` to guide the customer conversation.
+5. Use `pilot-intake-template.json` with `docs/enterprise/final-closeout-production-pilot-intake.md` to scope the next production pilot.
 
 ## Boundary
 
 This demo includes synthetic metadata only. Do not add production customer records, connector credentials, signing keys, license secrets, archive mutation logic, or Enterprise source code to this folder.
-

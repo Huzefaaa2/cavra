@@ -208,6 +208,10 @@ See `docs/diagrams/release-governance-final-closeout-operator-guide.svg` for the
 
 See `docs/diagrams/final-closeout-trial-onboarding.svg` for the customer onboarding and public sandbox flow across evaluator walkthrough, synthetic sample evidence, sales-engineering script, release criteria, upgrade path, and production pilot planning.
 
+## Final Closeout Production Pilot Intake
+
+See `docs/diagrams/final-closeout-production-pilot-intake.svg` for the flow from trial evidence through scope intake, readiness checks, Enterprise/SaaS handoff path, pilot plan, success criteria, and commercial decision.
+
 ## SVG Images
 
 Repository diagram images:
@@ -245,6 +249,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg`
 - `docs/diagrams/release-governance-final-closeout-operator-guide.svg`
 - `docs/diagrams/final-closeout-trial-onboarding.svg`
+- `docs/diagrams/final-closeout-production-pilot-intake.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

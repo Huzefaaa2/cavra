@@ -49,4 +49,8 @@ Use non-production connectors and synthetic evidence. Do not use production cust
 - Final Closeout Trial Walkthrough: `Final-Closeout-Trial-Walkthrough.md`
 - Final Closeout Trial Sample Evidence: `Final-Closeout-Trial-Sample-Evidence.md`
 - Final Closeout Sales Engineering Demo: `Final-Closeout-Sales-Engineering-Demo.md`
+- Final Closeout Production Pilot Intake: `Final-Closeout-Production-Pilot-Intake.md`
+- Final Closeout Pilot Readiness Checklists: `Final-Closeout-Pilot-Readiness-Checklists.md`
+- Final Closeout Enterprise And SaaS Handoff: `Final-Closeout-Enterprise-And-SaaS-Handoff.md`
 - Synthetic sample evidence package: `examples/demos/final-closeout-trial/sample-evidence-package.json`
+- Synthetic pilot intake template: `examples/demos/final-closeout-trial/pilot-intake-template.json`

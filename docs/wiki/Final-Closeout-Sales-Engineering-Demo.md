@@ -39,3 +39,6 @@ Map the sample to `Release-Governance-Final-Closeout-Release-Criteria.md` and cl
 - Do not invent license keys.
 - Do not claim Community performs private archive mutation or live credentialed connector execution.
 
+## Recommended Next Step
+
+Use `Final-Closeout-Production-Pilot-Intake.md`, `Final-Closeout-Pilot-Readiness-Checklists.md`, `Final-Closeout-Enterprise-And-SaaS-Handoff.md`, and `examples/demos/final-closeout-trial/pilot-intake-template.json` to convert the demo outcome into a scoped production pilot.
