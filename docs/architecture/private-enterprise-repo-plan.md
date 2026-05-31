@@ -36,6 +36,7 @@ Initial private implementation status:
 - archive alert verification report delivery routing and customer-success handoff automation;
 - archive alert verification delivery health dashboards and retry planning;
 - archive alert verification retry workers and customer-success closure evidence;
+- archive alert verification retry health alerts and closure trend reporting;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
