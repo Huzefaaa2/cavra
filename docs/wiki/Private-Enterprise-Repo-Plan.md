@@ -18,6 +18,8 @@ Initial private implementation status:
 - immutable audit export and retention enforcement
 - provider-specific OAuth, bearer, API-key, and basic-token auth providers
 - retryable provider rate-limit handling
+- immutable object storage adapter contracts and local validation storage
+- AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
