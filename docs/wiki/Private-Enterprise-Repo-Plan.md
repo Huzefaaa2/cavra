@@ -25,6 +25,8 @@ Initial private implementation status:
 - alert delivery connector contracts and local delivery validation
 - email, ChatOps, SIEM, ITSM, and pager delivery provider-package boundaries
 - archive health dashboard persistence, retry planning, and operator acknowledgements
+- HTTP alert transport packages with runtime endpoint validation and retry handling
+- JSON-backed archive health dashboard API persistence and query helpers
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow

@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes alert delivery connector contracts, local delivery validation, managed delivery boundaries for email, ChatOps, SIEM, ITSM, and pager systems, archive health dashboard persistence, retry planning, and operator acknowledgement records.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes HTTP alert transport packages for email, ChatOps, SIEM, ITSM, and pager systems, runtime endpoint validation, auth-provider support, rate-limit retry handling, public-safe delivery results, JSON-backed archive health dashboard API persistence, query helpers, and operator acknowledgement mutation flows.
 
 Next recommended implementation work:
 
-- Add transport delivery packages and dashboard API persistence.
+- Add managed database-backed archive dashboard APIs and live provider transport adapters.
 
 ## User stories and enterprise value
 
