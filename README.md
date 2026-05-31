@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification report delivery routing, customer-success handoff automation, private connector dispatch helpers, and public-safe handoff plans that keep provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification delivery health dashboards, retry planning for failed or skipped handoff providers, and public-safe dashboard summaries that keep provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert verification delivery health dashboards and retry planning.
+- Add archive alert verification delivery retry workers and customer-success closure evidence.
 
 ## User stories and enterprise value
 
