@@ -31,6 +31,7 @@ Initial private implementation status:
 - live provider alert transport adapters for Slack, Teams, Splunk HEC, Jira, ServiceNow, and PagerDuty
 - production deployment wiring for archive alert dashboard storage, transport selection, retry policy, and readiness validation
 - archive alert deployment runbook helpers, Kubernetes examples, Helm values, and provider smoke-test guidance
+- archive alert smoke-test execution jobs and post-delivery dashboard assertions
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
