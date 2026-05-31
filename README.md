@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes cloud object-lock deployment recipes for AWS S3, Azure Blob, and Google Cloud Storage plus archive health validation for stored audit bundle checksums, retention locks, legal-hold state, byte counts, and manifest presence.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes scheduled archive health workers, schedule advancement, and public-safe operator alert routing for unhealthy immutable archive bundles.
 
 Next recommended implementation work:
 
-- Add scheduled archive health workers and operator alert routing.
+- Add alert delivery connectors and health dashboard persistence.
 
 ## User stories and enterprise value
 

@@ -21,6 +21,7 @@ Initial private implementation status:
 - immutable object storage adapter contracts and local validation storage
 - AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries
 - cloud object-lock deployment recipes and archive health validation
+- scheduled archive health workers and operator alert routing
 - audit-event persistence
 - connector handoff dispatcher interfaces
 - private CI workflow
