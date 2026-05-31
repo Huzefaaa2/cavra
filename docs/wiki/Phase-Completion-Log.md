@@ -1,5 +1,33 @@
 # Phase Completion Log
 
+## Phase 9 Enterprise Archive Alert Deployment Wiring
+
+Status: complete for the private Enterprise archive alert deployment wiring slice.
+
+Completed implementation:
+- Added production deployment wiring for archive alert dashboard storage and live alert transports in `Huzefaaa2/cavra-enterprise`.
+- Added public-safe deployment validation for missing runtime configuration.
+- Added dashboard backend selection for JSON or managed database persistence.
+- Added retry policy and enabled alert transport selection from runtime configuration.
+- Added dispatcher, retry planner, dashboard API, and coordinator construction tests.
+- Kept endpoint URLs, tokens, routing keys, database credentials, provider secrets, customer destinations, and account metadata outside public source control.
+
+Validation:
+- `.venv/bin/python -m ruff check src tests` in the private repo.
+- `.venv/bin/python -m pytest -q` in the private repo.
+- `git diff --check` in the private repo.
+- GitHub `test` passed on private PR #12.
+
+User stories:
+- As a platform owner, I can wire archive health dashboard storage and live transports from runtime configuration.
+- As an operator, I can validate missing deployment inputs before scheduled archive health workers run.
+- As a security owner, I can enable only approved alert transports without exposing runtime secrets.
+
+Enterprise challenge solved:
+- Turns private archive alert capabilities into deployable production wiring with readiness validation and provider selection.
+
+Recommended next issue: add archive alert deployment runbooks, Kubernetes/Helm examples, and provider smoke-test commands.
+
 ## Phase 9 Enterprise Managed Archive Dashboard Storage And Live Alert Transports
 
 Status: complete for the private Enterprise managed archive dashboard storage and live alert transport five-step batch.
@@ -26,7 +54,7 @@ User stories:
 Enterprise challenge solved:
 - Moves archive health alerting closer to production deployment by adding managed persistence and live provider adapter boundaries while preserving runtime-only credential handling.
 
-Recommended next issue: add production deployment wiring for managed archive dashboard storage and live alert transport providers.
+Recommended next issue: delivered above as archive alert deployment wiring.
 
 ## Phase 9 Enterprise Archive Alert Transport And Dashboard API Persistence
 
