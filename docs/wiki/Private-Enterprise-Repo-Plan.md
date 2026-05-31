@@ -2,11 +2,30 @@
 
 Recommended private repository: `Huzefaaa2/cavra-enterprise`
 
+Status: created as a private GitHub repository.
+
+Initial private implementation status:
+
+- Python package `cavra_enterprise`
+- private pilot-intake tenant store
+- encrypted-at-rest payload codec
+- authenticated update authorization
+- audit-event persistence
+- connector handoff dispatcher interfaces
+- private CI workflow
+
+Repository hardening status:
+
+- Dependabot vulnerability alerts: enabled
+- squash-only merge policy and delete-branch-on-merge: enabled
+- branch protection and secret scanning: blocked by the current GitHub plan for private repositories
+
 Suggested structure:
 
 ```text
 cavra-enterprise/
   src/cavra_enterprise/
+    pilot_intake/
     sso/
     rbac/
     audit/
