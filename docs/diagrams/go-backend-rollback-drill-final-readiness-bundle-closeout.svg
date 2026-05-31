@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA final readiness bundle closeout flow</title>
+  <desc id="desc">Final reporting evidence flows into a readiness bundle, externally signed archive manifest, and release closeout summary.</desc>
+  <rect width="1280" height="720" fill="#071112"/>
+  <text x="64" y="70" fill="#e9f5f2" font-family="Arial, sans-serif" font-size="32" font-weight="700">CAVRA Final Reporting Closeout</text>
+  <text x="64" y="104" fill="#7ee6c8" font-family="Arial, sans-serif" font-size="18">Public-safe release evidence bundle, external archive signature, and executive closeout summary</text>
+  <g font-family="Arial, sans-serif" font-size="16">
+    <rect x="64" y="170" width="270" height="110" rx="8" fill="#102024" stroke="#31535a"/>
+    <text x="88" y="205" fill="#e9f5f2" font-weight="700">Final reporting metadata</text>
+    <text x="88" y="235" fill="#b9cbc7">Readiness, runbook, approval,</text>
+    <text x="88" y="260" fill="#b9cbc7">auditor export, retry, archive refs</text>
+    <rect x="505" y="150" width="280" height="150" rx="8" fill="#102024" stroke="#7ee6c8" stroke-width="2"/>
+    <text x="535" y="190" fill="#e9f5f2" font-weight="700">Readiness bundle</text>
+    <text x="535" y="220" fill="#b9cbc7">Hash-addressed evidence index</text>
+    <text x="535" y="245" fill="#b9cbc7">Release record and archive objects</text>
+    <text x="535" y="270" fill="#7ee6c8">No secrets or private endpoints</text>
+    <rect x="940" y="170" width="270" height="110" rx="8" fill="#102024" stroke="#31535a"/>
+    <text x="965" y="205" fill="#e9f5f2" font-weight="700">Signed archive manifest</text>
+    <text x="965" y="235" fill="#b9cbc7">Manifest hash plus external</text>
+    <text x="965" y="260" fill="#b9cbc7">KMS or release-service signature</text>
+    <rect x="505" y="430" width="280" height="130" rx="8" fill="#102024" stroke="#7ee6c8" stroke-width="2"/>
+    <text x="535" y="470" fill="#e9f5f2" font-weight="700">Closeout summary</text>
+    <text x="535" y="500" fill="#b9cbc7">Closed/open state, blockers,</text>
+    <text x="535" y="525" fill="#b9cbc7">archive coverage, evidence refs</text>
+    <rect x="64" y="430" width="270" height="130" rx="8" fill="#102024" stroke="#31535a"/>
+    <text x="88" y="470" fill="#e9f5f2" font-weight="700">Evidence Console</text>
+    <text x="88" y="500" fill="#b9cbc7">Build bundle, sign manifest,</text>
+    <text x="88" y="525" fill="#b9cbc7">review final closeout state</text>
+    <rect x="940" y="430" width="270" height="130" rx="8" fill="#102024" stroke="#31535a"/>
+    <text x="965" y="470" fill="#e9f5f2" font-weight="700">Enterprise boundary</text>
+    <text x="965" y="500" fill="#b9cbc7">Archive writes, GRC delivery,</text>
+    <text x="965" y="525" fill="#b9cbc7">private signing and retention</text>
+  </g>
+  <g stroke="#7ee6c8" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M334 225 H505"/>
+    <path d="M785 225 H940"/>
+    <path d="M645 300 V430"/>
+    <path d="M334 495 H505"/>
+    <path d="M785 495 H940"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7ee6c8"/>
+    </marker>
+  </defs>
+</svg>

@@ -422,11 +422,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final rollback drill auditor export retry worker execution and archive health alert acknowledgements are now documented in [docs/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.md](docs/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg).
+- Final rollback drill readiness bundle export, externally signed archive manifest records, and release closeout summaries are now documented in [docs/go-backend-rollback-drill-final-readiness-bundle-closeout.md](docs/go-backend-rollback-drill-final-readiness-bundle-closeout.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-readiness-bundle-closeout.svg](docs/diagrams/go-backend-rollback-drill-final-readiness-bundle-closeout.svg).
 
 Next recommended implementation work:
 
-- Add final reporting readiness bundle export with signed archive manifest and release closeout summary.
+- Add final closeout bundle delivery workflow with retention review approvals and downloadable closeout artifact bundles.
 
 ## User stories and enterprise value
 
