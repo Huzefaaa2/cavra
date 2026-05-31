@@ -10,6 +10,7 @@ Initial private implementation status:
 - private pilot-intake tenant store;
 - encrypted-at-rest payload codec;
 - authenticated update authorization;
+- production SSO claim binding;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
@@ -28,6 +29,7 @@ Repository hardening status:
 cavra-enterprise/
   src/
     cavra_enterprise/
+      identity/
       pilot_intake/
       sso/
       rbac/

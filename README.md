@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now exists and has been bootstrapped with the first Enterprise MVP slice for pilot-intake handoff execution: tenant-scoped persistence, encrypted-at-rest payload storage, authenticated update authorization, audit events, connector handoff interfaces, and private CI. The public Community repository still contains only public-safe contracts and documentation.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes production SSO claim binding for pilot-intake authorization. Verified IdP claims can be mapped into tenant-scoped CAVRA Enterprise claims with issuer, audience, tenant, role, and group checks before private record mutation.
 
 Next recommended implementation work:
 
-- Extend the private Enterprise MVP with production SSO claim binding, customer/SaaS KMS envelope encryption, managed tenant database storage, and real CRM/ITSM/GRC/customer-success connector workers.
+- Add customer/SaaS KMS envelope encryption for private pilot-intake payloads, then move storage to a managed tenant database and add real CRM/ITSM/GRC/customer-success connector workers.
 
 ## User stories and enterprise value
 
