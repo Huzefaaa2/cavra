@@ -1750,6 +1750,12 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     )
     assert (
         config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/delivery-retry-worker-run"
+    )
+    assert (
+        config["endpoints"][
             "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference"
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference"
@@ -1759,6 +1765,18 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
             "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_archive_reference_health"
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_deliver"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alerts/deliver"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_acknowledge"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alerts/{health_id}/acknowledgements"
     )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
@@ -2412,6 +2430,43 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
             "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
         },
     )
+    final_reporting_auditor_export_delivery_retry_worker = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export/delivery-retry-worker-run",
+        json={
+            "generated_by": "release-manager",
+            "execute": True,
+            "provider": "webhook",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+            "retry_policy": {"max_retry_attempts": 3, "retry_delay_minutes": 0, "allow_immediate_retry": True},
+        },
+    )
+    final_reporting_archive_reference_health_alert_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alerts/deliver",
+        json={
+            "generated_by": "release-manager",
+            "provider": "webhook",
+            "force": True,
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    final_reporting_archive_reference_health_alert_ack = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alerts/"
+        f"{final_reporting_archive_reference_health_alert_delivery.json().get('plan', {}).get('health_id')}/acknowledgements",
+        json={
+            "acknowledged_by": "release-manager",
+            "provider": "webhook",
+            "plan_id": final_reporting_archive_reference_health_alert_delivery.json().get("plan", {}).get("plan_id"),
+            "acknowledgement_state": "acknowledged",
+        },
+    )
+    final_reporting_archive_reference_health_alert_history = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alerts"
+    )
+    final_reporting_archive_reference_health_alert_dashboard = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health-alert-dashboard"
+    )
     final_reporting_immutable_archive_reference = client.post(
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-immutable-archive-reference",
         json={
@@ -2772,6 +2827,33 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan"
     )
     assert final_reporting_auditor_export_delivery_retry_plan.json()["plan"]["retryable_count"] >= 1
+    assert final_reporting_auditor_export_delivery_retry_worker.status_code == 200
+    assert (
+        final_reporting_auditor_export_delivery_retry_worker.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-worker-run"
+    )
+    assert final_reporting_auditor_export_delivery_retry_worker.json()["run"]["dry_run"] is False
+    assert (
+        final_reporting_auditor_export_delivery_retry_worker.json()["retry_results"][0]["execution_metadata"][
+            "metadata_kind"
+        ]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-execution-record"
+    )
+    assert final_reporting_archive_reference_health_alert_delivery.status_code == 200
+    assert (
+        final_reporting_archive_reference_health_alert_delivery.json()["plan_metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan"
+    )
+    assert final_reporting_archive_reference_health_alert_delivery.json()["plan"]["selected_providers"] == ["webhook"]
+    assert final_reporting_archive_reference_health_alert_ack.status_code == 200
+    assert (
+        final_reporting_archive_reference_health_alert_ack.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack"
+    )
+    assert final_reporting_archive_reference_health_alert_history.status_code == 200
+    assert final_reporting_archive_reference_health_alert_history.json()["total"] >= 2
+    assert final_reporting_archive_reference_health_alert_dashboard.status_code == 200
+    assert final_reporting_archive_reference_health_alert_dashboard.json()["acknowledgement_count"] == 1
     assert final_reporting_immutable_archive_reference.status_code == 200
     assert (
         final_reporting_immutable_archive_reference.json()["metadata"]["metadata_kind"]
@@ -2960,19 +3042,31 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         dashboard_after.json()[
             "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_count"
         ]
-        == 1
+        == 2
     )
     assert (
         dashboard_after.json()[
             "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan_count"
         ]
-        == 1
+        == 2
     )
     assert (
         dashboard_after.json()[
             "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retryable_count"
         ]
         >= 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record_count"
+        ]
+        == 1
     )
     assert (
         dashboard_after.json()[
@@ -2983,6 +3077,24 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert (
         dashboard_after.json()[
             "acknowledgement_audit_delivery_final_reporting_archive_reference_health_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_ack_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_delivery_count"
         ]
         == 1
     )

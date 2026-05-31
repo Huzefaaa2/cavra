@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA final auditor retry worker and archive alert acknowledgements</title>
+  <desc id="desc">Flow showing failed auditor export delivery, retry worker execution, archive health alert delivery, acknowledgement, and dashboard evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#071014"/>
+      <stop offset="1" stop-color="#10252b"/>
+    </linearGradient>
+    <style>
+      .title{fill:#f4fbff;font:700 34px Arial,sans-serif}
+      .sub{fill:#89e8cc;font:700 18px Arial,sans-serif}
+      .box{fill:#101a20;stroke:#65d6c0;stroke-width:2;rx:8}
+      .warn{fill:#211817;stroke:#f5c56a;stroke-width:2;rx:8}
+      .ok{fill:#102018;stroke:#79e0b5;stroke-width:2;rx:8}
+      .text{fill:#edf7fa;font:600 18px Arial,sans-serif}
+      .small{fill:#b8cbd2;font:14px Arial,sans-serif}
+      .arrow{stroke:#65d6c0;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#f5c56a;stroke-width:3;fill:none;stroke-dasharray:8 7;marker-end:url(#arrowWarn)}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#65d6c0"/>
+    </marker>
+    <marker id="arrowWarn" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#f5c56a"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="64" y="68" class="title">Final Auditor Retry Worker and Archive Alert Acknowledgements</text>
+  <text x="64" y="102" class="sub">Public-safe evidence loop for final rollback drill reporting</text>
+
+  <rect x="70" y="160" width="240" height="115" class="warn"/>
+  <text x="95" y="198" class="text">Failed Auditor Delivery</text>
+  <text x="95" y="230" class="small">Redacted connector metadata</text>
+  <text x="95" y="252" class="small">No provider secret stored</text>
+
+  <rect x="380" y="160" width="240" height="115" class="box"/>
+  <text x="410" y="198" class="text">Retry Plan</text>
+  <text x="410" y="230" class="small">retry / wait / suppress</text>
+  <text x="410" y="252" class="small">Backoff and attempt limits</text>
+
+  <rect x="690" y="160" width="240" height="115" class="box"/>
+  <text x="715" y="198" class="text">Retry Worker Run</text>
+  <text x="715" y="230" class="small">Dry-run by default</text>
+  <text x="715" y="252" class="small">Explicit execute required</text>
+
+  <rect x="1000" y="160" width="220" height="115" class="ok"/>
+  <text x="1025" y="198" class="text">Execution Record</text>
+  <text x="1025" y="230" class="small">Delivered / failed / skipped</text>
+  <text x="1025" y="252" class="small">Hash-bound evidence</text>
+
+  <path d="M310 218 H375" class="arrow"/>
+  <path d="M620 218 H685" class="arrow"/>
+  <path d="M930 218 H995" class="arrow"/>
+
+  <rect x="70" y="395" width="240" height="115" class="box"/>
+  <text x="95" y="433" class="text">Archive Health</text>
+  <text x="95" y="465" class="small">Missing ref / hash / retention</text>
+  <text x="95" y="487" class="small">Read-only custody check</text>
+
+  <rect x="380" y="395" width="240" height="115" class="warn"/>
+  <text x="410" y="433" class="text">Alert Delivery Plan</text>
+  <text x="410" y="465" class="small">Suppression window</text>
+  <text x="410" y="487" class="small">Selected providers</text>
+
+  <rect x="690" y="395" width="240" height="115" class="box"/>
+  <text x="715" y="433" class="text">Connector Delivery</text>
+  <text x="715" y="465" class="small">Webhook / SIEM / GRC</text>
+  <text x="715" y="487" class="small">Redacted result metadata</text>
+
+  <rect x="1000" y="395" width="220" height="115" class="ok"/>
+  <text x="1025" y="433" class="text">Alert Acknowledgement</text>
+  <text x="1025" y="465" class="small">Reviewed / resolved</text>
+  <text x="1025" y="487" class="small">Operator evidence</text>
+
+  <path d="M310 453 H375" class="dash"/>
+  <path d="M620 453 H685" class="arrow"/>
+  <path d="M930 453 H995" class="arrow"/>
+  <path d="M810 275 V355 H190 V392" class="dash"/>
+
+  <rect x="290" y="595" width="700" height="70" class="box"/>
+  <text x="320" y="630" class="text">Evidence Console Dashboard</text>
+  <text x="320" y="653" class="small">Retry worker counts, execution outcomes, archive alert deliveries, acknowledgements, and open custody gaps</text>
+</svg>

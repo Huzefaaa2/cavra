@@ -12,6 +12,7 @@ from cavra.go_backend import (
     GO_BACKEND_SHADOW,
     GoBackendConfig,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry,
+    acknowledge_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation_retry_health_alert,
@@ -65,11 +66,19 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_ack_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_event,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_plan_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_metadata,
@@ -1743,6 +1752,48 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_auditor_export_retry_plan
         )
     )
+    final_reporting_auditor_export_retry_worker_run = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run(
+            [*dashboard_items, final_reporting_auditor_export_failed_delivery_metadata],
+            retry_policy={"allow_immediate_retry": True},
+            generated_by="test",
+            dry_run=False,
+        )
+    )
+    final_reporting_auditor_export_retry_worker_run_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run_metadata(
+            final_reporting_auditor_export_retry_worker_run
+        )
+    )
+    final_reporting_auditor_export_retry_execution_delivery_metadata = {
+        "session_id": "connector-delivery-final-auditor-export-retry-success",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "metadata_kind": "release-connector-delivery",
+        "connector_delivery_source": "go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export",
+        "event_id": final_reporting_auditor_export["export_id"],
+        "export_id": final_reporting_auditor_export["export_id"],
+        "verification_id": final_reporting_auditor_export["verification_id"],
+        "release_record_ref": "REL-123",
+        "delivery_success": True,
+        "providers": ["webhook"],
+        "failed_providers": [],
+        "status_codes": [202],
+    }
+    final_reporting_auditor_export_retry_execution_record = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record(
+            final_reporting_auditor_export_retry_worker_run,
+            final_reporting_auditor_export_retry_worker_run["selected_retries"][0],
+            export=final_reporting_auditor_export,
+            delivery={"success": True, "providers": ["webhook"]},
+            delivery_metadata=final_reporting_auditor_export_retry_execution_delivery_metadata,
+            executed_by="test",
+        )
+    )
+    final_reporting_auditor_export_retry_execution_record_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record_metadata(
+            final_reporting_auditor_export_retry_execution_record
+        )
+    )
     final_reporting_immutable_archive_reference = (
         build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_immutable_archive_reference(
             final_reporting_auditor_export,
@@ -1774,6 +1825,48 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_archive_reference_health
         )
     )
+    final_reporting_archive_reference_health_with_alert = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health(
+            [*dashboard_items, final_reporting_auditor_export_metadata],
+            generated_by="test",
+        )
+    )
+    final_reporting_archive_reference_health_alert_plan = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan(
+            final_reporting_archive_reference_health_with_alert,
+            requested_provider="webhook",
+            available_providers=["webhook"],
+            generated_by="test",
+            force=True,
+        )
+    )
+    final_reporting_archive_reference_health_alert_plan_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan_metadata(
+            final_reporting_archive_reference_health_alert_plan
+        )
+    )
+    final_reporting_archive_reference_health_alert_ack = (
+        acknowledge_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert(
+            final_reporting_archive_reference_health_alert_plan["health_id"],
+            provider="webhook",
+            acknowledged_by="release-manager",
+            acknowledgement_state="acknowledged",
+            plan_id=final_reporting_archive_reference_health_alert_plan["plan_id"],
+        )
+    )
+    final_reporting_archive_reference_health_alert_ack_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_ack_metadata(
+            final_reporting_archive_reference_health_alert_ack
+        )
+    )
+    final_reporting_archive_reference_health_alert_dashboard = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_dashboard(
+            [
+                final_reporting_archive_reference_health_alert_plan_metadata,
+                final_reporting_archive_reference_health_alert_ack_metadata,
+            ]
+        )
+    )
     dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
         [
             *dashboard_items,
@@ -1786,8 +1879,13 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_auditor_export_delivery_metadata,
             final_reporting_auditor_export_failed_delivery_metadata,
             final_reporting_auditor_export_retry_plan_metadata,
+            final_reporting_auditor_export_retry_worker_run_metadata,
+            final_reporting_auditor_export_retry_execution_delivery_metadata,
+            final_reporting_auditor_export_retry_execution_record_metadata,
             final_reporting_immutable_archive_reference_metadata,
             final_reporting_archive_reference_health_metadata,
+            final_reporting_archive_reference_health_alert_plan_metadata,
+            final_reporting_archive_reference_health_alert_ack_metadata,
         ]
     )
 
@@ -1961,10 +2059,28 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_auditor_export_retry_plan_metadata["metadata_kind"].endswith(
         "final-reporting-auditor-export-delivery-retry-plan"
     )
+    assert final_reporting_auditor_export_retry_worker_run["summary"]["selected_retry_count"] == 1
+    assert final_reporting_auditor_export_retry_worker_run_metadata["metadata_kind"].endswith(
+        "final-reporting-auditor-export-delivery-retry-worker-run"
+    )
+    assert final_reporting_auditor_export_retry_execution_record["execution_status"] == "delivered"
+    assert final_reporting_auditor_export_retry_execution_record_metadata["metadata_kind"].endswith(
+        "final-reporting-auditor-export-delivery-retry-execution-record"
+    )
     assert final_reporting_archive_reference_health["alert_level"] == "healthy"
     assert final_reporting_archive_reference_health_metadata["metadata_kind"].endswith(
         "final-reporting-archive-reference-health"
     )
+    assert final_reporting_archive_reference_health_with_alert["alert_level"] == "critical"
+    assert final_reporting_archive_reference_health_alert_plan["selected_providers"] == ["webhook"]
+    assert final_reporting_archive_reference_health_alert_ack["acknowledgement_state"] == "acknowledged"
+    assert final_reporting_archive_reference_health_alert_plan_metadata["metadata_kind"].endswith(
+        "final-reporting-archive-reference-health-alert-plan"
+    )
+    assert final_reporting_archive_reference_health_alert_ack_metadata["metadata_kind"].endswith(
+        "final-reporting-archive-reference-health-alert-ack"
+    )
+    assert final_reporting_archive_reference_health_alert_dashboard["acknowledgement_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -2110,7 +2226,7 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_count"
         ]
-        == 2
+        == 3
     )
     assert (
         dashboard_with_final_reporting[
@@ -2132,6 +2248,24 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     )
     assert (
         dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_worker_run_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_record_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_delivery_retry_execution_success_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_immutable_archive_reference_count"
         ]
         == 1
@@ -2147,6 +2281,18 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_count"
         ]
         == 0
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_plan_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_archive_reference_health_alert_ack_count"
+        ]
+        == 1
     )
 
 

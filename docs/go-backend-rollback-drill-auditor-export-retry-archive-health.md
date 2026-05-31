@@ -66,4 +66,4 @@ See `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-archive-health
 
 ## Next Recommended Work
 
-Add final auditor export retry worker execution records and archive health alert delivery acknowledgements.
+Completed in the next slice: final auditor export retry worker execution records and archive health alert delivery acknowledgements. See `docs/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.md`.
