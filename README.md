@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes immutable object storage adapter contracts for audit export bundles, local validation storage, and AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes cloud object-lock deployment recipes for AWS S3, Azure Blob, and Google Cloud Storage plus archive health validation for stored audit bundle checksums, retention locks, legal-hold state, byte counts, and manifest presence.
 
 Next recommended implementation work:
 
-- Add production deployment recipes for cloud object-lock storage and archive health validation.
+- Add scheduled archive health workers and operator alert routing.
 
 ## User stories and enterprise value
 

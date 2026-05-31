@@ -20,6 +20,7 @@ Initial private implementation status:
 - retryable provider rate-limit handling;
 - immutable object storage adapter contracts and local validation storage;
 - AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries;
+- cloud object-lock deployment recipes and archive health validation;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
