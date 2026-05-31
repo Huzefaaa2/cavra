@@ -1172,6 +1172,9 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1641,6 +1644,24 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         if item.get("connector_delivery_source")
         == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_archive_reference_health_alert"
     ]
+    audit_delivery_final_reporting_readiness_bundles = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle"
+    ]
+    audit_delivery_final_reporting_signed_archive_manifests = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest"
+    ]
+    audit_delivery_final_reporting_release_closeout_summaries = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary"
+    ]
     audit_delivery_worker_runs = [
         item
         for item in history
@@ -2034,6 +2055,29 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
                 item
                 for item in audit_delivery_final_reporting_archive_reference_health_alert_deliveries
                 if not item.get("delivery_success")
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_readiness_bundle_count": len(
+            audit_delivery_final_reporting_readiness_bundles
+        ),
+        "acknowledgement_audit_delivery_final_reporting_signed_archive_manifest_count": len(
+            audit_delivery_final_reporting_signed_archive_manifests
+        ),
+        "acknowledgement_audit_delivery_final_reporting_archive_manifest_signed_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_signed_archive_manifests
+                if item.get("signature_state") == "external_signature_attached"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_summary_count": len(
+            audit_delivery_final_reporting_release_closeout_summaries
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closeout_closed_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_closeout_summaries
+                if item.get("closeout_state") == "closed"
             ]
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
@@ -6724,6 +6768,444 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_archi
         "warning_alert_count": health.get("warning_alert_count", 0),
         "missing_archive_reference_count": health.get("missing_archive_reference_count", 0),
         "final_reporting_archive_reference_health": health,
+    }
+
+
+def _go_final_reporting_release_ref(item: dict[str, Any]) -> str:
+    if item.get("release_record_ref"):
+        return str(item.get("release_record_ref") or "")
+    if item.get("external_ref"):
+        return str(item.get("external_ref") or "")
+    for value in item.values():
+        if isinstance(value, dict) and value.get("release_record_ref"):
+            return str(value.get("release_record_ref") or "")
+        if isinstance(value, dict) and value.get("external_ref"):
+            return str(value.get("external_ref") or "")
+    return ""
+
+
+def _go_final_reporting_latest_by_kind(
+    history: list[dict[str, Any]],
+    kind: str,
+    *,
+    release_record_ref: str | None = None,
+) -> dict[str, Any]:
+    candidates = [
+        item
+        for item in history
+        if item.get("metadata_kind") == kind
+        and (
+            not release_record_ref
+            or not _go_final_reporting_release_ref(item)
+            or _go_final_reporting_release_ref(item) == release_record_ref
+        )
+    ]
+    return sorted(candidates, key=lambda item: str(item.get("created_at", "")), reverse=True)[0] if candidates else {}
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_readiness_bundle(
+    items: list[dict[str, Any]],
+    *,
+    release_record_ref: str | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    generated_at = now.isoformat()
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    if release_record_ref:
+        history = [
+            item
+            for item in history
+            if not _go_final_reporting_release_ref(item) or _go_final_reporting_release_ref(item) == release_record_ref
+        ]
+    final_kinds = {
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-worker-run",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-execution-record",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack",
+        "release-connector-delivery",
+    }
+    evidence_items = [
+        item
+        for item in history
+        if item.get("metadata_kind") in final_kinds
+        and (
+            item.get("metadata_kind") != "release-connector-delivery"
+            or str(item.get("connector_delivery_source", "")).startswith(
+                "go_backend_rollback_drill_acknowledgement_audit_final_reporting"
+            )
+        )
+    ]
+    latest_readiness = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary",
+        release_record_ref=release_record_ref,
+    )
+    latest_approval = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
+        release_record_ref=release_record_ref,
+    )
+    latest_attachment = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+        release_record_ref=release_record_ref,
+    )
+    latest_verification = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+        release_record_ref=release_record_ref,
+    )
+    latest_export = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
+        release_record_ref=release_record_ref,
+    )
+    latest_health = _go_final_reporting_latest_by_kind(
+        evidence_items,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health",
+        release_record_ref=release_record_ref,
+    )
+    archive_references = [
+        item
+        for item in evidence_items
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference"
+    ]
+    evidence_index = [
+        {
+            "metadata_kind": item.get("metadata_kind"),
+            "session_id": item.get("session_id"),
+            "created_at": item.get("created_at"),
+            "signer": item.get("signer"),
+            "release_record_ref": _go_final_reporting_release_ref(item),
+            "evidence_ref": item.get("export_id")
+            or item.get("reference_id")
+            or item.get("health_id")
+            or item.get("plan_id")
+            or item.get("acknowledgement_id")
+            or item.get("session_id"),
+        }
+        for item in evidence_items
+    ]
+    blocker_checks = [
+        ("approved_readiness_decision", latest_approval.get("approval_state") == "approved"),
+        ("release_record_attachment", latest_attachment.get("attachment_state") == "attached"),
+        ("verified_closure_packet", latest_verification.get("verification_state") == "verified"),
+        ("auditor_export", bool(latest_export.get("export_id"))),
+        ("immutable_archive_reference", bool(archive_references)),
+        (
+            "archive_reference_health",
+            bool(latest_health.get("health_id"))
+            and (latest_health.get("alert_level") in {"healthy", "warning"} or bool(archive_references)),
+        ),
+    ]
+    blockers = [name for name, passed in blocker_checks if not passed]
+    closeout_state = "ready_for_closeout" if not blockers else "incomplete"
+    archive_objects = [
+        {
+            "reference_id": item.get("reference_id"),
+            "archive_ref": item.get("archive_ref"),
+            "archive_provider": item.get("archive_provider"),
+            "archive_hash": item.get("archive_hash"),
+            "export_id": item.get("export_id"),
+            "verification_id": item.get("verification_id"),
+            "retention_until": item.get("retention_until"),
+            "legal_hold": bool(item.get("legal_hold", False)),
+            "created_at": item.get("created_at"),
+        }
+        for item in archive_references
+    ]
+    material = {
+        "generated_at": generated_at,
+        "release_record_ref": release_record_ref or latest_attachment.get("release_record_ref", ""),
+        "evidence_index": evidence_index,
+        "archive_objects": archive_objects,
+        "closeout_state": closeout_state,
+    }
+    bundle_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    bundle_id = f"gordackfinalbundle-{bundle_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-readiness-bundle.v1",
+        "product": "CAVRA",
+        "bundle_id": bundle_id,
+        "bundle_hash": bundle_hash,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "release_record_ref": release_record_ref or latest_attachment.get("release_record_ref", ""),
+        "closeout_state": closeout_state,
+        "readiness_state": latest_readiness.get("readiness_state", "unknown"),
+        "verification_state": latest_verification.get("verification_state", "unknown"),
+        "approval_state": latest_approval.get("approval_state", "unknown"),
+        "archive_health": latest_health.get("alert_level", "unknown"),
+        "blockers": blockers,
+        "evidence_count": len(evidence_index),
+        "archive_object_count": len(archive_objects),
+        "archive_objects": archive_objects,
+        "evidence_index": evidence_index,
+        "section_counts": {
+            "auditor_export_count": len(
+                [
+                    item
+                    for item in evidence_items
+                    if item.get("metadata_kind")
+                    == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export"
+                ]
+            ),
+            "archive_reference_count": len(archive_objects),
+            "archive_health_alert_ack_count": len(
+                [
+                    item
+                    for item in evidence_items
+                    if item.get("metadata_kind")
+                    == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack"
+                ]
+            ),
+        },
+        "public_evidence_refs": [
+            f"go-rollback-drill-final-readiness-bundle://{bundle_id}",
+            *[
+                f"go-rollback-drill-final-evidence://{item.get('evidence_ref')}"
+                for item in evidence_index
+                if item.get("evidence_ref")
+            ],
+        ],
+        "controls": [
+            "readiness-bundle-derived-from-public-safe-final-reporting-metadata",
+            "bundle-contains-references-and-redacted-metadata-only",
+            "bundle-does-not-store-archive-credentials-or-private-endpoints",
+            "bundle-is-hash-addressed-for-release-closeout-review",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_readiness_bundle_metadata(
+    bundle: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": bundle.get("bundle_id"),
+        "created_at": bundle.get("generated_at"),
+        "signer": bundle.get("generated_by", "release-governance"),
+        "decision_count": int(bundle.get("evidence_count") or 0),
+        "blocked_count": len(bundle.get("blockers", [])),
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
+        "bundle_id": bundle.get("bundle_id"),
+        "bundle_hash": bundle.get("bundle_hash"),
+        "release_record_ref": bundle.get("release_record_ref"),
+        "closeout_state": bundle.get("closeout_state"),
+        "readiness_state": bundle.get("readiness_state"),
+        "verification_state": bundle.get("verification_state"),
+        "archive_object_count": bundle.get("archive_object_count", 0),
+        "evidence_count": bundle.get("evidence_count", 0),
+        "final_reporting_readiness_bundle": bundle,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_signed_archive_manifest(
+    bundle: dict[str, Any],
+    *,
+    signed_by: str = "release-governance",
+    signature: str | None = None,
+    signature_key_id: str | None = None,
+    signature_algorithm: str = "external-kms-or-private-signing-service",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    bundle_id = str(bundle.get("bundle_id") or "").strip()
+    if not bundle_id:
+        raise ValueError("bundle_id is required")
+    now = now or datetime.now(timezone.utc)
+    generated_at = now.isoformat()
+    archive_objects = [item for item in bundle.get("archive_objects", []) if isinstance(item, dict)]
+    material = {
+        "generated_at": generated_at,
+        "bundle_id": bundle_id,
+        "bundle_hash": bundle.get("bundle_hash", ""),
+        "release_record_ref": bundle.get("release_record_ref", ""),
+        "archive_objects": archive_objects,
+    }
+    manifest_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    manifest_id = f"gordackfinalmanifest-{manifest_hash[:16]}"
+    signature_state = "external_signature_attached" if signature else "external_signature_required"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-signed-archive-manifest.v1",
+        "product": "CAVRA",
+        "manifest_id": manifest_id,
+        "manifest_hash": manifest_hash,
+        "generated_at": generated_at,
+        "signed_by": signed_by,
+        "signature_state": signature_state,
+        "signature": signature or "",
+        "signature_key_id": signature_key_id or "",
+        "signature_algorithm": signature_algorithm,
+        "release_record_ref": bundle.get("release_record_ref", ""),
+        "bundle_id": bundle_id,
+        "bundle_hash": bundle.get("bundle_hash", ""),
+        "archive_object_count": len(archive_objects),
+        "archive_objects": archive_objects,
+        "public_evidence_refs": [
+            f"go-rollback-drill-final-readiness-bundle://{bundle_id}",
+            f"go-rollback-drill-final-archive-manifest://{manifest_id}",
+        ],
+        "controls": [
+            "archive-manifest-is-derived-from-public-safe-archive-references",
+            "community-edition-does-not-hold-private-signing-keys",
+            "signature-must-be-attached-by-external-kms-or-private-release-service",
+            "manifest-hash-covers-bundle-and-archive-object-references",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_signed_archive_manifest_metadata(
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": manifest.get("manifest_id"),
+        "created_at": manifest.get("generated_at"),
+        "signer": manifest.get("signed_by", "release-governance"),
+        "decision_count": int(manifest.get("archive_object_count") or 0),
+        "blocked_count": 0 if manifest.get("signature_state") == "external_signature_attached" else 1,
+        "approval_required_count": 0 if manifest.get("signature_state") == "external_signature_attached" else 1,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
+        "manifest_id": manifest.get("manifest_id"),
+        "manifest_hash": manifest.get("manifest_hash"),
+        "signature_state": manifest.get("signature_state"),
+        "signature_key_id": manifest.get("signature_key_id"),
+        "release_record_ref": manifest.get("release_record_ref"),
+        "bundle_id": manifest.get("bundle_id"),
+        "bundle_hash": manifest.get("bundle_hash"),
+        "archive_object_count": manifest.get("archive_object_count", 0),
+        "final_reporting_signed_archive_manifest": manifest,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary(
+    items: list[dict[str, Any]],
+    *,
+    release_record_ref: str | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    generated_at = now.isoformat()
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    bundle_metadata = _go_final_reporting_latest_by_kind(
+        history,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle",
+        release_record_ref=release_record_ref,
+    )
+    manifest_metadata = _go_final_reporting_latest_by_kind(
+        history,
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest",
+        release_record_ref=release_record_ref,
+    )
+    bundle = (
+        bundle_metadata.get("final_reporting_readiness_bundle")
+        if isinstance(bundle_metadata.get("final_reporting_readiness_bundle"), dict)
+        else bundle_metadata
+    )
+    manifest = (
+        manifest_metadata.get("final_reporting_signed_archive_manifest")
+        if isinstance(manifest_metadata.get("final_reporting_signed_archive_manifest"), dict)
+        else manifest_metadata
+    )
+    blockers = []
+    if not bundle.get("bundle_id"):
+        blockers.append("readiness_bundle_missing")
+    if bundle.get("closeout_state") != "ready_for_closeout":
+        blockers.extend(bundle.get("blockers", []) or ["readiness_bundle_not_ready"])
+    if not manifest.get("manifest_id"):
+        blockers.append("archive_manifest_missing")
+    if int(manifest.get("archive_object_count") or 0) == 0:
+        blockers.append("archive_manifest_has_no_archive_objects")
+    if manifest.get("signature_state") != "external_signature_attached":
+        blockers.append("archive_manifest_external_signature_missing")
+    blockers = _unique_sorted(str(item) for item in blockers if item)
+    closeout_state = "closed" if not blockers else "open"
+    material = {
+        "generated_at": generated_at,
+        "bundle_id": bundle.get("bundle_id", ""),
+        "manifest_id": manifest.get("manifest_id", ""),
+        "blockers": blockers,
+        "closeout_state": closeout_state,
+    }
+    summary_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    summary_id = f"gordackfinalcloseout-{summary_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closeout-summary.v1",
+        "product": "CAVRA",
+        "summary_id": summary_id,
+        "summary_hash": summary_hash,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "release_record_ref": release_record_ref or bundle.get("release_record_ref") or manifest.get("release_record_ref", ""),
+        "closeout_state": closeout_state,
+        "alert_level": "healthy" if closeout_state == "closed" else "critical",
+        "blocker_count": len(blockers),
+        "blockers": blockers,
+        "bundle_id": bundle.get("bundle_id", ""),
+        "bundle_hash": bundle.get("bundle_hash", ""),
+        "manifest_id": manifest.get("manifest_id", ""),
+        "manifest_hash": manifest.get("manifest_hash", ""),
+        "signature_state": manifest.get("signature_state", "missing"),
+        "archive_object_count": int(manifest.get("archive_object_count") or 0),
+        "evidence_count": int(bundle.get("evidence_count") or 0),
+        "executive_summary": {
+            "status": "final reporting is closed" if closeout_state == "closed" else "final reporting remains open",
+            "reason": "readiness bundle, archive manifest, and external signature are present"
+            if closeout_state == "closed"
+            else "one or more final reporting closeout controls are incomplete",
+        },
+        "public_evidence_refs": [
+            ref
+            for ref in [
+                f"go-rollback-drill-final-readiness-bundle://{bundle.get('bundle_id', '')}",
+                f"go-rollback-drill-final-archive-manifest://{manifest.get('manifest_id', '')}",
+                f"go-rollback-drill-final-closeout-summary://{summary_id}",
+            ]
+            if ref and not ref.endswith("://")
+        ],
+        "controls": [
+            "closeout-summary-derived-from-public-safe-readiness-bundle-and-manifest",
+            "closeout-requires-external-archive-manifest-signature",
+            "summary-contains-no-private-signing-key-or-archive-credential",
+            "closed-state-is-evidence-based-and-repeatable",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closeout_summary_metadata(
+    summary: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": summary.get("summary_id"),
+        "created_at": summary.get("generated_at"),
+        "signer": summary.get("generated_by", "release-governance"),
+        "decision_count": int(summary.get("evidence_count") or 0),
+        "blocked_count": int(summary.get("blocker_count") or 0),
+        "approval_required_count": 0 if summary.get("closeout_state") == "closed" else 1,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary",
+        "summary_id": summary.get("summary_id"),
+        "summary_hash": summary.get("summary_hash"),
+        "closeout_state": summary.get("closeout_state"),
+        "alert_level": summary.get("alert_level"),
+        "release_record_ref": summary.get("release_record_ref"),
+        "bundle_id": summary.get("bundle_id"),
+        "manifest_id": summary.get("manifest_id"),
+        "signature_state": summary.get("signature_state"),
+        "archive_object_count": summary.get("archive_object_count", 0),
+        "blocker_count": summary.get("blocker_count", 0),
+        "final_reporting_release_closeout_summary": summary,
     }
 
 

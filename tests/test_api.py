@@ -2483,6 +2483,23 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-archive-reference-health",
         params={"generated_by": "release-manager"},
     )
+    final_reporting_readiness_bundle = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-readiness-bundle",
+        json={"generated_by": "release-manager", "release_record_ref": "REL-123"},
+    )
+    final_reporting_signed_archive_manifest = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-signed-archive-manifest",
+        json={
+            "signed_by": "release-manager",
+            "release_record_ref": "REL-123",
+            "signature": "test-external-signature",
+            "signature_key_id": "test-release-key",
+        },
+    )
+    final_reporting_release_closeout_summary = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary",
+        params={"generated_by": "release-manager", "release_record_ref": "REL-123"},
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -2866,6 +2883,27 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health"
     )
     assert final_reporting_archive_reference_health.json()["health"]["archived_export_count"] >= 1
+    assert final_reporting_readiness_bundle.status_code == 200
+    assert (
+        final_reporting_readiness_bundle.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle"
+    )
+    assert (
+        final_reporting_readiness_bundle.json()["bundle"]["closeout_state"] == "ready_for_closeout"
+    ), final_reporting_readiness_bundle.json()["bundle"]["blockers"]
+    assert final_reporting_readiness_bundle.json()["bundle"]["archive_object_count"] >= 1
+    assert final_reporting_signed_archive_manifest.status_code == 200
+    assert (
+        final_reporting_signed_archive_manifest.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest"
+    )
+    assert final_reporting_signed_archive_manifest.json()["manifest"]["signature_state"] == "external_signature_attached"
+    assert final_reporting_release_closeout_summary.status_code == 200
+    assert (
+        final_reporting_release_closeout_summary.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary"
+    )
+    assert final_reporting_release_closeout_summary.json()["summary"]["closeout_state"] == "closed"
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -3098,6 +3136,10 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         ]
         == 1
     )
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_readiness_bundle_count"] >= 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_signed_archive_manifest_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_archive_manifest_signed_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_closeout_closed_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1

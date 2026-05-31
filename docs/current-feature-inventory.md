@@ -68,9 +68,9 @@ Agent and MCP registry: `registry agent-register`, `registry agent-list`, `regis
 
 Existing policy packs: CAVRA baseline, banking, PCI DSS, HIPAA, SOX, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic, MCP enterprise, Kubernetes prod, Terraform/OpenTofu prod, cloud IAM, GitHub Enterprise, GitLab Enterprise.
 
-Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, and PR attestation.
+Current controls: file reads, file writes, shell commands, Terraform/OpenTofu, Kubernetes, cloud IAM commands, Git protected branch push, MCP unknown server blocking, audit evidence, approval routing, claims-aware approval decisions, PR attestation, final rollback drill readiness bundles, externally signed archive manifests, and release closeout summaries.
 
-Known gaps: final reporting readiness bundle export with signed archive manifest and release closeout summary.
+Known gaps: final closeout bundle delivery workflow with retention review approvals and downloadable closeout artifact bundles.
 
 Recent parity expansion: Go and Python now share high-risk command and cloud/IaC fixtures for Cloud IAM, Kubernetes production, Terraform/OpenTofu production, GitHub Enterprise, OWASP LLM agentic command injection, and transparent agentic delivery controls.
 
