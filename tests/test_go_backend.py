@@ -64,8 +64,12 @@ from cavra.go_backend import (
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_alert_plan_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_recovery_executive_report_delivery_retry_health_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_operator_runbook_export_metadata,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification,
+    build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_approval_metadata,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary,
     build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_readiness_summary_metadata,
@@ -1649,6 +1653,43 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_release_record_attachment
         )
     )
+    final_reporting_release_closure_packet_verification = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification(
+            [
+                *dashboard_items,
+                final_reporting_release_readiness_metadata,
+                final_reporting_operator_runbook_metadata,
+                final_reporting_release_readiness_approval_metadata,
+                final_reporting_release_record_attachment_metadata,
+            ],
+            release_record_ref="REL-123",
+            generated_by="test",
+        )
+    )
+    final_reporting_release_closure_packet_verification_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_metadata(
+            final_reporting_release_closure_packet_verification
+        )
+    )
+    final_reporting_auditor_export = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export(
+            [
+                *dashboard_items,
+                final_reporting_release_readiness_metadata,
+                final_reporting_operator_runbook_metadata,
+                final_reporting_release_readiness_approval_metadata,
+                final_reporting_release_record_attachment_metadata,
+                final_reporting_release_closure_packet_verification_metadata,
+            ],
+            release_record_ref="REL-123",
+            generated_by="test",
+        )
+    )
+    final_reporting_auditor_export_metadata = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_metadata(
+            final_reporting_auditor_export
+        )
+    )
     dashboard_with_final_reporting = build_go_rollback_drill_notification_dashboard(
         [
             *dashboard_items,
@@ -1656,6 +1697,8 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
             final_reporting_operator_runbook_metadata,
             final_reporting_release_readiness_approval_metadata,
             final_reporting_release_record_attachment_metadata,
+            final_reporting_release_closure_packet_verification_metadata,
+            final_reporting_auditor_export_metadata,
         ]
     )
 
@@ -1808,6 +1851,16 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert final_reporting_release_record_attachment_metadata["metadata_kind"].endswith(
         "final-reporting-release-record-attachment"
     )
+    assert final_reporting_release_closure_packet_verification["verification_state"] == "verified"
+    assert final_reporting_release_closure_packet_verification["release_record_ref"] == "REL-123"
+    assert final_reporting_release_closure_packet_verification_metadata["metadata_kind"].endswith(
+        "final-reporting-release-closure-packet-verification"
+    )
+    assert final_reporting_auditor_export["verification_state"] == "verified"
+    assert "CAVRA Rollback Drill Final Reporting Auditor Export" in final_reporting_auditor_export["markdown"]
+    assert final_reporting_auditor_export_metadata["metadata_kind"].endswith(
+        "final-reporting-auditor-export"
+    )
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_plan_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approval_decision_count"] == 1
     assert dashboard["acknowledgement_audit_delivery_retry_execution_approved_count"] == 1
@@ -1928,6 +1981,24 @@ def test_go_rollback_drill_acknowledgement_audit_retry_execution_approvals_and_r
     assert (
         dashboard_with_final_reporting[
             "acknowledgement_audit_delivery_final_reporting_release_record_attachment_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verified_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_with_final_reporting[
+            "acknowledgement_audit_delivery_final_reporting_auditor_export_count"
         ]
         == 1
     )

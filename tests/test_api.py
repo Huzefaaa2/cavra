@@ -1724,6 +1724,18 @@ def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
         ]
         == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-record-attachment"
     )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closure-packet-verification"
+    )
+    assert (
+        config["endpoints"][
+            "go_rollback_drill_notification_acknowledgement_audit_delivery_final_reporting_auditor_export"
+        ]
+        == "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export"
+    )
     assert config["endpoints"]["go_rollback_drill_notification_history"] == "/runtime/go-pilot/rollback-drill-notifications"
     assert (
         config["endpoints"]["go_rollback_drill_notification_dashboard"]
@@ -2351,6 +2363,14 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
             "notes": "Release record attachment captured for audit review.",
         },
     )
+    final_reporting_release_closure_packet_verification = client.get(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closure-packet-verification",
+        params={"release_record_ref": "REL-123", "generated_by": "release-manager"},
+    )
+    final_reporting_auditor_export = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-auditor-export",
+        json={"generated_by": "release-manager", "release_record_ref": "REL-123"},
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -2669,6 +2689,20 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment"
     )
     assert final_reporting_release_record_attachment.json()["attachment"]["release_record_ref"] == "REL-123"
+    assert final_reporting_release_closure_packet_verification.status_code == 200
+    assert (
+        final_reporting_release_closure_packet_verification.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification"
+    )
+    assert final_reporting_release_closure_packet_verification.json()["verification"]["verification_state"] == "verified"
+    assert final_reporting_auditor_export.status_code == 200
+    assert (
+        final_reporting_auditor_export.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export"
+    )
+    assert "CAVRA Rollback Drill Final Reporting Auditor Export" in final_reporting_auditor_export.json()["export"][
+        "markdown"
+    ]
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -2828,6 +2862,19 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     )
     assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_readiness_approved_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_record_attachment_count"] == 1
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_count"
+        ]
+        >= 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verified_count"
+        ]
+        >= 1
+    )
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_auditor_export_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1
