@@ -32,4 +32,4 @@ See `go-backend-rollback-drill-readiness-approval-release-record.svg`.
 
 ## Next Recommended Work
 
-Add final reporting release closure packet verification and auditor export for attached release records.
+Add final reporting release closure packet SIEM/GRC delivery routing and immutable archive references.

@@ -64,4 +64,4 @@ See `docs/diagrams/go-backend-rollback-drill-final-readiness-runbook-export.svg`
 
 ## Next Work
 
-The next recommended implementation step is final reporting release closure packet verification and auditor export for attached release records.
+Final reporting release closure packet verification and auditor export are now covered in [Go Backend Rollback Drill Closure Packet Verification and Auditor Export](go-backend-rollback-drill-closure-packet-auditor-export.md).

@@ -130,6 +130,10 @@ See `docs/diagrams/go-backend-rollback-drill-final-readiness-runbook-export.svg`
 
 See `docs/diagrams/go-backend-rollback-drill-readiness-approval-release-record.svg` for the public-safe flow from final readiness summary into governed approval, operator runbook export, release record attachment evidence, and private connector boundaries.
 
+## Go Backend Rollback Drill Closure Packet Auditor Export
+
+See `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg` for the public-safe flow from release record attachment into closure packet verification, auditor export, and private SIEM/GRC/archive extension points.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation
@@ -208,6 +212,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-audit-delivery-retry-worker.svg`
 - `docs/diagrams/go-backend-rollback-drill-audit-worker-health-alerts.svg`
 - `docs/diagrams/go-backend-rollback-drill-executive-retry-health-and-recovery-health-alert-retry.svg`
+- `docs/diagrams/go-backend-rollback-drill-closure-packet-auditor-export.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

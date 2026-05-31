@@ -1163,6 +1163,8 @@ def filter_go_rollback_drill_notification_history(
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+        "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
         "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1260,6 +1262,8 @@ def filter_go_rollback_drill_notification_history(
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+                    "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan",
                     "go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack",
@@ -1542,6 +1546,18 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         for item in history
         if item.get("metadata_kind")
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment"
+    ]
+    audit_delivery_final_reporting_release_closure_packet_verifications = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification"
+    ]
+    audit_delivery_final_reporting_auditor_exports = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export"
     ]
     audit_delivery_worker_runs = [
         item
@@ -1861,6 +1877,19 @@ def build_go_rollback_drill_notification_dashboard(items: list[dict[str, Any]]) 
         ),
         "acknowledgement_audit_delivery_final_reporting_release_record_attachment_count": len(
             audit_delivery_final_reporting_release_record_attachments
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_count": len(
+            audit_delivery_final_reporting_release_closure_packet_verifications
+        ),
+        "acknowledgement_audit_delivery_final_reporting_release_closure_packet_verified_count": len(
+            [
+                item
+                for item in audit_delivery_final_reporting_release_closure_packet_verifications
+                if item.get("verification_state") == "verified"
+            ]
+        ),
+        "acknowledgement_audit_delivery_final_reporting_auditor_export_count": len(
+            audit_delivery_final_reporting_auditor_exports
         ),
         "acknowledgement_audit_delivery_worker_run_count": len(audit_delivery_worker_runs),
         "acknowledgement_audit_delivery_worker_dry_run_count": len(
@@ -5757,6 +5786,16 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_relea
         ),
         {},
     )
+    if not runbook_metadata:
+        runbook_metadata = next(
+            (
+                item
+                for item in history
+                if item.get("metadata_kind")
+                == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+            ),
+            {},
+        )
     now = now or datetime.now(timezone.utc)
     attached_at = now.isoformat()
     attached_evidence = [
@@ -5838,6 +5877,310 @@ def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_relea
         "readiness_state": attachment.get("readiness_state"),
         "runbook_export_id": attachment.get("runbook_export_id"),
         "final_reporting_release_record_attachment": attachment,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification(
+    items: list[dict[str, Any]],
+    *,
+    release_record_ref: str | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    history = filter_go_rollback_drill_notification_history(items, limit=500)["items"]
+    attachments = [
+        item
+        for item in history
+        if item.get("metadata_kind")
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment"
+        and (not release_record_ref or item.get("release_record_ref") == release_record_ref)
+    ]
+    attachment_metadata = attachments[0] if attachments else {}
+    attachment = (
+        attachment_metadata.get("final_reporting_release_record_attachment")
+        if isinstance(attachment_metadata.get("final_reporting_release_record_attachment"), dict)
+        else attachment_metadata
+    )
+    summary_id = str(attachment.get("summary_id") or "")
+    approval_decision_id = str(attachment.get("approval_decision_id") or "")
+    runbook_export_id = str(attachment.get("runbook_export_id") or "")
+    readiness_metadata = next(
+        (
+            item
+            for item in history
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary"
+            and item.get("summary_id") == summary_id
+        ),
+        {},
+    )
+    approval_metadata = next(
+        (
+            item
+            for item in history
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision"
+            and item.get("decision_id") == approval_decision_id
+        ),
+        {},
+    )
+    runbook_metadata = next(
+        (
+            item
+            for item in history
+            if item.get("metadata_kind")
+            == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+            and (
+                item.get("export_id") == runbook_export_id
+                or item.get("readiness_summary_id") == summary_id
+                or (
+                    isinstance(item.get("final_reporting_operator_runbook_export"), dict)
+                    and item["final_reporting_operator_runbook_export"].get("readiness_summary_id") == summary_id
+                )
+            )
+        ),
+        {},
+    )
+    if not runbook_metadata:
+        runbook_metadata = next(
+            (
+                item
+                for item in history
+                if item.get("metadata_kind")
+                == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export"
+            ),
+            {},
+        )
+    closure_dashboard = build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_closure_dashboard(items)
+    checks = [
+        {
+            "id": "release_record_attachment_present",
+            "title": "Release record attachment present",
+            "status": "pass" if attachment else "fail",
+            "evidence": attachment.get("attachment_id", ""),
+            "operator_action": "Create a release record attachment before auditor export.",
+        },
+        {
+            "id": "approved_readiness_decision_present",
+            "title": "Approved readiness decision present",
+            "status": "pass" if approval_metadata.get("approval_state") == "approved" else "fail",
+            "evidence": approval_decision_id,
+            "operator_action": "Approve the release-readiness summary before closure packet verification.",
+        },
+        {
+            "id": "readiness_summary_attached",
+            "title": "Readiness summary attached",
+            "status": "pass" if readiness_metadata else "fail",
+            "evidence": summary_id,
+            "operator_action": "Attach the generated readiness summary to the release record.",
+        },
+        {
+            "id": "operator_runbook_attached",
+            "title": "Operator runbook attached",
+            "status": "pass" if runbook_metadata else "fail",
+            "evidence": runbook_export_id or runbook_metadata.get("export_id", ""),
+            "operator_action": "Export and attach the public-safe operator runbook.",
+        },
+        {
+            "id": "final_closure_dashboard_available",
+            "title": "Final closure dashboard available",
+            "status": "pass" if closure_dashboard.get("schema_version") else "fail",
+            "evidence": f"closure_state={closure_dashboard.get('closure_state', 'unknown')}",
+            "operator_action": "Generate final reporting closure dashboard evidence.",
+        },
+        {
+            "id": "readiness_state_reviewed",
+            "title": "Readiness state reviewed",
+            "status": "pass" if attachment.get("readiness_state") == "ready" else "warning",
+            "evidence": f"readiness_state={attachment.get('readiness_state', 'unknown')}",
+            "operator_action": "Confirm blocker override justification when readiness is not ready.",
+        },
+    ]
+    failed_checks = [check for check in checks if check["status"] == "fail"]
+    warning_checks = [check for check in checks if check["status"] == "warning"]
+    verification_state = "verified" if not failed_checks else "incomplete"
+    generated_at = now.isoformat()
+    material = {
+        "generated_at": generated_at,
+        "release_record_ref": attachment.get("release_record_ref") or release_record_ref or "",
+        "attachment_id": attachment.get("attachment_id", ""),
+        "checks": checks,
+    }
+    verification_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    verification_id = f"gordackfinalpacket-{verification_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-release-closure-packet-verification.v1",
+        "product": "CAVRA",
+        "verification_id": verification_id,
+        "verification_hash": verification_hash,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "verification_state": verification_state,
+        "alert_level": "critical" if failed_checks else "warning" if warning_checks else "healthy",
+        "release_record_ref": attachment.get("release_record_ref") or release_record_ref or "",
+        "attachment_id": attachment.get("attachment_id", ""),
+        "summary_id": summary_id,
+        "approval_decision_id": approval_decision_id,
+        "runbook_export_id": runbook_export_id or runbook_metadata.get("export_id", ""),
+        "closure_state": closure_dashboard.get("closure_state", "unknown"),
+        "readiness_state": attachment.get("readiness_state", "unknown"),
+        "check_count": len(checks),
+        "passed_check_count": len([check for check in checks if check["status"] == "pass"]),
+        "failed_check_count": len(failed_checks),
+        "warning_check_count": len(warning_checks),
+        "checks": checks,
+        "attached_evidence": attachment.get("attached_evidence", []),
+        "public_evidence_refs": [
+            ref
+            for ref in [
+                f"go-rollback-drill-final-release-record://{attachment.get('attachment_id', '')}",
+                f"go-rollback-drill-final-readiness://{summary_id}",
+                f"go-rollback-drill-final-readiness-approval://{approval_decision_id}",
+                f"go-rollback-drill-final-runbook://{runbook_export_id or runbook_metadata.get('export_id', '')}",
+                "go-rollback-drill-final-closure-dashboard://latest",
+            ]
+            if ref and not ref.endswith("://")
+        ],
+        "recommended_actions": [check["operator_action"] for check in checks if check["status"] != "pass"],
+        "controls": [
+            "closure-packet-verification-bound-to-release-record-attachment",
+            "closure-packet-verification-derived-from-public-safe-metadata",
+            "closure-packet-verification-does-not-call-external-release-systems",
+            "auditor-export-ready-only-after-required-evidence-is-present",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification_metadata(
+    verification: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "session_id": verification.get("verification_id"),
+        "created_at": verification.get("generated_at"),
+        "signer": verification.get("generated_by", "release-governance"),
+        "decision_count": int(verification.get("check_count") or 0),
+        "blocked_count": int(verification.get("failed_check_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification",
+        "verification_id": verification.get("verification_id"),
+        "verification_hash": verification.get("verification_hash"),
+        "verification_state": verification.get("verification_state"),
+        "alert_level": verification.get("alert_level"),
+        "release_record_ref": verification.get("release_record_ref"),
+        "attachment_id": verification.get("attachment_id"),
+        "summary_id": verification.get("summary_id"),
+        "approval_decision_id": verification.get("approval_decision_id"),
+        "runbook_export_id": verification.get("runbook_export_id"),
+        "failed_check_count": verification.get("failed_check_count", 0),
+        "warning_check_count": verification.get("warning_check_count", 0),
+        "final_reporting_release_closure_packet_verification": verification,
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export(
+    items: list[dict[str, Any]],
+    *,
+    release_record_ref: str | None = None,
+    generated_by: str = "release-governance",
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or datetime.now(timezone.utc)
+    verification = (
+        build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_release_closure_packet_verification(
+            items,
+            release_record_ref=release_record_ref,
+            generated_by=generated_by,
+            now=now,
+        )
+    )
+    generated_at = now.isoformat()
+    evidence_index = [
+        {"type": "release_record_attachment", "ref": verification.get("attachment_id", "")},
+        {"type": "release_readiness_summary", "ref": verification.get("summary_id", "")},
+        {"type": "readiness_approval_decision", "ref": verification.get("approval_decision_id", "")},
+        {"type": "operator_runbook_export", "ref": verification.get("runbook_export_id", "")},
+        {"type": "closure_packet_verification", "ref": verification.get("verification_id", "")},
+    ]
+    markdown_lines = [
+        "# CAVRA Rollback Drill Final Reporting Auditor Export",
+        "",
+        f"- Generated at: {generated_at}",
+        f"- Generated by: {generated_by}",
+        f"- Release record: {verification.get('release_record_ref') or 'unassigned'}",
+        f"- Verification state: {verification.get('verification_state')}",
+        f"- Closure state: {verification.get('closure_state')}",
+        f"- Readiness state: {verification.get('readiness_state')}",
+        "",
+        "## Verification Checks",
+        "",
+    ]
+    for check in verification.get("checks", []):
+        markdown_lines.append(
+            f"- {check.get('id')}: {check.get('status')} - {check.get('evidence')} - {check.get('operator_action')}"
+        )
+    markdown_lines.extend(["", "## Evidence Index", ""])
+    for evidence in evidence_index:
+        markdown_lines.append(f"- {evidence['type']}: {evidence['ref']}")
+    markdown_lines.extend(
+        [
+            "",
+            "## Public Boundary",
+            "",
+            "- Export includes public-safe metadata references only.",
+            "- Connector credentials, customer payloads, private URLs, and private automation remain outside Community Edition.",
+        ]
+    )
+    material = {
+        "generated_at": generated_at,
+        "verification_id": verification.get("verification_id"),
+        "release_record_ref": verification.get("release_record_ref"),
+        "evidence_index": evidence_index,
+    }
+    export_hash = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    export_id = f"gordackfinalauditor-{export_hash[:16]}"
+    return {
+        "schema_version": "cavra.go-backend-pilot.rollback-drill-final-reporting-auditor-export.v1",
+        "product": "CAVRA",
+        "export_id": export_id,
+        "export_hash": export_hash,
+        "generated_at": generated_at,
+        "generated_by": generated_by,
+        "release_record_ref": verification.get("release_record_ref"),
+        "verification_state": verification.get("verification_state"),
+        "verification_id": verification.get("verification_id"),
+        "verification": verification,
+        "evidence_index": evidence_index,
+        "markdown": "\n".join(markdown_lines).strip() + "\n",
+        "public_evidence_refs": verification.get("public_evidence_refs", []),
+        "controls": [
+            "auditor-export-derived-from-verified-public-safe-metadata",
+            "auditor-export-contains-no-connector-secret-or-private-endpoint",
+            "auditor-export-does-not-mutate-release-records",
+            "private-connectors-may-forward-export-to-grc-or-itsm-systems",
+        ],
+    }
+
+
+def build_go_rollback_drill_acknowledgement_audit_delivery_final_reporting_auditor_export_metadata(
+    export: dict[str, Any],
+) -> dict[str, Any]:
+    verification = export.get("verification", {}) if isinstance(export.get("verification"), dict) else {}
+    return {
+        "session_id": export.get("export_id"),
+        "created_at": export.get("generated_at"),
+        "signer": export.get("generated_by", "release-governance"),
+        "decision_count": len(export.get("evidence_index", [])),
+        "blocked_count": int(verification.get("failed_check_count") or 0),
+        "approval_required_count": 0,
+        "metadata_kind": "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export",
+        "export_id": export.get("export_id"),
+        "export_hash": export.get("export_hash"),
+        "verification_id": export.get("verification_id"),
+        "verification_state": export.get("verification_state"),
+        "release_record_ref": export.get("release_record_ref"),
+        "evidence_count": len(export.get("evidence_index", [])),
+        "final_reporting_auditor_export": export,
     }
 
 
