@@ -46,4 +46,4 @@ The Community implementation records public-safe metadata only. It does not dele
 
 ## Next Recommended Issue
 
-Begin the next productization slice: package the completed final closeout workflow into release-governance operator guidance, including runbook checklists, release criteria, and customer-facing trial documentation for open-core adoption.
+Delivered in [release-governance-final-closeout-operator-guide.md](release-governance-final-closeout-operator-guide.md), [release-governance-final-closeout-release-criteria.md](release-governance-final-closeout-release-criteria.md), and [enterprise/final-closeout-trial.md](enterprise/final-closeout-trial.md). Continue with customer onboarding assets for final closeout trials: a trial walkthrough, sample evidence package, and sales-engineering demo script.
