@@ -204,6 +204,10 @@ See `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg` fo
 
 See `docs/diagrams/release-governance-final-closeout-operator-guide.svg` for the public-safe operator workflow from final readiness evidence through signed archive manifest metadata, closeout delivery, retention approval, artifact bundle review, retention health, alerting, retry planning, release criteria, and trial handoff.
 
+## Final Closeout Trial Onboarding
+
+See `docs/diagrams/final-closeout-trial-onboarding.svg` for the customer onboarding flow across evaluator walkthrough, synthetic sample evidence, sales-engineering script, release criteria, upgrade path, and production pilot planning.
+
 ## SVG Images
 
 Repository diagram images:
@@ -240,6 +244,7 @@ Repository diagram images:
 - `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg`
 - `docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg`
 - `docs/diagrams/release-governance-final-closeout-operator-guide.svg`
+- `docs/diagrams/final-closeout-trial-onboarding.svg`
 - `docs/diagrams/policy-lifecycle.svg`
 - `docs/diagrams/developer-journey.svg`
 - `docs/diagrams/agent-orchestration.svg`

@@ -1,0 +1,124 @@
+{
+  "schema_version": "cavra.final_closeout_trial.v1",
+  "generated_at": "2026-05-31T08:30:00Z",
+  "scenario": {
+    "name": "synthetic-final-closeout-trial",
+    "edition": "community",
+    "purpose": "Public-safe final closeout trial evidence for customer onboarding",
+    "data_classification": "synthetic_public_demo",
+    "boundary_note": "Community records evidence metadata. Enterprise or SaaS provides authenticated connectors, SSO/RBAC, license validation, private archive operations, and paid policy packs."
+  },
+  "final_readiness_bundle": {
+    "bundle_id": "frb-demo-2026-05-31-001",
+    "release_id": "release-demo-go-backend-rollback-001",
+    "state": "ready",
+    "evidence_refs": [
+      "readiness-summary-demo-001",
+      "approval-decision-demo-001",
+      "release-record-attachment-demo-001",
+      "closure-packet-verification-demo-001",
+      "auditor-export-demo-001",
+      "archive-health-demo-001"
+    ]
+  },
+  "signed_archive_manifest": {
+    "manifest_id": "sam-demo-2026-05-31-001",
+    "signature_state": "external_signature_attached",
+    "signature_algorithm": "external-ed25519-reference",
+    "key_reference": "demo-external-kms-key-ref",
+    "private_key_stored": false,
+    "manifest_digest": "sha256:9bc1b59d0f7f16b3a15f5b9952d845b4bb3e9fdde4d34c3c8b273b0acb4f0001"
+  },
+  "release_closeout_summary": {
+    "closeout_id": "closeout-demo-001",
+    "closeout_state": "closed",
+    "blocker_count": 0,
+    "delivery_state": "partial_failure",
+    "public_evidence_refs": [
+      "closeout-summary-demo-001",
+      "connector-delivery-demo-001"
+    ]
+  },
+  "retention_review": {
+    "review_id": "retention-review-demo-001",
+    "request_state": "submitted",
+    "decision_state": "approved",
+    "approved_by": "demo-release-risk-owner",
+    "retention_until": "2027-05-31",
+    "legal_hold": false,
+    "notes": "Synthetic retention approval for final closeout trial walkthrough."
+  },
+  "closeout_artifact_bundle": {
+    "artifact_bundle_id": "closeout-artifact-demo-001",
+    "download_state": "available",
+    "retention_decision_state": "approved",
+    "files": [
+      {
+        "name": "closeout-summary.json",
+        "sha256": "f71c3a0b0b52c2d6fc4f94094d3bf1cfb2e61a1990fd45749a06f5d6d3480001"
+      },
+      {
+        "name": "final-readiness-bundle.json",
+        "sha256": "8b4fd20e6cde936da74ac5592f4b9336cb45e21f51a0a0ed85f9106f2c3a0002"
+      },
+      {
+        "name": "signed-archive-manifest.json",
+        "sha256": "a0e621f248f69d41c42b1b3d88f10cf9f42b3fc39e9fedaf5f3b37d67c9a0003"
+      }
+    ]
+  },
+  "retention_health_report": {
+    "report_id": "retention-health-demo-001",
+    "health_state": "warning",
+    "summary": {
+      "critical_findings": 0,
+      "warning_findings": 1,
+      "healthy_checks": 5
+    },
+    "findings": [
+      {
+        "finding_id": "retention-warning-demo-001",
+        "severity": "warning",
+        "category": "delivery_retry_required",
+        "message": "One final closeout delivery failed and has a retry plan."
+      }
+    ]
+  },
+  "retention_alert_delivery": {
+    "alert_id": "retention-alert-demo-001",
+    "providers": [
+      {
+        "provider": "webhook",
+        "route": "demo-non-production-webhook",
+        "delivery_state": "delivered",
+        "redacted": true
+      }
+    ]
+  },
+  "closeout_retry_plan": {
+    "retry_plan_id": "closeout-retry-plan-demo-001",
+    "source_delivery_id": "connector-delivery-demo-001",
+    "decision": "retry",
+    "mode": "dry_run_first",
+    "owner": "demo-platform-owner",
+    "target_resolution_date": "2026-06-07"
+  },
+  "retry_worker_run": {
+    "worker_run_id": "closeout-retry-worker-demo-001",
+    "mode": "dry_run",
+    "state": "completed",
+    "would_retry_delivery_ids": [
+      "connector-delivery-demo-001"
+    ],
+    "live_connector_used": false
+  },
+  "release_decision": {
+    "criteria_document": "docs/release-governance-final-closeout-release-criteria.md",
+    "state": "ready_with_accepted_risk",
+    "accepted_risk": {
+      "owner": "demo-release-risk-owner",
+      "reason": "Synthetic failed delivery has reviewed retry plan and dry-run worker evidence.",
+      "expires_at": "2026-06-07"
+    }
+  }
+}

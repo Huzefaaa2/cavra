@@ -28,4 +28,4 @@ See `go-backend-rollback-drill-final-closeout-health-retry.svg`.
 
 ## Recommended Next Issue
 
-Delivered in `Release-Governance-Final-Closeout-Operator-Guide.md`, `Release-Governance-Final-Closeout-Release-Criteria.md`, and `Final-Closeout-Trial-Guide.md`. Continue with customer onboarding assets for final closeout trials: a trial walkthrough, sample evidence package, and sales-engineering demo script.
+Delivered in `Release-Governance-Final-Closeout-Operator-Guide.md`, `Release-Governance-Final-Closeout-Release-Criteria.md`, and `Final-Closeout-Trial-Guide.md`. Customer onboarding assets are now delivered. Continue by converting the onboarding package into an interactive public sandbox flow.
