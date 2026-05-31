@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes provider-specific OAuth, bearer, API-key, and basic-token auth providers for Enterprise connector handoffs, plus retryable rate-limit handling for provider `429` and transient failure responses.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes immutable object storage adapter contracts for audit export bundles, local validation storage, and AWS S3, Azure Blob, and Google Cloud Storage provider-package boundaries.
 
 Next recommended implementation work:
 
-- Add immutable object storage adapters for audit export bundles.
+- Add production deployment recipes for cloud object-lock storage and archive health validation.
 
 ## User stories and enterprise value
 
