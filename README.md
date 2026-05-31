@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert deployment runbook helpers, Kubernetes deployment examples, Helm values, provider smoke-test guidance, public-safe readiness output, and deployment documentation that keeps provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes provider-specific archive alert smoke-test execution jobs, post-delivery dashboard assertions, Kubernetes job examples, and private operator documentation that keeps provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add provider-specific archive alert smoke-test execution jobs and post-delivery dashboard assertions.
+- Add archive alert smoke-test scheduling, evidence export, and customer-facing deployment verification reports.
 
 ## User stories and enterprise value
 
