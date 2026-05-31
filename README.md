@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes five Enterprise MVP slices: managed tenant database configuration and adapter contracts, schema migration metadata, CRM handoff worker, ITSM/GRC handoff workers, and customer-success/tenant-management handoff workers. Runtime database and connector credentials remain outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes provider-native handoff payload adapters for Salesforce, HubSpot, Jira, ServiceNow, and Archer, plus immutable audit export bundles with event checksums, manifest checksums, retention locks, and legal-hold deletion checks.
 
 Next recommended implementation work:
 
-- Add provider-native adapters for customer-selected CRM/ITSM/GRC systems and immutable audit export/retention enforcement.
+- Add provider-specific authentication and rate-limit handling, then add immutable object storage adapters for audit export bundles.
 
 ## User stories and enterprise value
 
