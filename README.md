@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes provider-native handoff payload adapters for Salesforce, HubSpot, Jira, ServiceNow, and Archer, plus immutable audit export bundles with event checksums, manifest checksums, retention locks, and legal-hold deletion checks.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes provider-specific OAuth, bearer, API-key, and basic-token auth providers for Enterprise connector handoffs, plus retryable rate-limit handling for provider `429` and transient failure responses.
 
 Next recommended implementation work:
 
-- Add provider-specific authentication and rate-limit handling, then add immutable object storage adapters for audit export bundles.
+- Add immutable object storage adapters for audit export bundles.
 
 ## User stories and enterprise value
 
