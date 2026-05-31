@@ -123,6 +123,7 @@ Architecture references:
 - [Go backend rollback drill final closeout health and retry SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-health-retry.svg)
 - [Release governance final closeout operator guide SVG](docs/diagrams/release-governance-final-closeout-operator-guide.svg)
 - [Final closeout trial onboarding SVG](docs/diagrams/final-closeout-trial-onboarding.svg)
+- [Final closeout production pilot intake SVG](docs/diagrams/final-closeout-production-pilot-intake.svg)
 
 Brand assets:
 
@@ -407,7 +408,7 @@ The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub
 
 The flagship demo is in `examples/demos/before-the-agent-acts/` and proves CAVRA can block `.env` reads, allow `terraform plan`, block `terraform apply -auto-approve`, require approval for IAM changes, block unknown MCP filesystem servers, block push to `main`, and generate PR attestation.
 
-The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package for customer onboarding. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), and [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md).
+The final closeout trial demo is in `examples/demos/final-closeout-trial/` and provides a synthetic evidence package plus pilot intake template for customer onboarding. Use it with [docs/enterprise/final-closeout-trial-walkthrough.md](docs/enterprise/final-closeout-trial-walkthrough.md), [docs/enterprise/final-closeout-trial-sample-evidence.md](docs/enterprise/final-closeout-trial-sample-evidence.md), [docs/enterprise/final-closeout-sales-engineering-demo.md](docs/enterprise/final-closeout-sales-engineering-demo.md), and [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md).
 
 ## Roadmap
 
@@ -428,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The public Evidence Console now includes a final closeout trial scenario selector, downloadable synthetic sample evidence, release-criteria summary cards, and docs links for the walkthrough, sample evidence guide, sales-engineering demo script, and release criteria. The Pages workflow packages [examples/demos/final-closeout-trial/sample-evidence-package.json](examples/demos/final-closeout-trial/sample-evidence-package.json) as a static download.
+- Final closeout production pilot intake is now documented in [docs/enterprise/final-closeout-production-pilot-intake.md](docs/enterprise/final-closeout-production-pilot-intake.md), [docs/enterprise/final-closeout-pilot-readiness-checklists.md](docs/enterprise/final-closeout-pilot-readiness-checklists.md), and [docs/enterprise/final-closeout-enterprise-saas-handoff.md](docs/enterprise/final-closeout-enterprise-saas-handoff.md), with a synthetic pilot template at [examples/demos/final-closeout-trial/pilot-intake-template.json](examples/demos/final-closeout-trial/pilot-intake-template.json) and diagram at [docs/diagrams/final-closeout-production-pilot-intake.svg](docs/diagrams/final-closeout-production-pilot-intake.svg).
 
 Next recommended implementation work:
 
-- Add a final closeout production pilot intake package: repository/agent/CI inventory worksheet, connector and SSO/RBAC readiness checklist, retention requirement capture, and Enterprise/SaaS handoff plan for converting trials into paid pilots.
+- Convert the production pilot intake package into an Evidence Console pilot readiness panel with downloadable intake template, readiness status cards, and handoff checklist links.
 
 ## User stories and enterprise value
 

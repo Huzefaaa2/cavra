@@ -1,0 +1,65 @@
+{
+  "schema_version": "cavra.final_closeout_pilot_intake.v1",
+  "generated_for": "synthetic-public-template",
+  "pilot_objective": "Convert final closeout trial evaluation into a scoped production pilot.",
+  "repositories": [
+    {
+      "repository": "example/release-service",
+      "owner": "release-platform",
+      "protected_branches": ["main", "release/*"],
+      "required_checks": ["cavra-required-check", "CodeQL"],
+      "release_workflow": "production-release-closeout",
+      "pilot_mode": "enforce"
+    }
+  ],
+  "agents": [
+    {
+      "agent": "codex",
+      "identity": "transparent-ai-agent",
+      "allowed_actions": ["code_edit", "test", "pull_request"],
+      "approval_required_actions": ["release_closeout_retry", "policy_change"],
+      "blocked_actions": ["direct_protected_branch_push"]
+    }
+  ],
+  "ci_cd": {
+    "platform": "github-actions",
+    "runner_scope": "pilot-runners",
+    "required_check": "cavra-required-check",
+    "evidence_artifact_path": ".cavra/evidence",
+    "failure_behavior": "block"
+  },
+  "connectors": [
+    {
+      "provider": "webhook",
+      "environment": "non-production",
+      "purpose": "release-closeout-alert",
+      "owner": "platform-operations",
+      "status": "planned"
+    }
+  ],
+  "identity_and_rbac": {
+    "identity_provider": "to-be-confirmed",
+    "release_manager_group": "release-managers",
+    "security_reviewer_group": "security-architects",
+    "platform_owner_group": "platform-operations",
+    "auditor_group": "audit-reviewers"
+  },
+  "retention": {
+    "retention_days": 365,
+    "legal_hold_required": false,
+    "exception_owner": "release-risk-owner",
+    "archive_destination": "to-be-confirmed"
+  },
+  "enterprise_or_saas_handoff": {
+    "preferred_deployment": "to-be-confirmed",
+    "paid_policy_packs": [],
+    "commercial_owner": "to-be-confirmed",
+    "target_pilot_start": "to-be-confirmed"
+  },
+  "success_criteria": [
+    "CAVRA required check runs on the selected release workflow.",
+    "Final closeout evidence is reviewed by release, security, and audit stakeholders.",
+    "Connector and retention requirements are documented.",
+    "Enterprise or SaaS deployment path is selected."
+  ]
+}
