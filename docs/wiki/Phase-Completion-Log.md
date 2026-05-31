@@ -1,5 +1,31 @@
 # Phase Completion Log
 
+## Phase 9 Enterprise SSO Claim Binding
+
+Status: complete for the private Enterprise SSO claim-binding slice.
+
+Completed implementation:
+- Added private `cavra_enterprise.identity` claim-binding helpers in `Huzefaaa2/cavra-enterprise`.
+- Added configurable mappings for subject, tenant, email, roles, groups, issuer, and audience claims.
+- Added group-to-role mapping for Enterprise pilot roles.
+- Added guardrails for missing required claims, tenant mismatch, issuer mismatch, and audience mismatch.
+- Added tests proving bound SSO claims can authorize tenant-scoped pilot intake updates.
+
+Validation:
+- `.venv/bin/python -m ruff check src tests` in the private repo.
+- `.venv/bin/python -m pytest -q` in the private repo.
+- GitHub `enterprise-ci` passed on private PR #1.
+
+User stories:
+- As an Enterprise administrator, I can map IdP claims into CAVRA tenant and role claims.
+- As a security reviewer, I can require tenant, issuer, and audience alignment before private record mutation.
+- As a pilot owner, I can use SSO-derived roles and groups instead of local-only test claims.
+
+Enterprise challenge solved:
+- Moves private pilot authorization from local test claims toward production IdP integration without putting IdP secrets, token verification internals, or private identity gateway code in the public Community repository.
+
+Recommended next issue: add customer/SaaS KMS envelope encryption for private pilot-intake payloads, then move storage to a managed tenant database and add real CRM/ITSM/GRC/customer-success connector workers.
+
 ## Phase 9 Private Enterprise Repository Bootstrap
 
 Status: complete for the first private Enterprise MVP bootstrap slice.
@@ -29,7 +55,7 @@ User stories:
 Enterprise challenge solved:
 - Starts the commercial Enterprise implementation path while preserving the public/private source boundary required by the open-core model.
 
-Recommended next issue: extend the private Enterprise MVP with production SSO claim binding, customer/SaaS KMS envelope encryption, managed tenant database storage, and real CRM/ITSM/GRC/customer-success connector workers.
+Recommended next issue: delivered above as private Enterprise SSO claim binding.
 
 ## Phase 9 Pilot Intake Private Handoff Plan
 
