@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA rollback drill final readiness and runbook export</title>
+  <desc id="desc">Public-safe flow for final reporting closure, release readiness checks, operator runbook export, and release evidence attachment.</desc>
+  <defs>
+    <style>
+      .bg { fill: #071012; }
+      .lane { fill: #0d191c; stroke: #24464c; stroke-width: 2; }
+      .box { fill: #102126; stroke: #69d6bd; stroke-width: 2; rx: 10; }
+      .warn { fill: #241d10; stroke: #f7c85f; stroke-width: 2; rx: 10; }
+      .store { fill: #101820; stroke: #9fb7c0; stroke-width: 2; rx: 10; }
+      .text { fill: #eef7f7; font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 700; }
+      .small { fill: #c7d5d8; font-family: Inter, Arial, sans-serif; font-size: 16px; }
+      .label { fill: #69d6bd; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .arrow { stroke: #69d6bd; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #9fb7c0; stroke-width: 2; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#69d6bd" />
+    </marker>
+  </defs>
+  <rect class="bg" width="1280" height="720" />
+  <text x="60" y="58" class="text">CAVRA Final Readiness And Runbook Export</text>
+  <text x="60" y="88" class="small">Controlled Agentic Verification &amp; Runtime Authority</text>
+
+  <rect x="55" y="130" width="280" height="455" class="lane" rx="16" />
+  <text x="85" y="168" class="label">Closure Evidence</text>
+  <rect x="85" y="205" width="220" height="95" class="box" />
+  <text x="112" y="240" class="text">Final Closure</text>
+  <text x="112" y="268" class="small">open items and actions</text>
+  <rect x="85" y="350" width="220" height="95" class="store" />
+  <text x="112" y="385" class="text">Evidence Counts</text>
+  <text x="112" y="413" class="small">alerts, retries, acks</text>
+
+  <rect x="390" y="130" width="280" height="455" class="lane" rx="16" />
+  <text x="420" y="168" class="label">Release Gate</text>
+  <rect x="420" y="205" width="220" height="95" class="warn" />
+  <text x="447" y="240" class="text">Readiness</text>
+  <text x="447" y="268" class="small">pass, fail, warning checks</text>
+  <rect x="420" y="350" width="220" height="95" class="box" />
+  <text x="447" y="385" class="text">Decision</text>
+  <text x="447" y="413" class="small">approve or hold closure</text>
+
+  <rect x="725" y="130" width="280" height="455" class="lane" rx="16" />
+  <text x="755" y="168" class="label">Operator Runbook</text>
+  <rect x="755" y="205" width="220" height="95" class="box" />
+  <text x="782" y="240" class="text">Export</text>
+  <text x="782" y="268" class="small">JSON and Markdown</text>
+  <rect x="755" y="350" width="220" height="95" class="store" />
+  <text x="782" y="385" class="text">Boundary</text>
+  <text x="782" y="413" class="small">no secrets or private code</text>
+
+  <rect x="1060" y="205" width="170" height="240" class="lane" rx="16" />
+  <text x="1090" y="248" class="label">Release</text>
+  <rect x="1090" y="285" width="110" height="90" class="box" />
+  <text x="1112" y="320" class="text">Record</text>
+  <text x="1105" y="348" class="small">attach evidence</text>
+
+  <path class="arrow" d="M305 252 L420 252" />
+  <path class="arrow" d="M530 300 L530 350" />
+  <path class="arrow" d="M640 252 L755 252" />
+  <path class="arrow" d="M865 300 L865 350" />
+  <path class="arrow" d="M975 252 L1090 330" />
+  <path class="dash" d="M1090 375 C875 620 390 620 195 445" />
+
+  <text x="60" y="655" class="small">Public boundary: CAVRA exports release gate evidence and operator instructions. Private connectors own credential rotation, ticket mutation, chat updates, and customer-specific side effects.</text>
+</svg>
