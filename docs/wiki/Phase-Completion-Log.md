@@ -1,5 +1,31 @@
 # Phase Completion Log
 
+## Phase 9 Enterprise Envelope Encryption
+
+Status: complete for the private Enterprise KMS-style envelope encryption slice.
+
+Completed implementation:
+- Added private `EnvelopeEncryptedPayloadCodec` and `EnvelopeKeyProvider` contracts in `Huzefaaa2/cavra-enterprise`.
+- Added per-record data-key encryption for private pilot-intake payloads.
+- Added wrapped data-key metadata and local development wrapping provider support with caller-supplied key material.
+- Bound private payload decrypt operations to tenant and intake context.
+- Updated the private pilot-intake store to support envelope encryption while preserving direct encryption compatibility.
+
+Validation:
+- `.venv/bin/python -m ruff check src tests` in the private repo.
+- `.venv/bin/python -m pytest -q` in the private repo.
+- GitHub `enterprise-ci` passed on private PR #2.
+
+User stories:
+- As an Enterprise security architect, I can separate payload encryption from key-wrapping ownership.
+- As a SaaS operator, I can plug in customer-managed or SaaS-managed KMS providers without changing pilot-intake storage semantics.
+- As an auditor, I can verify that decrypt operations are tenant and record-context bound.
+
+Enterprise challenge solved:
+- Moves private pilot storage toward customer/SaaS-managed key custody while keeping key material and KMS adapters out of the public Community repository.
+
+Recommended next issue: move private pilot-intake storage from local SQLite to managed tenant database storage, then add real CRM/ITSM/GRC/customer-success connector workers.
+
 ## Phase 9 Enterprise SSO Claim Binding
 
 Status: complete for the private Enterprise SSO claim-binding slice.
@@ -24,7 +50,7 @@ User stories:
 Enterprise challenge solved:
 - Moves private pilot authorization from local test claims toward production IdP integration without putting IdP secrets, token verification internals, or private identity gateway code in the public Community repository.
 
-Recommended next issue: add customer/SaaS KMS envelope encryption for private pilot-intake payloads, then move storage to a managed tenant database and add real CRM/ITSM/GRC/customer-success connector workers.
+Recommended next issue: delivered above as private Enterprise envelope encryption.
 
 ## Phase 9 Private Enterprise Repository Bootstrap
 

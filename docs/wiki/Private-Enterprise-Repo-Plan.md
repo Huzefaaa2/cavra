@@ -9,6 +9,7 @@ Initial private implementation status:
 - Python package `cavra_enterprise`
 - private pilot-intake tenant store
 - encrypted-at-rest payload codec
+- customer/SaaS KMS-style envelope encryption contract
 - authenticated update authorization
 - production SSO claim binding
 - audit-event persistence
