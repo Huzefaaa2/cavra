@@ -119,6 +119,7 @@ Architecture references:
 - [Go backend rollback drill auditor export routing and archive SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-routing-archive.svg)
 - [Go backend rollback drill auditor export retry and archive health SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-archive-health.svg)
 - [Go backend rollback drill auditor retry worker and archive alert acknowledgements SVG](docs/diagrams/go-backend-rollback-drill-auditor-export-retry-worker-archive-alert-acks.svg)
+- [Go backend rollback drill final closeout delivery and retention SVG](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg)
 
 Brand assets:
 
@@ -422,11 +423,11 @@ Current phase status:
 
 Latest delivery:
 
-- Final rollback drill readiness bundle export, externally signed archive manifest records, and release closeout summaries are now documented in [docs/go-backend-rollback-drill-final-readiness-bundle-closeout.md](docs/go-backend-rollback-drill-final-readiness-bundle-closeout.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-readiness-bundle-closeout.svg](docs/diagrams/go-backend-rollback-drill-final-readiness-bundle-closeout.svg).
+- Final rollback drill closeout delivery, retention review approvals, and downloadable closeout artifact bundles are now documented in [docs/go-backend-rollback-drill-final-closeout-delivery-retention.md](docs/go-backend-rollback-drill-final-closeout-delivery-retention.md) with a new architecture diagram at [docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg](docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg).
 
 Next recommended implementation work:
 
-- Add final closeout bundle delivery workflow with retention review approvals and downloadable closeout artifact bundles.
+- Add final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.
 
 ## User stories and enterprise value
 

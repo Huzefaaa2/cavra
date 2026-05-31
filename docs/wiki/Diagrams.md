@@ -146,6 +146,10 @@ See `docs/diagrams/go-backend-rollback-drill-auditor-export-retry-archive-health
 
 See `docs/diagrams/go-backend-rollback-drill-final-readiness-bundle-closeout.svg` for the public-safe flow from final reporting metadata into readiness bundles, externally signed archive manifests, closeout summaries, and Enterprise/private signing boundaries.
 
+## Go Backend Rollback Drill Final Closeout Delivery Retention
+
+See `docs/diagrams/go-backend-rollback-drill-final-closeout-delivery-retention.svg` for the public-safe flow from closed release summaries into connector delivery, retention review approval, downloadable closeout artifact bundles, and private retention boundaries.
+
 See `docs/diagrams/go-backend-rollback-drill-scheduling.svg` for the schedule and notification path that detects due-soon or stale rollback drills and emits redacted connector delivery evidence.
 
 ## Go Backend Rollback Drill Notification Escalation

@@ -19,4 +19,4 @@ Security boundary:
 - The archive manifest records an external signature reference; Community Edition does not hold signing keys.
 - Archive writes, GRC delivery, and long-term retention remain private Enterprise or operator-owned integrations.
 
-Recommended next issue: add final closeout bundle delivery workflow with retention review approvals and downloadable closeout artifact bundles.
+Delivered in the next slice: final closeout bundle delivery workflow with retention review approvals and downloadable closeout artifact bundles. Recommended next issue: add final closeout retention health monitoring, bundle expiry alerts, and retry automation for failed closeout deliveries.

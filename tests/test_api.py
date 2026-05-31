@@ -2500,6 +2500,38 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary",
         params={"generated_by": "release-manager", "release_record_ref": "REL-123"},
     )
+    final_reporting_release_closeout_delivery = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-release-closeout-summary/deliver",
+        json={
+            "generated_by": "release-manager",
+            "release_record_ref": "REL-123",
+            "provider": "webhook",
+            "retries": 0,
+            "timeout_seconds": 0.1,
+        },
+    )
+    final_reporting_closeout_retention_review = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-review",
+        json={
+            "requested_by": "release-manager",
+            "release_record_ref": "REL-123",
+            "retention_until": "2031-01-01T00:00:00Z",
+            "legal_hold": True,
+        },
+    )
+    final_reporting_closeout_retention_decision = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-retention-review/"
+        f"{final_reporting_closeout_retention_review.json().get('request', {}).get('review_id')}/decisions",
+        json={
+            "decided_by": "release-director",
+            "decision": "approved",
+            "external_ref": "RET-123",
+        },
+    )
+    final_reporting_closeout_artifact_bundle = client.post(
+        "/runtime/go-pilot/rollback-drill-notifications/acknowledgements/audit-delivery/final-reporting-closeout-artifact-bundle",
+        json={"generated_by": "release-manager", "release_record_ref": "REL-123"},
+    )
     dashboard_after = client.get("/runtime/go-pilot/rollback-drill-notifications/dashboard")
 
     assert response.status_code == 200
@@ -2904,6 +2936,32 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
         == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary"
     )
     assert final_reporting_release_closeout_summary.json()["summary"]["closeout_state"] == "closed"
+    assert final_reporting_release_closeout_delivery.status_code == 200
+    assert (
+        final_reporting_release_closeout_delivery.json()["event_metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery"
+    )
+    assert (
+        final_reporting_release_closeout_delivery.json()["metadata"]["connector_delivery_source"]
+        == "go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout"
+    )
+    assert final_reporting_closeout_retention_review.status_code == 200
+    assert (
+        final_reporting_closeout_retention_review.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request"
+    )
+    assert final_reporting_closeout_retention_decision.status_code == 200
+    assert final_reporting_closeout_retention_decision.json()["decision"]["decision_state"] == "approved"
+    assert (
+        final_reporting_closeout_retention_decision.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision"
+    )
+    assert final_reporting_closeout_artifact_bundle.status_code == 200
+    assert (
+        final_reporting_closeout_artifact_bundle.json()["metadata"]["metadata_kind"]
+        == "go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle"
+    )
+    assert final_reporting_closeout_artifact_bundle.json()["artifact_bundle"]["artifact_count"] == 3
     assert dashboard_after.json()["outstanding_acknowledgement_count"] == 0
     assert dashboard_after.json()["acknowledgement_audit_delivery_plan_count"] >= 3
     assert dashboard_after.json()["acknowledgement_audit_delivery_count"] >= 2
@@ -3139,7 +3197,25 @@ def test_api_go_backend_rollback_drill_notification_delivery(monkeypatch, tmp_pa
     assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_readiness_bundle_count"] >= 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_signed_archive_manifest_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_archive_manifest_signed_count"] == 1
-    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_closeout_closed_count"] == 1
+    assert dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_closeout_closed_count"] >= 1
+    assert (
+        dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_release_closeout_delivery_count"] == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_review_request_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()[
+            "acknowledgement_audit_delivery_final_reporting_closeout_retention_review_approved_count"
+        ]
+        == 1
+    )
+    assert (
+        dashboard_after.json()["acknowledgement_audit_delivery_final_reporting_closeout_artifact_bundle_count"] == 1
+    )
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_run_count"] == 2
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_count"] == 1
     assert dashboard_after.json()["acknowledgement_audit_delivery_worker_health_alert_ack_count"] == 1
