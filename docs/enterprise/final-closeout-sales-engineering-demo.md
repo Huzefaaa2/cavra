@@ -97,4 +97,4 @@ Do not:
 
 Create a production pilot plan that identifies the customer repositories, AI agents, CI/CD systems, connector destinations, retention requirements, and Enterprise/SaaS controls needed for rollout.
 
-Use [final-closeout-production-pilot-intake.md](final-closeout-production-pilot-intake.md), [final-closeout-pilot-readiness-checklists.md](final-closeout-pilot-readiness-checklists.md), [final-closeout-enterprise-saas-handoff.md](final-closeout-enterprise-saas-handoff.md), and `examples/demos/final-closeout-trial/pilot-intake-template.json` to capture the next-step pilot package.
+Use [final-closeout-production-pilot-intake.md](final-closeout-production-pilot-intake.md), [final-closeout-pilot-intake-api.md](final-closeout-pilot-intake-api.md), [final-closeout-pilot-readiness-checklists.md](final-closeout-pilot-readiness-checklists.md), [final-closeout-enterprise-saas-handoff.md](final-closeout-enterprise-saas-handoff.md), and `examples/demos/final-closeout-trial/pilot-intake-template.json` to capture the next-step pilot package.

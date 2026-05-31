@@ -41,4 +41,4 @@ Map the sample to `Release-Governance-Final-Closeout-Release-Criteria.md` and cl
 
 ## Recommended Next Step
 
-Use `Final-Closeout-Production-Pilot-Intake.md`, `Final-Closeout-Pilot-Readiness-Checklists.md`, `Final-Closeout-Enterprise-And-SaaS-Handoff.md`, and `examples/demos/final-closeout-trial/pilot-intake-template.json` to convert the demo outcome into a scoped production pilot.
+Use `Final-Closeout-Production-Pilot-Intake.md`, `Final-Closeout-Pilot-Intake-API.md`, `Final-Closeout-Pilot-Readiness-Checklists.md`, `Final-Closeout-Enterprise-And-SaaS-Handoff.md`, and `examples/demos/final-closeout-trial/pilot-intake-template.json` to convert the demo outcome into a scoped production pilot.
