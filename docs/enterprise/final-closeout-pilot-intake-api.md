@@ -45,9 +45,12 @@ POST /pilot-intakes
 GET  /pilot-intakes
 GET  /pilot-intakes/{intake_id}
 GET  /pilot-intakes/{intake_id}/readiness
+POST /pilot-intakes/{intake_id}/private-handoff-plan
 ```
 
 `POST /pilot-intakes` accepts the public-safe `cavra.final_closeout_pilot_intake.v1` template shape. The API normalizes the record, adds storage-boundary metadata, computes readiness, and persists it locally.
+
+`POST /pilot-intakes/{intake_id}/private-handoff-plan` creates a public-safe handoff plan for private Enterprise or SaaS implementation. It does not mutate CRM, ITSM, GRC, tenant management, private repositories, or customer success systems from Community code. The plan defines the tenant-scoped persistence contract, authenticated update requirements, encrypted storage requirements, and connector-backed handoff tasks that private services must implement.
 
 ## Readiness Areas
 
@@ -73,6 +76,28 @@ The public API rejects fields whose names look like secret-bearing values, inclu
 
 This is a guardrail, not a replacement for enterprise data-loss prevention. Production deployments should also use tenant isolation, encrypted storage, platform secret scanning, audit logging, and RBAC.
 
+## Private Handoff Plan
+
+Request example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/pilot-intakes/{intake_id}/private-handoff-plan \
+  -H 'content-type: application/json' \
+  --data '{"tenant_id":"tenant-demo","providers":["saas_tenant","security_review","customer_success"]}'
+```
+
+Supported public-safe task providers:
+
+- `crm`
+- `customer_success`
+- `enterprise_repo`
+- `grc`
+- `itsm`
+- `saas_tenant`
+- `security_review`
+
+The returned task records include only public-safe routing intent and required private implementation boundaries. They never include connector credentials, customer payloads, private license material, or production evidence.
+
 ## Evidence Console
 
 The Evidence Console can now save the synthetic pilot intake template to the configured CAVRA API. In hosted public demo mode, saving is disabled unless `CAVRA_PUBLIC_API_BASE_URL` or `window.CAVRA_API_BASE` points at an API deployment.
@@ -86,6 +111,9 @@ curl -X POST http://127.0.0.1:8000/pilot-intakes \
 
 curl http://127.0.0.1:8000/pilot-intakes
 curl http://127.0.0.1:8000/pilot-intakes/{intake_id}/readiness
+curl -X POST http://127.0.0.1:8000/pilot-intakes/{intake_id}/private-handoff-plan \
+  -H 'content-type: application/json' \
+  --data '{"tenant_id":"tenant-demo"}'
 ```
 
 ## Next Private Implementation

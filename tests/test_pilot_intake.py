@@ -3,7 +3,12 @@ import json
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
-from cavra.pilot_intake import PilotIntakeStore, build_pilot_readiness, normalize_pilot_intake
+from cavra.pilot_intake import (
+    PilotIntakeStore,
+    build_pilot_readiness,
+    build_private_persistence_handoff_plan,
+    normalize_pilot_intake,
+)
 
 
 def _pilot_payload() -> dict:
@@ -86,6 +91,27 @@ def test_pilot_intake_store_persists_records(tmp_path) -> None:
     assert saved["schema_version"] == "cavra.pilot_intake.store.v1"
 
 
+def test_private_persistence_handoff_plan_is_public_safe() -> None:
+    record = normalize_pilot_intake(_pilot_payload())
+
+    plan = build_private_persistence_handoff_plan(
+        record,
+        tenant_id="tenant-demo",
+        providers=["saas_tenant", "security_review", "itsm"],
+        requested_by="sales-engineering",
+    )
+
+    assert plan["schema_version"] == "cavra.pilot_intake.private_handoff_plan.v1"
+    assert plan["tenant_id"] == "tenant-demo"
+    assert plan["private_implementation_required"] is True
+    assert plan["community_boundary"]["contains_connector_credentials"] is False
+    assert plan["tenant_persistence_contract"]["tenant_scope_required"] is True
+    assert plan["authorization_contract"]["authenticated_updates_required"] is True
+    assert plan["encrypted_storage_contract"]["required"] is True
+    assert {item["provider"] for item in plan["handoff_tasks"]} == {"itsm", "saas_tenant", "security_review"}
+    assert all(item["mutation_allowed_in_community"] is False for item in plan["handoff_tasks"])
+
+
 def test_api_persists_pilot_intake(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_PILOT_INTAKE_STORE", str(tmp_path / "pilot-intakes.json"))
     client = TestClient(create_app())
@@ -93,10 +119,35 @@ def test_api_persists_pilot_intake(monkeypatch, tmp_path) -> None:
     created = client.post("/pilot-intakes", json=_pilot_payload())
     listing = client.get("/pilot-intakes", params={"overall_status": "ready"})
     readiness = client.get("/pilot-intakes/pilot-demo/readiness")
+    handoff = client.post(
+        "/pilot-intakes/pilot-demo/private-handoff-plan",
+        json={"tenant_id": "tenant-demo", "providers": ["saas_tenant", "customer_success"]},
+    )
     config = client.get("/console/config")
 
     assert created.status_code == 200
     assert created.json()["readiness"]["overall_status"] == "ready"
     assert listing.json()["total"] == 1
     assert readiness.json()["ready_count"] == 6
+    assert handoff.status_code == 200
+    assert handoff.json()["tenant_id"] == "tenant-demo"
+    assert handoff.json()["handoff_tasks"][0]["private_connector_required"] is True
     assert config.json()["endpoints"]["pilot_intakes"] == "/pilot-intakes"
+    assert (
+        config.json()["endpoints"]["pilot_intake_private_handoff_plan"]
+        == "/pilot-intakes/{intake_id}/private-handoff-plan"
+    )
+
+
+def test_api_rejects_invalid_private_handoff_provider(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_PILOT_INTAKE_STORE", str(tmp_path / "pilot-intakes.json"))
+    client = TestClient(create_app())
+    client.post("/pilot-intakes", json=_pilot_payload())
+
+    response = client.post(
+        "/pilot-intakes/pilot-demo/private-handoff-plan",
+        json={"tenant_id": "tenant-demo", "providers": ["unknown"]},
+    )
+
+    assert response.status_code == 400
+    assert "unsupported handoff task provider" in response.json()["detail"]

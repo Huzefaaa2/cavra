@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- CAVRA now includes pilot intake upload/save API scaffolding and local JSON persistence for self-hosted pilot readiness records. The Evidence Console can save the public-safe intake template to a configured CAVRA API, and [docs/enterprise/final-closeout-pilot-intake-api.md](docs/enterprise/final-closeout-pilot-intake-api.md) documents the boundary for private Enterprise or SaaS persistence.
+- CAVRA now includes a public-safe private handoff plan endpoint for saved pilot intakes. It defines tenant-scoped persistence, authenticated update, encrypted storage, and connector-backed task contracts without implementing private SaaS or Enterprise mutations in the Community repository.
 
 Next recommended implementation work:
 
-- Add tenant-scoped private persistence, authenticated update permissions, encrypted storage, and connector-backed handoff tasks in Enterprise or SaaS.
+- Move the private handoff plan into Enterprise or SaaS services with tenant database writes, encrypted storage, authenticated update decisions, audit trails, and live connector execution.
 
 ## User stories and enterprise value
 
