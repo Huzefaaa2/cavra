@@ -39,6 +39,7 @@ Initial private implementation status:
 - archive alert verification retry health alerts and closure trend reporting;
 - archive alert verification retry alert routing and closure dashboard persistence;
 - archive alert verification retry alert acknowledgements and closure dashboard query filters;
+- archive alert verification acknowledgement trend reports and dashboard export packages;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.

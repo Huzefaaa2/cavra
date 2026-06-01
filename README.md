@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification retry alert acknowledgements and closure dashboard query filters that keep provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification acknowledgement trend reports and digest-addressable dashboard export packages that keep provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert verification delivery acknowledgement trend reports and dashboard export packages.
+- Add archive alert verification delivery dashboard export delivery routing and acknowledgement SLA summaries.
 
 ## User stories and enterprise value
 
