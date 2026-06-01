@@ -51,6 +51,7 @@ Initial private implementation status:
 - archive alert verification export summary retry worker execution and acknowledgement trend persistence;
 - archive alert verification export summary retry worker health reporting and acknowledgement trend query filters;
 - archive alert verification export summary retry health alert routing and acknowledgement trend exports;
+- archive alert verification export summary retry health acknowledgements and trend delivery dashboards;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
