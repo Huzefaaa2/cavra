@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification SLA retry worker health alert acknowledgements and export summary delivery dashboards that keep provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification export summary delivery retry planning and acknowledgement trend reports that keep provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert verification export summary delivery retry planning and acknowledgement trend reports.
+- Add archive alert verification export summary retry worker execution and acknowledgement trend persistence.
 
 ## User stories and enterprise value
 
