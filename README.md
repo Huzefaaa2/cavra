@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification retry health alerts and customer-success closure trend reporting that keep provider secrets and customer metadata outside source control.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes archive alert verification retry alert routing and closure dashboard persistence that keep provider secrets and customer metadata outside source control.
 
 Next recommended implementation work:
 
-- Add archive alert verification delivery retry alert routing and closure dashboard persistence.
+- Add archive alert verification delivery retry alert acknowledgements and closure dashboard query filters.
 
 ## User stories and enterprise value
 
