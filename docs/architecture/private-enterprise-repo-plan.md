@@ -49,6 +49,7 @@ Initial private implementation status:
 - archive alert verification SLA retry worker health alert acknowledgements and export summary delivery dashboards;
 - archive alert verification export summary delivery retry planning and acknowledgement trend reports;
 - archive alert verification export summary retry worker execution and acknowledgement trend persistence;
+- archive alert verification export summary retry worker health reporting and acknowledgement trend query filters;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
