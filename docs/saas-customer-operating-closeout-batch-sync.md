@@ -108,8 +108,8 @@ Completed in this customer operating closeout slice:
 
 ## Next Recommendation
 
-Continue with the next production-hardening slice: define public-safe customer
-operating dashboard and support handoff contracts for Community documentation,
-then implement any remaining private SaaS operating automation required for
-trial-to-paid customer scale without exposing Enterprise source or customer
-data.
+Delivered by the public-safe customer operating dashboard and support handoff
+contracts and private SaaS operating automation plan evidence. Continue by
+defining a public-safe SaaS operating automation contract for Community
+documentation and future SaaS Control Plane handoff without exposing Enterprise
+source, automation worker internals, or customer data.
