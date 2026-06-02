@@ -47,4 +47,4 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Implement the public tenant audit-store operating contract.
+Implement public billing/subscription boundary documentation.

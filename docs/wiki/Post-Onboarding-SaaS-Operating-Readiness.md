@@ -24,7 +24,7 @@ Completed before and during this slice:
 - public-safe commercialization batch syncs.
 
 This slice has started with the public hosted policy registry readiness
-contract.
+contract and public tenant audit-store operating contract.
 
 ## Why This Is Next
 
@@ -35,7 +35,7 @@ license-service observability, support ownership, and SaaS dashboards.
 ## Proposed PR Sequence
 
 1. Public hosted policy registry readiness contract. Delivered.
-2. Public tenant audit-store operating contract.
+2. Public tenant audit-store operating contract. Delivered.
 3. Public billing/subscription boundary documentation.
 4. Private hosted policy registry readiness evidence.
 5. Private tenant audit-store operating evidence.
@@ -51,4 +51,4 @@ URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 
-Implement the public tenant audit-store operating contract.
+Implement public billing/subscription boundary documentation.

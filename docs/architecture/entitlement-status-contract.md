@@ -106,5 +106,6 @@ requirement messaging.
 ## Next Recommendation
 
 Delivered in the tenant, entitlement, and commercialization batch sync. The
-hosted policy registry readiness contract is now delivered; continue with the
-public tenant audit-store operating contract.
+hosted policy registry readiness and tenant audit-store operating contracts are
+now delivered; continue with public billing/subscription boundary
+documentation.

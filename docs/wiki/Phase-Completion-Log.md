@@ -1,5 +1,32 @@
 # Phase Completion Log
 
+## Phase 10 Public Tenant Audit-Store Operating Contract
+
+Status: complete for the public tenant audit-store operating contract slice.
+
+Completed implementation:
+- Added the public-safe `tenant_audit_store_operating` SaaS Control Plane
+  operation.
+- Added tenant audit-store operating request construction for tenant,
+  retention profile, evidence freshness window, and operating checks.
+- Added `TenantAuditStoreOperatingSummary` for health status, retention status,
+  evidence freshness status, export status, latest evidence timestamp,
+  supported export formats, blockers, and private validation metadata.
+- Added tenant audit-store operating response messaging that lists private
+  audit store, retention enforcement, evidence freshness monitor, export
+  connector service, and operating dashboard modules.
+- Added architecture and wiki documentation for tenant audit-store operating
+  boundaries.
+
+Validation:
+- Public tests cover request serialization, default operating checks, empty
+  check rejection, token-like value rejection, summary serialization, invalid
+  state rejection, mismatched request rejection, and private-module handoff
+  messaging.
+
+Recommended next issue: implement public billing/subscription boundary
+documentation.
+
 ## Phase 10 Public Hosted Policy Registry Readiness Contract
 
 Status: complete for the public hosted policy registry readiness contract slice.
@@ -24,8 +51,8 @@ Validation:
   state rejection, negative policy-pack count rejection, and private-module
   handoff messaging.
 
-Recommended next issue: implement the public tenant audit-store operating
-contract.
+Recommended next issue: delivered in the public tenant audit-store operating
+contract. Continue with public billing/subscription boundary documentation.
 
 ## Phase 10 Post-Onboarding SaaS Operating Readiness Roadmap
 

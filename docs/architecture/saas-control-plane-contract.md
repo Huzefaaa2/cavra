@@ -16,6 +16,7 @@ integrations a stable vocabulary for:
 - license validation handoff;
 - policy registry readiness checks;
 - policy registry lookup;
+- tenant audit-store operating checks;
 - evidence export requests.
 
 The contract is implemented in `src/cavra/saas_control_plane.py`. It builds
@@ -49,6 +50,7 @@ implementation.
 | `license_validation` | Local validation report and requested server checks | Signature, revocation, subscription, and feature-grant validation |
 | `policy_registry_readiness` | Tenant identifier, catalog scope, policy-pack references, and readiness checks | Hosted registry availability, catalog freshness, version state, approval state, blockers, and private service handoff status |
 | `policy_registry_lookup` | Policy references and public labels | Hosted policy metadata and governed artifact references |
+| `tenant_audit_store_operating` | Tenant identifier, retention profile, evidence window, and operating checks | Audit-store health, retention posture, evidence freshness, export readiness, blockers, and private service handoff status |
 | `evidence_export` | Evidence references, export format, and retention profile | Export job creation, storage, delivery, and audit status |
 
 ## Security Boundary
@@ -84,6 +86,7 @@ The future private SaaS repository or service should implement:
 - billing and subscription status checks;
 - hosted policy registry readiness checks;
 - policy registry storage and artifact delivery;
+- tenant audit-store health and retention checks;
 - evidence export jobs;
 - compliance export delivery;
 - audit history persistence;
@@ -102,6 +105,7 @@ Public tests cover:
 - license validation report handoff;
 - hosted policy registry readiness request and response serialization;
 - policy lookup validation;
+- tenant audit-store operating request and response serialization;
 - evidence export format validation;
 - rejection of sensitive keys and token-like values;
 - unavailable responses that direct users to private service enablement.

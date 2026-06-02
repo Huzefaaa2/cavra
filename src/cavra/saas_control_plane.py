@@ -25,6 +25,7 @@ class SaaSOperation(str, Enum):
     LICENSE_VALIDATION = "license_validation"
     POLICY_REGISTRY_READINESS = "policy_registry_readiness"
     POLICY_REGISTRY_LOOKUP = "policy_registry_lookup"
+    TENANT_AUDIT_STORE_OPERATING = "tenant_audit_store_operating"
     EVIDENCE_EXPORT = "evidence_export"
 
 
@@ -70,6 +71,15 @@ POLICY_REGISTRY_READINESS_CHECKS = (
     "approval_state",
 )
 POLICY_REGISTRY_READINESS_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
+TENANT_AUDIT_STORE_OPERATING_CHECKS = (
+    "store_health",
+    "retention_posture",
+    "evidence_freshness",
+    "export_readiness",
+    "immutable_storage",
+    "dashboard_visibility",
+)
+TENANT_AUDIT_STORE_OPERATING_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -187,6 +197,50 @@ class PolicyRegistryReadinessSummary:
         }
 
 
+@dataclass(frozen=True)
+class TenantAuditStoreOperatingSummary:
+    tenant_id: str
+    health_status: str
+    retention_status: str
+    evidence_freshness_status: str
+    export_status: str
+    latest_evidence_at: str | None = None
+    retention_profile: str = "tenant-default"
+    supported_export_formats: tuple[str, ...] = field(default_factory=tuple)
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_audit_store_operating_status(self.health_status, field_name="health_status")
+        _validate_audit_store_operating_status(self.retention_status, field_name="retention_status")
+        _validate_audit_store_operating_status(
+            self.evidence_freshness_status,
+            field_name="evidence_freshness_status",
+        )
+        _validate_audit_store_operating_status(self.export_status, field_name="export_status")
+        _reject_sensitive_material(
+            {
+                "latest_evidence_at": self.latest_evidence_at,
+                "retention_profile": self.retention_profile,
+                "supported_export_formats": list(self.supported_export_formats),
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "health_status": self.health_status,
+            "retention_status": self.retention_status,
+            "evidence_freshness_status": self.evidence_freshness_status,
+            "export_status": self.export_status,
+            "latest_evidence_at": self.latest_evidence_at,
+            "retention_profile": self.retention_profile,
+            "supported_export_formats": list(self.supported_export_formats),
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "audit_store_boundary": "tenant archive storage, retention enforcement, export connectors, and customer evidence remain private service responsibilities",
+        }
+
+
 def build_entitlement_status_request(
     tenant_id: str,
     *,
@@ -298,6 +352,30 @@ def build_policy_registry_readiness_request(
     )
 
 
+def build_tenant_audit_store_operating_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    retention_profile: str = "tenant-default",
+    evidence_window: str = "last-24h",
+    required_checks: tuple[str, ...] = TENANT_AUDIT_STORE_OPERATING_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one tenant audit-store operating check")
+    _reject_sensitive_material({"retention_profile": retention_profile, "evidence_window": evidence_window})
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.TENANT_AUDIT_STORE_OPERATING,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "retention_profile": retention_profile,
+            "evidence_window": evidence_window,
+            "required_checks": list(required_checks),
+            "operating_boundary": "public request shape only; tenant audit-store operation is private",
+        },
+    )
+
+
 def build_policy_registry_lookup_request(
     tenant_id: str,
     policy_refs: tuple[str, ...],
@@ -341,6 +419,33 @@ def build_evidence_export_request(
             "export_format": export_format,
             "retention_profile": retention_profile,
             "export_boundary": "public request shape only; storage and delivery implementation is private",
+        },
+    )
+
+
+def build_tenant_audit_store_operating_response(
+    request: SaaSControlPlaneRequest,
+    summary: TenantAuditStoreOperatingSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.TENANT_AUDIT_STORE_OPERATING:
+        raise SaaSContractError("tenant audit-store operating response requires a tenant_audit_store_operating request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message="Tenant audit-store operating status requires private archive, retention, evidence, export, and dashboard validation.",
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "tenant audit store",
+                "retention enforcement",
+                "evidence freshness monitor",
+                "export connector service",
+                "operating dashboard",
+            ],
+            "next_step": "See docs/architecture/tenant-audit-store-operating-contract.md",
         },
     )
 
@@ -475,6 +580,11 @@ def describe_public_contract() -> dict[str, Any]:
                 "response": "policy metadata and downloadable artifact references",
             },
             {
+                "name": SaaSOperation.TENANT_AUDIT_STORE_OPERATING.value,
+                "request": "tenant identifier, retention profile, evidence window, and operating checks",
+                "response": "audit-store health, retention posture, evidence freshness, export readiness, blockers, and private service handoff status",
+            },
+            {
                 "name": SaaSOperation.EVIDENCE_EXPORT.value,
                 "request": "evidence references, format, and retention profile",
                 "response": "export job status and governed artifact references",
@@ -512,6 +622,12 @@ def _validate_policy_registry_readiness_status(status: str, *, field_name: str) 
         raise SaaSContractError(f"{field_name} must be one of: {supported}")
 
 
+def _validate_audit_store_operating_status(status: str, *, field_name: str) -> None:
+    if status not in TENANT_AUDIT_STORE_OPERATING_STATUSES:
+        supported = ", ".join(sorted(TENANT_AUDIT_STORE_OPERATING_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -538,9 +654,12 @@ __all__ = [
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
     "TENANT_DEPLOYMENT_MODELS",
+    "TENANT_AUDIT_STORE_OPERATING_CHECKS",
+    "TENANT_AUDIT_STORE_OPERATING_STATUSES",
     "TENANT_ONBOARDING_REQUIREMENTS",
     "EntitlementStatusSummary",
     "PolicyRegistryReadinessSummary",
+    "TenantAuditStoreOperatingSummary",
     "SaaSContractError",
     "SaaSControlPlaneRequest",
     "SaaSControlPlaneResponse",
@@ -550,6 +669,8 @@ __all__ = [
     "build_entitlement_status_response",
     "build_evidence_export_request",
     "build_license_validation_request",
+    "build_tenant_audit_store_operating_request",
+    "build_tenant_audit_store_operating_response",
     "build_policy_registry_readiness_request",
     "build_policy_registry_readiness_response",
     "build_policy_registry_lookup_request",

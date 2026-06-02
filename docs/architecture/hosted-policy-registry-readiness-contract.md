@@ -132,7 +132,8 @@ Public tests cover:
 
 ## Next Recommendation
 
-Implement the public tenant audit-store operating contract so post-onboarding
-SaaS operations can validate audit-store health, retention posture, export
-readiness, and evidence freshness without exposing private storage
-implementation.
+Delivered in the public tenant audit-store operating contract. Continue with
+public billing/subscription boundary documentation so post-onboarding SaaS
+operations can describe subscription state, billing ownership, renewal handoff,
+and license-service observability without exposing billing provider
+integrations or license-service implementation.
