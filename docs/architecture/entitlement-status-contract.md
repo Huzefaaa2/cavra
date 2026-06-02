@@ -107,5 +107,5 @@ requirement messaging.
 
 Delivered in the tenant, entitlement, and commercialization batch sync. The
 hosted policy registry readiness and tenant audit-store operating contracts are
-now delivered; continue with public billing/subscription boundary
-documentation.
+now delivered, and billing/subscription boundaries are documented. Continue
+with private hosted policy registry readiness evidence in `cavra-enterprise`.

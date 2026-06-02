@@ -34,6 +34,7 @@ The post-onboarding SaaS operating readiness slice has started:
 
 - public hosted policy registry readiness contract is delivered.
 - public tenant audit-store operating contract is delivered.
+- public billing/subscription boundary documentation is delivered.
 
 ## Remaining Production Themes
 
@@ -77,7 +78,8 @@ ownership, and SaaS dashboards need the same evidence discipline.
    - Keep tenant archive storage, customer evidence, retention enforcement, and
      export connectors private.
 
-3. Public billing/subscription boundary documentation.
+3. Public billing/subscription boundary documentation. Delivered with
+   `docs/architecture/billing-subscription-boundary.md`.
    - Document billing-provider ownership, subscription state, renewal handoff,
      and license-service observability boundaries.
    - Keep billing provider integrations, customer payment data, and license
@@ -112,4 +114,5 @@ ownership, and SaaS dashboards need the same evidence discipline.
 
 ## Recommended Next PR
 
-Implement public billing/subscription boundary documentation.
+Implement private hosted policy registry readiness evidence in
+`cavra-enterprise`.

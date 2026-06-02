@@ -36,6 +36,7 @@ Current Trial and SaaS commercialization readiness status:
 - public entitlement status contract is delivered;
 - public hosted policy registry readiness contract is delivered;
 - public tenant audit-store operating contract is delivered;
+- public billing/subscription boundary documentation is delivered;
 - private tenant onboarding readiness evidence is delivered in
   `cavra-enterprise` PR #63;
 - private entitlement and license-service handoff evidence is delivered in
@@ -48,8 +49,10 @@ Current Trial and SaaS commercialization readiness status:
   documented in `docs/tenant-entitlement-commercialization-batch-sync.md`.
 
 Next production-readiness slice: post-onboarding SaaS operating readiness. The
-recommended next PR is public billing/subscription boundary documentation,
-followed by private operating evidence and public docs/wiki sync.
+recommended next PR is private hosted policy registry readiness evidence in
+`cavra-enterprise`, followed by private tenant audit-store operating evidence,
+private billing/subscription and license-service observability evidence, and
+public docs/wiki sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

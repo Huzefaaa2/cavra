@@ -47,4 +47,5 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Implement public billing/subscription boundary documentation.
+Implement private hosted policy registry readiness evidence in
+`cavra-enterprise`.

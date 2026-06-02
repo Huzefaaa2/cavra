@@ -116,4 +116,5 @@ onboarding without compromising open-core boundaries.
 
 The next production-readiness slice is documented in
 [Post-Onboarding SaaS Operating Readiness](post-onboarding-saas-operating-readiness.md).
-Continue with public billing/subscription boundary documentation.
+Continue with private hosted policy registry readiness evidence in
+`cavra-enterprise`.

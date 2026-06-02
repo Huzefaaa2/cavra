@@ -19,6 +19,7 @@ promotion, and customer rollout closeout:
 - public entitlement status contract;
 - public hosted policy registry readiness contract;
 - public tenant audit-store operating contract;
+- public billing/subscription boundary documentation;
 - private trial package readiness gates in `cavra-enterprise` PR #61;
 - private customer pilot handoff evidence in `cavra-enterprise` PR #62;
 - private tenant onboarding readiness evidence in `cavra-enterprise` PR #63;
@@ -94,7 +95,8 @@ Future SaaS service work should own:
    - Keep tenant archive storage, customer evidence, and retention enforcement
      private.
 
-3. Public billing/subscription boundary documentation.
+3. Public billing/subscription boundary documentation. Delivered with
+   `docs/architecture/billing-subscription-boundary.md`.
    - Document subscription status, billing-provider ownership, and license
      service observability without implementing billing logic.
 
@@ -128,4 +130,5 @@ Future SaaS service work should own:
 
 ## Recommended Next PR
 
-Implement public billing/subscription boundary documentation.
+Implement private hosted policy registry readiness evidence in
+`cavra-enterprise`.

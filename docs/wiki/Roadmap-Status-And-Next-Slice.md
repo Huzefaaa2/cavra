@@ -21,7 +21,7 @@ Completed before and during this slice:
 
 The post-onboarding SaaS operating readiness slice has started with the public
 hosted policy registry readiness contract and public tenant audit-store
-operating contract.
+operating contract, and public billing/subscription boundary documentation.
 
 ## Remaining Themes
 
@@ -40,7 +40,7 @@ Post-onboarding SaaS operating readiness.
 
 1. Public hosted policy registry readiness contract. Delivered.
 2. Public tenant audit-store operating contract. Delivered.
-3. Public billing/subscription boundary documentation.
+3. Public billing/subscription boundary documentation. Delivered.
 4. Private hosted policy registry readiness evidence.
 5. Private tenant audit-store operating evidence.
 6. Private billing/subscription and license-service observability evidence.
@@ -48,4 +48,5 @@ Post-onboarding SaaS operating readiness.
 
 ## Recommended Next PR
 
-Implement public billing/subscription boundary documentation.
+Implement private hosted policy registry readiness evidence in
+`cavra-enterprise`.

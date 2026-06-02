@@ -1,5 +1,31 @@
 # Phase Completion Log
 
+## Phase 10 Public Billing And Subscription Boundary
+
+Status: complete for public billing/subscription boundary documentation.
+
+Completed implementation:
+- Added public-safe billing and subscription boundary documentation.
+- Defined public-safe subscription state vocabulary for future private
+  Enterprise and SaaS services.
+- Documented billing-provider ownership, subscription state, renewal handoff,
+  license-service observability, support handoff, and operating evidence
+  expectations.
+- Added a synthetic public-safe operating summary example.
+- Added wiki-ready documentation and navigation.
+- Updated README, roadmap, production roadmap, roadmap status, and
+  productization next-step guidance.
+
+Validation:
+- Public documentation contains no billing provider integration code, payment
+  provider credentials, invoice records, customer payment data, commercial
+  contracts, subscription provider webhooks, license-service source code,
+  license keys, signing material, entitlement records, provider URLs,
+  connector credentials, SaaS backend code, or Enterprise source code.
+
+Recommended next issue: implement private hosted policy registry readiness
+evidence in `cavra-enterprise`.
+
 ## Phase 10 Public Tenant Audit-Store Operating Contract
 
 Status: complete for the public tenant audit-store operating contract slice.
@@ -24,8 +50,9 @@ Validation:
   state rejection, mismatched request rejection, and private-module handoff
   messaging.
 
-Recommended next issue: implement public billing/subscription boundary
-documentation.
+Recommended next issue: delivered in public billing/subscription boundary
+documentation. Continue with private hosted policy registry readiness evidence
+in `cavra-enterprise`.
 
 ## Phase 10 Public Hosted Policy Registry Readiness Contract
 
@@ -52,7 +79,8 @@ Validation:
   handoff messaging.
 
 Recommended next issue: delivered in the public tenant audit-store operating
-contract. Continue with public billing/subscription boundary documentation.
+contract and public billing/subscription boundary documentation. Continue with
+private hosted policy registry readiness evidence in `cavra-enterprise`.
 
 ## Phase 10 Post-Onboarding SaaS Operating Readiness Roadmap
 
@@ -75,8 +103,9 @@ Completed planning:
   credentials, and SaaS backend code.
 
 Recommended next issue: delivered in the public hosted policy registry
-readiness contract. Continue with the public tenant audit-store operating
-contract.
+readiness contract, public tenant audit-store operating contract, and public
+billing/subscription boundary documentation. Continue with private hosted
+policy registry readiness evidence in `cavra-enterprise`.
 
 ## Phase 10 Tenant, Entitlement, and Commercialization Batch Sync
 

@@ -132,8 +132,6 @@ Public tests cover:
 
 ## Next Recommendation
 
-Delivered in the public tenant audit-store operating contract. Continue with
-public billing/subscription boundary documentation so post-onboarding SaaS
-operations can describe subscription state, billing ownership, renewal handoff,
-and license-service observability without exposing billing provider
-integrations or license-service implementation.
+Delivered in the public tenant audit-store operating contract and
+billing/subscription boundary documentation. Continue with private hosted
+policy registry readiness evidence in `cavra-enterprise`.

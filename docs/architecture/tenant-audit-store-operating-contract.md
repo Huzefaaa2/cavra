@@ -134,7 +134,5 @@ Public tests cover:
 
 ## Next Recommendation
 
-Implement the public billing/subscription boundary documentation so
-post-onboarding SaaS operations can describe subscription state, billing
-ownership, renewal handoff, and license-service observability without exposing
-billing provider integrations or license-service implementation.
+Delivered in public billing/subscription boundary documentation. Continue with
+private hosted policy registry readiness evidence in `cavra-enterprise`.

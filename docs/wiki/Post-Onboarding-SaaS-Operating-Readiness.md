@@ -24,7 +24,8 @@ Completed before and during this slice:
 - public-safe commercialization batch syncs.
 
 This slice has started with the public hosted policy registry readiness
-contract and public tenant audit-store operating contract.
+contract, public tenant audit-store operating contract, and public
+billing/subscription boundary documentation.
 
 ## Why This Is Next
 
@@ -36,7 +37,7 @@ license-service observability, support ownership, and SaaS dashboards.
 
 1. Public hosted policy registry readiness contract. Delivered.
 2. Public tenant audit-store operating contract. Delivered.
-3. Public billing/subscription boundary documentation.
+3. Public billing/subscription boundary documentation. Delivered.
 4. Private hosted policy registry readiness evidence.
 5. Private tenant audit-store operating evidence.
 6. Private billing/subscription and license-service observability evidence.
@@ -51,4 +52,5 @@ URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 
-Implement public billing/subscription boundary documentation.
+Implement private hosted policy registry readiness evidence in
+`cavra-enterprise`.
