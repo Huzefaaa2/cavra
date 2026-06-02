@@ -27,14 +27,23 @@ The SaaS tenant onboarding and entitlement readiness batch is complete:
   PR #65;
 - private customer rollout closeout evidence is delivered in
   `cavra-enterprise` PR #66;
+- private hosted policy registry readiness evidence is delivered in
+  `cavra-enterprise` PR #67;
+- private tenant audit-store operating evidence is delivered in
+  `cavra-enterprise` PR #68;
+- private SaaS operating readiness rollup evidence is delivered in
+  `cavra-enterprise` PR #69;
 - public-safe batch sync is delivered in
   [tenant-entitlement-commercialization-batch-sync.md](tenant-entitlement-commercialization-batch-sync.md).
 
-The post-onboarding SaaS operating readiness slice has started:
+The post-onboarding SaaS operating readiness slice is now complete through the
+SaaS operating readiness rollup and public-safe documentation sync:
 
 - public hosted policy registry readiness contract is delivered.
 - public tenant audit-store operating contract is delivered.
 - public billing/subscription boundary documentation is delivered.
+- public post-onboarding SaaS operating batch sync is delivered in
+  [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
 
 ## Remaining Production Themes
 
@@ -85,21 +94,30 @@ ownership, and SaaS dashboards need the same evidence discipline.
    - Keep billing provider integrations, customer payment data, and license
      service implementation private.
 
-4. Private hosted policy registry readiness evidence.
+4. Private hosted policy registry readiness evidence. Delivered in
+   `cavra-enterprise` PR #67.
    - Add private evidence for registry availability, catalog freshness, policy
      pack entitlement, approval state, and rollout blockers.
 
-5. Private tenant audit-store operating evidence.
+5. Private tenant audit-store operating evidence. Delivered in
+   `cavra-enterprise` PR #68.
    - Add private evidence for audit-store health, retention readiness, export
      availability, and operating dashboard approval state.
 
-6. Private billing/subscription and license-service observability evidence.
-   - Add private evidence for subscription status, billing handoff, license
-     service telemetry, support ownership, and escalation readiness.
+6. Private SaaS operating readiness rollup. Delivered in `cavra-enterprise`
+   PR #69.
+   - Combine hosted policy registry readiness, tenant audit-store operating
+     evidence, control-plane health, and release approval into one private
+     promotion gate.
 
-7. Public docs/wiki sync.
+7. Public docs/wiki sync. Delivered with
+   [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
    - Publish public-safe outcomes and update the phase log after the private
      operating-readiness batch.
+
+8. Private billing/subscription and license-service observability evidence.
+   - Add private evidence for subscription status, billing handoff, license
+     service telemetry, support ownership, and escalation readiness.
 
 ## Acceptance Criteria
 
@@ -114,5 +132,5 @@ ownership, and SaaS dashboards need the same evidence discipline.
 
 ## Recommended Next PR
 
-Implement private hosted policy registry readiness evidence in
-`cavra-enterprise`.
+Implement private billing/subscription and license-service observability
+evidence in `cavra-enterprise`.

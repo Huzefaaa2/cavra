@@ -29,5 +29,13 @@ Current open-core priority:
 12. Public hosted policy registry readiness contract is delivered.
 13. Public tenant audit-store operating contract is delivered.
 14. Public billing/subscription boundary documentation is delivered.
-15. Next recommendation: implement private hosted policy registry readiness
-   evidence in `cavra-enterprise`.
+15. Private hosted policy registry readiness evidence is delivered in
+   `cavra-enterprise` PR #67.
+16. Private tenant audit-store operating evidence is delivered in
+   `cavra-enterprise` PR #68.
+17. Private SaaS operating readiness rollup evidence is delivered in
+   `cavra-enterprise` PR #69.
+18. Public-safe post-onboarding SaaS operating batch sync is documented in
+   [docs/post-onboarding-saas-operating-batch-sync.md](docs/post-onboarding-saas-operating-batch-sync.md).
+19. Next recommendation: implement private billing/subscription and
+   license-service observability evidence in `cavra-enterprise`.

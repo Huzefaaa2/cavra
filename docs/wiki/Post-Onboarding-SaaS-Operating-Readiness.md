@@ -52,5 +52,7 @@ URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 
-Implement private hosted policy registry readiness evidence in
-`cavra-enterprise`.
+Implement private billing/subscription and license-service observability
+evidence in `cavra-enterprise`. Private hosted policy registry readiness,
+tenant audit-store operating, and SaaS operating readiness rollup evidence are
+delivered in `cavra-enterprise` PRs #67-#69.

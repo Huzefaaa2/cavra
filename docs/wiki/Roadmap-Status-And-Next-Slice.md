@@ -17,11 +17,14 @@ Completed before and during this slice:
 - private entitlement and license-service handoff evidence in private PR #64;
 - private paid-pilot promotion evidence in private PR #65;
 - private customer rollout closeout evidence in private PR #66;
+- private hosted policy registry readiness evidence in private PR #67;
+- private tenant audit-store operating evidence in private PR #68;
+- private SaaS operating readiness rollup evidence in private PR #69;
 - public-safe commercialization batch syncs.
 
-The post-onboarding SaaS operating readiness slice has started with the public
-hosted policy registry readiness contract and public tenant audit-store
-operating contract, and public billing/subscription boundary documentation.
+The post-onboarding SaaS operating readiness slice is now complete through
+private SaaS operating readiness rollup evidence and public-safe documentation
+sync.
 
 ## Remaining Themes
 
@@ -41,12 +44,14 @@ Post-onboarding SaaS operating readiness.
 1. Public hosted policy registry readiness contract. Delivered.
 2. Public tenant audit-store operating contract. Delivered.
 3. Public billing/subscription boundary documentation. Delivered.
-4. Private hosted policy registry readiness evidence.
-5. Private tenant audit-store operating evidence.
-6. Private billing/subscription and license-service observability evidence.
-7. Public docs/wiki sync.
+4. Private hosted policy registry readiness evidence. Delivered in private
+   PR #67.
+5. Private tenant audit-store operating evidence. Delivered in private PR #68.
+6. Private SaaS operating readiness rollup. Delivered in private PR #69.
+7. Public docs/wiki sync. Delivered.
+8. Private billing/subscription and license-service observability evidence.
 
 ## Recommended Next PR
 
-Implement private hosted policy registry readiness evidence in
-`cavra-enterprise`.
+Implement private billing/subscription and license-service observability
+evidence in `cavra-enterprise`.

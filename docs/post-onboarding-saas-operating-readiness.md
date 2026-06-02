@@ -27,6 +27,11 @@ promotion, and customer rollout closeout:
   `cavra-enterprise` PR #64;
 - private paid-pilot promotion evidence in `cavra-enterprise` PR #65;
 - private customer rollout closeout evidence in `cavra-enterprise` PR #66;
+- private hosted policy registry readiness evidence in `cavra-enterprise`
+  PR #67;
+- private tenant audit-store operating evidence in `cavra-enterprise` PR #68;
+- private SaaS operating readiness rollup evidence in `cavra-enterprise`
+  PR #69;
 - public-safe documentation syncs for both commercialization batches.
 
 ## Why This Is Next
@@ -130,5 +135,5 @@ Future SaaS service work should own:
 
 ## Recommended Next PR
 
-Implement private hosted policy registry readiness evidence in
-`cavra-enterprise`.
+Implement private billing/subscription and license-service observability
+evidence in `cavra-enterprise`.

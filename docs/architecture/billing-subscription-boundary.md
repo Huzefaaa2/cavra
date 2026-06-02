@@ -130,9 +130,9 @@ source boundaries.
 
 ## Next Recommendation
 
-Implement private hosted policy registry readiness evidence in
-`cavra-enterprise`. Private evidence should record hosted registry
-availability, catalog freshness, policy-pack entitlement, approval state,
-rollout telemetry, and blockers without publishing Enterprise source code,
-tenant catalogs, paid policy packs, customer metadata, provider URLs, or
-connector credentials.
+Implement private billing/subscription and license-service observability
+evidence in `cavra-enterprise`. Private hosted policy registry readiness,
+tenant audit-store operating, and SaaS operating readiness rollup evidence are
+delivered in `cavra-enterprise` PRs #67-#69. Billing provider integrations,
+customer payment records, license keys, signing material, provider URLs,
+connector credentials, and SaaS backend code must remain private.
