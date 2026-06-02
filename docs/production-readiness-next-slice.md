@@ -110,6 +110,7 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-Run a roadmap status pass and define the next production-readiness slice. The
-Trial and SaaS commercialization readiness batch is complete from a public-safe
-documentation perspective.
+The roadmap status pass is documented in
+[Roadmap Status and Next Slice](roadmap-status-next-slice.md). Continue with the
+public tenant onboarding contract for the SaaS tenant onboarding and entitlement
+readiness slice.

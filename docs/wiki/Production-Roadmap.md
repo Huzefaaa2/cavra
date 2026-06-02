@@ -33,9 +33,9 @@ Current Trial and SaaS commercialization readiness status:
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62.
 
-Next recommendation: run a roadmap status pass and define the next
-production-readiness slice. Public Community source remains free of Enterprise
-implementation details.
+Next production-readiness slice: SaaS tenant onboarding and entitlement
+readiness. Recommended next PR: implement the public tenant onboarding contract.
+Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 
