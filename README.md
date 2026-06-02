@@ -433,7 +433,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Define the next production-readiness implementation slice across public Community documentation, private Enterprise implementation, and SaaS/trial commercialization boundaries before opening new private feature PRs.
+- Start the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md), beginning with the public trial-to-pilot intake plan.
 
 ## User stories and enterprise value
 

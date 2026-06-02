@@ -10,5 +10,6 @@ Current open-core priority:
    premium modules in private repositories.
 3. Add public-safe extension points, trial instructions, and Enterprise
    documentation without exposing proprietary implementation.
-4. Next implementation recommendation: define the next production-readiness
-   slice now that the private managed infrastructure follow-up batch is closed.
+4. Next implementation recommendation: start the Trial and SaaS
+   commercialization readiness slice with the public trial-to-pilot intake
+   plan.
