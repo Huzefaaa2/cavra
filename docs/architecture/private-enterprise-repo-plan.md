@@ -52,6 +52,16 @@ Initial private implementation status:
 - archive alert verification export summary retry worker health reporting and acknowledgement trend query filters;
 - archive alert verification export summary retry health alert routing and acknowledgement trend exports;
 - archive alert verification export summary retry health acknowledgements and trend delivery dashboards;
+- archive alert verification export summary retry health acknowledgement persistence and trend delivery retry planning;
+- archive alert verification export summary retry health acknowledgement trend reporting and delivery retry workers;
+- archive alert verification export summary retry health acknowledgement trend persistence and delivery retry worker health reporting;
+- archive alert verification export summary retry health acknowledgement trend health alert routing and retry worker query filters;
+- archive alert verification export summary retry health acknowledgement trend health alert acknowledgements and retry worker persistence;
+- archive alert verification export summary retry health acknowledgement trend closure summaries and retry worker delivery dashboards;
+- archive alert verification export summary retry health acknowledgement trend closure persistence and final rollout reports;
+- archive alert verification export summary retry health acknowledgement trend final rollout report routing and handoff tracking;
+- archive alert verification export summary retry health acknowledgement trend final rollout delivery dashboards and retry planning;
+- archive alert verification export summary retry health acknowledgement trend final rollout retry workers and persistence;
 - audit-event persistence;
 - connector handoff dispatcher interfaces;
 - private CI workflow.
@@ -109,3 +119,16 @@ Enterprise can plug into Community through:
 
 The public package should never import Enterprise modules directly except
 through dynamic hooks such as `cavra.edition.enterprise_hooks`.
+
+## Public-Safe Batch Sync
+
+Last synchronized private implementation batch: private PRs #35-#44.
+
+Public documentation records enterprise feature progress only. Enterprise source
+code, private connector implementations, customer data, credentials, policy
+packs, and SaaS/license-service logic remain outside this public Community
+repository.
+
+Next private implementation theme: final rollout acknowledgements, trend
+reporting, and release-readiness evidence for archive alert verification
+closure workflows.
