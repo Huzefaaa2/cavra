@@ -7,6 +7,7 @@ from cavra.saas_control_plane import (
     PolicyRegistryReadinessSummary,
     SAAS_CONTROL_PLANE_CONTRACT_VERSION,
     SAAS_CONTROL_PLANE_REQUEST_VERSION,
+    SaaSOperatingAutomationSummary,
     SaaSContractError,
     SaaSOperation,
     SaaSResponseStatus,
@@ -21,6 +22,8 @@ from cavra.saas_control_plane import (
     build_policy_registry_readiness_request,
     build_policy_registry_readiness_response,
     build_policy_registry_lookup_request,
+    build_saas_operating_automation_request,
+    build_saas_operating_automation_response,
     build_support_handoff_readiness_request,
     build_support_handoff_readiness_response,
     build_tenant_audit_store_operating_request,
@@ -47,6 +50,7 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     assert SaaSOperation.TENANT_AUDIT_STORE_OPERATING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.CUSTOMER_OPERATING_DASHBOARD.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.SUPPORT_HANDOFF_READINESS.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.SAAS_OPERATING_AUTOMATION.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -624,6 +628,130 @@ def test_support_handoff_readiness_response_requires_matching_request() -> None:
         build_support_handoff_readiness_response(request, summary)
     except SaaSContractError as exc:
         assert "support_handoff_readiness" in str(exc)
+    else:
+        raise AssertionError("expected mismatched request to be rejected")
+
+
+def test_saas_operating_automation_request_is_public_safe() -> None:
+    request = build_saas_operating_automation_request(
+        "tenant-demo",
+        requested_by="console",
+        automation_scope="trial-to-paid-customer-scale",
+        automation_cadence="daily",
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "saas_operating_automation"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["automation_scope"] == "trial-to-paid-customer-scale"
+    assert payload["payload"]["automation_cadence"] == "daily"
+    assert payload["payload"]["required_checks"] == [
+        "billing_monitoring",
+        "license_telemetry_sync",
+        "support_followup",
+        "customer_success_review",
+        "dashboard_refresh",
+        "escalation_drill",
+        "closeout_retry",
+    ]
+
+
+def test_saas_operating_automation_request_rejects_empty_checks() -> None:
+    try:
+        build_saas_operating_automation_request("tenant-demo", required_checks=())
+    except SaaSContractError as exc:
+        assert "required_checks" in str(exc)
+    else:
+        raise AssertionError("expected empty SaaS operating automation checks to be rejected")
+
+
+def test_saas_operating_automation_request_rejects_sensitive_values() -> None:
+    try:
+        build_saas_operating_automation_request(
+            "tenant-demo",
+            automation_cadence="ghp_123456789012345678901234567890",
+        )
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive automation cadence to be rejected")
+
+
+def test_saas_operating_automation_response_serializes_summary() -> None:
+    request = build_saas_operating_automation_request("tenant-demo", requested_by="console")
+    summary = SaaSOperatingAutomationSummary(
+        tenant_id="tenant-demo",
+        automation_status="scheduled",
+        billing_monitoring_status="enabled",
+        license_telemetry_status="automated",
+        support_followup_status="ready",
+        customer_success_review_status="scheduled",
+        dashboard_refresh_status="automated",
+        escalation_drill_status="blocked",
+        closeout_retry_status="enabled",
+        automation_scope="trial-to-paid-customer-scale",
+        automation_cadence="daily",
+        blockers=("escalation drill owner pending",),
+    )
+
+    response = build_saas_operating_automation_response(request, summary).to_dict()
+
+    assert response["operation"] == "saas_operating_automation"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["automation_status"] == "scheduled"
+    assert response["payload"]["summary"]["license_telemetry_status"] == "automated"
+    assert response["payload"]["summary"]["escalation_drill_status"] == "blocked"
+    assert response["payload"]["summary"]["blockers"] == ["escalation drill owner pending"]
+    assert response["payload"]["private_modules_required"] == [
+        "billing monitoring",
+        "license telemetry sync",
+        "support follow-up",
+        "customer-success review",
+        "dashboard refresh automation",
+        "escalation drill scheduler",
+        "closeout retry automation",
+    ]
+
+
+def test_saas_operating_automation_summary_rejects_invalid_state() -> None:
+    summary = SaaSOperatingAutomationSummary(
+        tenant_id="tenant-demo",
+        automation_status="running",
+        billing_monitoring_status="ready",
+        license_telemetry_status="ready",
+        support_followup_status="ready",
+        customer_success_review_status="ready",
+        dashboard_refresh_status="ready",
+        escalation_drill_status="ready",
+        closeout_retry_status="ready",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "automation_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown SaaS operating automation state to be rejected")
+
+
+def test_saas_operating_automation_response_requires_matching_request() -> None:
+    request = build_customer_operating_dashboard_request("tenant-demo")
+    summary = SaaSOperatingAutomationSummary(
+        tenant_id="tenant-demo",
+        automation_status="ready",
+        billing_monitoring_status="ready",
+        license_telemetry_status="ready",
+        support_followup_status="ready",
+        customer_success_review_status="ready",
+        dashboard_refresh_status="ready",
+        escalation_drill_status="ready",
+        closeout_retry_status="ready",
+    )
+
+    try:
+        build_saas_operating_automation_response(request, summary)
+    except SaaSContractError as exc:
+        assert "saas_operating_automation" in str(exc)
     else:
         raise AssertionError("expected mismatched request to be rejected")
 

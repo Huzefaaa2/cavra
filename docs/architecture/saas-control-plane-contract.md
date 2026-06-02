@@ -19,6 +19,7 @@ integrations a stable vocabulary for:
 - tenant audit-store operating checks;
 - customer operating dashboard checks;
 - support handoff readiness checks;
+- SaaS operating automation checks;
 - evidence export requests.
 
 The contract is implemented in `src/cavra/saas_control_plane.py`. It builds
@@ -55,6 +56,7 @@ implementation.
 | `tenant_audit_store_operating` | Tenant identifier, retention profile, evidence window, and operating checks | Audit-store health, retention posture, evidence freshness, export readiness, blockers, and private service handoff status |
 | `customer_operating_dashboard` | Tenant identifier, dashboard scope, evidence window, and operating dashboard checks | Customer operating dashboard readiness across billing, license service, support, customer success, escalation, and release closeout |
 | `support_handoff_readiness` | Tenant identifier, handoff scope, support tier, and support handoff checks | Support, customer-success, escalation, health review, dashboard, and release owner readiness |
+| `saas_operating_automation` | Tenant identifier, automation scope, automation cadence, and operating automation checks | Billing monitoring, license telemetry, support follow-up, customer-success review, dashboard refresh, escalation drill, and closeout retry readiness |
 | `evidence_export` | Evidence references, export format, and retention profile | Export job creation, storage, delivery, and audit status |
 
 ## Security Boundary
@@ -93,6 +95,7 @@ The future private SaaS repository or service should implement:
 - tenant audit-store health and retention checks;
 - customer operating dashboard readiness checks;
 - support handoff readiness checks;
+- SaaS operating automation readiness checks;
 - evidence export jobs;
 - compliance export delivery;
 - audit history persistence;
@@ -114,6 +117,7 @@ Public tests cover:
 - tenant audit-store operating request and response serialization;
 - customer operating dashboard request and response serialization;
 - support handoff readiness request and response serialization;
+- SaaS operating automation request and response serialization;
 - evidence export format validation;
 - rejection of sensitive keys and token-like values;
 - unavailable responses that direct users to private service enablement.

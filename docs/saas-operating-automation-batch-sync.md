@@ -98,10 +98,11 @@ Completed in this SaaS operating automation slice:
 
 1. Private SaaS operating automation plan evidence.
 2. Public docs/wiki sync.
+3. Public-safe SaaS operating automation contract.
 
 ## Next Recommendation
 
-Define a public-safe SaaS operating automation contract for Community
-documentation and future SaaS Control Plane handoff, then keep any private
+Continue the SaaS Control Plane maturity path by adding public-safe API and CLI
+surfaces for the SaaS operating automation contract while keeping any private
 automation execution, scheduler, connector, customer, billing, and support
 implementation inside private Enterprise or SaaS repositories.
