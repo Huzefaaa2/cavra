@@ -56,5 +56,7 @@ Current open-core priority:
    [docs/saas-operating-automation-batch-sync.md](docs/saas-operating-automation-batch-sync.md).
 27. Public-safe SaaS operating automation contract is delivered in
    [docs/architecture/saas-operating-automation-contract.md](docs/architecture/saas-operating-automation-contract.md).
-28. Next recommendation: add public-safe API and CLI surfaces for the SaaS
-   operating automation contract.
+28. Public-safe API and CLI surfaces for the SaaS operating automation contract
+   are delivered.
+29. Next recommendation: expose the SaaS operating automation contract in the
+   public Evidence Console and sandbox UI.

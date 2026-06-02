@@ -110,6 +110,7 @@ source code into this repository.
 Public tests cover:
 
 - contract description boundaries;
+- public API contract discovery;
 - tenant status request serialization;
 - license validation report handoff;
 - hosted policy registry readiness request and response serialization;
@@ -118,6 +119,7 @@ Public tests cover:
 - customer operating dashboard request and response serialization;
 - support handoff readiness request and response serialization;
 - SaaS operating automation request and response serialization;
+- SaaS operating automation API and CLI surfaces;
 - evidence export format validation;
 - rejection of sensitive keys and token-like values;
 - unavailable responses that direct users to private service enablement.

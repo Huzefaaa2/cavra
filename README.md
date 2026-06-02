@@ -448,7 +448,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Add public-safe API and CLI surfaces for the SaaS operating automation contract. Private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
+- Expose the SaaS operating automation contract in the public Evidence Console and sandbox UI. Public-safe API and CLI surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
 
 ## User stories and enterprise value
 

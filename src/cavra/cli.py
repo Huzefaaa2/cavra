@@ -91,6 +91,14 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
+from cavra.saas_control_plane import (
+    SAAS_OPERATING_AUTOMATION_CHECKS,
+    SaaSContractError,
+    SaaSOperatingAutomationSummary,
+    build_saas_operating_automation_request,
+    build_saas_operating_automation_response,
+    describe_public_contract,
+)
 from cavra.release import (
     automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_metadata,
@@ -207,6 +215,7 @@ registry_app = typer.Typer(help="Agent and MCP trust registry commands.")
 ops_app = typer.Typer(help="Persistent API operations commands.")
 release_app = typer.Typer(help="Release package verification commands.")
 runtime_app = typer.Typer(help="Runtime backend pilot commands.")
+saas_app = typer.Typer(help="Public-safe SaaS Control Plane contract commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -218,6 +227,7 @@ app.add_typer(registry_app, name="registry")
 app.add_typer(ops_app, name="ops")
 app.add_typer(release_app, name="release")
 app.add_typer(runtime_app, name="runtime")
+app.add_typer(saas_app, name="saas")
 
 
 @app.command()
@@ -251,6 +261,64 @@ def evaluate(
         console.print(JSON(json.dumps(decision.to_dict(), indent=2)))
     else:
         console.print(f"{decision.decision}: {decision.reason}")
+
+
+@saas_app.command("contract")
+def saas_contract() -> None:
+    """Print the public-safe SaaS Control Plane contract description."""
+
+    _print_json(describe_public_contract())
+
+
+@saas_app.command("operating-automation")
+def saas_operating_automation(
+    tenant_id: Annotated[str, typer.Argument(help="Tenant identifier for the public-safe request shape.")],
+    requested_by: Annotated[str, typer.Option(help="Actor or surface requesting the handoff.")] = "community",
+    automation_scope: Annotated[str, typer.Option(help="Public-safe automation scope.")] = "trial-to-paid-customer-scale",
+    automation_cadence: Annotated[str, typer.Option(help="Public-safe automation cadence.")] = "daily",
+    required_check: Annotated[
+        Optional[list[str]],
+        typer.Option("--required-check", help="Required public-safe operating automation check."),
+    ] = None,
+    automation_status: Annotated[str, typer.Option(help="ready, scheduled, enabled, automated, blocked, or unknown.")] = "unknown",
+    billing_monitoring_status: Annotated[str, typer.Option(help="Billing monitoring status.")] = "unknown",
+    license_telemetry_status: Annotated[str, typer.Option(help="License telemetry sync status.")] = "unknown",
+    support_followup_status: Annotated[str, typer.Option(help="Support follow-up status.")] = "unknown",
+    customer_success_review_status: Annotated[str, typer.Option(help="Customer-success review status.")] = "unknown",
+    dashboard_refresh_status: Annotated[str, typer.Option(help="Dashboard refresh status.")] = "unknown",
+    escalation_drill_status: Annotated[str, typer.Option(help="Escalation drill status.")] = "unknown",
+    closeout_retry_status: Annotated[str, typer.Option(help="Closeout retry status.")] = "unknown",
+    blocker: Annotated[Optional[list[str]], typer.Option("--blocker", help="Public-safe blocker summary.")] = None,
+) -> None:
+    """Print a public-safe SaaS operating automation request and placeholder response."""
+
+    try:
+        request = build_saas_operating_automation_request(
+            tenant_id,
+            requested_by=requested_by,
+            automation_scope=automation_scope,
+            automation_cadence=automation_cadence,
+            required_checks=tuple(required_check) if required_check is not None else SAAS_OPERATING_AUTOMATION_CHECKS,
+        )
+        summary = SaaSOperatingAutomationSummary(
+            tenant_id=request.tenant_id,
+            automation_status=automation_status,
+            billing_monitoring_status=billing_monitoring_status,
+            license_telemetry_status=license_telemetry_status,
+            support_followup_status=support_followup_status,
+            customer_success_review_status=customer_success_review_status,
+            dashboard_refresh_status=dashboard_refresh_status,
+            escalation_drill_status=escalation_drill_status,
+            closeout_retry_status=closeout_retry_status,
+            automation_scope=automation_scope,
+            automation_cadence=automation_cadence,
+            blockers=tuple(blocker or ()),
+        )
+        response = build_saas_operating_automation_response(request, summary)
+    except SaaSContractError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _print_json({"request": request.to_dict(), "response": response.to_dict()})
 
 
 @runtime_app.command("go-pilot-readiness")

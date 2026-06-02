@@ -78,6 +78,78 @@ def test_agent_enforcement_readiness_cli_reports_schema() -> None:
     assert payload["status"] in {"ready", "needs_attention", "blocked"}
 
 
+def test_saas_contract_cli_lists_operating_automation_operation() -> None:
+    result = runner.invoke(app, ["saas", "contract"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert "saas_operating_automation" in {item["name"] for item in payload["operations"]}
+    assert payload["public_repository_boundary"]["contains_saas_backend"] is False
+
+
+def test_saas_operating_automation_cli_prints_public_request_and_response() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "saas",
+            "operating-automation",
+            "tenant-demo",
+            "--requested-by",
+            "console",
+            "--automation-status",
+            "scheduled",
+            "--billing-monitoring-status",
+            "enabled",
+            "--license-telemetry-status",
+            "automated",
+            "--support-followup-status",
+            "ready",
+            "--customer-success-review-status",
+            "scheduled",
+            "--dashboard-refresh-status",
+            "automated",
+            "--escalation-drill-status",
+            "blocked",
+            "--closeout-retry-status",
+            "enabled",
+            "--blocker",
+            "escalation drill owner pending",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["request"]["operation"] == "saas_operating_automation"
+    assert payload["request"]["payload"]["required_checks"] == [
+        "billing_monitoring",
+        "license_telemetry_sync",
+        "support_followup",
+        "customer_success_review",
+        "dashboard_refresh",
+        "escalation_drill",
+        "closeout_retry",
+    ]
+    assert payload["response"]["status"] == "requires_private_service"
+    assert payload["response"]["payload"]["summary"]["automation_status"] == "scheduled"
+    assert payload["response"]["payload"]["summary"]["blockers"] == ["escalation drill owner pending"]
+
+
+def test_saas_operating_automation_cli_rejects_sensitive_values() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "saas",
+            "operating-automation",
+            "tenant-demo",
+            "--automation-cadence",
+            "ghp_123456789012345678901234567890",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "sensitive value" in result.output
+
+
 def test_runtime_go_deployment_readiness_cli_reports_not_configured() -> None:
     result = runner.invoke(app, ["runtime", "go-deployment-readiness", "--json"])
 

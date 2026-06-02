@@ -50,6 +50,58 @@ def test_api_persists_evidence_metadata(monkeypatch, tmp_path) -> None:
     assert client.get("/evidence/api-session").json()["decision_count"] == 2
 
 
+def test_api_saas_operating_automation_contract_surface(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+
+    config = client.get("/console/config").json()
+    contract = client.get("/saas/control-plane/contract")
+    response = client.post(
+        "/saas/operating-automation",
+        json={
+            "tenant_id": "tenant-demo",
+            "requested_by": "console",
+            "automation_status": "scheduled",
+            "billing_monitoring_status": "enabled",
+            "license_telemetry_status": "automated",
+            "support_followup_status": "ready",
+            "customer_success_review_status": "scheduled",
+            "dashboard_refresh_status": "automated",
+            "escalation_drill_status": "blocked",
+            "closeout_retry_status": "enabled",
+            "blockers": ["escalation drill owner pending"],
+        },
+    )
+
+    assert config["endpoints"]["saas_control_plane_contract"] == "/saas/control-plane/contract"
+    assert config["endpoints"]["saas_operating_automation"] == "/saas/operating-automation"
+    assert contract.status_code == 200
+    assert "saas_operating_automation" in {item["name"] for item in contract.json()["operations"]}
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["request"]["operation"] == "saas_operating_automation"
+    assert payload["response"]["status"] == "requires_private_service"
+    assert payload["response"]["payload"]["summary"]["automation_status"] == "scheduled"
+    assert payload["response"]["payload"]["summary"]["license_telemetry_status"] == "automated"
+    assert payload["response"]["payload"]["summary"]["blockers"] == ["escalation drill owner pending"]
+
+
+def test_api_saas_operating_automation_rejects_sensitive_values(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+
+    response = client.post(
+        "/saas/operating-automation",
+        json={
+            "tenant_id": "tenant-demo",
+            "automation_cadence": "ghp_123456789012345678901234567890",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "sensitive value" in response.json()["detail"]
+
+
 def test_api_filters_json_evidence_metadata(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_EVIDENCE_METADATA_DB", raising=False)
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))

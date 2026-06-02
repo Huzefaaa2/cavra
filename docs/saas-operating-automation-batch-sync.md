@@ -99,10 +99,12 @@ Completed in this SaaS operating automation slice:
 1. Private SaaS operating automation plan evidence.
 2. Public docs/wiki sync.
 3. Public-safe SaaS operating automation contract.
+4. Public-safe API and CLI surfaces for contract discovery and request/response
+   generation.
 
 ## Next Recommendation
 
-Continue the SaaS Control Plane maturity path by adding public-safe API and CLI
-surfaces for the SaaS operating automation contract while keeping any private
-automation execution, scheduler, connector, customer, billing, and support
-implementation inside private Enterprise or SaaS repositories.
+Expose the SaaS operating automation contract in the public Evidence Console
+and sandbox UI while keeping any private automation execution, scheduler,
+connector, customer, billing, and support implementation inside private
+Enterprise or SaaS repositories.

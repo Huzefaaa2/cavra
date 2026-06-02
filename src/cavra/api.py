@@ -221,6 +221,14 @@ from cavra.registry import (
     default_agent_profiles,
     default_mcp_tool_classifications,
 )
+from cavra.saas_control_plane import (
+    SAAS_OPERATING_AUTOMATION_CHECKS,
+    SaaSContractError,
+    SaaSOperatingAutomationSummary,
+    build_saas_operating_automation_request,
+    build_saas_operating_automation_response,
+    describe_public_contract,
+)
 from cavra.release import (
     automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_dashboard,
@@ -422,6 +430,8 @@ def create_app():
             "registry_store": str(registry_store.path),
             "cors_origins": cors_origins,
             "endpoints": {
+                "saas_control_plane_contract": "/saas/control-plane/contract",
+                "saas_operating_automation": "/saas/operating-automation",
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
                 "evidence_artifacts": "/evidence/{session_id}/artifacts",
@@ -622,6 +632,42 @@ def create_app():
                 "sandbox_run_attestation": "/api/sandbox/runs/{run_id}/attestation",
                 "sandbox_run_compliance": "/api/sandbox/runs/{run_id}/compliance",
             },
+        }
+
+    @app.get("/saas/control-plane/contract")
+    def saas_control_plane_contract() -> dict[str, object]:
+        return describe_public_contract()
+
+    @app.post("/saas/operating-automation")
+    def saas_operating_automation(payload: dict) -> dict[str, object]:
+        try:
+            request = build_saas_operating_automation_request(
+                str(payload.get("tenant_id", "")),
+                requested_by=str(payload.get("requested_by", "community")),
+                automation_scope=str(payload.get("automation_scope", "trial-to-paid-customer-scale")),
+                automation_cadence=str(payload.get("automation_cadence", "daily")),
+                required_checks=tuple(payload.get("required_checks", SAAS_OPERATING_AUTOMATION_CHECKS)),
+            )
+            summary = SaaSOperatingAutomationSummary(
+                tenant_id=request.tenant_id,
+                automation_status=str(payload.get("automation_status", "unknown")),
+                billing_monitoring_status=str(payload.get("billing_monitoring_status", "unknown")),
+                license_telemetry_status=str(payload.get("license_telemetry_status", "unknown")),
+                support_followup_status=str(payload.get("support_followup_status", "unknown")),
+                customer_success_review_status=str(payload.get("customer_success_review_status", "unknown")),
+                dashboard_refresh_status=str(payload.get("dashboard_refresh_status", "unknown")),
+                escalation_drill_status=str(payload.get("escalation_drill_status", "unknown")),
+                closeout_retry_status=str(payload.get("closeout_retry_status", "unknown")),
+                automation_scope=str(payload.get("automation_scope", "trial-to-paid-customer-scale")),
+                automation_cadence=str(payload.get("automation_cadence", "daily")),
+                blockers=tuple(payload.get("blockers") or ()),
+            )
+            response = build_saas_operating_automation_response(request, summary)
+        except SaaSContractError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "request": request.to_dict(),
+            "response": response.to_dict(),
         }
 
     @app.get("/policies")
