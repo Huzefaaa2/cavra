@@ -46,6 +46,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Production Readiness Next Slice: `Production-Readiness-Next-Slice.md`
 - SaaS Control Plane Contract: `SaaS-Control-Plane-Contract.md`
 - Tenant Onboarding Contract: `Tenant-Onboarding-Contract.md`
+- Entitlement Status Contract: `Entitlement-Status-Contract.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Roadmap Status and Next Slice: `Roadmap-Status-And-Next-Slice.md`
 - Go Reproducible Air-Gapped Builds: `Go-Reproducible-Airgap-Builds.md`

@@ -34,9 +34,10 @@ Current Trial and SaaS commercialization readiness status:
   PR #62.
 
 Next production-readiness slice: SaaS tenant onboarding and entitlement
-readiness. The public tenant onboarding contract is delivered. Recommended next
-PR: implement the public entitlement status contract. Public Community source
-remains free of Enterprise implementation details.
+readiness. The public tenant onboarding and entitlement status contracts are
+delivered. Recommended next PR: continue with private tenant onboarding
+readiness evidence in `cavra-enterprise`. Public Community source remains free
+of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 

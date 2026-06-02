@@ -19,6 +19,7 @@ class SaaSContractError(ValueError):
 
 
 class SaaSOperation(str, Enum):
+    ENTITLEMENT_STATUS = "entitlement_status"
     TENANT_ONBOARDING = "tenant_onboarding"
     TENANT_STATUS = "tenant_status"
     LICENSE_VALIDATION = "license_validation"
@@ -58,6 +59,7 @@ TENANT_ONBOARDING_REQUIREMENTS = (
     "audit_store",
     "support_owner",
 )
+ENTITLEMENT_STATUSES = frozenset({"active", "trial", "suspended", "expired", "missing", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -102,6 +104,59 @@ class SaaSControlPlaneResponse:
             "private_implementation_required": self.private_implementation_required,
             "payload": _public_payload(self.payload),
         }
+
+
+@dataclass(frozen=True)
+class EntitlementStatusSummary:
+    tenant_id: str
+    entitlement_status: str
+    subscription_plan: str
+    license_status: str
+    enabled_features: tuple[str, ...] = field(default_factory=tuple)
+    locked_features: tuple[str, ...] = field(default_factory=tuple)
+    expires_at: str | None = None
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_entitlement_status(self.entitlement_status)
+        _reject_sensitive_material(
+            {
+                "subscription_plan": self.subscription_plan,
+                "license_status": self.license_status,
+                "enabled_features": list(self.enabled_features),
+                "locked_features": list(self.locked_features),
+                "expires_at": self.expires_at,
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "entitlement_status": self.entitlement_status,
+            "subscription_plan": self.subscription_plan,
+            "license_status": self.license_status,
+            "enabled_features": list(self.enabled_features),
+            "locked_features": list(self.locked_features),
+            "expires_at": self.expires_at,
+            "private_validation_required": self.private_validation_required,
+            "billing_boundary": "billing and subscription verification are private service responsibilities",
+        }
+
+
+def build_entitlement_status_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    feature_names: tuple[str, ...] = (),
+) -> SaaSControlPlaneRequest:
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.ENTITLEMENT_STATUS,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "feature_names": list(feature_names),
+            "requested_checks": ["subscription_status", "license_status", "feature_grants"],
+            "entitlement_boundary": "public request shape only; billing and license validation are private",
+        },
+    )
 
 
 def build_tenant_status_request(
@@ -220,6 +275,32 @@ def build_evidence_export_request(
     )
 
 
+def build_entitlement_status_response(
+    request: SaaSControlPlaneRequest,
+    summary: EntitlementStatusSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.ENTITLEMENT_STATUS:
+        raise SaaSContractError("entitlement status response requires an entitlement_status request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message="Entitlement status requires private billing, subscription, and license-service validation.",
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "billing integration",
+                "license service",
+                "subscription status",
+                "feature entitlement registry",
+            ],
+            "next_step": "See docs/architecture/entitlement-status-contract.md",
+        },
+    )
+
+
 def build_tenant_onboarding_unavailable_response(request: SaaSControlPlaneRequest) -> SaaSControlPlaneResponse:
     if request.operation != SaaSOperation.TENANT_ONBOARDING:
         raise SaaSContractError("tenant onboarding response requires a tenant_onboarding request")
@@ -267,6 +348,11 @@ def describe_public_contract() -> dict[str, Any]:
         },
         "operations": [
             {
+                "name": SaaSOperation.ENTITLEMENT_STATUS.value,
+                "request": "tenant identifier and optional feature names",
+                "response": "subscription, license, and feature entitlement summary",
+            },
+            {
                 "name": SaaSOperation.TENANT_ONBOARDING.value,
                 "request": "tenant activation metadata, deployment model, contacts, and readiness requirements",
                 "response": "tenant activation state, blockers, and private service handoff status",
@@ -312,6 +398,12 @@ def _safe_identifier(value: str, *, field_name: str) -> str:
     return candidate
 
 
+def _validate_entitlement_status(status: str) -> None:
+    if status not in ENTITLEMENT_STATUSES:
+        supported = ", ".join(sorted(ENTITLEMENT_STATUSES))
+        raise SaaSContractError(f"entitlement_status must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -330,17 +422,21 @@ def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
 
 
 __all__ = [
+    "ENTITLEMENT_STATUSES",
     "EVIDENCE_EXPORT_FORMATS",
     "SAAS_CONTROL_PLANE_CONTRACT_VERSION",
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
     "TENANT_DEPLOYMENT_MODELS",
     "TENANT_ONBOARDING_REQUIREMENTS",
+    "EntitlementStatusSummary",
     "SaaSContractError",
     "SaaSControlPlaneRequest",
     "SaaSControlPlaneResponse",
     "SaaSOperation",
     "SaaSResponseStatus",
+    "build_entitlement_status_request",
+    "build_entitlement_status_response",
     "build_evidence_export_request",
     "build_license_validation_request",
     "build_policy_registry_lookup_request",

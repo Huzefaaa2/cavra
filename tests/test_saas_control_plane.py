@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from cavra.licensing.license_client import LocalLicenseClient
 from cavra.saas_control_plane import (
+    EntitlementStatusSummary,
     SAAS_CONTROL_PLANE_CONTRACT_VERSION,
     SAAS_CONTROL_PLANE_REQUEST_VERSION,
     SaaSContractError,
     SaaSOperation,
     SaaSResponseStatus,
+    build_entitlement_status_request,
+    build_entitlement_status_response,
     build_evidence_export_request,
     build_license_validation_request,
     build_policy_registry_lookup_request,
@@ -26,6 +29,7 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     boundary = contract["public_repository_boundary"]
     assert boundary["contains_saas_backend"] is False
     assert boundary["contains_license_service"] is False
+    assert SaaSOperation.ENTITLEMENT_STATUS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.TENANT_ONBOARDING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
@@ -38,6 +42,63 @@ def test_build_tenant_status_request_is_public_safe() -> None:
     assert payload["operation"] == "tenant_status"
     assert payload["private_implementation_required"] is True
     assert payload["payload"]["requested_capabilities"] == ["license", "policy_registry", "evidence_export"]
+
+
+def test_build_entitlement_status_request_is_public_safe() -> None:
+    request = build_entitlement_status_request(
+        "tenant-demo",
+        requested_by="console",
+        feature_names=("sso", "audit_export"),
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "entitlement_status"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["feature_names"] == ["sso", "audit_export"]
+    assert payload["payload"]["requested_checks"] == ["subscription_status", "license_status", "feature_grants"]
+
+
+def test_build_entitlement_status_response_serializes_summary() -> None:
+    request = build_entitlement_status_request("tenant-demo", requested_by="console", feature_names=("sso",))
+    summary = EntitlementStatusSummary(
+        tenant_id="tenant-demo",
+        entitlement_status="trial",
+        subscription_plan="enterprise-trial",
+        license_status="valid",
+        enabled_features=("sso",),
+        locked_features=("ai_remediation",),
+        expires_at="2026-07-02T00:00:00Z",
+    )
+
+    response = build_entitlement_status_response(request, summary).to_dict()
+
+    assert response["operation"] == "entitlement_status"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["entitlement_status"] == "trial"
+    assert response["payload"]["summary"]["enabled_features"] == ["sso"]
+    assert response["payload"]["summary"]["locked_features"] == ["ai_remediation"]
+    assert response["payload"]["private_modules_required"] == [
+        "billing integration",
+        "license service",
+        "subscription status",
+        "feature entitlement registry",
+    ]
+
+
+def test_entitlement_status_summary_rejects_unknown_status() -> None:
+    summary = EntitlementStatusSummary(
+        tenant_id="tenant-demo",
+        entitlement_status="granted",
+        subscription_plan="enterprise",
+        license_status="valid",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "entitlement_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown entitlement status to be rejected")
 
 
 def test_build_tenant_onboarding_request_is_public_safe() -> None:

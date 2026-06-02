@@ -112,5 +112,5 @@ onboarding without compromising open-core boundaries.
 
 The roadmap status pass is documented in
 [Roadmap Status and Next Slice](roadmap-status-next-slice.md). Continue with the
-public entitlement status contract for the SaaS tenant onboarding and
-entitlement readiness slice.
+private tenant onboarding readiness evidence in `cavra-enterprise` for the SaaS
+tenant onboarding and entitlement readiness slice.

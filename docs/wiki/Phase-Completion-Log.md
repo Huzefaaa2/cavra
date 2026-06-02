@@ -1,5 +1,27 @@
 # Phase Completion Log
 
+## Phase 10 Public Entitlement Status Contract
+
+Status: complete for the public entitlement status contract slice.
+
+Completed implementation:
+- Added the public-safe `entitlement_status` SaaS Control Plane operation.
+- Added entitlement status request construction for tenant and optional feature
+  names.
+- Added `EntitlementStatusSummary` for subscription, license, enabled feature,
+  locked feature, expiration, and private-validation metadata.
+- Added entitlement status response messaging that lists private billing,
+  license-service, subscription, and feature entitlement modules.
+- Added architecture and wiki documentation for entitlement boundaries.
+
+Validation:
+- Public tests cover request serialization, response summary serialization,
+  unknown entitlement status rejection, and private-module requirement
+  messaging.
+
+Recommended next issue: continue with private tenant onboarding readiness
+evidence in `cavra-enterprise`.
+
 ## Phase 10 Public Tenant Onboarding Contract
 
 Status: complete for the public tenant onboarding contract slice.
