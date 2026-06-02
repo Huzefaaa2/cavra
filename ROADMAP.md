@@ -37,5 +37,16 @@ Current open-core priority:
    `cavra-enterprise` PR #69.
 18. Public-safe post-onboarding SaaS operating batch sync is documented in
    [docs/post-onboarding-saas-operating-batch-sync.md](docs/post-onboarding-saas-operating-batch-sync.md).
-19. Next recommendation: implement private billing/subscription and
-   license-service observability evidence in `cavra-enterprise`.
+19. Private billing and license-service observability evidence is delivered in
+   `cavra-enterprise` PR #70.
+20. Private support and customer-success operating handoff evidence is
+   delivered in `cavra-enterprise` PR #71.
+21. Private operating dashboard and support escalation rollup evidence is
+   delivered in `cavra-enterprise` PR #72.
+22. Private final SaaS customer operating closeout evidence is delivered in
+   `cavra-enterprise` PR #73.
+23. Public-safe SaaS customer operating closeout batch sync is documented in
+   [docs/saas-customer-operating-closeout-batch-sync.md](docs/saas-customer-operating-closeout-batch-sync.md).
+24. Next recommendation: define public-safe customer operating dashboard and
+   support handoff contracts, then continue private SaaS operating automation
+   required for trial-to-paid customer scale.

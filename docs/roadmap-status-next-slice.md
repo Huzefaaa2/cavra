@@ -33,6 +33,14 @@ The SaaS tenant onboarding and entitlement readiness batch is complete:
   `cavra-enterprise` PR #68;
 - private SaaS operating readiness rollup evidence is delivered in
   `cavra-enterprise` PR #69;
+- private billing and license-service observability evidence is delivered in
+  `cavra-enterprise` PR #70;
+- private support and customer-success operating handoff evidence is delivered
+  in `cavra-enterprise` PR #71;
+- private operating dashboard and support escalation rollup evidence is
+  delivered in `cavra-enterprise` PR #72;
+- private final SaaS customer operating closeout evidence is delivered in
+  `cavra-enterprise` PR #73;
 - public-safe batch sync is delivered in
   [tenant-entitlement-commercialization-batch-sync.md](tenant-entitlement-commercialization-batch-sync.md).
 
@@ -44,6 +52,8 @@ SaaS operating readiness rollup and public-safe documentation sync:
 - public billing/subscription boundary documentation is delivered.
 - public post-onboarding SaaS operating batch sync is delivered in
   [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
+- public SaaS customer operating closeout batch sync is delivered in
+  [saas-customer-operating-closeout-batch-sync.md](saas-customer-operating-closeout-batch-sync.md).
 
 ## Remaining Production Themes
 
@@ -52,23 +62,23 @@ yet fully production-complete. Remaining themes are:
 
 - hosted policy registry readiness and policy-pack catalog operation;
 - tenant audit-store health, retention posture, and export readiness;
-- billing/subscription operations and license-service observability;
-- Enterprise/SaaS dashboard operating evidence;
-- production observability and support handoff runbooks;
+- customer operating dashboard contracts and support handoff contracts;
+- private SaaS operating automation for support, customer-success, and
+  commercial closeout at trial-to-paid scale;
+- production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
 
 ## Next Slice
 
-Post-onboarding SaaS operating readiness.
+Customer operating closeout hardening.
 
 ## Why This Is Next
 
 CAVRA now has a public trial path, private trial-to-pilot gates, public tenant
 and entitlement contracts, and private evidence from tenant activation through
-customer rollout closeout. The next commercial blocker is steady-state operation
-after launch: hosted policy registry readiness, tenant audit-store operations,
-billing/subscription monitoring, license-service observability, support
-ownership, and SaaS dashboards need the same evidence discipline.
+final SaaS customer operating closeout. The next commercial blocker is making
+the customer operating dashboard and support handoff model public-safe and
+repeatable, then extending private automation for trial-to-paid customer scale.
 
 ## Proposed PR Sequence
 
@@ -116,8 +126,36 @@ ownership, and SaaS dashboards need the same evidence discipline.
      operating-readiness batch.
 
 8. Private billing/subscription and license-service observability evidence.
+   Delivered in `cavra-enterprise` PR #70.
    - Add private evidence for subscription status, billing handoff, license
      service telemetry, support ownership, and escalation readiness.
+
+9. Private support and customer-success operating handoff evidence. Delivered
+   in `cavra-enterprise` PR #71.
+   - Add private evidence for support ownership, customer-success ownership,
+     escalation routing, customer health review, and handoff dashboard
+     readiness.
+
+10. Private operating dashboard and support escalation rollup evidence.
+    Delivered in `cavra-enterprise` PR #72.
+    - Add private evidence for dashboard visibility, support escalation,
+      customer-success health, on-call readiness, and executive visibility.
+
+11. Private final SaaS customer operating closeout evidence. Delivered in
+    `cavra-enterprise` PR #73.
+    - Add private evidence for billing observability, support handoff,
+      customer-success handoff, dashboard visibility, escalation readiness, and
+      release acceptance.
+
+12. Public docs/wiki sync. Delivered with
+    [saas-customer-operating-closeout-batch-sync.md](saas-customer-operating-closeout-batch-sync.md).
+    - Publish public-safe outcomes and update the phase log after the private
+      customer operating closeout batch.
+
+13. Public customer operating dashboard and support handoff contracts.
+    - Define public-safe request and response shapes for operating dashboards,
+      support ownership, customer-success ownership, escalation readiness, and
+      closeout evidence boundaries.
 
 ## Acceptance Criteria
 
@@ -126,11 +164,12 @@ ownership, and SaaS dashboards need the same evidence discipline.
 - Public contracts do not contain billing secrets, license keys, customer data,
   private policy packs, provider URLs, or connector credentials.
 - Private evidence can block steady-state operation when policy registry,
-  audit-store, billing/subscription, license-service, support, or dashboard
-  readiness is missing.
+  audit-store, billing/subscription, license-service, support, dashboard, or
+  closeout readiness is missing.
 - README, roadmap, and wiki-ready pages remain current after each release.
 
 ## Recommended Next PR
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`.
+Define public-safe customer operating dashboard and support handoff contracts,
+then continue private SaaS operating automation required for trial-to-paid
+customer scale.
