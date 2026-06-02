@@ -30,6 +30,10 @@ The SaaS tenant onboarding and entitlement readiness batch is complete:
 - public-safe batch sync is delivered in
   [tenant-entitlement-commercialization-batch-sync.md](tenant-entitlement-commercialization-batch-sync.md).
 
+The post-onboarding SaaS operating readiness slice has started:
+
+- public hosted policy registry readiness contract is delivered.
+
 ## Remaining Production Themes
 
 CAVRA is ready for the next production-readiness slice, but the product is not
@@ -57,7 +61,8 @@ ownership, and SaaS dashboards need the same evidence discipline.
 
 ## Proposed PR Sequence
 
-1. Public hosted policy registry readiness contract.
+1. Public hosted policy registry readiness contract. Delivered with
+   `docs/architecture/hosted-policy-registry-readiness-contract.md`.
    - Add public-safe request and response shapes for hosted policy registry
      availability, policy-pack catalog freshness, version state, and private
      implementation requirements.
@@ -105,4 +110,4 @@ ownership, and SaaS dashboards need the same evidence discipline.
 
 ## Recommended Next PR
 
-Implement the public hosted policy registry readiness contract.
+Implement the public tenant audit-store operating contract.

@@ -9,6 +9,7 @@ customer evidence storage remain private.
 
 - Tenant status request shape.
 - License validation handoff shape.
+- Hosted policy registry readiness request and response shape.
 - Policy registry lookup request shape.
 - Evidence export request shape.
 - Unavailable response messaging for Community users.
@@ -45,9 +46,10 @@ into the Community repository.
 
 The public test suite covers request serialization, contract boundaries,
 license report handoff, evidence export validation, policy lookup validation,
-and sensitive payload rejection.
+hosted policy registry readiness validation, and sensitive payload rejection.
 
 ## Next Recommendation
 
-Continue with private trial package readiness in `cavra-enterprise`, including
-private trial artifact metadata, package checklist, and release gate evidence.
+Delivered in later roadmap slices through public tenant onboarding,
+entitlement status, and hosted policy registry readiness contracts. Continue
+with the public tenant audit-store operating contract.

@@ -44,5 +44,6 @@ registry data, SaaS backend source, or Enterprise implementation details.
 
 ## Next Recommendation
 
-Delivered in the tenant, entitlement, and commercialization batch sync. Continue
-with the public hosted policy registry readiness contract.
+Delivered in the tenant, entitlement, and commercialization batch sync. The
+hosted policy registry readiness contract is now delivered; continue with the
+public tenant audit-store operating contract.

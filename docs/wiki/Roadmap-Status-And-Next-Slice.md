@@ -4,7 +4,7 @@ Status date: 2026-06-02.
 
 ## Current Position
 
-Completed before this slice:
+Completed before and during this slice:
 
 - public trial-to-pilot intake plan;
 - public licensing interface hardening;
@@ -18,6 +18,9 @@ Completed before this slice:
 - private paid-pilot promotion evidence in private PR #65;
 - private customer rollout closeout evidence in private PR #66;
 - public-safe commercialization batch syncs.
+
+The post-onboarding SaaS operating readiness slice has started with the public
+hosted policy registry readiness contract.
 
 ## Remaining Themes
 
@@ -34,7 +37,7 @@ Post-onboarding SaaS operating readiness.
 
 ## Proposed PR Sequence
 
-1. Public hosted policy registry readiness contract.
+1. Public hosted policy registry readiness contract. Delivered.
 2. Public tenant audit-store operating contract.
 3. Public billing/subscription boundary documentation.
 4. Private hosted policy registry readiness evidence.
@@ -44,4 +47,4 @@ Post-onboarding SaaS operating readiness.
 
 ## Recommended Next PR
 
-Implement the public hosted policy registry readiness contract.
+Implement the public tenant audit-store operating contract.

@@ -23,6 +23,7 @@ class SaaSOperation(str, Enum):
     TENANT_ONBOARDING = "tenant_onboarding"
     TENANT_STATUS = "tenant_status"
     LICENSE_VALIDATION = "license_validation"
+    POLICY_REGISTRY_READINESS = "policy_registry_readiness"
     POLICY_REGISTRY_LOOKUP = "policy_registry_lookup"
     EVIDENCE_EXPORT = "evidence_export"
 
@@ -60,6 +61,15 @@ TENANT_ONBOARDING_REQUIREMENTS = (
     "support_owner",
 )
 ENTITLEMENT_STATUSES = frozenset({"active", "trial", "suspended", "expired", "missing", "unknown"})
+POLICY_REGISTRY_READINESS_CHECKS = (
+    "service_availability",
+    "catalog_freshness",
+    "policy_pack_versions",
+    "artifact_integrity",
+    "entitlement_scope",
+    "approval_state",
+)
+POLICY_REGISTRY_READINESS_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -138,6 +148,42 @@ class EntitlementStatusSummary:
             "expires_at": self.expires_at,
             "private_validation_required": self.private_validation_required,
             "billing_boundary": "billing and subscription verification are private service responsibilities",
+        }
+
+
+@dataclass(frozen=True)
+class PolicyRegistryReadinessSummary:
+    tenant_id: str
+    readiness_status: str
+    catalog_status: str
+    latest_catalog_version: str | None = None
+    policy_pack_count: int = 0
+    checked_at: str | None = None
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_policy_registry_readiness_status(self.readiness_status, field_name="readiness_status")
+        _validate_policy_registry_readiness_status(self.catalog_status, field_name="catalog_status")
+        if self.policy_pack_count < 0:
+            raise SaaSContractError("policy_pack_count must be greater than or equal to 0")
+        _reject_sensitive_material(
+            {
+                "latest_catalog_version": self.latest_catalog_version,
+                "checked_at": self.checked_at,
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "readiness_status": self.readiness_status,
+            "catalog_status": self.catalog_status,
+            "latest_catalog_version": self.latest_catalog_version,
+            "policy_pack_count": self.policy_pack_count,
+            "checked_at": self.checked_at,
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "registry_boundary": "hosted registry availability, artifact delivery, and tenant catalog validation are private service responsibilities",
         }
 
 
@@ -228,6 +274,30 @@ def build_license_validation_request(
     )
 
 
+def build_policy_registry_readiness_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    policy_pack_refs: tuple[str, ...] = (),
+    catalog_scope: str = "tenant-default",
+    required_checks: tuple[str, ...] = POLICY_REGISTRY_READINESS_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one policy registry readiness check")
+    _reject_sensitive_material({"policy_pack_refs": list(policy_pack_refs), "catalog_scope": catalog_scope})
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.POLICY_REGISTRY_READINESS,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "policy_pack_refs": list(policy_pack_refs),
+            "catalog_scope": catalog_scope,
+            "required_checks": list(required_checks),
+            "readiness_boundary": "public request shape only; hosted policy registry operation is private",
+        },
+    )
+
+
 def build_policy_registry_lookup_request(
     tenant_id: str,
     policy_refs: tuple[str, ...],
@@ -271,6 +341,33 @@ def build_evidence_export_request(
             "export_format": export_format,
             "retention_profile": retention_profile,
             "export_boundary": "public request shape only; storage and delivery implementation is private",
+        },
+    )
+
+
+def build_policy_registry_readiness_response(
+    request: SaaSControlPlaneRequest,
+    summary: PolicyRegistryReadinessSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.POLICY_REGISTRY_READINESS:
+        raise SaaSContractError("policy registry readiness response requires a policy_registry_readiness request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message="Hosted policy registry readiness requires private registry, artifact, entitlement, and rollout validation.",
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "hosted policy registry service",
+                "policy-pack artifact store",
+                "feature entitlement registry",
+                "approval workflow",
+                "rollout telemetry",
+            ],
+            "next_step": "See docs/architecture/hosted-policy-registry-readiness-contract.md",
         },
     )
 
@@ -368,6 +465,11 @@ def describe_public_contract() -> dict[str, Any]:
                 "response": "validated entitlement and feature grant summary",
             },
             {
+                "name": SaaSOperation.POLICY_REGISTRY_READINESS.value,
+                "request": "tenant identifier, catalog scope, policy-pack references, and readiness checks",
+                "response": "hosted registry availability, catalog freshness, version state, blockers, and private service handoff status",
+            },
+            {
                 "name": SaaSOperation.POLICY_REGISTRY_LOOKUP.value,
                 "request": "policy references and public labels",
                 "response": "policy metadata and downloadable artifact references",
@@ -404,6 +506,12 @@ def _validate_entitlement_status(status: str) -> None:
         raise SaaSContractError(f"entitlement_status must be one of: {supported}")
 
 
+def _validate_policy_registry_readiness_status(status: str, *, field_name: str) -> None:
+    if status not in POLICY_REGISTRY_READINESS_STATUSES:
+        supported = ", ".join(sorted(POLICY_REGISTRY_READINESS_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -424,12 +532,15 @@ def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
 __all__ = [
     "ENTITLEMENT_STATUSES",
     "EVIDENCE_EXPORT_FORMATS",
+    "POLICY_REGISTRY_READINESS_CHECKS",
+    "POLICY_REGISTRY_READINESS_STATUSES",
     "SAAS_CONTROL_PLANE_CONTRACT_VERSION",
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
     "TENANT_DEPLOYMENT_MODELS",
     "TENANT_ONBOARDING_REQUIREMENTS",
     "EntitlementStatusSummary",
+    "PolicyRegistryReadinessSummary",
     "SaaSContractError",
     "SaaSControlPlaneRequest",
     "SaaSControlPlaneResponse",
@@ -439,6 +550,8 @@ __all__ = [
     "build_entitlement_status_response",
     "build_evidence_export_request",
     "build_license_validation_request",
+    "build_policy_registry_readiness_request",
+    "build_policy_registry_readiness_response",
     "build_policy_registry_lookup_request",
     "build_tenant_onboarding_request",
     "build_tenant_onboarding_unavailable_response",

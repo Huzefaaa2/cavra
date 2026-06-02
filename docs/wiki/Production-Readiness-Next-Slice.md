@@ -47,4 +47,4 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Implement the public hosted policy registry readiness contract.
+Implement the public tenant audit-store operating contract.
