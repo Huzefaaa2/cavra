@@ -51,8 +51,23 @@ billing records, support tickets, customer-success notes, customer identifiers,
 production dashboard URLs, escalation webhooks, connector credentials, license
 keys, signing material, paid policy packs, or customer audit payloads.
 
+## API And CLI Surfaces
+
+Community users can inspect the public contract with:
+
+```bash
+cavra saas contract
+cavra saas operating-automation tenant-demo --requested-by console
+```
+
+The public API exposes `GET /saas/control-plane/contract` and `POST
+/saas/operating-automation`. These surfaces generate public-safe request and
+response payloads only. They do not run SaaS automation workers, schedulers,
+connectors, billing checks, support workflows, customer-success workflows, or
+private SaaS services.
+
 ## Next Recommendation
 
-Add public-safe API and CLI surfaces for this contract while keeping private
-automation execution and customer operations inside Enterprise or SaaS
-repositories.
+Expose this contract in the public Evidence Console and sandbox UI while
+keeping private automation execution and customer operations inside Enterprise
+or SaaS repositories.

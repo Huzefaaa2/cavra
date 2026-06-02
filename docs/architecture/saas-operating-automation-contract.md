@@ -142,9 +142,27 @@ Public tests cover:
 - mismatched request/response rejection;
 - private service handoff messaging.
 
+## API And CLI Surfaces
+
+Community Edition exposes public-safe surfaces for contract consumers:
+
+```bash
+cavra saas contract
+cavra saas operating-automation tenant-demo --requested-by console
+```
+
+The API exposes:
+
+- `GET /saas/control-plane/contract`
+- `POST /saas/operating-automation`
+
+Both surfaces return request and response shapes only. `POST
+/saas/operating-automation` returns a `requires_private_service` response by
+default and does not run automation workers, schedulers, connectors, billing
+checks, support workflows, or customer-success workflows.
+
 ## Next Recommendation
 
-Continue the SaaS Control Plane maturity path by adding public-safe API and CLI
-surfaces for this contract while keeping private automation execution,
-scheduler, connector, billing, support, and customer-success implementation in
-private Enterprise or SaaS repositories.
+Expose this contract in the public Evidence Console and sandbox UI so
+evaluators can inspect the SaaS operating automation handoff without requiring
+Enterprise source, private SaaS services, credentials, or customer data.
