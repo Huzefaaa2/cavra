@@ -1,5 +1,28 @@
 # Phase Completion Log
 
+## Phase 10 Post-Onboarding SaaS Operating Readiness Roadmap
+
+Status: complete for the roadmap status pass after SaaS tenant onboarding and
+entitlement readiness.
+
+Completed planning:
+- Confirmed Trial and SaaS commercialization readiness is complete.
+- Confirmed SaaS tenant onboarding and entitlement readiness is complete.
+- Defined the next production-readiness slice as post-onboarding SaaS operating
+  readiness.
+- Proposed the next PR sequence: public hosted policy registry readiness
+  contract, public tenant audit-store operating contract, public
+  billing/subscription boundary documentation, private hosted policy registry
+  readiness evidence, private tenant audit-store operating evidence, private
+  billing/subscription and license-service observability evidence, and public
+  docs/wiki sync.
+- Preserved the public boundary for Enterprise source, customer data, private
+  policy packs, billing records, license keys, provider URLs, connector
+  credentials, and SaaS backend code.
+
+Recommended next issue: implement the public hosted policy registry readiness
+contract.
+
 ## Phase 10 Tenant, Entitlement, and Commercialization Batch Sync
 
 Status: complete for the public-safe documentation sync after the SaaS tenant
@@ -24,9 +47,9 @@ Validation:
   provider URLs, webhook secrets, connector credentials, and SaaS backend code
   remain outside the public Community repository.
 
-Recommended next issue: run a roadmap status pass and define the next
-production-readiness slice after SaaS tenant onboarding and entitlement
-readiness.
+Recommended next issue: delivered in the post-onboarding SaaS operating
+readiness roadmap. Continue with the public hosted policy registry readiness
+contract.
 
 ## Phase 10 Public Entitlement Status Contract
 
@@ -48,8 +71,8 @@ Validation:
   messaging.
 
 Recommended next issue: delivered in the tenant, entitlement, and
-commercialization batch sync. Continue with a roadmap status pass to define the
-next production-readiness slice.
+commercialization batch sync. Continue with the public hosted policy registry
+readiness contract.
 
 ## Phase 10 Public Tenant Onboarding Contract
 
@@ -103,8 +126,9 @@ Validation:
   data, provider URLs, billing secrets, signing material, and SaaS backend
   implementation details remain outside the public Community repository.
 
-Recommended next issue: run a roadmap status pass and define the next
-production-readiness slice.
+Recommended next issue: delivered in the SaaS tenant onboarding and entitlement
+readiness batch. Continue with the public hosted policy registry readiness
+contract.
 
 ## Phase 10 Public SaaS Control Plane Contract
 

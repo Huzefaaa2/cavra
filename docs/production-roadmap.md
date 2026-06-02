@@ -45,12 +45,11 @@ Current Trial and SaaS commercialization readiness status:
 - public-safe tenant, entitlement, and commercialization batch sync is
   documented in `docs/tenant-entitlement-commercialization-batch-sync.md`.
 
-Next production-readiness action: run a roadmap status pass and define the next
-slice after SaaS tenant onboarding and entitlement readiness. Candidate themes
-include hosted policy registry readiness, tenant audit-store operating
-dashboards, billing/subscription operations, SaaS observability, and final
-commercial release hardening. Public Community source remains free of
-Enterprise implementation details.
+Next production-readiness slice: post-onboarding SaaS operating readiness. The
+recommended next PR is the public hosted policy registry readiness contract,
+followed by tenant audit-store operating contracts, billing/subscription
+boundary documentation, private operating evidence, and public docs/wiki sync.
+Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 

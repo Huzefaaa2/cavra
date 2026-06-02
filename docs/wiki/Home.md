@@ -49,6 +49,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Entitlement Status Contract: `Entitlement-Status-Contract.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
+- Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`
 - Roadmap Status and Next Slice: `Roadmap-Status-And-Next-Slice.md`
 - Go Reproducible Air-Gapped Builds: `Go-Reproducible-Airgap-Builds.md`
 - Release Signing Operations: `Release-Signing-Operations.md`

@@ -24,6 +24,7 @@ Current open-core priority:
    `cavra-enterprise` PRs #63-#66.
 10. Public-safe batch sync is documented in
    [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
-11. Next recommendation: run a roadmap status pass and define the next
-   production-readiness slice after SaaS tenant onboarding and entitlement
-   readiness.
+11. Post-onboarding SaaS operating readiness is defined in
+   [docs/post-onboarding-saas-operating-readiness.md](docs/post-onboarding-saas-operating-readiness.md).
+12. Next recommendation: implement the public hosted policy registry readiness
+   contract.

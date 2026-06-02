@@ -106,4 +106,4 @@ requirement messaging.
 ## Next Recommendation
 
 Delivered in the tenant, entitlement, and commercialization batch sync. Continue
-with a roadmap status pass to define the next production-readiness slice.
+with the public hosted policy registry readiness contract.

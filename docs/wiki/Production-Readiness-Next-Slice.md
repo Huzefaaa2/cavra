@@ -47,5 +47,4 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Run a roadmap status pass and define the next production-readiness slice after
-SaaS tenant onboarding and entitlement readiness.
+Implement the public hosted policy registry readiness contract.

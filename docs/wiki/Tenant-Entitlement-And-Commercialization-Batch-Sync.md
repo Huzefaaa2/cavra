@@ -38,5 +38,5 @@ code are included in the public Community repository.
 
 ## Next Recommendation
 
-Run a roadmap status pass and define the next production-readiness slice after
-the SaaS tenant onboarding and entitlement readiness batch.
+Delivered in the roadmap status pass for post-onboarding SaaS operating
+readiness. Continue with the public hosted policy registry readiness contract.
