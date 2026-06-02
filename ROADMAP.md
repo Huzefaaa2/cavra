@@ -18,4 +18,6 @@ Current open-core priority:
    [docs/roadmap-status-next-slice.md](docs/roadmap-status-next-slice.md).
 7. Public tenant onboarding contract is delivered for the SaaS tenant
    onboarding and entitlement readiness slice.
-8. Next recommendation: implement the public entitlement status contract.
+8. Public entitlement status contract is delivered.
+9. Next recommendation: continue with private tenant onboarding readiness
+   evidence in `cavra-enterprise`.

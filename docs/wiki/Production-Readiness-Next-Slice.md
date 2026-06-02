@@ -37,5 +37,6 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Continue with the public entitlement status contract for the SaaS tenant
-onboarding and entitlement readiness slice.
+Continue with private tenant onboarding readiness evidence in
+`cavra-enterprise` for the SaaS tenant onboarding and entitlement readiness
+slice.

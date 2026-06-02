@@ -51,3 +51,10 @@ public-safe `tenant_onboarding` operation for activation metadata, deployment
 model, readiness requirements, and owner contacts while leaving provisioning,
 license binding, identity onboarding, billing, policy registry enrollment, and
 audit-store setup to private services.
+
+Entitlement status is documented in
+[Entitlement Status Contract](entitlement-status-contract.md). It adds the
+public-safe `entitlement_status` operation for subscription, license, and
+feature-entitlement summaries while leaving billing, license validation,
+feature-grant storage, customer subscription records, and entitlement-change
+audit evidence to private services.

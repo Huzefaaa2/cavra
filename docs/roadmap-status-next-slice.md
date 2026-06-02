@@ -48,7 +48,9 @@ readiness.
      response shapes.
    - Document tenant activation boundaries without SaaS backend source.
 
-2. Public entitlement status contract.
+2. Public entitlement status contract. Delivered with
+   `docs/architecture/entitlement-status-contract.md` and the public-safe
+   `entitlement_status` operation.
    - Define public-safe subscription, license, and feature entitlement response
      shapes.
    - Keep billing and license service implementation private.
@@ -77,4 +79,5 @@ readiness.
 
 ## Recommended Next PR
 
-Implement the public entitlement status contract.
+Continue with private tenant onboarding readiness evidence in
+`cavra-enterprise`.
