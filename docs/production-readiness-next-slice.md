@@ -57,7 +57,10 @@ Future SaaS repository or service:
      and locked Enterprise features in Community mode.
    - Keep validation local and placeholder-only.
 
-3. Public SaaS Control Plane contract.
+3. Public SaaS Control Plane contract. Delivered with
+   `src/cavra/saas_control_plane.py`,
+   `docs/architecture/saas-control-plane-contract.md`, and wiki-ready
+   documentation.
    - Define public-safe request/response shapes for tenant status, policy
      registry lookup, evidence export, and license validation boundaries.
    - Document that implementation belongs in private SaaS code.
@@ -107,5 +110,6 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-Continue with the public SaaS Control Plane contract because the trial intake
-path and public licensing interface are now documented and tested.
+Continue with private trial package readiness in `cavra-enterprise` because
+the trial intake path, public licensing interface, and public SaaS Control Plane
+contract are now documented and tested.

@@ -22,10 +22,16 @@ Delivered in the private Enterprise repository:
 - private MVP follow-up closeout for managed storage, KMS, object-lock, and
   managed database release-readiness evidence.
 
-Next private recommendation: start the Trial and SaaS commercialization
-readiness slice only after the public trial-to-pilot intake plan defines the
-handoff boundaries. Public Community source remains free of Enterprise
-implementation details.
+Current Trial and SaaS commercialization readiness status:
+- public trial-to-pilot intake plan is delivered;
+- public licensing interface hardening is delivered;
+- public SaaS Control Plane contract is delivered with request/response
+  boundaries for tenant status, license validation, policy lookup, and evidence
+  export.
+
+Next private recommendation: continue the Trial and SaaS commercialization
+readiness slice with private trial package readiness in `cavra-enterprise`.
+Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 

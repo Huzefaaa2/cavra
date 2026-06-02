@@ -10,6 +10,8 @@ Current open-core priority:
    premium modules in private repositories.
 3. Add public-safe extension points, trial instructions, and Enterprise
    documentation without exposing proprietary implementation.
-4. Next implementation recommendation: continue the Trial and SaaS
-   commercialization readiness slice with the public SaaS Control Plane
-   contract.
+4. Public SaaS Control Plane contracts now define safe request and response
+   shapes for future private services.
+5. Next implementation recommendation: continue the Trial and SaaS
+   commercialization readiness slice with private trial package readiness in
+   `cavra-enterprise`.
