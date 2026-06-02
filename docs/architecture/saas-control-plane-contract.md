@@ -10,6 +10,7 @@ customer records, signing secrets, or paid recommendation logic.
 The public contract gives Community, Trial, Enterprise, and future SaaS
 integrations a stable vocabulary for:
 
+- tenant onboarding requests;
 - tenant status checks;
 - license validation handoff;
 - policy registry lookup;
@@ -40,6 +41,7 @@ implementation.
 
 | Operation | Public request content | Private response responsibility |
 | --- | --- | --- |
+| `tenant_onboarding` | Tenant activation metadata, deployment model, contacts, and readiness requirements | Tenant provisioning, identity onboarding, entitlement binding, audit-store readiness, and support ownership |
 | `tenant_status` | Tenant identifier and requested capabilities | Entitlement, subscription, region, and service availability summary |
 | `license_validation` | Local validation report and requested server checks | Signature, revocation, subscription, and feature-grant validation |
 | `policy_registry_lookup` | Policy references and public labels | Hosted policy metadata and governed artifact references |

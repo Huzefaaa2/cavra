@@ -41,7 +41,9 @@ readiness.
 
 ## Proposed PR Sequence
 
-1. Public tenant onboarding contract.
+1. Public tenant onboarding contract. Delivered with
+   `docs/architecture/tenant-onboarding-contract.md` and the public-safe
+   `tenant_onboarding` operation.
    - Extend public-safe SaaS contracts with tenant onboarding request and
      response shapes.
    - Document tenant activation boundaries without SaaS backend source.
@@ -75,4 +77,4 @@ readiness.
 
 ## Recommended Next PR
 
-Implement the public tenant onboarding contract.
+Implement the public entitlement status contract.

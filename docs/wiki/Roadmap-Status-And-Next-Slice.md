@@ -31,7 +31,7 @@ SaaS tenant onboarding and entitlement readiness.
 
 ## Proposed PR Sequence
 
-1. Public tenant onboarding contract.
+1. Public tenant onboarding contract. Delivered.
 2. Public entitlement status contract.
 3. Private tenant onboarding readiness evidence.
 4. Private entitlement and license-service handoff evidence.
@@ -39,4 +39,4 @@ SaaS tenant onboarding and entitlement readiness.
 
 ## Recommended Next PR
 
-Implement the public tenant onboarding contract.
+Implement the public entitlement status contract.

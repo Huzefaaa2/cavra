@@ -1,5 +1,23 @@
 # Phase Completion Log
 
+## Phase 10 Public Tenant Onboarding Contract
+
+Status: complete for the public tenant onboarding contract slice.
+
+Completed implementation:
+- Added the public-safe `tenant_onboarding` SaaS Control Plane operation.
+- Added tenant onboarding request construction for organization, deployment
+  model, region, readiness requirements, and public-safe contacts.
+- Added unavailable response messaging that lists private modules required for
+  tenant activation.
+- Added architecture and wiki documentation for tenant onboarding boundaries.
+
+Validation:
+- Public tests cover serialization, invalid deployment model rejection,
+  sensitive contact-field rejection, and private-service response messaging.
+
+Recommended next issue: implement the public entitlement status contract.
+
 ## Phase 10 Roadmap Status and Next Slice
 
 Status: complete for the roadmap status pass after the Trial and SaaS

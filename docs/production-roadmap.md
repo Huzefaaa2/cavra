@@ -34,8 +34,9 @@ Current Trial and SaaS commercialization readiness status:
   PR #62.
 
 Next production-readiness slice: SaaS tenant onboarding and entitlement
-readiness. Recommended next PR: implement the public tenant onboarding contract.
-Public Community source remains free of Enterprise implementation details.
+readiness. The public tenant onboarding contract is delivered. Recommended next
+PR: implement the public entitlement status contract. Public Community source
+remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 

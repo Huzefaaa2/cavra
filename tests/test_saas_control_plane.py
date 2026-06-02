@@ -10,6 +10,8 @@ from cavra.saas_control_plane import (
     build_evidence_export_request,
     build_license_validation_request,
     build_policy_registry_lookup_request,
+    build_tenant_onboarding_request,
+    build_tenant_onboarding_unavailable_response,
     build_tenant_status_request,
     build_unavailable_response,
     describe_public_contract,
@@ -24,6 +26,7 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     boundary = contract["public_repository_boundary"]
     assert boundary["contains_saas_backend"] is False
     assert boundary["contains_license_service"] is False
+    assert SaaSOperation.TENANT_ONBOARDING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -35,6 +38,54 @@ def test_build_tenant_status_request_is_public_safe() -> None:
     assert payload["operation"] == "tenant_status"
     assert payload["private_implementation_required"] is True
     assert payload["payload"]["requested_capabilities"] == ["license", "policy_registry", "evidence_export"]
+
+
+def test_build_tenant_onboarding_request_is_public_safe() -> None:
+    request = build_tenant_onboarding_request(
+        "tenant-demo",
+        organization_name="Demo Organization",
+        requested_by="sales-engineering",
+        contacts={"commercial_owner": "owner@example.invalid"},
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "tenant_onboarding"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["organization_name"] == "Demo Organization"
+    assert payload["payload"]["deployment_model"] == "hosted_saas"
+    assert payload["payload"]["requirements"] == [
+        "identity_provider",
+        "license_validation",
+        "policy_registry",
+        "audit_store",
+        "support_owner",
+    ]
+
+
+def test_build_tenant_onboarding_request_rejects_invalid_deployment_model() -> None:
+    try:
+        build_tenant_onboarding_request(
+            "tenant-demo",
+            organization_name="Demo Organization",
+            deployment_model="public_demo",
+        )
+    except SaaSContractError as exc:
+        assert "deployment_model" in str(exc)
+    else:
+        raise AssertionError("expected invalid deployment model to be rejected")
+
+
+def test_build_tenant_onboarding_request_rejects_sensitive_contact_fields() -> None:
+    try:
+        build_tenant_onboarding_request(
+            "tenant-demo",
+            organization_name="Demo Organization",
+            contacts={"api_token": "placeholder"},
+        )
+    except SaaSContractError as exc:
+        assert "sensitive field" in str(exc)
+    else:
+        raise AssertionError("expected sensitive contact field to be rejected")
 
 
 def test_build_license_validation_request_embeds_local_report() -> None:
@@ -89,3 +140,18 @@ def test_unavailable_response_points_to_private_service() -> None:
     assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
     assert response["correlation_id"] == request.correlation_id
     assert response["private_implementation_required"] is True
+
+
+def test_tenant_onboarding_unavailable_response_lists_private_modules() -> None:
+    request = build_tenant_onboarding_request("tenant-demo", organization_name="Demo Organization")
+    response = build_tenant_onboarding_unavailable_response(request).to_dict()
+
+    assert response["operation"] == "tenant_onboarding"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["private_modules_required"] == [
+        "identity onboarding",
+        "license service",
+        "policy registry",
+        "audit store",
+        "support ownership",
+    ]
