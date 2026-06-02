@@ -429,11 +429,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes final rollout release-readiness routing and approvals, managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, public-safe provider package descriptors, and managed infrastructure readiness rollups for release gates. Provider secrets, customer metadata, Enterprise source code, and production driver implementation details remain outside this public Community repository.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, and production driver implementation details remain outside this public Community repository.
 
 Next recommended implementation work:
 
-- Add object storage provider health checks and object-lock readiness evidence in the private Enterprise repository, then fold object storage readiness evidence into final release dashboard rollups.
+- Define the next production-readiness implementation slice across public Community documentation, private Enterprise implementation, and SaaS/trial commercialization boundaries before opening new private feature PRs.
 
 ## User stories and enterprise value
 

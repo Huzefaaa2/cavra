@@ -11,20 +11,20 @@ CAVRA becomes the enterprise runtime authority layer for AI coding agents. Enter
 ## Current Enterprise Batch Sync
 
 Status: public-safe documentation synchronized after private Enterprise PRs
-#35-#44.
+#56-#60.
 
 Delivered in the private Enterprise repository:
-- summary retry health acknowledgement persistence;
-- acknowledgement trend reporting, delivery retry workers, and worker health;
-- acknowledgement trend health alert routing, acknowledgements, and persistence;
-- closure summaries, retry-worker delivery dashboards, and final rollout
-  reports;
-- final rollout report routing, handoff tracking, delivery dashboards, retry
-  planning, retry-worker execution, and retry-worker persistence.
+- managed database driver package health evidence and release rollup integration;
+- object storage probe scheduling, worker evidence, retry planning, dashboard
+  persistence, and release-readiness approval summaries;
+- managed database driver health scheduling, worker evidence, retry planning,
+  dashboard persistence, and release-readiness approval summaries;
+- private MVP follow-up closeout for managed storage, KMS, object-lock, and
+  managed database release-readiness evidence.
 
-Next private recommendation: final rollout acknowledgements, trend reporting,
-and release-readiness evidence. Public Community source remains free of
-Enterprise implementation details.
+Next private recommendation: define the next production-readiness slice before
+new private implementation PRs are opened. Public Community source remains free
+of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
 
@@ -374,18 +374,18 @@ Exit criteria:
 
 ## What Should Be Implemented Next
 
-Latest completed implementation phase: private Enterprise archive alert verification export summary retry health acknowledgements and trend delivery dashboards.
+Latest completed implementation phase: private Enterprise managed infrastructure release-readiness follow-up closeout.
 
-Next recommended implementation phase: add archive alert verification export summary retry health acknowledgement persistence and trend delivery retry planning.
+Next recommended implementation phase: plan the next production-readiness slice across public Community documentation, private Enterprise implementation, and SaaS/trial commercialization boundaries.
 
 Rationale: CAVRA now has a working CLI, MCP path, policy packs, Docker validation, sandbox, strict policy validation, policy inheritance, semantic diff, normalized compile output, evidence bundles, HMAC and Ed25519 signatures, SIEM exports, live SIEM/ITSM/ChatOps connector execution hooks, retention artifacts, immutable storage plans and deployment references, trust roots, trust-root bundles, offline trust-root distribution packages, SQLite and JSON evidence search, PR attestation verification, governed evidence artifact retrieval, hosted console views, idempotent SQLite migration automation, console API wiring, API metadata persistence, approval workflows, JSON/SQLite registry-backed agent and MCP trust governance, activity persistence, repository inventory, policy rollout persistence, persistent API backup/restore/retention operations, integration inventory persistence, policy rollout drill-downs, read-only console security boundary reporting, authenticated console session validation, RBAC-enforced console mutations, Entra/Okta OIDC-RBAC deployment references, policy authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment readiness reporting, GitHub/GitLab/Azure DevOps required-check CI/CD enforcement templates, signed Go release packages attached to GitHub Releases, verifier CLI support, signed installer metadata, managed endpoint deployment manifests, signed CI runner bundle metadata, reusable release-governance runner wrappers, runner authentication claims, hash-chained daemon evidence signatures, a GitHub composite runner action, release channel manifests, managed workstation updater policy, release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, release channel promotion request history, endpoint-management export history, Evidence Console release channel publishing views, governed endpoint export downloads, checksum-enforced endpoint export integrity, endpoint export publication records, Jamf/Intune/Linux connector delivery, endpoint publication history dashboards, endpoint inventory ingestion, endpoint inventory freshness SLA reporting, reconciliation automation from ingested inventory, managed endpoint reconciliation, endpoint drift dashboards, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery, notification routing policies, acknowledgement tracking, duplicate suppression windows, escalation ladders, owner-specific service-level objectives, escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, recurrence delivery batching, suppression audit exports, retry policies for failed recurrence batches, owner digest notifications, suppression trend analytics, managed endpoint rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted release connector delivery history, alerting dashboards, open-core Community/Enterprise/Trial/SaaS boundaries, installer smoke validation, SLSA provenance, GitHub keyless OIDC attestations, air-gapped zip verification, release-candidate upgrade validation, offline trust bootstrap metadata, vulnerability disclosure/release advisory documentation, backend-driven public sandbox scenario runs, public sandbox release-note links, telemetry-free public run counters from persisted backend metadata, rollback rehearsal evidence with console visibility and fresh rollback drill history for promoted Go backend pilots, acknowledgement audit delivery retry plans, scheduled acknowledgement audit delivery worker dry-runs, worker health alert delivery, retry acknowledgement records, retry execution approval plans, retry execution approval decisions, connector recovery playbooks, approval-bound live retry execution records, and connector recovery closure evidence.
 
 Latest completed slice:
-- Added export trend summary retry worker health alert acknowledgements.
-- Added acknowledgement trend package routing through operator destinations.
-- Added acknowledgement trend package delivery dashboards.
-- Added failed destination summaries for trend package delivery.
-- Added tests for retry health acknowledgements and trend delivery dashboards.
+- Added managed tenant database driver health evidence and release rollup integration.
+- Added object storage probe scheduling, retry evidence, dashboards, persistence, and release-readiness approvals.
+- Added managed database driver health scheduling, retry evidence, dashboards, persistence, and release-readiness approvals.
+- Closed the active private MVP follow-up batch with provider credentials, customer metadata, Enterprise source code, and production driver implementation details kept outside the public Community repository.
 
 Immediate next tasks:
-- Add archive alert verification export summary retry health acknowledgement persistence and trend delivery retry planning.
+- Reconcile the public roadmap, wiki-ready pages, and README with private PRs #56-#60.
+- Define the next production-readiness implementation slice before opening new private feature PRs.
