@@ -1,5 +1,17 @@
 # Phase Completion Log
 
+## Phase 10 Trial And SaaS Commercialization Readiness Plan
+
+Status: planned as the next production-readiness slice.
+
+Completed planning:
+- Added `docs/production-readiness-next-slice.md` and wiki-ready `Production-Readiness-Next-Slice.md`.
+- Defined the public, private Enterprise, and future SaaS responsibilities for trial-to-pilot commercialization.
+- Proposed the next PR sequence: public trial-to-pilot intake plan, public licensing interface hardening, public SaaS Control Plane contract, private trial package readiness, private customer pilot handoff evidence, and public docs/wiki sync.
+- Preserved the rule that Enterprise source, license-server logic, customer data, commercial policy packs, private connector payloads, signing keys, and SaaS secrets stay outside public source control.
+
+Recommended next issue: build the public trial-to-pilot intake plan.
+
 ## Phase 9 Enterprise Managed Infrastructure Readiness Closeout
 
 Status: complete for the private Enterprise managed infrastructure follow-up batch through private PRs #56-#60.
@@ -25,7 +37,7 @@ User stories:
 Enterprise challenge solved:
 - Turns managed database and immutable object storage prerequisites into dashboarded release-readiness evidence while preserving private connector, storage, KMS, and credential boundaries.
 
-Recommended next issue: define the next production-readiness implementation slice before new private feature PRs are opened.
+Recommended next issue: build the public trial-to-pilot intake plan.
 
 ## Phase 9 Enterprise Archive Alert Verification Summary Retry Ack Dashboards
 
