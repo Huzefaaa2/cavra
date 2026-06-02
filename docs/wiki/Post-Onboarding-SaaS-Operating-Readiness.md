@@ -1,6 +1,10 @@
-# Roadmap Status and Next Slice
+# Post-Onboarding SaaS Operating Readiness
 
 Status date: 2026-06-02.
+
+## Slice Name
+
+Post-onboarding SaaS operating readiness.
 
 ## Current Position
 
@@ -19,18 +23,11 @@ Completed before this slice:
 - private customer rollout closeout evidence in private PR #66;
 - public-safe commercialization batch syncs.
 
-## Remaining Themes
+## Why This Is Next
 
-- Hosted policy registry readiness and policy-pack catalog operation.
-- Tenant audit-store health, retention posture, and export readiness.
-- Billing/subscription operations and license-service observability.
-- Enterprise/SaaS dashboard operating evidence.
-- Production observability and support runbooks.
-- Final release hardening and commercialization closeout.
-
-## Next Slice
-
-Post-onboarding SaaS operating readiness.
+After onboarding, CAVRA needs steady-state operating evidence for hosted policy
+registry readiness, tenant audit-store health, billing/subscription status,
+license-service observability, support ownership, and SaaS dashboards.
 
 ## Proposed PR Sequence
 
@@ -41,6 +38,13 @@ Post-onboarding SaaS operating readiness.
 5. Private tenant audit-store operating evidence.
 6. Private billing/subscription and license-service observability evidence.
 7. Public docs/wiki sync.
+
+## Boundary
+
+The public Community repository may contain public-safe contracts, unavailable
+responses, documentation, and synthetic examples only. Enterprise source,
+customer data, private policy packs, billing records, license keys, provider
+URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 

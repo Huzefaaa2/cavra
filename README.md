@@ -50,6 +50,7 @@ Open-core architecture and boundaries:
 - [Entitlement status contract](docs/architecture/entitlement-status-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
+- [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -439,7 +440,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Continue with a roadmap status pass for the next production-readiness slice after SaaS tenant onboarding and entitlement readiness. The public trial-to-pilot intake plan is documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md), public licensing behavior is documented in [docs/enterprise/licensing.md](docs/enterprise/licensing.md), and the latest public-safe commercialization sync is documented in [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
+- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. The recommended next PR is the public hosted policy registry readiness contract, followed by tenant audit-store operating contracts, billing/subscription boundary documentation, private operating evidence, and a public docs/wiki sync.
 
 ## User stories and enterprise value
 

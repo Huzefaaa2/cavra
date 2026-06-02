@@ -114,7 +114,6 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-The roadmap status pass is documented in
-[Roadmap Status and Next Slice](roadmap-status-next-slice.md). The tenant
-onboarding and entitlement readiness batch is complete; continue by defining
-the next production-readiness slice after this batch.
+The next production-readiness slice is documented in
+[Post-Onboarding SaaS Operating Readiness](post-onboarding-saas-operating-readiness.md).
+Continue with the public hosted policy registry readiness contract.

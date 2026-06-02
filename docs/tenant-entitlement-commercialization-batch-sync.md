@@ -58,8 +58,5 @@ public documentation.
 
 ## Next Recommendation
 
-Run a roadmap status pass and define the next production-readiness slice after
-the SaaS tenant onboarding and entitlement readiness batch. Candidate themes are
-hosted policy registry readiness, tenant audit-store operating dashboards,
-billing/subscription operations, SaaS observability, and final commercial
-release hardening.
+Delivered in the roadmap status pass for post-onboarding SaaS operating
+readiness. Continue with the public hosted policy registry readiness contract.
