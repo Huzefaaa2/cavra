@@ -14,5 +14,7 @@ Current open-core priority:
    shapes for future private services.
 5. Private Trial and SaaS commercialization readiness follow-ups are complete
    through `cavra-enterprise` PR #61 and PR #62.
-6. Next recommendation: run a roadmap status pass and define the next
-   production-readiness slice.
+6. Roadmap status pass is now defined in
+   [docs/roadmap-status-next-slice.md](docs/roadmap-status-next-slice.md).
+7. Next recommendation: implement the public tenant onboarding contract for the
+   SaaS tenant onboarding and entitlement readiness slice.

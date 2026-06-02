@@ -1,5 +1,20 @@
 # Phase Completion Log
 
+## Phase 10 Roadmap Status and Next Slice
+
+Status: complete for the roadmap status pass after the Trial and SaaS
+commercialization readiness batch.
+
+Completed planning:
+- Confirmed the current Trial and SaaS commercialization batch is complete.
+- Identified remaining production themes across SaaS onboarding, entitlement,
+  private license-service handoff, hosted policy registry, tenant audit-store
+  readiness, observability, billing, support, and final release hardening.
+- Defined the next production-readiness slice as SaaS tenant onboarding and
+  entitlement readiness.
+
+Recommended next issue: implement the public tenant onboarding contract.
+
 ## Phase 10 Trial and SaaS Commercialization Batch Sync
 
 Status: complete for the current Trial and SaaS commercialization readiness

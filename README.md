@@ -47,6 +47,7 @@ Open-core architecture and boundaries:
 - [SaaS Control Plane design](docs/architecture/saas-control-plane.md)
 - [SaaS Control Plane contract](docs/architecture/saas-control-plane-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
+- [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
 - [Private Enterprise repo plan](docs/architecture/private-enterprise-repo-plan.md)
