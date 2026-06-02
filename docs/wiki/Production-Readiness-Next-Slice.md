@@ -37,5 +37,5 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Continue with the public tenant onboarding contract for the SaaS tenant
+Continue with the public entitlement status contract for the SaaS tenant
 onboarding and entitlement readiness slice.

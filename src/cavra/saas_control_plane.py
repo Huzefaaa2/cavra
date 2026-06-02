@@ -19,6 +19,7 @@ class SaaSContractError(ValueError):
 
 
 class SaaSOperation(str, Enum):
+    TENANT_ONBOARDING = "tenant_onboarding"
     TENANT_STATUS = "tenant_status"
     LICENSE_VALIDATION = "license_validation"
     POLICY_REGISTRY_LOOKUP = "policy_registry_lookup"
@@ -49,6 +50,14 @@ SENSITIVE_VALUE_PATTERNS = (
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 )
 EVIDENCE_EXPORT_FORMATS = frozenset({"json", "jsonl", "markdown", "zip"})
+TENANT_DEPLOYMENT_MODELS = frozenset({"hosted_saas", "self_hosted_enterprise", "hybrid"})
+TENANT_ONBOARDING_REQUIREMENTS = (
+    "identity_provider",
+    "license_validation",
+    "policy_registry",
+    "audit_store",
+    "support_owner",
+)
 
 
 @dataclass(frozen=True)
@@ -108,6 +117,40 @@ def build_tenant_status_request(
         payload={
             "requested_capabilities": list(capabilities),
             "public_client_boundary": "status lookup contract only",
+        },
+    )
+
+
+def build_tenant_onboarding_request(
+    tenant_id: str,
+    *,
+    organization_name: str,
+    requested_by: str = "community",
+    deployment_model: str = "hosted_saas",
+    region: str = "tenant-selected",
+    requirements: tuple[str, ...] = TENANT_ONBOARDING_REQUIREMENTS,
+    contacts: dict[str, str] | None = None,
+) -> SaaSControlPlaneRequest:
+    if deployment_model not in TENANT_DEPLOYMENT_MODELS:
+        supported = ", ".join(sorted(TENANT_DEPLOYMENT_MODELS))
+        raise SaaSContractError(f"deployment_model must be one of: {supported}")
+    if not organization_name.strip():
+        raise SaaSContractError("organization_name must not be empty")
+    if not requirements:
+        raise SaaSContractError("requirements must include at least one onboarding requirement")
+    contact_payload = contacts or {}
+    _reject_sensitive_material(contact_payload)
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.TENANT_ONBOARDING,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "organization_name": organization_name.strip(),
+            "deployment_model": deployment_model,
+            "region": region.strip(),
+            "requirements": list(requirements),
+            "contacts": contact_payload,
+            "activation_boundary": "public request shape only; tenant provisioning implementation is private",
         },
     )
 
@@ -177,6 +220,28 @@ def build_evidence_export_request(
     )
 
 
+def build_tenant_onboarding_unavailable_response(request: SaaSControlPlaneRequest) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.TENANT_ONBOARDING:
+        raise SaaSContractError("tenant onboarding response requires a tenant_onboarding request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+        message="Tenant onboarding requires the private CAVRA SaaS Control Plane or Enterprise service.",
+        correlation_id=request.correlation_id,
+        payload={
+            "tenant_id": request.tenant_id,
+            "private_modules_required": [
+                "identity onboarding",
+                "license service",
+                "policy registry",
+                "audit store",
+                "support ownership",
+            ],
+            "next_step": "See docs/architecture/tenant-onboarding-contract.md",
+        },
+    )
+
+
 def build_unavailable_response(request: SaaSControlPlaneRequest) -> SaaSControlPlaneResponse:
     return SaaSControlPlaneResponse(
         operation=request.operation,
@@ -201,6 +266,11 @@ def describe_public_contract() -> dict[str, Any]:
             "purpose": "Public-safe client request and response contracts for future private services.",
         },
         "operations": [
+            {
+                "name": SaaSOperation.TENANT_ONBOARDING.value,
+                "request": "tenant activation metadata, deployment model, contacts, and readiness requirements",
+                "response": "tenant activation state, blockers, and private service handoff status",
+            },
             {
                 "name": SaaSOperation.TENANT_STATUS.value,
                 "request": "tenant identifier and requested capabilities",
@@ -264,6 +334,8 @@ __all__ = [
     "SAAS_CONTROL_PLANE_CONTRACT_VERSION",
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
+    "TENANT_DEPLOYMENT_MODELS",
+    "TENANT_ONBOARDING_REQUIREMENTS",
     "SaaSContractError",
     "SaaSControlPlaneRequest",
     "SaaSControlPlaneResponse",
@@ -272,6 +344,8 @@ __all__ = [
     "build_evidence_export_request",
     "build_license_validation_request",
     "build_policy_registry_lookup_request",
+    "build_tenant_onboarding_request",
+    "build_tenant_onboarding_unavailable_response",
     "build_tenant_status_request",
     "build_unavailable_response",
     "describe_public_contract",

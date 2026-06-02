@@ -44,3 +44,10 @@ registry lookup, and evidence export requests. The implementation in
 `src/cavra/saas_control_plane.py` is limited to client-side payload builders,
 serialization, and secret-field rejection. Hosted service behavior remains a
 private Enterprise/SaaS responsibility.
+
+Tenant activation is documented in
+[Tenant Onboarding Contract](tenant-onboarding-contract.md). It adds the
+public-safe `tenant_onboarding` operation for activation metadata, deployment
+model, readiness requirements, and owner contacts while leaving provisioning,
+license binding, identity onboarding, billing, policy registry enrollment, and
+audit-store setup to private services.

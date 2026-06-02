@@ -16,5 +16,6 @@ Current open-core priority:
    through `cavra-enterprise` PR #61 and PR #62.
 6. Roadmap status pass is now defined in
    [docs/roadmap-status-next-slice.md](docs/roadmap-status-next-slice.md).
-7. Next recommendation: implement the public tenant onboarding contract for the
-   SaaS tenant onboarding and entitlement readiness slice.
+7. Public tenant onboarding contract is delivered for the SaaS tenant
+   onboarding and entitlement readiness slice.
+8. Next recommendation: implement the public entitlement status contract.
