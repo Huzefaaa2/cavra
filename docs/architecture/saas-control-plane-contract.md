@@ -17,6 +17,8 @@ integrations a stable vocabulary for:
 - policy registry readiness checks;
 - policy registry lookup;
 - tenant audit-store operating checks;
+- customer operating dashboard checks;
+- support handoff readiness checks;
 - evidence export requests.
 
 The contract is implemented in `src/cavra/saas_control_plane.py`. It builds
@@ -51,6 +53,8 @@ implementation.
 | `policy_registry_readiness` | Tenant identifier, catalog scope, policy-pack references, and readiness checks | Hosted registry availability, catalog freshness, version state, approval state, blockers, and private service handoff status |
 | `policy_registry_lookup` | Policy references and public labels | Hosted policy metadata and governed artifact references |
 | `tenant_audit_store_operating` | Tenant identifier, retention profile, evidence window, and operating checks | Audit-store health, retention posture, evidence freshness, export readiness, blockers, and private service handoff status |
+| `customer_operating_dashboard` | Tenant identifier, dashboard scope, evidence window, and operating dashboard checks | Customer operating dashboard readiness across billing, license service, support, customer success, escalation, and release closeout |
+| `support_handoff_readiness` | Tenant identifier, handoff scope, support tier, and support handoff checks | Support, customer-success, escalation, health review, dashboard, and release owner readiness |
 | `evidence_export` | Evidence references, export format, and retention profile | Export job creation, storage, delivery, and audit status |
 
 ## Security Boundary
@@ -87,6 +91,8 @@ The future private SaaS repository or service should implement:
 - hosted policy registry readiness checks;
 - policy registry storage and artifact delivery;
 - tenant audit-store health and retention checks;
+- customer operating dashboard readiness checks;
+- support handoff readiness checks;
 - evidence export jobs;
 - compliance export delivery;
 - audit history persistence;
@@ -106,6 +112,8 @@ Public tests cover:
 - hosted policy registry readiness request and response serialization;
 - policy lookup validation;
 - tenant audit-store operating request and response serialization;
+- customer operating dashboard request and response serialization;
+- support handoff readiness request and response serialization;
 - evidence export format validation;
 - rejection of sensitive keys and token-like values;
 - unavailable responses that direct users to private service enablement.

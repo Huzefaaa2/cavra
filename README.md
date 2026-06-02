@@ -51,6 +51,7 @@ Open-core architecture and boundaries:
 - [Hosted policy registry readiness contract](docs/architecture/hosted-policy-registry-readiness-contract.md)
 - [Tenant audit-store operating contract](docs/architecture/tenant-audit-store-operating-contract.md)
 - [Billing and subscription boundary](docs/architecture/billing-subscription-boundary.md)
+- [Customer operating dashboard and support handoff contract](docs/architecture/customer-operating-dashboard-support-handoff-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
@@ -445,7 +446,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. Private hosted policy registry readiness, tenant audit-store operating, and SaaS operating readiness rollup evidence are now delivered in `cavra-enterprise` PRs #67-#69 and summarized in the [post-onboarding SaaS operating batch sync](docs/post-onboarding-saas-operating-batch-sync.md). The recommended next PR is private billing/subscription and license-service observability evidence in `cavra-enterprise`.
+- Continue private SaaS operating automation for trial-to-paid customer scale using the public-safe [customer operating dashboard and support handoff contract](docs/architecture/customer-operating-dashboard-support-handoff-contract.md). Private billing/license observability, support handoff, operating dashboard escalation, and final customer operating closeout evidence are delivered in `cavra-enterprise` PRs #70-#73 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md).
 
 ## User stories and enterprise value
 

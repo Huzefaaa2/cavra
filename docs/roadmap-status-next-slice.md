@@ -54,6 +54,9 @@ SaaS operating readiness rollup and public-safe documentation sync:
   [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
 - public SaaS customer operating closeout batch sync is delivered in
   [saas-customer-operating-closeout-batch-sync.md](saas-customer-operating-closeout-batch-sync.md).
+- public customer operating dashboard and support handoff contracts are
+  delivered in
+  [architecture/customer-operating-dashboard-support-handoff-contract.md](architecture/customer-operating-dashboard-support-handoff-contract.md).
 
 ## Remaining Production Themes
 
@@ -62,7 +65,6 @@ yet fully production-complete. Remaining themes are:
 
 - hosted policy registry readiness and policy-pack catalog operation;
 - tenant audit-store health, retention posture, and export readiness;
-- customer operating dashboard contracts and support handoff contracts;
 - private SaaS operating automation for support, customer-success, and
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
@@ -77,8 +79,8 @@ Customer operating closeout hardening.
 CAVRA now has a public trial path, private trial-to-pilot gates, public tenant
 and entitlement contracts, and private evidence from tenant activation through
 final SaaS customer operating closeout. The next commercial blocker is making
-the customer operating dashboard and support handoff model public-safe and
-repeatable, then extending private automation for trial-to-paid customer scale.
+private automation for trial-to-paid customer scale using the public customer
+operating dashboard and support handoff contract boundary.
 
 ## Proposed PR Sequence
 
@@ -153,9 +155,16 @@ repeatable, then extending private automation for trial-to-paid customer scale.
       customer operating closeout batch.
 
 13. Public customer operating dashboard and support handoff contracts.
+    Delivered with
+    [architecture/customer-operating-dashboard-support-handoff-contract.md](architecture/customer-operating-dashboard-support-handoff-contract.md).
     - Define public-safe request and response shapes for operating dashboards,
       support ownership, customer-success ownership, escalation readiness, and
       closeout evidence boundaries.
+
+14. Private SaaS operating automation for trial-to-paid customer scale.
+    - Add private workflow automation for support/customer-success operating
+      dashboards, escalation follow-up, and commercial closeout retries without
+      exposing customer records or Enterprise source code.
 
 ## Acceptance Criteria
 
@@ -170,6 +179,5 @@ repeatable, then extending private automation for trial-to-paid customer scale.
 
 ## Recommended Next PR
 
-Define public-safe customer operating dashboard and support handoff contracts,
-then continue private SaaS operating automation required for trial-to-paid
-customer scale.
+Continue private SaaS operating automation required for trial-to-paid customer
+scale.

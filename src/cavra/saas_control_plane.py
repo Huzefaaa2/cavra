@@ -26,6 +26,8 @@ class SaaSOperation(str, Enum):
     POLICY_REGISTRY_READINESS = "policy_registry_readiness"
     POLICY_REGISTRY_LOOKUP = "policy_registry_lookup"
     TENANT_AUDIT_STORE_OPERATING = "tenant_audit_store_operating"
+    CUSTOMER_OPERATING_DASHBOARD = "customer_operating_dashboard"
+    SUPPORT_HANDOFF_READINESS = "support_handoff_readiness"
     EVIDENCE_EXPORT = "evidence_export"
 
 
@@ -80,6 +82,25 @@ TENANT_AUDIT_STORE_OPERATING_CHECKS = (
     "dashboard_visibility",
 )
 TENANT_AUDIT_STORE_OPERATING_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
+CUSTOMER_OPERATING_DASHBOARD_CHECKS = (
+    "dashboard_visibility",
+    "billing_observability",
+    "license_service_telemetry",
+    "support_handoff",
+    "customer_success_health",
+    "escalation_readiness",
+    "release_acceptance",
+)
+CUSTOMER_OPERATING_DASHBOARD_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
+SUPPORT_HANDOFF_READINESS_CHECKS = (
+    "support_owner_assignment",
+    "customer_success_owner_assignment",
+    "escalation_routing",
+    "customer_health_review",
+    "handoff_dashboard",
+    "release_owner_acceptance",
+)
+SUPPORT_HANDOFF_READINESS_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -241,6 +262,115 @@ class TenantAuditStoreOperatingSummary:
         }
 
 
+@dataclass(frozen=True)
+class CustomerOperatingDashboardSummary:
+    tenant_id: str
+    dashboard_status: str
+    billing_status: str
+    license_service_status: str
+    support_handoff_status: str
+    customer_success_status: str
+    escalation_status: str
+    release_closeout_status: str
+    latest_dashboard_at: str | None = None
+    dashboard_scope: str = "tenant-operating"
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_customer_operating_dashboard_status(self.dashboard_status, field_name="dashboard_status")
+        _validate_customer_operating_dashboard_status(self.billing_status, field_name="billing_status")
+        _validate_customer_operating_dashboard_status(
+            self.license_service_status,
+            field_name="license_service_status",
+        )
+        _validate_customer_operating_dashboard_status(
+            self.support_handoff_status,
+            field_name="support_handoff_status",
+        )
+        _validate_customer_operating_dashboard_status(
+            self.customer_success_status,
+            field_name="customer_success_status",
+        )
+        _validate_customer_operating_dashboard_status(self.escalation_status, field_name="escalation_status")
+        _validate_customer_operating_dashboard_status(
+            self.release_closeout_status,
+            field_name="release_closeout_status",
+        )
+        _reject_sensitive_material(
+            {
+                "latest_dashboard_at": self.latest_dashboard_at,
+                "dashboard_scope": self.dashboard_scope,
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "dashboard_status": self.dashboard_status,
+            "billing_status": self.billing_status,
+            "license_service_status": self.license_service_status,
+            "support_handoff_status": self.support_handoff_status,
+            "customer_success_status": self.customer_success_status,
+            "escalation_status": self.escalation_status,
+            "release_closeout_status": self.release_closeout_status,
+            "latest_dashboard_at": self.latest_dashboard_at,
+            "dashboard_scope": self.dashboard_scope,
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "dashboard_boundary": (
+                "customer operating dashboards, provider telemetry, support systems, "
+                "and customer records remain private service responsibilities"
+            ),
+        }
+
+
+@dataclass(frozen=True)
+class SupportHandoffReadinessSummary:
+    tenant_id: str
+    support_status: str
+    customer_success_status: str
+    escalation_status: str
+    health_review_status: str
+    dashboard_status: str
+    support_tier: str = "enterprise"
+    handoff_scope: str = "hosted-saas-support"
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_support_handoff_readiness_status(self.support_status, field_name="support_status")
+        _validate_support_handoff_readiness_status(
+            self.customer_success_status,
+            field_name="customer_success_status",
+        )
+        _validate_support_handoff_readiness_status(self.escalation_status, field_name="escalation_status")
+        _validate_support_handoff_readiness_status(self.health_review_status, field_name="health_review_status")
+        _validate_support_handoff_readiness_status(self.dashboard_status, field_name="dashboard_status")
+        _reject_sensitive_material(
+            {
+                "support_tier": self.support_tier,
+                "handoff_scope": self.handoff_scope,
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "support_status": self.support_status,
+            "customer_success_status": self.customer_success_status,
+            "escalation_status": self.escalation_status,
+            "health_review_status": self.health_review_status,
+            "dashboard_status": self.dashboard_status,
+            "support_tier": self.support_tier,
+            "handoff_scope": self.handoff_scope,
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "handoff_boundary": (
+                "support queues, customer-success notes, customer health records, "
+                "escalation connectors, and dashboard systems remain private service responsibilities"
+            ),
+        }
+
+
 def build_entitlement_status_request(
     tenant_id: str,
     *,
@@ -376,6 +506,54 @@ def build_tenant_audit_store_operating_request(
     )
 
 
+def build_customer_operating_dashboard_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    dashboard_scope: str = "tenant-operating",
+    evidence_window: str = "last-24h",
+    required_checks: tuple[str, ...] = CUSTOMER_OPERATING_DASHBOARD_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one customer operating dashboard check")
+    _reject_sensitive_material({"dashboard_scope": dashboard_scope, "evidence_window": evidence_window})
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.CUSTOMER_OPERATING_DASHBOARD,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "dashboard_scope": dashboard_scope,
+            "evidence_window": evidence_window,
+            "required_checks": list(required_checks),
+            "dashboard_boundary": "public request shape only; customer operating dashboards are private",
+        },
+    )
+
+
+def build_support_handoff_readiness_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    handoff_scope: str = "hosted-saas-support",
+    support_tier: str = "enterprise",
+    required_checks: tuple[str, ...] = SUPPORT_HANDOFF_READINESS_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one support handoff readiness check")
+    _reject_sensitive_material({"handoff_scope": handoff_scope, "support_tier": support_tier})
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.SUPPORT_HANDOFF_READINESS,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "handoff_scope": handoff_scope,
+            "support_tier": support_tier,
+            "required_checks": list(required_checks),
+            "handoff_boundary": "public request shape only; support and customer-success handoff is private",
+        },
+    )
+
+
 def build_policy_registry_lookup_request(
     tenant_id: str,
     policy_refs: tuple[str, ...],
@@ -446,6 +624,69 @@ def build_tenant_audit_store_operating_response(
                 "operating dashboard",
             ],
             "next_step": "See docs/architecture/tenant-audit-store-operating-contract.md",
+        },
+    )
+
+
+def build_customer_operating_dashboard_response(
+    request: SaaSControlPlaneRequest,
+    summary: CustomerOperatingDashboardSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.CUSTOMER_OPERATING_DASHBOARD:
+        raise SaaSContractError("customer operating dashboard response requires a customer_operating_dashboard request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message=(
+            "Customer operating dashboard status requires private billing, license-service, "
+            "support, customer-success, escalation, and release closeout validation."
+        ),
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "billing observability",
+                "license-service telemetry",
+                "support handoff",
+                "customer-success health",
+                "escalation routing",
+                "release closeout",
+                "operating dashboard",
+            ],
+            "next_step": "See docs/architecture/customer-operating-dashboard-support-handoff-contract.md",
+        },
+    )
+
+
+def build_support_handoff_readiness_response(
+    request: SaaSControlPlaneRequest,
+    summary: SupportHandoffReadinessSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.SUPPORT_HANDOFF_READINESS:
+        raise SaaSContractError("support handoff readiness response requires a support_handoff_readiness request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message=(
+            "Support handoff readiness requires private support, customer-success, "
+            "escalation, health-review, and dashboard validation."
+        ),
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "support ownership",
+                "customer-success ownership",
+                "escalation routing",
+                "customer health review",
+                "handoff dashboard",
+                "release owner acceptance",
+            ],
+            "next_step": "See docs/architecture/customer-operating-dashboard-support-handoff-contract.md",
         },
     )
 
@@ -585,6 +826,16 @@ def describe_public_contract() -> dict[str, Any]:
                 "response": "audit-store health, retention posture, evidence freshness, export readiness, blockers, and private service handoff status",
             },
             {
+                "name": SaaSOperation.CUSTOMER_OPERATING_DASHBOARD.value,
+                "request": "tenant identifier, dashboard scope, evidence window, and operating dashboard checks",
+                "response": "customer operating dashboard readiness across billing, license service, support, customer success, escalation, and release closeout",
+            },
+            {
+                "name": SaaSOperation.SUPPORT_HANDOFF_READINESS.value,
+                "request": "tenant identifier, handoff scope, support tier, and support handoff checks",
+                "response": "support, customer-success, escalation, health review, dashboard, and release owner readiness",
+            },
+            {
                 "name": SaaSOperation.EVIDENCE_EXPORT.value,
                 "request": "evidence references, format, and retention profile",
                 "response": "export job status and governed artifact references",
@@ -628,6 +879,18 @@ def _validate_audit_store_operating_status(status: str, *, field_name: str) -> N
         raise SaaSContractError(f"{field_name} must be one of: {supported}")
 
 
+def _validate_customer_operating_dashboard_status(status: str, *, field_name: str) -> None:
+    if status not in CUSTOMER_OPERATING_DASHBOARD_STATUSES:
+        supported = ", ".join(sorted(CUSTOMER_OPERATING_DASHBOARD_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
+def _validate_support_handoff_readiness_status(status: str, *, field_name: str) -> None:
+    if status not in SUPPORT_HANDOFF_READINESS_STATUSES:
+        supported = ", ".join(sorted(SUPPORT_HANDOFF_READINESS_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -646,6 +909,8 @@ def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
 
 
 __all__ = [
+    "CUSTOMER_OPERATING_DASHBOARD_CHECKS",
+    "CUSTOMER_OPERATING_DASHBOARD_STATUSES",
     "ENTITLEMENT_STATUSES",
     "EVIDENCE_EXPORT_FORMATS",
     "POLICY_REGISTRY_READINESS_CHECKS",
@@ -653,12 +918,16 @@ __all__ = [
     "SAAS_CONTROL_PLANE_CONTRACT_VERSION",
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
+    "SUPPORT_HANDOFF_READINESS_CHECKS",
+    "SUPPORT_HANDOFF_READINESS_STATUSES",
     "TENANT_DEPLOYMENT_MODELS",
     "TENANT_AUDIT_STORE_OPERATING_CHECKS",
     "TENANT_AUDIT_STORE_OPERATING_STATUSES",
     "TENANT_ONBOARDING_REQUIREMENTS",
+    "CustomerOperatingDashboardSummary",
     "EntitlementStatusSummary",
     "PolicyRegistryReadinessSummary",
+    "SupportHandoffReadinessSummary",
     "TenantAuditStoreOperatingSummary",
     "SaaSContractError",
     "SaaSControlPlaneRequest",
@@ -667,8 +936,12 @@ __all__ = [
     "SaaSResponseStatus",
     "build_entitlement_status_request",
     "build_entitlement_status_response",
+    "build_customer_operating_dashboard_request",
+    "build_customer_operating_dashboard_response",
     "build_evidence_export_request",
     "build_license_validation_request",
+    "build_support_handoff_readiness_request",
+    "build_support_handoff_readiness_response",
     "build_tenant_audit_store_operating_request",
     "build_tenant_audit_store_operating_response",
     "build_policy_registry_readiness_request",

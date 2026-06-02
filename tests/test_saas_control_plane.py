@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from cavra.licensing.license_client import LocalLicenseClient
 from cavra.saas_control_plane import (
+    CustomerOperatingDashboardSummary,
     EntitlementStatusSummary,
     PolicyRegistryReadinessSummary,
     SAAS_CONTROL_PLANE_CONTRACT_VERSION,
@@ -9,7 +10,10 @@ from cavra.saas_control_plane import (
     SaaSContractError,
     SaaSOperation,
     SaaSResponseStatus,
+    SupportHandoffReadinessSummary,
     TenantAuditStoreOperatingSummary,
+    build_customer_operating_dashboard_request,
+    build_customer_operating_dashboard_response,
     build_entitlement_status_request,
     build_entitlement_status_response,
     build_evidence_export_request,
@@ -17,6 +21,8 @@ from cavra.saas_control_plane import (
     build_policy_registry_readiness_request,
     build_policy_registry_readiness_response,
     build_policy_registry_lookup_request,
+    build_support_handoff_readiness_request,
+    build_support_handoff_readiness_response,
     build_tenant_audit_store_operating_request,
     build_tenant_audit_store_operating_response,
     build_tenant_onboarding_request,
@@ -39,6 +45,8 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     assert SaaSOperation.TENANT_ONBOARDING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.POLICY_REGISTRY_READINESS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.TENANT_AUDIT_STORE_OPERATING.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.CUSTOMER_OPERATING_DASHBOARD.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.SUPPORT_HANDOFF_READINESS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -382,6 +390,240 @@ def test_tenant_audit_store_operating_response_requires_matching_request() -> No
         build_tenant_audit_store_operating_response(request, summary)
     except SaaSContractError as exc:
         assert "tenant_audit_store_operating" in str(exc)
+    else:
+        raise AssertionError("expected mismatched request to be rejected")
+
+
+def test_customer_operating_dashboard_request_is_public_safe() -> None:
+    request = build_customer_operating_dashboard_request(
+        "tenant-demo",
+        requested_by="console",
+        dashboard_scope="hosted-saas-operations",
+        evidence_window="last-7d",
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "customer_operating_dashboard"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["dashboard_scope"] == "hosted-saas-operations"
+    assert payload["payload"]["evidence_window"] == "last-7d"
+    assert payload["payload"]["required_checks"] == [
+        "dashboard_visibility",
+        "billing_observability",
+        "license_service_telemetry",
+        "support_handoff",
+        "customer_success_health",
+        "escalation_readiness",
+        "release_acceptance",
+    ]
+
+
+def test_customer_operating_dashboard_request_rejects_empty_checks() -> None:
+    try:
+        build_customer_operating_dashboard_request("tenant-demo", required_checks=())
+    except SaaSContractError as exc:
+        assert "required_checks" in str(exc)
+    else:
+        raise AssertionError("expected empty dashboard checks to be rejected")
+
+
+def test_customer_operating_dashboard_request_rejects_sensitive_values() -> None:
+    try:
+        build_customer_operating_dashboard_request(
+            "tenant-demo",
+            dashboard_scope="ghp_123456789012345678901234567890",
+        )
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive dashboard scope to be rejected")
+
+
+def test_customer_operating_dashboard_response_serializes_summary() -> None:
+    request = build_customer_operating_dashboard_request("tenant-demo", requested_by="console")
+    summary = CustomerOperatingDashboardSummary(
+        tenant_id="tenant-demo",
+        dashboard_status="ready",
+        billing_status="ready",
+        license_service_status="degraded",
+        support_handoff_status="ready",
+        customer_success_status="ready",
+        escalation_status="blocked",
+        release_closeout_status="ready",
+        latest_dashboard_at="2026-06-02T00:00:00Z",
+        dashboard_scope="hosted-saas-operations",
+        blockers=("escalation route approval pending",),
+    )
+
+    response = build_customer_operating_dashboard_response(request, summary).to_dict()
+
+    assert response["operation"] == "customer_operating_dashboard"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["dashboard_status"] == "ready"
+    assert response["payload"]["summary"]["license_service_status"] == "degraded"
+    assert response["payload"]["summary"]["escalation_status"] == "blocked"
+    assert response["payload"]["summary"]["blockers"] == ["escalation route approval pending"]
+    assert response["payload"]["private_modules_required"] == [
+        "billing observability",
+        "license-service telemetry",
+        "support handoff",
+        "customer-success health",
+        "escalation routing",
+        "release closeout",
+        "operating dashboard",
+    ]
+
+
+def test_customer_operating_dashboard_summary_rejects_invalid_state() -> None:
+    summary = CustomerOperatingDashboardSummary(
+        tenant_id="tenant-demo",
+        dashboard_status="visible",
+        billing_status="ready",
+        license_service_status="ready",
+        support_handoff_status="ready",
+        customer_success_status="ready",
+        escalation_status="ready",
+        release_closeout_status="ready",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "dashboard_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown dashboard state to be rejected")
+
+
+def test_customer_operating_dashboard_response_requires_matching_request() -> None:
+    request = build_tenant_audit_store_operating_request("tenant-demo")
+    summary = CustomerOperatingDashboardSummary(
+        tenant_id="tenant-demo",
+        dashboard_status="ready",
+        billing_status="ready",
+        license_service_status="ready",
+        support_handoff_status="ready",
+        customer_success_status="ready",
+        escalation_status="ready",
+        release_closeout_status="ready",
+    )
+
+    try:
+        build_customer_operating_dashboard_response(request, summary)
+    except SaaSContractError as exc:
+        assert "customer_operating_dashboard" in str(exc)
+    else:
+        raise AssertionError("expected mismatched request to be rejected")
+
+
+def test_support_handoff_readiness_request_is_public_safe() -> None:
+    request = build_support_handoff_readiness_request(
+        "tenant-demo",
+        requested_by="console",
+        handoff_scope="hosted-saas-support",
+        support_tier="enterprise",
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "support_handoff_readiness"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["handoff_scope"] == "hosted-saas-support"
+    assert payload["payload"]["support_tier"] == "enterprise"
+    assert payload["payload"]["required_checks"] == [
+        "support_owner_assignment",
+        "customer_success_owner_assignment",
+        "escalation_routing",
+        "customer_health_review",
+        "handoff_dashboard",
+        "release_owner_acceptance",
+    ]
+
+
+def test_support_handoff_readiness_request_rejects_empty_checks() -> None:
+    try:
+        build_support_handoff_readiness_request("tenant-demo", required_checks=())
+    except SaaSContractError as exc:
+        assert "required_checks" in str(exc)
+    else:
+        raise AssertionError("expected empty support handoff checks to be rejected")
+
+
+def test_support_handoff_readiness_request_rejects_sensitive_values() -> None:
+    try:
+        build_support_handoff_readiness_request(
+            "tenant-demo",
+            handoff_scope="xoxb-12345678901234567890",
+        )
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive handoff scope to be rejected")
+
+
+def test_support_handoff_readiness_response_serializes_summary() -> None:
+    request = build_support_handoff_readiness_request("tenant-demo", requested_by="console")
+    summary = SupportHandoffReadinessSummary(
+        tenant_id="tenant-demo",
+        support_status="ready",
+        customer_success_status="ready",
+        escalation_status="degraded",
+        health_review_status="ready",
+        dashboard_status="blocked",
+        support_tier="enterprise",
+        handoff_scope="hosted-saas-support",
+        blockers=("handoff dashboard approval pending",),
+    )
+
+    response = build_support_handoff_readiness_response(request, summary).to_dict()
+
+    assert response["operation"] == "support_handoff_readiness"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["support_status"] == "ready"
+    assert response["payload"]["summary"]["escalation_status"] == "degraded"
+    assert response["payload"]["summary"]["dashboard_status"] == "blocked"
+    assert response["payload"]["summary"]["blockers"] == ["handoff dashboard approval pending"]
+    assert response["payload"]["private_modules_required"] == [
+        "support ownership",
+        "customer-success ownership",
+        "escalation routing",
+        "customer health review",
+        "handoff dashboard",
+        "release owner acceptance",
+    ]
+
+
+def test_support_handoff_readiness_summary_rejects_invalid_state() -> None:
+    summary = SupportHandoffReadinessSummary(
+        tenant_id="tenant-demo",
+        support_status="assigned",
+        customer_success_status="ready",
+        escalation_status="ready",
+        health_review_status="ready",
+        dashboard_status="ready",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "support_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown support handoff state to be rejected")
+
+
+def test_support_handoff_readiness_response_requires_matching_request() -> None:
+    request = build_tenant_audit_store_operating_request("tenant-demo")
+    summary = SupportHandoffReadinessSummary(
+        tenant_id="tenant-demo",
+        support_status="ready",
+        customer_success_status="ready",
+        escalation_status="ready",
+        health_review_status="ready",
+        dashboard_status="ready",
+    )
+
+    try:
+        build_support_handoff_readiness_response(request, summary)
+    except SaaSContractError as exc:
+        assert "support_handoff_readiness" in str(exc)
     else:
         raise AssertionError("expected mismatched request to be rejected")
 
