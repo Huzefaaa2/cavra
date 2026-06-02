@@ -101,10 +101,11 @@ Completed in this SaaS operating automation slice:
 3. Public-safe SaaS operating automation contract.
 4. Public-safe API and CLI surfaces for contract discovery and request/response
    generation.
+5. Public Evidence Console and sandbox UI inspection for the contract.
 
 ## Next Recommendation
 
-Expose the SaaS operating automation contract in the public Evidence Console
-and sandbox UI while keeping any private automation execution, scheduler,
-connector, customer, billing, and support implementation inside private
-Enterprise or SaaS repositories.
+Add private Enterprise/SaaS implementation handoff readiness for real SaaS
+operating automation workers while keeping any private automation execution,
+scheduler, connector, customer, billing, and support implementation inside
+private Enterprise or SaaS repositories.

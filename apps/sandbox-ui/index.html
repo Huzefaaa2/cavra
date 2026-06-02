@@ -105,6 +105,34 @@
           </div>
         </div>
       </section>
+      <section class="console saas-automation-console">
+        <div class="console-header">
+          <div>
+            <h2>SaaS Operating Automation Contract</h2>
+            <p>Inspect the public-safe request and response shape for recurring post-closeout SaaS operations.</p>
+          </div>
+          <div class="console-actions">
+            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-contract.md" target="_blank" rel="noreferrer">Contract Docs</a>
+            <button id="refreshSaasAutomation">Refresh Contract</button>
+          </div>
+        </div>
+        <p id="saasAutomationStatus" class="status-line">Loads from the CAVRA API when configured; hosted public demo mode uses a synthetic contract preview.</p>
+        <div id="saasAutomationSummary" class="saas-automation-grid"></div>
+        <div class="saas-automation-layout">
+          <div>
+            <h3>Required Checks</h3>
+            <div id="saasAutomationChecks" class="saas-check-list"></div>
+          </div>
+          <div>
+            <h3>Public Request</h3>
+            <pre id="saasAutomationRequest" class="saas-contract-payload">SaaS operating automation request will load from the public-safe contract.</pre>
+          </div>
+          <div>
+            <h3>Public Response</h3>
+            <pre id="saasAutomationResponse" class="saas-contract-payload">SaaS operating automation response will load from the public-safe contract.</pre>
+          </div>
+        </div>
+      </section>
       <section class="console release-console">
         <div class="console-header">
           <div>

@@ -407,7 +407,7 @@ CAVRA maps runtime controls to banking change control, PCI DSS, HIPAA, SOX, NIST
 
 ## Interactive sandbox
 
-The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, telemetry-free public run counters from persisted backend metadata, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
+The `Before the Agent Acts` sandbox now includes the first hosted console slice: simulated and backend-driven agent decisions, telemetry-free public run counters from persisted backend metadata, release-note links for design-partner demos, activity browsing, repository inventory, policy rollout drill-downs, policy authoring, approval-bound signed policy publishing, rollout change workflows, enterprise integration inventory, SaaS operating automation contract inspection, evidence metadata search, evidence artifact downloads, PR attestation verification, console security boundary status, console session validation, production readiness validation, and operational readiness status:
 
 ```bash
 python -m http.server 5173 --directory apps/sandbox-ui
@@ -415,7 +415,7 @@ python -m http.server 5173 --directory apps/sandbox-ui
 
 Open `http://127.0.0.1:5173`, run the agent scenario, review telemetry-free public demo counters, filter sessions and decisions, inspect repository policy rollout detail, preview policy drafts, request approval for signed policy write-back, publish approved policy packs, plan and apply rollout changes, review enterprise integration health, inspect OIDC/RBAC boundary status, validate console session context, inspect deployment readiness, filter evidence metadata, review downloadable evidence artifacts, verify PR attestation coverage, approve, deny, or expire pending approval requests, create break-glass overrides, and inspect approval audit history from the console queue.
 
-For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config` and `/api/sandbox/metrics` when available and falls back to bundled sample evidence when the API is unreachable. The counters are sourced from CAVRA activity metadata only; no cookies, browser identifiers, or third-party analytics are required. See [docs/sandbox.md](docs/sandbox.md).
+For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config`, `/api/sandbox/metrics`, `/saas/control-plane/contract`, and `/saas/operating-automation` when available and falls back to bundled sample evidence and public-safe contract previews when the API is unreachable. The counters are sourced from CAVRA activity metadata only; no cookies, browser identifiers, or third-party analytics are required. See [docs/sandbox.md](docs/sandbox.md).
 
 The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub Pages is enabled for Actions publishing, and the deployment workflow now packages downloadable sample evidence and smoke-tests the public page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
 
@@ -448,7 +448,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Expose the SaaS operating automation contract in the public Evidence Console and sandbox UI. Public-safe API and CLI surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
+- Add private Enterprise/SaaS implementation handoff readiness for real SaaS operating automation workers. Public-safe API, CLI, and Evidence Console surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
 
 ## User stories and enterprise value
 
