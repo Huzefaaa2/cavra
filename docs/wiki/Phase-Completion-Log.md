@@ -1,5 +1,26 @@
 # Phase Completion Log
 
+## Phase 10 Public SaaS Control Plane Contract
+
+Status: complete for the public SaaS Control Plane contract slice.
+
+Completed implementation:
+- Added public-safe SaaS Control Plane request and response dataclasses.
+- Added schema-tagged builders for tenant status, license validation handoff,
+  policy registry lookup, and evidence export requests.
+- Added secret-field and token-like value rejection before public payload
+  serialization.
+- Added unavailable response messaging that directs Community users to private
+  Enterprise or SaaS enablement.
+- Added architecture and wiki documentation for the SaaS contract boundary.
+
+Validation:
+- Public tests cover contract description, request serialization, license report
+  handoff, policy lookup validation, evidence export validation, sensitive
+  payload rejection, and unavailable response messaging.
+
+Recommended next issue: private trial package readiness in `cavra-enterprise`.
+
 ## Phase 10 Public Licensing Interface Hardening
 
 Status: complete for the public licensing interface hardening slice.

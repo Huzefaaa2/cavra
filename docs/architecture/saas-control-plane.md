@@ -34,3 +34,13 @@ The public Community repository may contain API contracts, client stubs, and
 documentation. It must not contain SaaS backend source, production
 configuration, signing keys, billing secrets, customer records, or model
 prompts used by paid recommendation services.
+
+## Public Contract
+
+The public-safe request and response contract is documented in
+[SaaS Control Plane Contract](saas-control-plane-contract.md). It defines
+schema-tagged shapes for tenant status, license validation handoff, policy
+registry lookup, and evidence export requests. The implementation in
+`src/cavra/saas_control_plane.py` is limited to client-side payload builders,
+serialization, and secret-field rejection. Hosted service behavior remains a
+private Enterprise/SaaS responsibility.
