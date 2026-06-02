@@ -170,6 +170,104 @@ const pilotIntakeTemplate = {
   ]
 };
 
+const saasOperatingAutomationPreview = {
+  contract: {
+    schema_version: "cavra.saas_control_plane.contract.v1",
+    product: "CAVRA",
+    public_repository_boundary: {
+      contains_saas_backend: false,
+      contains_license_service: false,
+      contains_customer_records: false,
+      purpose: "Public-safe client request and response contracts for future private services."
+    },
+    operations: [
+      {
+        name: "saas_operating_automation",
+        request: "tenant identifier, automation scope, automation cadence, and operating automation checks",
+        response: "billing monitoring, license telemetry, support follow-up, customer-success review, dashboard refresh, escalation drill, and closeout retry readiness"
+      }
+    ]
+  },
+  request: {
+    schema_version: "cavra.saas_control_plane.request.v1",
+    operation: "saas_operating_automation",
+    tenant_id: "tenant-demo",
+    requested_by: "console",
+    correlation_id: "saas-demo",
+    private_implementation_required: true,
+    payload: {
+      automation_scope: "trial-to-paid-customer-scale",
+      automation_cadence: "daily",
+      required_checks: [
+        "billing_monitoring",
+        "license_telemetry_sync",
+        "support_followup",
+        "customer_success_review",
+        "dashboard_refresh",
+        "escalation_drill",
+        "closeout_retry"
+      ],
+      automation_boundary: "public request shape only; SaaS operating automation execution is private"
+    }
+  },
+  response: {
+    schema_version: "cavra.saas_control_plane.response.v1",
+    operation: "saas_operating_automation",
+    status: "requires_private_service",
+    message: "SaaS operating automation requires private billing monitoring, license telemetry, support, customer-success, dashboard, escalation, closeout retry, and scheduler validation.",
+    correlation_id: "saas-demo",
+    private_implementation_required: true,
+    payload: {
+      summary: {
+        tenant_id: "tenant-demo",
+        automation_status: "scheduled",
+        billing_monitoring_status: "enabled",
+        license_telemetry_status: "automated",
+        support_followup_status: "ready",
+        customer_success_review_status: "scheduled",
+        dashboard_refresh_status: "automated",
+        escalation_drill_status: "blocked",
+        closeout_retry_status: "enabled",
+        automation_scope: "trial-to-paid-customer-scale",
+        automation_cadence: "daily",
+        blockers: ["escalation drill owner pending"],
+        private_validation_required: true,
+        automation_boundary: "billing systems, license telemetry, support workflows, customer-success records, dashboard refresh jobs, escalation drills, closeout retries, and scheduler execution remain private service responsibilities"
+      },
+      private_modules_required: [
+        "billing monitoring",
+        "license telemetry sync",
+        "support follow-up",
+        "customer-success review",
+        "dashboard refresh automation",
+        "escalation drill scheduler",
+        "closeout retry automation"
+      ],
+      next_step: "See docs/architecture/saas-operating-automation-contract.md"
+    }
+  }
+};
+
+const saasOperatingAutomationCheckDescriptions = {
+  billing_monitoring: "Recurring subscription and billing observability checks.",
+  license_telemetry_sync: "Recurring license-service telemetry synchronization.",
+  support_followup: "Scheduled support follow-up after final customer closeout.",
+  customer_success_review: "Customer-success review cadence and ownership.",
+  dashboard_refresh: "Operating dashboard refresh readiness.",
+  escalation_drill: "Escalation and on-call drill readiness.",
+  closeout_retry: "Retry coverage for failed closeout delivery or follow-up."
+};
+
+const saasOperatingAutomationStatusFields = {
+  billing_monitoring: "billing_monitoring_status",
+  license_telemetry_sync: "license_telemetry_status",
+  support_followup: "support_followup_status",
+  customer_success_review: "customer_success_review_status",
+  dashboard_refresh: "dashboard_refresh_status",
+  escalation_drill: "escalation_drill_status",
+  closeout_retry: "closeout_retry_status"
+};
+
 const evidenceCatalog = [
   {
     session_id: "demo-session",
@@ -908,6 +1006,15 @@ const endpointManagementExportArtifactCatalog = {
 
 const releaseNoteCatalog = [
   {
+    title: "SaaS Automation Contract",
+    date: "2026-06-02",
+    summary: "The Evidence Console now renders the public-safe SaaS operating automation contract, required checks, request payload, response payload, and private-service boundary.",
+    links: [
+      ["Contract docs", "https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-contract.md"],
+      ["SaaS batch sync", "https://github.com/Huzefaaa2/cavra/blob/main/docs/saas-operating-automation-batch-sync.md"]
+    ]
+  },
+  {
     title: "Pilot Readiness Panel",
     date: "2026-05-31",
     summary: "The Evidence Console now turns the final closeout intake template into readiness cards, a buyer checklist, and Enterprise/SaaS handoff links.",
@@ -1300,6 +1407,13 @@ function formatMetricDate(value) {
   return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function formatLabel(value) {
+  return String(value ?? "")
+    .replaceAll("_", " ")
+    .replaceAll("-", " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function apiUrl(path, params = {}) {
   const configuredBase = window.CAVRA_API_BASE || consoleConfig?.api_base_url || "";
   const base = configuredBase || window.location.origin;
@@ -1441,6 +1555,45 @@ async function loadPilotIntakeTemplate() {
     return await response.json();
   } catch {
     return pilotIntakeTemplate;
+  }
+}
+
+async function loadSaasOperatingAutomationContract() {
+  await loadConsoleConfig();
+  try {
+    const contractResponse = await fetch(apiUrl(consoleConfig?.endpoints?.saas_control_plane_contract || "/saas/control-plane/contract"));
+    if (!contractResponse.ok) throw new Error("SaaS contract API unavailable");
+    const contract = await contractResponse.json();
+    const previewResponse = await fetch(apiUrl(consoleConfig?.endpoints?.saas_operating_automation || "/saas/operating-automation"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        tenant_id: "tenant-demo",
+        requested_by: "console",
+        automation_status: "scheduled",
+        billing_monitoring_status: "enabled",
+        license_telemetry_status: "automated",
+        support_followup_status: "ready",
+        customer_success_review_status: "scheduled",
+        dashboard_refresh_status: "automated",
+        escalation_drill_status: "blocked",
+        closeout_retry_status: "enabled",
+        blockers: ["escalation drill owner pending"]
+      })
+    });
+    if (!previewResponse.ok) throw new Error("SaaS operating automation API unavailable");
+    const preview = await previewResponse.json();
+    return {
+      source: "cavra-api",
+      contract,
+      request: preview.request,
+      response: preview.response
+    };
+  } catch {
+    return {
+      source: "local-sample",
+      ...saasOperatingAutomationPreview
+    };
   }
 }
 
@@ -3595,7 +3748,7 @@ function evidenceReadiness(item) {
 }
 
 function statusClass(status) {
-  if (["approved", "closed", "completed", "ready", "verified", "succeeded"].includes(status)) return "allow";
+  if (["approved", "automated", "closed", "completed", "enabled", "ready", "scheduled", "verified", "succeeded"].includes(status)) return "allow";
   if (["blocked", "critical", "failed"].includes(status)) return "block";
   return "require_approval";
 }
@@ -3756,6 +3909,62 @@ function renderPilotReadiness(template) {
 async function refreshPilotReadiness() {
   latestPilotIntakeTemplate = await loadPilotIntakeTemplate();
   renderPilotReadiness(latestPilotIntakeTemplate);
+}
+
+function renderSaasOperatingAutomation(payload) {
+  const summaryPanel = document.querySelector("#saasAutomationSummary");
+  const checksPanel = document.querySelector("#saasAutomationChecks");
+  const requestPanel = document.querySelector("#saasAutomationRequest");
+  const responsePanel = document.querySelector("#saasAutomationResponse");
+  const statusPanel = document.querySelector("#saasAutomationStatus");
+  if (!summaryPanel || !checksPanel || !requestPanel || !responsePanel) return;
+
+  const contract = payload.contract || saasOperatingAutomationPreview.contract;
+  const request = payload.request || saasOperatingAutomationPreview.request;
+  const response = payload.response || saasOperatingAutomationPreview.response;
+  const operation = (contract.operations || []).find((item) => item.name === "saas_operating_automation") || {};
+  const requiredChecks = request.payload?.required_checks || [];
+  const privateModules = response.payload?.private_modules_required || [];
+  const responseSummary = response.payload?.summary || {};
+  const sourceLabel = payload.source === "cavra-api" ? "CAVRA API" : "Local sample";
+  const boundary = contract.public_repository_boundary || {};
+
+  summaryPanel.innerHTML = [
+    ["Source", sourceLabel, payload.source === "cavra-api" ? "Loaded from configured public API endpoints." : "Static hosted demo fallback."],
+    ["Operation", operation.name || request.operation, operation.request || "Public-safe request shape."],
+    ["Checks", requiredChecks.length, "Required recurring operating automation checks."],
+    ["Boundary", response.status || "requires_private_service", boundary.purpose || "Private SaaS implementation required."]
+  ].map(([label, value, detail]) => `
+    <article class="saas-automation-card">
+      <span>${escapeHtml(label)}</span>
+      <strong class="${statusClass(String(value))}">${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+
+  checksPanel.innerHTML = requiredChecks.map((check) => `
+    <article class="saas-check-item">
+      <span>${escapeHtml(formatLabel(check))}</span>
+      <strong class="${statusClass(responseSummary[saasOperatingAutomationStatusFields[check]] || responseSummary.automation_status || "unknown")}">${escapeHtml(responseSummary[saasOperatingAutomationStatusFields[check]] || "private validation")}</strong>
+      <p>${escapeHtml(saasOperatingAutomationCheckDescriptions[check] || "Private SaaS service readiness check.")}</p>
+    </article>
+  `).join("");
+
+  requestPanel.textContent = JSON.stringify(request, null, 2);
+  responsePanel.textContent = JSON.stringify(response, null, 2);
+  if (statusPanel) {
+    statusPanel.textContent = `${sourceLabel}: ${privateModules.length} private modules remain outside the public Community repository.`;
+    statusPanel.className = `status-line ${payload.source === "cavra-api" ? "ok" : "warn"}`;
+  }
+}
+
+async function refreshSaasOperatingAutomation() {
+  const statusPanel = document.querySelector("#saasAutomationStatus");
+  if (statusPanel) {
+    statusPanel.textContent = "Loading SaaS operating automation contract...";
+    statusPanel.className = "status-line";
+  }
+  renderSaasOperatingAutomation(await loadSaasOperatingAutomationContract());
 }
 
 async function savePilotIntakeSnapshot() {
@@ -9557,6 +9766,7 @@ document.querySelector("#approvalRows").addEventListener("click", async (event) 
 });
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
 document.querySelector("#savePilotIntake").addEventListener("click", savePilotIntakeSnapshot);
+document.querySelector("#refreshSaasAutomation").addEventListener("click", refreshSaasOperatingAutomation);
 document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
@@ -9576,6 +9786,7 @@ refreshEndpointRecurrenceOperations();
 refreshGoRollbackDrillNotifications();
 refreshTrialOnboardingSummary();
 refreshPilotReadiness();
+refreshSaasOperatingAutomation();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

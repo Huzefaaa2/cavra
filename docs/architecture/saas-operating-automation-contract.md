@@ -161,8 +161,17 @@ Both surfaces return request and response shapes only. `POST
 default and does not run automation workers, schedulers, connectors, billing
 checks, support workflows, or customer-success workflows.
 
+## Evidence Console Surface
+
+The public Evidence Console includes a SaaS Operating Automation Contract panel
+that renders the public-safe request, response, required checks, private
+modules required, and private-service boundary. It reads `GET
+/saas/control-plane/contract` and `POST /saas/operating-automation` when a
+CAVRA API is configured, and it falls back to a synthetic public-safe preview in
+hosted demo mode.
+
 ## Next Recommendation
 
-Expose this contract in the public Evidence Console and sandbox UI so
-evaluators can inspect the SaaS operating automation handoff without requiring
-Enterprise source, private SaaS services, credentials, or customer data.
+Add private Enterprise/SaaS implementation handoff readiness for real SaaS
+operating automation workers while keeping Enterprise source, SaaS services,
+credentials, and customer data outside the public Community repository.

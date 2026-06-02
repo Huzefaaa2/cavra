@@ -66,8 +66,15 @@ response payloads only. They do not run SaaS automation workers, schedulers,
 connectors, billing checks, support workflows, customer-success workflows, or
 private SaaS services.
 
+## Evidence Console
+
+The public Evidence Console includes a SaaS Operating Automation Contract panel
+that renders the public request, public response, required checks, and
+private-service boundary. It reads the API endpoints when configured and falls
+back to a synthetic public-safe preview in hosted demo mode.
+
 ## Next Recommendation
 
-Expose this contract in the public Evidence Console and sandbox UI while
-keeping private automation execution and customer operations inside Enterprise
-or SaaS repositories.
+Add private Enterprise/SaaS implementation handoff readiness for real SaaS
+operating automation workers while keeping private automation execution and
+customer operations inside Enterprise or SaaS repositories.

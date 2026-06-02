@@ -50,8 +50,8 @@ preserving the public/private source boundary.
 
 ## Next Recommendation
 
-Delivered in the SaaS operating automation contract and public API/CLI
-surfaces. Continue by exposing the contract in the public Evidence Console and
-sandbox UI while keeping private automation execution, scheduler, connector,
-customer, billing, and support implementation inside Enterprise or SaaS
-repositories.
+Delivered in the SaaS operating automation contract, public API/CLI surfaces,
+and Evidence Console inspection. Continue by adding private Enterprise/SaaS
+implementation handoff readiness for real SaaS operating automation workers
+while keeping private automation execution, scheduler, connector, customer,
+billing, and support implementation inside Enterprise or SaaS repositories.
