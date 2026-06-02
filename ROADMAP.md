@@ -50,5 +50,9 @@ Current open-core priority:
 24. Public-safe customer operating dashboard and support handoff contracts are
    delivered in
    [docs/architecture/customer-operating-dashboard-support-handoff-contract.md](docs/architecture/customer-operating-dashboard-support-handoff-contract.md).
-25. Next recommendation: continue private SaaS operating automation required
-   for trial-to-paid customer scale.
+25. Private SaaS operating automation plan evidence is delivered in
+   `cavra-enterprise` PR #74.
+26. Public-safe SaaS operating automation batch sync is documented in
+   [docs/saas-operating-automation-batch-sync.md](docs/saas-operating-automation-batch-sync.md).
+27. Next recommendation: define a public-safe SaaS operating automation
+   contract for Community documentation and future SaaS Control Plane handoff.

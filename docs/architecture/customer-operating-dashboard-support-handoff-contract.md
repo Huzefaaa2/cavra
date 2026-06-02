@@ -182,5 +182,7 @@ Public tests cover:
 
 ## Next Recommendation
 
-Continue private SaaS operating automation for trial-to-paid customer scale
-using these public-safe contracts as the Community boundary.
+Delivered in private SaaS operating automation plan evidence and summarized in
+[SaaS operating automation batch sync](../saas-operating-automation-batch-sync.md).
+Continue by defining a public-safe SaaS operating automation contract for
+Community documentation and future SaaS Control Plane handoff.
