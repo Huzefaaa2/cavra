@@ -433,7 +433,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Start the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md), beginning with the public trial-to-pilot intake plan.
+- Continue the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md) with public licensing interface hardening. The public trial-to-pilot intake plan is now documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md).
 
 ## User stories and enterprise value
 

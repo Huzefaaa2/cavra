@@ -10,6 +10,13 @@ from typing import Any
 
 
 PILOT_INTAKE_SCHEMA_VERSION = "cavra.final_closeout_pilot_intake.v1"
+TRIAL_TO_PILOT_INTAKE_SCHEMA_VERSION = "cavra.trial_to_pilot_intake.v1"
+SUPPORTED_PILOT_INTAKE_SCHEMA_VERSIONS = frozenset(
+    {
+        PILOT_INTAKE_SCHEMA_VERSION,
+        TRIAL_TO_PILOT_INTAKE_SCHEMA_VERSION,
+    }
+)
 PILOT_INTAKE_RECORD_SCHEMA_VERSION = "cavra.pilot_intake.record.v1"
 PILOT_INTAKE_STORE_SCHEMA_VERSION = "cavra.pilot_intake.store.v1"
 READY = "ready"
@@ -54,8 +61,9 @@ def normalize_pilot_intake(payload: dict[str, Any], *, existing: dict[str, Any] 
         raise ValueError("pilot intake payload must be a JSON object")
     _reject_sensitive_material(payload)
     source_schema = str(payload.get("schema_version", PILOT_INTAKE_SCHEMA_VERSION))
-    if source_schema != PILOT_INTAKE_SCHEMA_VERSION:
-        raise ValueError(f"pilot intake schema_version must be {PILOT_INTAKE_SCHEMA_VERSION}")
+    if source_schema not in SUPPORTED_PILOT_INTAKE_SCHEMA_VERSIONS:
+        supported = ", ".join(sorted(SUPPORTED_PILOT_INTAKE_SCHEMA_VERSIONS))
+        raise ValueError(f"pilot intake schema_version must be one of: {supported}")
 
     now = utc_now()
     intake_id = str(payload.get("intake_id") or existing.get("intake_id") if existing else payload.get("intake_id") or "")

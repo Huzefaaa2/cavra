@@ -1,0 +1,71 @@
+{
+  "schema_version": "cavra.trial_to_pilot_intake.v1",
+  "intake_id": "trial-to-pilot-demo",
+  "generated_for": "synthetic-public-template",
+  "pilot_objective": "Convert a CAVRA trial evaluation into a scoped Enterprise or SaaS pilot.",
+  "created_by": "sales-engineering",
+  "repositories": [
+    {
+      "repository": "example/ai-agent-release-service",
+      "owner": "platform-engineering",
+      "protected_branches": ["main", "release/*"],
+      "required_checks": ["cavra-required-check", "CodeQL"],
+      "release_workflow": "production-release",
+      "pilot_mode": "audit_then_enforce"
+    }
+  ],
+  "agents": [
+    {
+      "agent": "codex",
+      "identity": "transparent-ai-agent",
+      "allowed_actions": ["code_edit", "test", "pull_request"],
+      "approval_required_actions": ["policy_change", "release_governance_mutation"],
+      "blocked_actions": ["direct_protected_branch_push", "secret_access"]
+    }
+  ],
+  "ci_cd": {
+    "platform": "github-actions",
+    "runner_scope": "pilot-runners",
+    "required_check": "cavra-required-check",
+    "evidence_artifact_path": ".cavra/evidence",
+    "failure_behavior": "block"
+  },
+  "connectors": [
+    {
+      "provider": "webhook",
+      "environment": "non-production",
+      "purpose": "trial-release-governance-alert",
+      "owner": "platform-operations",
+      "status": "planned"
+    }
+  ],
+  "identity_and_rbac": {
+    "identity_provider": "to-be-confirmed",
+    "release_manager_group": "release-managers",
+    "security_reviewer_group": "security-architects",
+    "platform_owner_group": "platform-operations",
+    "auditor_group": "audit-reviewers"
+  },
+  "retention": {
+    "retention_days": 365,
+    "legal_hold_required": false,
+    "exception_owner": "release-risk-owner",
+    "archive_destination": "to-be-confirmed"
+  },
+  "enterprise_or_saas_handoff": {
+    "preferred_deployment": "to-be-confirmed",
+    "paid_policy_packs": [],
+    "commercial_owner": "to-be-confirmed",
+    "target_pilot_start": "to-be-confirmed"
+  },
+  "success_criteria": [
+    "CAVRA required check runs on the selected repository or release workflow.",
+    "Trial evidence is reviewed by release, security, platform, and audit stakeholders.",
+    "Connector, identity, retention, and deployment requirements are documented.",
+    "Enterprise or SaaS deployment path is selected."
+  ],
+  "evidence_refs": [
+    "trial-evidence://synthetic-public-template"
+  ],
+  "notes": "Public-safe synthetic template only. Store customer-specific intake responses in private Enterprise or SaaS systems."
+}

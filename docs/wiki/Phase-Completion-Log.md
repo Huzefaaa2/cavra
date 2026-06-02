@@ -1,5 +1,21 @@
 # Phase Completion Log
 
+## Phase 10 Trial To Pilot Intake
+
+Status: complete for the public trial-to-pilot intake planning slice.
+
+Completed implementation:
+- Added the general public-safe trial-to-pilot intake guide.
+- Added `cavra.trial_to_pilot_intake.v1` template support while preserving the existing final-closeout intake schema.
+- Added a synthetic trial-to-pilot intake template under `examples/demos/trial-to-pilot-intake/`.
+- Linked the intake flow from Enterprise trial documentation, README, roadmap, and wiki navigation.
+- Kept customer responses, license keys, connector credentials, private policy packs, Enterprise source, SaaS backend source, production tenant IDs, and commercial terms outside public source control.
+
+Validation:
+- Public tests cover normalization of the new template schema into `cavra.pilot_intake.record.v1`.
+
+Recommended next issue: public licensing interface hardening.
+
 ## Phase 10 Trial And SaaS Commercialization Readiness Plan
 
 Status: planned as the next production-readiness slice.
@@ -10,7 +26,7 @@ Completed planning:
 - Proposed the next PR sequence: public trial-to-pilot intake plan, public licensing interface hardening, public SaaS Control Plane contract, private trial package readiness, private customer pilot handoff evidence, and public docs/wiki sync.
 - Preserved the rule that Enterprise source, license-server logic, customer data, commercial policy packs, private connector payloads, signing keys, and SaaS secrets stay outside public source control.
 
-Recommended next issue: build the public trial-to-pilot intake plan.
+Recommended next issue: public licensing interface hardening.
 
 ## Phase 9 Enterprise Managed Infrastructure Readiness Closeout
 
@@ -37,7 +53,7 @@ User stories:
 Enterprise challenge solved:
 - Turns managed database and immutable object storage prerequisites into dashboarded release-readiness evidence while preserving private connector, storage, KMS, and credential boundaries.
 
-Recommended next issue: build the public trial-to-pilot intake plan.
+Recommended next issue: public licensing interface hardening.
 
 ## Phase 9 Enterprise Archive Alert Verification Summary Retry Ack Dashboards
 

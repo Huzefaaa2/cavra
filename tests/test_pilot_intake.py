@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -51,6 +52,20 @@ def test_normalize_pilot_intake_builds_readiness() -> None:
     assert record["readiness"]["overall_status"] == "ready"
     assert record["readiness"]["ready_count"] == 6
     assert record["storage_boundary"]["sensitive_material_rejected"] is True
+
+
+def test_normalize_trial_to_pilot_template_builds_readiness() -> None:
+    payload = json.loads(
+        Path("examples/demos/trial-to-pilot-intake/trial-to-pilot-intake-template.json").read_text(encoding="utf-8")
+    )
+
+    record = normalize_pilot_intake(payload)
+
+    assert record["schema_version"] == "cavra.pilot_intake.record.v1"
+    assert record["source_schema_version"] == "cavra.trial_to_pilot_intake.v1"
+    assert record["intake_id"] == "trial-to-pilot-demo"
+    assert record["readiness"]["area_count"] == 6
+    assert record["storage_boundary"]["private_records"] == "store customer pilot responses in self-hosted Enterprise or SaaS storage"
 
 
 def test_pilot_readiness_flags_missing_handoff() -> None:

@@ -56,6 +56,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Release Governance Final Closeout Operator Guide: `Release-Governance-Final-Closeout-Operator-Guide.md`
 - Release Governance Final Closeout Release Criteria: `Release-Governance-Final-Closeout-Release-Criteria.md`
 - Final Closeout Trial Guide: `Final-Closeout-Trial-Guide.md`
+- Trial To Pilot Intake: `Trial-To-Pilot-Intake.md`
 - Final Closeout Trial Walkthrough: `Final-Closeout-Trial-Walkthrough.md`
 - Final Closeout Trial Sample Evidence: `Final-Closeout-Trial-Sample-Evidence.md`
 - Final Closeout Sales Engineering Demo: `Final-Closeout-Sales-Engineering-Demo.md`
