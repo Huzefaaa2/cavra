@@ -54,5 +54,7 @@ Current open-core priority:
    `cavra-enterprise` PR #74.
 26. Public-safe SaaS operating automation batch sync is documented in
    [docs/saas-operating-automation-batch-sync.md](docs/saas-operating-automation-batch-sync.md).
-27. Next recommendation: define a public-safe SaaS operating automation
-   contract for Community documentation and future SaaS Control Plane handoff.
+27. Public-safe SaaS operating automation contract is delivered in
+   [docs/architecture/saas-operating-automation-contract.md](docs/architecture/saas-operating-automation-contract.md).
+28. Next recommendation: add public-safe API and CLI surfaces for the SaaS
+   operating automation contract.

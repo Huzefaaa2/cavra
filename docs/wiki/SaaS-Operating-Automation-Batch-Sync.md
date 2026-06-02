@@ -50,7 +50,7 @@ preserving the public/private source boundary.
 
 ## Next Recommendation
 
-Define a public-safe SaaS operating automation contract for Community
-documentation and future SaaS Control Plane handoff. Keep private automation
-execution, scheduler, connector, customer, billing, and support implementation
-inside private Enterprise or SaaS repositories.
+Delivered in the SaaS operating automation contract. Continue by adding
+public-safe API and CLI surfaces for the contract while keeping private
+automation execution, scheduler, connector, customer, billing, and support
+implementation inside Enterprise or SaaS repositories.

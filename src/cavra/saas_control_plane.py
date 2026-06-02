@@ -28,6 +28,7 @@ class SaaSOperation(str, Enum):
     TENANT_AUDIT_STORE_OPERATING = "tenant_audit_store_operating"
     CUSTOMER_OPERATING_DASHBOARD = "customer_operating_dashboard"
     SUPPORT_HANDOFF_READINESS = "support_handoff_readiness"
+    SAAS_OPERATING_AUTOMATION = "saas_operating_automation"
     EVIDENCE_EXPORT = "evidence_export"
 
 
@@ -101,6 +102,18 @@ SUPPORT_HANDOFF_READINESS_CHECKS = (
     "release_owner_acceptance",
 )
 SUPPORT_HANDOFF_READINESS_STATUSES = frozenset({"ready", "degraded", "blocked", "unknown"})
+SAAS_OPERATING_AUTOMATION_CHECKS = (
+    "billing_monitoring",
+    "license_telemetry_sync",
+    "support_followup",
+    "customer_success_review",
+    "dashboard_refresh",
+    "escalation_drill",
+    "closeout_retry",
+)
+SAAS_OPERATING_AUTOMATION_STATUSES = frozenset(
+    {"ready", "scheduled", "enabled", "automated", "blocked", "unknown"}
+)
 
 
 @dataclass(frozen=True)
@@ -371,6 +384,81 @@ class SupportHandoffReadinessSummary:
         }
 
 
+@dataclass(frozen=True)
+class SaaSOperatingAutomationSummary:
+    tenant_id: str
+    automation_status: str
+    billing_monitoring_status: str
+    license_telemetry_status: str
+    support_followup_status: str
+    customer_success_review_status: str
+    dashboard_refresh_status: str
+    escalation_drill_status: str
+    closeout_retry_status: str
+    automation_scope: str = "trial-to-paid-customer-scale"
+    automation_cadence: str = "daily"
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_saas_operating_automation_status(self.automation_status, field_name="automation_status")
+        _validate_saas_operating_automation_status(
+            self.billing_monitoring_status,
+            field_name="billing_monitoring_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.license_telemetry_status,
+            field_name="license_telemetry_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.support_followup_status,
+            field_name="support_followup_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.customer_success_review_status,
+            field_name="customer_success_review_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.dashboard_refresh_status,
+            field_name="dashboard_refresh_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.escalation_drill_status,
+            field_name="escalation_drill_status",
+        )
+        _validate_saas_operating_automation_status(
+            self.closeout_retry_status,
+            field_name="closeout_retry_status",
+        )
+        _reject_sensitive_material(
+            {
+                "automation_scope": self.automation_scope,
+                "automation_cadence": self.automation_cadence,
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "automation_status": self.automation_status,
+            "billing_monitoring_status": self.billing_monitoring_status,
+            "license_telemetry_status": self.license_telemetry_status,
+            "support_followup_status": self.support_followup_status,
+            "customer_success_review_status": self.customer_success_review_status,
+            "dashboard_refresh_status": self.dashboard_refresh_status,
+            "escalation_drill_status": self.escalation_drill_status,
+            "closeout_retry_status": self.closeout_retry_status,
+            "automation_scope": self.automation_scope,
+            "automation_cadence": self.automation_cadence,
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "automation_boundary": (
+                "billing systems, license telemetry, support workflows, customer-success records, "
+                "dashboard refresh jobs, escalation drills, closeout retries, and scheduler execution "
+                "remain private service responsibilities"
+            ),
+        }
+
+
 def build_entitlement_status_request(
     tenant_id: str,
     *,
@@ -554,6 +642,30 @@ def build_support_handoff_readiness_request(
     )
 
 
+def build_saas_operating_automation_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    automation_scope: str = "trial-to-paid-customer-scale",
+    automation_cadence: str = "daily",
+    required_checks: tuple[str, ...] = SAAS_OPERATING_AUTOMATION_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one SaaS operating automation check")
+    _reject_sensitive_material({"automation_scope": automation_scope, "automation_cadence": automation_cadence})
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.SAAS_OPERATING_AUTOMATION,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "automation_scope": automation_scope,
+            "automation_cadence": automation_cadence,
+            "required_checks": list(required_checks),
+            "automation_boundary": "public request shape only; SaaS operating automation execution is private",
+        },
+    )
+
+
 def build_policy_registry_lookup_request(
     tenant_id: str,
     policy_refs: tuple[str, ...],
@@ -687,6 +799,38 @@ def build_support_handoff_readiness_response(
                 "release owner acceptance",
             ],
             "next_step": "See docs/architecture/customer-operating-dashboard-support-handoff-contract.md",
+        },
+    )
+
+
+def build_saas_operating_automation_response(
+    request: SaaSControlPlaneRequest,
+    summary: SaaSOperatingAutomationSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.SAAS_OPERATING_AUTOMATION:
+        raise SaaSContractError("SaaS operating automation response requires a saas_operating_automation request")
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message=(
+            "SaaS operating automation requires private billing monitoring, license telemetry, "
+            "support, customer-success, dashboard, escalation, closeout retry, and scheduler validation."
+        ),
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "billing monitoring",
+                "license telemetry sync",
+                "support follow-up",
+                "customer-success review",
+                "dashboard refresh automation",
+                "escalation drill scheduler",
+                "closeout retry automation",
+            ],
+            "next_step": "See docs/architecture/saas-operating-automation-contract.md",
         },
     )
 
@@ -836,6 +980,11 @@ def describe_public_contract() -> dict[str, Any]:
                 "response": "support, customer-success, escalation, health review, dashboard, and release owner readiness",
             },
             {
+                "name": SaaSOperation.SAAS_OPERATING_AUTOMATION.value,
+                "request": "tenant identifier, automation scope, automation cadence, and operating automation checks",
+                "response": "billing monitoring, license telemetry, support follow-up, customer-success review, dashboard refresh, escalation drill, and closeout retry readiness",
+            },
+            {
                 "name": SaaSOperation.EVIDENCE_EXPORT.value,
                 "request": "evidence references, format, and retention profile",
                 "response": "export job status and governed artifact references",
@@ -891,6 +1040,12 @@ def _validate_support_handoff_readiness_status(status: str, *, field_name: str) 
         raise SaaSContractError(f"{field_name} must be one of: {supported}")
 
 
+def _validate_saas_operating_automation_status(status: str, *, field_name: str) -> None:
+    if status not in SAAS_OPERATING_AUTOMATION_STATUSES:
+        supported = ", ".join(sorted(SAAS_OPERATING_AUTOMATION_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -918,6 +1073,8 @@ __all__ = [
     "SAAS_CONTROL_PLANE_CONTRACT_VERSION",
     "SAAS_CONTROL_PLANE_REQUEST_VERSION",
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
+    "SAAS_OPERATING_AUTOMATION_CHECKS",
+    "SAAS_OPERATING_AUTOMATION_STATUSES",
     "SUPPORT_HANDOFF_READINESS_CHECKS",
     "SUPPORT_HANDOFF_READINESS_STATUSES",
     "TENANT_DEPLOYMENT_MODELS",
@@ -927,6 +1084,7 @@ __all__ = [
     "CustomerOperatingDashboardSummary",
     "EntitlementStatusSummary",
     "PolicyRegistryReadinessSummary",
+    "SaaSOperatingAutomationSummary",
     "SupportHandoffReadinessSummary",
     "TenantAuditStoreOperatingSummary",
     "SaaSContractError",
@@ -940,6 +1098,8 @@ __all__ = [
     "build_customer_operating_dashboard_response",
     "build_evidence_export_request",
     "build_license_validation_request",
+    "build_saas_operating_automation_request",
+    "build_saas_operating_automation_response",
     "build_support_handoff_readiness_request",
     "build_support_handoff_readiness_response",
     "build_tenant_audit_store_operating_request",

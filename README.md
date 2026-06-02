@@ -52,6 +52,7 @@ Open-core architecture and boundaries:
 - [Tenant audit-store operating contract](docs/architecture/tenant-audit-store-operating-contract.md)
 - [Billing and subscription boundary](docs/architecture/billing-subscription-boundary.md)
 - [Customer operating dashboard and support handoff contract](docs/architecture/customer-operating-dashboard-support-handoff-contract.md)
+- [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
@@ -447,7 +448,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Define a public-safe SaaS operating automation contract for Community documentation and future SaaS Control Plane handoff. Private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md) and [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md).
+- Add public-safe API and CLI surfaces for the SaaS operating automation contract. Private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, and SaaS operating automation evidence are delivered in `cavra-enterprise` PRs #70-#74 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
 
 ## User stories and enterprise value
 
