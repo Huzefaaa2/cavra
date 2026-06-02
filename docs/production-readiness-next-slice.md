@@ -44,7 +44,9 @@ Future SaaS repository or service:
 
 ## Proposed PR Sequence
 
-1. Public trial-to-pilot intake plan.
+1. Public trial-to-pilot intake plan. Delivered in
+   `docs/enterprise/trial-to-pilot-intake.md` with the public-safe template at
+   `examples/demos/trial-to-pilot-intake/trial-to-pilot-intake-template.json`.
    - Add public-safe trial request, pilot intake, and evidence checklist docs.
    - Update README, roadmap, wiki, and phase log.
 
@@ -103,6 +105,5 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-Start with the public trial-to-pilot intake plan because it defines the buyer
-journey and protects public/private boundaries before deeper implementation
-work begins.
+Continue with public licensing interface hardening because the trial-to-pilot
+intake path is now documented and backed by a public-safe template.
