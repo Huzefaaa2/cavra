@@ -55,4 +55,4 @@ private-module handoff messaging.
 ## Next Recommendation
 
 Delivered in the public tenant audit-store operating contract. Continue with
-public billing/subscription boundary documentation.
+private hosted policy registry readiness evidence in `cavra-enterprise`.

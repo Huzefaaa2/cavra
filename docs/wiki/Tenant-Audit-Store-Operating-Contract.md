@@ -54,4 +54,5 @@ request rejection, and private-module handoff messaging.
 
 ## Next Recommendation
 
-Implement the public billing/subscription boundary documentation.
+Delivered in public billing/subscription boundary documentation. Continue with
+private hosted policy registry readiness evidence in `cavra-enterprise`.

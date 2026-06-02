@@ -50,6 +50,7 @@ Open-core architecture and boundaries:
 - [Entitlement status contract](docs/architecture/entitlement-status-contract.md)
 - [Hosted policy registry readiness contract](docs/architecture/hosted-policy-registry-readiness-contract.md)
 - [Tenant audit-store operating contract](docs/architecture/tenant-audit-store-operating-contract.md)
+- [Billing and subscription boundary](docs/architecture/billing-subscription-boundary.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
@@ -442,7 +443,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. The recommended next PR is public billing/subscription boundary documentation, followed by private operating evidence and a public docs/wiki sync.
+- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. The recommended next PR is private hosted policy registry readiness evidence in `cavra-enterprise`, followed by private tenant audit-store operating evidence, private billing/subscription and license-service observability evidence, and a public docs/wiki sync.
 
 ## User stories and enterprise value
 
