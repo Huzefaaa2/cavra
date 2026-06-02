@@ -33,6 +33,7 @@ The SaaS tenant onboarding and entitlement readiness batch is complete:
 The post-onboarding SaaS operating readiness slice has started:
 
 - public hosted policy registry readiness contract is delivered.
+- public tenant audit-store operating contract is delivered.
 
 ## Remaining Production Themes
 
@@ -69,7 +70,8 @@ ownership, and SaaS dashboards need the same evidence discipline.
    - Keep hosted registry service implementation, paid policy packs, customer
      policy catalogs, and entitlement lookups private.
 
-2. Public tenant audit-store operating contract.
+2. Public tenant audit-store operating contract. Delivered with
+   `docs/architecture/tenant-audit-store-operating-contract.md`.
    - Add public-safe request and response shapes for audit-store health,
      retention posture, evidence freshness, and export readiness.
    - Keep tenant archive storage, customer evidence, retention enforcement, and
@@ -110,4 +112,4 @@ ownership, and SaaS dashboards need the same evidence discipline.
 
 ## Recommended Next PR
 
-Implement the public tenant audit-store operating contract.
+Implement public billing/subscription boundary documentation.

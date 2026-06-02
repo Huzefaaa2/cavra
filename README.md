@@ -49,6 +49,7 @@ Open-core architecture and boundaries:
 - [Tenant onboarding contract](docs/architecture/tenant-onboarding-contract.md)
 - [Entitlement status contract](docs/architecture/entitlement-status-contract.md)
 - [Hosted policy registry readiness contract](docs/architecture/hosted-policy-registry-readiness-contract.md)
+- [Tenant audit-store operating contract](docs/architecture/tenant-audit-store-operating-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
@@ -441,7 +442,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. The recommended next PR is the public tenant audit-store operating contract, followed by billing/subscription boundary documentation, private operating evidence, and a public docs/wiki sync.
+- Continue with the [post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md) slice. The recommended next PR is public billing/subscription boundary documentation, followed by private operating evidence and a public docs/wiki sync.
 
 ## User stories and enterprise value
 

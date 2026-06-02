@@ -27,5 +27,6 @@ Current open-core priority:
 11. Post-onboarding SaaS operating readiness is defined in
    [docs/post-onboarding-saas-operating-readiness.md](docs/post-onboarding-saas-operating-readiness.md).
 12. Public hosted policy registry readiness contract is delivered.
-13. Next recommendation: implement the public tenant audit-store operating
-   contract.
+13. Public tenant audit-store operating contract is delivered.
+14. Next recommendation: implement public billing/subscription boundary
+   documentation.

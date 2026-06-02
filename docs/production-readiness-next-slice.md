@@ -116,4 +116,4 @@ onboarding without compromising open-core boundaries.
 
 The next production-readiness slice is documented in
 [Post-Onboarding SaaS Operating Readiness](post-onboarding-saas-operating-readiness.md).
-Continue with the public tenant audit-store operating contract.
+Continue with public billing/subscription boundary documentation.

@@ -11,6 +11,7 @@ customer evidence storage remain private.
 - License validation handoff shape.
 - Hosted policy registry readiness request and response shape.
 - Policy registry lookup request shape.
+- Tenant audit-store operating request and response shape.
 - Evidence export request shape.
 - Unavailable response messaging for Community users.
 - Secret-field rejection before public payload serialization.
@@ -46,10 +47,12 @@ into the Community repository.
 
 The public test suite covers request serialization, contract boundaries,
 license report handoff, evidence export validation, policy lookup validation,
-hosted policy registry readiness validation, and sensitive payload rejection.
+hosted policy registry readiness validation, tenant audit-store operating
+validation, and sensitive payload rejection.
 
 ## Next Recommendation
 
 Delivered in later roadmap slices through public tenant onboarding,
-entitlement status, and hosted policy registry readiness contracts. Continue
-with the public tenant audit-store operating contract.
+entitlement status, hosted policy registry readiness, and tenant audit-store
+operating contracts. Continue with the public billing/subscription boundary
+documentation.

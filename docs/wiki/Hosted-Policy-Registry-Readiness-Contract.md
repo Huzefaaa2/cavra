@@ -54,4 +54,5 @@ private-module handoff messaging.
 
 ## Next Recommendation
 
-Implement the public tenant audit-store operating contract.
+Delivered in the public tenant audit-store operating contract. Continue with
+public billing/subscription boundary documentation.

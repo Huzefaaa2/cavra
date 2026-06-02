@@ -18,6 +18,7 @@ promotion, and customer rollout closeout:
 - public tenant onboarding contract;
 - public entitlement status contract;
 - public hosted policy registry readiness contract;
+- public tenant audit-store operating contract;
 - private trial package readiness gates in `cavra-enterprise` PR #61;
 - private customer pilot handoff evidence in `cavra-enterprise` PR #62;
 - private tenant onboarding readiness evidence in `cavra-enterprise` PR #63;
@@ -86,7 +87,8 @@ Future SaaS service work should own:
      requirements.
    - Keep hosted registry implementation and paid policy packs private.
 
-2. Public tenant audit-store operating contract.
+2. Public tenant audit-store operating contract. Delivered with
+   `docs/architecture/tenant-audit-store-operating-contract.md`.
    - Add public-safe request and response shapes for audit-store health,
      retention posture, export readiness, and evidence freshness.
    - Keep tenant archive storage, customer evidence, and retention enforcement
@@ -126,4 +128,4 @@ Future SaaS service work should own:
 
 ## Recommended Next PR
 
-Implement the public tenant audit-store operating contract.
+Implement public billing/subscription boundary documentation.

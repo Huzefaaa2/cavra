@@ -48,6 +48,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Tenant Onboarding Contract: `Tenant-Onboarding-Contract.md`
 - Entitlement Status Contract: `Entitlement-Status-Contract.md`
 - Hosted Policy Registry Readiness Contract: `Hosted-Policy-Registry-Readiness-Contract.md`
+- Tenant Audit-Store Operating Contract: `Tenant-Audit-Store-Operating-Contract.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
 - Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`

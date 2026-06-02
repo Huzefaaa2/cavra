@@ -9,6 +9,7 @@ from cavra.saas_control_plane import (
     SaaSContractError,
     SaaSOperation,
     SaaSResponseStatus,
+    TenantAuditStoreOperatingSummary,
     build_entitlement_status_request,
     build_entitlement_status_response,
     build_evidence_export_request,
@@ -16,6 +17,8 @@ from cavra.saas_control_plane import (
     build_policy_registry_readiness_request,
     build_policy_registry_readiness_response,
     build_policy_registry_lookup_request,
+    build_tenant_audit_store_operating_request,
+    build_tenant_audit_store_operating_response,
     build_tenant_onboarding_request,
     build_tenant_onboarding_unavailable_response,
     build_tenant_status_request,
@@ -35,6 +38,7 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     assert SaaSOperation.ENTITLEMENT_STATUS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.TENANT_ONBOARDING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.POLICY_REGISTRY_READINESS.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.TENANT_AUDIT_STORE_OPERATING.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -268,6 +272,118 @@ def test_policy_registry_readiness_summary_rejects_negative_policy_pack_count() 
         assert "policy_pack_count" in str(exc)
     else:
         raise AssertionError("expected negative policy pack count to be rejected")
+
+
+def test_tenant_audit_store_operating_request_is_public_safe() -> None:
+    request = build_tenant_audit_store_operating_request(
+        "tenant-demo",
+        requested_by="console",
+        retention_profile="standard-365",
+        evidence_window="last-24h",
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "tenant_audit_store_operating"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["retention_profile"] == "standard-365"
+    assert payload["payload"]["evidence_window"] == "last-24h"
+    assert payload["payload"]["required_checks"] == [
+        "store_health",
+        "retention_posture",
+        "evidence_freshness",
+        "export_readiness",
+        "immutable_storage",
+        "dashboard_visibility",
+    ]
+
+
+def test_tenant_audit_store_operating_request_rejects_empty_checks() -> None:
+    try:
+        build_tenant_audit_store_operating_request("tenant-demo", required_checks=())
+    except SaaSContractError as exc:
+        assert "required_checks" in str(exc)
+    else:
+        raise AssertionError("expected empty audit-store checks to be rejected")
+
+
+def test_tenant_audit_store_operating_request_rejects_sensitive_values() -> None:
+    try:
+        build_tenant_audit_store_operating_request(
+            "tenant-demo",
+            retention_profile="ghp_123456789012345678901234567890",
+        )
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive retention profile to be rejected")
+
+
+def test_tenant_audit_store_operating_response_serializes_summary() -> None:
+    request = build_tenant_audit_store_operating_request("tenant-demo", requested_by="console")
+    summary = TenantAuditStoreOperatingSummary(
+        tenant_id="tenant-demo",
+        health_status="ready",
+        retention_status="degraded",
+        evidence_freshness_status="ready",
+        export_status="blocked",
+        latest_evidence_at="2026-06-02T00:00:00Z",
+        retention_profile="standard-365",
+        supported_export_formats=("json", "zip"),
+        blockers=("export connector approval pending",),
+    )
+
+    response = build_tenant_audit_store_operating_response(request, summary).to_dict()
+
+    assert response["operation"] == "tenant_audit_store_operating"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["health_status"] == "ready"
+    assert response["payload"]["summary"]["retention_status"] == "degraded"
+    assert response["payload"]["summary"]["evidence_freshness_status"] == "ready"
+    assert response["payload"]["summary"]["export_status"] == "blocked"
+    assert response["payload"]["summary"]["supported_export_formats"] == ["json", "zip"]
+    assert response["payload"]["summary"]["blockers"] == ["export connector approval pending"]
+    assert response["payload"]["private_modules_required"] == [
+        "tenant audit store",
+        "retention enforcement",
+        "evidence freshness monitor",
+        "export connector service",
+        "operating dashboard",
+    ]
+
+
+def test_tenant_audit_store_operating_summary_rejects_invalid_state() -> None:
+    summary = TenantAuditStoreOperatingSummary(
+        tenant_id="tenant-demo",
+        health_status="healthy",
+        retention_status="ready",
+        evidence_freshness_status="ready",
+        export_status="ready",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "health_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown audit-store state to be rejected")
+
+
+def test_tenant_audit_store_operating_response_requires_matching_request() -> None:
+    request = build_policy_registry_readiness_request("tenant-demo")
+    summary = TenantAuditStoreOperatingSummary(
+        tenant_id="tenant-demo",
+        health_status="ready",
+        retention_status="ready",
+        evidence_freshness_status="ready",
+        export_status="ready",
+    )
+
+    try:
+        build_tenant_audit_store_operating_response(request, summary)
+    except SaaSContractError as exc:
+        assert "tenant_audit_store_operating" in str(exc)
+    else:
+        raise AssertionError("expected mismatched request to be rejected")
 
 
 def test_policy_registry_lookup_rejects_empty_policy_refs() -> None:
