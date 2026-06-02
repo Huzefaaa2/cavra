@@ -27,4 +27,7 @@ Community repository.
 
 ## Next Recommendation
 
-Run a roadmap status pass and define the next production-readiness slice.
+Delivered in the follow-up tenant, entitlement, and commercialization batch sync:
+public tenant onboarding, public entitlement status, private tenant onboarding
+readiness, private entitlement/license handoff, private paid-pilot promotion,
+and private customer rollout closeout evidence.

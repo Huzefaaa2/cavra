@@ -46,6 +46,7 @@ pilot starts.
 
 ## Recommended Next Step
 
-Run a roadmap status pass and define the next production-readiness slice. The
-current Trial and SaaS commercialization readiness batch is complete from a
-public-safe documentation perspective.
+Delivered in the follow-up tenant, entitlement, and commercialization batch
+sync: public tenant onboarding, public entitlement status, private tenant
+onboarding readiness, private entitlement/license handoff, private paid-pilot
+promotion, and private customer rollout closeout evidence.

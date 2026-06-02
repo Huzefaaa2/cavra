@@ -10,6 +10,10 @@ private connector payloads, signing keys, or SaaS secrets.
 
 Trial and SaaS commercialization readiness.
 
+Status: complete. Follow-up SaaS tenant onboarding and entitlement readiness is
+also complete through public contracts, private Enterprise evidence gates, and
+public-safe documentation sync.
+
 ## Why This Is Next
 
 CAVRA now has Community source, open-core boundaries, public trial guidance,
@@ -111,6 +115,6 @@ onboarding without compromising open-core boundaries.
 ## Immediate Next PR
 
 The roadmap status pass is documented in
-[Roadmap Status and Next Slice](roadmap-status-next-slice.md). Continue with the
-private tenant onboarding readiness evidence in `cavra-enterprise` for the SaaS
-tenant onboarding and entitlement readiness slice.
+[Roadmap Status and Next Slice](roadmap-status-next-slice.md). The tenant
+onboarding and entitlement readiness batch is complete; continue by defining
+the next production-readiness slice after this batch.
