@@ -8,6 +8,24 @@ Transparent CAVRA engineering agents may execute implementation work for these p
 
 CAVRA becomes the enterprise runtime authority layer for AI coding agents. Enterprises can safely adopt Claude Code, GitHub Copilot, OpenAI Codex, Cursor, Gemini CLI, AWS Q Developer, MCP tools, Terraform, Kubernetes, cloud CLI, and AI-assisted CI/CD because CAVRA governs sensitive agent actions before execution and produces audit-ready evidence after every decision.
 
+## Current Enterprise Batch Sync
+
+Status: public-safe documentation synchronized after private Enterprise PRs
+#35-#44.
+
+Delivered in the private Enterprise repository:
+- summary retry health acknowledgement persistence;
+- acknowledgement trend reporting, delivery retry workers, and worker health;
+- acknowledgement trend health alert routing, acknowledgements, and persistence;
+- closure summaries, retry-worker delivery dashboards, and final rollout
+  reports;
+- final rollout report routing, handoff tracking, delivery dashboards, retry
+  planning, retry-worker execution, and retry-worker persistence.
+
+Next private recommendation: final rollout acknowledgements, trend reporting,
+and release-readiness evidence. Public Community source remains free of
+Enterprise implementation details.
+
 ## Phase 1: Productization Foundation
 
 Status: complete in PR #1.
