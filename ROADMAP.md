@@ -12,6 +12,7 @@ Current open-core priority:
    documentation without exposing proprietary implementation.
 4. Public SaaS Control Plane contracts now define safe request and response
    shapes for future private services.
-5. Next implementation recommendation: continue the Trial and SaaS
-   commercialization readiness slice with private trial package readiness in
-   `cavra-enterprise`.
+5. Private Trial and SaaS commercialization readiness follow-ups are complete
+   through `cavra-enterprise` PR #61 and PR #62.
+6. Next recommendation: run a roadmap status pass and define the next
+   production-readiness slice.

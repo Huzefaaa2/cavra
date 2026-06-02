@@ -65,17 +65,17 @@ Future SaaS repository or service:
      registry lookup, evidence export, and license validation boundaries.
    - Document that implementation belongs in private SaaS code.
 
-4. Private trial package readiness.
+4. Private trial package readiness. Delivered in private PR #61.
    - Add private package checklist, trial artifact metadata, and release gate
      evidence in `cavra-enterprise`.
    - Keep binaries, customer identifiers, license keys, and private modules out
      of public source.
 
-5. Private customer pilot handoff evidence.
+5. Private customer pilot handoff evidence. Delivered in private PR #62.
    - Add private handoff dashboard records for trial-to-pilot conversion,
      operator acknowledgements, and support ownership.
 
-6. Public docs/wiki sync.
+6. Public docs/wiki sync. Delivered by this public-safe batch sync.
    - Sync public-safe outcomes after the private batch according to the
      10-PR documentation cadence or earlier if roadmap guidance becomes stale.
 
@@ -110,6 +110,6 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-Continue with private trial package readiness in `cavra-enterprise` because
-the trial intake path, public licensing interface, and public SaaS Control Plane
-contract are now documented and tested.
+Run a roadmap status pass and define the next production-readiness slice. The
+Trial and SaaS commercialization readiness batch is complete from a public-safe
+documentation perspective.
