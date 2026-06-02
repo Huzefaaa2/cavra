@@ -28,10 +28,14 @@ Current Trial and SaaS commercialization readiness status:
 - public SaaS Control Plane contract is delivered with request/response
   boundaries for tenant status, license validation, policy lookup, and evidence
   export.
+- private trial package readiness gates are delivered in `cavra-enterprise`
+  PR #61;
+- private customer pilot handoff evidence is delivered in `cavra-enterprise`
+  PR #62.
 
-Next private recommendation: continue the Trial and SaaS commercialization
-readiness slice with private trial package readiness in `cavra-enterprise`.
-Public Community source remains free of Enterprise implementation details.
+Next recommendation: run a roadmap status pass and define the next
+production-readiness slice. Public Community source remains free of Enterprise
+implementation details.
 
 ## Phase 1: Productization Foundation
 

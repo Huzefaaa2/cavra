@@ -13,9 +13,9 @@ code, license-server logic, customer data, or SaaS secrets.
 1. Public trial-to-pilot intake plan. Delivered.
 2. Public licensing interface hardening. Delivered.
 3. Public SaaS Control Plane contract. Delivered.
-4. Private trial package readiness.
-5. Private customer pilot handoff evidence.
-6. Public docs/wiki sync.
+4. Private trial package readiness. Delivered in private PR #61.
+5. Private customer pilot handoff evidence. Delivered in private PR #62.
+6. Public docs/wiki sync. Delivered.
 
 ## Public Boundaries
 
@@ -37,4 +37,4 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Continue with private trial package readiness in `cavra-enterprise`.
+Run a roadmap status pass and define the next production-readiness slice.
