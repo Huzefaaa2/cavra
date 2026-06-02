@@ -130,9 +130,10 @@ source boundaries.
 
 ## Next Recommendation
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`. Private hosted policy registry readiness,
-tenant audit-store operating, and SaaS operating readiness rollup evidence are
-delivered in `cavra-enterprise` PRs #67-#69. Billing provider integrations,
-customer payment records, license keys, signing material, provider URLs,
-connector credentials, and SaaS backend code must remain private.
+Private billing/subscription and license-service observability evidence is
+delivered in `cavra-enterprise` PR #70. The subsequent private support handoff,
+operating dashboard escalation, and final SaaS customer operating closeout
+gates are delivered in PRs #71-#73. Continue with public-safe customer
+operating dashboard and support handoff contracts while keeping billing
+provider integrations, customer payment records, license keys, signing
+material, provider URLs, connector credentials, and SaaS backend code private.

@@ -55,6 +55,7 @@ Open-core architecture and boundaries:
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Post-onboarding SaaS operating readiness](docs/post-onboarding-saas-operating-readiness.md)
 - [Post-onboarding SaaS operating batch sync](docs/post-onboarding-saas-operating-batch-sync.md)
+- [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -440,7 +441,7 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, trial package readiness gates, customer pilot handoff evidence, tenant onboarding readiness evidence, entitlement and license-service handoff evidence, paid-pilot promotion evidence, customer rollout closeout evidence, hosted policy registry readiness evidence, tenant audit-store operating evidence, SaaS operating readiness rollup evidence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, SaaS backend implementation details, license-service implementation details, billing records, and production driver implementation details remain outside this public Community repository.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, trial package readiness gates, customer pilot handoff evidence, tenant onboarding readiness evidence, entitlement and license-service handoff evidence, paid-pilot promotion evidence, customer rollout closeout evidence, hosted policy registry readiness evidence, tenant audit-store operating evidence, SaaS operating readiness rollup evidence, billing and license-service observability evidence, support and customer-success operating handoff evidence, operating dashboard and support escalation rollup evidence, final SaaS customer operating closeout evidence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, SaaS backend implementation details, license-service implementation details, billing records, support ticket contents, customer-success notes, production dashboard URLs, and production driver implementation details remain outside this public Community repository.
 
 Next recommended implementation work:
 

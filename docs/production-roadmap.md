@@ -51,14 +51,24 @@ Current Trial and SaaS commercialization readiness status:
   `cavra-enterprise` PR #68;
 - private SaaS operating readiness rollup evidence is delivered in
   `cavra-enterprise` PR #69;
+- private billing and license-service observability evidence is delivered in
+  `cavra-enterprise` PR #70;
+- private support and customer-success operating handoff evidence is delivered
+  in `cavra-enterprise` PR #71;
+- private operating dashboard and support escalation rollup evidence is
+  delivered in `cavra-enterprise` PR #72;
+- private final SaaS customer operating closeout evidence is delivered in
+  `cavra-enterprise` PR #73;
 - public-safe tenant, entitlement, and commercialization batch sync is
   documented in `docs/tenant-entitlement-commercialization-batch-sync.md`.
 - public-safe post-onboarding SaaS operating batch sync is documented in
   `docs/post-onboarding-saas-operating-batch-sync.md`.
+- public-safe SaaS customer operating closeout batch sync is documented in
+  `docs/saas-customer-operating-closeout-batch-sync.md`.
 
-Next production-readiness slice: post-onboarding SaaS operating readiness. The
-recommended next PR is private billing/subscription and license-service
-observability evidence in `cavra-enterprise`.
+Next production-readiness slice: customer operating dashboard and support
+handoff contracts for Community documentation, followed by private SaaS
+operating automation for trial-to-paid customer scale.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
