@@ -11,4 +11,5 @@ Current open-core priority:
 3. Add public-safe extension points, trial instructions, and Enterprise
    documentation without exposing proprietary implementation.
 4. Next implementation recommendation: continue the Trial and SaaS
-   commercialization readiness slice with public licensing interface hardening.
+   commercialization readiness slice with the public SaaS Control Plane
+   contract.

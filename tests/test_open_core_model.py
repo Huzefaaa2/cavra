@@ -9,7 +9,7 @@ from cavra.config.features import explain_locked_feature, is_feature_enabled, li
 from cavra.edition.community import ENTERPRISE_MESSAGE, current_edition, require_enterprise
 from cavra.edition.enterprise_hooks import EnterpriseFeatureUnavailable, is_enterprise_available, load_enterprise_feature
 from cavra.licensing.license_client import LocalLicenseClient
-from cavra.licensing.license_types import LicenseEdition, LicenseStatus
+from cavra.licensing.license_types import License, LicenseEdition, LicenseStatus
 from cavra.licensing.trial_mode import TrialMode
 from cavra.plugin_runtime.loader import PluginLoadError, load_plugin, read_manifest
 
@@ -92,6 +92,74 @@ def test_trial_license_mock_loads_safely(tmp_path: Path) -> None:
     assert trial.days_remaining() >= 13
     assert "private CAVRA license service" in trial.validation_note()
     assert is_feature_enabled("sso", "trial", license_obj) is True
+    report = LocalLicenseClient().validation_report(license_obj)
+    assert report.valid is True
+    assert report.private_validation_required is True
+    assert report.to_dict()["enabled_features"] == ["sso"]
+
+
+def test_license_validation_report_handles_expired_trial() -> None:
+    expired = License(
+        license_id="expired-trial",
+        edition=LicenseEdition.TRIAL,
+        expires_at=(datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
+        features=("sso",),
+    )
+
+    report = LocalLicenseClient().validation_report(expired)
+
+    assert report.status == LicenseStatus.EXPIRED
+    assert report.valid is False
+    assert report.locked_features == ("sso",)
+    assert is_feature_enabled("sso", "trial", expired) is False
+
+
+def test_license_client_marks_unknown_edition_invalid() -> None:
+    license_obj = LocalLicenseClient().from_payload(
+        {
+            "license_id": "bad-edition",
+            "edition": "partner",
+            "features": ["sso"],
+        }
+    )
+
+    report = LocalLicenseClient().validation_report(license_obj)
+
+    assert license_obj.status == LicenseStatus.INVALID
+    assert report.valid is False
+    assert report.message == "License payload is invalid."
+
+
+def test_license_client_preserves_revoked_and_suspended_status() -> None:
+    revoked = LocalLicenseClient().from_payload(
+        {
+            "license_id": "revoked-enterprise",
+            "edition": "enterprise",
+            "status": "revoked",
+            "features": ["*"],
+        }
+    )
+
+    report = LocalLicenseClient().validation_report(revoked)
+
+    assert report.status == LicenseStatus.REVOKED
+    assert report.private_validation_required is True
+    assert report.valid is False
+    assert "revoked" in report.message
+
+
+def test_malformed_trial_expiry_is_safe() -> None:
+    license_obj = License(
+        license_id="malformed-trial",
+        edition=LicenseEdition.TRIAL,
+        expires_at="not-a-date",
+        features=("sso",),
+    )
+    trial = TrialMode(license_obj)
+
+    assert LocalLicenseClient().validate(license_obj) == LicenseStatus.EXPIRED
+    assert trial.active is False
+    assert trial.days_remaining() == 0
 
 
 def test_boundary_validation_script_detects_risky_terms(tmp_path: Path) -> None:

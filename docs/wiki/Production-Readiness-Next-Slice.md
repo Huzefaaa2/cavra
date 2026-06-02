@@ -11,7 +11,7 @@ code, license-server logic, customer data, or SaaS secrets.
 ## Planned PR Sequence
 
 1. Public trial-to-pilot intake plan. Delivered.
-2. Public licensing interface hardening.
+2. Public licensing interface hardening. Delivered.
 3. Public SaaS Control Plane contract.
 4. Private trial package readiness.
 5. Private customer pilot handoff evidence.
@@ -37,4 +37,4 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Continue with public licensing interface hardening.
+Continue with the public SaaS Control Plane contract.

@@ -1,5 +1,22 @@
 # Phase Completion Log
 
+## Phase 10 Public Licensing Interface Hardening
+
+Status: complete for the public licensing interface hardening slice.
+
+Completed implementation:
+- Added `LicenseValidationReport` for public-safe local validation summaries.
+- Added revoked and suspended status handling.
+- Hardened unknown edition, unknown status, and malformed expiry handling.
+- Preserved Community no-license behavior and private validation boundaries.
+- Added tests for valid trial reports, expired trials, invalid payloads,
+  revoked status, malformed expiry, and Enterprise feature locking.
+
+Validation:
+- Public tests cover licensing report behavior and feature gating.
+
+Recommended next issue: public SaaS Control Plane contract.
+
 ## Phase 10 Trial To Pilot Intake
 
 Status: complete for the public trial-to-pilot intake planning slice.
@@ -14,7 +31,7 @@ Completed implementation:
 Validation:
 - Public tests cover normalization of the new template schema into `cavra.pilot_intake.record.v1`.
 
-Recommended next issue: public licensing interface hardening.
+Recommended next issue: public SaaS Control Plane contract.
 
 ## Phase 10 Trial And SaaS Commercialization Readiness Plan
 
@@ -26,7 +43,7 @@ Completed planning:
 - Proposed the next PR sequence: public trial-to-pilot intake plan, public licensing interface hardening, public SaaS Control Plane contract, private trial package readiness, private customer pilot handoff evidence, and public docs/wiki sync.
 - Preserved the rule that Enterprise source, license-server logic, customer data, commercial policy packs, private connector payloads, signing keys, and SaaS secrets stay outside public source control.
 
-Recommended next issue: public licensing interface hardening.
+Recommended next issue: public SaaS Control Plane contract.
 
 ## Phase 9 Enterprise Managed Infrastructure Readiness Closeout
 
@@ -53,7 +70,7 @@ User stories:
 Enterprise challenge solved:
 - Turns managed database and immutable object storage prerequisites into dashboarded release-readiness evidence while preserving private connector, storage, KMS, and credential boundaries.
 
-Recommended next issue: public licensing interface hardening.
+Recommended next issue: public SaaS Control Plane contract.
 
 ## Phase 9 Enterprise Archive Alert Verification Summary Retry Ack Dashboards
 

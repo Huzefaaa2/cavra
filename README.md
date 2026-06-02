@@ -433,7 +433,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Continue the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md) with public licensing interface hardening. The public trial-to-pilot intake plan is now documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md).
+- Continue the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md) with the public SaaS Control Plane contract. The public trial-to-pilot intake plan is documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md), and public licensing behavior is documented in [docs/enterprise/licensing.md](docs/enterprise/licensing.md).
 
 ## User stories and enterprise value
 

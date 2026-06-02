@@ -20,7 +20,10 @@ class TrialMode:
         if not self.license.expires_at:
             return None
         current = now or datetime.now(timezone.utc)
-        expires = datetime.fromisoformat(self.license.expires_at.replace("Z", "+00:00"))
+        try:
+            expires = datetime.fromisoformat(self.license.expires_at.replace("Z", "+00:00"))
+        except ValueError:
+            return 0
         return max(0, (expires - current).days)
 
     def validation_note(self) -> str:
