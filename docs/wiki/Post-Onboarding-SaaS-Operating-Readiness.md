@@ -41,7 +41,12 @@ license-service observability, support ownership, and SaaS dashboards.
 4. Private hosted policy registry readiness evidence.
 5. Private tenant audit-store operating evidence.
 6. Private billing/subscription and license-service observability evidence.
-7. Public docs/wiki sync.
+7. Private SaaS operating readiness rollup evidence.
+8. Private support and customer-success operating handoff evidence.
+9. Private operating dashboard and support escalation rollup evidence.
+10. Private final SaaS customer operating closeout evidence.
+11. Public docs/wiki sync and public customer operating dashboard/support
+    handoff contracts.
 
 ## Boundary
 
@@ -52,7 +57,6 @@ URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`. Private hosted policy registry readiness,
-tenant audit-store operating, and SaaS operating readiness rollup evidence are
-delivered in `cavra-enterprise` PRs #67-#69.
+Continue private SaaS operating automation required for trial-to-paid customer
+scale. Private hosted policy registry readiness through final SaaS customer
+operating closeout evidence is delivered in `cavra-enterprise` PRs #67-#73.

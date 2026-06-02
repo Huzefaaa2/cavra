@@ -65,10 +65,13 @@ Current Trial and SaaS commercialization readiness status:
   `docs/post-onboarding-saas-operating-batch-sync.md`.
 - public-safe SaaS customer operating closeout batch sync is documented in
   `docs/saas-customer-operating-closeout-batch-sync.md`.
+- public-safe customer operating dashboard and support handoff contracts are
+  documented in
+  `docs/architecture/customer-operating-dashboard-support-handoff-contract.md`.
 
-Next production-readiness slice: customer operating dashboard and support
-handoff contracts for Community documentation, followed by private SaaS
-operating automation for trial-to-paid customer scale.
+Next production-readiness slice: private SaaS operating automation for
+trial-to-paid customer scale using the public customer operating dashboard and
+support handoff contracts as the Community boundary.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

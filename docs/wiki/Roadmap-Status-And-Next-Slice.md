@@ -20,24 +20,28 @@ Completed before and during this slice:
 - private hosted policy registry readiness evidence in private PR #67;
 - private tenant audit-store operating evidence in private PR #68;
 - private SaaS operating readiness rollup evidence in private PR #69;
+- private billing and license-service observability evidence in private PR #70;
+- private support and customer-success operating handoff evidence in private
+  PR #71;
+- private operating dashboard and support escalation rollup evidence in private
+  PR #72;
+- private final SaaS customer operating closeout evidence in private PR #73;
+- public customer operating dashboard and support handoff contracts;
 - public-safe commercialization batch syncs.
 
-The post-onboarding SaaS operating readiness slice is now complete through
-private SaaS operating readiness rollup evidence and public-safe documentation
-sync.
+The post-onboarding SaaS operating readiness and customer operating closeout
+slices are now complete through private final SaaS customer operating closeout
+evidence and public-safe contract documentation.
 
 ## Remaining Themes
 
-- Hosted policy registry readiness and policy-pack catalog operation.
-- Tenant audit-store health, retention posture, and export readiness.
-- Billing/subscription operations and license-service observability.
-- Enterprise/SaaS dashboard operating evidence.
+- Private SaaS operating automation for trial-to-paid customer scale.
 - Production observability and support runbooks.
 - Final release hardening and commercialization closeout.
 
 ## Next Slice
 
-Post-onboarding SaaS operating readiness.
+Private SaaS operating automation.
 
 ## Proposed PR Sequence
 
@@ -50,8 +54,18 @@ Post-onboarding SaaS operating readiness.
 6. Private SaaS operating readiness rollup. Delivered in private PR #69.
 7. Public docs/wiki sync. Delivered.
 8. Private billing/subscription and license-service observability evidence.
+   Delivered in private PR #70.
+9. Private support and customer-success operating handoff evidence. Delivered
+   in private PR #71.
+10. Private operating dashboard and support escalation rollup evidence.
+    Delivered in private PR #72.
+11. Private final SaaS customer operating closeout evidence. Delivered in
+    private PR #73.
+12. Public customer operating dashboard and support handoff contracts.
+    Delivered.
+13. Private SaaS operating automation for trial-to-paid customer scale.
 
 ## Recommended Next PR
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`.
+Continue private SaaS operating automation required for trial-to-paid customer
+scale.

@@ -47,6 +47,8 @@ Current open-core priority:
    `cavra-enterprise` PR #73.
 23. Public-safe SaaS customer operating closeout batch sync is documented in
    [docs/saas-customer-operating-closeout-batch-sync.md](docs/saas-customer-operating-closeout-batch-sync.md).
-24. Next recommendation: define public-safe customer operating dashboard and
-   support handoff contracts, then continue private SaaS operating automation
-   required for trial-to-paid customer scale.
+24. Public-safe customer operating dashboard and support handoff contracts are
+   delivered in
+   [docs/architecture/customer-operating-dashboard-support-handoff-contract.md](docs/architecture/customer-operating-dashboard-support-handoff-contract.md).
+25. Next recommendation: continue private SaaS operating automation required
+   for trial-to-paid customer scale.

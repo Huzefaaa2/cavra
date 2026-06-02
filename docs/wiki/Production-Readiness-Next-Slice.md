@@ -26,6 +26,24 @@ code, license-server logic, customer data, or SaaS secrets.
 12. Private customer rollout closeout evidence. Delivered in private PR #66.
 13. Public tenant, entitlement, and commercialization docs/wiki sync.
     Delivered.
+14. Public hosted policy registry readiness contract. Delivered.
+15. Public tenant audit-store operating contract. Delivered.
+16. Public billing/subscription boundary documentation. Delivered.
+17. Private hosted policy registry readiness evidence. Delivered in private
+    PR #67.
+18. Private tenant audit-store operating evidence. Delivered in private PR #68.
+19. Private SaaS operating readiness rollup evidence. Delivered in private
+    PR #69.
+20. Private billing and license-service observability evidence. Delivered in
+    private PR #70.
+21. Private support and customer-success operating handoff evidence. Delivered
+    in private PR #71.
+22. Private operating dashboard and support escalation rollup evidence.
+    Delivered in private PR #72.
+23. Private final SaaS customer operating closeout evidence. Delivered in
+    private PR #73.
+24. Public customer operating dashboard and support handoff contracts.
+    Delivered.
 
 ## Public Boundaries
 
@@ -47,7 +65,5 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`. Private hosted policy registry readiness,
-tenant audit-store operating, and SaaS operating readiness rollup evidence are
-delivered in `cavra-enterprise` PRs #67-#69.
+Continue private SaaS operating automation required for trial-to-paid customer
+scale.

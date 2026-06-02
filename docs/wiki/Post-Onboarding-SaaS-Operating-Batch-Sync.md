@@ -46,6 +46,6 @@ informal support handoff.
 
 ## Next Recommendation
 
-Implement private billing/subscription and license-service observability
-evidence in `cavra-enterprise`, then sync public docs again with public-safe
-outcomes and boundaries.
+Delivered in private `cavra-enterprise` PRs #70-#73 and public-safe customer
+operating dashboard/support handoff contracts. Continue private SaaS operating
+automation required for trial-to-paid customer scale.
