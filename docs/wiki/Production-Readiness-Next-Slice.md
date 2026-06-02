@@ -1,6 +1,7 @@
 # Production Readiness Next Slice
 
-Current next slice: Trial and SaaS commercialization readiness.
+Status: complete for Trial and SaaS commercialization readiness and the
+follow-up SaaS tenant onboarding and entitlement readiness batch.
 
 ## Goal
 
@@ -16,6 +17,15 @@ code, license-server logic, customer data, or SaaS secrets.
 4. Private trial package readiness. Delivered in private PR #61.
 5. Private customer pilot handoff evidence. Delivered in private PR #62.
 6. Public docs/wiki sync. Delivered.
+7. Public tenant onboarding contract. Delivered.
+8. Public entitlement status contract. Delivered.
+9. Private tenant onboarding readiness evidence. Delivered in private PR #63.
+10. Private entitlement and license-service handoff evidence. Delivered in
+    private PR #64.
+11. Private paid-pilot promotion evidence. Delivered in private PR #65.
+12. Private customer rollout closeout evidence. Delivered in private PR #66.
+13. Public tenant, entitlement, and commercialization docs/wiki sync.
+    Delivered.
 
 ## Public Boundaries
 
@@ -37,6 +47,5 @@ packs, billing secrets, or SaaS backend source.
 
 ## Immediate Next PR
 
-Continue with private tenant onboarding readiness evidence in
-`cavra-enterprise` for the SaaS tenant onboarding and entitlement readiness
-slice.
+Run a roadmap status pass and define the next production-readiness slice after
+SaaS tenant onboarding and entitlement readiness.

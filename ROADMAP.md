@@ -19,5 +19,11 @@ Current open-core priority:
 7. Public tenant onboarding contract is delivered for the SaaS tenant
    onboarding and entitlement readiness slice.
 8. Public entitlement status contract is delivered.
-9. Next recommendation: continue with private tenant onboarding readiness
-   evidence in `cavra-enterprise`.
+9. Private tenant onboarding readiness, entitlement/license handoff, paid-pilot
+   promotion, and customer rollout closeout evidence are delivered in
+   `cavra-enterprise` PRs #63-#66.
+10. Public-safe batch sync is documented in
+   [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
+11. Next recommendation: run a roadmap status pass and define the next
+   production-readiness slice after SaaS tenant onboarding and entitlement
+   readiness.

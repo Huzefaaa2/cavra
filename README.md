@@ -49,6 +49,7 @@ Open-core architecture and boundaries:
 - [Tenant onboarding contract](docs/architecture/tenant-onboarding-contract.md)
 - [Entitlement status contract](docs/architecture/entitlement-status-contract.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
+- [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -434,11 +435,11 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, and production driver implementation details remain outside this public Community repository.
+- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, trial package readiness gates, customer pilot handoff evidence, tenant onboarding readiness evidence, entitlement and license-service handoff evidence, paid-pilot promotion evidence, customer rollout closeout evidence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, license-service implementation details, billing records, and production driver implementation details remain outside this public Community repository.
 
 Next recommended implementation work:
 
-- Continue the [Trial and SaaS commercialization readiness slice](docs/production-readiness-next-slice.md) with the public SaaS Control Plane contract. The public trial-to-pilot intake plan is documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md), and public licensing behavior is documented in [docs/enterprise/licensing.md](docs/enterprise/licensing.md).
+- Continue with a roadmap status pass for the next production-readiness slice after SaaS tenant onboarding and entitlement readiness. The public trial-to-pilot intake plan is documented in [docs/enterprise/trial-to-pilot-intake.md](docs/enterprise/trial-to-pilot-intake.md), public licensing behavior is documented in [docs/enterprise/licensing.md](docs/enterprise/licensing.md), and the latest public-safe commercialization sync is documented in [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
 
 ## User stories and enterprise value
 

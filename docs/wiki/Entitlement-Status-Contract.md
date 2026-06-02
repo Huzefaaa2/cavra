@@ -44,5 +44,5 @@ registry data, SaaS backend source, or Enterprise implementation details.
 
 ## Next Recommendation
 
-Continue with private tenant onboarding readiness evidence in
-`cavra-enterprise`.
+Delivered in the tenant, entitlement, and commercialization batch sync. Continue
+with a roadmap status pass to define the next production-readiness slice.

@@ -1,5 +1,33 @@
 # Phase Completion Log
 
+## Phase 10 Tenant, Entitlement, and Commercialization Batch Sync
+
+Status: complete for the public-safe documentation sync after the SaaS tenant
+onboarding and entitlement readiness batch.
+
+Completed implementation:
+- Public tenant onboarding contract.
+- Public entitlement status contract.
+- Private tenant onboarding readiness evidence in `cavra-enterprise` PR #63.
+- Private entitlement and license-service handoff evidence in
+  `cavra-enterprise` PR #64.
+- Private paid-pilot promotion evidence in `cavra-enterprise` PR #65.
+- Private customer rollout closeout evidence in `cavra-enterprise` PR #66.
+- Public-safe batch sync documentation and wiki-ready page.
+
+Validation:
+- Public sync contains only outcome summaries, documentation links, and
+  open-core boundaries.
+- Enterprise source, customer payloads, customer identifiers, trial binaries,
+  private Docker images, license keys, license signing material,
+  license-service implementation, billing records, private policy packs,
+  provider URLs, webhook secrets, connector credentials, and SaaS backend code
+  remain outside the public Community repository.
+
+Recommended next issue: run a roadmap status pass and define the next
+production-readiness slice after SaaS tenant onboarding and entitlement
+readiness.
+
 ## Phase 10 Public Entitlement Status Contract
 
 Status: complete for the public entitlement status contract slice.
@@ -19,8 +47,9 @@ Validation:
   unknown entitlement status rejection, and private-module requirement
   messaging.
 
-Recommended next issue: continue with private tenant onboarding readiness
-evidence in `cavra-enterprise`.
+Recommended next issue: delivered in the tenant, entitlement, and
+commercialization batch sync. Continue with a roadmap status pass to define the
+next production-readiness slice.
 
 ## Phase 10 Public Tenant Onboarding Contract
 
