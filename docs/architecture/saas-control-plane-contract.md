@@ -14,6 +14,7 @@ integrations a stable vocabulary for:
 - tenant onboarding requests;
 - tenant status checks;
 - license validation handoff;
+- policy registry readiness checks;
 - policy registry lookup;
 - evidence export requests.
 
@@ -46,6 +47,7 @@ implementation.
 | `tenant_onboarding` | Tenant activation metadata, deployment model, contacts, and readiness requirements | Tenant provisioning, identity onboarding, entitlement binding, audit-store readiness, and support ownership |
 | `tenant_status` | Tenant identifier and requested capabilities | Entitlement, subscription, region, and service availability summary |
 | `license_validation` | Local validation report and requested server checks | Signature, revocation, subscription, and feature-grant validation |
+| `policy_registry_readiness` | Tenant identifier, catalog scope, policy-pack references, and readiness checks | Hosted registry availability, catalog freshness, version state, approval state, blockers, and private service handoff status |
 | `policy_registry_lookup` | Policy references and public labels | Hosted policy metadata and governed artifact references |
 | `evidence_export` | Evidence references, export format, and retention profile | Export job creation, storage, delivery, and audit status |
 
@@ -80,6 +82,7 @@ The future private SaaS repository or service should implement:
 - tenant isolation;
 - license service integration;
 - billing and subscription status checks;
+- hosted policy registry readiness checks;
 - policy registry storage and artifact delivery;
 - evidence export jobs;
 - compliance export delivery;
@@ -97,6 +100,7 @@ Public tests cover:
 - contract description boundaries;
 - tenant status request serialization;
 - license validation report handoff;
+- hosted policy registry readiness request and response serialization;
 - policy lookup validation;
 - evidence export format validation;
 - rejection of sensitive keys and token-like values;

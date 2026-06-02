@@ -1,5 +1,32 @@
 # Phase Completion Log
 
+## Phase 10 Public Hosted Policy Registry Readiness Contract
+
+Status: complete for the public hosted policy registry readiness contract slice.
+
+Completed implementation:
+- Added the public-safe `policy_registry_readiness` SaaS Control Plane
+  operation.
+- Added hosted policy registry readiness request construction for tenant,
+  catalog scope, optional policy-pack references, and readiness checks.
+- Added `PolicyRegistryReadinessSummary` for readiness state, catalog state,
+  catalog version, policy-pack count, checked timestamp, blockers, and private
+  validation metadata.
+- Added hosted policy registry readiness response messaging that lists private
+  registry, artifact store, entitlement registry, approval workflow, and
+  rollout telemetry modules.
+- Added architecture and wiki documentation for hosted policy registry
+  readiness boundaries.
+
+Validation:
+- Public tests cover request serialization, default readiness checks, empty
+  check rejection, token-like value rejection, summary serialization, invalid
+  state rejection, negative policy-pack count rejection, and private-module
+  handoff messaging.
+
+Recommended next issue: implement the public tenant audit-store operating
+contract.
+
 ## Phase 10 Post-Onboarding SaaS Operating Readiness Roadmap
 
 Status: complete for the roadmap status pass after SaaS tenant onboarding and
@@ -20,7 +47,8 @@ Completed planning:
   policy packs, billing records, license keys, provider URLs, connector
   credentials, and SaaS backend code.
 
-Recommended next issue: implement the public hosted policy registry readiness
+Recommended next issue: delivered in the public hosted policy registry
+readiness contract. Continue with the public tenant audit-store operating
 contract.
 
 ## Phase 10 Tenant, Entitlement, and Commercialization Batch Sync

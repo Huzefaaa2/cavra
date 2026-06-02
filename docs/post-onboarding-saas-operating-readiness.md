@@ -17,6 +17,7 @@ promotion, and customer rollout closeout:
 - public SaaS Control Plane contract;
 - public tenant onboarding contract;
 - public entitlement status contract;
+- public hosted policy registry readiness contract;
 - private trial package readiness gates in `cavra-enterprise` PR #61;
 - private customer pilot handoff evidence in `cavra-enterprise` PR #62;
 - private tenant onboarding readiness evidence in `cavra-enterprise` PR #63;
@@ -78,7 +79,8 @@ Future SaaS service work should own:
 
 ## Proposed PR Sequence
 
-1. Public hosted policy registry readiness contract.
+1. Public hosted policy registry readiness contract. Delivered with
+   `docs/architecture/hosted-policy-registry-readiness-contract.md`.
    - Add public-safe request and response shapes for registry availability,
      policy-pack catalog readiness, version freshness, and private-module
      requirements.
@@ -124,4 +126,4 @@ Future SaaS service work should own:
 
 ## Recommended Next PR
 
-Implement the public hosted policy registry readiness contract.
+Implement the public tenant audit-store operating contract.

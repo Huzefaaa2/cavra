@@ -3,6 +3,7 @@ from __future__ import annotations
 from cavra.licensing.license_client import LocalLicenseClient
 from cavra.saas_control_plane import (
     EntitlementStatusSummary,
+    PolicyRegistryReadinessSummary,
     SAAS_CONTROL_PLANE_CONTRACT_VERSION,
     SAAS_CONTROL_PLANE_REQUEST_VERSION,
     SaaSContractError,
@@ -12,6 +13,8 @@ from cavra.saas_control_plane import (
     build_entitlement_status_response,
     build_evidence_export_request,
     build_license_validation_request,
+    build_policy_registry_readiness_request,
+    build_policy_registry_readiness_response,
     build_policy_registry_lookup_request,
     build_tenant_onboarding_request,
     build_tenant_onboarding_unavailable_response,
@@ -31,6 +34,7 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     assert boundary["contains_license_service"] is False
     assert SaaSOperation.ENTITLEMENT_STATUS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.TENANT_ONBOARDING.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.POLICY_REGISTRY_READINESS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -159,6 +163,111 @@ def test_build_license_validation_request_embeds_local_report() -> None:
     assert payload["local_validation_report"]["edition"] == "community"
     assert payload["local_validation_report"]["valid"] is True
     assert payload["requested_checks"] == ["signature", "revocation", "subscription_status"]
+
+
+def test_policy_registry_readiness_request_is_public_safe() -> None:
+    request = build_policy_registry_readiness_request(
+        "tenant-demo",
+        requested_by="console",
+        policy_pack_refs=("starter-policy-1", "starter-policy-2"),
+        catalog_scope="tenant-default",
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "policy_registry_readiness"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["policy_pack_refs"] == ["starter-policy-1", "starter-policy-2"]
+    assert payload["payload"]["catalog_scope"] == "tenant-default"
+    assert payload["payload"]["required_checks"] == [
+        "service_availability",
+        "catalog_freshness",
+        "policy_pack_versions",
+        "artifact_integrity",
+        "entitlement_scope",
+        "approval_state",
+    ]
+
+
+def test_policy_registry_readiness_request_rejects_empty_checks() -> None:
+    try:
+        build_policy_registry_readiness_request("tenant-demo", required_checks=())
+    except SaaSContractError as exc:
+        assert "required_checks" in str(exc)
+    else:
+        raise AssertionError("expected empty readiness checks to be rejected")
+
+
+def test_policy_registry_readiness_request_rejects_sensitive_labels() -> None:
+    try:
+        build_policy_registry_readiness_request("tenant-demo", catalog_scope="ghp_123456789012345678901234567890")
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive catalog scope to be rejected")
+
+
+def test_policy_registry_readiness_response_serializes_summary() -> None:
+    request = build_policy_registry_readiness_request(
+        "tenant-demo",
+        requested_by="console",
+        policy_pack_refs=("starter-policy-1",),
+    )
+    summary = PolicyRegistryReadinessSummary(
+        tenant_id="tenant-demo",
+        readiness_status="degraded",
+        catalog_status="ready",
+        latest_catalog_version="catalog-2026.06.02",
+        policy_pack_count=12,
+        checked_at="2026-06-02T00:00:00Z",
+        blockers=("approval workflow pending",),
+    )
+
+    response = build_policy_registry_readiness_response(request, summary).to_dict()
+
+    assert response["operation"] == "policy_registry_readiness"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["readiness_status"] == "degraded"
+    assert response["payload"]["summary"]["catalog_status"] == "ready"
+    assert response["payload"]["summary"]["policy_pack_count"] == 12
+    assert response["payload"]["summary"]["blockers"] == ["approval workflow pending"]
+    assert response["payload"]["private_modules_required"] == [
+        "hosted policy registry service",
+        "policy-pack artifact store",
+        "feature entitlement registry",
+        "approval workflow",
+        "rollout telemetry",
+    ]
+
+
+def test_policy_registry_readiness_summary_rejects_invalid_state() -> None:
+    summary = PolicyRegistryReadinessSummary(
+        tenant_id="tenant-demo",
+        readiness_status="published",
+        catalog_status="ready",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "readiness_status" in str(exc)
+    else:
+        raise AssertionError("expected unknown readiness status to be rejected")
+
+
+def test_policy_registry_readiness_summary_rejects_negative_policy_pack_count() -> None:
+    summary = PolicyRegistryReadinessSummary(
+        tenant_id="tenant-demo",
+        readiness_status="ready",
+        catalog_status="ready",
+        policy_pack_count=-1,
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "policy_pack_count" in str(exc)
+    else:
+        raise AssertionError("expected negative policy pack count to be rejected")
 
 
 def test_policy_registry_lookup_rejects_empty_policy_refs() -> None:

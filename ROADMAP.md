@@ -26,5 +26,6 @@ Current open-core priority:
    [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
 11. Post-onboarding SaaS operating readiness is defined in
    [docs/post-onboarding-saas-operating-readiness.md](docs/post-onboarding-saas-operating-readiness.md).
-12. Next recommendation: implement the public hosted policy registry readiness
+12. Public hosted policy registry readiness contract is delivered.
+13. Next recommendation: implement the public tenant audit-store operating
    contract.

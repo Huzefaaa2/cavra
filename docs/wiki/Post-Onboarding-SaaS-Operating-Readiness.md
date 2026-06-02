@@ -8,7 +8,7 @@ Post-onboarding SaaS operating readiness.
 
 ## Current Position
 
-Completed before this slice:
+Completed before and during this slice:
 
 - public trial-to-pilot intake plan;
 - public licensing interface hardening;
@@ -23,6 +23,9 @@ Completed before this slice:
 - private customer rollout closeout evidence in private PR #66;
 - public-safe commercialization batch syncs.
 
+This slice has started with the public hosted policy registry readiness
+contract.
+
 ## Why This Is Next
 
 After onboarding, CAVRA needs steady-state operating evidence for hosted policy
@@ -31,7 +34,7 @@ license-service observability, support ownership, and SaaS dashboards.
 
 ## Proposed PR Sequence
 
-1. Public hosted policy registry readiness contract.
+1. Public hosted policy registry readiness contract. Delivered.
 2. Public tenant audit-store operating contract.
 3. Public billing/subscription boundary documentation.
 4. Private hosted policy registry readiness evidence.
@@ -48,4 +51,4 @@ URLs, connector credentials, and SaaS backend code remain private.
 
 ## Recommended Next PR
 
-Implement the public hosted policy registry readiness contract.
+Implement the public tenant audit-store operating contract.
