@@ -50,7 +50,9 @@ Future SaaS repository or service:
    - Add public-safe trial request, pilot intake, and evidence checklist docs.
    - Update README, roadmap, wiki, and phase log.
 
-2. Public licensing interface hardening.
+2. Public licensing interface hardening. Delivered with validation reports,
+   safer expiry handling, invalid/revoked/suspended status handling, and tests
+   for feature locking.
    - Add tests and docs for license object status handling, expiry boundaries,
      and locked Enterprise features in Community mode.
    - Keep validation local and placeholder-only.
@@ -105,5 +107,5 @@ onboarding without compromising open-core boundaries.
 
 ## Immediate Next PR
 
-Continue with public licensing interface hardening because the trial-to-pilot
-intake path is now documented and backed by a public-safe template.
+Continue with the public SaaS Control Plane contract because the trial intake
+path and public licensing interface are now documented and tested.

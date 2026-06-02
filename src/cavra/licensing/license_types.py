@@ -19,6 +19,8 @@ class LicenseStatus(str, Enum):
     INVALID = "invalid"
     MISSING = "missing"
     UNSUPPORTED = "unsupported"
+    REVOKED = "revoked"
+    SUSPENDED = "suspended"
 
 
 @dataclass(frozen=True)
@@ -35,7 +37,10 @@ class License:
         if not self.expires_at:
             return False
         current = now or datetime.now(timezone.utc)
-        expires = datetime.fromisoformat(self.expires_at.replace("Z", "+00:00"))
+        try:
+            expires = datetime.fromisoformat(self.expires_at.replace("Z", "+00:00"))
+        except ValueError:
+            return True
         return expires < current
 
     def normalized_status(self, *, now: datetime | None = None) -> LicenseStatus:
@@ -52,4 +57,30 @@ class License:
             "features": list(self.features),
             "signature": self.signature,
             "status": self.status.value,
+        }
+
+
+@dataclass(frozen=True)
+class LicenseValidationReport:
+    """Public-safe local license validation report."""
+
+    status: LicenseStatus
+    edition: LicenseEdition
+    license_id: str
+    valid: bool
+    message: str
+    private_validation_required: bool
+    enabled_features: tuple[str, ...] = field(default_factory=tuple)
+    locked_features: tuple[str, ...] = field(default_factory=tuple)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "status": self.status.value,
+            "edition": self.edition.value,
+            "license_id": self.license_id,
+            "valid": self.valid,
+            "message": self.message,
+            "private_validation_required": self.private_validation_required,
+            "enabled_features": list(self.enabled_features),
+            "locked_features": list(self.locked_features),
         }
