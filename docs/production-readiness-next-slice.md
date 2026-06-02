@@ -116,5 +116,7 @@ onboarding without compromising open-core boundaries.
 
 The next production-readiness slice is documented in
 [Post-Onboarding SaaS Operating Readiness](post-onboarding-saas-operating-readiness.md).
-Continue with private hosted policy registry readiness evidence in
-`cavra-enterprise`.
+Private hosted policy registry readiness, tenant audit-store operating, and
+SaaS operating readiness rollup evidence are delivered in `cavra-enterprise`
+PRs #67-#69. Continue with private billing/subscription and license-service
+observability evidence in `cavra-enterprise`.
