@@ -75,8 +75,11 @@ finance, billing, license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness operating closeout evidence so operating
-transitions can be closed by support, customer-success, release governance,
-commercial operations, and executive review without exposing customer records,
-account records, finance records, billing secrets, license-service internals, or
-production provisioning secrets.
+Private commercial launch-readiness operating closeout evidence is now
+documented in
+[trial-commercial-launch-readiness-operating-closeout-sync.md](trial-commercial-launch-readiness-operating-closeout-sync.md).
+Next, add private commercial launch-readiness executive review and next-cycle
+action evidence so closeouts can feed executive review, lessons learned,
+roadmap feedback, renewal expansion planning, and next-cycle action ownership
+without exposing customer records, account records, finance records, billing
+secrets, license-service internals, or production provisioning secrets.

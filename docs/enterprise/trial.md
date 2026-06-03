@@ -106,4 +106,7 @@ for the public-safe trial commercial launch-readiness final approval summary,
 and
 [../trial-commercial-launch-readiness-operating-transition-sync.md](../trial-commercial-launch-readiness-operating-transition-sync.md)
 for the public-safe trial commercial launch-readiness operating transition
+summary, and
+[../trial-commercial-launch-readiness-operating-closeout-sync.md](../trial-commercial-launch-readiness-operating-closeout-sync.md)
+for the public-safe trial commercial launch-readiness operating closeout
 summary.
