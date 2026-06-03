@@ -73,8 +73,11 @@ account, finance, billing, license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private customer follow-through renewal outcome rollup evidence so
-customer-success, account-team, renewal-owner, and leadership actions can be
-closed against renewal outcome, expansion, and commercial next-step references
-without exposing customer records, account records, finance records, billing
-secrets, license-service internals, or production provisioning secrets.
+Private conversion renewal outcome rollup evidence is now documented in
+[trial-conversion-renewal-outcome-rollup-sync.md](trial-conversion-renewal-outcome-rollup-sync.md).
+Next, add private final commercial renewal closeout package evidence so
+approved renewal outcomes can be packaged for executive reporting,
+customer-success handoff, account-team follow-up, revenue operations, and
+public-safe sync without exposing customer records, account records, finance
+records, billing secrets, license-service internals, or production
+provisioning secrets.

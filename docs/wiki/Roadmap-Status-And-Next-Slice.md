@@ -29,6 +29,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   delivered in `cavra-enterprise` PR #93;
 - private conversion customer follow-through evidence is delivered in
   `cavra-enterprise` PR #94;
+- private conversion renewal outcome rollup evidence is delivered in
+  `cavra-enterprise` PR #95;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -87,11 +89,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- customer follow-through renewal outcome rollup workflows.
+- final commercial renewal closeout package workflows.
 
 ## Next Slice
 
-Customer follow-through renewal outcome rollup evidence.
+Final commercial renewal closeout package evidence.
 
 ## Why This Is Next
 
@@ -101,13 +103,13 @@ revoked, renewed, and escalated access, private expired-trial follow-up
 automation evidence, private trial conversion readiness evidence, private
 paid-pilot activation and production handoff evidence, private conversion
 closeout and revenue handoff rollup evidence, private executive summary and
-renewal action evidence, private customer follow-through evidence, public
-tenant and entitlement contracts, and private evidence from tenant activation
-through final SaaS customer operating closeout. The next commercial blocker is
-closing customer-success, account-team, renewal-owner, and leadership actions
-against renewal outcome, expansion, and commercial next-step references without
-exposing billing, license-service, customer, finance, account, or provisioning
-secrets.
+renewal action evidence, private customer follow-through evidence, private
+renewal outcome rollup evidence, public tenant and entitlement contracts, and
+private evidence from tenant activation through final SaaS customer operating
+closeout. The next commercial blocker is packaging approved renewal outcomes
+for executive reporting, customer-success handoff, account-team follow-up, and
+revenue-operations accountability without exposing billing, license-service,
+customer, finance, account, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -291,11 +293,24 @@ secrets.
       follow-through workflow.
 
 31. Private customer follow-through renewal outcome rollup evidence.
+    Delivered in `cavra-enterprise` PR #95.
     - Add private evidence that customer-success, account-team, renewal-owner,
       and leadership actions are closed against renewal outcome, expansion, and
       commercial next-step references without exposing customer records,
       account records, finance records, billing secrets, license-service
       internals, or production provisioning secrets.
+
+32. Public docs/wiki sync. Delivered with
+    [trial-conversion-renewal-outcome-rollup-sync.md](trial-conversion-renewal-outcome-rollup-sync.md).
+    - Publish public-safe outcomes after the private conversion renewal outcome
+      rollup workflow.
+
+33. Private final commercial renewal closeout package evidence.
+    - Add private evidence that approved renewal outcomes are packaged for
+      executive reporting, customer-success handoff, account-team follow-up,
+      revenue operations, and public-safe sync without exposing customer
+      records, account records, finance records, billing secrets,
+      license-service internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -310,6 +325,6 @@ secrets.
 
 ## Recommended Next PR
 
-Add private customer follow-through renewal outcome rollup evidence, then sync
-public docs with public-safe renewal outcome, expansion, commercial next-step,
-and leadership accountability gates.
+Add private final commercial renewal closeout package evidence, then sync
+public docs with public-safe executive reporting, customer-success handoff,
+account-team follow-up, and revenue-operations accountability gates.
