@@ -73,9 +73,10 @@ details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness final archive and retrospective
-closeout evidence so executive-review outputs can be archived with release
-retrospective, customer-success follow-up, roadmap intake, renewal expansion,
-and next-cycle owner acceptance without exposing customer records, account
-records, finance records, billing secrets, license-service internals, or
-production provisioning secrets.
+Private commercial launch-readiness final archive evidence is now documented in
+[trial-commercial-launch-readiness-final-archive-sync.md](trial-commercial-launch-readiness-final-archive-sync.md).
+Next, add private production observability and support runbook readiness
+evidence so final archives can feed monitoring, alerting, escalation, support
+runbooks, customer-success playbooks, and operational owner acceptance without
+exposing customer records, account records, finance records, billing secrets,
+license-service internals, or production provisioning secrets.

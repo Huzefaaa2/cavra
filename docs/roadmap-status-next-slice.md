@@ -49,6 +49,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   in `cavra-enterprise` PR #103;
 - private commercial launch-readiness executive review evidence is delivered in
   `cavra-enterprise` PR #104;
+- private commercial launch-readiness final archive evidence is delivered in
+  `cavra-enterprise` PR #105;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -105,14 +107,13 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
-- commercial launch-readiness final archive and retrospective closeout
-  workflows;
+- production observability and support runbook readiness workflows;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
 
 ## Next Slice
 
-Commercial launch-readiness final archive and retrospective closeout evidence.
+Production observability and support runbook readiness evidence.
 
 ## Why This Is Next
 
@@ -130,13 +131,13 @@ commercialization closure final closeout evidence, private commercial
 launch-readiness handoff evidence, private commercial launch-readiness final
 approval evidence, private commercial launch-readiness operating transition
 evidence, private commercial launch-readiness operating closeout evidence,
-private commercial launch-readiness executive review evidence, public tenant
-and entitlement contracts, and private evidence from tenant activation through
-final SaaS customer operating closeout. The next commercial blocker is
-archiving executive-review outputs through release retrospective,
-customer-success follow-up, roadmap intake, renewal expansion, and next-cycle
-owner acceptance without exposing billing, license-service, customer, finance,
-account, or provisioning secrets.
+private commercial launch-readiness executive review evidence, private
+commercial launch-readiness final archive evidence, public tenant and
+entitlement contracts, and private evidence from tenant activation through
+final SaaS customer operating closeout. The next production blocker is proving
+monitoring, alerting, escalation, support runbooks, customer-success playbooks,
+and operational owner acceptance without exposing billing, license-service,
+customer, finance, account, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -452,11 +453,24 @@ account, or provisioning secrets.
 
 51. Private commercial launch-readiness final archive and retrospective
     closeout evidence.
+    Delivered in `cavra-enterprise` PR #105.
     - Add private evidence that executive-review outputs are archived through
       release retrospective, customer-success follow-up, roadmap intake,
       renewal expansion, and next-cycle owner acceptance without exposing
       customer records, account records, finance records, billing secrets,
       license-service internals, or production provisioning secrets.
+
+52. Public docs/wiki sync. Delivered with
+    [trial-commercial-launch-readiness-final-archive-sync.md](trial-commercial-launch-readiness-final-archive-sync.md).
+    - Publish public-safe outcomes after the private commercial
+      launch-readiness final archive workflow.
+
+53. Private production observability and support runbook readiness evidence.
+    - Add private evidence that final archives feed monitoring, alerting,
+      escalation, support runbooks, customer-success playbooks, and operational
+      owner acceptance without exposing customer records, account records,
+      finance records, billing secrets, license-service internals, or
+      production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -471,7 +485,7 @@ account, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercial launch-readiness final archive and retrospective
-closeout evidence, then sync public docs with public-safe release-retrospective,
-customer-success follow-up, roadmap-intake, renewal-expansion, and next-cycle
-owner acceptance gates.
+Add private production observability and support runbook readiness evidence,
+then sync public docs with public-safe monitoring, alerting, escalation,
+support-runbook, customer-success playbook, and operational owner acceptance
+gates.
