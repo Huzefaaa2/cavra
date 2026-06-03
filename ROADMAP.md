@@ -147,7 +147,10 @@ Current open-core priority:
 59. Private post-launch operating handoff evidence is delivered in
    `cavra-enterprise` PR #109 and public-safe sync is documented in
    [docs/trial-post-launch-operating-handoff-sync.md](docs/trial-post-launch-operating-handoff-sync.md).
-60. Next recommendation: add private release retrospective and roadmap intake
-   evidence, then sync public docs with public-safe launch-lessons,
-   customer-feedback, roadmap-intake, renewal-expansion, support-trend, and
-   next-cycle-owner gates.
+60. Private release retrospective and roadmap intake evidence is delivered in
+   `cavra-enterprise` PR #110 and public-safe sync is documented in
+   [docs/trial-release-retrospective-roadmap-intake-sync.md](docs/trial-release-retrospective-roadmap-intake-sync.md).
+61. Next recommendation: add private final launch retrospective closeout
+   evidence, then sync public docs with public-safe executive-acceptance,
+   product-planning, customer-success-follow-up, renewal-expansion-action,
+   support-trend-closure, and final-archive gates.

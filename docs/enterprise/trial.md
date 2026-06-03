@@ -127,4 +127,7 @@ for the public-safe trial commercialization closeout and release-to-market
 approval summary, and
 [../trial-post-launch-operating-handoff-sync.md](../trial-post-launch-operating-handoff-sync.md)
 for the public-safe trial post-launch operating handoff
+summary, and
+[../trial-release-retrospective-roadmap-intake-sync.md](../trial-release-retrospective-roadmap-intake-sync.md)
+for the public-safe trial release retrospective and roadmap intake
 summary.
