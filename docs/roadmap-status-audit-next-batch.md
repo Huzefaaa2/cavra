@@ -108,7 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Create a Community GA release checklist that ties policy signing, runtime
-modes, golden decision snapshots, Evidence Console readiness, deployment
-validation, and Go runtime readiness into one user-verifiable public release
-path.
+Create a public Community GA release packet template that captures checklist
+outputs, validation results, evidence links, accepted risks, and wiki sync
+references in repeatable markdown/JSON artifacts for future release PRs.

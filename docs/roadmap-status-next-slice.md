@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community GA release checklist documentation, building on the delivered
-Community GA Control Hardening batch and Evidence Console closeout.
+Public Community GA release packet template, building on the delivered
+Community GA release checklist.
 
 ## Why This Is Next
 
@@ -575,7 +575,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create a Community GA release checklist that ties policy signing, runtime
-modes, golden decision snapshots, Evidence Console readiness, deployment
-validation, and Go runtime readiness into one user-verifiable public release
-path.
+Create a public Community GA release packet template that captures checklist
+outputs, validation results, evidence links, accepted risks, and wiki sync
+references in repeatable markdown/JSON artifacts for future release PRs.
