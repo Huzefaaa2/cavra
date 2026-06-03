@@ -78,6 +78,7 @@ from cavra.operations import (
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
+    generate_policy_signing_keypair,
     load_policy_file,
     validate_policy as validate_policy_payload,
     verify_policy_signature,
@@ -203,7 +204,7 @@ from cavra.release import (
     verify_go_airgap_bundle,
     verify_go_release_package,
 )
-from cavra.runtime import RuntimeGuard
+from cavra.runtime import RuntimeGuard, summarize_policy_mode
 
 console = Console()
 app = typer.Typer(add_completion=False)
@@ -243,6 +244,11 @@ def evaluate(
     action_type: Annotated[str, typer.Argument(help="read_file, write_file, execute_command, git_operation, mcp_tool_call.")],
     target: Annotated[str, typer.Argument(help="File path, command, Git target, or MCP server.")],
     policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+    policy_mode: Annotated[
+        str, typer.Option(help="Runtime policy mode: audit_only, enforce, strict, or break_glass.")
+    ] = "enforce",
+    break_glass_reason: Annotated[Optional[str], typer.Option(help="Required reason when --policy-mode break_glass.")] = None,
+    break_glass_actor: Annotated[Optional[str], typer.Option(help="Required actor when --policy-mode break_glass.")] = None,
     json_output: bool = typer.Option(False, "--json", help="Print the full decision JSON."),
 ) -> None:
     """Evaluate one action before an AI agent performs it."""
@@ -260,10 +266,20 @@ def evaluate(
     else:
         console.print(f"[red]Unknown action type:[/red] {action_type}")
         raise typer.Exit(code=2)
+    try:
+        mode_summary = summarize_policy_mode(
+            decision,
+            policy_mode,
+            break_glass_reason=break_glass_reason,
+            break_glass_actor=break_glass_actor,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
     if json_output:
-        console.print(JSON(json.dumps(decision.to_dict(), indent=2)))
+        _print_json(mode_summary)
     else:
-        console.print(f"{decision.decision}: {decision.reason}")
+        console.print(f"{mode_summary['effective_decision']}: {mode_summary['mode_reason']}")
 
 
 @saas_app.command("contract")
@@ -978,10 +994,15 @@ def sign_policy(
     path: Path,
     signer: Annotated[str, typer.Option(help="Signer identity recorded in signature metadata.")] = "local",
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for local tamper checks.")] = None,
+    private_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 private key PEM path.")] = None,
+    key_id: Annotated[Optional[str], typer.Option(help="Policy signing key identifier for Ed25519 signatures.")] = None,
 ) -> None:
     """Create CAVRA policy signature metadata."""
     policy_path = path / "policy.yaml" if path.is_dir() else path
-    sig_path = write_policy_signature(policy_path, signer=signer, key=key)
+    if key and private_key:
+        console.print("[red]choose either --key or --private-key, not both[/red]")
+        raise typer.Exit(code=1)
+    sig_path = write_policy_signature(policy_path, signer=signer, key=key, private_key_path=private_key, key_id=key_id)
     console.print(f"[green]signed[/green] {sig_path}")
 
 
@@ -990,14 +1011,32 @@ def verify_policy(
     path: Path,
     signature: Annotated[Optional[Path], typer.Option(help="Signature metadata path.")] = None,
     key: Annotated[Optional[str], typer.Option(help="Optional HMAC key for local tamper checks.")] = None,
+    public_key: Annotated[Optional[Path], typer.Option(help="Optional Ed25519 public key PEM path.")] = None,
 ) -> None:
     """Verify CAVRA policy signature metadata."""
     policy_path = path / "policy.yaml" if path.is_dir() else path
-    ok, message = verify_policy_signature(policy_path, signature_path=signature, key=key)
+    if key and public_key:
+        console.print("[red]choose either --key or --public-key, not both[/red]")
+        raise typer.Exit(code=1)
+    ok, message = verify_policy_signature(policy_path, signature_path=signature, key=key, public_key_path=public_key)
     if not ok:
         console.print(f"[red]signature verification failed[/red]: {message}")
         raise typer.Exit(code=1)
     console.print(f"[green]signature verified[/green]: {message}")
+
+
+@policy_app.command("keygen")
+def policy_keygen(
+    output: Annotated[Path, typer.Option(help="Directory where the local keypair will be written.")] = Path(
+        ".cavra/policy-signing"
+    ),
+    key_id: Annotated[str, typer.Option(help="Stable key identifier to include in signatures.")] = "local-policy-signing-key",
+) -> None:
+    """Generate a local Ed25519 keypair for public policy signing workflows."""
+    private_key = output / f"{key_id}.private.pem"
+    public_key = output / f"{key_id}.public.pem"
+    payload = generate_policy_signing_keypair(private_key, public_key, key_id=key_id)
+    _print_json(payload)
 
 
 @policy_app.command("simulate")

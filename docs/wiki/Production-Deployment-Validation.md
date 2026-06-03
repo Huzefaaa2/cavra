@@ -21,6 +21,9 @@ The report checks:
 - Go backend rollback rehearsal readiness when `promoted` mode or rehearsal evidence is configured.
 - Go backend rollback drill history when `promoted` mode or drill history evidence is configured.
 - Go backend rollback drill schedule when `promoted` mode or schedule evidence is configured.
+- Community GA policy control hardening references for Ed25519 policy signing,
+  golden decision snapshots, runtime mode behavior, and public deployment guide
+  validation.
 
 ## Usage
 
@@ -28,7 +31,17 @@ The report checks:
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Run this in the same environment that hosts the API and console. Attach the report to release evidence before enterprise pilots.
+Run this in the same environment that hosts the API and console. Attach the
+report to release evidence before enterprise pilots. For the public Community
+path, also run the policy signing workflow and golden decision tests before
+publishing a release:
+
+```bash
+cavra policy keygen --output .cavra/policy-signing --key-id community-ga-policy-key
+cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security --private-key .cavra/policy-signing/community-ga-policy-key.private.pem --key-id community-ga-policy-key
+cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml --public-key .cavra/policy-signing/community-ga-policy-key.public.pem
+python3 -m pytest -q tests/test_golden_decisions.py
+```
 
 ## Console
 
@@ -36,10 +49,16 @@ The sandbox console includes a Production Readiness panel that displays deployme
 
 ## User Stories
 
-- As a platform engineer, I can validate whether production identity, RBAC, CORS, evidence, persistence controls, optional Go backend pilot inputs, Go backend rollout metadata, promotion evidence, rollback controls, rollback rehearsal evidence, rollback drill history, and rollback drill scheduling are configured.
+- As a platform engineer, I can validate whether production identity, RBAC, CORS, evidence, persistence controls, Community policy signing, golden decisions, runtime modes, optional Go backend pilot inputs, Go backend rollout metadata, promotion evidence, rollback controls, rollback rehearsal evidence, rollback drill history, and rollback drill scheduling are configured.
 - As a security architect, I can detect missing controls before exposing the console to enterprise users.
 - As an auditor, I can attach a readiness report to release evidence.
 
 ## Enterprise Value
 
-Deployment validation turns production readiness into a repeatable control check. It helps teams avoid launching a console/API topology without identity, RBAC, evidence retrieval, CORS restrictions, persistent stores, Go backend pilot evidence, CI runner and workstation rollout controls, promotion approval evidence, rollback controls, rollback rehearsal evidence, fresh rollback drill history, or active rollback drill scheduling when promoted mode is enabled.
+Deployment validation turns production readiness into a repeatable control
+check. It helps teams avoid launching a console/API topology without identity,
+RBAC, evidence retrieval, CORS restrictions, persistent stores, signed policy
+packs, golden decision regression coverage, explicit runtime modes, Go backend
+pilot evidence, CI runner and workstation rollout controls, promotion approval
+evidence, rollback controls, rollback rehearsal evidence, fresh rollback drill
+history, or active rollback drill scheduling when promoted mode is enabled.

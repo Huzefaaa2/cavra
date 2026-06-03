@@ -1,0 +1,62 @@
+[
+  {
+    "name": "sensitive_env_read",
+    "action_type": "read_file",
+    "target": ".env",
+    "requested_operation": "read",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "policy_id": "cavra-ai-agent-baseline",
+    "rule_id": "filesystem.read.block",
+    "decision": "block",
+    "severity": "high",
+    "approver_group": null
+  },
+  {
+    "name": "allowed_terraform_plan",
+    "action_type": "execute_command",
+    "target": "terraform plan",
+    "requested_operation": "terraform plan",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "policy_id": "cavra-ai-agent-baseline",
+    "rule_id": "commands.allow",
+    "decision": "allow",
+    "severity": "low",
+    "approver_group": null
+  },
+  {
+    "name": "unknown_command_requires_review",
+    "action_type": "execute_command",
+    "target": "rm -rf /tmp/important",
+    "requested_operation": "rm -rf /tmp/important",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "policy_id": "cavra-ai-agent-baseline",
+    "rule_id": "commands.default.require_approval",
+    "decision": "require_approval",
+    "severity": "medium",
+    "approver_group": "Repository Owners"
+  },
+  {
+    "name": "main_branch_push_blocked",
+    "action_type": "git_operation",
+    "target": "origin/main",
+    "requested_operation": "push",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "policy_id": "cavra-ai-agent-baseline",
+    "rule_id": "git.protected_branch.block_direct_push",
+    "decision": "block",
+    "severity": "high",
+    "approver_group": null
+  },
+  {
+    "name": "unknown_mcp_server_blocked",
+    "action_type": "mcp_tool_call",
+    "target": "unknown-filesystem:read_file",
+    "requested_operation": "filesystem",
+    "policy_pack": "cavra-mcp-enterprise",
+    "policy_id": "cavra-mcp-enterprise",
+    "rule_id": "mcp.server.trust.block_unknown",
+    "decision": "block",
+    "severity": "high",
+    "approver_group": null
+  }
+]

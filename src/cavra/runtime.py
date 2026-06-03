@@ -10,6 +10,8 @@ from typing import Any
 from cavra.policy_registry import PolicyRegistry
 from cavra.registry import RegistryStore
 
+RUNTIME_POLICY_MODES = {"audit_only", "enforce", "strict", "break_glass"}
+
 
 @dataclass(frozen=True)
 class ActionDecision:
@@ -395,6 +397,63 @@ class RuntimeGuard:
             timestamp=datetime.now(timezone.utc).isoformat(),
             correlation_id=f"corr_{uuid.uuid4().hex[:12]}",
         )
+
+
+def summarize_policy_mode(
+    decision: ActionDecision,
+    mode: str,
+    *,
+    break_glass_reason: str | None = None,
+    break_glass_actor: str | None = None,
+) -> dict[str, Any]:
+    """Return explicit public-safe runtime-mode behavior for a decision."""
+
+    normalized = _normalize_runtime_policy_mode(mode)
+    base_decision = decision.to_dict()
+    effective_decision = decision.decision
+    mode_reason = "Enforce mode preserves the policy decision."
+    evidence_required = decision.decision in {"block", "require_approval", "allow_with_attestation"}
+
+    if normalized == "audit_only":
+        effective_decision = "audit_only"
+        mode_reason = "Audit-only mode records policy findings without blocking execution."
+        evidence_required = True
+    elif normalized == "strict":
+        if decision.decision == "allow":
+            effective_decision = "require_approval"
+            mode_reason = "Strict mode converts otherwise allowed actions into approval-gated actions."
+            evidence_required = True
+        else:
+            mode_reason = "Strict mode preserves blocks and approval requirements."
+    elif normalized == "break_glass":
+        reason = (break_glass_reason or "").strip()
+        actor = (break_glass_actor or "").strip()
+        if reason and actor:
+            effective_decision = "allow_with_attestation"
+            mode_reason = "Break-glass mode requires actor, reason, and evidence before temporary allowance."
+        else:
+            effective_decision = "block"
+            mode_reason = "Break-glass mode is blocked until actor and reason are supplied."
+        evidence_required = True
+
+    return {
+        "schema_version": "cavra.runtime-policy-mode-summary.v1",
+        "mode": normalized,
+        "base_decision": base_decision,
+        "effective_decision": effective_decision,
+        "mode_reason": mode_reason,
+        "evidence_required": evidence_required,
+        "break_glass_actor": break_glass_actor if normalized == "break_glass" else None,
+        "break_glass_reason_present": bool((break_glass_reason or "").strip()) if normalized == "break_glass" else None,
+    }
+
+
+def _normalize_runtime_policy_mode(mode: str) -> str:
+    normalized = mode.strip().lower().replace("-", "_").replace(" ", "_")
+    if normalized not in RUNTIME_POLICY_MODES:
+        supported = ", ".join(sorted(RUNTIME_POLICY_MODES))
+        raise ValueError(f"policy mode must be one of: {supported}")
+    return normalized
 
 
 def _approval_required_kind(kind: str) -> bool:

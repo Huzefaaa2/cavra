@@ -126,6 +126,9 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Trial Release Retrospective Roadmap Intake Sync: `Trial-Release-Retrospective-Roadmap-Intake-Sync.md`
 - Trial Final Launch Retrospective Closeout Sync: `Trial-Final-Launch-Retrospective-Closeout-Sync.md`
 - Roadmap Status Audit And Next Batch: `Roadmap-Status-Audit-And-Next-Batch.md`
+- Community GA Control Hardening Sync: `Community-GA-Control-Hardening-Sync.md`
+- Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
+- Runtime Policy Modes: `Runtime-Policy-Modes.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
 - Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`

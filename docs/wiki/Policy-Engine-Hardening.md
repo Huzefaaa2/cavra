@@ -10,8 +10,10 @@ CAVRA policy behavior is now stricter and more reviewable:
 - Policy inheritance with `metadata.inherits`.
 - Normalized policy compilation.
 - Semantic policy diff output.
-- Policy signature metadata.
-- Policy verification with tamper detection.
+- Ed25519 policy signing key generation.
+- Policy signature metadata with Ed25519 and backward-compatible HMAC modes.
+- Policy verification with digest, public-key fingerprint, and signature
+  mismatch detection.
 
 ## Commands
 
@@ -19,8 +21,9 @@ CAVRA policy behavior is now stricter and more reviewable:
 cavra policy validate policies/cavra-ai-agent-baseline
 cavra policy compile --policy-pack cavra-ai-agent-baseline
 cavra policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline
-cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security
-cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
+cavra policy keygen --output .cavra/policy-signing --key-id community-ga-policy-key
+cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security --private-key .cavra/policy-signing/community-ga-policy-key.private.pem --key-id community-ga-policy-key
+cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml --public-key .cavra/policy-signing/community-ga-policy-key.public.pem
 ```
 
 ## Enterprise Value

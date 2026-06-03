@@ -58,45 +58,39 @@ treats them as delivered for the current scope:
 The project is not yet complete as a mature product. The next maturity themes
 are:
 
-- Community policy-engine GA hardening;
-- golden decision snapshot coverage for critical policy decisions;
-- explicit audit/enforce/strict/break-glass mode behavior across CLI, API, and
-  evidence;
-- production deployment guide validation for the public Community path;
 - console closeout for a minimal but coherent operator experience;
 - release documentation that ties policy, evidence, console, and Go runtime
   readiness into a user-verifiable GA path.
 
-## Next Production-Readiness Batch
+## Completed Community GA Control Hardening Batch
 
-The next batch should be **Community GA Control Hardening**.
+The first **Community GA Control Hardening** batch is delivered in public-safe
+Community code and documentation. It focuses on the public Community core
+rather than adding more private Enterprise evidence. The goal is to make the
+free public edition more trustworthy for adoption while preserving the
+open-core boundary.
 
-This batch focuses on the public Community core rather than adding more private
-Enterprise evidence. The goal is to make the free public edition more
-trustworthy for adoption while preserving the open-core boundary.
-
-Recommended sequence:
+Delivered sequence:
 
 1. Public policy signing key workflow.
-   - Add documented key generation, signing, verification, rotation, and
+   - Added documented Ed25519 key generation, signing, verification, and
      failure behavior for policy packs.
    - Keep private customer keys, signing services, HSM/KMS integrations, and
      Enterprise approval workflows out of the public repo.
 2. Golden decision snapshot suite.
-   - Add stable snapshots for critical file, command, Git, MCP, and PR
+   - Added stable snapshots for critical file, command, Git, MCP, and
      attestation decisions across bundled policy packs.
    - Ensure snapshots make regressions visible without including customer
      policy data.
 3. Runtime mode hardening.
-   - Make audit-only, enforce, strict regulated, and break-glass behavior
+   - Made audit-only, enforce, strict, and break-glass behavior
      explicit in CLI/API outputs and evidence examples.
    - Keep Enterprise approval-routing integrations private.
 4. Production deployment guide validation.
-   - Validate the public Community deployment guide against CLI, Docker,
-     sandbox, API, and Go runtime examples.
-   - Remove stale setup instructions and document known limits.
+   - Updated the public Community deployment validation guide with policy
+     signing, golden decision, and runtime mode release checks.
 5. Public docs/wiki sync.
-   - Update README, roadmap, wiki-source pages, diagrams if needed, and phase
+   - Updated README, roadmap, wiki-source pages, and phase
      logs after the batch completes.
 
 ## Enterprise Boundary
@@ -114,5 +108,7 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Implement the public policy signing key workflow with tests and documentation,
-then continue the Community GA Control Hardening batch.
+Begin console closeout for a minimal operator experience: tighten the Evidence
+Console around policy signing status, runtime mode selection, golden decision
+status, deployment readiness, and release evidence links without exposing
+Enterprise source code or private customer evidence.

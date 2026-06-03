@@ -3,6 +3,7 @@ from pathlib import Path
 from cavra.policy_registry import PolicyRegistry
 from cavra.policy_engine import (
     diff_policies,
+    generate_policy_signing_keypair,
     load_policy_file,
     validate_policy,
     verify_policy_signature,
@@ -107,5 +108,42 @@ commands:
     assert ok, message
     policy_path.write_text(policy_path.read_text(encoding="utf-8") + "\nfilesystem: {}\n", encoding="utf-8")
     ok, message = verify_policy_signature(policy_path, signature_path=signature_path, key="secret")
+    assert not ok
+    assert "mismatch" in message
+
+
+def test_policy_ed25519_signature_round_trip(tmp_path: Path) -> None:
+    policy_path = tmp_path / "policy.yaml"
+    private_key = tmp_path / "policy.private.pem"
+    public_key = tmp_path / "policy.public.pem"
+    policy_path.write_text(
+        """
+metadata:
+  id: cavra-test-policy
+  title: Test Policy
+  description: Test policy
+  version: 1
+commands:
+  allow:
+    - "terraform plan*"
+""",
+        encoding="utf-8",
+    )
+    key_metadata = generate_policy_signing_keypair(private_key, public_key, key_id="pytest-policy-key")
+    signature_path = write_policy_signature(
+        policy_path,
+        signer="pytest",
+        private_key_path=private_key,
+        key_id=key_metadata["key_id"],
+    )
+
+    ok, message = verify_policy_signature(policy_path, signature_path=signature_path, public_key_path=public_key)
+
+    assert ok, message
+    payload = signature_path.read_text(encoding="utf-8")
+    assert '"algorithm": "Ed25519"' in payload
+    assert '"key_id": "pytest-policy-key"' in payload
+    policy_path.write_text(policy_path.read_text(encoding="utf-8") + "\nfilesystem: {}\n", encoding="utf-8")
+    ok, message = verify_policy_signature(policy_path, signature_path=signature_path, public_key_path=public_key)
     assert not ok
     assert "mismatch" in message
