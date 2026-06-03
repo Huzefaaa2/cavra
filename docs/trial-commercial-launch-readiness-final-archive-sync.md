@@ -76,8 +76,12 @@ license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private production observability and support runbook readiness evidence so
-final archives can feed monitoring, alerting, escalation, support runbooks,
-customer-success playbooks, and operational owner acceptance without exposing
-customer records, account records, finance records, billing secrets,
-license-service internals, or production provisioning secrets.
+Private production observability and support readiness evidence is now
+documented in
+[trial-production-observability-support-readiness-sync.md](trial-production-observability-support-readiness-sync.md).
+Next, add private final release hardening and packaging readiness evidence so
+observability-ready releases can be gated by artifact signing, SBOM,
+vulnerability exceptions, rollback package, release notes, support handoff, and
+commercial launch approval without exposing Enterprise source code, customer
+records, billing secrets, license-service internals, or production provisioning
+secrets.

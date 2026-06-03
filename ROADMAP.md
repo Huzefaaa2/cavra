@@ -133,7 +133,10 @@ Current open-core priority:
 55. Private commercial launch-readiness final archive evidence is delivered in
    `cavra-enterprise` PR #105 and public-safe sync is documented in
    [docs/trial-commercial-launch-readiness-final-archive-sync.md](docs/trial-commercial-launch-readiness-final-archive-sync.md).
-56. Next recommendation: add private production observability and support
-   runbook readiness evidence, then sync public docs with public-safe
-   monitoring, alerting, escalation, support-runbook, customer-success playbook,
-   and operational owner acceptance gates.
+56. Private production observability and support runbook readiness evidence is
+   delivered in `cavra-enterprise` PR #106 and public-safe sync is documented in
+   [docs/trial-production-observability-support-readiness-sync.md](docs/trial-production-observability-support-readiness-sync.md).
+57. Next recommendation: add private final release hardening and packaging
+   readiness evidence, then sync public docs with public-safe artifact-signing,
+   SBOM, vulnerability-exception, rollback-package, release-note,
+   support-handoff, and commercial-launch approval gates.

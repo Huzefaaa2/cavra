@@ -51,6 +51,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #104;
 - private commercial launch-readiness final archive evidence is delivered in
   `cavra-enterprise` PR #105;
+- private production observability and support runbook readiness evidence is
+  delivered in `cavra-enterprise` PR #106;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -107,13 +109,12 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
-- production observability and support runbook readiness workflows;
-- production observability and support runbooks;
+- final release hardening and packaging readiness workflows;
 - final release hardening, packaging, and commercialization closeout.
 
 ## Next Slice
 
-Production observability and support runbook readiness evidence.
+Final release hardening and packaging readiness evidence.
 
 ## Why This Is Next
 
@@ -132,12 +133,14 @@ launch-readiness handoff evidence, private commercial launch-readiness final
 approval evidence, private commercial launch-readiness operating transition
 evidence, private commercial launch-readiness operating closeout evidence,
 private commercial launch-readiness executive review evidence, private
-commercial launch-readiness final archive evidence, public tenant and
+commercial launch-readiness final archive evidence, private production
+observability and support runbook readiness evidence, public tenant and
 entitlement contracts, and private evidence from tenant activation through
 final SaaS customer operating closeout. The next production blocker is proving
-monitoring, alerting, escalation, support runbooks, customer-success playbooks,
-and operational owner acceptance without exposing billing, license-service,
-customer, finance, account, or provisioning secrets.
+artifact signing, SBOM, vulnerability exception, rollback package, release
+note, support handoff, and commercial launch approval readiness without
+exposing billing, license-service, customer, finance, account, or provisioning
+secrets.
 
 ## Proposed PR Sequence
 
@@ -466,11 +469,24 @@ customer, finance, account, or provisioning secrets.
       launch-readiness final archive workflow.
 
 53. Private production observability and support runbook readiness evidence.
+    Delivered in `cavra-enterprise` PR #106.
     - Add private evidence that final archives feed monitoring, alerting,
       escalation, support runbooks, customer-success playbooks, and operational
       owner acceptance without exposing customer records, account records,
       finance records, billing secrets, license-service internals, or
       production provisioning secrets.
+
+54. Public docs/wiki sync. Delivered with
+    [trial-production-observability-support-readiness-sync.md](trial-production-observability-support-readiness-sync.md).
+    - Publish public-safe outcomes after the private production observability
+      and support runbook readiness workflow.
+
+55. Private final release hardening and packaging readiness evidence.
+    - Add private evidence that observability-ready releases are gated by
+      artifact signing, SBOM, vulnerability exceptions, rollback package,
+      release notes, support handoff, and commercial launch approval without
+      exposing customer records, account records, finance records, billing
+      secrets, license-service internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -485,7 +501,7 @@ customer, finance, account, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private production observability and support runbook readiness evidence,
-then sync public docs with public-safe monitoring, alerting, escalation,
-support-runbook, customer-success playbook, and operational owner acceptance
+Add private final release hardening and packaging readiness evidence, then sync
+public docs with public-safe artifact-signing, SBOM, vulnerability-exception,
+rollback-package, release-note, support-handoff, and commercial-launch approval
 gates.
