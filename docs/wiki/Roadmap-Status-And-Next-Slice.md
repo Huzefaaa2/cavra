@@ -57,6 +57,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   delivered in `cavra-enterprise` PR #107;
 - private commercialization closeout and release-to-market approval evidence
   is delivered in `cavra-enterprise` PR #108;
+- private post-launch operating handoff evidence is delivered in
+  `cavra-enterprise` PR #109;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -113,12 +115,12 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
-- post-launch operating handoff workflows;
-- final release post-launch closeout.
+- release retrospective and roadmap intake workflows;
+- final launch retrospective closeout.
 
 ## Next Slice
 
-Post-launch operating handoff evidence.
+Release retrospective and roadmap intake evidence.
 
 ## Why This Is Next
 
@@ -140,13 +142,13 @@ private commercial launch-readiness executive review evidence, private
 commercial launch-readiness final archive evidence, private production
 observability and support runbook readiness evidence, private final release
 hardening and packaging readiness evidence, private commercialization closeout
-and release-to-market approval evidence, public tenant and entitlement
-contracts, and private evidence from tenant activation through final SaaS
-customer operating closeout. The next production blocker is proving
-post-launch monitoring, support queues, customer-success handoff, incident
-response, adoption tracking, renewal expansion watch, and executive status
-reporting without exposing billing, license-service, customer, finance,
-account, artifact-signing, or provisioning secrets.
+and release-to-market approval evidence, private post-launch operating handoff
+evidence, public tenant and entitlement contracts, and private evidence from
+tenant activation through final SaaS customer operating closeout. The next
+production blocker is proving launch lessons learned, customer feedback,
+product roadmap intake, renewal expansion opportunities, support trend review,
+and next-cycle owner acceptance without exposing billing, license-service,
+customer, finance, account, artifact-signing, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -516,12 +518,26 @@ account, artifact-signing, or provisioning secrets.
       closeout and release-to-market approval workflow.
 
 59. Private post-launch operating handoff evidence.
+    Delivered in `cavra-enterprise` PR #109.
     - Add private evidence that release-to-market approvals transition into
       launch monitoring, support queues, customer-success handoff, incident
       response, adoption tracking, renewal expansion watch, and executive
       status reporting without exposing customer records, account records,
       finance records, billing secrets, license-service internals, artifact
       signing internals, or production provisioning secrets.
+
+60. Public docs/wiki sync. Delivered with
+    [trial-post-launch-operating-handoff-sync.md](trial-post-launch-operating-handoff-sync.md).
+    - Publish public-safe outcomes after the private post-launch operating
+      handoff workflow.
+
+61. Private release retrospective and roadmap intake evidence.
+    - Add private evidence that post-launch handoffs close into launch lessons
+      learned, customer feedback, product roadmap intake, renewal expansion
+      opportunities, support trend review, and next-cycle owner acceptance
+      without exposing customer records, account records, finance records,
+      billing secrets, license-service internals, artifact signing internals,
+      or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -536,7 +552,6 @@ account, artifact-signing, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private post-launch operating handoff evidence, then sync public docs with
-public-safe launch-monitoring, support-queue, customer-success-handoff,
-incident-response, adoption-tracking, renewal-watch, and executive-status
-gates.
+Add private release retrospective and roadmap intake evidence, then sync public
+docs with public-safe launch-lessons, customer-feedback, roadmap-intake,
+renewal-expansion, support-trend, and next-cycle-owner gates.

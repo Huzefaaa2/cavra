@@ -124,5 +124,7 @@ for the public-safe trial final release hardening and packaging readiness
 summary, and
 [../trial-commercialization-closeout-release-market-approval-sync.md](../trial-commercialization-closeout-release-market-approval-sync.md)
 for the public-safe trial commercialization closeout and release-to-market
-approval
+approval summary, and
+[../trial-post-launch-operating-handoff-sync.md](../trial-post-launch-operating-handoff-sync.md)
+for the public-safe trial post-launch operating handoff
 summary.
