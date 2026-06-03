@@ -68,6 +68,7 @@ Open-core architecture and boundaries:
 - [Trial conversion readiness sync](docs/trial-conversion-readiness-sync.md)
 - [Trial conversion activation handoff sync](docs/trial-conversion-activation-handoff-sync.md)
 - [Trial conversion closeout revenue sync](docs/trial-conversion-closeout-revenue-sync.md)
+- [Trial conversion executive renewal sync](docs/trial-conversion-executive-renewal-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -184,6 +185,7 @@ Trial access:
 - Private conversion readiness evidence records paid-pilot or production conversion gates for renewed or escalated trials.
 - Private conversion activation and production handoff evidence records paid-pilot activation or production handoff gates for approved conversions.
 - Private conversion closeout and revenue handoff evidence records customer-success, support, release-management, finance, revenue, billing, subscription/order, renewal forecast, and revenue-recognition gates for activated conversions.
+- Private conversion executive summary and renewal action evidence records leadership, account-team, customer-success, risk-owner, renewal-owner, expansion, commercial follow-up, and action due-date gates for closed-out conversions.
 - Trial license validation must be implemented by the private Enterprise/SaaS license service.
 - See [docs/enterprise/trial.md](docs/enterprise/trial.md).
 - See [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
@@ -193,6 +195,7 @@ Trial access:
 - See [docs/trial-conversion-readiness-sync.md](docs/trial-conversion-readiness-sync.md).
 - See [docs/trial-conversion-activation-handoff-sync.md](docs/trial-conversion-activation-handoff-sync.md).
 - See [docs/trial-conversion-closeout-revenue-sync.md](docs/trial-conversion-closeout-revenue-sync.md).
+- See [docs/trial-conversion-executive-renewal-sync.md](docs/trial-conversion-executive-renewal-sync.md).
 
 ## Claude Code quickstart
 
