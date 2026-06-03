@@ -115,19 +115,14 @@ SaaS operating readiness rollup and public-safe documentation sync:
 CAVRA is ready for the next production-readiness slice, but the product is not
 yet fully production-complete. Remaining themes are:
 
-- Community policy-engine GA hardening;
-- golden decision snapshot coverage for critical policy decisions;
-- explicit audit/enforce/strict/break-glass mode behavior across CLI, API, and
-  evidence;
-- production deployment guide validation for the public Community path;
 - console closeout for a minimal but coherent operator experience;
 - release documentation that ties policy, evidence, console, and Go runtime
   readiness into a user-verifiable GA path.
 
 ## Next Slice
 
-Community GA Control Hardening, starting with the public policy signing key
-workflow.
+Console closeout for a minimal operator experience, building on the delivered
+Community GA Control Hardening batch.
 
 ## Why This Is Next
 
@@ -580,5 +575,7 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Implement the public policy signing key workflow with tests and documentation,
-then continue the Community GA Control Hardening batch.
+Begin console closeout for a minimal operator experience by surfacing policy
+signing status, runtime mode selection, golden decision status, deployment
+readiness, and release evidence links in a user-verifiable public Community
+path.

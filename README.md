@@ -89,6 +89,9 @@ Open-core architecture and boundaries:
 - [Trial final launch retrospective closeout sync](docs/trial-final-launch-retrospective-closeout-sync.md)
 - [Roadmap status audit and next batch](docs/roadmap-status-audit-next-batch.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
+- [Community GA control hardening sync](docs/community-ga-control-hardening-sync.md)
+- [Policy signing key workflow](docs/policy-signing-key-workflow.md)
+- [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
 - [Private Enterprise repo plan](docs/architecture/private-enterprise-repo-plan.md)
@@ -263,14 +266,16 @@ The Go enforcement-plane scaffold lives under `go/cavra-runtime/` and currently 
 
 Policy packs live under `policies/`. Current packs cover AI-agent baseline, banking, PCI DSS, HIPAA, SOX change control, NIST SSDF, ISO 27001, EU AI Act, OWASP LLM/agentic risks, MCP enterprise governance, Kubernetes production safety, Terraform/OpenTofu production safety, cloud IAM, GitHub Enterprise, and GitLab Enterprise.
 
-Policy engine hardening is documented in [docs/policy-engine-hardening.md](docs/policy-engine-hardening.md). CAVRA now supports JSON Schema validation, inherited policy packs, normalized policy compilation, semantic policy diffs, and policy signature metadata.
+Policy engine hardening is documented in [docs/policy-engine-hardening.md](docs/policy-engine-hardening.md). CAVRA now supports JSON Schema validation, inherited policy packs, normalized policy compilation, semantic policy diffs, Ed25519 policy signing, backward-compatible HMAC signature metadata, golden decision snapshots, and explicit runtime policy modes.
 
 ```bash
 cavra policy validate policies/cavra-ai-agent-baseline
 cavra policy compile --policy-pack cavra-ai-agent-baseline
 cavra policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline
-cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security
-cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml
+cavra policy keygen --output .cavra/policy-signing --key-id community-ga-policy-key
+cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security --private-key .cavra/policy-signing/community-ga-policy-key.private.pem --key-id community-ga-policy-key
+cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml --public-key .cavra/policy-signing/community-ga-policy-key.public.pem
+cavra evaluate execute_command "terraform plan" --policy-mode strict --json
 ```
 
 ## Evidence and attestation

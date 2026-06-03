@@ -1,5 +1,33 @@
 # Phase Completion Log
 
+## Phase 10 Community GA Control Hardening Batch
+
+Status: complete for the first public Community GA control hardening batch.
+
+Completed implementation:
+- Added Ed25519 policy signing key generation, signing, and verification while
+  preserving backward-compatible HMAC signature checks.
+- Added golden decision snapshots for critical Community file, command, Git,
+  MCP, and strict-mode behavior.
+- Added explicit runtime mode summaries for `audit_only`, `enforce`, `strict`,
+  and `break_glass` through CLI output and runtime helpers.
+- Updated public Community deployment validation guidance with signing,
+  snapshot, and runtime mode checks.
+- Updated README navigation, roadmap, production roadmap, and wiki-source
+  documentation.
+
+Validation:
+- Public tests cover Ed25519 policy signing and verification, CLI keygen/sign/
+  verify, runtime mode behavior, and golden decision snapshot regressions.
+- Public documentation contains no Enterprise source code, customer records,
+  customer policy packs, production private keys, KMS/HSM identifiers, signing
+  service internals, SaaS backend implementation, license-service internals, or
+  private approval-router integrations.
+
+Recommended next issue: begin console closeout for a minimal operator
+experience by surfacing policy signing status, runtime mode selection, golden
+decision status, deployment readiness, and release evidence links.
+
 ## Phase 10 Roadmap Status Audit And Next Batch
 
 Status: complete for public-safe roadmap reconciliation after private

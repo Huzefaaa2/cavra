@@ -10,8 +10,9 @@ Phase 2 strengthens CAVRA policy behavior so regulated teams can trust policy de
 - Overlay compilation for repository or business-unit policy overrides.
 - Normalized compiled policy output for review, signing, and future parity tests.
 - Semantic policy diff output that reports added, removed, and changed policy paths.
-- Signature metadata files through `cavra policy sign`.
-- Signature verification through `cavra policy verify`, including digest mismatch detection.
+- Ed25519 local policy signing key generation through `cavra policy keygen`.
+- Signature metadata files through `cavra policy sign`, including Ed25519 and backward-compatible HMAC modes.
+- Signature verification through `cavra policy verify`, including digest mismatch, public-key fingerprint, and signature mismatch detection.
 - Backward compatibility with legacy SHA-256 `.sig` files.
 
 ## CLI Usage
@@ -42,12 +43,24 @@ Compare two policy packs:
 cavra policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline
 ```
 
-Sign and verify a policy:
+Generate an Ed25519 keypair, then sign and verify a policy:
 
 ```bash
-cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml --signer platform-security --key "$CAVRA_POLICY_SIGNING_KEY"
-cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml --key "$CAVRA_POLICY_SIGNING_KEY"
+cavra policy keygen \
+  --output .cavra/policy-signing \
+  --key-id community-ga-policy-key
+
+cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml \
+  --signer platform-security \
+  --private-key .cavra/policy-signing/community-ga-policy-key.private.pem \
+  --key-id community-ga-policy-key
+
+cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml \
+  --public-key .cavra/policy-signing/community-ga-policy-key.public.pem
 ```
+
+Legacy HMAC local tamper checks remain available through `--key`, but Ed25519
+is the recommended Community GA policy signing workflow.
 
 ## Policy Inheritance
 
@@ -89,6 +102,10 @@ Phase 2 validation covers:
 - Policy inheritance merges parent and child controls.
 - Policy diff reports added, removed, and changed paths.
 - Policy signatures verify and detect tampering.
+- Ed25519 policy signatures verify with a public key and fail on digest,
+  fingerprint, or signature mismatch.
+- Golden decision snapshots cover critical Community file, command, Git, MCP,
+  and strict-mode decisions.
 - CLI compile, validate, diff, sign, and verify commands run locally.
 
 ## Next Recommended Phase

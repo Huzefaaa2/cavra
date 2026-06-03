@@ -208,6 +208,71 @@ def test_saas_worker_handoff_cli_rejects_sensitive_values() -> None:
     assert "sensitive value" in result.output
 
 
+def test_policy_keygen_sign_and_verify_cli_round_trip(tmp_path: Path) -> None:
+    policy_path = tmp_path / "policy.yaml"
+    keys_dir = tmp_path / "keys"
+    policy_path.write_text(
+        """
+metadata:
+  id: cavra-cli-test-policy
+  title: CLI Test Policy
+  description: CLI test policy
+  version: 1
+commands:
+  allow:
+    - "terraform plan*"
+""",
+        encoding="utf-8",
+    )
+
+    keygen = runner.invoke(app, ["policy", "keygen", "--output", str(keys_dir), "--key-id", "cli-policy-key"])
+    assert keygen.exit_code == 0
+    key_payload = json.loads(keygen.output)
+    private_key = Path(key_payload["private_key_path"])
+    public_key = Path(key_payload["public_key_path"])
+    assert private_key.exists()
+    assert public_key.exists()
+
+    signed = runner.invoke(
+        app,
+        [
+            "policy",
+            "sign",
+            str(policy_path),
+            "--signer",
+            "platform-security",
+            "--private-key",
+            str(private_key),
+            "--key-id",
+            "cli-policy-key",
+        ],
+    )
+    assert signed.exit_code == 0
+    verified = runner.invoke(app, ["policy", "verify", str(policy_path), "--public-key", str(public_key)])
+    assert verified.exit_code == 0
+    assert "verified Ed25519 signature" in verified.output
+
+
+def test_evaluate_cli_reports_strict_mode_effective_decision() -> None:
+    result = runner.invoke(app, ["evaluate", "execute_command", "terraform plan", "--policy-mode", "strict", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.runtime-policy-mode-summary.v1"
+    assert payload["base_decision"]["decision"] == "allow"
+    assert payload["effective_decision"] == "require_approval"
+    assert payload["mode"] == "strict"
+
+
+def test_evaluate_cli_blocks_break_glass_without_reason() -> None:
+    result = runner.invoke(app, ["evaluate", "execute_command", "terraform plan", "--policy-mode", "break_glass", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["effective_decision"] == "block"
+    assert payload["break_glass_reason_present"] is False
+
+
 def test_runtime_go_deployment_readiness_cli_reports_not_configured() -> None:
     result = runner.invoke(app, ["runtime", "go-deployment-readiness", "--json"])
 
