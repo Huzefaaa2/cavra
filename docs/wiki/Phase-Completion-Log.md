@@ -1,5 +1,31 @@
 # Phase Completion Log
 
+## Phase 10 Evidence Console Community GA Closeout
+
+Status: complete for the public Community operator console closeout slice.
+
+Completed implementation:
+- Added a Community GA Control Hardening section to the hosted Evidence
+  Console.
+- Surfaced Ed25519 policy signing status, copyable signing commands, runtime
+  mode behavior, golden decision snapshot coverage, deployment validation, and
+  release evidence links.
+- Added release-note visibility for the Community GA hardening batch.
+- Updated README, roadmap, feature inventory, production roadmap, and wiki
+  navigation.
+
+Validation:
+- Public UI syntax and smoke tests cover the new console IDs and CSS classes.
+- Public documentation contains no Enterprise source code, customer records,
+  production private keys, KMS/HSM identifiers, license-service internals,
+  SaaS backend implementation, private approval-router integrations, or paid
+  policy packs.
+
+Recommended next issue: create a Community GA release checklist that ties
+policy signing, runtime modes, golden decision snapshots, Evidence Console
+readiness, deployment validation, and Go runtime readiness into one
+user-verifiable public release path.
+
 ## Phase 10 Community GA Control Hardening Batch
 
 Status: complete for the first public Community GA control hardening batch.

@@ -165,7 +165,9 @@ Latest production-readiness slice: Community GA Control Hardening delivered
 Ed25519 policy signing, golden decision snapshots, explicit runtime modes,
 deployment validation updates, and public docs/wiki sync. See
 `docs/community-ga-control-hardening-sync.md`.
-Next recommended slice: console closeout for a minimal operator experience.
+Evidence Console closeout now surfaces the Community GA controls in the hosted
+operator UI. See `docs/evidence-console-community-ga-closeout.md`.
+Next recommended slice: Community GA release checklist documentation.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

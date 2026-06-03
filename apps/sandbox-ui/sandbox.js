@@ -353,6 +353,43 @@ const saasOperatingAutomationStatusFields = {
   closeout_retry: "closeout_retry_status"
 };
 
+const communityGaControlHardening = {
+  policy_signing: {
+    status: "ready",
+    algorithm: "Ed25519",
+    workflow: "local-keygen-sign-verify",
+    key_boundary: "private keys stay in operator-managed secret storage; public repo keeps only workflow and public-safe trust guidance"
+  },
+  golden_decisions: {
+    status: "verified",
+    fixture: "tests/fixtures/golden_decisions/community_ga_control_hardening.json",
+    decision_count: 5,
+    coverage: ["sensitive file read", "allowed command", "unknown command approval", "protected branch push", "unknown MCP server"]
+  },
+  runtime_modes: {
+    status: "ready",
+    modes: {
+      enforce: "Preserves the runtime guard decision.",
+      audit_only: "Records findings and evidence without blocking execution.",
+      strict: "Preserves blocks and approvals; converts allowed actions to approval-gated actions.",
+      break_glass: "Blocks unless an actor and reason are supplied, then allows only with attestation."
+    }
+  },
+  deployment_validation: {
+    status: "ready",
+    checks: ["policy signing workflow", "golden decision suite", "runtime mode output", "deployment readiness report"]
+  },
+  release_evidence: {
+    status: "documented",
+    docs: [
+      ["Policy signing key workflow", "https://github.com/Huzefaaa2/cavra/blob/main/docs/policy-signing-key-workflow.md"],
+      ["Runtime policy modes", "https://github.com/Huzefaaa2/cavra/blob/main/docs/runtime-policy-modes.md"],
+      ["Community GA batch sync", "https://github.com/Huzefaaa2/cavra/blob/main/docs/community-ga-control-hardening-sync.md"],
+      ["Production deployment validation", "https://github.com/Huzefaaa2/cavra/blob/main/docs/production-deployment-validation.md"]
+    ]
+  }
+};
+
 const evidenceCatalog = [
   {
     session_id: "demo-session",
@@ -1090,6 +1127,16 @@ const endpointManagementExportArtifactCatalog = {
 };
 
 const releaseNoteCatalog = [
+  {
+    title: "Community GA Control Hardening",
+    date: "2026-06-04",
+    summary: "The Evidence Console now surfaces policy signing status, runtime mode behavior, golden decision coverage, deployment validation, and release evidence links for the public Community path.",
+    links: [
+      ["Batch sync", "https://github.com/Huzefaaa2/cavra/blob/main/docs/community-ga-control-hardening-sync.md"],
+      ["Policy signing", "https://github.com/Huzefaaa2/cavra/blob/main/docs/policy-signing-key-workflow.md"],
+      ["Runtime modes", "https://github.com/Huzefaaa2/cavra/blob/main/docs/runtime-policy-modes.md"]
+    ]
+  },
   {
     title: "SaaS Worker Handoff",
     date: "2026-06-03",
@@ -3901,6 +3948,63 @@ function statusClass(status) {
 
 function formatList(items) {
   return Array.isArray(items) && items.length ? items.join(", ") : "none";
+}
+
+function selectedRuntimeModeKey() {
+  const selected = document.querySelector("#policyMode")?.value || "Enforce";
+  if (selected.toLowerCase().includes("audit")) return "audit_only";
+  if (selected.toLowerCase().includes("strict")) return "strict";
+  if (selected.toLowerCase().includes("break")) return "break_glass";
+  return "enforce";
+}
+
+function renderCommunityGaControlHardening() {
+  const summary = document.querySelector("#communityGaSummary");
+  const checklist = document.querySelector("#communityGaChecklist");
+  const commands = document.querySelector("#communityGaCommands");
+  const links = document.querySelector("#communityGaLinks");
+  if (!summary || !checklist || !commands || !links) return;
+
+  const modeKey = selectedRuntimeModeKey();
+  const data = communityGaControlHardening;
+  const cards = [
+    ["Policy Signing", `${data.policy_signing.algorithm} ${data.policy_signing.status}`, data.policy_signing.workflow],
+    ["Runtime Mode", modeKey, data.runtime_modes.modes[modeKey]],
+    ["Golden Decisions", `${data.golden_decisions.decision_count} snapshots`, data.golden_decisions.fixture],
+    ["Deployment Validation", data.deployment_validation.status, formatList(data.deployment_validation.checks)],
+    ["Release Evidence", data.release_evidence.status, "README, docs, roadmap, and wiki-source are synchronized."]
+  ];
+  summary.innerHTML = cards.map(([label, value, detail]) => `
+    <article class="community-ga-card">
+      <span>${escapeHtml(label)}</span>
+      <strong class="${statusClass(String(value).includes("break_glass") ? "review" : "ready")}">${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+
+  const checks = [
+    `Generate local ${data.policy_signing.algorithm} policy signing keys before publishing policy changes.`,
+    "Sign policy packs with a private key stored outside the public repository.",
+    "Verify policy signatures with the matching public key before rollout.",
+    `Run ${data.golden_decisions.decision_count} golden decision snapshots before release.`,
+    `Confirm selected runtime mode: ${modeKey} - ${data.runtime_modes.modes[modeKey]}`,
+    "Attach deployment readiness and release evidence links to review records."
+  ];
+  checklist.innerHTML = checks.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  commands.textContent = [
+    "cavra policy keygen --output .cavra/policy-signing --key-id community-ga-policy-key",
+    "cavra policy sign policies/cavra-ai-agent-baseline/policy.yaml \\",
+    "  --signer platform-security \\",
+    "  --private-key .cavra/policy-signing/community-ga-policy-key.private.pem \\",
+    "  --key-id community-ga-policy-key",
+    "cavra policy verify policies/cavra-ai-agent-baseline/policy.yaml \\",
+    "  --public-key .cavra/policy-signing/community-ga-policy-key.public.pem",
+    `cavra evaluate execute_command "terraform plan" --policy-mode ${modeKey} --json`,
+    "python3 -m pytest -q tests/test_golden_decisions.py"
+  ].join("\n");
+  links.innerHTML = data.release_evidence.docs.map(([label, href]) => (
+    `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>`
+  )).join("");
 }
 
 function renderReleaseNotes() {
@@ -9776,6 +9880,8 @@ async function verifyAttestation() {
 }
 
 document.querySelector("#runScenario").addEventListener("click", runScenario);
+document.querySelector("#refreshCommunityGa").addEventListener("click", renderCommunityGaControlHardening);
+document.querySelector("#policyMode").addEventListener("change", renderCommunityGaControlHardening);
 document.querySelector("#scenarioSelector").addEventListener("change", async () => {
   const selected = selectedScenarioId();
   const status = document.querySelector("#scenarioStatus");
@@ -9973,6 +10079,7 @@ document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
 refreshEvidence();
+renderCommunityGaControlHardening();
 renderReleaseNotes();
 refreshReleaseChannels();
 refreshReleaseDelivery();

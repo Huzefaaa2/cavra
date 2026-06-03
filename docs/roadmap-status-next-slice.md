@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Console closeout for a minimal operator experience, building on the delivered
-Community GA Control Hardening batch.
+Community GA release checklist documentation, building on the delivered
+Community GA Control Hardening batch and Evidence Console closeout.
 
 ## Why This Is Next
 
@@ -575,7 +575,7 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Begin console closeout for a minimal operator experience by surfacing policy
-signing status, runtime mode selection, golden decision status, deployment
-readiness, and release evidence links in a user-verifiable public Community
+Create a Community GA release checklist that ties policy signing, runtime
+modes, golden decision snapshots, Evidence Console readiness, deployment
+validation, and Go runtime readiness into one user-verifiable public release
 path.

@@ -90,6 +90,7 @@ Open-core architecture and boundaries:
 - [Roadmap status audit and next batch](docs/roadmap-status-audit-next-batch.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Community GA control hardening sync](docs/community-ga-control-hardening-sync.md)
+- [Evidence Console Community GA closeout](docs/evidence-console-community-ga-closeout.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)
