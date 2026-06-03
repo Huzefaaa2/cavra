@@ -35,6 +35,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #96;
 - private trial commercialization closure readiness summary evidence is
   delivered in `cavra-enterprise` PR #97;
+- private commercialization closure release acceptance evidence is delivered in
+  `cavra-enterprise` PR #98;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -93,11 +95,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- commercialization closure release acceptance workflows.
+- commercialization closure final closeout workflows.
 
 ## Next Slice
 
-Commercialization closure release acceptance evidence.
+Commercialization closure final closeout evidence.
 
 ## Why This Is Next
 
@@ -110,12 +112,12 @@ closeout and revenue handoff rollup evidence, private executive summary and
 renewal action evidence, private customer follow-through evidence, private
 renewal outcome rollup evidence, private final commercial renewal closeout
 package evidence, private commercialization closure readiness summary evidence,
-public tenant and entitlement contracts, and private evidence from tenant
-activation through final SaaS customer operating closeout. The next commercial
-blocker is accepting closure readiness summaries through release governance,
-product leadership, support, customer-success, and commercial owner gates
-without exposing billing, license-service, customer, finance, account, or
-provisioning secrets.
+private commercialization closure release acceptance evidence, public tenant and
+entitlement contracts, and private evidence from tenant activation through final
+SaaS customer operating closeout. The next commercial blocker is archiving
+accepted closure packages for release governance, commercial leadership,
+public-safe roadmap synchronization, and next-release planning without exposing
+billing, license-service, customer, finance, account, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -338,11 +340,24 @@ provisioning secrets.
       readiness summary workflow.
 
 37. Private commercialization closure release acceptance evidence.
+    Delivered in `cavra-enterprise` PR #98.
     - Add private evidence that closure readiness summaries are accepted by
       release governance, product leadership, support, customer-success, and
       commercial owners without exposing customer records, account records,
       finance records, billing secrets, license-service internals, or
       production provisioning secrets.
+
+38. Public docs/wiki sync. Delivered with
+    [trial-commercialization-closure-release-acceptance-sync.md](trial-commercialization-closure-release-acceptance-sync.md).
+    - Publish public-safe outcomes after the private commercialization closure
+      release acceptance workflow.
+
+39. Private commercialization closure final closeout evidence.
+    - Add private evidence that accepted closure packages are archived for
+      release governance, commercial leadership, public-safe roadmap
+      synchronization, and next-release planning without exposing customer
+      records, account records, finance records, billing secrets,
+      license-service internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -357,6 +372,6 @@ provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercialization closure release acceptance evidence, then sync
-public docs with public-safe release governance, product leadership, support,
-customer-success, and commercial owner acceptance gates.
+Add private commercialization closure final closeout evidence, then sync public
+docs with public-safe archive, release governance, commercial leadership,
+public roadmap, and next-release planning gates.

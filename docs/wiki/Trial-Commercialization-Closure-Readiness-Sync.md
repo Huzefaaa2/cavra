@@ -76,8 +76,11 @@ implementation details.
 
 ## Next Recommendation
 
-Add private commercialization closure release acceptance evidence so closure
-readiness summaries can be accepted by release governance, product leadership,
-support, customer-success, and commercial owners without exposing customer
-records, account records, finance records, billing secrets, license-service
-internals, or production provisioning secrets.
+Private commercialization closure release acceptance evidence is now documented
+in
+[Trial-Commercialization-Closure-Release-Acceptance-Sync.md](Trial-Commercialization-Closure-Release-Acceptance-Sync.md).
+Next, add private commercialization closure final closeout evidence so accepted
+closure packages can be archived for release governance, commercial leadership,
+public-safe roadmap synchronization, and next-release planning without exposing
+customer records, account records, finance records, billing secrets,
+license-service internals, or production provisioning secrets.
