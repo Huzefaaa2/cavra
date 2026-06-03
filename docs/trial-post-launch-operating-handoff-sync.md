@@ -79,9 +79,12 @@ license, artifact-signing, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private release retrospective and roadmap intake evidence so post-launch
-operating handoff can close into launch lessons learned, customer feedback,
-product roadmap intake, renewal expansion opportunities, support trend review,
-and next-cycle owner acceptance without exposing Enterprise source code,
-customer records, billing secrets, license-service internals, artifact signing
-internals, or production provisioning secrets.
+Private release retrospective and roadmap intake evidence is now delivered in
+`cavra-enterprise` PR #110.
+
+Next, add private final launch retrospective closeout evidence so roadmap
+intake can be closed through executive acceptance, product planning ownership,
+customer-success follow-up, renewal expansion action, support trend closure,
+and public-safe final archive synchronization without exposing Enterprise
+source code, customer records, billing secrets, license-service internals,
+artifact signing internals, or production provisioning secrets.

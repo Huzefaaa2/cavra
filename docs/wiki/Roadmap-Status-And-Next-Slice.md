@@ -59,6 +59,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   is delivered in `cavra-enterprise` PR #108;
 - private post-launch operating handoff evidence is delivered in
   `cavra-enterprise` PR #109;
+- private release retrospective and roadmap intake evidence is delivered in
+  `cavra-enterprise` PR #110;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -115,12 +117,12 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
-- release retrospective and roadmap intake workflows;
-- final launch retrospective closeout.
+- final launch retrospective closeout workflows;
+- final launch archive synchronization.
 
 ## Next Slice
 
-Release retrospective and roadmap intake evidence.
+Final launch retrospective closeout evidence.
 
 ## Why This Is Next
 
@@ -143,12 +145,13 @@ commercial launch-readiness final archive evidence, private production
 observability and support runbook readiness evidence, private final release
 hardening and packaging readiness evidence, private commercialization closeout
 and release-to-market approval evidence, private post-launch operating handoff
-evidence, public tenant and entitlement contracts, and private evidence from
-tenant activation through final SaaS customer operating closeout. The next
-production blocker is proving launch lessons learned, customer feedback,
-product roadmap intake, renewal expansion opportunities, support trend review,
-and next-cycle owner acceptance without exposing billing, license-service,
-customer, finance, account, artifact-signing, or provisioning secrets.
+evidence, private release retrospective and roadmap intake evidence, public
+tenant and entitlement contracts, and private evidence from tenant activation
+through final SaaS customer operating closeout. The next production blocker is
+proving executive acceptance, product planning ownership, customer-success
+follow-up, renewal expansion action, support trend closure, and final archive
+synchronization without exposing billing, license-service, customer, finance,
+account, artifact-signing, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -532,12 +535,26 @@ customer, finance, account, artifact-signing, or provisioning secrets.
       handoff workflow.
 
 61. Private release retrospective and roadmap intake evidence.
+    Delivered in `cavra-enterprise` PR #110.
     - Add private evidence that post-launch handoffs close into launch lessons
       learned, customer feedback, product roadmap intake, renewal expansion
       opportunities, support trend review, and next-cycle owner acceptance
       without exposing customer records, account records, finance records,
       billing secrets, license-service internals, artifact signing internals,
       or production provisioning secrets.
+
+62. Public docs/wiki sync. Delivered with
+    [trial-release-retrospective-roadmap-intake-sync.md](trial-release-retrospective-roadmap-intake-sync.md).
+    - Publish public-safe outcomes after the private release retrospective and
+      roadmap intake workflow.
+
+63. Private final launch retrospective closeout evidence.
+    - Add private evidence that retrospective intake closes into executive
+      acceptance, product planning ownership, customer-success follow-up,
+      renewal expansion action, support trend closure, and public-safe final
+      archive synchronization without exposing customer records, account
+      records, finance records, billing secrets, license-service internals,
+      artifact signing internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -552,6 +569,7 @@ customer, finance, account, artifact-signing, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private release retrospective and roadmap intake evidence, then sync public
-docs with public-safe launch-lessons, customer-feedback, roadmap-intake,
-renewal-expansion, support-trend, and next-cycle-owner gates.
+Add private final launch retrospective closeout evidence, then sync public docs
+with public-safe executive-acceptance, product-planning,
+customer-success-follow-up, renewal-expansion-action, support-trend-closure,
+and final-archive gates.
