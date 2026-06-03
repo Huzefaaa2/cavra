@@ -140,7 +140,11 @@ Current open-core priority:
    delivered in `cavra-enterprise` PR #107 and public-safe sync is documented
    in
    [docs/trial-final-release-hardening-packaging-readiness-sync.md](docs/trial-final-release-hardening-packaging-readiness-sync.md).
-58. Next recommendation: add private commercialization closeout and
-   release-to-market approval evidence, then sync public docs with public-safe
-   launch-ownership, customer-success-readiness, release-governance-acceptance,
-   and roadmap-synchronization gates.
+58. Private commercialization closeout and release-to-market approval evidence
+   is delivered in `cavra-enterprise` PR #108 and public-safe sync is
+   documented in
+   [docs/trial-commercialization-closeout-release-market-approval-sync.md](docs/trial-commercialization-closeout-release-market-approval-sync.md).
+59. Next recommendation: add private post-launch operating handoff evidence,
+   then sync public docs with public-safe launch-monitoring, support-queue,
+   customer-success-handoff, incident-response, adoption-tracking,
+   renewal-watch, and executive-status gates.

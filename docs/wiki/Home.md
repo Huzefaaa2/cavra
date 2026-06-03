@@ -46,9 +46,10 @@ launch-readiness operating transition sync, trial commercial
 launch-readiness operating closeout sync, and trial commercial
 launch-readiness executive review sync, and trial commercial launch-readiness
 final archive sync, and trial production observability and support readiness
-sync, and trial final release hardening and packaging readiness sync after private
+sync, trial final release hardening and packaging readiness sync, and trial
+commercialization closeout and release-to-market approval sync after private
 Enterprise PRs #70-#74, #81-#85, #86, #87, #88, #89, #90, #91, #92, #93, #94,
-#95, #96, #97, #98, #99, #100, #101, #102, #103, #104, #105, #106, and #107 added billing/license
+#95, #96, #97, #98, #99, #100, #101, #102, #103, #104, #105, #106, #107, and #108 added billing/license
 observability, support and customer-success handoff, operating dashboard
 escalation, final SaaS customer operating closeout, SaaS operating automation
 plan evidence, final closure rollups, customer-success handoff packages,
@@ -68,6 +69,7 @@ commercial launch-readiness operating closeout evidence, and commercial
 launch-readiness executive review evidence, and commercial launch-readiness
 final archive evidence, and production observability and support runbook
 readiness evidence, and final release hardening and packaging readiness
+evidence, and commercialization closeout and release-to-market approval
 evidence while keeping the public Community repository limited to public-safe
 contracts and documentation.
 
@@ -115,6 +117,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Trial Commercial Launch-Readiness Final Archive Sync: `Trial-Commercial-Launch-Readiness-Final-Archive-Sync.md`
 - Trial Production Observability Support Readiness Sync: `Trial-Production-Observability-Support-Readiness-Sync.md`
 - Trial Final Release Hardening Packaging Readiness Sync: `Trial-Final-Release-Hardening-Packaging-Readiness-Sync.md`
+- Trial Commercialization Closeout Release-Market Approval Sync: `Trial-Commercialization-Closeout-Release-Market-Approval-Sync.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
 - Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`
