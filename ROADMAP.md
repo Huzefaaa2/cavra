@@ -118,6 +118,10 @@ Current open-core priority:
 50. Private commercial launch-readiness handoff evidence is delivered in
    `cavra-enterprise` PR #100 and public-safe sync is documented in
    [docs/trial-commercial-launch-readiness-handoff-sync.md](docs/trial-commercial-launch-readiness-handoff-sync.md).
-51. Next recommendation: add private commercial launch-readiness final approval
-   evidence, then sync public docs with public-safe release governance,
-   support, customer-success, and commercial leadership approval gates.
+51. Private commercial launch-readiness final approval evidence is delivered in
+   `cavra-enterprise` PR #101 and public-safe sync is documented in
+   [docs/trial-commercial-launch-readiness-final-approval-sync.md](docs/trial-commercial-launch-readiness-final-approval-sync.md).
+52. Next recommendation: add private commercial launch-readiness operating
+   transition evidence, then sync public docs with public-safe support
+   operations, customer-success operations, release governance, operating
+   dashboard, and next-cycle review gates.

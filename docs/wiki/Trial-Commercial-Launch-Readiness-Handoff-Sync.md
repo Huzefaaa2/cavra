@@ -74,8 +74,10 @@ or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness final approval evidence so launch
-handoffs can be accepted by release governance, support, customer-success, and
-commercial leadership without exposing customer records, account records,
-finance records, billing secrets, license-service internals, or production
-provisioning secrets.
+Private commercial launch-readiness final approval evidence is now documented
+in `Trial-Commercial-Launch-Readiness-Final-Approval-Sync.md`. Next, add
+private commercial launch-readiness operating transition evidence so final
+launch approvals can move into support operations, customer-success operations,
+release governance, operating dashboards, and next-cycle review without
+exposing customer records, account records, finance records, billing secrets,
+license-service internals, or production provisioning secrets.
