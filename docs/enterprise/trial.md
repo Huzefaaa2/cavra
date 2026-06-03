@@ -91,4 +91,6 @@ for the public-safe trial conversion customer follow-through summary, and
 [../trial-conversion-renewal-outcome-rollup-sync.md](../trial-conversion-renewal-outcome-rollup-sync.md)
 for the public-safe trial conversion renewal outcome rollup summary, and
 [../trial-final-commercial-renewal-closeout-sync.md](../trial-final-commercial-renewal-closeout-sync.md)
-for the public-safe final commercial renewal closeout summary.
+for the public-safe final commercial renewal closeout summary, and
+[../trial-commercialization-closure-readiness-sync.md](../trial-commercialization-closure-readiness-sync.md)
+for the public-safe trial commercialization closure readiness summary.

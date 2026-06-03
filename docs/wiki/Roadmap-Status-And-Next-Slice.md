@@ -33,6 +33,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #95;
 - private final commercial renewal closeout package evidence is delivered in
   `cavra-enterprise` PR #96;
+- private trial commercialization closure readiness summary evidence is
+  delivered in `cavra-enterprise` PR #97;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -91,11 +93,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- trial commercialization closure readiness summary workflows.
+- commercialization closure release acceptance workflows.
 
 ## Next Slice
 
-Trial commercialization closure readiness summary evidence.
+Commercialization closure release acceptance evidence.
 
 ## Why This Is Next
 
@@ -107,12 +109,13 @@ paid-pilot activation and production handoff evidence, private conversion
 closeout and revenue handoff rollup evidence, private executive summary and
 renewal action evidence, private customer follow-through evidence, private
 renewal outcome rollup evidence, private final commercial renewal closeout
-package evidence, public tenant and entitlement contracts, and private evidence
-from tenant activation through final SaaS customer operating closeout. The next
-commercial blocker is summarizing final commercial closeout packages for release
-governance, product leadership, support readiness, customer-success ownership,
-and public-safe roadmap sync without exposing billing, license-service,
-customer, finance, account, or provisioning secrets.
+package evidence, private commercialization closure readiness summary evidence,
+public tenant and entitlement contracts, and private evidence from tenant
+activation through final SaaS customer operating closeout. The next commercial
+blocker is accepting closure readiness summaries through release governance,
+product leadership, support, customer-success, and commercial owner gates
+without exposing billing, license-service, customer, finance, account, or
+provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -322,11 +325,24 @@ customer, finance, account, or provisioning secrets.
       closeout package workflow.
 
 35. Private trial commercialization closure readiness summary evidence.
+    Delivered in `cavra-enterprise` PR #97.
     - Add private evidence that final commercial renewal closeout packages are
       summarized for release governance, product leadership, support readiness,
       customer-success ownership, and public-safe roadmap sync without exposing
       customer records, account records, finance records, billing secrets,
       license-service internals, or production provisioning secrets.
+
+36. Public docs/wiki sync. Delivered with
+    [trial-commercialization-closure-readiness-sync.md](trial-commercialization-closure-readiness-sync.md).
+    - Publish public-safe outcomes after the private commercialization closure
+      readiness summary workflow.
+
+37. Private commercialization closure release acceptance evidence.
+    - Add private evidence that closure readiness summaries are accepted by
+      release governance, product leadership, support, customer-success, and
+      commercial owners without exposing customer records, account records,
+      finance records, billing secrets, license-service internals, or
+      production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -341,6 +357,6 @@ customer, finance, account, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private trial commercialization closure readiness summary evidence, then
-sync public docs with public-safe release governance, product leadership,
-support readiness, and customer-success ownership gates.
+Add private commercialization closure release acceptance evidence, then sync
+public docs with public-safe release governance, product leadership, support,
+customer-success, and commercial owner acceptance gates.

@@ -114,9 +114,12 @@ Current Trial and SaaS commercialization readiness status:
 - private final commercial renewal closeout package evidence is delivered in
   `cavra-enterprise` PR #96 and public-safe sync is documented in
   `docs/trial-final-commercial-renewal-closeout-sync.md`.
+- private trial commercialization closure readiness summary evidence is
+  delivered in `cavra-enterprise` PR #97 and public-safe sync is documented in
+  `docs/trial-commercialization-closure-readiness-sync.md`.
 
-Next production-readiness slice: private trial commercialization closure
-readiness summary evidence, followed by public-safe documentation sync.
+Next production-readiness slice: private commercialization closure release
+acceptance evidence, followed by public-safe documentation sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
