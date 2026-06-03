@@ -127,7 +127,10 @@ Current open-core priority:
 53. Private commercial launch-readiness operating closeout evidence is
    delivered in `cavra-enterprise` PR #103 and public-safe sync is documented in
    [docs/trial-commercial-launch-readiness-operating-closeout-sync.md](docs/trial-commercial-launch-readiness-operating-closeout-sync.md).
-54. Next recommendation: add private commercial launch-readiness executive
-   review and next-cycle action evidence, then sync public docs with
-   public-safe lessons-learned, roadmap-feedback, renewal-expansion, and
-   next-cycle ownership gates.
+54. Private commercial launch-readiness executive review evidence is delivered
+   in `cavra-enterprise` PR #104 and public-safe sync is documented in
+   [docs/trial-commercial-launch-readiness-executive-review-sync.md](docs/trial-commercial-launch-readiness-executive-review-sync.md).
+55. Next recommendation: add private commercial launch-readiness final archive
+   and retrospective closeout evidence, then sync public docs with public-safe
+   release-retrospective, customer-success follow-up, roadmap-intake,
+   renewal-expansion, and next-cycle owner acceptance gates.

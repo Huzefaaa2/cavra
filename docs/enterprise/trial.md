@@ -109,4 +109,7 @@ for the public-safe trial commercial launch-readiness operating transition
 summary, and
 [../trial-commercial-launch-readiness-operating-closeout-sync.md](../trial-commercial-launch-readiness-operating-closeout-sync.md)
 for the public-safe trial commercial launch-readiness operating closeout
+summary, and
+[../trial-commercial-launch-readiness-executive-review-sync.md](../trial-commercial-launch-readiness-executive-review-sync.md)
+for the public-safe trial commercial launch-readiness executive review
 summary.
