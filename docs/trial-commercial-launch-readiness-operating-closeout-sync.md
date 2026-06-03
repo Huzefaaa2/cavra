@@ -76,8 +76,12 @@ billing, license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness executive review and next-cycle action
-evidence so operating closeouts can feed executive review, lessons learned,
-roadmap feedback, renewal expansion planning, and next-cycle action ownership
-without exposing customer records, account records, finance records, billing
-secrets, license-service internals, or production provisioning secrets.
+Private commercial launch-readiness executive review evidence is now documented
+in
+[trial-commercial-launch-readiness-executive-review-sync.md](trial-commercial-launch-readiness-executive-review-sync.md).
+Next, add private commercial launch-readiness final archive and retrospective
+closeout evidence so executive-review outputs can be archived with release
+retrospective, customer-success follow-up, roadmap intake, renewal expansion,
+and next-cycle owner acceptance without exposing customer records, account
+records, finance records, billing secrets, license-service internals, or
+production provisioning secrets.
