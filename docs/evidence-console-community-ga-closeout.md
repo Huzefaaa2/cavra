@@ -31,6 +31,6 @@ evidence, or production provisioning records.
 
 ## Next Recommendation
 
-Continue with release documentation closure that ties policy signing, runtime
-modes, golden decisions, Evidence Console readiness, deployment validation, and
-Go runtime readiness into a single Community GA release checklist.
+Delivered in [community-ga-release-checklist.md](community-ga-release-checklist.md).
+Continue with a public Community GA release packet template that captures the
+checklist outputs in repeatable markdown/JSON artifacts for future release PRs.

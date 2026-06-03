@@ -62,6 +62,10 @@ Hosted sandbox deployment workflow: `.github/workflows/deploy-sandbox.yml` valid
 
 Brand assets: `assets/brand/` contains CAVRA SVG logos, favicons, social thumbnails, and PNG exports for documentation, README, dashboard, and social preview usage. The sandbox console uses a top-left CAVRA wordmark, a larger top-right hero mark below the install CTA, and ships the brand assets in the Pages artifact.
 
+Evidence Console Community GA closeout: the hosted sandbox now includes a Community GA Control Hardening section with Ed25519 policy signing commands, runtime mode behavior, golden decision snapshot coverage, deployment validation references, and release evidence links for the public Community path.
+
+Community GA release checklist: `docs/community-ga-release-checklist.md` ties public boundary validation, Ed25519 policy signing, runtime modes, golden decision snapshots, Evidence Console readiness, deployment validation, Go runtime readiness, documentation sync, and required CI evidence into one user-verifiable public Community release gate.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions and allowlisted managed endpoint rollout evidence files when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. Rollout listings include checksum integrity and promotion readiness. The console shows artifact lists, bundle download links, rollout integrity, and readiness indicators from evidence rows.

@@ -167,7 +167,9 @@ deployment validation updates, and public docs/wiki sync. See
 `docs/community-ga-control-hardening-sync.md`.
 Evidence Console closeout now surfaces the Community GA controls in the hosted
 operator UI. See `docs/evidence-console-community-ga-closeout.md`.
-Next recommended slice: Community GA release checklist documentation.
+Community GA release checklist documentation is now available at
+`docs/community-ga-release-checklist.md`.
+Next recommended slice: public Community GA release packet template.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

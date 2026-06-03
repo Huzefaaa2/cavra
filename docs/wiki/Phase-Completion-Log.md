@@ -1,5 +1,30 @@
 # Phase Completion Log
 
+## Phase 10 Community GA Release Checklist
+
+Status: complete for public Community GA release checklist documentation.
+
+Completed implementation:
+- Added `docs/community-ga-release-checklist.md`.
+- Added wiki-source mirror `docs/wiki/Community-GA-Release-Checklist.md`.
+- Linked the checklist from README, wiki Home, release documentation policy,
+  production roadmap, roadmap status pages, and feature inventory.
+- Added documentation tests to verify the checklist covers policy signing,
+  runtime modes, golden decisions, Evidence Console readiness, deployment
+  validation, Go runtime readiness, and public boundary gates.
+
+Validation:
+- The checklist remains public-safe and does not include Enterprise source
+  code, customer policy packs, customer evidence, production private keys,
+  signing-service internals, KMS/HSM identifiers, SaaS backend implementation,
+  license-service internals, private approval-router integrations, or paid
+  policy-pack implementation.
+
+Recommended next issue: create a public Community GA release packet template
+that captures checklist outputs, validation results, evidence links, accepted
+risks, and wiki sync references in repeatable markdown/JSON artifacts for
+future release PRs.
+
 ## Phase 10 Evidence Console Community GA Closeout
 
 Status: complete for the public Community operator console closeout slice.

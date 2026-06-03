@@ -41,3 +41,9 @@ Before merging a release PR:
 - [ ] Productization report updated.
 - [ ] Transparent agent manifests, methodology, and orchestration docs updated when relevant.
 - [ ] Next recommended phase documented.
+
+Community GA releases must also follow the
+[Community GA release checklist](community-ga-release-checklist.md), including
+public boundary validation, Ed25519 policy signing, runtime mode checks, golden
+decision snapshots, Evidence Console smoke validation, deployment readiness, Go
+runtime readiness or explicit disabled status, and live wiki synchronization.
