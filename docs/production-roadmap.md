@@ -161,9 +161,9 @@ Current Trial and SaaS commercialization readiness status:
   `cavra-enterprise` PR #111 and public-safe sync is documented in
   `docs/trial-final-launch-retrospective-closeout-sync.md`.
 
-Next production-readiness slice: roadmap status audit and next-batch planning
-after the private trial launch closeout chain is documented through final
-retrospective closeout.
+Next production-readiness slice: Community GA Control Hardening, starting with
+the public policy signing key workflow. See
+`docs/roadmap-status-audit-next-batch.md`.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
