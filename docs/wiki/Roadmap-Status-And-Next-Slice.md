@@ -41,6 +41,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #99;
 - private commercial launch-readiness handoff evidence is delivered in
   `cavra-enterprise` PR #100;
+- private commercial launch-readiness final approval evidence is delivered in
+  `cavra-enterprise` PR #101;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -99,11 +101,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- commercial launch-readiness final approval workflows.
+- commercial launch-readiness operating transition workflows.
 
 ## Next Slice
 
-Commercial launch-readiness final approval evidence.
+Commercial launch-readiness operating transition evidence.
 
 ## Why This Is Next
 
@@ -118,12 +120,13 @@ renewal outcome rollup evidence, private final commercial renewal closeout
 package evidence, private commercialization closure readiness summary evidence,
 private commercialization closure release acceptance evidence, private
 commercialization closure final closeout evidence, private commercial
-launch-readiness handoff evidence, public tenant and entitlement contracts, and
-private evidence from tenant activation through final SaaS customer operating
-closeout. The next commercial blocker is accepting launch handoffs through
-final release-governance, support, customer-success, and commercial-leadership
-approval without exposing billing, license-service, customer, finance, account,
-or provisioning secrets.
+launch-readiness handoff evidence, private commercial launch-readiness final
+approval evidence, public tenant and entitlement contracts, and private evidence
+from tenant activation through final SaaS customer operating closeout. The next
+commercial blocker is transitioning final launch approvals into support
+operations, customer-success operations, release governance, operating
+dashboards, and next-cycle review without exposing billing, license-service,
+customer, finance, account, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -385,11 +388,24 @@ or provisioning secrets.
       launch-readiness handoff workflow.
 
 43. Private commercial launch-readiness final approval evidence.
+    Delivered in `cavra-enterprise` PR #101.
     - Add private approval evidence that launch handoffs are accepted by
       release governance, support, customer-success, and commercial leadership
       without exposing customer records, account records, finance records,
       billing secrets, license-service internals, or production provisioning
       secrets.
+
+44. Public docs/wiki sync. Delivered with
+    [trial-commercial-launch-readiness-final-approval-sync.md](trial-commercial-launch-readiness-final-approval-sync.md).
+    - Publish public-safe outcomes after the private commercial
+      launch-readiness final approval workflow.
+
+45. Private commercial launch-readiness operating transition evidence.
+    - Add private evidence that final launch approvals are transitioned into
+      support operations, customer-success operations, release governance,
+      operating dashboards, and next-cycle review without exposing customer
+      records, account records, finance records, billing secrets,
+      license-service internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -404,6 +420,7 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercial launch-readiness final approval evidence, then sync
-public docs with public-safe release governance, support, customer-success, and
-commercial leadership approval gates.
+Add private commercial launch-readiness operating transition evidence, then
+sync public docs with public-safe support operations, customer-success
+operations, release governance, operating dashboard, and next-cycle review
+gates.
