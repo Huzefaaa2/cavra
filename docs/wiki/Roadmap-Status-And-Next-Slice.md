@@ -27,6 +27,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   in `cavra-enterprise` PR #92;
 - private conversion closeout executive summary and renewal action evidence is
   delivered in `cavra-enterprise` PR #93;
+- private conversion customer follow-through evidence is delivered in
+  `cavra-enterprise` PR #94;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -85,11 +87,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- conversion executive renewal customer follow-through workflows.
+- customer follow-through renewal outcome rollup workflows.
 
 ## Next Slice
 
-Conversion executive renewal customer follow-through evidence.
+Customer follow-through renewal outcome rollup evidence.
 
 ## Why This Is Next
 
@@ -99,11 +101,13 @@ revoked, renewed, and escalated access, private expired-trial follow-up
 automation evidence, private trial conversion readiness evidence, private
 paid-pilot activation and production handoff evidence, private conversion
 closeout and revenue handoff rollup evidence, private executive summary and
-renewal action evidence, public tenant and entitlement contracts, and private
-evidence from tenant activation through final SaaS customer operating closeout.
-The next commercial blocker is tracking executive and account-team actions
-through customer-success follow-up and renewal-owner accountability without
-exposing billing, license-service, customer, finance, or provisioning secrets.
+renewal action evidence, private customer follow-through evidence, public
+tenant and entitlement contracts, and private evidence from tenant activation
+through final SaaS customer operating closeout. The next commercial blocker is
+closing customer-success, account-team, renewal-owner, and leadership actions
+against renewal outcome, expansion, and commercial next-step references without
+exposing billing, license-service, customer, finance, account, or provisioning
+secrets.
 
 ## Proposed PR Sequence
 
@@ -273,12 +277,25 @@ exposing billing, license-service, customer, finance, or provisioning secrets.
       summary and renewal action workflow.
 
 29. Private conversion executive renewal customer follow-through evidence.
+    Delivered in `cavra-enterprise` PR #94.
     - Add private evidence that leadership and account-team actions from closed
       conversions are tracked to customer-success follow-up, renewal-owner
       accountability, customer action status, and next review references without
       exposing customer records, customer health records, finance records,
       billing secrets, license-service internals, or production provisioning
       secrets.
+
+30. Public docs/wiki sync. Delivered with
+    [trial-conversion-customer-followthrough-sync.md](trial-conversion-customer-followthrough-sync.md).
+    - Publish public-safe outcomes after the private conversion customer
+      follow-through workflow.
+
+31. Private customer follow-through renewal outcome rollup evidence.
+    - Add private evidence that customer-success, account-team, renewal-owner,
+      and leadership actions are closed against renewal outcome, expansion, and
+      commercial next-step references without exposing customer records,
+      account records, finance records, billing secrets, license-service
+      internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -293,6 +310,6 @@ exposing billing, license-service, customer, finance, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private conversion executive renewal customer follow-through evidence, then
-sync public docs with public-safe leadership, customer-success, account-team,
-and renewal-owner accountability gates.
+Add private customer follow-through renewal outcome rollup evidence, then sync
+public docs with public-safe renewal outcome, expansion, commercial next-step,
+and leadership accountability gates.

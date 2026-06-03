@@ -85,4 +85,6 @@ for the public-safe trial conversion activation handoff summary, and
 for the public-safe trial conversion closeout and revenue handoff summary, and
 [../trial-conversion-executive-renewal-sync.md](../trial-conversion-executive-renewal-sync.md)
 for the public-safe trial conversion executive summary and renewal action
-summary.
+summary, and
+[../trial-conversion-customer-followthrough-sync.md](../trial-conversion-customer-followthrough-sync.md)
+for the public-safe trial conversion customer follow-through summary.

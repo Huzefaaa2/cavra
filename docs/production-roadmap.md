@@ -105,9 +105,12 @@ Current Trial and SaaS commercialization readiness status:
 - private conversion closeout executive summary and renewal action evidence is
   delivered in `cavra-enterprise` PR #93 and public-safe sync is documented in
   `docs/trial-conversion-executive-renewal-sync.md`.
+- private conversion customer follow-through evidence is delivered in
+  `cavra-enterprise` PR #94 and public-safe sync is documented in
+  `docs/trial-conversion-customer-followthrough-sync.md`.
 
-Next production-readiness slice: private conversion executive renewal customer
-follow-through evidence, followed by public-safe documentation sync.
+Next production-readiness slice: private customer follow-through renewal outcome
+rollup evidence, followed by public-safe documentation sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

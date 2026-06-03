@@ -69,6 +69,7 @@ Open-core architecture and boundaries:
 - [Trial conversion activation handoff sync](docs/trial-conversion-activation-handoff-sync.md)
 - [Trial conversion closeout revenue sync](docs/trial-conversion-closeout-revenue-sync.md)
 - [Trial conversion executive renewal sync](docs/trial-conversion-executive-renewal-sync.md)
+- [Trial conversion customer follow-through sync](docs/trial-conversion-customer-followthrough-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)

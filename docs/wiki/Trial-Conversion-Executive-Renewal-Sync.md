@@ -70,8 +70,10 @@ provisioning implementation details.
 
 ## Next Recommendation
 
-Add private conversion executive renewal customer follow-through evidence so
-leadership and account-team actions can be tracked to customer-success follow-up
-and renewal-owner accountability without exposing customer records, customer
-health records, finance records, billing secrets, license-service internals, or
-production provisioning secrets.
+Private conversion customer follow-through evidence is now documented in
+`Trial-Conversion-Customer-Followthrough-Sync.md`. Next, add private customer
+follow-through renewal outcome rollup evidence so customer-success,
+account-team, renewal-owner, and leadership actions can be closed against
+renewal outcome, expansion, and commercial next-step references without
+exposing customer records, account records, finance records, billing secrets,
+license-service internals, or production provisioning secrets.
