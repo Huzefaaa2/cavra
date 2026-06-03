@@ -77,9 +77,11 @@ Current Trial and SaaS commercialization readiness status:
   delivered in Community Edition.
 - public-safe API and CLI surfaces for the worker handoff contract model are
   delivered.
+- public Evidence Console and sandbox UI exposure for the worker handoff
+  contract model is delivered.
 
-Next production-readiness slice: Evidence Console exposure for the public-safe
-worker handoff contract model.
+Next production-readiness slice: private Enterprise/SaaS worker execution
+readiness evidence and public contract sync documentation.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

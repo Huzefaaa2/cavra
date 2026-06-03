@@ -133,6 +133,34 @@
           </div>
         </div>
       </section>
+      <section class="console saas-automation-console">
+        <div class="console-header">
+          <div>
+            <h2>SaaS Worker Handoff</h2>
+            <p>Preview the public-safe worker handoff request, response, scheduler references, and private-service boundary.</p>
+          </div>
+          <div class="console-actions">
+            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-worker-handoff.md" target="_blank" rel="noreferrer">Handoff Docs</a>
+            <button id="refreshSaasWorkerHandoff">Refresh Handoff</button>
+          </div>
+        </div>
+        <p id="saasWorkerHandoffStatus" class="status-line">Loads from the CAVRA API when configured; hosted public demo mode uses a synthetic worker handoff preview.</p>
+        <div id="saasWorkerHandoffSummary" class="saas-automation-grid"></div>
+        <div class="saas-worker-handoff-layout">
+          <div>
+            <h3>Worker Targets</h3>
+            <div id="saasWorkerHandoffTargets" class="saas-check-list"></div>
+          </div>
+          <div>
+            <h3>Public Request</h3>
+            <pre id="saasWorkerHandoffRequest" class="saas-contract-payload">SaaS worker handoff request will load from the public-safe contract.</pre>
+          </div>
+          <div>
+            <h3>Public Response</h3>
+            <pre id="saasWorkerHandoffResponse" class="saas-contract-payload">SaaS worker handoff response will load from the public-safe contract.</pre>
+          </div>
+        </div>
+      </section>
       <section class="console release-console">
         <div class="console-header">
           <div>

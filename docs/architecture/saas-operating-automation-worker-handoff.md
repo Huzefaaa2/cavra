@@ -107,6 +107,26 @@ schedules, call connectors, inspect billing systems, access support workflows,
 read customer-success systems, refresh dashboards, or call SaaS backend
 services.
 
+## Evidence Console Surface
+
+The public Evidence Console now includes a SaaS Worker Handoff panel. It reads
+`POST /saas/operating-automation/worker-handoff` when the CAVRA API is
+configured and falls back to a synthetic public-safe preview for GitHub Pages
+and local static demos.
+
+The panel shows:
+
+- source, handoff status, worker mode, and owner summary cards;
+- worker targets derived from the public-safe request/response payload;
+- public request JSON;
+- public response JSON;
+- private-service boundary messaging for scheduler, worker runtime, connector,
+  retry, evidence sink, billing, support, and customer-success responsibilities.
+
+It does not expose worker source code, scheduler internals, connector secrets,
+customer records, billing records, support workflows, customer-success records,
+dashboard jobs, or SaaS backend implementation.
+
 ## Private Responsibilities
 
 Private Enterprise or SaaS packages must own:
@@ -178,6 +198,5 @@ records, and commercial systems private.
 
 ## Next Recommendation
 
-Expose the public-safe worker handoff contract in the Evidence Console so users
-can inspect request/response shapes without executing private workers or
-exposing Enterprise implementation.
+Add private Enterprise/SaaS worker execution readiness evidence and keep the
+public contract sync documentation current after private implementation PRs.
