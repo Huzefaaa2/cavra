@@ -7,6 +7,17 @@ Trial access requires a time-limited license key or hosted validation flow.
 Public Community code includes only placeholder license interfaces; real
 validation must be performed by the private license service.
 
+Private Enterprise distribution status:
+
+- `Huzefaaa2/cavra-enterprise` now contains the private trial package release
+  pipeline.
+- The first distribution target is the gated GHCR image
+  `ghcr.io/huzefaaa2/cavra-enterprise-trial:<version>`.
+- Private release evidence records image digest metadata, trial duration,
+  release ownership, source-exclusion status, and license-service readiness.
+- Trial package approval is blocked unless private license-service readiness is
+  true.
+
 Example future install flow:
 
 ```bash
@@ -15,8 +26,16 @@ docker pull ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
 docker run -e CAVRA_LICENSE_KEY=... ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
 ```
 
+Use the actual `<version>` and license key issued through the approved trial
+process. Do not place license keys, registry pull secrets, customer records, or
+Enterprise artifacts in this public repository.
+
 ## Final Closeout Trial Workflow
 
 Use [trial-to-pilot-intake.md](trial-to-pilot-intake.md) for the general trial-to-pilot intake workflow. Use [final-closeout-trial.md](final-closeout-trial.md) for the customer-facing final closeout overview and [final-closeout-trial-walkthrough.md](final-closeout-trial-walkthrough.md) for the evaluator walkthrough. The onboarding package also includes [final-closeout-trial-sample-evidence.md](final-closeout-trial-sample-evidence.md), [final-closeout-sales-engineering-demo.md](final-closeout-sales-engineering-demo.md), [final-closeout-production-pilot-intake.md](final-closeout-production-pilot-intake.md), [final-closeout-pilot-intake-api.md](final-closeout-pilot-intake-api.md), [final-closeout-pilot-readiness-checklists.md](final-closeout-pilot-readiness-checklists.md), [final-closeout-enterprise-saas-handoff.md](final-closeout-enterprise-saas-handoff.md), a synthetic evidence package at `examples/demos/final-closeout-trial/sample-evidence-package.json`, a final-closeout pilot intake template at `examples/demos/final-closeout-trial/pilot-intake-template.json`, and a general trial-to-pilot intake template at `examples/demos/trial-to-pilot-intake/trial-to-pilot-intake-template.json`.
 
 Trial teams must use synthetic or non-production evidence. Do not place Enterprise source code, private policy packs, customer templates, connector credentials, archive mutation logic, signing keys, or license validation secrets in this public repository.
+
+See also
+[../trial-enterprise-distribution-sync.md](../trial-enterprise-distribution-sync.md)
+for the public-safe private distribution summary.

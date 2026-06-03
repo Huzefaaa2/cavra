@@ -68,6 +68,8 @@ Current Trial and SaaS commercialization readiness status:
   documented in `docs/tenant-entitlement-commercialization-batch-sync.md`.
 - public-safe post-onboarding SaaS operating batch sync is documented in
   `docs/post-onboarding-saas-operating-batch-sync.md`.
+- public-safe SaaS customer operating closeout batch sync is documented in
+  `docs/saas-customer-operating-closeout-batch-sync.md`.
 - public-safe customer operating dashboard and support handoff contracts are
   documented in
   `docs/architecture/customer-operating-dashboard-support-handoff-contract.md`.
@@ -79,9 +81,12 @@ Current Trial and SaaS commercialization readiness status:
   delivered.
 - public Evidence Console and sandbox UI exposure for the worker handoff
   contract model is delivered.
+- private Enterprise trial package release pipeline is delivered in
+  `cavra-enterprise` PR #86 and public-safe sync is documented in
+  `docs/trial-enterprise-distribution-sync.md`.
 
-Next production-readiness slice: private Enterprise/SaaS worker execution
-readiness evidence and public contract sync documentation.
+Next production-readiness slice: live trial license issuance and evaluator
+access workflow evidence, followed by public-safe documentation sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

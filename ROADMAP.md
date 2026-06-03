@@ -73,5 +73,9 @@ Current open-core priority:
    delivered.
 35. Public Evidence Console and sandbox UI exposure for the worker handoff
    contract model is delivered.
-36. Next recommendation: add private Enterprise/SaaS worker execution
-   readiness evidence and keep the public contract sync documented.
+36. Private Enterprise trial package release pipeline is delivered in
+   `cavra-enterprise` PR #86 and public-safe sync is documented in
+   [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
+37. Next recommendation: connect private trial release approvals to live
+   license issuance and evaluator access workflows, then sync public docs with
+   public-safe references.

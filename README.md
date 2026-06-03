@@ -61,6 +61,7 @@ Open-core architecture and boundaries:
 - [Post-onboarding SaaS operating batch sync](docs/post-onboarding-saas-operating-batch-sync.md)
 - [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md)
 - [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md)
+- [Enterprise trial distribution sync](docs/trial-enterprise-distribution-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -168,9 +169,12 @@ docker compose -f docker/docker-compose.community.yml up --build
 Trial access:
 
 - Trial source code is not public.
-- Trial artifacts should be distributed as private Docker images, binaries, or hosted SaaS access.
+- Trial artifacts are distributed through private Docker images, binaries, or hosted SaaS access.
+- The first private distribution target is gated GHCR image `ghcr.io/huzefaaa2/cavra-enterprise-trial:<version>`.
+- Trial release approval is blocked unless private license-service readiness is true.
 - Trial license validation must be implemented by the private Enterprise/SaaS license service.
 - See [docs/enterprise/trial.md](docs/enterprise/trial.md).
+- See [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
 
 ## Claude Code quickstart
 
