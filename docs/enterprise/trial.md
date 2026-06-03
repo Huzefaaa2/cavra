@@ -31,6 +31,12 @@ Private Enterprise distribution status:
   conversion references for renewed or escalated trials without publishing
   customer records, billing secrets, license-service internals, or production
   provisioning secrets.
+- Trial conversion activation and production handoff evidence records
+  paid-pilot activation, entitlement activation, license transition, billing
+  handoff, customer-success handoff, support handoff, production provisioning,
+  production entitlement, production license, onboarding runbook, owner, and
+  target go-live references without publishing customer records, billing
+  secrets, license-service internals, or production provisioning secrets.
 
 Example future install flow:
 
@@ -60,4 +66,6 @@ for the public-safe trial access expiry summary, and
 [../trial-expired-followup-sync.md](../trial-expired-followup-sync.md)
 for the public-safe expired-trial follow-up summary, and
 [../trial-conversion-readiness-sync.md](../trial-conversion-readiness-sync.md)
-for the public-safe trial conversion readiness summary.
+for the public-safe trial conversion readiness summary, and
+[../trial-conversion-activation-handoff-sync.md](../trial-conversion-activation-handoff-sync.md)
+for the public-safe trial conversion activation handoff summary.
