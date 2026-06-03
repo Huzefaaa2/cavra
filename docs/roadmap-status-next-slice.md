@@ -61,6 +61,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #109;
 - private release retrospective and roadmap intake evidence is delivered in
   `cavra-enterprise` PR #110;
+- private final launch retrospective closeout evidence is delivered in
+  `cavra-enterprise` PR #111;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -145,13 +147,13 @@ commercial launch-readiness final archive evidence, private production
 observability and support runbook readiness evidence, private final release
 hardening and packaging readiness evidence, private commercialization closeout
 and release-to-market approval evidence, private post-launch operating handoff
-evidence, private release retrospective and roadmap intake evidence, public
-tenant and entitlement contracts, and private evidence from tenant activation
-through final SaaS customer operating closeout. The next production blocker is
-proving executive acceptance, product planning ownership, customer-success
-follow-up, renewal expansion action, support trend closure, and final archive
-synchronization without exposing billing, license-service, customer, finance,
-account, artifact-signing, or provisioning secrets.
+evidence, private release retrospective and roadmap intake evidence, private
+final launch retrospective closeout evidence, public tenant and entitlement
+contracts, and private evidence from tenant activation through final SaaS
+customer operating closeout. The next production blocker is completing a
+roadmap status audit and selecting the next production-readiness batch without
+exposing billing, license-service, customer, finance, account, artifact-signing,
+or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -549,12 +551,18 @@ account, artifact-signing, or provisioning secrets.
       roadmap intake workflow.
 
 63. Private final launch retrospective closeout evidence.
+    Delivered in `cavra-enterprise` PR #111.
     - Add private evidence that retrospective intake closes into executive
       acceptance, product planning ownership, customer-success follow-up,
       renewal expansion action, support trend closure, and public-safe final
       archive synchronization without exposing customer records, account
       records, finance records, billing secrets, license-service internals,
       artifact signing internals, or production provisioning secrets.
+
+64. Public docs/wiki sync. Delivered with
+    [trial-final-launch-retrospective-closeout-sync.md](trial-final-launch-retrospective-closeout-sync.md).
+    - Publish public-safe outcomes after the private final launch
+      retrospective closeout workflow.
 
 ## Acceptance Criteria
 
@@ -569,7 +577,6 @@ account, artifact-signing, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private final launch retrospective closeout evidence, then sync public docs
-with public-safe executive-acceptance, product-planning,
-customer-success-follow-up, renewal-expansion-action, support-trend-closure,
-and final-archive gates.
+Run a roadmap status audit and define the next production-readiness batch now
+that the private trial launch closeout chain is public-safe documented through
+final retrospective closeout.

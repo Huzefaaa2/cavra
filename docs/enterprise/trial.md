@@ -130,4 +130,7 @@ for the public-safe trial post-launch operating handoff
 summary, and
 [../trial-release-retrospective-roadmap-intake-sync.md](../trial-release-retrospective-roadmap-intake-sync.md)
 for the public-safe trial release retrospective and roadmap intake
+summary, and
+[../trial-final-launch-retrospective-closeout-sync.md](../trial-final-launch-retrospective-closeout-sync.md)
+for the public-safe trial final launch retrospective closeout
 summary.
