@@ -43,6 +43,12 @@ Private Enterprise distribution status:
   forecast, and revenue-recognition references without publishing customer
   records, customer health records, finance records, billing secrets,
   license-service internals, or production provisioning secrets.
+- Trial conversion executive summary and renewal action evidence records
+  executive summary, leadership report, account-team action, customer-success
+  summary, risk owner, renewal owner, renewal stage, next milestone, expansion
+  opportunity, commercial follow-up, and action due-date references without
+  publishing customer records, customer health records, finance records, billing
+  secrets, license-service internals, or production provisioning secrets.
 
 Example future install flow:
 
@@ -76,4 +82,7 @@ for the public-safe trial conversion readiness summary, and
 [../trial-conversion-activation-handoff-sync.md](../trial-conversion-activation-handoff-sync.md)
 for the public-safe trial conversion activation handoff summary, and
 [../trial-conversion-closeout-revenue-sync.md](../trial-conversion-closeout-revenue-sync.md)
-for the public-safe trial conversion closeout and revenue handoff summary.
+for the public-safe trial conversion closeout and revenue handoff summary, and
+[../trial-conversion-executive-renewal-sync.md](../trial-conversion-executive-renewal-sync.md)
+for the public-safe trial conversion executive summary and renewal action
+summary.
