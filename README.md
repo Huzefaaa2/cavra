@@ -74,6 +74,7 @@ Open-core architecture and boundaries:
 - [Trial final commercial renewal closeout sync](docs/trial-final-commercial-renewal-closeout-sync.md)
 - [Trial commercialization closure readiness sync](docs/trial-commercialization-closure-readiness-sync.md)
 - [Trial commercialization closure release acceptance sync](docs/trial-commercialization-closure-release-acceptance-sync.md)
+- [Trial commercialization closure final closeout sync](docs/trial-commercialization-closure-final-closeout-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)

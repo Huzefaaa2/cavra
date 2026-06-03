@@ -112,7 +112,10 @@ Current open-core priority:
 48. Private commercialization closure release acceptance evidence is delivered
    in `cavra-enterprise` PR #98 and public-safe sync is documented in
    [docs/trial-commercialization-closure-release-acceptance-sync.md](docs/trial-commercialization-closure-release-acceptance-sync.md).
-49. Next recommendation: add private commercialization closure final closeout
-   evidence, then sync public docs with public-safe archive, release
-   governance, commercial leadership, public roadmap, and next-release planning
+49. Private commercialization closure final closeout evidence is delivered in
+   `cavra-enterprise` PR #99 and public-safe sync is documented in
+   [docs/trial-commercialization-closure-final-closeout-sync.md](docs/trial-commercialization-closure-final-closeout-sync.md).
+50. Next recommendation: add private commercial launch-readiness handoff
+   evidence, then sync public docs with public-safe launch-readiness, release
+   governance, support, customer-success, and commercial leadership handoff
    gates.
