@@ -11,6 +11,8 @@ The Trial and SaaS commercialization readiness batch is complete:
 - public SaaS Control Plane contract is delivered;
 - private trial package readiness gates are delivered in `cavra-enterprise`
   PR #61;
+- private trial package release pipeline for gated GHCR evaluator access is
+  delivered in `cavra-enterprise` PR #86;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -69,6 +71,7 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
+- live trial license issuance and evaluator access workflows.
 
 ## Next Slice
 
