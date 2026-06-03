@@ -54,6 +54,11 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'class="hero-side"' in html
     assert 'class="hero-logo-lockup"' in html
     assert 'id="demoMetrics"' in html
+    assert 'id="communityGaSummary"' in html
+    assert 'id="communityGaChecklist"' in html
+    assert 'id="communityGaCommands"' in html
+    assert 'id="communityGaLinks"' in html
+    assert 'id="refreshCommunityGa"' in html
     assert 'id="releaseNotes"' in html
     assert 'class="console saas-automation-console"' in html
     assert 'id="refreshSaasAutomation"' in html
@@ -63,6 +68,8 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'id="saasAutomationResponse"' in html
     assert "hero-metrics" in css
     assert "metric-card" in css
+    assert "community-ga-grid" in css
+    assert "community-ga-layout" in css
     assert "release-note-grid" in css
     assert "release-note-links" in css
     assert "saas-automation-grid" in css

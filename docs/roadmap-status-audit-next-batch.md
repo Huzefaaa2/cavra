@@ -108,7 +108,7 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Begin console closeout for a minimal operator experience: tighten the Evidence
-Console around policy signing status, runtime mode selection, golden decision
-status, deployment readiness, and release evidence links without exposing
-Enterprise source code or private customer evidence.
+Create a Community GA release checklist that ties policy signing, runtime
+modes, golden decision snapshots, Evidence Console readiness, deployment
+validation, and Go runtime readiness into one user-verifiable public release
+path.

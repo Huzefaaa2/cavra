@@ -43,7 +43,34 @@
     <main>
       <section class="controls">
         <label>Persona <select id="persona"><option>Developer</option><option>CISO</option><option>Platform Engineer</option><option>Auditor</option></select></label>
-        <label>Policy Mode <select id="policyMode"><option>Enforce</option><option>Audit-only</option><option>Strict regulated repository</option></select></label>
+        <label>Policy Mode <select id="policyMode"><option>Enforce</option><option>Audit-only</option><option>Strict regulated repository</option><option>Break-glass</option></select></label>
+      </section>
+      <section class="console community-ga-console">
+        <div class="console-header">
+          <div>
+            <h2>Community GA Control Hardening</h2>
+            <p>Verify the public Community path for policy signing, runtime modes, golden decisions, deployment readiness, and release evidence.</p>
+          </div>
+          <div class="console-actions">
+            <button id="refreshCommunityGa">Refresh</button>
+            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/community-ga-control-hardening-sync.md" target="_blank" rel="noreferrer">Batch Sync</a>
+          </div>
+        </div>
+        <div id="communityGaSummary" class="community-ga-grid"></div>
+        <div class="community-ga-layout">
+          <div>
+            <h3>Operator Checklist</h3>
+            <ol id="communityGaChecklist" class="community-ga-checklist"></ol>
+          </div>
+          <div>
+            <h3>Policy Signing Commands</h3>
+            <pre id="communityGaCommands" class="community-ga-payload">Policy signing commands will load from the Community GA workflow.</pre>
+          </div>
+          <div>
+            <h3>Evidence Links</h3>
+            <div id="communityGaLinks" class="community-ga-links"></div>
+          </div>
+        </div>
       </section>
       <section class="grid">
         <div>
