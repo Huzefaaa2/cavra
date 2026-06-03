@@ -73,9 +73,11 @@ account, finance, billing, license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private trial commercialization closure readiness summary evidence so final
-commercial renewal closeout packages can be summarized for release governance,
-product leadership, support readiness, customer-success ownership, and
-public-safe roadmap sync without exposing customer records, account records,
-finance records, billing secrets, license-service internals, or production
-provisioning secrets.
+Private trial commercialization closure readiness summary evidence is now
+documented in
+[Trial-Commercialization-Closure-Readiness-Sync.md](Trial-Commercialization-Closure-Readiness-Sync.md).
+Next, add private commercialization closure release acceptance evidence so
+closure readiness summaries can be accepted by release governance, product
+leadership, support, customer-success, and commercial owners without exposing
+customer records, account records, finance records, billing secrets,
+license-service internals, or production provisioning secrets.
