@@ -95,8 +95,11 @@ from cavra.saas_control_plane import (
     SAAS_OPERATING_AUTOMATION_CHECKS,
     SaaSContractError,
     SaaSOperatingAutomationSummary,
+    SaaSOperatingAutomationWorkerHandoffSummary,
     build_saas_operating_automation_request,
     build_saas_operating_automation_response,
+    build_saas_operating_automation_worker_handoff_request,
+    build_saas_operating_automation_worker_handoff_response,
     describe_public_contract,
 )
 from cavra.release import (
@@ -315,6 +318,67 @@ def saas_operating_automation(
             blockers=tuple(blocker or ()),
         )
         response = build_saas_operating_automation_response(request, summary)
+    except SaaSContractError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _print_json({"request": request.to_dict(), "response": response.to_dict()})
+
+
+@saas_app.command("worker-handoff")
+def saas_worker_handoff(
+    tenant_id: Annotated[str, typer.Argument(help="Tenant identifier for the public-safe handoff shape.")],
+    requested_by: Annotated[str, typer.Option(help="Actor or surface requesting the handoff.")] = "community",
+    deployment_environment: Annotated[str, typer.Option(help="Public-safe deployment environment label.")] = "production",
+    worker_mode: Annotated[str, typer.Option(help="dry_run, shadow, live, or unknown.")] = "dry_run",
+    required_check: Annotated[
+        Optional[list[str]],
+        typer.Option("--required-check", help="Required public-safe operating automation check."),
+    ] = None,
+    worker_target: Annotated[
+        Optional[list[str]],
+        typer.Option("--worker-target", help="Public-safe worker target name."),
+    ] = None,
+    handoff_status: Annotated[
+        str,
+        typer.Option(help="planned, ready, blocked, requires_private_service, or unknown."),
+    ] = "requires_private_service",
+    scheduler_ref: Annotated[str, typer.Option(help="Public-safe scheduler reference label.")] = "scheduler-pending",
+    evidence_sink_ref: Annotated[
+        str,
+        typer.Option(help="Public-safe evidence sink reference label."),
+    ] = "evidence-sink-pending",
+    retry_policy_ref: Annotated[
+        str,
+        typer.Option(help="Public-safe retry policy reference label."),
+    ] = "retry-policy-pending",
+    worker_owner: Annotated[str, typer.Option(help="Public-safe worker owner role or team.")] = "operations-owner",
+    blocker: Annotated[Optional[list[str]], typer.Option("--blocker", help="Public-safe blocker summary.")] = None,
+) -> None:
+    """Print a public-safe SaaS operating automation worker handoff request and response."""
+
+    try:
+        request = build_saas_operating_automation_worker_handoff_request(
+            tenant_id,
+            requested_by=requested_by,
+            deployment_environment=deployment_environment,
+            worker_mode=worker_mode,
+            required_checks=tuple(required_check) if required_check is not None else SAAS_OPERATING_AUTOMATION_CHECKS,
+            worker_targets=tuple(worker_target) if worker_target is not None else SAAS_OPERATING_AUTOMATION_CHECKS,
+        )
+        summary = SaaSOperatingAutomationWorkerHandoffSummary(
+            tenant_id=request.tenant_id,
+            handoff_status=handoff_status,
+            deployment_environment=deployment_environment,
+            scheduler_ref=scheduler_ref,
+            evidence_sink_ref=evidence_sink_ref,
+            retry_policy_ref=retry_policy_ref,
+            worker_owner=worker_owner,
+            worker_mode=worker_mode,
+            required_checks=tuple(required_check) if required_check is not None else SAAS_OPERATING_AUTOMATION_CHECKS,
+            worker_targets=tuple(worker_target) if worker_target is not None else SAAS_OPERATING_AUTOMATION_CHECKS,
+            blockers=tuple(blocker or ()),
+        )
+        response = build_saas_operating_automation_worker_handoff_response(request, summary)
     except SaaSContractError as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc

@@ -155,6 +155,7 @@ The API exposes:
 
 - `GET /saas/control-plane/contract`
 - `POST /saas/operating-automation`
+- `POST /saas/operating-automation/worker-handoff`
 
 Both surfaces return request and response shapes only. `POST
 /saas/operating-automation` returns a `requires_private_service` response by
@@ -175,6 +176,12 @@ The model is documented in
 It does not execute private workers, register schedules, call connectors,
 inspect customer systems, or include private implementation details.
 
+CLI access:
+
+```bash
+cavra saas worker-handoff tenant-demo --requested-by console
+```
+
 ## Evidence Console Surface
 
 The public Evidence Console includes a SaaS Operating Automation Contract panel
@@ -186,7 +193,7 @@ hosted demo mode.
 
 ## Next Recommendation
 
-Expose the public-safe worker handoff contract model through API and CLI
-surfaces while keeping Enterprise source, SaaS services, scheduler internals,
-connector credentials, billing records, support workflows, and customer data
-outside the public Community repository.
+Expose the public-safe worker handoff contract in the Evidence Console while
+keeping Enterprise source, SaaS services, scheduler internals, connector
+credentials, billing records, support workflows, and customer data outside the
+public Community repository.

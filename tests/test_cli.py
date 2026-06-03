@@ -150,6 +150,64 @@ def test_saas_operating_automation_cli_rejects_sensitive_values() -> None:
     assert "sensitive value" in result.output
 
 
+def test_saas_worker_handoff_cli_prints_public_request_and_response() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "saas",
+            "worker-handoff",
+            "tenant-demo",
+            "--requested-by",
+            "console",
+            "--deployment-environment",
+            "production",
+            "--worker-mode",
+            "shadow",
+            "--worker-target",
+            "billing_monitoring",
+            "--worker-target",
+            "support_followup",
+            "--handoff-status",
+            "requires_private_service",
+            "--scheduler-ref",
+            "scheduler-saas-operating-automation",
+            "--evidence-sink-ref",
+            "evidence-sink-saas-operating-automation",
+            "--retry-policy-ref",
+            "retry-policy-saas-operating-automation",
+            "--worker-owner",
+            "operations-owner",
+            "--blocker",
+            "private scheduler validation required",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["request"]["operation"] == "saas_operating_automation_worker_handoff"
+    assert payload["request"]["payload"]["worker_mode"] == "shadow"
+    assert payload["request"]["payload"]["worker_targets"] == ["billing_monitoring", "support_followup"]
+    assert payload["response"]["status"] == "requires_private_service"
+    assert payload["response"]["payload"]["summary"]["handoff_status"] == "requires_private_service"
+    assert payload["response"]["payload"]["summary"]["worker_targets"] == ["billing_monitoring", "support_followup"]
+
+
+def test_saas_worker_handoff_cli_rejects_sensitive_values() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "saas",
+            "worker-handoff",
+            "tenant-demo",
+            "--worker-target",
+            "ghp_123456789012345678901234567890",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "sensitive value" in result.output
+
+
 def test_runtime_go_deployment_readiness_cli_reports_not_configured() -> None:
     result = runner.invoke(app, ["runtime", "go-deployment-readiness", "--json"])
 

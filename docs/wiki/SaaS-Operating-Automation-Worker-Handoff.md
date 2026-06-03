@@ -89,6 +89,24 @@ Supported public-safe handoff statuses are `planned`, `ready`, `blocked`,
 `requires_private_service`, and `unknown`. Supported worker modes are `dry_run`,
 `shadow`, `live`, and `unknown`.
 
+## API And CLI Surfaces
+
+Community users can inspect the public handoff contract shape with:
+
+```bash
+cavra saas worker-handoff tenant-demo --requested-by console
+```
+
+The public API exposes:
+
+- `POST /saas/operating-automation/worker-handoff`
+
+The endpoint returns a public-safe request/response pair and a
+`requires_private_service` status. It does not execute private workers, register
+schedules, call connectors, inspect billing systems, access support workflows,
+read customer-success systems, refresh dashboards, or call SaaS backend
+services.
+
 ## Private Responsibilities
 
 Private Enterprise or SaaS packages must own:
@@ -160,6 +178,6 @@ records, and commercial systems private.
 
 ## Next Recommendation
 
-Expose the public-safe worker handoff contract model through API and CLI
-surfaces so users can inspect request/response shapes without executing private
-workers or exposing Enterprise implementation.
+Expose the public-safe worker handoff contract in the Evidence Console so users
+can inspect request/response shapes without executing private workers or
+exposing Enterprise implementation.
