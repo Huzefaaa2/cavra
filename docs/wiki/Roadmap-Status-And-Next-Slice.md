@@ -21,6 +21,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #89;
 - private trial conversion readiness evidence is delivered in
   `cavra-enterprise` PR #90;
+- private paid-pilot activation and production-conversion handoff evidence is
+  delivered in `cavra-enterprise` PR #91;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -75,26 +77,29 @@ yet fully production-complete. Remaining themes are:
 
 - hosted policy registry readiness and policy-pack catalog operation;
 - tenant audit-store health, retention posture, and export readiness;
-- private SaaS operating automation for support, customer-success, and
+- private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- paid-pilot activation and production-conversion handoff workflows.
+- conversion activation closeout and revenue handoff workflows.
 
 ## Next Slice
 
-Paid-pilot activation and production-conversion handoff evidence.
+Conversion activation customer-success closeout and revenue handoff rollup
+evidence.
 
 ## Why This Is Next
 
 CAVRA now has a public trial path, private trial package release gates, private
 license issuance and evaluator access evidence, private expiry evidence for
 revoked, renewed, and escalated access, private expired-trial follow-up
-automation evidence, private trial conversion readiness evidence, public tenant
-and entitlement contracts, and private evidence from tenant activation through
-final SaaS customer operating closeout. The next commercial blocker is proving
-approved conversions are activated through paid-pilot or production handoff
-without exposing billing, license-service, customer, or provisioning secrets.
+automation evidence, private trial conversion readiness evidence, private
+paid-pilot activation and production handoff evidence, public tenant and
+entitlement contracts, and private evidence from tenant activation through final
+SaaS customer operating closeout. The next commercial blocker is summarizing
+activated conversions for customer-success, support, finance, and
+release-management without exposing billing, license-service, customer, or
+provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -226,9 +231,23 @@ without exposing billing, license-service, customer, or provisioning secrets.
       workflow.
 
 23. Private paid-pilot activation and production-conversion handoff evidence.
+    Delivered in `cavra-enterprise` PR #91.
     - Add private evidence that approved conversions have paid-pilot activation
       or production handoff references across entitlement, onboarding,
       customer-success, sales, support, billing, and provisioning readiness.
+
+24. Public docs/wiki sync. Delivered with
+    [trial-conversion-activation-handoff-sync.md](trial-conversion-activation-handoff-sync.md).
+    - Publish public-safe outcomes after the private conversion activation and
+      production handoff workflow.
+
+25. Private conversion activation customer-success closeout and revenue
+    handoff rollup evidence.
+    - Add private evidence that activated paid pilots and production
+      conversions have customer-success closeout, support handoff, finance
+      handoff, revenue owner, and release-management rollup references without
+      exposing customer records, billing secrets, license-service internals, or
+      production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -243,5 +262,6 @@ without exposing billing, license-service, customer, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private paid-pilot activation and production-conversion handoff evidence,
-then sync public docs with public-safe activation and conversion handoff gates.
+Add private conversion activation customer-success closeout and revenue handoff
+rollup evidence, then sync public docs with public-safe closeout, finance,
+support, and release-management gates.
