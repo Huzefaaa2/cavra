@@ -161,6 +161,20 @@ Both surfaces return request and response shapes only. `POST
 default and does not run automation workers, schedulers, connectors, billing
 checks, support workflows, or customer-success workflows.
 
+## Worker Handoff Contract Model
+
+Community Edition also defines the public-safe
+`saas_operating_automation_worker_handoff` operation for future private worker
+handoff packages. The model records deployment environment, worker mode,
+required checks, public-safe worker target names, scheduler reference labels,
+evidence sink reference labels, retry policy reference labels, worker owner,
+handoff status, blockers, and private-service boundary text.
+
+The model is documented in
+[docs/architecture/saas-operating-automation-worker-handoff.md](saas-operating-automation-worker-handoff.md).
+It does not execute private workers, register schedules, call connectors,
+inspect customer systems, or include private implementation details.
+
 ## Evidence Console Surface
 
 The public Evidence Console includes a SaaS Operating Automation Contract panel
@@ -172,9 +186,7 @@ hosted demo mode.
 
 ## Next Recommendation
 
-Delivered in
-[docs/architecture/saas-operating-automation-worker-handoff.md](saas-operating-automation-worker-handoff.md).
-Continue by adding a public-safe worker handoff contract model to Community
-Edition while keeping Enterprise source, SaaS services, scheduler internals,
+Expose the public-safe worker handoff contract model through API and CLI
+surfaces while keeping Enterprise source, SaaS services, scheduler internals,
 connector credentials, billing records, support workflows, and customer data
 outside the public Community repository.
