@@ -121,4 +121,8 @@ for the public-safe trial production observability and support readiness
 summary, and
 [../trial-final-release-hardening-packaging-readiness-sync.md](../trial-final-release-hardening-packaging-readiness-sync.md)
 for the public-safe trial final release hardening and packaging readiness
+summary, and
+[../trial-commercialization-closeout-release-market-approval-sync.md](../trial-commercialization-closeout-release-market-approval-sync.md)
+for the public-safe trial commercialization closeout and release-to-market
+approval
 summary.

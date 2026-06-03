@@ -79,9 +79,12 @@ provisioning implementation details.
 
 ## Next Recommendation
 
-Add private commercialization closeout and release-to-market approval evidence
-so hardened releases can be closed through commercial launch ownership,
-customer-success readiness, release governance acceptance, and public-safe
-roadmap synchronization without exposing Enterprise source code, customer
-records, billing secrets, license-service internals, artifact signing
-internals, or production provisioning secrets.
+Private commercialization closeout and release-to-market approval evidence is
+now delivered in `cavra-enterprise` PR #108.
+
+Next, add private post-launch operating handoff evidence so release-to-market
+approval can transition into launch monitoring, support queues,
+customer-success handoff, incident response, adoption tracking, renewal
+expansion watch, and executive status reporting without exposing Enterprise
+source code, customer records, billing secrets, license-service internals,
+artifact signing internals, or production provisioning secrets.

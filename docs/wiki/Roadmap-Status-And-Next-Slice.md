@@ -55,6 +55,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   delivered in `cavra-enterprise` PR #106;
 - private final release hardening and packaging readiness evidence is
   delivered in `cavra-enterprise` PR #107;
+- private commercialization closeout and release-to-market approval evidence
+  is delivered in `cavra-enterprise` PR #108;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -111,12 +113,12 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
-- commercialization closeout and release-to-market approval workflows;
-- final release commercialization closeout.
+- post-launch operating handoff workflows;
+- final release post-launch closeout.
 
 ## Next Slice
 
-Commercialization closeout and release-to-market approval evidence.
+Post-launch operating handoff evidence.
 
 ## Why This Is Next
 
@@ -137,12 +139,13 @@ evidence, private commercial launch-readiness operating closeout evidence,
 private commercial launch-readiness executive review evidence, private
 commercial launch-readiness final archive evidence, private production
 observability and support runbook readiness evidence, private final release
-hardening and packaging readiness evidence, public tenant and entitlement
+hardening and packaging readiness evidence, private commercialization closeout
+and release-to-market approval evidence, public tenant and entitlement
 contracts, and private evidence from tenant activation through final SaaS
 customer operating closeout. The next production blocker is proving
-commercial launch ownership, customer-success readiness, release governance
-acceptance, public-safe roadmap synchronization, and release-to-market
-approval without exposing billing, license-service, customer, finance,
+post-launch monitoring, support queues, customer-success handoff, incident
+response, adoption tracking, renewal expansion watch, and executive status
+reporting without exposing billing, license-service, customer, finance,
 account, artifact-signing, or provisioning secrets.
 
 ## Proposed PR Sequence
@@ -499,12 +502,26 @@ account, artifact-signing, or provisioning secrets.
 
 57. Private commercialization closeout and release-to-market approval
     evidence.
+    Delivered in `cavra-enterprise` PR #108.
     - Add private evidence that hardened release packages are accepted by
       commercial launch owners, customer-success owners, release governance,
       support, and public-safe roadmap synchronization owners without exposing
       customer records, account records, finance records, billing secrets,
       license-service internals, artifact signing internals, or production
       provisioning secrets.
+
+58. Public docs/wiki sync. Delivered with
+    [trial-commercialization-closeout-release-market-approval-sync.md](trial-commercialization-closeout-release-market-approval-sync.md).
+    - Publish public-safe outcomes after the private commercialization
+      closeout and release-to-market approval workflow.
+
+59. Private post-launch operating handoff evidence.
+    - Add private evidence that release-to-market approvals transition into
+      launch monitoring, support queues, customer-success handoff, incident
+      response, adoption tracking, renewal expansion watch, and executive
+      status reporting without exposing customer records, account records,
+      finance records, billing secrets, license-service internals, artifact
+      signing internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -519,7 +536,7 @@ account, artifact-signing, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercialization closeout and release-to-market approval evidence,
-then sync public docs with public-safe launch-ownership,
-customer-success-readiness, release-governance-acceptance,
-release-to-market-approval, and roadmap-synchronization gates.
+Add private post-launch operating handoff evidence, then sync public docs with
+public-safe launch-monitoring, support-queue, customer-success-handoff,
+incident-response, adoption-tracking, renewal-watch, and executive-status
+gates.
