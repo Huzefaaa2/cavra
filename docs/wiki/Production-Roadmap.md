@@ -90,10 +90,12 @@ Current Trial and SaaS commercialization readiness status:
 - private trial access expiry evidence is delivered in `cavra-enterprise`
   PR #88 and public-safe sync is documented in
   `docs/trial-access-expiry-sync.md`.
+- private expired-trial follow-up automation evidence is delivered in
+  `cavra-enterprise` PR #89 and public-safe sync is documented in
+  `docs/trial-expired-followup-sync.md`.
 
-Next production-readiness slice: private expired-trial notification,
-grace-period, and commercial handoff automation, followed by public-safe
-documentation sync.
+Next production-readiness slice: private trial conversion readiness evidence,
+followed by public-safe documentation sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

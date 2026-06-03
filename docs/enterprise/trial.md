@@ -24,6 +24,9 @@ Private Enterprise distribution status:
 - Trial expiry evidence records whether approved evaluator access was revoked,
   renewed, or escalated at the end of the approved trial window. Public docs
   record the boundary and gates only.
+- Expired-trial follow-up evidence records notification, grace-period, and
+  commercial handoff references for revoked, renewed, and escalated trials
+  without publishing customer records, CRM payloads, or provider secrets.
 
 Example future install flow:
 
@@ -49,4 +52,6 @@ for the public-safe private distribution summary and
 [../trial-license-evaluator-access-sync.md](../trial-license-evaluator-access-sync.md)
 for the public-safe trial license and evaluator access summary, and
 [../trial-access-expiry-sync.md](../trial-access-expiry-sync.md)
-for the public-safe trial access expiry summary.
+for the public-safe trial access expiry summary, and
+[../trial-expired-followup-sync.md](../trial-expired-followup-sync.md)
+for the public-safe expired-trial follow-up summary.

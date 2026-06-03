@@ -82,6 +82,9 @@ Current open-core priority:
 38. Private trial access expiry evidence is delivered in `cavra-enterprise`
    PR #88 and public-safe sync is documented in
    [docs/trial-access-expiry-sync.md](docs/trial-access-expiry-sync.md).
-39. Next recommendation: add private expired-trial notification, grace-period,
-   and commercial handoff automation, then sync public docs with public-safe
-   follow-up and renewal gates.
+39. Private expired-trial follow-up automation evidence is delivered in
+   `cavra-enterprise` PR #89 and public-safe sync is documented in
+   [docs/trial-expired-followup-sync.md](docs/trial-expired-followup-sync.md).
+40. Next recommendation: add private trial conversion readiness evidence so
+   renewed or escalated trials can move into paid pilot or production
+   conversion with public-safe documentation of the gates.
