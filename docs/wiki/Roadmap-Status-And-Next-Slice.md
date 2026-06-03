@@ -15,6 +15,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   delivered in `cavra-enterprise` PR #86;
 - private trial license issuance and evaluator access evidence is delivered in
   `cavra-enterprise` PR #87;
+- private trial access expiry evidence is delivered in `cavra-enterprise`
+  PR #88;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -73,19 +75,20 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- trial license revocation and evaluator access expiry workflows.
+- expired-trial notification, grace-period, and commercial handoff workflows.
 
 ## Next Slice
 
-Trial access revocation and expiry hardening.
+Expired-trial notification and commercial handoff automation.
 
 ## Why This Is Next
 
 CAVRA now has a public trial path, private trial package release gates, private
-license issuance and evaluator access evidence, public tenant and entitlement
-contracts, and private evidence from tenant activation through final SaaS
-customer operating closeout. The next commercial blocker is proving trial access
-is removed or renewed at the end of the approved trial window.
+license issuance and evaluator access evidence, private expiry evidence for
+revoked, renewed, and escalated access, public tenant and entitlement contracts,
+and private evidence from tenant activation through final SaaS customer
+operating closeout. The next commercial blocker is automating expired-trial
+follow-up without exposing customer records or license-service internals.
 
 ## Proposed PR Sequence
 
@@ -183,9 +186,21 @@ is removed or renewed at the end of the approved trial window.
       access workflow.
 
 17. Private license revocation and evaluator access expiry evidence.
+    Delivered in `cavra-enterprise` PR #88.
     - Add private evidence that trial access was revoked, renewed, or escalated
       at expiry without exposing license keys, customer records, or Enterprise
       source code.
+
+18. Public docs/wiki sync. Delivered with
+    [trial-access-expiry-sync.md](trial-access-expiry-sync.md).
+    - Publish public-safe outcomes after the private trial access expiry
+      workflow.
+
+19. Private expired-trial notification, grace-period, and commercial handoff
+    automation.
+    - Add private workflow automation for expiry reminders, grace-period
+      approvals, commercial handoff, renewal follow-up, and support escalation
+      without exposing customer records or license-service internals.
 
 ## Acceptance Criteria
 
@@ -200,5 +215,5 @@ is removed or renewed at the end of the approved trial window.
 
 ## Recommended Next PR
 
-Add private license revocation and evaluator access expiry evidence, then sync
-public docs with public-safe access removal or renewal gates.
+Add private expired-trial notification, grace-period, and commercial handoff
+automation, then sync public docs with public-safe follow-up and renewal gates.

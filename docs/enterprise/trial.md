@@ -21,6 +21,9 @@ Private Enterprise distribution status:
   evaluator access evidence. The private evidence records references for license
   issuance, entitlement, evaluator access grants, support ownership, onboarding,
   and revocation without publishing license keys or registry secrets.
+- Trial expiry evidence records whether approved evaluator access was revoked,
+  renewed, or escalated at the end of the approved trial window. Public docs
+  record the boundary and gates only.
 
 Example future install flow:
 
@@ -44,4 +47,6 @@ See also
 [../trial-enterprise-distribution-sync.md](../trial-enterprise-distribution-sync.md)
 for the public-safe private distribution summary and
 [../trial-license-evaluator-access-sync.md](../trial-license-evaluator-access-sync.md)
-for the public-safe trial license and evaluator access summary.
+for the public-safe trial license and evaluator access summary, and
+[../trial-access-expiry-sync.md](../trial-access-expiry-sync.md)
+for the public-safe trial access expiry summary.

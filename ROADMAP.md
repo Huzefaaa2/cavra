@@ -79,6 +79,9 @@ Current open-core priority:
 37. Private trial license issuance and evaluator access evidence is delivered
    in `cavra-enterprise` PR #87 and public-safe sync is documented in
    [docs/trial-license-evaluator-access-sync.md](docs/trial-license-evaluator-access-sync.md).
-38. Next recommendation: add private license revocation and evaluator access
-   expiry evidence, then sync public docs with public-safe access removal or
-   renewal gates.
+38. Private trial access expiry evidence is delivered in `cavra-enterprise`
+   PR #88 and public-safe sync is documented in
+   [docs/trial-access-expiry-sync.md](docs/trial-access-expiry-sync.md).
+39. Next recommendation: add private expired-trial notification, grace-period,
+   and commercial handoff automation, then sync public docs with public-safe
+   follow-up and renewal gates.
