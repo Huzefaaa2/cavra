@@ -27,6 +27,10 @@ Private Enterprise distribution status:
 - Expired-trial follow-up evidence records notification, grace-period, and
   commercial handoff references for revoked, renewed, and escalated trials
   without publishing customer records, CRM payloads, or provider secrets.
+- Trial conversion readiness evidence records paid-pilot or production
+  conversion references for renewed or escalated trials without publishing
+  customer records, billing secrets, license-service internals, or production
+  provisioning secrets.
 
 Example future install flow:
 
@@ -54,4 +58,6 @@ for the public-safe trial license and evaluator access summary, and
 [../trial-access-expiry-sync.md](../trial-access-expiry-sync.md)
 for the public-safe trial access expiry summary, and
 [../trial-expired-followup-sync.md](../trial-expired-followup-sync.md)
-for the public-safe expired-trial follow-up summary.
+for the public-safe expired-trial follow-up summary, and
+[../trial-conversion-readiness-sync.md](../trial-conversion-readiness-sync.md)
+for the public-safe trial conversion readiness summary.

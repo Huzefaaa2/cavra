@@ -93,9 +93,13 @@ Current Trial and SaaS commercialization readiness status:
 - private expired-trial follow-up automation evidence is delivered in
   `cavra-enterprise` PR #89 and public-safe sync is documented in
   `docs/trial-expired-followup-sync.md`.
+- private trial conversion readiness evidence is delivered in
+  `cavra-enterprise` PR #90 and public-safe sync is documented in
+  `docs/trial-conversion-readiness-sync.md`.
 
-Next production-readiness slice: private trial conversion readiness evidence,
-followed by public-safe documentation sync.
+Next production-readiness slice: private paid-pilot activation and
+production-conversion handoff evidence, followed by public-safe documentation
+sync.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -85,6 +85,9 @@ Current open-core priority:
 39. Private expired-trial follow-up automation evidence is delivered in
    `cavra-enterprise` PR #89 and public-safe sync is documented in
    [docs/trial-expired-followup-sync.md](docs/trial-expired-followup-sync.md).
-40. Next recommendation: add private trial conversion readiness evidence so
-   renewed or escalated trials can move into paid pilot or production
-   conversion with public-safe documentation of the gates.
+40. Private trial conversion readiness evidence is delivered in
+   `cavra-enterprise` PR #90 and public-safe sync is documented in
+   [docs/trial-conversion-readiness-sync.md](docs/trial-conversion-readiness-sync.md).
+41. Next recommendation: add private paid-pilot activation and
+   production-conversion handoff evidence, then sync public docs with
+   public-safe activation and conversion handoff gates.
