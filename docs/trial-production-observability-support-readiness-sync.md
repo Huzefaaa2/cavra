@@ -76,9 +76,12 @@ details.
 
 ## Next Recommendation
 
-Add private final release hardening and packaging readiness evidence so
-observability-ready releases can be gated by artifact signing, SBOM,
-vulnerability exceptions, rollback package, release notes, support handoff, and
-commercial launch approval without exposing Enterprise source code, customer
-records, billing secrets, license-service internals, or production provisioning
-secrets.
+Private final release hardening and packaging readiness evidence is now
+delivered in `cavra-enterprise` PR #107.
+
+Next, add private commercialization closeout and release-to-market approval
+evidence so hardened releases can be closed through commercial launch
+ownership, customer-success readiness, release governance acceptance, and
+public-safe roadmap synchronization without exposing Enterprise source code,
+customer records, billing secrets, license-service internals, artifact signing
+internals, or production provisioning secrets.

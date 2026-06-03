@@ -136,7 +136,11 @@ Current open-core priority:
 56. Private production observability and support runbook readiness evidence is
    delivered in `cavra-enterprise` PR #106 and public-safe sync is documented in
    [docs/trial-production-observability-support-readiness-sync.md](docs/trial-production-observability-support-readiness-sync.md).
-57. Next recommendation: add private final release hardening and packaging
-   readiness evidence, then sync public docs with public-safe artifact-signing,
-   SBOM, vulnerability-exception, rollback-package, release-note,
-   support-handoff, and commercial-launch approval gates.
+57. Private final release hardening and packaging readiness evidence is
+   delivered in `cavra-enterprise` PR #107 and public-safe sync is documented
+   in
+   [docs/trial-final-release-hardening-packaging-readiness-sync.md](docs/trial-final-release-hardening-packaging-readiness-sync.md).
+58. Next recommendation: add private commercialization closeout and
+   release-to-market approval evidence, then sync public docs with public-safe
+   launch-ownership, customer-success-readiness, release-governance-acceptance,
+   and roadmap-synchronization gates.

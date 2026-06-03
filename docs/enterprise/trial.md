@@ -118,4 +118,7 @@ for the public-safe trial commercial launch-readiness final archive
 summary, and
 [../trial-production-observability-support-readiness-sync.md](../trial-production-observability-support-readiness-sync.md)
 for the public-safe trial production observability and support readiness
+summary, and
+[../trial-final-release-hardening-packaging-readiness-sync.md](../trial-final-release-hardening-packaging-readiness-sync.md)
+for the public-safe trial final release hardening and packaging readiness
 summary.
