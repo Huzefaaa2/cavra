@@ -95,4 +95,7 @@ for the public-safe final commercial renewal closeout summary, and
 [../trial-commercialization-closure-readiness-sync.md](../trial-commercialization-closure-readiness-sync.md)
 for the public-safe trial commercialization closure readiness summary, and
 [../trial-commercialization-closure-release-acceptance-sync.md](../trial-commercialization-closure-release-acceptance-sync.md)
-for the public-safe trial commercialization closure release acceptance summary.
+for the public-safe trial commercialization closure release acceptance summary,
+and
+[../trial-commercialization-closure-final-closeout-sync.md](../trial-commercialization-closure-final-closeout-sync.md)
+for the public-safe trial commercialization closure final closeout summary.

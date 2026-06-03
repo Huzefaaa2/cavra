@@ -75,8 +75,10 @@ implementation details.
 
 ## Next Recommendation
 
-Add private commercialization closure final closeout evidence so accepted
-closure packages can be archived for release governance, commercial leadership,
-public-safe roadmap synchronization, and next-release planning without exposing
-customer records, account records, finance records, billing secrets,
-license-service internals, or production provisioning secrets.
+Private commercialization closure final closeout evidence is now documented in
+[trial-commercialization-closure-final-closeout-sync.md](trial-commercialization-closure-final-closeout-sync.md).
+Next, add private commercial launch-readiness handoff evidence so final
+closeout packages can move into launch-readiness, release governance, support,
+customer-success, and commercial leadership handoff without exposing customer
+records, account records, finance records, billing secrets, license-service
+internals, or production provisioning secrets.

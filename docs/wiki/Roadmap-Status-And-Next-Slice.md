@@ -37,6 +37,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   delivered in `cavra-enterprise` PR #97;
 - private commercialization closure release acceptance evidence is delivered in
   `cavra-enterprise` PR #98;
+- private commercialization closure final closeout evidence is delivered in
+  `cavra-enterprise` PR #99;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -95,11 +97,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- commercialization closure final closeout workflows.
+- commercial launch-readiness handoff workflows.
 
 ## Next Slice
 
-Commercialization closure final closeout evidence.
+Commercial launch-readiness handoff evidence.
 
 ## Why This Is Next
 
@@ -112,12 +114,13 @@ closeout and revenue handoff rollup evidence, private executive summary and
 renewal action evidence, private customer follow-through evidence, private
 renewal outcome rollup evidence, private final commercial renewal closeout
 package evidence, private commercialization closure readiness summary evidence,
-private commercialization closure release acceptance evidence, public tenant and
-entitlement contracts, and private evidence from tenant activation through final
-SaaS customer operating closeout. The next commercial blocker is archiving
-accepted closure packages for release governance, commercial leadership,
-public-safe roadmap synchronization, and next-release planning without exposing
-billing, license-service, customer, finance, account, or provisioning secrets.
+private commercialization closure release acceptance evidence, private
+commercialization closure final closeout evidence, public tenant and entitlement
+contracts, and private evidence from tenant activation through final SaaS
+customer operating closeout. The next commercial blocker is handing final
+closeout packages into launch-readiness, release governance, support,
+customer-success, and commercial leadership without exposing billing,
+license-service, customer, finance, account, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -353,11 +356,24 @@ billing, license-service, customer, finance, account, or provisioning secrets.
       release acceptance workflow.
 
 39. Private commercialization closure final closeout evidence.
+    Delivered in `cavra-enterprise` PR #99.
     - Add private evidence that accepted closure packages are archived for
       release governance, commercial leadership, public-safe roadmap
       synchronization, and next-release planning without exposing customer
       records, account records, finance records, billing secrets,
       license-service internals, or production provisioning secrets.
+
+40. Public docs/wiki sync. Delivered with
+    [trial-commercialization-closure-final-closeout-sync.md](trial-commercialization-closure-final-closeout-sync.md).
+    - Publish public-safe outcomes after the private commercialization closure
+      final closeout workflow.
+
+41. Private commercial launch-readiness handoff evidence.
+    - Add private evidence that final closeout packages are handed off to
+      launch-readiness, release governance, support, customer-success, and
+      commercial leadership without exposing customer records, account records,
+      finance records, billing secrets, license-service internals, or
+      production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -372,6 +388,6 @@ billing, license-service, customer, finance, account, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercialization closure final closeout evidence, then sync public
-docs with public-safe archive, release governance, commercial leadership,
-public roadmap, and next-release planning gates.
+Add private commercial launch-readiness handoff evidence, then sync public docs
+with public-safe launch-readiness, release governance, support,
+customer-success, and commercial leadership handoff gates.
