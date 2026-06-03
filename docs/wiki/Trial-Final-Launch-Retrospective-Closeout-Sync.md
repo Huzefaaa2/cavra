@@ -80,6 +80,8 @@ implementation details.
 
 ## Next Recommendation
 
-Run a roadmap status audit and define the next production-readiness batch now
-that the private trial launch closeout chain is public-safe documented through
-final retrospective closeout.
+Roadmap status audit and next-batch planning are now documented in
+[Roadmap-Status-Audit-And-Next-Batch.md](Roadmap-Status-Audit-And-Next-Batch.md).
+
+Next, implement the public policy signing key workflow with tests and
+documentation, then continue the Community GA Control Hardening batch.

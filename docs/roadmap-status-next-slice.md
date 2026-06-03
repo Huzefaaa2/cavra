@@ -115,16 +115,19 @@ SaaS operating readiness rollup and public-safe documentation sync:
 CAVRA is ready for the next production-readiness slice, but the product is not
 yet fully production-complete. Remaining themes are:
 
-- hosted policy registry readiness and policy-pack catalog operation;
-- tenant audit-store health, retention posture, and export readiness;
-- private SaaS operating automation for support, customer-success, finance, and
-  commercial closeout at trial-to-paid scale;
-- final launch retrospective closeout workflows;
-- final launch archive synchronization.
+- Community policy-engine GA hardening;
+- golden decision snapshot coverage for critical policy decisions;
+- explicit audit/enforce/strict/break-glass mode behavior across CLI, API, and
+  evidence;
+- production deployment guide validation for the public Community path;
+- console closeout for a minimal but coherent operator experience;
+- release documentation that ties policy, evidence, console, and Go runtime
+  readiness into a user-verifiable GA path.
 
 ## Next Slice
 
-Final launch retrospective closeout evidence.
+Community GA Control Hardening, starting with the public policy signing key
+workflow.
 
 ## Why This Is Next
 
@@ -577,6 +580,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Run a roadmap status audit and define the next production-readiness batch now
-that the private trial launch closeout chain is public-safe documented through
-final retrospective closeout.
+Implement the public policy signing key workflow with tests and documentation,
+then continue the Community GA Control Hardening batch.

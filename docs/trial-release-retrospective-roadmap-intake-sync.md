@@ -84,6 +84,5 @@ Private final launch retrospective closeout evidence is now delivered in
 `cavra-enterprise` PR #111, with the public-safe sync documented in
 [trial-final-launch-retrospective-closeout-sync.md](trial-final-launch-retrospective-closeout-sync.md).
 
-Next, run a roadmap status audit and define the next production-readiness batch
-now that the trial launch closeout chain is documented through final
-retrospective closeout.
+Roadmap status audit and next-batch planning are now documented in
+[roadmap-status-audit-next-batch.md](roadmap-status-audit-next-batch.md).

@@ -125,6 +125,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Trial Post-Launch Operating Handoff Sync: `Trial-Post-Launch-Operating-Handoff-Sync.md`
 - Trial Release Retrospective Roadmap Intake Sync: `Trial-Release-Retrospective-Roadmap-Intake-Sync.md`
 - Trial Final Launch Retrospective Closeout Sync: `Trial-Final-Launch-Retrospective-Closeout-Sync.md`
+- Roadmap Status Audit And Next Batch: `Roadmap-Status-Audit-And-Next-Batch.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
 - Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
 - Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`
