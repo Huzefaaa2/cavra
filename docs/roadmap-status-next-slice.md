@@ -19,6 +19,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   PR #88;
 - private expired-trial follow-up automation evidence is delivered in
   `cavra-enterprise` PR #89;
+- private trial conversion readiness evidence is delivered in
+  `cavra-enterprise` PR #90;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -77,21 +79,22 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- trial conversion readiness workflows for renewed or escalated trials.
+- paid-pilot activation and production-conversion handoff workflows.
 
 ## Next Slice
 
-Trial conversion readiness evidence.
+Paid-pilot activation and production-conversion handoff evidence.
 
 ## Why This Is Next
 
 CAVRA now has a public trial path, private trial package release gates, private
 license issuance and evaluator access evidence, private expiry evidence for
 revoked, renewed, and escalated access, private expired-trial follow-up
-automation evidence, public tenant and entitlement contracts, and private
-evidence from tenant activation through final SaaS customer operating closeout.
-The next commercial blocker is proving renewed or escalated trials are ready for
-paid pilot or production conversion.
+automation evidence, private trial conversion readiness evidence, public tenant
+and entitlement contracts, and private evidence from tenant activation through
+final SaaS customer operating closeout. The next commercial blocker is proving
+approved conversions are activated through paid-pilot or production handoff
+without exposing billing, license-service, customer, or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -212,9 +215,20 @@ paid pilot or production conversion.
       automation workflow.
 
 21. Private trial conversion readiness evidence.
+    Delivered in `cavra-enterprise` PR #90.
     - Add private evidence that renewed or escalated trials are ready for paid
       pilot or production conversion, including customer-success, sales,
       support, entitlement, and onboarding readiness references.
+
+22. Public docs/wiki sync. Delivered with
+    [trial-conversion-readiness-sync.md](trial-conversion-readiness-sync.md).
+    - Publish public-safe outcomes after the private trial conversion readiness
+      workflow.
+
+23. Private paid-pilot activation and production-conversion handoff evidence.
+    - Add private evidence that approved conversions have paid-pilot activation
+      or production handoff references across entitlement, onboarding,
+      customer-success, sales, support, billing, and provisioning readiness.
 
 ## Acceptance Criteria
 
@@ -229,5 +243,5 @@ paid pilot or production conversion.
 
 ## Recommended Next PR
 
-Add private trial conversion readiness evidence, then sync public docs with
-public-safe paid-pilot and production conversion gates.
+Add private paid-pilot activation and production-conversion handoff evidence,
+then sync public docs with public-safe activation and conversion handoff gates.
