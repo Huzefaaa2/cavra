@@ -17,6 +17,10 @@ Private Enterprise distribution status:
   release ownership, source-exclusion status, and license-service readiness.
 - Trial package approval is blocked unless private license-service readiness is
   true.
+- Approved trial package releases are followed by private license issuance and
+  evaluator access evidence. The private evidence records references for license
+  issuance, entitlement, evaluator access grants, support ownership, onboarding,
+  and revocation without publishing license keys or registry secrets.
 
 Example future install flow:
 
@@ -38,4 +42,6 @@ Trial teams must use synthetic or non-production evidence. Do not place Enterpri
 
 See also
 [../trial-enterprise-distribution-sync.md](../trial-enterprise-distribution-sync.md)
-for the public-safe private distribution summary.
+for the public-safe private distribution summary and
+[../trial-license-evaluator-access-sync.md](../trial-license-evaluator-access-sync.md)
+for the public-safe trial license and evaluator access summary.

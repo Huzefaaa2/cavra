@@ -76,6 +76,9 @@ Current open-core priority:
 36. Private Enterprise trial package release pipeline is delivered in
    `cavra-enterprise` PR #86 and public-safe sync is documented in
    [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
-37. Next recommendation: connect private trial release approvals to live
-   license issuance and evaluator access workflows, then sync public docs with
-   public-safe references.
+37. Private trial license issuance and evaluator access evidence is delivered
+   in `cavra-enterprise` PR #87 and public-safe sync is documented in
+   [docs/trial-license-evaluator-access-sync.md](docs/trial-license-evaluator-access-sync.md).
+38. Next recommendation: add private license revocation and evaluator access
+   expiry evidence, then sync public docs with public-safe access removal or
+   renewal gates.

@@ -13,6 +13,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   PR #61;
 - private trial package release pipeline for gated GHCR evaluator access is
   delivered in `cavra-enterprise` PR #86;
+- private trial license issuance and evaluator access evidence is delivered in
+  `cavra-enterprise` PR #87;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -71,19 +73,19 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- live trial license issuance and evaluator access workflows.
+- trial license revocation and evaluator access expiry workflows.
 
 ## Next Slice
 
-Customer operating closeout hardening.
+Trial access revocation and expiry hardening.
 
 ## Why This Is Next
 
-CAVRA now has a public trial path, private trial-to-pilot gates, public tenant
-and entitlement contracts, and private evidence from tenant activation through
-final SaaS customer operating closeout. The next commercial blocker is making
-private automation for trial-to-paid customer scale using the public customer
-operating dashboard and support handoff contract boundary.
+CAVRA now has a public trial path, private trial package release gates, private
+license issuance and evaluator access evidence, public tenant and entitlement
+contracts, and private evidence from tenant activation through final SaaS
+customer operating closeout. The next commercial blocker is proving trial access
+is removed or renewed at the end of the approved trial window.
 
 ## Proposed PR Sequence
 
@@ -169,6 +171,22 @@ operating dashboard and support handoff contract boundary.
       dashboards, escalation follow-up, and commercial closeout retries without
       exposing customer records or Enterprise source code.
 
+15. Private trial license issuance and evaluator access evidence. Delivered in
+    `cavra-enterprise` PR #87.
+    - Link approved trial package releases to private license issuance,
+      entitlement, evaluator access, support ownership, onboarding, and
+      revocation references without storing license keys or registry secrets.
+
+16. Public docs/wiki sync. Delivered with
+    [trial-license-evaluator-access-sync.md](trial-license-evaluator-access-sync.md).
+    - Publish public-safe outcomes after the private trial license and evaluator
+      access workflow.
+
+17. Private license revocation and evaluator access expiry evidence.
+    - Add private evidence that trial access was revoked, renewed, or escalated
+      at expiry without exposing license keys, customer records, or Enterprise
+      source code.
+
 ## Acceptance Criteria
 
 - Public docs explain post-onboarding SaaS operating readiness without exposing
@@ -182,5 +200,5 @@ operating dashboard and support handoff contract boundary.
 
 ## Recommended Next PR
 
-Continue private SaaS operating automation required for trial-to-paid customer
-scale.
+Add private license revocation and evaluator access expiry evidence, then sync
+public docs with public-safe access removal or renewal gates.
