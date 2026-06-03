@@ -83,9 +83,9 @@ Completed in this public sync:
 
 ## Next Recommendation
 
-Delivered in
-[docs/architecture/saas-operating-automation-worker-handoff.md](architecture/saas-operating-automation-worker-handoff.md).
-Continue by adding a public-safe worker handoff contract model to Community
-Edition so API, CLI, tests, and the Evidence Console can describe the handoff
-metadata shape without executing private workers or exposing Enterprise
-implementation.
+The public-safe worker handoff guidance, contract model, API/CLI surfaces, and
+Evidence Console exposure are now delivered in Community Edition. Continue by
+adding private Enterprise/SaaS worker execution readiness evidence and keeping
+this public contract sync current after private implementation PRs, without
+executing private workers or exposing Enterprise implementation in the public
+repository.

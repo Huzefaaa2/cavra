@@ -184,16 +184,17 @@ cavra saas worker-handoff tenant-demo --requested-by console
 
 ## Evidence Console Surface
 
-The public Evidence Console includes a SaaS Operating Automation Contract panel
-that renders the public-safe request, response, required checks, private
-modules required, and private-service boundary. It reads `GET
-/saas/control-plane/contract` and `POST /saas/operating-automation` when a
-CAVRA API is configured, and it falls back to a synthetic public-safe preview in
-hosted demo mode.
+The public Evidence Console includes SaaS Operating Automation Contract and SaaS
+Worker Handoff panels. They render public-safe request/response payloads,
+required checks, worker targets, private modules required, and private-service
+boundary messaging. The console reads `GET /saas/control-plane/contract`, `POST
+/saas/operating-automation`, and `POST
+/saas/operating-automation/worker-handoff` when a CAVRA API is configured, and
+it falls back to synthetic public-safe previews in hosted demo mode.
 
 ## Next Recommendation
 
-Expose the public-safe worker handoff contract in the Evidence Console while
-keeping Enterprise source, SaaS services, scheduler internals, connector
-credentials, billing records, support workflows, and customer data outside the
-public Community repository.
+Add private Enterprise/SaaS worker execution readiness evidence and keep public
+contract sync documentation current while Enterprise source, SaaS services,
+scheduler internals, connector credentials, billing records, support workflows,
+and customer data stay outside the public Community repository.

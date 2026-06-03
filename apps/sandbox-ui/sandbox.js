@@ -248,6 +248,91 @@ const saasOperatingAutomationPreview = {
   }
 };
 
+const saasWorkerHandoffPreview = {
+  request: {
+    schema_version: "cavra.saas_control_plane.request.v1",
+    operation: "saas_operating_automation_worker_handoff",
+    tenant_id: "tenant-demo",
+    requested_by: "console",
+    correlation_id: "saas-worker-handoff-demo",
+    private_implementation_required: true,
+    payload: {
+      deployment_environment: "production",
+      worker_mode: "dry_run",
+      required_checks: [
+        "billing_monitoring",
+        "license_telemetry_sync",
+        "support_followup",
+        "customer_success_review",
+        "dashboard_refresh",
+        "escalation_drill",
+        "closeout_retry"
+      ],
+      worker_targets: [
+        "billing_monitoring",
+        "license_telemetry_sync",
+        "support_followup",
+        "customer_success_review",
+        "dashboard_refresh",
+        "escalation_drill",
+        "closeout_retry"
+      ],
+      handoff_boundary: "public request shape only; SaaS automation worker execution is private"
+    }
+  },
+  response: {
+    schema_version: "cavra.saas_control_plane.response.v1",
+    operation: "saas_operating_automation_worker_handoff",
+    status: "requires_private_service",
+    message: "SaaS operating automation worker handoff requires private scheduler, worker, connector, retry, evidence sink, billing, support, and customer-success validation.",
+    correlation_id: "saas-worker-handoff-demo",
+    private_implementation_required: true,
+    payload: {
+      summary: {
+        tenant_id: "tenant-demo",
+        handoff_status: "requires_private_service",
+        deployment_environment: "production",
+        scheduler_ref: "scheduler-saas-operating-automation",
+        evidence_sink_ref: "evidence-sink-saas-operating-automation",
+        retry_policy_ref: "retry-policy-saas-operating-automation",
+        worker_owner: "operations-owner",
+        worker_mode: "dry_run",
+        required_checks: [
+          "billing_monitoring",
+          "license_telemetry_sync",
+          "support_followup",
+          "customer_success_review",
+          "dashboard_refresh",
+          "escalation_drill",
+          "closeout_retry"
+        ],
+        worker_targets: [
+          "billing_monitoring",
+          "license_telemetry_sync",
+          "support_followup",
+          "customer_success_review",
+          "dashboard_refresh",
+          "escalation_drill",
+          "closeout_retry"
+        ],
+        blockers: ["private scheduler and evidence sink are not available in Community Edition"],
+        private_validation_required: true,
+        handoff_boundary: "worker source, scheduler internals, connector credentials, customer records, billing records, support workflows, customer-success records, dashboard jobs, and SaaS backend implementation remain private service responsibilities"
+      },
+      private_modules_required: [
+        "worker scheduler",
+        "worker runtime",
+        "connector registry",
+        "retry policy engine",
+        "evidence sink",
+        "billing and license operations",
+        "support and customer-success workflows"
+      ],
+      next_step: "See docs/architecture/saas-operating-automation-worker-handoff.md"
+    }
+  }
+};
+
 const saasOperatingAutomationCheckDescriptions = {
   billing_monitoring: "Recurring subscription and billing observability checks.",
   license_telemetry_sync: "Recurring license-service telemetry synchronization.",
@@ -1006,6 +1091,15 @@ const endpointManagementExportArtifactCatalog = {
 
 const releaseNoteCatalog = [
   {
+    title: "SaaS Worker Handoff",
+    date: "2026-06-03",
+    summary: "The Evidence Console now renders the public-safe SaaS worker handoff request, response, worker targets, scheduler references, and private-service boundary.",
+    links: [
+      ["Worker handoff docs", "https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-worker-handoff.md"],
+      ["SaaS automation contract", "https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-contract.md"]
+    ]
+  },
+  {
     title: "SaaS Automation Contract",
     date: "2026-06-02",
     summary: "The Evidence Console now renders the public-safe SaaS operating automation contract, required checks, request payload, response payload, and private-service boundary.",
@@ -1593,6 +1687,58 @@ async function loadSaasOperatingAutomationContract() {
     return {
       source: "local-sample",
       ...saasOperatingAutomationPreview
+    };
+  }
+}
+
+async function loadSaasWorkerHandoffContract() {
+  await loadConsoleConfig();
+  try {
+    const response = await fetch(apiUrl(consoleConfig?.endpoints?.saas_operating_automation_worker_handoff || "/saas/operating-automation/worker-handoff"), {
+      method: "POST",
+      headers: apiHeaders(true),
+      body: JSON.stringify({
+        tenant_id: "tenant-demo",
+        requested_by: "console",
+        deployment_environment: "production",
+        worker_mode: "dry_run",
+        required_checks: [
+          "billing_monitoring",
+          "license_telemetry_sync",
+          "support_followup",
+          "customer_success_review",
+          "dashboard_refresh",
+          "escalation_drill",
+          "closeout_retry"
+        ],
+        worker_targets: [
+          "billing_monitoring",
+          "license_telemetry_sync",
+          "support_followup",
+          "customer_success_review",
+          "dashboard_refresh",
+          "escalation_drill",
+          "closeout_retry"
+        ],
+        handoff_status: "requires_private_service",
+        scheduler_ref: "scheduler-saas-operating-automation",
+        evidence_sink_ref: "evidence-sink-saas-operating-automation",
+        retry_policy_ref: "retry-policy-saas-operating-automation",
+        worker_owner: "operations-owner",
+        blockers: ["private scheduler and evidence sink are not available in Community Edition"]
+      })
+    });
+    if (!response.ok) throw new Error("SaaS worker handoff API unavailable");
+    const preview = await response.json();
+    return {
+      source: "cavra-api",
+      request: preview.request,
+      response: preview.response
+    };
+  } catch {
+    return {
+      source: "local-sample",
+      ...saasWorkerHandoffPreview
     };
   }
 }
@@ -3965,6 +4111,61 @@ async function refreshSaasOperatingAutomation() {
     statusPanel.className = "status-line";
   }
   renderSaasOperatingAutomation(await loadSaasOperatingAutomationContract());
+}
+
+function renderSaasWorkerHandoff(payload) {
+  const summaryPanel = document.querySelector("#saasWorkerHandoffSummary");
+  const targetsPanel = document.querySelector("#saasWorkerHandoffTargets");
+  const requestPanel = document.querySelector("#saasWorkerHandoffRequest");
+  const responsePanel = document.querySelector("#saasWorkerHandoffResponse");
+  const statusPanel = document.querySelector("#saasWorkerHandoffStatus");
+  if (!summaryPanel || !targetsPanel || !requestPanel || !responsePanel) return;
+
+  const request = payload.request || saasWorkerHandoffPreview.request;
+  const response = payload.response || saasWorkerHandoffPreview.response;
+  const requestPayload = request.payload || {};
+  const responseSummary = response.payload?.summary || {};
+  const workerTargets = responseSummary.worker_targets || requestPayload.worker_targets || [];
+  const privateModules = response.payload?.private_modules_required || [];
+  const sourceLabel = payload.source === "cavra-api" ? "CAVRA API" : "Local sample";
+
+  summaryPanel.innerHTML = [
+    ["Source", sourceLabel, payload.source === "cavra-api" ? "Loaded from configured public API endpoint." : "Static hosted demo fallback."],
+    ["Status", responseSummary.handoff_status || response.status || "requires_private_service", "Private execution remains outside Community Edition."],
+    ["Mode", responseSummary.worker_mode || requestPayload.worker_mode || "unknown", "Worker execution mode requested for private handoff."],
+    ["Owner", responseSummary.worker_owner || "operations-owner", responseSummary.scheduler_ref || "Private scheduler reference required."]
+  ].map(([label, value, detail]) => `
+    <article class="saas-automation-card">
+      <span>${escapeHtml(label)}</span>
+      <strong class="${statusClass(String(value))}">${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+
+  targetsPanel.innerHTML = workerTargets.map((target) => `
+    <article class="saas-check-item">
+      <span>${escapeHtml(formatLabel(target))}</span>
+      <strong class="${statusClass(responseSummary.handoff_status || response.status || "unknown")}">${escapeHtml(responseSummary.handoff_status || "private validation")}</strong>
+      <p>${escapeHtml(saasOperatingAutomationCheckDescriptions[target] || "Private SaaS worker target readiness check.")}</p>
+    </article>
+  `).join("");
+
+  requestPanel.textContent = JSON.stringify(request, null, 2);
+  responsePanel.textContent = JSON.stringify(response, null, 2);
+  if (statusPanel) {
+    const blockerCount = Array.isArray(responseSummary.blockers) ? responseSummary.blockers.length : 0;
+    statusPanel.textContent = `${sourceLabel}: ${privateModules.length} private worker modules required; ${blockerCount} public-safe blockers shown.`;
+    statusPanel.className = `status-line ${payload.source === "cavra-api" ? "ok" : "warn"}`;
+  }
+}
+
+async function refreshSaasWorkerHandoff() {
+  const statusPanel = document.querySelector("#saasWorkerHandoffStatus");
+  if (statusPanel) {
+    statusPanel.textContent = "Loading SaaS worker handoff contract...";
+    statusPanel.className = "status-line";
+  }
+  renderSaasWorkerHandoff(await loadSaasWorkerHandoffContract());
 }
 
 async function savePilotIntakeSnapshot() {
@@ -9767,6 +9968,7 @@ document.querySelector("#approvalRows").addEventListener("click", async (event) 
 document.querySelector("#verifyAttestation").addEventListener("click", verifyAttestation);
 document.querySelector("#savePilotIntake").addEventListener("click", savePilotIntakeSnapshot);
 document.querySelector("#refreshSaasAutomation").addEventListener("click", refreshSaasOperatingAutomation);
+document.querySelector("#refreshSaasWorkerHandoff").addEventListener("click", refreshSaasWorkerHandoff);
 document.querySelector("#copyInstall").addEventListener("click", async () => {
   await navigator.clipboard.writeText("claude mcp add cavra -- cavra-mcp-server");
 });
@@ -9787,6 +9989,7 @@ refreshGoRollbackDrillNotifications();
 refreshTrialOnboardingSummary();
 refreshPilotReadiness();
 refreshSaasOperatingAutomation();
+refreshSaasWorkerHandoff();
 refreshDemoMetrics();
 refreshActivity();
 refreshInventory();

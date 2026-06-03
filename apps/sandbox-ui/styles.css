@@ -77,6 +77,8 @@ pre { white-space: pre-wrap; font-size: 13px; color: #cbd5db; }
 .saas-automation-card p, .saas-check-item p { margin: 8px 0 0; color: #cbd5db; line-height: 1.4; }
 .saas-automation-layout { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
 .saas-automation-layout h3 { margin: 0 0 10px; }
+.saas-worker-handoff-layout { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.saas-worker-handoff-layout h3 { margin: 0 0 10px; }
 .saas-check-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .saas-check-item strong { display: block; margin-top: 6px; color: #eef3f6; overflow-wrap: anywhere; }
 .saas-contract-payload { min-height: 300px; max-height: 520px; overflow: auto; border: 1px solid #2d3a40; border-radius: 8px; padding: 12px; background: #0f1418; box-sizing: border-box; }
@@ -129,4 +131,4 @@ tr:last-child td { border-bottom: 0; }
 .verification, .readiness { padding-left: 20px; color: #cbd5db; }
 .ok { color: #76d6b2; }
 .warn { color: #ffd479; }
-@media (max-width: 900px) { .grid, .split, .recurrence-grid, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .trial-onboarding-grid, .pilot-readiness-grid, .pilot-readiness-layout, .saas-automation-grid, .saas-automation-layout, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 900px) { .grid, .split, .recurrence-grid, .activity-grid, .inventory-grid, .approval-workbench, .registry-grid, .profile-list, .form-grid, .release-note-grid, .release-delivery-dashboard, .trial-onboarding-grid, .pilot-readiness-grid, .pilot-readiness-layout, .saas-automation-grid, .saas-automation-layout, .saas-worker-handoff-layout, .hero-metrics { grid-template-columns: 1fr; } nav { flex-direction: column; } .hero-title-block { padding-right: 0; } .hero-side { position: static; align-items: flex-start; gap: 12px; } .hero-logo-lockup { align-items: flex-start; } .hero-content { padding-top: 28px; } .hero-product-mark { width: 104px; } h1 { font-size: 54px; } .console-header { align-items: flex-start; flex-direction: column; } }

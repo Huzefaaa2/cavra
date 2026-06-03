@@ -71,5 +71,7 @@ Current open-core priority:
    delivered in Community Edition.
 34. Public-safe API and CLI surfaces for the worker handoff contract model are
    delivered.
-35. Next recommendation: expose the worker handoff contract in the Evidence
-   Console.
+35. Public Evidence Console and sandbox UI exposure for the worker handoff
+   contract model is delivered.
+36. Next recommendation: add private Enterprise/SaaS worker execution
+   readiness evidence and keep the public contract sync documented.
