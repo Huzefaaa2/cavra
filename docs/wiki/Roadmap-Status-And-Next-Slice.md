@@ -45,6 +45,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #101;
 - private commercial launch-readiness operating transition evidence is delivered
   in `cavra-enterprise` PR #102;
+- private commercial launch-readiness operating closeout evidence is delivered
+  in `cavra-enterprise` PR #103;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -101,13 +103,13 @@ yet fully production-complete. Remaining themes are:
 - tenant audit-store health, retention posture, and export readiness;
 - private SaaS operating automation for support, customer-success, finance, and
   commercial closeout at trial-to-paid scale;
+- commercial launch-readiness executive review and next-cycle action workflows;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- commercial launch-readiness operating closeout workflows.
 
 ## Next Slice
 
-Commercial launch-readiness operating closeout evidence.
+Commercial launch-readiness executive review and next-cycle action evidence.
 
 ## Why This Is Next
 
@@ -124,12 +126,13 @@ private commercialization closure release acceptance evidence, private
 commercialization closure final closeout evidence, private commercial
 launch-readiness handoff evidence, private commercial launch-readiness final
 approval evidence, private commercial launch-readiness operating transition
-evidence, public tenant and entitlement contracts, and private evidence from
-tenant activation through final SaaS customer operating closeout. The next
-commercial blocker is closing operating transitions through support,
-customer-success, release governance, commercial operations, and executive
-review without exposing billing, license-service, customer, finance, account,
-or provisioning secrets.
+evidence, private commercial launch-readiness operating closeout evidence,
+public tenant and entitlement contracts, and private evidence from tenant
+activation through final SaaS customer operating closeout. The next commercial
+blocker is feeding operating closeouts into executive review, lessons learned,
+roadmap feedback, renewal expansion planning, and next-cycle action ownership
+without exposing billing, license-service, customer, finance, account, or
+provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -417,11 +420,25 @@ or provisioning secrets.
       launch-readiness operating transition workflow.
 
 47. Private commercial launch-readiness operating closeout evidence.
+    Delivered in `cavra-enterprise` PR #103.
     - Add private evidence that operating transitions are closed by support,
       customer-success, release governance, commercial operations, and executive
       review without exposing customer records, account records, finance
       records, billing secrets, license-service internals, or production
       provisioning secrets.
+
+48. Public docs/wiki sync. Delivered with
+    [trial-commercial-launch-readiness-operating-closeout-sync.md](trial-commercial-launch-readiness-operating-closeout-sync.md).
+    - Publish public-safe outcomes after the private commercial
+      launch-readiness operating closeout workflow.
+
+49. Private commercial launch-readiness executive review and next-cycle action
+    evidence.
+    - Add private evidence that operating closeouts feed executive review,
+      lessons learned, roadmap feedback, renewal expansion planning, and
+      next-cycle action ownership without exposing customer records, account
+      records, finance records, billing secrets, license-service internals, or
+      production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -436,6 +453,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercial launch-readiness operating closeout evidence, then sync
-public docs with public-safe support, customer-success, release governance,
-commercial operations, and executive review closeout gates.
+Add private commercial launch-readiness executive review and next-cycle action
+evidence, then sync public docs with public-safe lessons-learned,
+roadmap-feedback, renewal-expansion, and next-cycle ownership gates.
