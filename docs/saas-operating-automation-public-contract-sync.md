@@ -83,8 +83,9 @@ Completed in this public sync:
 
 ## Next Recommendation
 
-Add public-safe documentation and interface guidance for how future private
-Enterprise/SaaS automation worker handoff packages should connect to the
-Community SaaS operating automation contract without exposing worker source,
-scheduler internals, connector credentials, customer records, or SaaS backend
+Delivered in
+[docs/architecture/saas-operating-automation-worker-handoff.md](architecture/saas-operating-automation-worker-handoff.md).
+Continue by adding a public-safe worker handoff contract model to Community
+Edition so API, CLI, tests, and the Evidence Console can describe the handoff
+metadata shape without executing private workers or exposing Enterprise
 implementation.

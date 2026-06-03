@@ -65,5 +65,7 @@ Current open-core priority:
    delivered in `cavra-enterprise` PRs #81-#85.
 31. Public-safe SaaS operating automation public contract sync is documented in
    [docs/saas-operating-automation-public-contract-sync.md](docs/saas-operating-automation-public-contract-sync.md).
-32. Next recommendation: add public-safe documentation and interface guidance
-   for future private Enterprise/SaaS automation worker handoff packages.
+32. Public-safe SaaS operating automation worker handoff guidance is documented
+   in [docs/architecture/saas-operating-automation-worker-handoff.md](docs/architecture/saas-operating-automation-worker-handoff.md).
+33. Next recommendation: add a public-safe worker handoff contract model to
+   Community Edition.

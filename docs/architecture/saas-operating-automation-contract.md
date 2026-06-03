@@ -172,8 +172,9 @@ hosted demo mode.
 
 ## Next Recommendation
 
-Add public-safe documentation and interface guidance for future private
-Enterprise/SaaS automation worker handoff packages while keeping Enterprise
-source, SaaS services, scheduler internals, connector credentials, billing
-records, support workflows, and customer data outside the public Community
-repository.
+Delivered in
+[docs/architecture/saas-operating-automation-worker-handoff.md](saas-operating-automation-worker-handoff.md).
+Continue by adding a public-safe worker handoff contract model to Community
+Edition while keeping Enterprise source, SaaS services, scheduler internals,
+connector credentials, billing records, support workflows, and customer data
+outside the public Community repository.
