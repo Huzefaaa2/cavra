@@ -8,10 +8,11 @@ product outcomes, user value, and public/private boundaries without exposing
 Enterprise source code, SaaS backend logic, automation workers, customer
 records, billing records, support tickets, or connector details.
 
-## Delivered Private Readiness Gate
+## Delivered Private Readiness Gates
 
 The private `Huzefaaa2/cavra-enterprise` repository now includes SaaS operating
-automation plan evidence in PR #74.
+automation plan evidence in PR #74, plus the follow-on public-safe closure and
+governance path in PRs #81-#85.
 
 That private gate extends final SaaS customer operating closeout into recurring
 trial-to-paid operating automation across:
@@ -23,6 +24,14 @@ trial-to-paid operating automation across:
 - operating dashboard refresh;
 - escalation drill readiness;
 - closeout retry automation.
+
+The follow-on private evidence adds:
+
+- final closure rollup for recovered automation actions;
+- customer-success handoff package metadata;
+- executive summary package metadata;
+- release governance package metadata;
+- public contract sync evidence for README, docs, and wiki summaries.
 
 ## Product Outcome
 
@@ -102,10 +111,16 @@ Completed in this SaaS operating automation slice:
 4. Public-safe API and CLI surfaces for contract discovery and request/response
    generation.
 5. Public Evidence Console and sandbox UI inspection for the contract.
+6. Private final closure, customer-success handoff, executive summary, release
+   governance, and public contract sync evidence in `cavra-enterprise` PRs
+   #81-#85.
+7. Public-safe contract sync documentation in
+   [docs/saas-operating-automation-public-contract-sync.md](saas-operating-automation-public-contract-sync.md).
 
 ## Next Recommendation
 
-Add private Enterprise/SaaS implementation handoff readiness for real SaaS
-operating automation workers while keeping any private automation execution,
-scheduler, connector, customer, billing, and support implementation inside
-private Enterprise or SaaS repositories.
+Add public-safe documentation and interface guidance for future private
+Enterprise/SaaS automation worker handoff packages so Community users can
+understand the contract boundary without exposing private automation execution,
+scheduler internals, connector credentials, customer records, billing records,
+support workflows, or SaaS backend implementation.

@@ -60,5 +60,10 @@ Current open-core priority:
    are delivered.
 29. Public Evidence Console and sandbox UI exposure for the SaaS operating
    automation contract is delivered.
-30. Next recommendation: add private Enterprise/SaaS implementation handoff
-   readiness for real SaaS operating automation workers.
+30. Private SaaS operating automation final closure, customer-success handoff,
+   executive summary, release governance, and public contract sync evidence are
+   delivered in `cavra-enterprise` PRs #81-#85.
+31. Public-safe SaaS operating automation public contract sync is documented in
+   [docs/saas-operating-automation-public-contract-sync.md](docs/saas-operating-automation-public-contract-sync.md).
+32. Next recommendation: add public-safe documentation and interface guidance
+   for future private Enterprise/SaaS automation worker handoff packages.

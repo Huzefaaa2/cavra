@@ -7,16 +7,27 @@ batch completed after final customer operating closeout. It is public-safe and
 does not expose Enterprise source code, SaaS backend logic, automation workers,
 customer records, billing records, support tickets, or connector details.
 
-## Delivered Private Readiness Gate
+## Delivered Private Readiness Gates
 
 - SaaS operating automation plan evidence: `cavra-enterprise` PR #74.
+- SaaS operating automation final closure rollup: `cavra-enterprise` PR #81.
+- SaaS operating automation customer-success handoff package:
+  `cavra-enterprise` PR #82.
+- SaaS operating automation executive summary package: `cavra-enterprise`
+  PR #83.
+- SaaS operating automation release governance package: `cavra-enterprise`
+  PR #84.
+- SaaS operating automation public contract sync evidence:
+  `cavra-enterprise` PR #85.
 
 ## Product Outcome
 
 CAVRA Enterprise can now model post-closeout operating automation across
 billing monitoring, license telemetry sync, support follow-up,
 customer-success review, operating dashboard refresh, escalation drill
-readiness, and closeout retry automation.
+readiness, and closeout retry automation. The private follow-on evidence now
+also carries recovered-action closure into customer-success handoff, executive
+summary, release governance, and public-safe documentation sync.
 
 ## Public Boundary
 
@@ -51,7 +62,9 @@ preserving the public/private source boundary.
 ## Next Recommendation
 
 Delivered in the SaaS operating automation contract, public API/CLI surfaces,
-and Evidence Console inspection. Continue by adding private Enterprise/SaaS
-implementation handoff readiness for real SaaS operating automation workers
-while keeping private automation execution, scheduler, connector, customer,
-billing, and support implementation inside Enterprise or SaaS repositories.
+Evidence Console inspection, and public contract sync documentation. Continue
+by adding public-safe documentation and interface guidance for future private
+Enterprise/SaaS automation worker handoff packages while keeping private
+automation execution, scheduler internals, connector credentials, customer
+records, billing records, support workflows, and SaaS backend implementation
+inside Enterprise or SaaS repositories.

@@ -75,6 +75,8 @@ back to a synthetic public-safe preview in hosted demo mode.
 
 ## Next Recommendation
 
-Add private Enterprise/SaaS implementation handoff readiness for real SaaS
-operating automation workers while keeping private automation execution and
-customer operations inside Enterprise or SaaS repositories.
+Add public-safe documentation and interface guidance for future private
+Enterprise/SaaS automation worker handoff packages while keeping private
+automation execution, scheduler internals, connector credentials, customer
+records, billing records, support workflows, and SaaS backend implementation
+inside Enterprise or SaaS repositories.
