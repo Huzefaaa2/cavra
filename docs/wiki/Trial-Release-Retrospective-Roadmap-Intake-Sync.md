@@ -80,9 +80,10 @@ artifact-signing, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private final launch retrospective closeout evidence so roadmap intake can
-be closed through executive acceptance, product planning ownership,
-customer-success follow-up, renewal expansion action, support trend closure,
-and public-safe final archive synchronization without exposing Enterprise
-source code, customer records, billing secrets, license-service internals,
-artifact signing internals, or production provisioning secrets.
+Private final launch retrospective closeout evidence is now delivered in
+`cavra-enterprise` PR #111, with the public-safe sync documented in
+[Trial-Final-Launch-Retrospective-Closeout-Sync.md](Trial-Final-Launch-Retrospective-Closeout-Sync.md).
+
+Next, run a roadmap status audit and define the next production-readiness batch
+now that the trial launch closeout chain is documented through final
+retrospective closeout.
