@@ -73,8 +73,9 @@ license, or provisioning implementation details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness handoff evidence so final closeout
-packages can move into launch-readiness, release governance, support,
-customer-success, and commercial leadership handoff without exposing customer
-records, account records, finance records, billing secrets, license-service
-internals, or production provisioning secrets.
+Private commercial launch-readiness handoff evidence is now documented in
+`Trial-Commercial-Launch-Readiness-Handoff-Sync.md`. Next, add private
+commercial launch-readiness final approval evidence so launch handoffs can be
+accepted by release governance, support, customer-success, and commercial
+leadership without exposing customer records, account records, finance records,
+billing secrets, license-service internals, or production provisioning secrets.
