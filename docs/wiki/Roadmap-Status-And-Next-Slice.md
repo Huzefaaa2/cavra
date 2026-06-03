@@ -17,6 +17,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #87;
 - private trial access expiry evidence is delivered in `cavra-enterprise`
   PR #88;
+- private expired-trial follow-up automation evidence is delivered in
+  `cavra-enterprise` PR #89;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -75,20 +77,21 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- expired-trial notification, grace-period, and commercial handoff workflows.
+- trial conversion readiness workflows for renewed or escalated trials.
 
 ## Next Slice
 
-Expired-trial notification and commercial handoff automation.
+Trial conversion readiness evidence.
 
 ## Why This Is Next
 
 CAVRA now has a public trial path, private trial package release gates, private
 license issuance and evaluator access evidence, private expiry evidence for
-revoked, renewed, and escalated access, public tenant and entitlement contracts,
-and private evidence from tenant activation through final SaaS customer
-operating closeout. The next commercial blocker is automating expired-trial
-follow-up without exposing customer records or license-service internals.
+revoked, renewed, and escalated access, private expired-trial follow-up
+automation evidence, public tenant and entitlement contracts, and private
+evidence from tenant activation through final SaaS customer operating closeout.
+The next commercial blocker is proving renewed or escalated trials are ready for
+paid pilot or production conversion.
 
 ## Proposed PR Sequence
 
@@ -198,9 +201,20 @@ follow-up without exposing customer records or license-service internals.
 
 19. Private expired-trial notification, grace-period, and commercial handoff
     automation.
+    Delivered in `cavra-enterprise` PR #89.
     - Add private workflow automation for expiry reminders, grace-period
       approvals, commercial handoff, renewal follow-up, and support escalation
       without exposing customer records or license-service internals.
+
+20. Public docs/wiki sync. Delivered with
+    [trial-expired-followup-sync.md](trial-expired-followup-sync.md).
+    - Publish public-safe outcomes after the private expired-trial follow-up
+      automation workflow.
+
+21. Private trial conversion readiness evidence.
+    - Add private evidence that renewed or escalated trials are ready for paid
+      pilot or production conversion, including customer-success, sales,
+      support, entitlement, and onboarding readiness references.
 
 ## Acceptance Criteria
 
@@ -215,5 +229,5 @@ follow-up without exposing customer records or license-service internals.
 
 ## Recommended Next PR
 
-Add private expired-trial notification, grace-period, and commercial handoff
-automation, then sync public docs with public-safe follow-up and renewal gates.
+Add private trial conversion readiness evidence, then sync public docs with
+public-safe paid-pilot and production conversion gates.

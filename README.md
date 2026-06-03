@@ -64,6 +64,7 @@ Open-core architecture and boundaries:
 - [Enterprise trial distribution sync](docs/trial-enterprise-distribution-sync.md)
 - [Trial license and evaluator access sync](docs/trial-license-evaluator-access-sync.md)
 - [Trial access expiry sync](docs/trial-access-expiry-sync.md)
+- [Trial expired follow-up sync](docs/trial-expired-followup-sync.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
@@ -176,11 +177,13 @@ Trial access:
 - Trial release approval is blocked unless private license-service readiness is true.
 - Approved trial package releases are followed by private license issuance and evaluator access evidence; public docs record references only.
 - Private expiry evidence records whether evaluator access was revoked, renewed, or escalated at the end of the approved trial window.
+- Private expired-trial follow-up evidence records notification, grace-period, and commercial handoff references after expiry.
 - Trial license validation must be implemented by the private Enterprise/SaaS license service.
 - See [docs/enterprise/trial.md](docs/enterprise/trial.md).
 - See [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
 - See [docs/trial-license-evaluator-access-sync.md](docs/trial-license-evaluator-access-sync.md).
 - See [docs/trial-access-expiry-sync.md](docs/trial-access-expiry-sync.md).
+- See [docs/trial-expired-followup-sync.md](docs/trial-expired-followup-sync.md).
 
 ## Claude Code quickstart
 
