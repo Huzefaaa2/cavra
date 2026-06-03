@@ -115,4 +115,7 @@ for the public-safe trial commercial launch-readiness executive review
 summary, and
 [../trial-commercial-launch-readiness-final-archive-sync.md](../trial-commercial-launch-readiness-final-archive-sync.md)
 for the public-safe trial commercial launch-readiness final archive
+summary, and
+[../trial-production-observability-support-readiness-sync.md](../trial-production-observability-support-readiness-sync.md)
+for the public-safe trial production observability and support readiness
 summary.
