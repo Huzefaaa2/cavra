@@ -83,9 +83,12 @@ details.
 
 ## Next Recommendation
 
-Add private post-launch operating handoff evidence so release-to-market
-approval can transition into launch monitoring, support queues,
-customer-success handoff, incident response, adoption tracking, renewal
-expansion watch, and executive status reporting without exposing Enterprise
+Private post-launch operating handoff evidence is now delivered in
+`cavra-enterprise` PR #109.
+
+Next, add private release retrospective and roadmap intake evidence so
+post-launch operating handoff can close into launch lessons learned, customer
+feedback, product roadmap intake, renewal expansion opportunities, support
+trend review, and next-cycle owner acceptance without exposing Enterprise
 source code, customer records, billing secrets, license-service internals,
 artifact signing internals, or production provisioning secrets.
