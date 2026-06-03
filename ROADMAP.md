@@ -67,5 +67,7 @@ Current open-core priority:
    [docs/saas-operating-automation-public-contract-sync.md](docs/saas-operating-automation-public-contract-sync.md).
 32. Public-safe SaaS operating automation worker handoff guidance is documented
    in [docs/architecture/saas-operating-automation-worker-handoff.md](docs/architecture/saas-operating-automation-worker-handoff.md).
-33. Next recommendation: add a public-safe worker handoff contract model to
-   Community Edition.
+33. Public-safe SaaS operating automation worker handoff contract model is
+   delivered in Community Edition.
+34. Next recommendation: expose the worker handoff contract model through API
+   and CLI surfaces.

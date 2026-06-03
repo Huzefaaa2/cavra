@@ -36,6 +36,59 @@ Future public-safe handoff packages may summarize:
   `requires_private_service`;
 - boundary message.
 
+## Community Contract Model
+
+Community Edition now includes a public-safe
+`saas_operating_automation_worker_handoff` contract model. The model describes
+handoff metadata only. It does not execute workers or talk to private
+schedulers, connectors, billing systems, support systems, customer-success
+systems, dashboards, or SaaS services.
+
+Example request:
+
+```json
+{
+  "schema_version": "cavra.saas_control_plane.request.v1",
+  "operation": "saas_operating_automation_worker_handoff",
+  "tenant_id": "tenant-demo",
+  "requested_by": "console",
+  "private_implementation_required": true,
+  "payload": {
+    "deployment_environment": "production",
+    "worker_mode": "dry_run",
+    "required_checks": ["billing_monitoring", "support_followup"],
+    "worker_targets": ["billing_monitoring", "support_followup"],
+    "handoff_boundary": "public request shape only; SaaS automation worker execution is private"
+  }
+}
+```
+
+Example response summary:
+
+```json
+{
+  "operation": "saas_operating_automation_worker_handoff",
+  "status": "requires_private_service",
+  "payload": {
+    "summary": {
+      "handoff_status": "requires_private_service",
+      "deployment_environment": "production",
+      "scheduler_ref": "scheduler-saas-operating-automation",
+      "evidence_sink_ref": "evidence-sink-saas-operating-automation",
+      "retry_policy_ref": "retry-policy-saas-operating-automation",
+      "worker_owner": "operations-owner",
+      "worker_mode": "dry_run",
+      "worker_targets": ["billing_monitoring", "support_followup"],
+      "private_validation_required": true
+    }
+  }
+}
+```
+
+Supported public-safe handoff statuses are `planned`, `ready`, `blocked`,
+`requires_private_service`, and `unknown`. Supported worker modes are `dry_run`,
+`shadow`, `live`, and `unknown`.
+
 ## Private Responsibilities
 
 Private Enterprise or SaaS packages must own:
@@ -107,6 +160,6 @@ records, and commercial systems private.
 
 ## Next Recommendation
 
-Add a public-safe worker handoff contract model to Community Edition so API,
-CLI, tests, and the Evidence Console can describe the handoff metadata shape
-without executing private workers or exposing Enterprise implementation.
+Expose the public-safe worker handoff contract model through API and CLI
+surfaces so users can inspect request/response shapes without executing private
+workers or exposing Enterprise implementation.

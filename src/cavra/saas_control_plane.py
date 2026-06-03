@@ -29,6 +29,7 @@ class SaaSOperation(str, Enum):
     CUSTOMER_OPERATING_DASHBOARD = "customer_operating_dashboard"
     SUPPORT_HANDOFF_READINESS = "support_handoff_readiness"
     SAAS_OPERATING_AUTOMATION = "saas_operating_automation"
+    SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF = "saas_operating_automation_worker_handoff"
     EVIDENCE_EXPORT = "evidence_export"
 
 
@@ -114,6 +115,10 @@ SAAS_OPERATING_AUTOMATION_CHECKS = (
 SAAS_OPERATING_AUTOMATION_STATUSES = frozenset(
     {"ready", "scheduled", "enabled", "automated", "blocked", "unknown"}
 )
+SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF_STATUSES = frozenset(
+    {"planned", "ready", "blocked", "requires_private_service", "unknown"}
+)
+SAAS_OPERATING_AUTOMATION_WORKER_MODES = frozenset({"dry_run", "shadow", "live", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -459,6 +464,68 @@ class SaaSOperatingAutomationSummary:
         }
 
 
+@dataclass(frozen=True)
+class SaaSOperatingAutomationWorkerHandoffSummary:
+    tenant_id: str
+    handoff_status: str
+    deployment_environment: str
+    scheduler_ref: str
+    evidence_sink_ref: str
+    retry_policy_ref: str
+    worker_owner: str
+    worker_mode: str
+    required_checks: tuple[str, ...] = SAAS_OPERATING_AUTOMATION_CHECKS
+    worker_targets: tuple[str, ...] = SAAS_OPERATING_AUTOMATION_CHECKS
+    blockers: tuple[str, ...] = field(default_factory=tuple)
+    private_validation_required: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        _validate_saas_operating_automation_worker_handoff_status(
+            self.handoff_status,
+            field_name="handoff_status",
+        )
+        _validate_saas_operating_automation_worker_mode(self.worker_mode)
+        if not self.required_checks:
+            raise SaaSContractError("required_checks must include at least one worker handoff check")
+        if not self.worker_targets:
+            raise SaaSContractError("worker_targets must include at least one public-safe worker target")
+        _reject_sensitive_material(
+            {
+                "deployment_environment": self.deployment_environment,
+                "scheduler_ref": self.scheduler_ref,
+                "evidence_sink_ref": self.evidence_sink_ref,
+                "retry_policy_ref": self.retry_policy_ref,
+                "worker_owner": self.worker_owner,
+                "worker_targets": list(self.worker_targets),
+                "blockers": list(self.blockers),
+            }
+        )
+        return {
+            "tenant_id": _safe_identifier(self.tenant_id, field_name="tenant_id"),
+            "handoff_status": self.handoff_status,
+            "deployment_environment": _safe_identifier(
+                self.deployment_environment,
+                field_name="deployment_environment",
+            ),
+            "scheduler_ref": _safe_identifier(self.scheduler_ref, field_name="scheduler_ref"),
+            "evidence_sink_ref": _safe_identifier(self.evidence_sink_ref, field_name="evidence_sink_ref"),
+            "retry_policy_ref": _safe_identifier(self.retry_policy_ref, field_name="retry_policy_ref"),
+            "worker_owner": _safe_identifier(self.worker_owner, field_name="worker_owner"),
+            "worker_mode": self.worker_mode,
+            "required_checks": [_safe_identifier(check, field_name="required_check") for check in self.required_checks],
+            "worker_targets": [
+                _safe_identifier(target, field_name="worker_target") for target in self.worker_targets
+            ],
+            "blockers": list(self.blockers),
+            "private_validation_required": self.private_validation_required,
+            "handoff_boundary": (
+                "worker source, scheduler internals, connector credentials, customer records, "
+                "billing records, support workflows, customer-success records, dashboard jobs, "
+                "and SaaS backend implementation remain private service responsibilities"
+            ),
+        }
+
+
 def build_entitlement_status_request(
     tenant_id: str,
     *,
@@ -666,6 +733,40 @@ def build_saas_operating_automation_request(
     )
 
 
+def build_saas_operating_automation_worker_handoff_request(
+    tenant_id: str,
+    *,
+    requested_by: str = "community",
+    deployment_environment: str = "production",
+    worker_mode: str = "dry_run",
+    required_checks: tuple[str, ...] = SAAS_OPERATING_AUTOMATION_CHECKS,
+    worker_targets: tuple[str, ...] = SAAS_OPERATING_AUTOMATION_CHECKS,
+) -> SaaSControlPlaneRequest:
+    if not required_checks:
+        raise SaaSContractError("required_checks must include at least one worker handoff check")
+    if not worker_targets:
+        raise SaaSContractError("worker_targets must include at least one public-safe worker target")
+    _validate_saas_operating_automation_worker_mode(worker_mode)
+    _reject_sensitive_material(
+        {
+            "deployment_environment": deployment_environment,
+            "worker_targets": list(worker_targets),
+        }
+    )
+    return SaaSControlPlaneRequest(
+        operation=SaaSOperation.SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF,
+        tenant_id=_safe_identifier(tenant_id, field_name="tenant_id"),
+        requested_by=_safe_identifier(requested_by, field_name="requested_by"),
+        payload={
+            "deployment_environment": deployment_environment,
+            "worker_mode": worker_mode,
+            "required_checks": list(required_checks),
+            "worker_targets": list(worker_targets),
+            "handoff_boundary": "public request shape only; SaaS automation worker execution is private",
+        },
+    )
+
+
 def build_policy_registry_lookup_request(
     tenant_id: str,
     policy_refs: tuple[str, ...],
@@ -835,6 +936,41 @@ def build_saas_operating_automation_response(
     )
 
 
+def build_saas_operating_automation_worker_handoff_response(
+    request: SaaSControlPlaneRequest,
+    summary: SaaSOperatingAutomationWorkerHandoffSummary,
+    *,
+    status: SaaSResponseStatus = SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE,
+) -> SaaSControlPlaneResponse:
+    if request.operation != SaaSOperation.SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF:
+        raise SaaSContractError(
+            "SaaS operating automation worker handoff response requires a "
+            "saas_operating_automation_worker_handoff request"
+        )
+    return SaaSControlPlaneResponse(
+        operation=request.operation,
+        status=status,
+        message=(
+            "SaaS operating automation worker handoff requires private scheduler, worker, "
+            "connector, retry, evidence sink, billing, support, and customer-success validation."
+        ),
+        correlation_id=request.correlation_id,
+        payload={
+            "summary": summary.to_dict(),
+            "private_modules_required": [
+                "worker scheduler",
+                "worker runtime",
+                "connector registry",
+                "retry policy engine",
+                "evidence sink",
+                "billing and license operations",
+                "support and customer-success workflows",
+            ],
+            "next_step": "See docs/architecture/saas-operating-automation-worker-handoff.md",
+        },
+    )
+
+
 def build_policy_registry_readiness_response(
     request: SaaSControlPlaneRequest,
     summary: PolicyRegistryReadinessSummary,
@@ -985,6 +1121,11 @@ def describe_public_contract() -> dict[str, Any]:
                 "response": "billing monitoring, license telemetry, support follow-up, customer-success review, dashboard refresh, escalation drill, and closeout retry readiness",
             },
             {
+                "name": SaaSOperation.SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF.value,
+                "request": "tenant identifier, deployment environment, worker mode, required checks, and public-safe worker targets",
+                "response": "scheduler, evidence sink, retry policy, worker owner, mode, target coverage, blockers, and private service handoff status",
+            },
+            {
                 "name": SaaSOperation.EVIDENCE_EXPORT.value,
                 "request": "evidence references, format, and retention profile",
                 "response": "export job status and governed artifact references",
@@ -1046,6 +1187,18 @@ def _validate_saas_operating_automation_status(status: str, *, field_name: str) 
         raise SaaSContractError(f"{field_name} must be one of: {supported}")
 
 
+def _validate_saas_operating_automation_worker_handoff_status(status: str, *, field_name: str) -> None:
+    if status not in SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF_STATUSES:
+        supported = ", ".join(sorted(SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF_STATUSES))
+        raise SaaSContractError(f"{field_name} must be one of: {supported}")
+
+
+def _validate_saas_operating_automation_worker_mode(mode: str) -> None:
+    if mode not in SAAS_OPERATING_AUTOMATION_WORKER_MODES:
+        supported = ", ".join(sorted(SAAS_OPERATING_AUTOMATION_WORKER_MODES))
+        raise SaaSContractError(f"worker_mode must be one of: {supported}")
+
+
 def _reject_sensitive_material(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -1075,6 +1228,8 @@ __all__ = [
     "SAAS_CONTROL_PLANE_RESPONSE_VERSION",
     "SAAS_OPERATING_AUTOMATION_CHECKS",
     "SAAS_OPERATING_AUTOMATION_STATUSES",
+    "SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF_STATUSES",
+    "SAAS_OPERATING_AUTOMATION_WORKER_MODES",
     "SUPPORT_HANDOFF_READINESS_CHECKS",
     "SUPPORT_HANDOFF_READINESS_STATUSES",
     "TENANT_DEPLOYMENT_MODELS",
@@ -1085,6 +1240,7 @@ __all__ = [
     "EntitlementStatusSummary",
     "PolicyRegistryReadinessSummary",
     "SaaSOperatingAutomationSummary",
+    "SaaSOperatingAutomationWorkerHandoffSummary",
     "SupportHandoffReadinessSummary",
     "TenantAuditStoreOperatingSummary",
     "SaaSContractError",
@@ -1100,6 +1256,8 @@ __all__ = [
     "build_license_validation_request",
     "build_saas_operating_automation_request",
     "build_saas_operating_automation_response",
+    "build_saas_operating_automation_worker_handoff_request",
+    "build_saas_operating_automation_worker_handoff_response",
     "build_support_handoff_readiness_request",
     "build_support_handoff_readiness_response",
     "build_tenant_audit_store_operating_request",

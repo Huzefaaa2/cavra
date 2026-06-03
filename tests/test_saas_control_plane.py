@@ -8,6 +8,7 @@ from cavra.saas_control_plane import (
     SAAS_CONTROL_PLANE_CONTRACT_VERSION,
     SAAS_CONTROL_PLANE_REQUEST_VERSION,
     SaaSOperatingAutomationSummary,
+    SaaSOperatingAutomationWorkerHandoffSummary,
     SaaSContractError,
     SaaSOperation,
     SaaSResponseStatus,
@@ -24,6 +25,8 @@ from cavra.saas_control_plane import (
     build_policy_registry_lookup_request,
     build_saas_operating_automation_request,
     build_saas_operating_automation_response,
+    build_saas_operating_automation_worker_handoff_request,
+    build_saas_operating_automation_worker_handoff_response,
     build_support_handoff_readiness_request,
     build_support_handoff_readiness_response,
     build_tenant_audit_store_operating_request,
@@ -51,6 +54,9 @@ def test_describe_public_contract_marks_private_boundaries() -> None:
     assert SaaSOperation.CUSTOMER_OPERATING_DASHBOARD.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.SUPPORT_HANDOFF_READINESS.value in {item["name"] for item in contract["operations"]}
     assert SaaSOperation.SAAS_OPERATING_AUTOMATION.value in {item["name"] for item in contract["operations"]}
+    assert SaaSOperation.SAAS_OPERATING_AUTOMATION_WORKER_HANDOFF.value in {
+        item["name"] for item in contract["operations"]
+    }
     assert SaaSOperation.EVIDENCE_EXPORT.value in {item["name"] for item in contract["operations"]}
 
 
@@ -754,6 +760,143 @@ def test_saas_operating_automation_response_requires_matching_request() -> None:
         assert "saas_operating_automation" in str(exc)
     else:
         raise AssertionError("expected mismatched request to be rejected")
+
+
+def test_saas_operating_automation_worker_handoff_request_is_public_safe() -> None:
+    request = build_saas_operating_automation_worker_handoff_request(
+        "tenant-demo",
+        requested_by="console",
+        deployment_environment="production",
+        worker_mode="shadow",
+        worker_targets=("billing_monitoring", "support_followup"),
+    )
+    payload = request.to_dict()
+
+    assert payload["operation"] == "saas_operating_automation_worker_handoff"
+    assert payload["private_implementation_required"] is True
+    assert payload["payload"]["deployment_environment"] == "production"
+    assert payload["payload"]["worker_mode"] == "shadow"
+    assert payload["payload"]["worker_targets"] == ["billing_monitoring", "support_followup"]
+    assert "worker execution is private" in payload["payload"]["handoff_boundary"]
+
+
+def test_saas_operating_automation_worker_handoff_request_rejects_empty_targets() -> None:
+    try:
+        build_saas_operating_automation_worker_handoff_request("tenant-demo", worker_targets=())
+    except SaaSContractError as exc:
+        assert "worker_targets" in str(exc)
+    else:
+        raise AssertionError("expected empty worker handoff targets to be rejected")
+
+
+def test_saas_operating_automation_worker_handoff_request_rejects_sensitive_values() -> None:
+    try:
+        build_saas_operating_automation_worker_handoff_request(
+            "tenant-demo",
+            worker_targets=("ghp_123456789012345678901234567890",),
+        )
+    except SaaSContractError as exc:
+        assert "sensitive value" in str(exc)
+    else:
+        raise AssertionError("expected sensitive worker target to be rejected")
+
+
+def test_saas_operating_automation_worker_handoff_response_serializes_summary() -> None:
+    request = build_saas_operating_automation_worker_handoff_request(
+        "tenant-demo",
+        requested_by="console",
+        worker_mode="dry_run",
+    )
+    summary = SaaSOperatingAutomationWorkerHandoffSummary(
+        tenant_id="tenant-demo",
+        handoff_status="requires_private_service",
+        deployment_environment="production",
+        scheduler_ref="scheduler-saas-operating-automation",
+        evidence_sink_ref="evidence-sink-saas-operating-automation",
+        retry_policy_ref="retry-policy-saas-operating-automation",
+        worker_owner="operations-owner",
+        worker_mode="dry_run",
+        worker_targets=("billing_monitoring", "support_followup"),
+        blockers=("private scheduler validation required",),
+    )
+
+    response = build_saas_operating_automation_worker_handoff_response(request, summary).to_dict()
+
+    assert response["operation"] == "saas_operating_automation_worker_handoff"
+    assert response["status"] == SaaSResponseStatus.REQUIRES_PRIVATE_SERVICE.value
+    assert response["payload"]["summary"]["handoff_status"] == "requires_private_service"
+    assert response["payload"]["summary"]["worker_mode"] == "dry_run"
+    assert response["payload"]["summary"]["worker_targets"] == ["billing_monitoring", "support_followup"]
+    assert response["payload"]["private_modules_required"] == [
+        "worker scheduler",
+        "worker runtime",
+        "connector registry",
+        "retry policy engine",
+        "evidence sink",
+        "billing and license operations",
+        "support and customer-success workflows",
+    ]
+
+
+def test_saas_operating_automation_worker_handoff_summary_rejects_invalid_state() -> None:
+    summary = SaaSOperatingAutomationWorkerHandoffSummary(
+        tenant_id="tenant-demo",
+        handoff_status="running",
+        deployment_environment="production",
+        scheduler_ref="scheduler-saas-operating-automation",
+        evidence_sink_ref="evidence-sink-saas-operating-automation",
+        retry_policy_ref="retry-policy-saas-operating-automation",
+        worker_owner="operations-owner",
+        worker_mode="dry_run",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "handoff_status" in str(exc)
+    else:
+        raise AssertionError("expected invalid worker handoff status to be rejected")
+
+
+def test_saas_operating_automation_worker_handoff_summary_rejects_invalid_mode() -> None:
+    summary = SaaSOperatingAutomationWorkerHandoffSummary(
+        tenant_id="tenant-demo",
+        handoff_status="planned",
+        deployment_environment="production",
+        scheduler_ref="scheduler-saas-operating-automation",
+        evidence_sink_ref="evidence-sink-saas-operating-automation",
+        retry_policy_ref="retry-policy-saas-operating-automation",
+        worker_owner="operations-owner",
+        worker_mode="executing",
+    )
+
+    try:
+        summary.to_dict()
+    except SaaSContractError as exc:
+        assert "worker_mode" in str(exc)
+    else:
+        raise AssertionError("expected invalid worker mode to be rejected")
+
+
+def test_saas_operating_automation_worker_handoff_response_requires_matching_request() -> None:
+    request = build_saas_operating_automation_request("tenant-demo")
+    summary = SaaSOperatingAutomationWorkerHandoffSummary(
+        tenant_id="tenant-demo",
+        handoff_status="planned",
+        deployment_environment="production",
+        scheduler_ref="scheduler-saas-operating-automation",
+        evidence_sink_ref="evidence-sink-saas-operating-automation",
+        retry_policy_ref="retry-policy-saas-operating-automation",
+        worker_owner="operations-owner",
+        worker_mode="dry_run",
+    )
+
+    try:
+        build_saas_operating_automation_worker_handoff_response(request, summary)
+    except SaaSContractError as exc:
+        assert "saas_operating_automation_worker_handoff" in str(exc)
+    else:
+        raise AssertionError("expected mismatched worker handoff request to be rejected")
 
 
 def test_policy_registry_lookup_rejects_empty_policy_refs() -> None:
