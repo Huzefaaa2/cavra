@@ -37,6 +37,12 @@ Private Enterprise distribution status:
   production entitlement, production license, onboarding runbook, owner, and
   target go-live references without publishing customer records, billing
   secrets, license-service internals, or production provisioning secrets.
+- Trial conversion closeout and revenue handoff evidence records
+  customer-success closeout, support closeout, release acceptance, finance
+  owner, revenue owner, billing status, subscription or order handoff, renewal
+  forecast, and revenue-recognition references without publishing customer
+  records, customer health records, finance records, billing secrets,
+  license-service internals, or production provisioning secrets.
 
 Example future install flow:
 
@@ -68,4 +74,6 @@ for the public-safe expired-trial follow-up summary, and
 [../trial-conversion-readiness-sync.md](../trial-conversion-readiness-sync.md)
 for the public-safe trial conversion readiness summary, and
 [../trial-conversion-activation-handoff-sync.md](../trial-conversion-activation-handoff-sync.md)
-for the public-safe trial conversion activation handoff summary.
+for the public-safe trial conversion activation handoff summary, and
+[../trial-conversion-closeout-revenue-sync.md](../trial-conversion-closeout-revenue-sync.md)
+for the public-safe trial conversion closeout and revenue handoff summary.

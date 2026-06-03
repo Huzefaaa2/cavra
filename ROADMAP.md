@@ -91,6 +91,9 @@ Current open-core priority:
 41. Private paid-pilot activation and production-conversion handoff evidence is
    delivered in `cavra-enterprise` PR #91 and public-safe sync is documented in
    [docs/trial-conversion-activation-handoff-sync.md](docs/trial-conversion-activation-handoff-sync.md).
-42. Next recommendation: add private conversion activation customer-success
-   closeout and revenue handoff rollup evidence, then sync public docs with
-   public-safe closeout, finance, support, and release-management gates.
+42. Private conversion closeout and revenue handoff rollup evidence is
+   delivered in `cavra-enterprise` PR #92 and public-safe sync is documented in
+   [docs/trial-conversion-closeout-revenue-sync.md](docs/trial-conversion-closeout-revenue-sync.md).
+43. Next recommendation: add private conversion closeout executive summary and
+   renewal action evidence, then sync public docs with public-safe leadership,
+   account-team, and renewal-owner gates.

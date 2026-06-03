@@ -23,6 +23,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #90;
 - private paid-pilot activation and production-conversion handoff evidence is
   delivered in `cavra-enterprise` PR #91;
+- private conversion closeout and revenue handoff rollup evidence is delivered
+  in `cavra-enterprise` PR #92;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -81,12 +83,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- conversion activation closeout and revenue handoff workflows.
+- conversion closeout executive summary and renewal action workflows.
 
 ## Next Slice
 
-Conversion activation customer-success closeout and revenue handoff rollup
-evidence.
+Conversion closeout executive summary and renewal action evidence.
 
 ## Why This Is Next
 
@@ -94,12 +95,13 @@ CAVRA now has a public trial path, private trial package release gates, private
 license issuance and evaluator access evidence, private expiry evidence for
 revoked, renewed, and escalated access, private expired-trial follow-up
 automation evidence, private trial conversion readiness evidence, private
-paid-pilot activation and production handoff evidence, public tenant and
-entitlement contracts, and private evidence from tenant activation through final
-SaaS customer operating closeout. The next commercial blocker is summarizing
-activated conversions for customer-success, support, finance, and
-release-management without exposing billing, license-service, customer, or
-provisioning secrets.
+paid-pilot activation and production handoff evidence, private conversion
+closeout and revenue handoff rollup evidence, public tenant and entitlement
+contracts, and private evidence from tenant activation through final SaaS
+customer operating closeout. The next commercial blocker is summarizing
+closed-out conversions for leadership, account teams, and renewal owners
+without exposing billing, license-service, customer, finance, or provisioning
+secrets.
 
 ## Proposed PR Sequence
 
@@ -243,11 +245,24 @@ provisioning secrets.
 
 25. Private conversion activation customer-success closeout and revenue
     handoff rollup evidence.
+    Delivered in `cavra-enterprise` PR #92.
     - Add private evidence that activated paid pilots and production
       conversions have customer-success closeout, support handoff, finance
       handoff, revenue owner, and release-management rollup references without
       exposing customer records, billing secrets, license-service internals, or
       production provisioning secrets.
+
+26. Public docs/wiki sync. Delivered with
+    [trial-conversion-closeout-revenue-sync.md](trial-conversion-closeout-revenue-sync.md).
+    - Publish public-safe outcomes after the private conversion closeout and
+      revenue handoff rollup workflow.
+
+27. Private conversion closeout executive summary and renewal action evidence.
+    - Add private evidence that closed-out paid pilots and production
+      conversions have executive summary, account-team action, renewal owner,
+      renewal action, and leadership reporting references without exposing
+      customer records, finance records, billing secrets, license-service
+      internals, or production provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -262,6 +277,6 @@ provisioning secrets.
 
 ## Recommended Next PR
 
-Add private conversion activation customer-success closeout and revenue handoff
-rollup evidence, then sync public docs with public-safe closeout, finance,
-support, and release-management gates.
+Add private conversion closeout executive summary and renewal action evidence,
+then sync public docs with public-safe leadership, account-team, and
+renewal-owner gates.
