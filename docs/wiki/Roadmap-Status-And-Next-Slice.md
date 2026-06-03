@@ -43,6 +43,8 @@ The Trial and SaaS commercialization readiness batch is complete:
   `cavra-enterprise` PR #100;
 - private commercial launch-readiness final approval evidence is delivered in
   `cavra-enterprise` PR #101;
+- private commercial launch-readiness operating transition evidence is delivered
+  in `cavra-enterprise` PR #102;
 - private customer pilot handoff evidence is delivered in `cavra-enterprise`
   PR #62;
 - public-safe batch sync is delivered.
@@ -101,11 +103,11 @@ yet fully production-complete. Remaining themes are:
   commercial closeout at trial-to-paid scale;
 - production observability and support runbooks;
 - final release hardening, packaging, and commercialization closeout.
-- commercial launch-readiness operating transition workflows.
+- commercial launch-readiness operating closeout workflows.
 
 ## Next Slice
 
-Commercial launch-readiness operating transition evidence.
+Commercial launch-readiness operating closeout evidence.
 
 ## Why This Is Next
 
@@ -121,12 +123,13 @@ package evidence, private commercialization closure readiness summary evidence,
 private commercialization closure release acceptance evidence, private
 commercialization closure final closeout evidence, private commercial
 launch-readiness handoff evidence, private commercial launch-readiness final
-approval evidence, public tenant and entitlement contracts, and private evidence
-from tenant activation through final SaaS customer operating closeout. The next
-commercial blocker is transitioning final launch approvals into support
-operations, customer-success operations, release governance, operating
-dashboards, and next-cycle review without exposing billing, license-service,
-customer, finance, account, or provisioning secrets.
+approval evidence, private commercial launch-readiness operating transition
+evidence, public tenant and entitlement contracts, and private evidence from
+tenant activation through final SaaS customer operating closeout. The next
+commercial blocker is closing operating transitions through support,
+customer-success, release governance, commercial operations, and executive
+review without exposing billing, license-service, customer, finance, account,
+or provisioning secrets.
 
 ## Proposed PR Sequence
 
@@ -401,11 +404,24 @@ customer, finance, account, or provisioning secrets.
       launch-readiness final approval workflow.
 
 45. Private commercial launch-readiness operating transition evidence.
+    Delivered in `cavra-enterprise` PR #102.
     - Add private evidence that final launch approvals are transitioned into
       support operations, customer-success operations, release governance,
       operating dashboards, and next-cycle review without exposing customer
       records, account records, finance records, billing secrets,
       license-service internals, or production provisioning secrets.
+
+46. Public docs/wiki sync. Delivered with
+    [trial-commercial-launch-readiness-operating-transition-sync.md](trial-commercial-launch-readiness-operating-transition-sync.md).
+    - Publish public-safe outcomes after the private commercial
+      launch-readiness operating transition workflow.
+
+47. Private commercial launch-readiness operating closeout evidence.
+    - Add private evidence that operating transitions are closed by support,
+      customer-success, release governance, commercial operations, and executive
+      review without exposing customer records, account records, finance
+      records, billing secrets, license-service internals, or production
+      provisioning secrets.
 
 ## Acceptance Criteria
 
@@ -420,7 +436,6 @@ customer, finance, account, or provisioning secrets.
 
 ## Recommended Next PR
 
-Add private commercial launch-readiness operating transition evidence, then
-sync public docs with public-safe support operations, customer-success
-operations, release governance, operating dashboard, and next-cycle review
-gates.
+Add private commercial launch-readiness operating closeout evidence, then sync
+public docs with public-safe support, customer-success, release governance,
+commercial operations, and executive review closeout gates.

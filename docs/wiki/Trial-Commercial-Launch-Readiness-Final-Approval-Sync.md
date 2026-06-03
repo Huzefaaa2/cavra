@@ -76,8 +76,10 @@ implementation details.
 
 ## Next Recommendation
 
-Add private commercial launch-readiness operating transition evidence so final
-launch approvals can move into support operations, customer-success operations,
-release governance, operating dashboards, and next-cycle review without
-exposing customer records, account records, finance records, billing secrets,
+Private commercial launch-readiness operating transition evidence is now
+documented in `Trial-Commercial-Launch-Readiness-Operating-Transition-Sync.md`.
+Next, add private commercial launch-readiness operating closeout evidence so
+operating transitions can be closed by support, customer-success, release
+governance, commercial operations, and executive review without exposing
+customer records, account records, finance records, billing secrets,
 license-service internals, or production provisioning secrets.
