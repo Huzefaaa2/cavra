@@ -73,9 +73,11 @@ Current Trial and SaaS commercialization readiness status:
 - public-safe customer operating dashboard and support handoff contracts are
   documented in
   `docs/architecture/customer-operating-dashboard-support-handoff-contract.md`.
+- public-safe SaaS operating automation worker handoff guidance is documented
+  in `docs/architecture/saas-operating-automation-worker-handoff.md`.
 
-Next production-readiness slice: public-safe documentation and interface
-guidance for future private Enterprise/SaaS automation worker handoff packages.
+Next production-readiness slice: public-safe worker handoff contract model for
+Community Edition.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

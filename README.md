@@ -53,6 +53,7 @@ Open-core architecture and boundaries:
 - [Billing and subscription boundary](docs/architecture/billing-subscription-boundary.md)
 - [Customer operating dashboard and support handoff contract](docs/architecture/customer-operating-dashboard-support-handoff-contract.md)
 - [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md)
+- [SaaS operating automation worker handoff](docs/architecture/saas-operating-automation-worker-handoff.md)
 - [SaaS operating automation public contract sync](docs/saas-operating-automation-public-contract-sync.md)
 - [Trial and SaaS commercialization batch sync](docs/trial-saas-commercialization-batch-sync.md)
 - [Tenant, entitlement, and commercialization batch sync](docs/tenant-entitlement-commercialization-batch-sync.md)
@@ -449,7 +450,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Add public-safe documentation and interface guidance for future private Enterprise/SaaS automation worker handoff packages. Public-safe API, CLI, Evidence Console, and documentation-sync surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, SaaS operating automation plan evidence, final closure, customer-success handoff, executive summary, release governance, and public contract sync evidence are delivered in `cavra-enterprise` PRs #70-#74 and #81-#85 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), [SaaS operating automation public contract sync](docs/saas-operating-automation-public-contract-sync.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
+- Add a public-safe worker handoff contract model to Community Edition. Public-safe API, CLI, Evidence Console, documentation-sync, and worker handoff guidance surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, SaaS operating automation plan evidence, final closure, customer-success handoff, executive summary, release governance, and public contract sync evidence are delivered in `cavra-enterprise` PRs #70-#74 and #81-#85 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), [SaaS operating automation public contract sync](docs/saas-operating-automation-public-contract-sync.md), [SaaS operating automation worker handoff](docs/architecture/saas-operating-automation-worker-handoff.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
 
 ## User stories and enterprise value
 
@@ -509,6 +510,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Go Backend Deployment Readiness](docs/wiki/Go-Backend-Deployment-Readiness.md)
 - [Go Release Packaging](docs/wiki/Go-Release-Packaging.md)
 - [SaaS Operating Automation Public Contract Sync](docs/wiki/SaaS-Operating-Automation-Public-Contract-Sync.md)
+- [SaaS Operating Automation Worker Handoff](docs/wiki/SaaS-Operating-Automation-Worker-Handoff.md)
 - [Vulnerability Disclosure](docs/vulnerability-disclosure.md)
 - [Release Security Advisories](docs/release-security-advisories.md)
 - [Hosted Sandbox Deployment](docs/wiki/Hosted-Sandbox-Deployment.md)
