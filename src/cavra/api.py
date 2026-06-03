@@ -225,8 +225,11 @@ from cavra.saas_control_plane import (
     SAAS_OPERATING_AUTOMATION_CHECKS,
     SaaSContractError,
     SaaSOperatingAutomationSummary,
+    SaaSOperatingAutomationWorkerHandoffSummary,
     build_saas_operating_automation_request,
     build_saas_operating_automation_response,
+    build_saas_operating_automation_worker_handoff_request,
+    build_saas_operating_automation_worker_handoff_response,
     describe_public_contract,
 )
 from cavra.release import (
@@ -432,6 +435,7 @@ def create_app():
             "endpoints": {
                 "saas_control_plane_contract": "/saas/control-plane/contract",
                 "saas_operating_automation": "/saas/operating-automation",
+                "saas_operating_automation_worker_handoff": "/saas/operating-automation/worker-handoff",
                 "evidence": "/evidence",
                 "evidence_item": "/evidence/{session_id}",
                 "evidence_artifacts": "/evidence/{session_id}/artifacts",
@@ -663,6 +667,40 @@ def create_app():
                 blockers=tuple(payload.get("blockers") or ()),
             )
             response = build_saas_operating_automation_response(request, summary)
+        except SaaSContractError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "request": request.to_dict(),
+            "response": response.to_dict(),
+        }
+
+    @app.post("/saas/operating-automation/worker-handoff")
+    def saas_operating_automation_worker_handoff(payload: dict) -> dict[str, object]:
+        try:
+            required_checks = tuple(payload.get("required_checks", SAAS_OPERATING_AUTOMATION_CHECKS))
+            worker_targets = tuple(payload.get("worker_targets", SAAS_OPERATING_AUTOMATION_CHECKS))
+            request = build_saas_operating_automation_worker_handoff_request(
+                str(payload.get("tenant_id", "")),
+                requested_by=str(payload.get("requested_by", "community")),
+                deployment_environment=str(payload.get("deployment_environment", "production")),
+                worker_mode=str(payload.get("worker_mode", "dry_run")),
+                required_checks=required_checks,
+                worker_targets=worker_targets,
+            )
+            summary = SaaSOperatingAutomationWorkerHandoffSummary(
+                tenant_id=request.tenant_id,
+                handoff_status=str(payload.get("handoff_status", "requires_private_service")),
+                deployment_environment=str(payload.get("deployment_environment", "production")),
+                scheduler_ref=str(payload.get("scheduler_ref", "scheduler-pending")),
+                evidence_sink_ref=str(payload.get("evidence_sink_ref", "evidence-sink-pending")),
+                retry_policy_ref=str(payload.get("retry_policy_ref", "retry-policy-pending")),
+                worker_owner=str(payload.get("worker_owner", "operations-owner")),
+                worker_mode=str(payload.get("worker_mode", "dry_run")),
+                required_checks=required_checks,
+                worker_targets=worker_targets,
+                blockers=tuple(payload.get("blockers") or ()),
+            )
+            response = build_saas_operating_automation_worker_handoff_response(request, summary)
         except SaaSContractError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return {

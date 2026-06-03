@@ -77,8 +77,10 @@ Current Trial and SaaS commercialization readiness status:
   in `docs/architecture/saas-operating-automation-worker-handoff.md`.
 - public-safe SaaS operating automation worker handoff contract model is
   delivered in Community Edition.
+- public-safe API and CLI surfaces for the worker handoff contract model are
+  delivered.
 
-Next production-readiness slice: API and CLI exposure for the public-safe
+Next production-readiness slice: Evidence Console exposure for the public-safe
 worker handoff contract model.
 Public Community source remains free of Enterprise implementation details.
 
