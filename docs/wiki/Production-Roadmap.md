@@ -244,10 +244,12 @@ Production readiness procurement closeout is documented at
 Community v0.1.2 readiness for package metadata and release workflow guard
 evidence is documented at `docs/community-v0.1.2-readiness.md` and enforced by
 `scripts/validate-python-package-metadata.py`.
-Community v0.1.2 dry-run release notes and verification evidence are documented
+Community v0.1.2 release notes and verification evidence are documented
 at `docs/releases/community-v0.1.2.md` and
 `docs/release-verifications/community-v0.1.2-maintenance-verification.md`.
-Next recommended slice: convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
+Published Community v0.1.2 post-release verification is documented at
+`docs/release-verifications/community-v0.1.2-post-release-verification.md`.
+Next recommended slice: prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

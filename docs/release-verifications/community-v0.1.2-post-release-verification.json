@@ -1,20 +1,21 @@
 {
   "schema_version": "cavra.community_release_verification.v1",
-  "release": "CAVRA Community v0.1.1",
-  "tag": "community-v0.1.1",
-  "version": "0.1.1",
-  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1",
+  "release": "CAVRA Community v0.1.2",
+  "tag": "community-v0.1.2",
+  "version": "0.1.2",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2",
   "verification_date": "2026-06-04",
+  "release_target": "e3cd7a1d6a3435188b4225d3bf49d79a9f6de128",
   "artifacts": [
     {
-      "name": "cavra-0.1.1-py3-none-any.whl",
-      "sha256": "32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a",
+      "name": "cavra-0.1.2-py3-none-any.whl",
+      "sha256": "bbdb2f593ce3c14742446c1682c23bef7933925a02382a874e59b8ef7e389163",
       "downloadable": true,
       "checksum_match": true
     },
     {
-      "name": "cavra-0.1.1.tar.gz",
-      "sha256": "b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950",
+      "name": "cavra-0.1.2.tar.gz",
+      "sha256": "f7a477cfef65d77bd4c36520a83d256c1086e7b81ffcd9411ee9c68d017ab1d0",
       "downloadable": true,
       "checksum_match": true
     }
@@ -22,7 +23,7 @@
   "install_smoke": {
     "environment": "temporary Python virtual environment",
     "command": "cavra version",
-    "output": "cavra 0.1.1",
+    "output": "cavra 0.1.2",
     "status": "pass"
   },
   "documentation_freshness": {

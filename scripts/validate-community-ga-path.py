@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NEXT_RECOMMENDATION = (
-    "Convert Community v0.1.2 dry-run into an official maintenance release "
-    "after maintainer approval and artifact publication."
+    "Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 "
+    "readiness."
 )
 
 

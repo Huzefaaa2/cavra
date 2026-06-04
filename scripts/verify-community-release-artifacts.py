@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 import venv
 from pathlib import Path
@@ -33,8 +34,25 @@ def sha256_file(path: Path) -> str:
 
 def download(url: str, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=60) as response:
-        output_path.write_bytes(response.read())
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/octet-stream",
+            "User-Agent": "cavra-community-release-verifier/1.0",
+        },
+    )
+    last_error: Exception | None = None
+    for attempt in range(1, 4):
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:
+                output_path.write_bytes(response.read())
+            return
+        except Exception as exc:  # pragma: no cover - network retry branch
+            last_error = exc
+            if attempt < 3:
+                time.sleep(attempt)
+    if last_error is not None:
+        raise last_error
 
 
 def run_command(command: list[str]) -> str:

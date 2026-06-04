@@ -211,7 +211,7 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "official maintenance release",
+            "Node 24 readiness",
             "GA path next recommendation",
             failures,
         )

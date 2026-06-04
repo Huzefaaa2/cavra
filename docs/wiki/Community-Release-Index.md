@@ -10,8 +10,8 @@ artifacts are published and which release evidence is ready for publication.
 | Release | State | GitHub Release | Release Notes | Verification Packet | Next Action |
 | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Use as the current public Community GA baseline. |
-| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
-| Community v0.1.2 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-maintenance-verification.md` | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
+| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
+| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness. |
 
 ## Verification Controls
 
@@ -26,4 +26,4 @@ Public Community releases are checked by:
 
 ## Next Recommendation
 
-Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
+Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.
