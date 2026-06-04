@@ -35,6 +35,16 @@ cavra release verify-go-package go-runtime-<version>
 
 5. Rebuild any target binary when required by local policy using the `rebuild_command` from `cavra-runtime.reproducibility.json`.
 6. Compare rebuilt binary hashes with `binary_sha256` before installing on CI runners, developer workstations, or restricted servers.
+7. Before promoting a new restricted-environment package, validate upgrade
+   posture against the currently approved package:
+
+```bash
+cavra release validate-upgrade go/cavra-runtime/dist/go-runtime-v0.1.0 go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1
+```
+
+Upgrade validation confirms the release-candidate package preserves required
+manifests, binary targets, release controls, signatures, and reproducibility
+metadata before the package is placed in air-gapped runner images.
 
 ## User Stories
 

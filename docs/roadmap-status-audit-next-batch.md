@@ -61,9 +61,14 @@ are:
 - production deployment guide validation across install, configuration,
   storage, backup, restore, CORS/API, and GitHub Pages portal checks is
   delivered in [production-deployment-guide-validation.md](production-deployment-guide-validation.md).
-- Go enforcement plane production-path hardening remains active for
-  Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility,
-  upgrade validation, performance, and operational readiness evidence.
+- Go enforcement plane production-path hardening is delivered in
+  [go-enforcement-production-hardening.md](go-enforcement-production-hardening.md)
+  with Unix-socket transport, gRPC boundary planning, air-gapped packaging,
+  reproducibility, upgrade validation, performance smoke, and operational
+  readiness evidence validation.
+- Enterprise integration validation remains active for GitHub App/orchestrator
+  production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
+  and SIEM/ITSM workflow evidence.
 
 ## Completed Community GA Control Hardening Batch
 
@@ -127,6 +132,12 @@ Production deployment guide validation is documented at
 [production-deployment-guide-validation.md](production-deployment-guide-validation.md)
 and enforced by `scripts/validate-production-deployment-guide.py`.
 
+## Delivered Go Enforcement Production Hardening
+
+Go enforcement production hardening is documented at
+[go-enforcement-production-hardening.md](go-enforcement-production-hardening.md)
+and enforced by `scripts/validate-go-production-hardening.py`.
+
 ## Recommended Next PR
 
-Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
+Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.

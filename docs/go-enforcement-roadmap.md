@@ -28,6 +28,9 @@ Python remains the authoritative management and policy plane. The Go runtime is 
 - Go release packaging reproducibility manifest for air-gapped rebuild checks.
 - GitHub Actions `go-runtime-parity` job with `actions/setup-go`.
 - Required governance check now runs the Go parity suite before publishing evidence.
+- Go enforcement production hardening is documented in
+  [go-enforcement-production-hardening.md](go-enforcement-production-hardening.md)
+  and enforced by `scripts/validate-go-production-hardening.py`.
 
 ## Current Boundary
 
@@ -35,4 +38,10 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
 
 ## Next Implementation Steps
 
-1. Promote Go to an optional backend only after audited parity and deployment tests pass.
+1. Promote Go to an optional backend only after audited parity, deployment
+   tests, production hardening validation, package verification,
+   release-candidate upgrade validation, performance smoke evidence, and
+   rollback evidence pass.
+2. Complete enterprise integration validation for GitHub App/orchestrator
+   production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
+   and SIEM/ITSM workflow evidence.

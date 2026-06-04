@@ -50,6 +50,21 @@ go run ./cmd/cavra-runtime --daemon --socket .cavra/cavra-runtime.sock --input .
 
 Generated enforcement contracts live under `enforcement/v1` and are generated from `../../proto/cavra/enforcement/v1/enforcement.proto`. They include `EvaluateRequest`, `ReleaseGovernanceEvidence`, `RunnerAuthentication`, `RunnerIdentity`, and `DecisionResponse`; typed `release_governance` payloads are converted into runtime release-governance records. The daemon transport accepts one JSON `EvaluateRequest` per Unix-socket connection and returns one JSON `DecisionResponse`. The `daemon.Client` helper and CLI `--daemon` mode can send contract-shaped requests to a running socket daemon. The daemon lifecycle helper supports `start`, `status`, and `stop` with PID-file tracking, socket readiness probing, and graceful signal cleanup. `--evidence-log` writes JSONL request/response records and appends `go-daemon-evidence://...` references to `DecisionResponse.evidence_refs`. `--runner-auth-key`, `--runner-auth-key-id`, and `--runner-auth-claims` support HMAC-signed CI runner claims. `--runner-auth-oidc-token`, `--runner-auth-oidc-token-file`, `--runner-oidc-issuer`, `--runner-oidc-audience`, `--runner-oidc-jwks`, and `--runner-oidc-jwks-url` support RS256/JWKS CI-provider OIDC JWT verification for runner authentication. `--evidence-signing-key` and `--evidence-signing-key-id` support HMAC-signed, hash-chained daemon evidence records. `--verify-evidence` verifies daemon evidence record hashes, sequence numbers, previous hashes, signature key IDs, and HMAC signatures.
 
+Production hardening guidance is documented in
+`../../docs/go-enforcement-production-hardening.md`. The current delivered
+local transport is Unix-socket based; gRPC remains a documented future transport
+boundary that must use the generated enforcement contracts before production
+promotion. Performance smoke evidence uses `BenchmarkEvaluateAllowCommand`:
+
+```bash
+go test -bench BenchmarkEvaluateAllowCommand ./runtime
+```
+
+Operational readiness, including operational readiness evidence, remains tied
+to parity, deployment metadata, package
+verification, air-gapped reproducibility, upgrade validation, rollback evidence,
+and Python fallback controls.
+
 ```bash
 cd ../..
 python3 scripts/generate_go_enforcement_contracts.py
@@ -65,4 +80,6 @@ Packaged runner wrappers:
 Next Go work:
 
 - Broaden Go runtime parity for future release-governance evidence kinds and remaining high-risk runtime decisions.
-- Complete air-gapped single-binary packaging and reproducibility documentation.
+- Complete enterprise integration validation for GitHub App/orchestrator
+  production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
+  and SIEM/ITSM workflow evidence.

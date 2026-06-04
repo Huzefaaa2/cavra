@@ -211,7 +211,7 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "Go enforcement plane production path",
+            "enterprise integration validation",
             "GA path next recommendation",
             failures,
         )

@@ -118,18 +118,24 @@ yet fully production-complete. Remaining themes are:
 - production deployment guide validation across install, configuration,
   storage, backup, restore, CORS/API, and GitHub Pages portal checks is
   delivered in [production-deployment-guide-validation.md](production-deployment-guide-validation.md).
-- Go enforcement plane production-path hardening remains active for
-  Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility,
-  upgrade validation, performance, and operational readiness evidence.
+- Go enforcement plane production-path hardening is delivered in
+  [go-enforcement-production-hardening.md](go-enforcement-production-hardening.md)
+  with Unix-socket transport, gRPC boundary planning, air-gapped packaging,
+  reproducibility, upgrade validation, performance smoke, and operational
+  readiness evidence validation.
+- Enterprise integration validation remains active for GitHub App/orchestrator
+  production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
+  and SIEM/ITSM workflow evidence.
 
 ## Next Slice
 
-Go enforcement plane production-path hardening, building on the completed
-production deployment guide validation, Community GA user-verifiable path,
-console closeout operator experience, developer portal redesign, portal smoke
-validator, dashboard validator, release index freshness validator, release
-index page, v0.1.1 maintenance-release dry-run evidence, release-note freshness
-validator, maintenance-release checklist, schema validation, and CI enforcement.
+Enterprise integration validation, building on the completed Go enforcement
+production hardening, production deployment guide validation, Community GA
+user-verifiable path, console closeout operator experience, developer portal
+redesign, portal smoke validator, dashboard validator, release index freshness
+validator, release index page, v0.1.1 maintenance-release dry-run evidence,
+release-note freshness validator, maintenance-release checklist, schema
+validation, and CI enforcement.
 
 Console closeout operator experience is documented at
 `docs/console-closeout-operator-experience.md` and enforced by
@@ -140,6 +146,9 @@ Community GA user-verifiable path is documented at
 Production deployment guide validation is documented at
 `docs/production-deployment-guide-validation.md` and enforced by
 `scripts/validate-production-deployment-guide.py`.
+Go enforcement production hardening is documented at
+`docs/go-enforcement-production-hardening.md` and enforced by
+`scripts/validate-go-production-hardening.py`.
 
 ## Why This Is Next
 
@@ -592,4 +601,4 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
+Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
