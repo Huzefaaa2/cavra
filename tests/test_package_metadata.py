@@ -7,9 +7,12 @@ from pathlib import Path
 
 def test_package_metadata_uses_pyproject_as_source_of_truth() -> None:
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    runtime = Path("src/cavra/__init__.py").read_text(encoding="utf-8")
     setup_py = Path("setup.py").read_text(encoding="utf-8")
     manifest = Path("MANIFEST.in").read_text(encoding="utf-8")
 
+    assert 'version = "0.1.2"' in pyproject
+    assert '__version__ = "0.1.2"' in runtime
     assert 'requires = ["setuptools>=77", "wheel"]' in pyproject
     assert 'license = "BUSL-1.1"' in pyproject
     assert 'license-files = ["LICENSE", "NOTICE"]' in pyproject

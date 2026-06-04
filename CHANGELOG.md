@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Bumped the Community package metadata and runtime version to `0.1.2` so
+  the `community-v0.1.2` release artifacts can be built and published from
+  main before final checksum and install-smoke evidence is recorded.
 - Added Community v0.1.2 dry-run release notes and maintenance verification
   evidence using package metadata and release workflow guard validation, while
   deferring official publication until real artifacts exist.
