@@ -210,9 +210,11 @@ Community release index documentation is now available at
 Community release index freshness validation is now documented at
 `docs/community-release-index-freshness.md` and enforced by
 `scripts/validate-community-release-index.py`.
-Next recommended slice: create a Community release readiness dashboard that
-rolls up the release index, freshness validators, release verification commands,
-CI evidence, publication state, and next action for maintainers.
+Community release readiness dashboard documentation is now available at
+`docs/community-release-readiness-dashboard.md`.
+Next recommended slice: add a Community release readiness dashboard validator
+that checks dashboard rows, release links, freshness controls, verification
+commands, README navigation, wiki navigation, and publication state.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

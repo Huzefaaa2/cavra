@@ -108,6 +108,7 @@ Open-core architecture and boundaries:
 - [Community v0.1.1 maintenance dry-run verification](docs/release-verifications/community-v0.1.1-maintenance-verification.md)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
+- [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)
