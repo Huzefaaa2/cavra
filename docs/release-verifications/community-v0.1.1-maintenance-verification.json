@@ -1,0 +1,119 @@
+{
+  "schema_version": "cavra.community_maintenance_release.v1",
+  "packet_id": "community-v0.1.1-maintenance-verification",
+  "release_name": "CAVRA Community v0.1.1 Dry Run",
+  "release_state": "ready_with_accepted_risk",
+  "prepared_at": "2026-06-04T00:00:00Z",
+  "repository": "Huzefaaa2/cavra",
+  "tag": "community-v0.1.1",
+  "version": "0.1.1",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1",
+  "release_notes": "docs/releases/community-v0.1.1.md",
+  "verification_packet": "docs/release-verifications/community-v0.1.1-maintenance-verification.md",
+  "verification_workflow": "https://github.com/Huzefaaa2/cavra/actions/workflows/verify-community-release.yml",
+  "gates": [
+    {
+      "name": "Release notes",
+      "status": "pass",
+      "evidence": "docs/releases/community-v0.1.1.md",
+      "owner": "release-agent",
+      "notes": "Dry-run release notes are present and linked."
+    },
+    {
+      "name": "Changelog",
+      "status": "pass",
+      "evidence": "CHANGELOG.md",
+      "owner": "release-agent",
+      "notes": "Changelog records the dry-run governance update."
+    },
+    {
+      "name": "README link",
+      "status": "pass",
+      "evidence": "README.md",
+      "owner": "docs-agent",
+      "notes": "README links the dry-run release notes and verification packet."
+    },
+    {
+      "name": "Wiki link",
+      "status": "pass",
+      "evidence": "docs/wiki/Home.md",
+      "owner": "docs-agent",
+      "notes": "Wiki-ready navigation links dry-run release notes and verification pages."
+    },
+    {
+      "name": "Verification workflow",
+      "status": "warn",
+      "evidence": ".github/workflows/verify-community-release.yml",
+      "owner": "release-agent",
+      "notes": "Workflow exists; it must be run against real v0.1.1 artifacts after publication."
+    },
+    {
+      "name": "Artifact checksums",
+      "status": "warn",
+      "evidence": "scripts/verify-community-release-artifacts.py",
+      "owner": "release-agent",
+      "notes": "No v0.1.1 artifacts exist yet; checksums must be captured after publication."
+    },
+    {
+      "name": "Install smoke",
+      "status": "warn",
+      "evidence": "cavra version",
+      "owner": "test-agent",
+      "notes": "Clean venv install smoke must run after the real wheel is published."
+    },
+    {
+      "name": "Public boundary",
+      "status": "pass",
+      "evidence": "bash scripts/validate-boundaries.sh .",
+      "owner": "security-agent",
+      "notes": "Public boundary validation covers this dry-run packet."
+    },
+    {
+      "name": "CI evidence",
+      "status": "pass",
+      "evidence": "GitHub required checks",
+      "owner": "release-agent",
+      "notes": "Required checks validate the dry-run evidence structure and links."
+    }
+  ],
+  "validation_commands": [
+    {
+      "command": "python3 scripts/validate-maintenance-release-evidence.py",
+      "status": "pass",
+      "output_reference": "CAVRA maintenance release evidence validation passed."
+    },
+    {
+      "command": "python3 scripts/validate-community-release-note-freshness.py",
+      "status": "pass",
+      "output_reference": "CAVRA Community release note freshness validation passed."
+    },
+    {
+      "command": "bash scripts/validate-boundaries.sh .",
+      "status": "pass",
+      "output_reference": "CAVRA public boundary validation passed."
+    }
+  ],
+  "accepted_risks": [
+    {
+      "risk": "v0.1.1 artifacts are not published during dry run",
+      "severity": "low",
+      "owner": "release-agent",
+      "expiry": "2026-07-04",
+      "compensating_control": "Keep release state as ready_with_accepted_risk; rerun verification workflow and replace warnings with passing evidence after real publication.",
+      "decision": "accepted"
+    }
+  ],
+  "public_boundary": {
+    "enterprise_source_included": false,
+    "paid_policy_packs_included": false,
+    "customer_records_included": false,
+    "private_keys_included": false,
+    "private_registry_credentials_included": false,
+    "validation_result": "pass"
+  },
+  "decision": {
+    "status": "defer",
+    "rationale": "The public Community maintenance-release evidence path is ready for a future v0.1.1 release, but actual artifact checksum and install-smoke evidence must wait until a real tag and release artifacts are published."
+  },
+  "next_recommendation": "Create a Community release index page that summarizes public Community tags, release notes, verification packets, publication state, and next action."
+}

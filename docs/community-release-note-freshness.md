@@ -35,6 +35,5 @@ private deployment evidence.
 
 ## Next Recommendation
 
-Create the first Community maintenance-release dry-run evidence packet for a
-future `community-v0.1.1` tag using the new maintenance-release checklist and
-freshness validator.
+Create a Community release index page that summarizes public Community tags,
+release notes, verification packets, publication state, and next action.
