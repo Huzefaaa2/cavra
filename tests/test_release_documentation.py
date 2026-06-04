@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -379,7 +379,7 @@ def test_community_maintenance_release_checklist_is_linked_and_validated() -> No
     assert "Community-Maintenance-Release-Checklist.md" in wiki_home
     assert "Community-Maintenance-Release-Evidence-Template.md" in wiki_home
     assert "Community maintenance-release governance" in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert "release notes" in checklist
     assert "community-maintenance-release.schema.json" in template
     assert "Community maintenance-release checklist" in changelog
@@ -454,7 +454,7 @@ def test_community_release_note_freshness_is_linked_and_validated() -> None:
     assert script in doc
     assert script in wiki_doc
     assert script in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert "release-note freshness validation" in changelog
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
@@ -523,7 +523,7 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert "ready_with_accepted_risk" in wiki_verification
     assert "Community v0.1.1 maintenance-release dry-run notes" in changelog
     assert "community-v0.1.1-maintenance-verification.md" in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
 
     assert verification_json["schema_version"] == "cavra.community_maintenance_release.v1"
     assert verification_json["packet_id"] == "community-v0.1.1-maintenance-verification"
@@ -543,7 +543,7 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert verification_json["public_boundary"]["private_keys_included"] is False
     assert verification_json["accepted_risks"][0]["severity"] == "low"
     assert verification_json["decision"]["status"] == "defer"
-    assert "final user-verifiable GA path" in verification_json["next_recommendation"]
+    assert "production deployment guide coverage" in verification_json["next_recommendation"]
 
     maintenance_result = subprocess.run(
         [sys.executable, "scripts/validate-maintenance-release-evidence.py"],
@@ -593,7 +593,7 @@ def test_community_release_index_is_linked_and_current() -> None:
     assert "Community-Release-Index.md" in wiki_home
     assert "Community release index" in changelog
     assert "Community release index documentation" in roadmap
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert "Community release index:" in inventory
 
     for document in (release_index, wiki_release_index):
@@ -609,7 +609,7 @@ def test_community_release_index_is_linked_and_current() -> None:
         assert v011_verification in document
         assert "scripts/validate-community-release-note-freshness.py" in document
         assert "scripts/validate-community-release-index.py" in document
-        assert "final user-verifiable GA path" in document
+        assert "production deployment guide coverage" in document
 
 
 def test_community_release_index_freshness_is_linked_and_validated() -> None:
@@ -643,7 +643,7 @@ def test_community_release_index_freshness_is_linked_and_validated() -> None:
     assert script in wiki_doc
     assert script in roadmap
     assert script in inventory
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
         assert script in workflow
@@ -717,7 +717,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
     assert "Community release readiness dashboard" in changelog
     assert "Community release readiness dashboard documentation" in roadmap
     assert "Community release readiness dashboard:" in inventory
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
 
     for document in (dashboard, wiki_dashboard):
         for required_ref in required_release_refs + required_control_refs:
@@ -727,7 +727,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
         for workflow in required_workflows:
             assert workflow in document
         assert "Enterprise source code" in document
-        assert "final user-verifiable GA path" in document
+        assert "production deployment guide coverage" in document
 
 
 def test_community_release_readiness_dashboard_validation_is_linked_and_validated() -> None:
@@ -761,7 +761,7 @@ def test_community_release_readiness_dashboard_validation_is_linked_and_validate
     assert "Community release readiness dashboard validation" in changelog
     assert "Community release readiness dashboard validation" in roadmap
     assert "Community release readiness dashboard validation:" in inventory
-    assert "final user-verifiable GA path" in next_slice
+    assert "production deployment guide coverage" in next_slice
     assert script in doc
     assert script in wiki_doc
 
@@ -779,6 +779,74 @@ def test_community_release_readiness_dashboard_validation_is_linked_and_validate
         "CAVRA Community release readiness dashboard validation passed."
         in result.stdout
     )
+
+
+def test_community_ga_user_verifiable_path_is_linked_and_validated() -> None:
+    doc = Path("docs/community-ga-user-verifiable-path.md").read_text(encoding="utf-8")
+    wiki_doc = Path("docs/wiki/Community-GA-User-Verifiable-Path.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    packet = json.loads(
+        Path("docs/release-packets/community-ga-v0.1.0.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    verification = json.loads(
+        Path(
+            "docs/release-verifications/community-v0.1.0-post-release-verification.json"
+        ).read_text(encoding="utf-8")
+    )
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-ga-path.py"
+
+    for document in (doc, wiki_doc):
+        for required in [
+            "Policy",
+            "Evidence",
+            "Console",
+            "Go Runtime",
+            "Release Verification",
+            "Public Boundary",
+            "Operator Runbook",
+            script,
+        ]:
+            assert required in document
+
+    assert "docs/community-ga-user-verifiable-path.md" in readme
+    assert "Community-GA-User-Verifiable-Path.md" in wiki_home
+    assert "user-verifiable Community GA path" in changelog
+    assert "Community GA user-verifiable path is documented" in roadmap
+    assert "production deployment guide coverage" in next_slice
+    assert script in dashboard
+
+    assert packet["release_state"] == "ready_for_community_ga"
+    assert verification["decision"] == "pass"
+    assert all(artifact["checksum_match"] for artifact in verification["artifacts"])
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "CAVRA Community GA path validation passed." in result.stdout
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

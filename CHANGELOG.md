@@ -35,6 +35,9 @@
 - Added the console closeout operator experience with persona-specific
   prospect, auditor, platform team, and CISO journeys plus CI-enforced
   validation.
+- Added the user-verifiable Community GA path tying policy, evidence, console,
+  Go runtime readiness, release verification, README, wiki navigation, and
+  workflow validation into one public operator runbook.
 
 ## Community GA v0.1.0 - 2026-06-04
 

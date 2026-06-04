@@ -211,7 +211,7 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "final user-verifiable GA path",
+            "production deployment guide coverage",
             "GA path next recommendation",
             failures,
         )

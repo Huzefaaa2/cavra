@@ -208,6 +208,7 @@ const docsLinks = [
   ["Quickstart", "README.md"],
   ["Community Release Index", "docs/community-release-index.md"],
   ["Release Readiness Dashboard", "docs/community-release-readiness-dashboard.md"],
+  ["Community GA Path", "docs/community-ga-user-verifiable-path.md"],
   ["API Reference", "docs/api.md"],
   ["Deployment", "docs/deployment.md"],
   ["Open-Core Model", "docs/architecture/open-core-model.md"],

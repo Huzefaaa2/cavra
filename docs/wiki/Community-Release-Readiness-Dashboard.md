@@ -22,6 +22,7 @@ each public Community release record.
 | Maintenance-release evidence | `docs/community-maintenance-release-checklist.md` | Defines the post-GA Community maintenance release gate set. |
 | Release packet validation | `docs/community-ga-release-packet-validation.md` | Validates Community GA release packet structure and required gates. |
 | Readiness dashboard validation | `scripts/validate-community-release-readiness-dashboard.py` | Verifies dashboard rows, release links, freshness controls, verification commands, README navigation, wiki navigation, and publication state. |
+| User-verifiable GA path | `docs/community-ga-user-verifiable-path.md` | Connects policy, evidence, console, Go runtime readiness, release verification, README, wiki navigation, and workflow validation into one public operator path. |
 | Public boundary | `scripts/validate-boundaries.sh` | Checks public Community release paths for private-code and secret boundary drift. |
 
 ## Verification Commands
@@ -32,6 +33,7 @@ python3 scripts/validate-maintenance-release-evidence.py
 python3 scripts/validate-community-release-note-freshness.py
 python3 scripts/validate-community-release-index.py
 python3 scripts/validate-community-release-readiness-dashboard.py
+python3 scripts/validate-community-ga-path.py
 bash scripts/validate-boundaries.sh .
 python3 -m pytest tests/test_release_documentation.py -q
 ```
@@ -55,5 +57,5 @@ records.
 
 ## Next Recommendation
 
-Tie policy, evidence, console, Go runtime readiness, and release verification
-into one final user-verifiable GA path.
+Validate production deployment guide coverage for install, configuration,
+storage, backup, restore, CORS/API, and GitHub Pages portal checks.

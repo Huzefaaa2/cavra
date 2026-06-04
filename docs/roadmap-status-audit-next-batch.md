@@ -58,10 +58,8 @@ treats them as delivered for the current scope:
 The project is not yet complete as a mature product. The next maturity themes
 are:
 
-- final user-verifiable Community GA path across policy, evidence, console, Go
-  runtime readiness, and release verification;
-- release documentation that ties policy, evidence, console, and Go runtime
-  readiness into a user-verifiable GA path.
+- production deployment guide validation across install, configuration,
+  storage, backup, restore, CORS/API, and GitHub Pages portal checks.
 
 ## Completed Community GA Control Hardening Batch
 
@@ -113,7 +111,13 @@ Console closeout operator experience is documented at
 [console-closeout-operator-experience.md](console-closeout-operator-experience.md)
 and enforced by `scripts/validate-console-closeout.py`.
 
+## Delivered Community GA Path
+
+Community GA user-verifiable path is documented at
+[community-ga-user-verifiable-path.md](community-ga-user-verifiable-path.md)
+and enforced by `scripts/validate-community-ga-path.py`.
+
 ## Recommended Next PR
 
-Tie policy, evidence, console, Go runtime readiness, and release verification
-into one final user-verifiable GA path.
+Validate production deployment guide coverage for install, configuration,
+storage, backup, restore, CORS/API, and GitHub Pages portal checks.

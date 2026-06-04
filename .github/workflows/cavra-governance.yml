@@ -46,6 +46,7 @@ jobs:
           python scripts/validate-community-release-readiness-dashboard.py
           python scripts/validate-sandbox-portal.py
           python scripts/validate-console-closeout.py
+          python scripts/validate-community-ga-path.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

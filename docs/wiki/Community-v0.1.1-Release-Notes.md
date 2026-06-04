@@ -26,5 +26,5 @@ documentation path before a real `community-v0.1.1` tag is published.
 
 ## Next Recommendation
 
-Tie policy, evidence, console, Go runtime readiness, and release verification
-into one final user-verifiable GA path.
+Validate production deployment guide coverage for install, configuration,
+storage, backup, restore, CORS/API, and GitHub Pages portal checks.
