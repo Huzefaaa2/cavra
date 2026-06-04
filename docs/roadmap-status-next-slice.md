@@ -121,9 +121,9 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community release index documentation, building on the completed v0.1.1
-maintenance-release dry-run evidence, release-note freshness validator,
-maintenance-release checklist, schema validation, and CI enforcement.
+Community release index freshness validation, building on the completed release
+index page, v0.1.1 maintenance-release dry-run evidence, release-note freshness
+validator, maintenance-release checklist, schema validation, and CI enforcement.
 
 ## Why This Is Next
 
@@ -576,5 +576,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create a Community release index page that summarizes public Community tags,
-release notes, verification packets, publication state, and next action.
+Add a Community release index freshness validator that checks every indexed
+Community release has matching release notes, verification evidence, README
+links, wiki links, and a valid publication state.
