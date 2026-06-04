@@ -42,6 +42,6 @@ services, or expose private artifact locations.
 
 ## Next Recommendation
 
-Add a Community release readiness dashboard validator that checks dashboard
-rows, release links, freshness controls, verification commands, README
-navigation, wiki navigation, and publication state.
+Add a portal smoke validator that checks required routes, command palette
+content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
+workflow strings, and brand assets.

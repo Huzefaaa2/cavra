@@ -43,6 +43,7 @@ jobs:
           python scripts/validate-maintenance-release-evidence.py
           python scripts/validate-community-release-note-freshness.py
           python scripts/validate-community-release-index.py
+          python scripts/validate-community-release-readiness-dashboard.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

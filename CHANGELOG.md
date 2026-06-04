@@ -24,6 +24,10 @@
   portal with persistent navigation, command palette search, mobile navigation,
   interactive architecture, policy, evidence, integration, compliance,
   documentation, and roadmap pages.
+- Added Community release readiness dashboard validation to keep dashboard
+  rows, release links, freshness controls, verification commands, README
+  navigation, wiki navigation, and publication state aligned with the release
+  index.
 
 ## Community GA v0.1.0 - 2026-06-04
 

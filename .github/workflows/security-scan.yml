@@ -22,5 +22,6 @@ jobs:
       - run: python scripts/validate-maintenance-release-evidence.py
       - run: python scripts/validate-community-release-note-freshness.py
       - run: python scripts/validate-community-release-index.py
+      - run: python scripts/validate-community-release-readiness-dashboard.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m compileall src

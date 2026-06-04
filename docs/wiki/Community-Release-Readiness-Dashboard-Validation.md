@@ -1,20 +1,18 @@
-# Community Release Index Freshness
+# Community Release Readiness Dashboard Validation
 
-CAVRA validates the public Community release index so users and maintainers can
-trust that each indexed Community release points to matching release notes,
-verification evidence, README links, wiki navigation, and a valid publication
-state.
+CAVRA validates the public Community release readiness dashboard so release
+state, evidence links, verification commands, README navigation, wiki
+navigation, and publication state cannot drift from the release index.
 
 ## Validation Command
 
 ```bash
-python3 scripts/validate-community-release-index.py
+python3 scripts/validate-community-release-readiness-dashboard.py
 ```
 
-The validator checks release index rows, supported publication states, public
-Community GitHub Release URLs, release notes paths, verification packet paths,
-README links, wiki navigation, release-note backlinks, and explicit dry-run
-marking for dry-run release records.
+The validator checks dashboard presence, README/wiki navigation, release-index
+row parity, supported release and readiness states, required freshness controls,
+verification commands, CI workflow references, and public boundary language.
 
 ## CI Enforcement
 

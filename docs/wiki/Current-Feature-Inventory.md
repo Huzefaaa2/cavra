@@ -90,6 +90,8 @@ Community release index freshness: `docs/community-release-index-freshness.md` a
 
 Community release readiness dashboard: `docs/community-release-readiness-dashboard.md` rolls up public Community release states, release evidence, verification packets, freshness controls, validation commands, CI evidence, and maintainer next actions.
 
+Community release readiness dashboard validation: `docs/community-release-readiness-dashboard-validation.md` and `scripts/validate-community-release-readiness-dashboard.py` enforce dashboard row parity with the release index, required freshness controls, verification commands, CI workflow references, README navigation, wiki navigation, and public boundary language.
+
 CAVRA developer portal redesign: `apps/sandbox-ui` now presents the public GitHub Pages site as a Backstage-style portal with persistent navigation, command palette search, mobile drawer and bottom navigation, interactive architecture explorer, policy/evidence/integration/compliance/use-case/documentation/roadmap pages, and a static-hostable design path documented in `docs/sandbox-portal-redesign.md`.
 
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.

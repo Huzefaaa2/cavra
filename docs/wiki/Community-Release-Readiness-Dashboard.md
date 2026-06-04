@@ -21,6 +21,7 @@ each public Community release record.
 | Release-index freshness | `docs/community-release-index-freshness.md` | Verifies indexed release rows have valid state, release notes, verification packets, README links, and wiki links. |
 | Maintenance-release evidence | `docs/community-maintenance-release-checklist.md` | Defines the post-GA Community maintenance release gate set. |
 | Release packet validation | `docs/community-ga-release-packet-validation.md` | Validates Community GA release packet structure and required gates. |
+| Readiness dashboard validation | `scripts/validate-community-release-readiness-dashboard.py` | Verifies dashboard rows, release links, freshness controls, verification commands, README navigation, wiki navigation, and publication state. |
 | Public boundary | `scripts/validate-boundaries.sh` | Checks public Community release paths for private-code and secret boundary drift. |
 
 ## Verification Commands
@@ -30,6 +31,7 @@ python3 scripts/validate-release-packets.py
 python3 scripts/validate-maintenance-release-evidence.py
 python3 scripts/validate-community-release-note-freshness.py
 python3 scripts/validate-community-release-index.py
+python3 scripts/validate-community-release-readiness-dashboard.py
 bash scripts/validate-boundaries.sh .
 python3 -m pytest tests/test_release_documentation.py -q
 ```
@@ -53,6 +55,6 @@ records.
 
 ## Next Recommendation
 
-Add a Community release readiness dashboard validator that checks dashboard
-rows, release links, freshness controls, verification commands, README
-navigation, wiki navigation, and publication state.
+Add a portal smoke validator that checks required routes, command palette
+content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
+workflow strings, and brand assets.
