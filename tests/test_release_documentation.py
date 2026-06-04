@@ -92,3 +92,56 @@ def test_community_ga_release_packet_template_is_linked_and_structured() -> None
     }
     assert example["public_boundary_review"]["enterprise_code_present"] is False
     assert example["public_boundary_review"]["secrets_present"] is False
+
+
+def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
+    packet_md = Path("docs/release-packets/community-ga-dry-run-2026-06-04.md").read_text(
+        encoding="utf-8"
+    )
+    packet_json = json.loads(
+        Path("docs/release-packets/community-ga-dry-run-2026-06-04.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    wiki_packet = Path("docs/wiki/Community-GA-Dry-Run-Release-Packet.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+
+    required_gates = {
+        "Public boundary",
+        "Policy signing",
+        "Policy validation",
+        "Runtime modes",
+        "Golden decisions",
+        "Evidence Console",
+        "Deployment validation",
+        "Go runtime readiness",
+        "Documentation",
+        "CI evidence",
+    }
+    packet_gate_names = {gate["name"] for gate in packet_json["gates"]}
+
+    assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
+    assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
+    assert "community-ga-dry-run-2026-06-04.json" in roadmap
+    assert "JSON schema validation" in next_slice
+    assert "not an official tagged GA release" in packet_md
+    assert "not an official tagged GA release" in wiki_packet
+
+    assert packet_json["packet_id"] == "community-ga-dry-run-2026-06-04"
+    assert packet_json["release_state"] == "ready_with_accepted_risk"
+    assert packet_json["commit"] == "65f63df48304"
+    assert required_gates == packet_gate_names
+    assert packet_json["decision"]["status"] == "approve"
+    assert packet_json["public_boundary_review"]["validation_result"] == "pass"
+    assert packet_json["public_boundary_review"]["enterprise_code_present"] is False
+    assert packet_json["public_boundary_review"]["secrets_present"] is False
+    assert len(packet_json["accepted_risks"]) == 2
+    assert all(risk["severity"] == "low" for risk in packet_json["accepted_risks"])
+    assert packet_json["next_recommendation"] == (
+        "Add automated JSON schema validation for Community GA release packets in CI."
+    )

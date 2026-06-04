@@ -57,5 +57,5 @@ Community GA release packet.
 
 ## Next Recommendation
 
-Continue with a Community GA dry-run release packet that fills the public packet
-template against the current `main` branch.
+Continue with automated JSON schema validation for Community GA release packets
+in CI.

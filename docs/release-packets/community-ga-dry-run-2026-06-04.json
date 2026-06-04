@@ -1,0 +1,184 @@
+{
+  "packet_id": "community-ga-dry-run-2026-06-04",
+  "release_name": "CAVRA Community GA Dry Run 2026-06-04",
+  "release_state": "ready_with_accepted_risk",
+  "prepared_by": "release-agent[bot]",
+  "approved_by": "pending maintainer review",
+  "prepared_at": "2026-06-04T01:46:26Z",
+  "repository": "Huzefaaa2/cavra",
+  "branch": "codex/community-ga-dry-run-release-packet",
+  "pull_request": "pending at packet creation time",
+  "commit": "65f63df48304",
+  "tag": "not created for dry run",
+  "wiki_sync_commit": "pending after merge",
+  "gates": [
+    {
+      "name": "Public boundary",
+      "status": "pass",
+      "evidence_reference": "scripts/validate-boundaries.sh",
+      "owner": "security-agent",
+      "notes": "Public boundary validation passed with no prohibited Enterprise material detected."
+    },
+    {
+      "name": "Policy signing",
+      "status": "pass",
+      "evidence_reference": "Temporary Ed25519 policy keygen/sign/verify workflow",
+      "owner": "security-agent",
+      "notes": "Signing was performed on a temporary copy of the baseline policy; no private key or generated signature was committed."
+    },
+    {
+      "name": "Policy validation",
+      "status": "pass",
+      "evidence_reference": "policy validate, policy compile, and policy diff commands",
+      "owner": "backend-agent",
+      "notes": "Baseline policy validated, compiled to JSON, and produced a semantic diff against cavra-banking-baseline."
+    },
+    {
+      "name": "Runtime modes",
+      "status": "pass",
+      "evidence_reference": "evaluate execute_command with enforce, strict, audit_only, and break_glass modes",
+      "owner": "backend-agent",
+      "notes": "Runtime mode evaluations generated JSON outputs for the required modes."
+    },
+    {
+      "name": "Golden decisions",
+      "status": "pass",
+      "evidence_reference": "tests/test_golden_decisions.py",
+      "owner": "test-agent",
+      "notes": "Golden decision fixture checks passed in the focused release evidence suite."
+    },
+    {
+      "name": "Evidence Console",
+      "status": "pass",
+      "evidence_reference": "node --check apps/sandbox-ui/*.js, tests/test_brand_assets.py, tests/test_ci_templates.py",
+      "owner": "frontend-agent",
+      "notes": "Static console JavaScript, brand asset, and CI template checks passed."
+    },
+    {
+      "name": "Deployment validation",
+      "status": "pass",
+      "evidence_reference": "tests/test_api.py::test_api_deployment_production_readiness",
+      "owner": "release-agent",
+      "notes": "API deployment readiness contract remained available and reported the Go backend as disabled/not configured."
+    },
+    {
+      "name": "Go runtime readiness",
+      "status": "disabled",
+      "evidence_reference": "runtime go-deployment-readiness --json and runtime go-promotion-readiness --json",
+      "owner": "architect-agent",
+      "notes": "Go deployment readiness reported not_configured; promotion readiness reported not_requested; Python remains authoritative."
+    },
+    {
+      "name": "Documentation",
+      "status": "warn",
+      "evidence_reference": "README, docs, and docs/wiki changes in this dry-run PR",
+      "owner": "docs-agent",
+      "notes": "Source documentation is updated in this packet PR; live wiki sync is completed after merge."
+    },
+    {
+      "name": "CI evidence",
+      "status": "warn",
+      "evidence_reference": "Local validation plus pending GitHub PR checks",
+      "owner": "test-agent",
+      "notes": "Local checks passed; GitHub PR checks are expected to provide final hosted CI evidence before merge."
+    }
+  ],
+  "validation_commands": [
+    {
+      "command": "scripts/validate-boundaries.sh",
+      "status": "pass",
+      "output_reference": "CAVRA public boundary validation passed."
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli policy validate policies/cavra-ai-agent-baseline",
+      "status": "pass",
+      "output_reference": "valid cavra-ai-agent-baseline"
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli policy compile --policy-pack cavra-ai-agent-baseline",
+      "status": "pass",
+      "output_reference": "Compiled JSON generated at /tmp/cavra-community-ga-compile.json during dry run."
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli policy diff policies/cavra-ai-agent-baseline policies/cavra-banking-baseline",
+      "status": "pass",
+      "output_reference": "Semantic diff generated with added, removed, and changed sections."
+    },
+    {
+      "command": "Temporary Ed25519 policy keygen/sign/verify workflow",
+      "status": "pass",
+      "output_reference": "signature verified: verified Ed25519 signature"
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli evaluate execute_command ... --policy-mode enforce|strict|audit_only|break_glass --json",
+      "status": "pass",
+      "output_reference": "Runtime mode JSON evaluation files generated under /tmp during dry run."
+    },
+    {
+      "command": "node --check apps/sandbox-ui/config.js && node --check apps/sandbox-ui/sandbox.js",
+      "status": "pass",
+      "output_reference": "Node syntax checks passed."
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli runtime go-deployment-readiness --json",
+      "status": "pass",
+      "output_reference": "status=not_configured"
+    },
+    {
+      "command": "PYTHONPATH=src python3 -m cavra.cli runtime go-promotion-readiness --json",
+      "status": "pass",
+      "output_reference": "status=not_requested"
+    },
+    {
+      "command": "python3 -m pytest -q tests/test_golden_decisions.py tests/test_api.py::test_api_deployment_production_readiness tests/test_brand_assets.py tests/test_ci_templates.py",
+      "status": "pass",
+      "output_reference": "18 passed"
+    },
+    {
+      "command": "python3 -m pytest -q",
+      "status": "pass",
+      "output_reference": "376 passed"
+    },
+    {
+      "command": "python3 -m ruff check src tests",
+      "status": "pass",
+      "output_reference": "All checks passed."
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass",
+      "output_reference": "No whitespace errors."
+    }
+  ],
+  "accepted_risks": [
+    {
+      "risk": "This packet is a dry run and does not create an official release tag.",
+      "severity": "low",
+      "owner": "release-agent",
+      "expiry": "2026-06-18",
+      "compensating_control": "A future official GA packet must include the release tag, final release PR, and GitHub Release reference.",
+      "decision": "accepted"
+    },
+    {
+      "risk": "Live wiki commit and hosted CI links are created after the packet PR merges.",
+      "severity": "low",
+      "owner": "docs-agent",
+      "expiry": "2026-06-18",
+      "compensating_control": "Merge flow must sync docs/wiki to the live wiki and record the wiki commit in the PR closeout.",
+      "decision": "accepted"
+    }
+  ],
+  "public_boundary_review": {
+    "enterprise_code_present": false,
+    "secrets_present": false,
+    "customer_material_present": false,
+    "private_policy_packs_present": false,
+    "validation_result": "pass",
+    "notes": "Dry-run packet contains public-safe release evidence only."
+  },
+  "decision": {
+    "status": "approve",
+    "rationale": "The public Community GA release gates are executable and the first baseline packet is reviewable. Remaining warnings are expected for a dry run."
+  },
+  "next_recommendation": "Add automated JSON schema validation for Community GA release packets in CI."
+}

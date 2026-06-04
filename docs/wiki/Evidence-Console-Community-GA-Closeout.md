@@ -23,5 +23,7 @@ evidence, or production provisioning records.
 ## Next Recommendation
 
 Delivered in [Community-GA-Release-Checklist](Community-GA-Release-Checklist).
-Continue with a Community GA dry-run release packet that fills the public packet
-template against the current `main` branch.
+Dry-run release packet delivered in
+[Community-GA-Dry-Run-Release-Packet](Community-GA-Dry-Run-Release-Packet).
+Continue with automated JSON schema validation for Community GA release packets
+in CI.

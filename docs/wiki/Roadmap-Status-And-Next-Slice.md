@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community GA dry-run release packet, building on the delivered Community GA
-release checklist and packet template.
+Automated Community GA release packet JSON schema validation in CI, building on
+the delivered checklist, packet template, and dry-run packet.
 
 ## Why This Is Next
 
@@ -575,6 +575,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create a Community GA dry-run release packet that fills the public packet
-template against the current `main` branch and records the first baseline
-release packet for public review.
+Add automated JSON schema validation for Community GA release packets in CI so
+future packet JSON artifacts cannot drift from the public schema.
