@@ -24,6 +24,7 @@ permissions:
 jobs:
   package:
     name: package-go-runtime
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'go-runtime-v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
