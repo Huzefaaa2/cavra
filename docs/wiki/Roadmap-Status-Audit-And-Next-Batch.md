@@ -108,5 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Publish Community GA GitHub Release notes and attach distribution artifacts
-after the `community-v0.1.0` release workflow completes.
+Create a post-release verification packet for artifact downloadability,
+checksum verification, install smoke testing, and README/wiki release-link
+freshness.
