@@ -108,5 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Add a release-note freshness validator that checks every Community release notes
-page has a matching verification packet, README link, and wiki navigation entry.
+Create the first Community maintenance-release dry-run evidence packet for a
+future `community-v0.1.1` tag using the new maintenance-release checklist and
+freshness validator.

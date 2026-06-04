@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "Community release-note freshness validation" in next_slice
+    assert "Community maintenance-release dry-run evidence" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "Community release-note freshness validation" in next_slice
+    assert "Community maintenance-release dry-run evidence" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "Community release-note freshness validation" in next_slice
+    assert "Community maintenance-release dry-run evidence" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -410,6 +410,64 @@ def test_community_maintenance_release_checklist_is_linked_and_validated() -> No
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "CAVRA maintenance release evidence validation passed." in result.stdout
+
+
+def test_community_release_note_freshness_is_linked_and_validated() -> None:
+    doc = Path("docs/community-release-note-freshness.md").read_text(encoding="utf-8")
+    wiki_doc = Path("docs/wiki/Community-Release-Note-Freshness.md").read_text(
+        encoding="utf-8"
+    )
+    release_notes = Path("docs/releases/community-v0.1.0.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    community_ci = Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8")
+    security_scan = Path(".github/workflows/security-scan.yml").read_text(
+        encoding="utf-8"
+    )
+    release_workflow = Path(".github/workflows/release-community.yml").read_text(
+        encoding="utf-8"
+    )
+    governance = Path(".github/workflows/cavra-governance.yml").read_text(
+        encoding="utf-8"
+    )
+
+    script = "scripts/validate-community-release-note-freshness.py"
+    release_notes_path = "docs/releases/community-v0.1.0.md"
+    verification_path = (
+        "docs/release-verifications/community-v0.1.0-post-release-verification.md"
+    )
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0"
+
+    assert "docs/community-release-note-freshness.md" in readme
+    assert "Community-Release-Note-Freshness.md" in wiki_home
+    assert release_notes_path in readme
+    assert verification_path in readme
+    assert release_url in release_notes
+    assert verification_path in release_notes
+    assert "Community-GA-v0.1.0-Release-Notes.md" in wiki_home
+    assert "Community-GA-v0.1.0-Post-Release-Verification.md" in wiki_home
+    assert script in doc
+    assert script in wiki_doc
+    assert script in roadmap
+    assert "Community maintenance-release dry-run evidence" in next_slice
+    assert "release-note freshness validation" in changelog
+
+    for workflow in (community_ci, security_scan, release_workflow, governance):
+        assert script in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "CAVRA Community release note freshness validation passed." in result.stdout
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

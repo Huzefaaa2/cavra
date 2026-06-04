@@ -103,6 +103,7 @@ Open-core architecture and boundaries:
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
 - [Community maintenance release evidence template](docs/community-maintenance-release-evidence-template.md)
+- [Community release note freshness](docs/community-release-note-freshness.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)

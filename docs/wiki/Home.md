@@ -139,6 +139,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community GA v0.1.0 Release Notes: `Community-GA-v0.1.0-Release-Notes.md`
 - Community Maintenance Release Checklist: `Community-Maintenance-Release-Checklist.md`
 - Community Maintenance Release Evidence Template: `Community-Maintenance-Release-Evidence-Template.md`
+- Community Release Note Freshness: `Community-Release-Note-Freshness.md`
 - Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
 - Runtime Policy Modes: `Runtime-Policy-Modes.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
