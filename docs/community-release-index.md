@@ -10,7 +10,7 @@ artifacts are published and which release evidence is ready for publication.
 | Release | State | GitHub Release | Release Notes | Verification Packet | Next Action |
 | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Use as the current public Community GA baseline. |
-| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-maintenance-verification.md` | Archive post-publication verifier output and begin the next maintenance-release readiness slice. |
+| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist. |
 
 ## Current Public Baseline
 
@@ -23,7 +23,9 @@ SHA-256 checksums, and a clean install smoke result.
 Community v0.1.1 is the current maintenance-release record. It records the
 package version bump, public artifact names, SHA-256 checksums, install-smoke
 result, release documentation, evidence packet, public boundary, and freshness
-checks for the official maintenance release.
+checks for the official maintenance release. Its post-release verification
+packet confirms the published GitHub Release assets are downloadable, match the
+recorded checksums, and install cleanly.
 
 ## Verification Controls
 
@@ -45,5 +47,6 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Archive the post-publication Community v0.1.1 verifier output and begin the
-next maintenance-release readiness slice.
+Prepare Community v0.1.2 readiness by closing Python packaging metadata
+warnings and adding release workflow guard evidence to the maintenance
+checklist.

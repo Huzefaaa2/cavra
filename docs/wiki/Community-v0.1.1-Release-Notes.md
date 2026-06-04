@@ -12,6 +12,8 @@ release-readiness dashboard coverage.
   <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1>
 - Maintenance verification:
   `docs/release-verifications/community-v0.1.1-maintenance-verification.md`
+- Post-release verification:
+  `docs/release-verifications/community-v0.1.1-post-release-verification.md`
 - Maintenance-release checklist:
   `docs/community-maintenance-release-checklist.md`
 - Release-note freshness control:
@@ -60,5 +62,6 @@ not part of this public release.
 
 ## Next Recommendation
 
-Archive the post-publication Community v0.1.1 verifier output and begin the
-next maintenance-release readiness slice.
+Prepare Community v0.1.2 readiness by closing Python packaging metadata
+warnings and adding release workflow guard evidence to the maintenance
+checklist.

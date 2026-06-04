@@ -1,0 +1,43 @@
+{
+  "schema_version": "cavra.community_release_verification.v1",
+  "release": "CAVRA Community v0.1.1",
+  "tag": "community-v0.1.1",
+  "version": "0.1.1",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1",
+  "verification_date": "2026-06-04",
+  "artifacts": [
+    {
+      "name": "cavra-0.1.1-py3-none-any.whl",
+      "sha256": "32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a",
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-0.1.1.tar.gz",
+      "sha256": "b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950",
+      "downloadable": true,
+      "checksum_match": true
+    }
+  ],
+  "install_smoke": {
+    "environment": "temporary Python virtual environment",
+    "command": "cavra version",
+    "output": "cavra 0.1.1",
+    "status": "pass"
+  },
+  "documentation_freshness": {
+    "readme_release_link": "pass",
+    "wiki_release_link": "pass",
+    "maintenance_verification": "pass",
+    "release_index": "pass",
+    "release_dashboard": "pass"
+  },
+  "public_boundary": {
+    "community_artifacts_only": true,
+    "enterprise_source_included": false,
+    "private_keys_included": false,
+    "customer_records_included": false
+  },
+  "decision": "pass",
+  "next_recommendation": "Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist."
+}

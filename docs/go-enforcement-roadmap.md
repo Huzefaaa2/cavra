@@ -42,5 +42,4 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
    tests, production hardening validation, package verification,
    release-candidate upgrade validation, performance smoke evidence, and
    rollback evidence pass.
-2. Archive the post-publication Community v0.1.1 verifier output and begin the
-next maintenance-release readiness slice.
+2. Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist.

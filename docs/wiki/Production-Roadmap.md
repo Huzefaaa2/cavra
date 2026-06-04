@@ -205,6 +205,9 @@ scan, release-community, and `cavra-required-check`.
 Community v0.1.1 maintenance-release evidence is now documented at
 `docs/releases/community-v0.1.1.md` and
 `docs/release-verifications/community-v0.1.1-maintenance-verification.md`.
+Community v0.1.1 post-release verification is now archived at
+`docs/release-verifications/community-v0.1.1-post-release-verification.md` and
+`docs/release-verifications/community-v0.1.1-post-release-verification.json`.
 Community release index documentation is now available at
 `docs/community-release-index.md`.
 Community release index freshness validation is now documented at
@@ -238,8 +241,9 @@ Enterprise integration validation is documented at
 Production readiness procurement closeout is documented at
 `docs/production-readiness-procurement-closeout.md` and enforced by
 `scripts/validate-production-readiness-procurement-closeout.py`.
-Next recommended slice: archive the post-publication Community v0.1.1 verifier
-output and begin the next maintenance-release readiness slice.
+Next recommended slice: prepare Community v0.1.2 readiness by closing Python
+packaging metadata warnings and adding release workflow guard evidence to the
+maintenance checklist.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

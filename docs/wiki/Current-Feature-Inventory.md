@@ -92,7 +92,7 @@ Community maintenance-release governance: `docs/community-maintenance-release-ch
 
 Community release-note freshness: `docs/community-release-note-freshness.md` and `scripts/validate-community-release-note-freshness.py` enforce that every `docs/releases/community-v*.md` page has a matching GitHub Release URL, verification packet, README link, wiki release notes page, and wiki verification entry.
 
-Community v0.1.1 maintenance-release dry run: `docs/releases/community-v0.1.1.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.md`, and `docs/release-verifications/community-v0.1.1-maintenance-verification.json` exercise the post-GA public Community maintenance release path with accepted low risk for unpublished future artifacts.
+Community v0.1.1 maintenance and post-release verification: `docs/releases/community-v0.1.1.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.json`, `docs/release-verifications/community-v0.1.1-post-release-verification.md`, and `docs/release-verifications/community-v0.1.1-post-release-verification.json` record the official post-GA public Community maintenance release path, published GitHub Release asset downloadability, SHA-256 checksum matches, clean install smoke output, README/wiki freshness, release index, and readiness dashboard links.
 
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 

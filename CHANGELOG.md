@@ -54,6 +54,9 @@
   concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
   advisory drills, final release integrity evidence, CI wiring, README
   navigation, and wiki navigation.
+- Archived Community v0.1.1 post-release verification evidence with published
+  GitHub Release asset download checks, SHA-256 matches, clean install smoke,
+  README/wiki freshness, release index, and readiness dashboard links.
 
 ## Community v0.1.1 - 2026-06-04
 
@@ -68,6 +71,8 @@
 - Updated README, release index, readiness dashboard, release notes,
   verification packet, and wiki-ready pages for the official maintenance
   release.
+- Archived post-release verification for the published `community-v0.1.1`
+  GitHub Release assets.
 
 ## Community GA v0.1.0 - 2026-06-04
 
