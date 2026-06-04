@@ -111,5 +111,4 @@ control.
 
 ## Next Recommendation
 
-Archive the post-publication Community v0.1.1 verifier output and begin the
-next maintenance-release readiness slice.
+Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist.

@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -379,7 +379,7 @@ def test_community_maintenance_release_checklist_is_linked_and_validated() -> No
     assert "Community-Maintenance-Release-Checklist.md" in wiki_home
     assert "Community-Maintenance-Release-Evidence-Template.md" in wiki_home
     assert "Community maintenance-release governance" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "release notes" in checklist
     assert "community-maintenance-release.schema.json" in template
     assert "Community maintenance-release checklist" in changelog
@@ -454,7 +454,7 @@ def test_community_release_note_freshness_is_linked_and_validated() -> None:
     assert script in doc
     assert script in wiki_doc
     assert script in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "release-note freshness validation" in changelog
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
@@ -517,13 +517,22 @@ def test_community_v011_maintenance_release_is_linked_and_validated() -> None:
     assert release_notes_path in readme
     assert verification_path in readme
     assert verification_path in release_notes
+    assert (
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md"
+        in readme
+    )
+    assert (
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md"
+        in release_notes
+    )
     assert "Community-v0.1.1-Release-Notes.md" in wiki_home
     assert "Community-v0.1.1-Maintenance-Verification.md" in wiki_home
+    assert "Community-v0.1.1-Post-Release-Verification.md" in wiki_home
     assert "CAVRA Community v0.1.1 Release Notes" in wiki_release_notes
     assert "ready_for_publication" in wiki_verification
     assert "Converted the Community v0.1.1 maintenance-release packet" in changelog
     assert "community-v0.1.1-maintenance-verification.md" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
 
     assert verification_json["schema_version"] == "cavra.community_maintenance_release.v1"
     assert verification_json["packet_id"] == "community-v0.1.1-maintenance-verification"
@@ -542,7 +551,7 @@ def test_community_v011_maintenance_release_is_linked_and_validated() -> None:
     assert verification_json["public_boundary"]["private_keys_included"] is False
     assert verification_json["accepted_risks"] == []
     assert verification_json["decision"]["status"] == "approve"
-    assert "post-publication Community v0.1.1 verifier output" in verification_json["next_recommendation"]
+    assert "Python packaging metadata warnings" in verification_json["next_recommendation"]
 
     maintenance_result = subprocess.run(
         [sys.executable, "scripts/validate-maintenance-release-evidence.py"],
@@ -565,6 +574,63 @@ def test_community_v011_maintenance_release_is_linked_and_validated() -> None:
     )
 
 
+def test_community_v011_post_release_verification_is_linked_and_complete() -> None:
+    verification = Path(
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md"
+    ).read_text(encoding="utf-8")
+    verification_json = json.loads(
+        Path(
+            "docs/release-verifications/community-v0.1.1-post-release-verification.json"
+        ).read_text(encoding="utf-8")
+    )
+    wiki_verification = Path(
+        "docs/wiki/Community-v0.1.1-Post-Release-Verification.md"
+    ).read_text(encoding="utf-8")
+    release_notes = Path("docs/releases/community-v0.1.1.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
+    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
+        encoding="utf-8"
+    )
+
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1"
+    verification_path = (
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md"
+    )
+    sdist_sha = "b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950"
+    wheel_sha = "32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a"
+
+    assert release_url in verification
+    assert release_url in wiki_verification
+    assert verification_path in readme
+    assert verification_path in release_notes
+    assert verification_path in index
+    assert verification_path in dashboard
+    assert "Community-v0.1.1-Post-Release-Verification.md" in wiki_home
+    assert "cavra 0.1.1" in verification
+    assert sdist_sha in verification
+    assert wheel_sha in verification
+
+    assert verification_json["schema_version"] == "cavra.community_release_verification.v1"
+    assert verification_json["tag"] == "community-v0.1.1"
+    assert verification_json["decision"] == "pass"
+    assert verification_json["install_smoke"]["output"] == "cavra 0.1.1"
+    assert verification_json["public_boundary"]["community_artifacts_only"] is True
+    assert verification_json["public_boundary"]["enterprise_source_included"] is False
+    assert verification_json["public_boundary"]["private_keys_included"] is False
+    assert verification_json["public_boundary"]["customer_records_included"] is False
+    assert {artifact["sha256"] for artifact in verification_json["artifacts"]} == {
+        sdist_sha,
+        wheel_sha,
+    }
+    assert all(artifact["downloadable"] for artifact in verification_json["artifacts"])
+    assert all(artifact["checksum_match"] for artifact in verification_json["artifacts"])
+    assert "Python packaging metadata warnings" in verification_json["next_recommendation"]
+
+
 def test_community_release_index_is_linked_and_current() -> None:
     release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
     wiki_release_index = Path("docs/wiki/Community-Release-Index.md").read_text(
@@ -585,14 +651,14 @@ def test_community_release_index_is_linked_and_current() -> None:
         "docs/release-verifications/community-v0.1.0-post-release-verification.md"
     )
     v011_verification = (
-        "docs/release-verifications/community-v0.1.1-maintenance-verification.md"
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md"
     )
 
     assert "docs/community-release-index.md" in readme
     assert "Community-Release-Index.md" in wiki_home
     assert "Community release index" in changelog
     assert "Community release index documentation" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "Community release index:" in inventory
 
     for document in (release_index, wiki_release_index):
@@ -607,7 +673,7 @@ def test_community_release_index_is_linked_and_current() -> None:
         assert v011_verification in document
         assert "scripts/validate-community-release-note-freshness.py" in document
         assert "scripts/validate-community-release-index.py" in document
-        assert "post-publication Community v0.1.1 verifier output" in document
+        assert "Python packaging metadata warnings" in document
 
 
 def test_community_release_index_freshness_is_linked_and_validated() -> None:
@@ -641,7 +707,7 @@ def test_community_release_index_freshness_is_linked_and_validated() -> None:
     assert script in wiki_doc
     assert script in roadmap
     assert script in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
         assert script in workflow
@@ -680,7 +746,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
         "docs/releases/community-v0.1.0.md",
         "docs/releases/community-v0.1.1.md",
         "docs/release-verifications/community-v0.1.0-post-release-verification.md",
-        "docs/release-verifications/community-v0.1.1-maintenance-verification.md",
+        "docs/release-verifications/community-v0.1.1-post-release-verification.md",
     ]
     required_control_refs = [
         "docs/community-release-index.md",
@@ -713,7 +779,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
     assert "Community release readiness dashboard" in changelog
     assert "Community release readiness dashboard documentation" in roadmap
     assert "Community release readiness dashboard:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
 
     for document in (dashboard, wiki_dashboard):
         for required_ref in required_release_refs + required_control_refs:
@@ -723,7 +789,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
         for workflow in required_workflows:
             assert workflow in document
         assert "Enterprise source code" in document
-        assert "post-publication Community v0.1.1 verifier output" in document
+        assert "Python packaging metadata warnings" in document
 
 
 def test_community_release_readiness_dashboard_validation_is_linked_and_validated() -> None:
@@ -757,7 +823,7 @@ def test_community_release_readiness_dashboard_validation_is_linked_and_validate
     assert "Community release readiness dashboard validation" in changelog
     assert "Community release readiness dashboard validation" in roadmap
     assert "Community release readiness dashboard validation:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert script in doc
     assert script in wiki_doc
 
@@ -825,7 +891,7 @@ def test_community_ga_user_verifiable_path_is_linked_and_validated() -> None:
     assert "Community-GA-User-Verifiable-Path.md" in wiki_home
     assert "user-verifiable Community GA path" in changelog
     assert "Community GA user-verifiable path is documented" in roadmap
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert script in dashboard
 
     assert packet["release_state"] == "ready_for_community_ga"
@@ -890,7 +956,7 @@ def test_production_deployment_guide_validation_is_linked_and_enforced() -> None
             "cavra ops restore",
             "CAVRA_PUBLIC_API_BASE_URL",
             "CAVRA_CORS_ORIGINS",
-            "post-publication Community v0.1.1 verifier output",
+            "Python packaging metadata warnings",
         ]:
             assert required in document
 
@@ -899,7 +965,7 @@ def test_production_deployment_guide_validation_is_linked_and_enforced() -> None
     assert "production deployment guide validation" in changelog
     assert "Production deployment guide validation is documented" in roadmap
     assert "Production deployment guide validation:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert script in deployment
     assert script in readiness
 
@@ -955,7 +1021,7 @@ def test_go_enforcement_production_hardening_is_linked_and_enforced() -> None:
             "cavra release verify-airgap-bundle",
             "cavra release validate-upgrade",
             "cavra release verify-go-package",
-            "post-publication Community v0.1.1 verifier output",
+            "Python packaging metadata warnings",
             script,
         ]:
             assert required in document
@@ -965,7 +1031,7 @@ def test_go_enforcement_production_hardening_is_linked_and_enforced() -> None:
     assert "Go enforcement production hardening" in changelog
     assert "Go enforcement production hardening is documented" in production_roadmap
     assert "Go enforcement production hardening:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "Go enforcement production hardening is documented" in go_roadmap
     assert "BenchmarkEvaluateAllowCommand" in runtime_readme
     assert "gRPC remains a documented future transport" in runtime_readme
@@ -1035,7 +1101,7 @@ def test_enterprise_integration_validation_is_linked_and_enforced() -> None:
             "Public Boundary",
             "User Stories",
             "Enterprise Challenge Solved",
-            "post-publication Community v0.1.1 verifier output",
+            "Python packaging metadata warnings",
             script,
         ]:
             assert required in document
@@ -1045,7 +1111,7 @@ def test_enterprise_integration_validation_is_linked_and_enforced() -> None:
     assert "Enterprise integration validation" in changelog
     assert "Enterprise integration validation is documented" in production_roadmap
     assert "Enterprise integration validation:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "The orchestrator should not own policy decisions" in orchestration_doc
     assert "GitLab CI" in integrations_doc
     assert "Azure Pipelines" in integrations_doc
@@ -1116,7 +1182,7 @@ def test_production_readiness_procurement_closeout_is_linked_and_enforced() -> N
             "Operator Runbook",
             "User Stories",
             "Enterprise Challenge Solved",
-            "post-publication Community v0.1.1 verifier output",
+            "Python packaging metadata warnings",
             script,
         ]:
             assert required in document
@@ -1126,7 +1192,7 @@ def test_production_readiness_procurement_closeout_is_linked_and_enforced() -> N
     assert "production readiness procurement closeout" in changelog
     assert "Production readiness procurement closeout is documented" in production_roadmap
     assert "Production readiness procurement closeout:" in inventory
-    assert "post-publication Community v0.1.1 verifier output" in next_slice
+    assert "Python packaging metadata warnings" in next_slice
     assert "SOC 2 Readiness Roadmap" in procurement
     assert "cavra ops backup" in operations
     assert "schema_migrations" in migrations

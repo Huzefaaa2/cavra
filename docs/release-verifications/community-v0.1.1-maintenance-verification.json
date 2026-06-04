@@ -121,5 +121,5 @@
     "status": "approve",
     "rationale": "The Community v0.1.1 release notes, package metadata, artifact checksums, install-smoke evidence, README links, wiki-ready pages, release index, release dashboard, and public boundary checks are aligned for official publication."
   },
-  "next_recommendation": "Archive the post-publication Community v0.1.1 verifier output and begin the next maintenance-release readiness slice."
+  "next_recommendation": "Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist."
 }
