@@ -116,16 +116,20 @@ CAVRA is ready for the next production-readiness slice, but the product is not
 yet fully production-complete. Remaining themes are:
 
 - production deployment guide validation across install, configuration,
-  storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+  storage, backup, restore, CORS/API, and GitHub Pages portal checks is
+  delivered in [production-deployment-guide-validation.md](production-deployment-guide-validation.md).
+- Go enforcement plane production-path hardening remains active for
+  Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility,
+  upgrade validation, performance, and operational readiness evidence.
 
 ## Next Slice
 
-Production deployment guide validation, building on the completed Community GA
-user-verifiable path, console closeout operator experience, developer portal
-redesign, portal smoke validator, dashboard validator, release index freshness
-validator, release index page, v0.1.1 maintenance-release dry-run evidence,
-release-note freshness validator, maintenance-release checklist, schema
-validation, and CI enforcement.
+Go enforcement plane production-path hardening, building on the completed
+production deployment guide validation, Community GA user-verifiable path,
+console closeout operator experience, developer portal redesign, portal smoke
+validator, dashboard validator, release index freshness validator, release
+index page, v0.1.1 maintenance-release dry-run evidence, release-note freshness
+validator, maintenance-release checklist, schema validation, and CI enforcement.
 
 Console closeout operator experience is documented at
 `docs/console-closeout-operator-experience.md` and enforced by
@@ -133,6 +137,9 @@ Console closeout operator experience is documented at
 Community GA user-verifiable path is documented at
 `docs/community-ga-user-verifiable-path.md` and enforced by
 `scripts/validate-community-ga-path.py`.
+Production deployment guide validation is documented at
+`docs/production-deployment-guide-validation.md` and enforced by
+`scripts/validate-production-deployment-guide.py`.
 
 ## Why This Is Next
 
@@ -585,5 +592,4 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Validate production deployment guide coverage for install, configuration,
-storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.

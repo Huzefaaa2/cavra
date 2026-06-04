@@ -80,6 +80,8 @@ Community GA v0.1.0 post-release verification: `docs/release-verifications/commu
 
 Community GA user-verifiable path: `docs/community-ga-user-verifiable-path.md` and `scripts/validate-community-ga-path.py` connect policy gates, release packets, post-release verification, Evidence Console validation, Go runtime disabled/promoted status, README links, wiki navigation, and workflow enforcement into one public operator-verifiable release path.
 
+Production deployment guide validation: `docs/production-deployment-guide-validation.md` and `scripts/validate-production-deployment-guide.py` keep install, configuration, storage, backup, restore, CORS/API, GitHub Pages portal checks, release validators, README links, wiki navigation, and CI workflow wiring aligned for public Community deployment handoffs.
+
 Community maintenance-release governance: `docs/community-maintenance-release-checklist.md`, `docs/community-maintenance-release-evidence-template.md`, `docs/release-verifications/community-maintenance-release.schema.json`, `examples/release-verifications/community-maintenance-release.example.json`, and `scripts/validate-maintenance-release-evidence.py` define and enforce the post-GA public Community maintenance release gate set for release notes, changelog, README, wiki, verification workflow, artifact checksums, install smoke, public boundary, and CI evidence.
 
 Community release-note freshness: `docs/community-release-note-freshness.md` and `scripts/validate-community-release-note-freshness.py` enforce that every `docs/releases/community-v*.md` page has a matching GitHub Release URL, verification packet, README link, wiki release notes page, and wiki verification entry.

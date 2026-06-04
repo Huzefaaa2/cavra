@@ -38,6 +38,9 @@
 - Added the user-verifiable Community GA path tying policy, evidence, console,
   Go runtime readiness, release verification, README, wiki navigation, and
   workflow validation into one public operator runbook.
+- Added production deployment guide validation for install, configuration,
+  storage, backup, restore, CORS/API, GitHub Pages portal checks, release
+  validators, CI wiring, README navigation, and wiki navigation.
 
 ## Community GA v0.1.0 - 2026-06-04
 

@@ -26,6 +26,7 @@ jobs:
       - run: python scripts/validate-sandbox-portal.py
       - run: python scripts/validate-console-closeout.py
       - run: python scripts/validate-community-ga-path.py
+      - run: python scripts/validate-production-deployment-guide.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m pip install --upgrade build
       - run: python -m build
