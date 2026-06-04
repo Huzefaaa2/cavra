@@ -19,11 +19,12 @@ Public Community releases are checked by:
 - `scripts/validate-release-packets.py`
 - `scripts/validate-maintenance-release-evidence.py`
 - `scripts/validate-community-release-note-freshness.py`
+- `scripts/validate-community-release-index.py`
 - `scripts/validate-boundaries.sh`
 - `.github/workflows/verify-community-release.yml`
 
 ## Next Recommendation
 
-Add a Community release index freshness validator that checks every indexed
-Community release has matching release notes, verification evidence, README
-links, wiki links, and a valid publication state.
+Create a Community release readiness dashboard that rolls up the release index,
+freshness validators, release verification commands, CI evidence, publication
+state, and next action for maintainers.

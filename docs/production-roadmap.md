@@ -207,9 +207,12 @@ Community v0.1.1 maintenance-release dry-run evidence is now documented at
 `docs/release-verifications/community-v0.1.1-maintenance-verification.md`.
 Community release index documentation is now available at
 `docs/community-release-index.md`.
-Next recommended slice: add a Community release index freshness validator that
-checks every indexed Community release has matching release notes, verification
-evidence, README links, wiki links, and a valid publication state.
+Community release index freshness validation is now documented at
+`docs/community-release-index-freshness.md` and enforced by
+`scripts/validate-community-release-index.py`.
+Next recommended slice: create a Community release readiness dashboard that
+rolls up the release index, freshness validators, release verification commands,
+CI evidence, publication state, and next action for maintainers.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
