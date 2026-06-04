@@ -144,8 +144,14 @@ Enterprise integration validation is documented at
 [Enterprise-Integration-Validation](Enterprise-Integration-Validation)
 and enforced by `scripts/validate-enterprise-integration-readiness.py`.
 
+## Delivered Production Readiness Procurement Closeout
+
+Production readiness procurement closeout is documented at
+[Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout)
+and enforced by `scripts/validate-production-readiness-procurement-closeout.py`.
+
 ## Recommended Next PR
 
-Validate production readiness and procurement closeout for performance,
-concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
-advisory drills, and final release integrity evidence.
+Prepare the next official Community maintenance release by converting the
+v0.1.1 dry-run packet into real release artifacts, verification evidence,
+release notes, README links, and wiki navigation.

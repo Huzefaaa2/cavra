@@ -42,6 +42,6 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
    tests, production hardening validation, package verification,
    release-candidate upgrade validation, performance smoke evidence, and
    rollback evidence pass.
-2. Validate production readiness and procurement closeout for performance,
-concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
-advisory drills, and final release integrity evidence.
+2. Prepare the next official Community maintenance release by converting the
+v0.1.1 dry-run packet into real release artifacts, verification evidence,
+release notes, README links, and wiki navigation.

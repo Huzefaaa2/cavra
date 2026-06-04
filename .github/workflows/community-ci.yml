@@ -30,4 +30,5 @@ jobs:
       - run: python scripts/validate-production-deployment-guide.py
       - run: python scripts/validate-go-production-hardening.py
       - run: python scripts/validate-enterprise-integration-readiness.py
+      - run: python scripts/validate-production-readiness-procurement-closeout.py
       - run: bash scripts/validate-boundaries.sh .
