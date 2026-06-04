@@ -5,6 +5,9 @@
 - Added Community GA v0.1.0 post-release verification evidence, reusable
   artifact verifier, manual GitHub Actions verification workflow, verification
   runbook, and public release notes.
+- Added the Community maintenance-release checklist, evidence template, JSON
+  schema, validator, example packet, CI enforcement, and wiki-ready
+  documentation for future public Community tags.
 
 ## Community GA v0.1.0 - 2026-06-04
 

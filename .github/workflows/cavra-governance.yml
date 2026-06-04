@@ -40,6 +40,7 @@ jobs:
           (cd go/cavra-runtime && go test ./...)
           pytest -q
           python scripts/validate-release-packets.py
+          python scripts/validate-maintenance-release-evidence.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

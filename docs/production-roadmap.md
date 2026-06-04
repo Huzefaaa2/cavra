@@ -191,9 +191,16 @@ Community GA v0.1.0 post-release verification is now documented at
 with reusable verification automation in
 `scripts/verify-community-release-artifacts.py` and
 `.github/workflows/verify-community-release.yml`.
-Next recommended slice: use the manual Community release verification workflow
-for every future Community tag and publish verification results in the release
-notes before the next public Community maintenance release.
+Community maintenance-release governance is now documented at
+`docs/community-maintenance-release-checklist.md` and
+`docs/community-maintenance-release-evidence-template.md`, with schema
+validation in
+`docs/release-verifications/community-maintenance-release.schema.json`,
+`examples/release-verifications/community-maintenance-release.example.json`, and
+`scripts/validate-maintenance-release-evidence.py`.
+Next recommended slice: add a release-note freshness validator that checks every
+Community release notes page has a matching verification packet, README link,
+and wiki navigation entry.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

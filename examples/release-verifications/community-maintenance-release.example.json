@@ -1,0 +1,110 @@
+{
+  "schema_version": "cavra.community_maintenance_release.v1",
+  "packet_id": "community-v0.1.1-maintenance-verification",
+  "release_name": "CAVRA Community v0.1.1",
+  "release_state": "ready_for_publication",
+  "prepared_at": "2026-06-04T00:00:00Z",
+  "repository": "Huzefaaa2/cavra",
+  "tag": "community-v0.1.1",
+  "version": "0.1.1",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1",
+  "release_notes": "docs/releases/community-v0.1.1.md",
+  "verification_packet": "docs/release-verifications/community-v0.1.1-maintenance-verification.md",
+  "verification_workflow": "https://github.com/Huzefaaa2/cavra/actions/workflows/verify-community-release.yml",
+  "gates": [
+    {
+      "name": "Release notes",
+      "status": "pass",
+      "evidence": "docs/releases/community-v0.1.1.md",
+      "owner": "release-agent",
+      "notes": "Public Community release notes are present."
+    },
+    {
+      "name": "Changelog",
+      "status": "pass",
+      "evidence": "CHANGELOG.md",
+      "owner": "release-agent",
+      "notes": "Changelog includes the maintenance release."
+    },
+    {
+      "name": "README link",
+      "status": "pass",
+      "evidence": "README.md",
+      "owner": "docs-agent",
+      "notes": "README links the release page and verification packet."
+    },
+    {
+      "name": "Wiki link",
+      "status": "pass",
+      "evidence": "docs/wiki/Home.md",
+      "owner": "docs-agent",
+      "notes": "Wiki navigation links the maintenance release."
+    },
+    {
+      "name": "Verification workflow",
+      "status": "pass",
+      "evidence": ".github/workflows/verify-community-release.yml",
+      "owner": "release-agent",
+      "notes": "Manual verification workflow completed for the tag."
+    },
+    {
+      "name": "Artifact checksums",
+      "status": "pass",
+      "evidence": "scripts/verify-community-release-artifacts.py",
+      "owner": "release-agent",
+      "notes": "Wheel and source distribution SHA-256 checksums match."
+    },
+    {
+      "name": "Install smoke",
+      "status": "pass",
+      "evidence": "cavra version",
+      "owner": "test-agent",
+      "notes": "Wheel installs in a clean virtual environment."
+    },
+    {
+      "name": "Public boundary",
+      "status": "pass",
+      "evidence": "bash scripts/validate-boundaries.sh .",
+      "owner": "security-agent",
+      "notes": "No private Enterprise material is present."
+    },
+    {
+      "name": "CI evidence",
+      "status": "pass",
+      "evidence": "GitHub required checks",
+      "owner": "release-agent",
+      "notes": "Required checks completed successfully."
+    }
+  ],
+  "validation_commands": [
+    {
+      "command": "python3 scripts/validate-maintenance-release-evidence.py",
+      "status": "pass",
+      "output_reference": "CAVRA maintenance release evidence validation passed."
+    },
+    {
+      "command": "python3 scripts/validate-release-packets.py",
+      "status": "pass",
+      "output_reference": "CAVRA release packet validation passed."
+    },
+    {
+      "command": "bash scripts/validate-boundaries.sh .",
+      "status": "pass",
+      "output_reference": "CAVRA public boundary validation passed."
+    }
+  ],
+  "accepted_risks": [],
+  "public_boundary": {
+    "enterprise_source_included": false,
+    "paid_policy_packs_included": false,
+    "customer_records_included": false,
+    "private_keys_included": false,
+    "private_registry_credentials_included": false,
+    "validation_result": "pass"
+  },
+  "decision": {
+    "status": "approve",
+    "rationale": "All public Community maintenance release gates passed and no accepted risks remain."
+  },
+  "next_recommendation": "Add a release-note freshness validator that checks every Community release notes page has a matching verification packet, README link, and wiki navigation entry."
+}

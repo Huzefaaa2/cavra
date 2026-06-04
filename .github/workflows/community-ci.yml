@@ -20,4 +20,5 @@ jobs:
       - run: python -m ruff check src tests
       - run: python -m pytest -q
       - run: python scripts/validate-release-packets.py
+      - run: python scripts/validate-maintenance-release-evidence.py
       - run: bash scripts/validate-boundaries.sh .

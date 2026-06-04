@@ -19,5 +19,6 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -e ".[dev]"
       - run: python scripts/validate-release-packets.py
+      - run: python scripts/validate-maintenance-release-evidence.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m compileall src
