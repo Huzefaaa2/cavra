@@ -211,7 +211,7 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "Python packaging metadata warnings",
+            "dry-run verification packet",
             "GA path next recommendation",
             failures,
         )

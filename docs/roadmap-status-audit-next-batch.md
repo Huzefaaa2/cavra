@@ -152,4 +152,4 @@ and enforced by `scripts/validate-production-readiness-procurement-closeout.py`.
 
 ## Recommended Next PR
 
-Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist.
+Prepare Community v0.1.2 release notes and dry-run verification packet using the package metadata and release workflow guard evidence.

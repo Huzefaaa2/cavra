@@ -94,6 +94,8 @@ Community release-note freshness: `docs/community-release-note-freshness.md` and
 
 Community v0.1.1 maintenance and post-release verification: `docs/releases/community-v0.1.1.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.json`, `docs/release-verifications/community-v0.1.1-post-release-verification.md`, and `docs/release-verifications/community-v0.1.1-post-release-verification.json` record the official post-GA public Community maintenance release path, published GitHub Release asset downloadability, SHA-256 checksum matches, clean install smoke output, README/wiki freshness, release index, and readiness dashboard links.
 
+Community v0.1.2 readiness: `docs/community-v0.1.2-readiness.md`, `scripts/validate-python-package-metadata.py`, `.github/workflows/community-ci.yml`, `.github/workflows/release-community.yml`, `.github/workflows/publish-pypi.yml`, and `.github/workflows/go-release.yml` close Python packaging metadata warnings, assert BUSL-1.1 wheel metadata, include packaged schemas, and preserve explicit release workflow guards before release notes and dry-run verification are prepared.
+
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 
 Community release index freshness: `docs/community-release-index-freshness.md` and `scripts/validate-community-release-index.py` enforce that every indexed Community release has matching release notes, verification evidence, README links, wiki links, and a valid publication state.

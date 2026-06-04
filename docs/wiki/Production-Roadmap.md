@@ -241,9 +241,10 @@ Enterprise integration validation is documented at
 Production readiness procurement closeout is documented at
 `docs/production-readiness-procurement-closeout.md` and enforced by
 `scripts/validate-production-readiness-procurement-closeout.py`.
-Next recommended slice: prepare Community v0.1.2 readiness by closing Python
-packaging metadata warnings and adding release workflow guard evidence to the
-maintenance checklist.
+Community v0.1.2 readiness for package metadata and release workflow guard
+evidence is documented at `docs/community-v0.1.2-readiness.md` and enforced by
+`scripts/validate-python-package-metadata.py`.
+Next recommended slice: prepare Community v0.1.2 release notes and dry-run verification packet using the package metadata and release workflow guard evidence.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
