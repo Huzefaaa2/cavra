@@ -186,9 +186,14 @@ Community GA v0.1.0 is published at
 `https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0` with source
 distribution and wheel artifacts attached. Publication details are documented in
 `docs/community-ga-v0.1.0-release-publication.md`.
-Next recommended slice: post-release verification packet for artifact
-downloadability, checksum verification, install smoke testing, and release-link
-freshness.
+Community GA v0.1.0 post-release verification is now documented at
+`docs/release-verifications/community-v0.1.0-post-release-verification.md`,
+with reusable verification automation in
+`scripts/verify-community-release-artifacts.py` and
+`.github/workflows/verify-community-release.yml`.
+Next recommended slice: use the manual Community release verification workflow
+for every future Community tag and publish verification results in the release
+notes before the next public Community maintenance release.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

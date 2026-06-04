@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -141,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "post-release verification packet" in next_slice
+    assert "Community release verification operating cadence" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -193,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "post-release verification packet" in next_slice
+    assert "Community release verification operating cadence" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -234,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "post-release verification packet" in next_slice
+    assert "Community release verification operating cadence" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -244,6 +245,85 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
         assert sdist_sha in document
         assert wheel_sha in document
         assert "Enterprise/private source included: no" in document
+
+
+def test_community_ga_v010_post_release_verification_is_linked_and_complete() -> None:
+    verification = Path(
+        "docs/release-verifications/community-v0.1.0-post-release-verification.md"
+    ).read_text(encoding="utf-8")
+    verification_json = json.loads(
+        Path(
+            "docs/release-verifications/community-v0.1.0-post-release-verification.json"
+        ).read_text(encoding="utf-8")
+    )
+    wiki_verification = Path(
+        "docs/wiki/Community-GA-v0.1.0-Post-Release-Verification.md"
+    ).read_text(encoding="utf-8")
+    runbook = Path("docs/community-release-verification-runbook.md").read_text(
+        encoding="utf-8"
+    )
+    release_notes = Path("docs/releases/community-v0.1.0.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    workflow = Path(".github/workflows/verify-community-release.yml").read_text(
+        encoding="utf-8"
+    )
+    verifier = Path("scripts/verify-community-release-artifacts.py")
+
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0"
+    sdist_sha = "35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e"
+    wheel_sha = "1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8"
+
+    assert release_url in verification
+    assert release_url in wiki_verification
+    assert (
+        "docs/release-verifications/community-v0.1.0-post-release-verification.md"
+        in readme
+    )
+    assert "Community-GA-v0.1.0-Post-Release-Verification.md" in wiki_home
+    assert "docs/community-release-verification-runbook.md" in readme
+    assert "docs/releases/community-v0.1.0.md" in readme
+    assert "verify-community-release-artifacts.py" in roadmap
+    assert "maintenance-release checklist" in next_slice
+    assert "Verify Community Release" in runbook
+    assert "Post-release verification" in release_notes
+    assert "post-release verification evidence" in changelog
+    assert "workflow_dispatch" in workflow
+    assert "scripts/verify-community-release-artifacts.py" in workflow
+
+    assert (
+        verification_json["schema_version"]
+        == "cavra.community_release_verification.v1"
+    )
+    assert verification_json["tag"] == "community-v0.1.0"
+    assert verification_json["decision"] == "pass"
+    assert verification_json["install_smoke"]["output"] == "cavra 0.1.0"
+    assert verification_json["public_boundary"]["community_artifacts_only"] is True
+    assert verification_json["public_boundary"]["enterprise_source_included"] is False
+    assert verification_json["public_boundary"]["private_keys_included"] is False
+    assert verification_json["public_boundary"]["customer_records_included"] is False
+    assert {artifact["sha256"] for artifact in verification_json["artifacts"]} == {
+        sdist_sha,
+        wheel_sha,
+    }
+    assert all(artifact["downloadable"] for artifact in verification_json["artifacts"])
+    assert all(artifact["checksum_match"] for artifact in verification_json["artifacts"])
+
+    spec = importlib.util.spec_from_file_location(
+        "verify_community_release_artifacts", verifier
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    sample = Path(
+        "docs/release-verifications/community-v0.1.0-post-release-verification.json"
+    )
+    assert module.sha256_file(sample) == module.sha256_file(sample)
+    assert module.DEFAULT_TAG == "community-v0.1.0"
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

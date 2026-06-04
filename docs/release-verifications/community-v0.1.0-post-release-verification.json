@@ -1,0 +1,41 @@
+{
+  "schema_version": "cavra.community_release_verification.v1",
+  "release": "CAVRA Community GA v0.1.0",
+  "tag": "community-v0.1.0",
+  "version": "0.1.0",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0",
+  "verification_date": "2026-06-04",
+  "artifacts": [
+    {
+      "name": "cavra-0.1.0-py3-none-any.whl",
+      "sha256": "1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8",
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-0.1.0.tar.gz",
+      "sha256": "35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e",
+      "downloadable": true,
+      "checksum_match": true
+    }
+  ],
+  "install_smoke": {
+    "environment": "temporary Python virtual environment",
+    "command": "cavra version",
+    "output": "cavra 0.1.0",
+    "status": "pass"
+  },
+  "documentation_freshness": {
+    "readme_release_link": "pass",
+    "wiki_release_link": "pass",
+    "publication_record": "pass"
+  },
+  "public_boundary": {
+    "community_artifacts_only": true,
+    "enterprise_source_included": false,
+    "private_keys_included": false,
+    "customer_records_included": false
+  },
+  "decision": "pass",
+  "next_recommendation": "Use the manual Verify Community Release GitHub Actions workflow for every future Community release tag and publish its result in the release notes before moving to the next public Community maintenance release."
+}
