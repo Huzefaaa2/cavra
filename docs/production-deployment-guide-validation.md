@@ -112,4 +112,4 @@ or commercial policy-pack source.
 
 ## Next Recommendation
 
-Prepare Community v0.1.2 release notes and dry-run verification packet using the package metadata and release workflow guard evidence.
+Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
