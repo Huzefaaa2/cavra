@@ -32,6 +32,9 @@
   routes, command palette content, mobile navigation, architecture nodes,
   compliance filters, workflow smoke strings, brand assets, README links, and
   wiki navigation aligned.
+- Added the console closeout operator experience with persona-specific
+  prospect, auditor, platform team, and CISO journeys plus CI-enforced
+  validation.
 
 ## Community GA v0.1.0 - 2026-06-04
 

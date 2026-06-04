@@ -148,6 +148,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community Release Readiness Dashboard Validation: `Community-Release-Readiness-Dashboard-Validation.md`
 - CAVRA Developer Portal Redesign: `CAVRA-Developer-Portal-Redesign.md`
 - CAVRA Developer Portal Smoke Validation: `CAVRA-Developer-Portal-Smoke-Validation.md`
+- Console Closeout Operator Experience: `Console-Closeout-Operator-Experience.md`
 - Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
 - Runtime Policy Modes: `Runtime-Policy-Modes.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`

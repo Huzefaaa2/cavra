@@ -96,6 +96,8 @@ CAVRA developer portal redesign: `apps/sandbox-ui` now presents the public GitHu
 
 CAVRA developer portal smoke validation: `scripts/validate-sandbox-portal.py` keeps public GitHub Pages routes, command palette content, mobile navigation, architecture nodes, compliance filters, workflow smoke strings, brand assets, README links, and wiki navigation aligned before deployment.
 
+Console closeout operator experience: `apps/sandbox-ui` includes an `Operator Paths` route for prospects, auditors, platform teams, and CISOs. `scripts/validate-console-closeout.py` keeps the route, persona cards, command palette entries, docs, wiki navigation, roadmap handoff, and CI wiring aligned.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions and allowlisted managed endpoint rollout evidence files when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. Rollout listings include checksum integrity and promotion readiness. The console shows artifact lists, bundle download links, rollout integrity, and readiness indicators from evidence rows.

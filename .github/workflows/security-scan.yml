@@ -24,5 +24,6 @@ jobs:
       - run: python scripts/validate-community-release-index.py
       - run: python scripts/validate-community-release-readiness-dashboard.py
       - run: python scripts/validate-sandbox-portal.py
+      - run: python scripts/validate-console-closeout.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m compileall src
