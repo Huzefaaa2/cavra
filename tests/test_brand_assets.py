@@ -77,3 +77,64 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
     assert ".hero-side { position: absolute;" in css
+
+
+def test_sandbox_is_portal_style_developer_experience() -> None:
+    html = Path("apps/sandbox-ui/index.html").read_text(encoding="utf-8")
+    css = Path("apps/sandbox-ui/styles.css").read_text(encoding="utf-8")
+    js = Path("apps/sandbox-ui/sandbox.js").read_text(encoding="utf-8")
+    docs = Path("docs/sandbox-portal-redesign.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+
+    _HTMLSmokeParser().feed(html)
+
+    required_html = [
+        'class="top-shell"',
+        'id="portalNav"',
+        'class="sidebar"',
+        'id="toc"',
+        'id="commandPalette"',
+        'id="mobileDrawer"',
+        'class="mobile-bottom"',
+        'id="architectureMap"',
+        'id="nodeInspector"',
+        'id="policyExplorer"',
+        'id="evidenceTimeline"',
+        'id="integrationCards"',
+        'id="complianceRows"',
+        'id="useCaseCards"',
+        'id="docsNav"',
+        'id="roadmapBoard"',
+    ]
+    for item in required_html:
+        assert item in html
+
+    for route in [
+        "#dashboard",
+        "#architecture",
+        "#policy-engine",
+        "#evidence",
+        "#integrations",
+        "#compliance",
+        "#use-cases",
+        "#documentation",
+        "#roadmap",
+    ]:
+        assert route in html or route.strip("#") in js
+
+    for feature in [
+        "Ctrl+K",
+        "renderCommandResults",
+        "renderArchitecture",
+        "renderCompliance",
+        "mobile-bottom",
+        "CAVRA Developer Portal Redesign",
+    ]:
+        assert feature in html or feature in css or feature in js or feature in docs
+
+    assert "@media (max-width: 900px)" in css
+    assert "CAVRA-Developer-Portal-Redesign.md" in wiki_home
+    assert "Next.js" in docs
+    assert "shadcn/ui" in docs
+    assert "Framer Motion" in docs
+    assert "Lucide Icons" in docs

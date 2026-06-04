@@ -109,6 +109,7 @@ Open-core architecture and boundaries:
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
+- [CAVRA developer portal redesign](docs/sandbox-portal-redesign.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)

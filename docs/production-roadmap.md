@@ -212,6 +212,8 @@ Community release index freshness validation is now documented at
 `scripts/validate-community-release-index.py`.
 Community release readiness dashboard documentation is now available at
 `docs/community-release-readiness-dashboard.md`.
+The GitHub Pages sandbox has been redesigned into a Backstage-style CAVRA
+developer portal, documented at `docs/sandbox-portal-redesign.md`.
 Next recommended slice: add a Community release readiness dashboard validator
 that checks dashboard rows, release links, freshness controls, verification
 commands, README navigation, wiki navigation, and publication state.
