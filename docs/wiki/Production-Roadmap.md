@@ -229,7 +229,10 @@ Community GA user-verifiable path is documented at
 Production deployment guide validation is documented at
 `docs/production-deployment-guide-validation.md` and enforced by
 `scripts/validate-production-deployment-guide.py`.
-Next recommended slice: harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
+Go enforcement production hardening is documented at
+`docs/go-enforcement-production-hardening.md` and enforced by
+`scripts/validate-go-production-hardening.py`.
+Next recommended slice: complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

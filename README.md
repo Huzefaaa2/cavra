@@ -101,6 +101,7 @@ Open-core architecture and boundaries:
 - [Community GA v0.1.0 post-release verification](docs/release-verifications/community-v0.1.0-post-release-verification.md)
 - [Community GA user-verifiable path](docs/community-ga-user-verifiable-path.md)
 - [Production deployment guide validation](docs/production-deployment-guide-validation.md)
+- [Go enforcement production hardening](docs/go-enforcement-production-hardening.md)
 - [Community release verification runbook](docs/community-release-verification-runbook.md)
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
@@ -531,10 +532,16 @@ Latest delivery:
   validators, README navigation, and wiki navigation through
   [docs/production-deployment-guide-validation.md](docs/production-deployment-guide-validation.md)
   and `scripts/validate-production-deployment-guide.py`.
+- Go enforcement production hardening now links Unix-socket transport,
+  gRPC interface boundaries, air-gapped packaging, reproducibility, upgrade
+  validation, performance smoke evidence, operational readiness, README
+  navigation, and wiki navigation through
+  [docs/go-enforcement-production-hardening.md](docs/go-enforcement-production-hardening.md)
+  and `scripts/validate-go-production-hardening.py`.
 
 Next recommended implementation work:
 
-- Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
+- Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
 
 ## User stories and enterprise value
 

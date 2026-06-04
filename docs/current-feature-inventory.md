@@ -82,6 +82,8 @@ Community GA user-verifiable path: `docs/community-ga-user-verifiable-path.md` a
 
 Production deployment guide validation: `docs/production-deployment-guide-validation.md` and `scripts/validate-production-deployment-guide.py` keep install, configuration, storage, backup, restore, CORS/API, GitHub Pages portal checks, release validators, README links, wiki navigation, and CI workflow wiring aligned for public Community deployment handoffs.
 
+Go enforcement production hardening: `docs/go-enforcement-production-hardening.md` and `scripts/validate-go-production-hardening.py` keep Unix-socket transport, gRPC boundary planning, air-gapped packaging, reproducibility, release-candidate upgrade validation, performance smoke evidence, operational readiness, README links, wiki navigation, and CI workflow wiring aligned for the public Go enforcement plane.
+
 Community maintenance-release governance: `docs/community-maintenance-release-checklist.md`, `docs/community-maintenance-release-evidence-template.md`, `docs/release-verifications/community-maintenance-release.schema.json`, `examples/release-verifications/community-maintenance-release.example.json`, and `scripts/validate-maintenance-release-evidence.py` define and enforce the post-GA public Community maintenance release gate set for release notes, changelog, README, wiki, verification workflow, artifact checksums, install smoke, public boundary, and CI evidence.
 
 Community release-note freshness: `docs/community-release-note-freshness.md` and `scripts/validate-community-release-note-freshness.py` enforce that every `docs/releases/community-v*.md` page has a matching GitHub Release URL, verification packet, README link, wiki release notes page, and wiki verification entry.

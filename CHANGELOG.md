@@ -41,6 +41,10 @@
 - Added production deployment guide validation for install, configuration,
   storage, backup, restore, CORS/API, GitHub Pages portal checks, release
   validators, CI wiring, README navigation, and wiki navigation.
+- Added Go enforcement production hardening validation for Unix-socket
+  transport, gRPC boundary planning, air-gapped packaging, reproducibility,
+  upgrade validation, performance smoke evidence, operational readiness, CI
+  wiring, README navigation, and wiki navigation.
 
 ## Community GA v0.1.0 - 2026-06-04
 

@@ -67,6 +67,26 @@ printf '{"action_type":"execute_command","target":"terraform plan","requested_op
 The daemon returns a `DecisionResponse` JSON object matching the generated contract package under `go/cavra-runtime/enforcement/v1`.
 When evidence logging is enabled, the response includes a `go-daemon-evidence://...` reference and the JSONL record contains both the request and response.
 
+## Production Interface Boundary
+
+The delivered local production transport is Unix-socket based. gRPC remains a
+future interface boundary rather than a promoted Community runtime transport.
+Any future gRPC service must use the generated `EvaluateRequest` and
+`DecisionResponse` contracts, preserve runner authentication and evidence
+redaction behavior, and pass the same parity and operational readiness gates as
+the Unix-socket daemon.
+
+Performance smoke evidence is captured through the runtime benchmark:
+
+```bash
+cd go/cavra-runtime
+go test -bench BenchmarkEvaluateAllowCommand ./runtime
+```
+
+Operational readiness evidence for the daemon includes lifecycle
+`start/status/stop`, signed daemon evidence verification, runner authentication
+mode, package verification, and Python fallback status.
+
 Sign daemon evidence as a hash-chained stream:
 
 ```bash

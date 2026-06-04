@@ -2,6 +2,10 @@
 
 CAVRA now separates Go backend pilot readiness from deployment readiness. Pilot readiness proves that a local Go runtime can be selected safely. Deployment readiness proves that CI runner and workstation rollout paths have the metadata needed for controlled production use.
 
+The deployment-readiness report checks CI runner bundle metadata, workstation
+channel manifest content, the workstation channel manifest, and managed updater
+policy controls before Go can be selected in promoted mode.
+
 ## What It Checks
 
 The deployment readiness report evaluates public-safe release metadata:

@@ -167,6 +167,21 @@ func TestCompiledPolicyCases(t *testing.T) {
 	}
 }
 
+func BenchmarkEvaluateAllowCommand(b *testing.B) {
+	request := Request{
+		ActionType:         "execute_command",
+		Target:             "terraform plan",
+		RequestedOperation: "terraform plan",
+		PolicyPack:         "cavra-ai-agent-baseline",
+	}
+	for i := 0; i < b.N; i++ {
+		decision := Evaluate(request)
+		if decision.Decision != "allow" {
+			b.Fatalf("decision mismatch: got %q", decision.Decision)
+		}
+	}
+}
+
 func assertEqual(t *testing.T, field string, actual string, expected string) {
 	t.Helper()
 	if actual != expected {
