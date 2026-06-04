@@ -15,7 +15,7 @@ long_description = (repo_root / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="cavra",
-    version="0.1.0",
+    version="0.1.1",
     author="Huzefa Husain",
     author_email="huzefa@example.com",
     description="Runtime governance platform for AI coding agents in regulated environments",

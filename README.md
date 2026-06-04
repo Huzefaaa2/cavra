@@ -109,8 +109,9 @@ Open-core architecture and boundaries:
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
 - [Community maintenance release evidence template](docs/community-maintenance-release-evidence-template.md)
 - [Community release note freshness](docs/community-release-note-freshness.md)
-- [Community v0.1.1 dry-run release notes](docs/releases/community-v0.1.1.md)
-- [Community v0.1.1 maintenance dry-run verification](docs/release-verifications/community-v0.1.1-maintenance-verification.md)
+- [Community v0.1.1 GitHub Release](https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1)
+- [Community v0.1.1 release notes](docs/releases/community-v0.1.1.md)
+- [Community v0.1.1 maintenance verification](docs/release-verifications/community-v0.1.1-maintenance-verification.md)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -554,9 +555,8 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Prepare the next official Community maintenance release by converting the
-  v0.1.1 dry-run packet into real release artifacts, verification evidence,
-  release notes, README links, and wiki navigation.
+- Archive the post-publication Community v0.1.1 verifier output and begin the
+  next maintenance-release readiness slice.
 
 ## User stories and enterprise value
 

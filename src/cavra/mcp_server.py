@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from cavra import __version__
 from cavra.runtime import RuntimeGuard
 
 TOOLS = [
@@ -57,7 +58,7 @@ def handle_json_rpc(message: dict[str, Any]) -> dict[str, Any] | None:
         result = evaluate_tool(params.get("name", ""), params.get("arguments", {}))
         return {"jsonrpc": "2.0", "id": msg_id, "result": {"content": [{"type": "text", "text": json.dumps(result)}]}}
     if method == "initialize":
-        return {"jsonrpc": "2.0", "id": msg_id, "result": {"protocolVersion": "2024-11-05", "serverInfo": {"name": "cavra-mcp-server", "version": "0.1.0"}, "capabilities": {"tools": {}}}}
+        return {"jsonrpc": "2.0", "id": msg_id, "result": {"protocolVersion": "2024-11-05", "serverInfo": {"name": "cavra-mcp-server", "version": __version__}, "capabilities": {"tools": {}}}}
     if method == "notifications/initialized":
         return None
     return {"jsonrpc": "2.0", "id": msg_id, "error": {"code": -32601, "message": f"Unknown method: {method}"}}

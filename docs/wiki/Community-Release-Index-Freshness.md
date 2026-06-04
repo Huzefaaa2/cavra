@@ -29,6 +29,5 @@ services, or expose private artifact locations.
 
 ## Next Recommendation
 
-Prepare the next official Community maintenance release by converting the
-v0.1.1 dry-run packet into real release artifacts, verification evidence,
-release notes, README links, and wiki navigation.
+Archive the post-publication Community v0.1.1 verifier output and begin the
+next maintenance-release readiness slice.

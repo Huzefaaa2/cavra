@@ -10,7 +10,7 @@ each public Community release record.
 | Release | State | Public Release | Release Evidence | Verification | Readiness | Next Action |
 | --- | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Ready | Use as the current public Community GA baseline. |
-| Community v0.1.1 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-maintenance-verification.md` | Pending real artifacts | Publish only after real v0.1.1 artifacts exist and verification warnings are replaced with passing evidence. |
+| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-maintenance-verification.md` | Ready | Archive post-publication verifier output and begin the next maintenance-release readiness slice. |
 
 ## Control Rollup
 
@@ -57,8 +57,8 @@ Public Community release readiness is enforced by:
    state.
 2. Open this dashboard to inspect readiness, validation commands, and CI
    evidence.
-3. For a dry-run release, replace warning evidence only after real public
-   artifacts exist.
+3. For a maintenance release, verify artifact checksums, release notes,
+   README links, wiki navigation, and install-smoke evidence before publishing.
 4. Run all verification commands before opening or merging release
    documentation changes.
 5. Sync `docs/wiki` pages to the GitHub wiki after every release documentation
@@ -73,6 +73,5 @@ records.
 
 ## Next Recommendation
 
-Prepare the next official Community maintenance release by converting the
-v0.1.1 dry-run packet into real release artifacts, verification evidence,
-release notes, README links, and wiki navigation.
+Archive the post-publication Community v0.1.1 verifier output and begin the
+next maintenance-release readiness slice.

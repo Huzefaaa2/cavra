@@ -9,6 +9,7 @@ import typer
 from rich.console import Console
 from rich.json import JSON
 
+from cavra import __version__
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.approvals import (
@@ -236,7 +237,7 @@ app.add_typer(saas_app, name="saas")
 
 @app.command()
 def version() -> None:
-    typer.echo("cavra 0.1.0")
+    typer.echo(f"cavra {__version__}")
 
 
 @app.command()

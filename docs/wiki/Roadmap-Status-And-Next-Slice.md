@@ -136,13 +136,13 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community v0.1.1 real maintenance release conversion, building on the completed
+Community v0.1.1 post-publication verification archival, building on the completed
 production readiness procurement closeout, enterprise integration validation,
 Go enforcement production hardening, production deployment guide validation,
 Community GA user-verifiable path, console closeout operator experience,
 developer portal redesign, portal smoke validator, dashboard validator,
 release index freshness validator, release index page, v0.1.1
-maintenance-release dry-run evidence, release-note freshness validator,
+maintenance-release evidence, release-note freshness validator,
 maintenance-release checklist, schema validation, and CI enforcement.
 
 Console closeout operator experience is documented at
@@ -615,6 +615,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Prepare the next official Community maintenance release by converting the
-v0.1.1 dry-run packet into real release artifacts, verification evidence,
-release notes, README links, and wiki navigation.
+Archive the post-publication Community v0.1.1 verifier output and begin the
+next maintenance-release readiness slice.
