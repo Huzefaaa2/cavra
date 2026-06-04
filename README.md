@@ -112,6 +112,7 @@ Open-core architecture and boundaries:
 - [Community release readiness dashboard validation](docs/community-release-readiness-dashboard-validation.md)
 - [CAVRA developer portal redesign](docs/sandbox-portal-redesign.md)
 - [CAVRA developer portal smoke validation](docs/sandbox-portal-smoke-validation.md)
+- [Console closeout operator experience](docs/console-closeout-operator-experience.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)

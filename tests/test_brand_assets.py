@@ -105,6 +105,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         'id="integrationCards"',
         'id="complianceRows"',
         'id="useCaseCards"',
+        'id="operatorPathCards"',
         'id="docsNav"',
         'id="roadmapBoard"',
     ]
@@ -119,6 +120,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         "#integrations",
         "#compliance",
         "#use-cases",
+        "#operator-experience",
         "#documentation",
         "#roadmap",
     ]:
@@ -129,6 +131,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         "renderCommandResults",
         "renderArchitecture",
         "renderCompliance",
+        "renderOperatorPaths",
         "mobile-bottom",
         "CAVRA Developer Portal Redesign",
     ]:
@@ -176,7 +179,7 @@ def test_sandbox_portal_smoke_validator_is_linked_and_enforced() -> None:
     assert "scripts/validate-sandbox-portal.py" in docs
     assert "scripts/validate-sandbox-portal.py" in wiki_docs
     assert "scripts/validate-sandbox-portal.py" in production_roadmap
-    assert "console closeout" in next_slice
+    assert "final user-verifiable GA path" in next_slice
 
     for workflow in workflows.values():
         assert "python scripts/validate-sandbox-portal.py" in workflow
@@ -188,3 +191,54 @@ def test_sandbox_portal_smoke_validator_is_linked_and_enforced() -> None:
         text=True,
     )
     assert "CAVRA sandbox portal smoke validation passed." in result.stdout
+
+
+def test_console_closeout_operator_experience_is_linked_and_enforced() -> None:
+    html = Path("apps/sandbox-ui/index.html").read_text(encoding="utf-8")
+    css = Path("apps/sandbox-ui/styles.css").read_text(encoding="utf-8")
+    js = Path("apps/sandbox-ui/sandbox.js").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    docs = Path("docs/console-closeout-operator-experience.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_docs = Path("docs/wiki/Console-Closeout-Operator-Experience.md").read_text(
+        encoding="utf-8"
+    )
+    production_roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/deploy-sandbox.yml").read_text(encoding="utf-8"),
+    ]
+
+    assert 'id="operator-experience"' in html
+    assert 'id="operatorPathCards"' in html
+    assert ".operator-path-grid" in css
+    assert "operatorPaths" in js
+    assert "renderOperatorPaths" in js
+    assert 'type: "Operator Path"' in js
+
+    for persona in ["Prospect", "Auditor", "Platform Team", "CISO"]:
+        assert persona in js
+        assert persona in docs
+        assert persona in wiki_docs
+
+    assert "docs/console-closeout-operator-experience.md" in readme
+    assert "Console-Closeout-Operator-Experience.md" in wiki_home
+    assert "console closeout operator experience" in changelog
+    assert "scripts/validate-console-closeout.py" in production_roadmap
+
+    for workflow in workflows:
+        assert "python scripts/validate-console-closeout.py" in workflow
+
+    result = subprocess.run(
+        [sys.executable, "scripts/validate-console-closeout.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "CAVRA console closeout validation passed." in result.stdout

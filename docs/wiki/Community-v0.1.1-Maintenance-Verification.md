@@ -24,5 +24,5 @@ real tag and release artifacts are published.
 
 ## Next Recommendation
 
-Complete console closeout for a minimal coherent operator experience across
-prospects, auditors, platform teams, and CISOs.
+Tie policy, evidence, console, Go runtime readiness, and release verification
+into one final user-verifiable GA path.

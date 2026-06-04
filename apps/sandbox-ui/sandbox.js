@@ -4,6 +4,7 @@ const navItems = [
   { id: "policy-engine", label: "Policy Engine", icon: "shield", group: "Core Components", description: "Policy packs, categories, violations, remediation, and risk levels." },
   { id: "evidence", label: "Evidence Collector", icon: "archive", group: "Core Components", description: "Audit trails, attestations, and chain of custody." },
   { id: "use-cases", label: "Use Cases", icon: "layers", group: "Use Cases", description: "Terraform, Kubernetes, AI-agent, MCP, and supply-chain governance." },
+  { id: "operator-experience", label: "Operator Paths", icon: "route", group: "Use Cases", description: "Persona-specific closeout journeys for prospects, auditors, platform teams, and CISOs." },
   { id: "integrations", label: "Integrations", icon: "plug", group: "Platform", description: "GitHub, GitLab, clouds, IaC, Kubernetes, and MCP servers." },
   { id: "compliance", label: "Compliance", icon: "check", group: "Platform", description: "NIST, SOC2, ISO27001, CIS, PCI DSS, and OWASP mappings." },
   { id: "roadmap", label: "Roadmap", icon: "map", group: "Platform", description: "Interactive Community, Enterprise, SaaS, and release roadmap." },
@@ -16,6 +17,7 @@ const icons = {
   shield: "◈",
   archive: "▣",
   layers: "▤",
+  route: "▥",
   plug: "◇",
   check: "✓",
   map: "◎",
@@ -167,6 +169,33 @@ const useCases = [
   ["Audit Automation", "Package decisions, approvals, and release packets for compliance review."]
 ];
 
+const operatorPaths = [
+  [
+    "Prospect",
+    "Can CAVRA explain its value without private access?",
+    "Dashboard, Architecture, Use Cases, Documentation",
+    "Risk posture, before-the-agent-acts flow, supported integrations, and trial handoff links."
+  ],
+  [
+    "Auditor",
+    "Can I trace a decision to durable evidence?",
+    "Evidence, Compliance, Release Readiness Dashboard, Release Index",
+    "Decision payload, compliance mapping, release packet, verification packet, and public boundary statement."
+  ],
+  [
+    "Platform Team",
+    "Can this be enforced in CI and developer workflows?",
+    "Architecture, Integrations, Policy Engine, Documentation",
+    "Required checks, policy packs, GitHub/GitLab/Azure DevOps paths, CLI commands, and deployment references."
+  ],
+  [
+    "CISO",
+    "Can I govern AI agents without exposing Enterprise source?",
+    "Dashboard, Compliance, Operator Paths, Enterprise Trial",
+    "Blocked-risk narrative, control coverage, open-core boundary, and Enterprise/SaaS handoff documentation."
+  ]
+];
+
 const timeline = [
   ["Intent captured", "Agent action is normalized with actor, target, repository, tool, and context."],
   ["Policy evaluated", "Policy Engine returns allow, block, approval, or attestation decision."],
@@ -197,7 +226,8 @@ const routeContent = [
   ...policies.map((item) => ({ type: "Policy", label: item[1], route: "policy-engine", description: item[2] })),
   ...integrations.map((item) => ({ type: "Integration", label: item[0], route: "integrations", description: item[1] })),
   ...complianceRows.map((item) => ({ type: "Control", label: `${item[0]} ${item[1]}`, route: "compliance", description: item[3] })),
-  ...useCases.map((item) => ({ type: "Use Case", label: item[0], route: "use-cases", description: item[1] }))
+  ...useCases.map((item) => ({ type: "Use Case", label: item[0], route: "use-cases", description: item[1] })),
+  ...operatorPaths.map((item) => ({ type: "Operator Path", label: item[0], route: "operator-experience", description: item[1] }))
 ];
 
 function el(selector) {
@@ -349,6 +379,20 @@ function renderUseCases() {
   `).join("");
 }
 
+function renderOperatorPaths() {
+  el("#operatorPathCards").innerHTML = operatorPaths.map(([persona, question, path, evidence]) => `
+    <article class="operator-path-card">
+      <span>${persona}</span>
+      <h3>${question}</h3>
+      <dl>
+        <dt>Inspect</dt><dd>${path}</dd>
+        <dt>Verify</dt><dd>${evidence}</dd>
+      </dl>
+      <button data-route="documentation">Open docs</button>
+    </article>
+  `).join("");
+}
+
 function renderDocs() {
   el("#docsNav").innerHTML = docsLinks.map(([label, path]) => `
     <a href="https://github.com/Huzefaaa2/cavra/blob/main/${path}" target="_blank" rel="noreferrer">${label}<span>${path}</span></a>
@@ -473,6 +517,7 @@ function init() {
   renderIntegrations();
   renderCompliance();
   renderUseCases();
+  renderOperatorPaths();
   renderDocs();
   renderRoadmap();
   wireEvents();

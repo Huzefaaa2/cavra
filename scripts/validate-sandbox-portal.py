@@ -71,6 +71,7 @@ def main() -> int:
         "integrations",
         "compliance",
         "use-cases",
+        "operator-experience",
         "documentation",
         "roadmap",
     ]
@@ -104,6 +105,7 @@ def main() -> int:
         'id="complianceFramework"',
         'id="complianceRows"',
         'id="useCaseCards"',
+        'id="operatorPathCards"',
         'id="docsNav"',
         'id="roadmapBoard"',
     ]
@@ -119,6 +121,7 @@ def main() -> int:
         'type: "Integration"',
         'type: "Control"',
         'type: "Use Case"',
+        'type: "Operator Path"',
     ]:
         require(js, needle, "command palette contract", failures)
     require_any([html, js], "Ctrl K", "command palette shortcut label", failures)
@@ -208,8 +211,8 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "Complete console closeout",
-            "console closeout next recommendation",
+            "final user-verifiable GA path",
+            "GA path next recommendation",
             failures,
         )
 

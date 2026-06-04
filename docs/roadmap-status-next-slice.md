@@ -115,17 +115,23 @@ SaaS operating readiness rollup and public-safe documentation sync:
 CAVRA is ready for the next production-readiness slice, but the product is not
 yet fully production-complete. Remaining themes are:
 
-- console closeout for a minimal but coherent operator experience;
+- final user-verifiable Community GA path across policy, evidence, console, Go
+  runtime readiness, and release verification;
 - release documentation that ties policy, evidence, console, and Go runtime
   readiness into a user-verifiable GA path.
 
 ## Next Slice
 
-Console closeout for a minimal coherent operator experience, building on the
-completed developer portal redesign, portal smoke validator, dashboard
-validator, release index freshness validator, release index page, v0.1.1
-maintenance-release dry-run evidence, release-note freshness validator,
-maintenance-release checklist, schema validation, and CI enforcement.
+Final user-verifiable Community GA path, building on the completed console
+closeout operator experience, developer portal redesign, portal smoke
+validator, dashboard validator, release index freshness validator, release
+index page, v0.1.1 maintenance-release dry-run evidence, release-note freshness
+validator, maintenance-release checklist, schema validation, and CI
+enforcement.
+
+Console closeout operator experience is documented at
+`docs/console-closeout-operator-experience.md` and enforced by
+`scripts/validate-console-closeout.py`.
 
 ## Why This Is Next
 
@@ -578,5 +584,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Complete console closeout for a minimal coherent operator experience across
-prospects, auditors, platform teams, and CISOs.
+Tie policy, evidence, console, Go runtime readiness, and release verification
+into one final user-verifiable GA path.

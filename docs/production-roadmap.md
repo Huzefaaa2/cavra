@@ -220,8 +220,11 @@ developer portal, documented at `docs/sandbox-portal-redesign.md`.
 Portal smoke validation is documented at
 `docs/sandbox-portal-smoke-validation.md` and enforced by
 `scripts/validate-sandbox-portal.py`.
-Next recommended slice: complete console closeout for a minimal coherent operator experience across
-prospects, auditors, platform teams, and CISOs.
+Console closeout operator experience is documented at
+`docs/console-closeout-operator-experience.md` and enforced by
+`scripts/validate-console-closeout.py`.
+Next recommended slice: tie policy, evidence, console, Go runtime readiness, and release verification
+into one final user-verifiable GA path.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
