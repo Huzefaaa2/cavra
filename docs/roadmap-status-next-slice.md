@@ -121,10 +121,11 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Portal smoke validation, building on the completed developer portal redesign, dashboard validator, release index
-freshness validator, release index page, v0.1.1 maintenance-release dry-run
-evidence, release-note freshness validator, maintenance-release checklist,
-schema validation, and CI enforcement.
+Console closeout for a minimal coherent operator experience, building on the
+completed developer portal redesign, portal smoke validator, dashboard
+validator, release index freshness validator, release index page, v0.1.1
+maintenance-release dry-run evidence, release-note freshness validator,
+maintenance-release checklist, schema validation, and CI enforcement.
 
 ## Why This Is Next
 
@@ -577,6 +578,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Add a portal smoke validator that checks required routes, command palette
-content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
-workflow strings, and brand assets.
+Complete console closeout for a minimal coherent operator experience across
+prospects, auditors, platform teams, and CISOs.
