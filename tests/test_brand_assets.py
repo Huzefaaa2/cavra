@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -138,3 +140,51 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
     assert "shadcn/ui" in docs
     assert "Framer Motion" in docs
     assert "Lucide Icons" in docs
+
+
+def test_sandbox_portal_smoke_validator_is_linked_and_enforced() -> None:
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    docs = Path("docs/sandbox-portal-smoke-validation.md").read_text(encoding="utf-8")
+    wiki_docs = Path("docs/wiki/CAVRA-Developer-Portal-Smoke-Validation.md").read_text(
+        encoding="utf-8"
+    )
+    production_roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    workflows = {
+        "community-ci": Path(".github/workflows/community-ci.yml").read_text(
+            encoding="utf-8"
+        ),
+        "security-scan": Path(".github/workflows/security-scan.yml").read_text(
+            encoding="utf-8"
+        ),
+        "release-community": Path(".github/workflows/release-community.yml").read_text(
+            encoding="utf-8"
+        ),
+        "governance": Path(".github/workflows/cavra-governance.yml").read_text(
+            encoding="utf-8"
+        ),
+        "deploy-sandbox": Path(".github/workflows/deploy-sandbox.yml").read_text(
+            encoding="utf-8"
+        ),
+    }
+
+    assert "docs/sandbox-portal-smoke-validation.md" in readme
+    assert "CAVRA-Developer-Portal-Smoke-Validation.md" in wiki_home
+    assert "developer portal smoke validation" in changelog
+    assert "scripts/validate-sandbox-portal.py" in docs
+    assert "scripts/validate-sandbox-portal.py" in wiki_docs
+    assert "scripts/validate-sandbox-portal.py" in production_roadmap
+    assert "console closeout" in next_slice
+
+    for workflow in workflows.values():
+        assert "python scripts/validate-sandbox-portal.py" in workflow
+
+    result = subprocess.run(
+        [sys.executable, "scripts/validate-sandbox-portal.py"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "CAVRA sandbox portal smoke validation passed." in result.stdout

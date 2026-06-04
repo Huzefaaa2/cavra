@@ -71,6 +71,5 @@ records.
 
 ## Next Recommendation
 
-Add a portal smoke validator that checks required routes, command palette
-content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
-workflow strings, and brand assets.
+Complete console closeout for a minimal coherent operator experience across
+prospects, auditors, platform teams, and CISOs.

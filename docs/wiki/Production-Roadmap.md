@@ -217,9 +217,11 @@ Community release readiness dashboard validation is now documented at
 `scripts/validate-community-release-readiness-dashboard.py`.
 The GitHub Pages sandbox has been redesigned into a Backstage-style CAVRA
 developer portal, documented at `docs/sandbox-portal-redesign.md`.
-Next recommended slice: add a portal smoke validator that checks required routes, command palette
-content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
-workflow strings, and brand assets.
+Portal smoke validation is documented at
+`docs/sandbox-portal-smoke-validation.md` and enforced by
+`scripts/validate-sandbox-portal.py`.
+Next recommended slice: complete console closeout for a minimal coherent operator experience across
+prospects, auditors, platform teams, and CISOs.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

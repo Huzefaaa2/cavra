@@ -28,6 +28,10 @@
   rows, release links, freshness controls, verification commands, README
   navigation, wiki navigation, and publication state aligned with the release
   index.
+- Added CAVRA developer portal smoke validation to keep public GitHub Pages
+  routes, command palette content, mobile navigation, architecture nodes,
+  compliance filters, workflow smoke strings, brand assets, README links, and
+  wiki navigation aligned.
 
 ## Community GA v0.1.0 - 2026-06-04
 
