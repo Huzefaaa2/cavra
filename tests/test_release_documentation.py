@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "Community release index documentation" in next_slice
+    assert "Community release index freshness validation" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "Community release index documentation" in next_slice
+    assert "Community release index freshness validation" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "Community release index documentation" in next_slice
+    assert "Community release index freshness validation" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -379,7 +379,7 @@ def test_community_maintenance_release_checklist_is_linked_and_validated() -> No
     assert "Community-Maintenance-Release-Checklist.md" in wiki_home
     assert "Community-Maintenance-Release-Evidence-Template.md" in wiki_home
     assert "Community maintenance-release governance" in roadmap
-    assert "release-note freshness validator" in next_slice
+    assert "Community release index freshness validation" in next_slice
     assert "release notes" in checklist
     assert "community-maintenance-release.schema.json" in template
     assert "Community maintenance-release checklist" in changelog
@@ -454,7 +454,7 @@ def test_community_release_note_freshness_is_linked_and_validated() -> None:
     assert script in doc
     assert script in wiki_doc
     assert script in roadmap
-    assert "Community release index documentation" in next_slice
+    assert "Community release index freshness validation" in next_slice
     assert "release-note freshness validation" in changelog
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
@@ -523,7 +523,7 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert "ready_with_accepted_risk" in wiki_verification
     assert "Community v0.1.1 maintenance-release dry-run notes" in changelog
     assert "community-v0.1.1-maintenance-verification.md" in roadmap
-    assert "Community release index documentation" in next_slice
+    assert "Community release index freshness validation" in next_slice
 
     assert verification_json["schema_version"] == "cavra.community_maintenance_release.v1"
     assert verification_json["packet_id"] == "community-v0.1.1-maintenance-verification"
@@ -543,7 +543,7 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert verification_json["public_boundary"]["private_keys_included"] is False
     assert verification_json["accepted_risks"][0]["severity"] == "low"
     assert verification_json["decision"]["status"] == "defer"
-    assert "Community release index page" in verification_json["next_recommendation"]
+    assert "Community release index freshness validator" in verification_json["next_recommendation"]
 
     maintenance_result = subprocess.run(
         [sys.executable, "scripts/validate-maintenance-release-evidence.py"],
@@ -564,6 +564,51 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert freshness_result.returncode == 0, (
         freshness_result.stdout + freshness_result.stderr
     )
+
+
+def test_community_release_index_is_linked_and_current() -> None:
+    release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
+    wiki_release_index = Path("docs/wiki/Community-Release-Index.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+
+    v010_release = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0"
+    v011_release = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1"
+    v010_notes = "docs/releases/community-v0.1.0.md"
+    v011_notes = "docs/releases/community-v0.1.1.md"
+    v010_verification = (
+        "docs/release-verifications/community-v0.1.0-post-release-verification.md"
+    )
+    v011_verification = (
+        "docs/release-verifications/community-v0.1.1-maintenance-verification.md"
+    )
+
+    assert "docs/community-release-index.md" in readme
+    assert "Community-Release-Index.md" in wiki_home
+    assert "Community release index" in changelog
+    assert "Community release index documentation" in roadmap
+    assert "Community release index freshness validation" in next_slice
+    assert "Community release index:" in inventory
+
+    for document in (release_index, wiki_release_index):
+        assert "Community GA v0.1.0" in document
+        assert "Community v0.1.1" in document
+        assert "Published" in document
+        assert "Dry run" in document
+        assert v010_release in document
+        assert v011_release in document
+        assert v010_notes in document
+        assert v011_notes in document
+        assert v010_verification in document
+        assert v011_verification in document
+        assert "scripts/validate-community-release-note-freshness.py" in document
+        assert "Community release index freshness validator" in document
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

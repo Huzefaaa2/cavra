@@ -12,6 +12,8 @@
   verification packets, README links, and wiki navigation in sync.
 - Added the first Community v0.1.1 maintenance-release dry-run notes and
   verification packet to exercise the post-GA Community release evidence path.
+- Added the Community release index for public Community release states, notes,
+  verification packets, and next actions.
 
 ## Community GA v0.1.0 - 2026-06-04
 

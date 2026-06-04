@@ -84,6 +84,8 @@ Community release-note freshness: `docs/community-release-note-freshness.md` and
 
 Community v0.1.1 maintenance-release dry run: `docs/releases/community-v0.1.1.md`, `docs/release-verifications/community-v0.1.1-maintenance-verification.md`, and `docs/release-verifications/community-v0.1.1-maintenance-verification.json` exercise the post-GA public Community maintenance release path with accepted low risk for unpublished future artifacts.
 
+Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions and allowlisted managed endpoint rollout evidence files when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. Rollout listings include checksum integrity and promotion readiness. The console shows artifact lists, bundle download links, rollout integrity, and readiness indicators from evidence rows.

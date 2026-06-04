@@ -115,5 +115,5 @@
     "status": "defer",
     "rationale": "The public Community maintenance-release evidence path is ready for a future v0.1.1 release, but actual artifact checksum and install-smoke evidence must wait until a real tag and release artifacts are published."
   },
-  "next_recommendation": "Create a Community release index page that summarizes public Community tags, release notes, verification packets, publication state, and next action."
+  "next_recommendation": "Add a Community release index freshness validator that checks every indexed Community release has matching release notes, verification evidence, README links, wiki links, and a valid publication state."
 }

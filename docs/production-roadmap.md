@@ -205,9 +205,11 @@ scan, release-community, and `cavra-required-check`.
 Community v0.1.1 maintenance-release dry-run evidence is now documented at
 `docs/releases/community-v0.1.1.md` and
 `docs/release-verifications/community-v0.1.1-maintenance-verification.md`.
-Next recommended slice: create a Community release index page that summarizes
-public Community tags, release notes, verification packets, publication state,
-and next action.
+Community release index documentation is now available at
+`docs/community-release-index.md`.
+Next recommended slice: add a Community release index freshness validator that
+checks every indexed Community release has matching release notes, verification
+evidence, README links, wiki links, and a valid publication state.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
