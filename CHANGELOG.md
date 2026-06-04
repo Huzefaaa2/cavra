@@ -20,6 +20,10 @@
 - Added the Community release readiness dashboard to roll up release state,
   freshness controls, verification commands, CI evidence, and maintainer next
   actions.
+- Redesigned the GitHub Pages sandbox into a Backstage-style CAVRA developer
+  portal with persistent navigation, command palette search, mobile navigation,
+  interactive architecture, policy, evidence, integration, compliance,
+  documentation, and roadmap pages.
 
 ## Community GA v0.1.0 - 2026-06-04
 

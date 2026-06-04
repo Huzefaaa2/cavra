@@ -3,1232 +3,287 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CAVRA portal for Continuous AI Validation, Risk and Audit."
+    />
     <title>CAVRA | Evidence Console</title>
     <link rel="icon" href="./brand/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header class="hero">
-      <nav>
-        <div class="hero-title-block">
+    <a class="skip-link" href="#mainContent">Skip to content</a>
+    <header class="top-shell" aria-label="CAVRA portal header">
+      <div class="hero-title-block">
+        <img src="./brand/cavra-mark.svg" alt="CAVRA shield mark" width="34" height="34" />
+        <div>
           <p class="hero-wordmark">CAVRA</p>
-          <p class="eyebrow">Controlled Agentic Verification & Runtime Authority</p>
-          <h1>Evidence Console</h1>
+          <span>Continuous AI Validation, Risk &amp; Audit</span>
         </div>
-        <div class="hero-side">
-          <button id="copyInstall">claude mcp add cavra</button>
-          <div class="hero-logo-lockup">
-            <img class="hero-product-mark" src="./brand/cavra-mark.svg" width="220" height="220" alt="CAVRA shield mark" />
-          </div>
-        </div>
+      </div>
+      <button class="search-trigger" id="openSearch" aria-label="Open command palette">
+        <span>Search pages, policies, controls</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <nav class="top-actions" aria-label="Top navigation">
+        <a href="#documentation" data-route-link="documentation">Documentation</a>
+        <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="#dashboard" data-route-link="dashboard">Demo</a>
+        <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download</a>
+        <button id="themeToggle" aria-label="Toggle theme">Dark</button>
+        <span class="version-badge">v1.0.0</span>
       </nav>
-      <section class="hero-content">
-        <div class="hero-copy">
-          <p>Run the flagship agent scenario, evaluate final closeout trial evidence, and verify governance coverage from one operational surface.</p>
-          <label class="scenario-picker">Scenario
-            <select id="scenarioSelector">
-              <option value="before-the-agent-acts">Before the Agent Acts</option>
-              <option value="final-closeout-trial">Final Closeout Trial</option>
-            </select>
-          </label>
-          <div class="actions">
-            <button id="runScenario">Run Agent Scenario</button>
-            <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download Evidence</a>
-          </div>
-          <p id="scenarioStatus" class="status-line">Scenario source: local sample until the CAVRA API is reachable.</p>
-          <div id="demoMetrics" class="hero-metrics" aria-live="polite"></div>
-        </div>
-      </section>
+      <button class="mobile-menu-button" id="openMobileNav" aria-label="Open navigation">Menu</button>
     </header>
-    <main>
-      <section class="controls">
-        <label>Persona <select id="persona"><option>Developer</option><option>CISO</option><option>Platform Engineer</option><option>Auditor</option></select></label>
-        <label>Policy Mode <select id="policyMode"><option>Enforce</option><option>Audit-only</option><option>Strict regulated repository</option><option>Break-glass</option></select></label>
-      </section>
-      <section class="console community-ga-console">
-        <div class="console-header">
-          <div>
-            <h2>Community GA Control Hardening</h2>
-            <p>Verify the public Community path for policy signing, runtime modes, golden decisions, deployment readiness, and release evidence.</p>
-          </div>
-          <div class="console-actions">
-            <button id="refreshCommunityGa">Refresh</button>
-            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/community-ga-control-hardening-sync.md" target="_blank" rel="noreferrer">Batch Sync</a>
-          </div>
-        </div>
-        <div id="communityGaSummary" class="community-ga-grid"></div>
-        <div class="community-ga-layout">
-          <div>
-            <h3>Operator Checklist</h3>
-            <ol id="communityGaChecklist" class="community-ga-checklist"></ol>
-          </div>
-          <div>
-            <h3>Policy Signing Commands</h3>
-            <pre id="communityGaCommands" class="community-ga-payload">Policy signing commands will load from the Community GA workflow.</pre>
-          </div>
-          <div>
-            <h3>Evidence Links</h3>
-            <div id="communityGaLinks" class="community-ga-links"></div>
-          </div>
-        </div>
-      </section>
-      <section class="grid">
-        <div>
-          <h2>Agent Actions</h2>
-          <ol id="actions"></ol>
-        </div>
-        <div>
-          <h2>CAVRA Decisions</h2>
-          <ol id="decisions"></ol>
-        </div>
-        <div>
-          <h2>Evidence</h2>
-          <pre id="evidence">Simulated AI-agent scenario using real CAVRA policy decisions.</pre>
-        </div>
-      </section>
-      <section class="console trial-onboarding-console">
-        <div class="console-header">
-          <div>
-            <h2>Final Closeout Trial Onboarding</h2>
-            <p>Review synthetic trial evidence, release criteria, and the Community-to-Enterprise upgrade path.</p>
-          </div>
-          <a class="secondary-link" href="./evidence/final-closeout-trial/sample-evidence-package.json" download>Download Sample Package</a>
-        </div>
-        <div id="trialOnboardingSummary" class="trial-onboarding-grid"></div>
-        <div class="trial-doc-links">
-          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-walkthrough.md" target="_blank" rel="noreferrer">Walkthrough</a>
-          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-trial-sample-evidence.md" target="_blank" rel="noreferrer">Sample Evidence Guide</a>
-          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-sales-engineering-demo.md" target="_blank" rel="noreferrer">Demo Script</a>
-          <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/release-governance-final-closeout-release-criteria.md" target="_blank" rel="noreferrer">Release Criteria</a>
-        </div>
-      </section>
-      <section class="console pilot-readiness-console">
-        <div class="console-header">
-          <div>
-            <h2>Production Pilot Readiness</h2>
-            <p>Translate trial results into a scoped production pilot with repository, agent, CI/CD, connector, identity, retention, and handoff readiness.</p>
-          </div>
-          <div class="console-actions">
-            <button id="savePilotIntake">Save Intake Snapshot</button>
-            <a class="secondary-link" href="./evidence/final-closeout-trial/pilot-intake-template.json" download>Download Intake Template</a>
-            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-production-pilot-intake.md" target="_blank" rel="noreferrer">Intake Guide</a>
-          </div>
-        </div>
-        <p id="pilotReadinessStatus" class="status-line">Save uses the CAVRA API when configured; hosted public demo mode keeps records local-only.</p>
-        <div id="pilotReadinessSummary" class="pilot-readiness-grid"></div>
-        <div class="pilot-readiness-layout">
-          <div>
-            <h3>Readiness Checklist</h3>
-            <ol id="pilotReadinessChecklist" class="pilot-readiness-checklist"></ol>
-          </div>
-          <div>
-            <h3>Handoff Links</h3>
-            <div class="pilot-handoff-links">
-              <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-pilot-readiness-checklists.md" target="_blank" rel="noreferrer">Readiness Checklists</a>
-              <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise/final-closeout-enterprise-saas-handoff.md" target="_blank" rel="noreferrer">Enterprise/SaaS Handoff</a>
-              <a href="https://github.com/Huzefaaa2/cavra/blob/main/examples/demos/final-closeout-trial/pilot-intake-template.json" target="_blank" rel="noreferrer">Template Source</a>
-            </div>
-            <pre id="pilotReadinessEvidence" class="pilot-readiness-evidence">Pilot intake template will load from the public sandbox artifact when available.</pre>
-          </div>
-        </div>
-      </section>
-      <section class="console saas-automation-console">
-        <div class="console-header">
-          <div>
-            <h2>SaaS Operating Automation Contract</h2>
-            <p>Inspect the public-safe request and response shape for recurring post-closeout SaaS operations.</p>
-          </div>
-          <div class="console-actions">
-            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-contract.md" target="_blank" rel="noreferrer">Contract Docs</a>
-            <button id="refreshSaasAutomation">Refresh Contract</button>
-          </div>
-        </div>
-        <p id="saasAutomationStatus" class="status-line">Loads from the CAVRA API when configured; hosted public demo mode uses a synthetic contract preview.</p>
-        <div id="saasAutomationSummary" class="saas-automation-grid"></div>
-        <div class="saas-automation-layout">
-          <div>
-            <h3>Required Checks</h3>
-            <div id="saasAutomationChecks" class="saas-check-list"></div>
-          </div>
-          <div>
-            <h3>Public Request</h3>
-            <pre id="saasAutomationRequest" class="saas-contract-payload">SaaS operating automation request will load from the public-safe contract.</pre>
-          </div>
-          <div>
-            <h3>Public Response</h3>
-            <pre id="saasAutomationResponse" class="saas-contract-payload">SaaS operating automation response will load from the public-safe contract.</pre>
-          </div>
-        </div>
-      </section>
-      <section class="console saas-automation-console">
-        <div class="console-header">
-          <div>
-            <h2>SaaS Worker Handoff</h2>
-            <p>Preview the public-safe worker handoff request, response, scheduler references, and private-service boundary.</p>
-          </div>
-          <div class="console-actions">
-            <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/saas-operating-automation-worker-handoff.md" target="_blank" rel="noreferrer">Handoff Docs</a>
-            <button id="refreshSaasWorkerHandoff">Refresh Handoff</button>
-          </div>
-        </div>
-        <p id="saasWorkerHandoffStatus" class="status-line">Loads from the CAVRA API when configured; hosted public demo mode uses a synthetic worker handoff preview.</p>
-        <div id="saasWorkerHandoffSummary" class="saas-automation-grid"></div>
-        <div class="saas-worker-handoff-layout">
-          <div>
-            <h3>Worker Targets</h3>
-            <div id="saasWorkerHandoffTargets" class="saas-check-list"></div>
-          </div>
-          <div>
-            <h3>Public Request</h3>
-            <pre id="saasWorkerHandoffRequest" class="saas-contract-payload">SaaS worker handoff request will load from the public-safe contract.</pre>
-          </div>
-          <div>
-            <h3>Public Response</h3>
-            <pre id="saasWorkerHandoffResponse" class="saas-contract-payload">SaaS worker handoff response will load from the public-safe contract.</pre>
-          </div>
-        </div>
-      </section>
-      <section class="console release-console">
-        <div class="console-header">
-          <div>
-            <h2>Release Notes</h2>
-            <p>Design-partner links for the current public demo, release integrity work, and product documentation.</p>
-          </div>
-          <a class="secondary-link" href="https://github.com/Huzefaaa2/cavra/releases" target="_blank" rel="noreferrer">GitHub Releases</a>
-        </div>
-        <div id="releaseNotes" class="release-note-grid"></div>
-      </section>
-      <section class="console release-delivery-console">
-        <div class="console-header">
-          <div>
-            <h2>Release Channel Publishing</h2>
-            <p>Track channel promotion requests, approval state, and endpoint-management export bundles for managed workstation releases.</p>
-          </div>
-          <button id="refreshReleaseChannels">Refresh</button>
-        </div>
-        <div id="releaseChannelDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Channel <input id="filterReleaseChannel" placeholder="stable" /></label>
-          <label>Provider <input id="filterEndpointExportProvider" placeholder="jamf" /></label>
-        </div>
-        <div class="activity-grid">
-          <div>
-            <h3>Promotion Requests</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Request</th>
-                    <th>Channel</th>
-                    <th>Ring</th>
-                    <th>Approval</th>
-                    <th>Targets</th>
-                    <th>Created</th>
-                  </tr>
-                </thead>
-                <tbody id="releaseChannelRows"></tbody>
-              </table>
+
+    <div class="portal-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+        <button class="collapse-button" id="collapseSidebar" aria-label="Collapse sidebar">
+          Collapse
+        </button>
+        <nav id="portalNav"></nav>
+      </aside>
+
+      <main class="portal-main" id="mainContent" tabindex="-1">
+        <section class="page-panel is-active" id="dashboard" data-title="Dashboard">
+          <div class="hero">
+            <nav class="hero-side" aria-label="Install action">
+              <button id="copyInstall">claude mcp add cavra</button>
+              <div class="hero-logo-lockup">
+                <img class="hero-product-mark" src="./brand/cavra-mark.svg" width="220" height="220" alt="CAVRA shield mark" />
+              </div>
+            </nav>
+            <div class="hero-copy">
+              <p class="eyebrow">Enterprise AI-agent runtime governance</p>
+              <h1>Evidence Console</h1>
+              <p>
+                CAVRA validates AI coding agent actions before they touch
+                repositories, infrastructure, MCP tools, policies, or release
+                workflows.
+              </p>
+              <div class="actions">
+                <button id="runScenario">Run Agent Scenario</button>
+                <a href="#architecture" data-route-link="architecture">Explore Architecture</a>
+              </div>
+              <p id="scenarioStatus" class="status-line">
+                Scenario source: local sample until the CAVRA API is reachable.
+              </p>
+              <div id="demoMetrics" class="hero-metrics" aria-live="polite"></div>
             </div>
           </div>
-          <div>
-            <h3>Endpoint Exports</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Export</th>
-                    <th>Channel</th>
-                    <th>Providers</th>
-                    <th>Approval</th>
-                    <th>Files</th>
-                    <th>Created</th>
-                    <th>Artifacts</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointExportRows"></tbody>
-              </table>
+
+          <section class="dashboard-grid" aria-label="Platform overview">
+            <article class="feature-card accent-blue">
+              <span>Risk posture</span>
+              <strong>84</strong>
+              <p>Governed release and agent activity with approval and evidence coverage.</p>
+              <div class="risk-ring" aria-label="Risk score 84 out of 100"></div>
+            </article>
+            <article class="feature-card">
+              <span>Governance flow</span>
+              <strong>Before the agent acts</strong>
+              <p>Policy decision, attestation, audit event, and remediation guidance in one pass.</p>
+            </article>
+            <article class="feature-card">
+              <span>Audit coverage</span>
+              <strong>92%</strong>
+              <p>Release packets, evidence bundles, PR attestations, and public boundary checks.</p>
+            </article>
+          </section>
+
+          <section class="stat-grid" aria-label="Platform statistics">
+            <div><span>Policy Packs</span><strong>14</strong></div>
+            <div><span>Evidence Types</span><strong>28</strong></div>
+            <div><span>Integrations</span><strong>10</strong></div>
+            <div><span>Compliance Controls</span><strong>47</strong></div>
+            <div><span>Risk Categories</span><strong>6</strong></div>
+          </section>
+
+          <section class="console community-ga-console">
+            <div class="console-header">
+              <div>
+                <h2>Community GA Control Hardening</h2>
+                <p>
+                  Public Community release readiness across policy signing,
+                  runtime modes, golden decisions, deployment validation, and
+                  release evidence.
+                </p>
+              </div>
+              <button id="refreshCommunityGa">Refresh</button>
             </div>
-          </div>
-        </div>
-        <div id="endpointExportArtifacts" class="detail-panel">Select Artifacts from an endpoint export row.</div>
-      </section>
-      <section class="console release-delivery-console">
-        <div class="console-header">
-          <div>
-            <h2>Release Connector Delivery</h2>
-            <p>Review persisted SIEM, ITSM, ChatOps, and webhook delivery history for promotion and rollback governance events.</p>
-          </div>
-          <button id="refreshReleaseDelivery">Refresh</button>
-        </div>
-        <div id="releaseDeliveryDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Provider <input id="filterReleaseDeliveryProvider" placeholder="webhook" /></label>
-          <label>Event <select id="filterReleaseDeliveryEvent"><option value="">Any</option><option value="cavra.rollout_promotion_execution">Promotion</option><option value="cavra.rollout_rollback_execution">Rollback</option></select></label>
-          <label>Success <select id="filterReleaseDeliverySuccess"><option value="">Any</option><option value="true">Success</option><option value="false">Failed</option></select></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Delivery</th>
-                <th>Source Event</th>
-                <th>Type</th>
-                <th>Providers</th>
-                <th>Status</th>
-                <th>Attempts</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="releaseDeliveryRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console activity-console">
-        <div class="console-header">
-          <div>
-            <h2>Activity Explorer</h2>
-            <p>Browse persisted sessions and decisions by repository, agent, policy, outcome, and severity.</p>
-          </div>
-          <button id="refreshActivity">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Repository <input id="filterActivityRepository" placeholder="payments/api" /></label>
-          <label>Agent <input id="filterActivityAgent" placeholder="codex-agent" /></label>
-          <label>Policy <input id="filterActivityPolicy" placeholder="cavra-ai-agent-baseline" /></label>
-          <label>Decision <select id="filterDecisionState"><option value="">Any</option><option value="allow">Allow</option><option value="block">Block</option><option value="require_approval">Require approval</option><option value="warn">Warn</option><option value="allow_with_attestation">Allow with attestation</option></select></label>
-          <label>Severity <select id="filterDecisionSeverity"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
-        </div>
-        <div class="activity-grid">
-          <div>
-            <h3>Sessions</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Session</th>
-                    <th>Repository</th>
-                    <th>Agent</th>
-                    <th>Decisions</th>
-                    <th>Blocked</th>
-                    <th>Approvals</th>
-                    <th>Updated</th>
-                  </tr>
-                </thead>
-                <tbody id="sessionRows"></tbody>
-              </table>
+            <div id="communityGaSummary" class="community-ga-grid"></div>
+          </section>
+
+          <section class="console pilot-readiness-console">
+            <div class="console-header">
+              <div>
+                <h2>Production Pilot Readiness</h2>
+                <p>
+                  Convert trial evidence into a scoped production pilot with
+                  repository, agent, CI/CD, connector, identity, and handoff readiness.
+                </p>
+              </div>
+              <button id="savePilotIntake">Save Intake Snapshot</button>
             </div>
+            <div id="pilotReadinessSummary" class="pilot-readiness-grid"></div>
+          </section>
+        </section>
+
+        <section class="page-panel" id="architecture" data-title="Architecture">
+          <div class="section-heading">
+            <p class="eyebrow">Interactive architecture</p>
+            <h2>Runtime governance from source to audit trail</h2>
+            <p>
+              Click any node to inspect responsibilities, inputs, and outputs.
+              The diagram collapses into a swipeable rail on mobile.
+            </p>
           </div>
-          <div>
-            <h3>Decisions</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Decision</th>
-                    <th>Outcome</th>
-                    <th>Action</th>
-                    <th>Target</th>
-                    <th>Rule</th>
-                    <th>Severity</th>
-                  </tr>
-                </thead>
-                <tbody id="decisionRows"></tbody>
-              </table>
-            </div>
+          <div class="architecture-workbench">
+            <div class="architecture-map" id="architectureMap" aria-label="Interactive architecture diagram"></div>
+            <aside class="node-inspector" id="nodeInspector" aria-live="polite"></aside>
           </div>
-        </div>
-      </section>
-      <section class="console inventory-console">
-        <div class="console-header">
-          <div>
-            <h2>Repository and Policy Rollout</h2>
-            <p>Track repository ownership, risk tier, required checks, policy pack rollout state, and enforcement mode.</p>
+        </section>
+
+        <section class="page-panel" id="policy-engine" data-title="Policy Engine">
+          <div class="section-heading">
+            <p class="eyebrow">Policy Engine</p>
+            <h2>Enterprise governance software for AI-agent decisions</h2>
+            <p>
+              Policy packs evaluate file access, commands, pull requests,
+              infrastructure plans, MCP trust, and release workflow risk.
+            </p>
           </div>
-          <button id="refreshInventory">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Owner <input id="filterRepositoryOwner" placeholder="Payments Platform" /></label>
-          <label>Policy <input id="filterRepositoryPolicy" placeholder="cavra-banking" /></label>
-          <label>Risk <select id="filterRepositoryRisk"><option value="">Any</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
-          <label>Rollout state <select id="filterRolloutState"><option value="">Any</option><option value="planned">Planned</option><option value="active">Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
-          <label>Mode <select id="filterRolloutMode"><option value="">Any</option><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict">Strict</option><option value="break_glass">Break glass</option></select></label>
-        </div>
-        <div class="inventory-grid">
-          <div>
-            <h3>Repositories</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Repository</th>
-                    <th>Owner</th>
-                    <th>Policy</th>
-                    <th>Risk</th>
-                    <th>Status</th>
-                    <th>Required Checks</th>
-                  </tr>
-                </thead>
-                <tbody id="repositoryRows"></tbody>
-              </table>
-            </div>
+          <div id="policyExplorer" class="policy-grid"></div>
+        </section>
+
+        <section class="page-panel" id="evidence" data-title="Evidence">
+          <div class="section-heading">
+            <p class="eyebrow">Evidence Collector</p>
+            <h2>Audit trails, attestations, and chain of custody</h2>
+            <p>
+              CAVRA records why an action was allowed, blocked, or routed for
+              approval, then packages the result for compliance and review.
+            </p>
           </div>
-          <div>
-            <h3>Policy Rollouts</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Repository</th>
-                    <th>Policy</th>
-                    <th>Mode</th>
-                    <th>State</th>
-                    <th>Coverage</th>
-                    <th>Owner</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody id="rolloutRows"></tbody>
-              </table>
-            </div>
+          <div id="evidenceTimeline" class="timeline"></div>
+          <pre id="evidencePayload" class="code-panel">Evidence payload will appear after running the scenario.</pre>
+        </section>
+
+        <section class="page-panel" id="integrations" data-title="Integrations">
+          <div class="section-heading">
+            <p class="eyebrow">Integrations</p>
+            <h2>Connectors for developer platforms, cloud, IaC, and MCP</h2>
+            <p>Every integration card shows capability coverage and public documentation status.</p>
           </div>
-        </div>
-        <div id="rolloutDetail" class="detail-panel">Select Details from a policy rollout row.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Inventory Ingestion</h2>
-            <p>Normalize Jamf, Intune, Linux fleet, and EDR exports into reconciliation-ready endpoint observations.</p>
+          <div id="integrationCards" class="integration-grid"></div>
+        </section>
+
+        <section class="page-panel" id="compliance" data-title="Compliance">
+          <div class="section-heading">
+            <p class="eyebrow">Compliance</p>
+            <h2>Searchable control matrix</h2>
+            <p>Map CAVRA policy decisions and evidence artifacts to enterprise frameworks.</p>
           </div>
-          <button id="refreshEndpointInventory">Refresh</button>
-        </div>
-        <div id="endpointInventoryDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Provider <select id="filterEndpointInventoryProvider"><option value="">Any</option><option value="jamf">Jamf</option><option value="intune">Intune</option><option value="linux">Linux</option><option value="edr">EDR</option></select></label>
-          <label>Channel <input id="filterEndpointInventoryChannel" placeholder="stable" /></label>
-          <label>Target <input id="filterEndpointInventoryTarget" placeholder="linux-systemd" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Inventory</th>
-                <th>Provider</th>
-                <th>Channel</th>
-                <th>Endpoints</th>
-                <th>Targets</th>
-                <th>Missing</th>
-                <th>Observed</th>
-              </tr>
-            </thead>
-            <tbody id="endpointInventoryRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Inventory Freshness</h2>
-            <p>Track provider, channel, and deployment-target inventory age against endpoint-management SLA thresholds.</p>
+          <div class="toolbar">
+            <input id="complianceFilter" type="search" placeholder="Filter controls, evidence, frameworks" />
+            <select id="complianceFramework">
+              <option value="all">All frameworks</option>
+              <option>NIST</option>
+              <option>SOC2</option>
+              <option>ISO27001</option>
+              <option>CIS</option>
+              <option>PCI DSS</option>
+              <option>OWASP</option>
+            </select>
           </div>
-          <button id="refreshEndpointInventoryFreshness">Refresh</button>
-        </div>
-        <div id="endpointInventoryFreshnessDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Alert <select id="filterEndpointInventoryFreshnessAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
-          <label>Provider <select id="filterEndpointInventoryFreshnessProvider"><option value="">Any</option><option value="jamf">Jamf</option><option value="intune">Intune</option><option value="linux">Linux</option><option value="edr">EDR</option></select></label>
-          <label>Channel <input id="filterEndpointInventoryFreshnessChannel" placeholder="stable" /></label>
-          <label>Target <input id="filterEndpointInventoryFreshnessTarget" placeholder="linux-systemd" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Report</th>
-                <th>Alert</th>
-                <th>Warnings</th>
-                <th>Critical</th>
-                <th>Alerts</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="endpointInventoryFreshnessRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Policy Authoring and Rollout Changes</h2>
-            <p>Create safe policy drafts, review rollout change plans, and apply rollout transitions.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Control</th><th>Mapped Policy</th><th>Evidence</th><th>Status</th></tr>
+              </thead>
+              <tbody id="complianceRows"></tbody>
+            </table>
           </div>
-          <button id="refreshPolicyCatalog">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Policy ID <input id="draftPolicyId" value="cavra-platform-baseline" /></label>
-          <label>Title <input id="draftPolicyTitle" value="Platform Baseline" /></label>
-          <label>Version <input id="draftPolicyVersion" value="2026.05" /></label>
-          <label>Inherits <input id="draftPolicyInherits" value="cavra-ai-agent-baseline" /></label>
-          <button id="previewPolicyDraft">Preview draft</button>
-          <button id="planPolicyPublish" class="secondary">Plan publish</button>
-          <button id="requestPolicyPublishApproval" class="secondary">Request approval</button>
-          <label>Approval <input id="policyPublishApprovalId" placeholder="apr_..." /></label>
-          <button id="publishPolicyPack" class="secondary">Publish signed</button>
-        </div>
-        <div class="search-controls">
-          <label>Rollout <input id="changeRolloutId" value="payments-api-banking" /></label>
-          <label>Repository <input id="changeRepository" value="payments/api" /></label>
-          <label>Policy <input id="changePolicyPack" value="cavra-platform-baseline" /></label>
-          <label>Mode <select id="changeMode"><option value="audit_only">Audit-only</option><option value="enforce">Enforce</option><option value="strict" selected>Strict</option><option value="break_glass">Break glass</option></select></label>
-          <label>State <select id="changeState"><option value="planned">Planned</option><option value="active" selected>Active</option><option value="paused">Paused</option><option value="retired">Retired</option></select></label>
-          <label>Coverage <input id="changeCoverage" type="number" min="0" max="100" value="95" /></label>
-          <button id="planRolloutChange">Plan</button>
-          <button id="applyRolloutChange" class="secondary">Apply</button>
-        </div>
-        <div class="inventory-grid">
-          <div id="policyCatalog" class="detail-panel">Policy catalog is loading.</div>
-          <div id="policyDraft" class="detail-panel">Preview a policy draft.</div>
-        </div>
-        <div id="policyPublishPlan" class="detail-panel">Plan a signed policy write-back.</div>
-        <div id="rolloutChangePlan" class="detail-panel">Plan a rollout change.</div>
-      </section>
-      <section class="console integration-console">
-        <div class="console-header">
-          <div>
-            <h2>Enterprise Integrations</h2>
-            <p>Track source control, SIEM, ITSM, identity, storage, and ChatOps connectors by owner, status, health, and capability.</p>
+        </section>
+
+        <section class="page-panel" id="use-cases" data-title="Use Cases">
+          <div class="section-heading">
+            <p class="eyebrow">Use cases</p>
+            <h2>Governance patterns for modern engineering teams</h2>
           </div>
-          <button id="refreshIntegrations">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Category <select id="filterIntegrationCategory"><option value="">Any</option><option value="source_control">Source control</option><option value="ci_cd">CI/CD</option><option value="siem">SIEM</option><option value="itsm">ITSM</option><option value="chatops">ChatOps</option><option value="identity">Identity</option><option value="storage">Storage</option><option value="security">Security</option><option value="observability">Observability</option></select></label>
-          <label>Status <select id="filterIntegrationStatus"><option value="">Any</option><option value="planned">Planned</option><option value="configured">Configured</option><option value="active">Active</option><option value="paused">Paused</option><option value="disabled">Disabled</option></select></label>
-          <label>Health <select id="filterIntegrationHealth"><option value="">Any</option><option value="healthy">Healthy</option><option value="degraded">Degraded</option><option value="failed">Failed</option><option value="not_checked">Not checked</option><option value="unknown">Unknown</option></select></label>
-          <label>Owner <input id="filterIntegrationOwner" placeholder="Developer Platform" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Integration</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Health</th>
-                <th>Owner</th>
-                <th>Environment</th>
-                <th>Capabilities</th>
-              </tr>
-            </thead>
-            <tbody id="integrationRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console release-delivery-console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Publication Delivery</h2>
-            <p>Track Jamf, Intune, and Linux fleet publication attempts for governed endpoint-management exports.</p>
+          <div id="useCaseCards" class="usecase-grid"></div>
+        </section>
+
+        <section class="page-panel" id="documentation" data-title="Documentation">
+          <div class="section-heading">
+            <p class="eyebrow">Documentation</p>
+            <h2>GitBook-style public docs surface</h2>
+            <p>Use the command palette or nested docs list to jump into product areas.</p>
           </div>
-          <button id="refreshEndpointPublicationDelivery">Refresh</button>
-        </div>
-        <div id="endpointPublicationDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Provider <input id="filterEndpointPublicationProvider" placeholder="jamf" /></label>
-          <label>Channel <input id="filterEndpointPublicationChannel" placeholder="stable" /></label>
-          <label>Success <select id="filterEndpointPublicationSuccess"><option value="">Any</option><option value="true">Success</option><option value="false">Failed</option></select></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Publication</th>
-                <th>Export</th>
-                <th>Channel</th>
-                <th>Providers</th>
-                <th>Status</th>
-                <th>Attempts</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="endpointPublicationRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Drift Monitoring</h2>
-            <p>Compare signed deployment targets with observed runtime versions and checksum state across managed endpoints.</p>
+          <div class="docs-layout">
+            <nav id="docsNav" class="docs-nav"></nav>
+            <article class="docs-reader">
+              <h3>Quickstart</h3>
+              <p>Run the static portal locally, install the CLI, and review the public Community controls.</p>
+              <pre class="code-panel"><code>python -m http.server 5173 --directory apps/sandbox-ui
+cavra policy list
+cavra evidence verify .cavra/evidence/required-check</code><button class="copy-code" data-copy="python -m http.server 5173 --directory apps/sandbox-ui">Copy</button></pre>
+            </article>
           </div>
-          <button id="refreshEndpointReconciliation">Refresh</button>
-        </div>
-        <div id="endpointReconciliationDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Status <select id="filterEndpointReconciliationStatus"><option value="">Any</option><option value="aligned">Aligned</option><option value="drift_detected">Drift detected</option></select></label>
-          <label>Alert <select id="filterEndpointReconciliationAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
-          <label>Target <input id="filterEndpointReconciliationTarget" placeholder="linux-systemd" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Reconciliation</th>
-                <th>Status</th>
-                <th>Alert</th>
-                <th>Observed</th>
-                <th>Compliant</th>
-                <th>Drifted</th>
-                <th>Missing</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="endpointReconciliationRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Drift Remediation</h2>
-            <p>Track approval-bound remediation requests and recorded republish, rollback, inventory refresh, or review actions.</p>
+        </section>
+
+        <section class="page-panel" id="roadmap" data-title="Roadmap">
+          <div class="section-heading">
+            <p class="eyebrow">Roadmap</p>
+            <h2>Interactive delivery plan</h2>
+            <p>Current Community focus: release readiness dashboard validation.</p>
           </div>
-          <button id="refreshEndpointRemediation">Refresh</button>
+          <div id="roadmapBoard" class="roadmap-board"></div>
+        </section>
+      </main>
+
+      <aside class="toc" id="toc" aria-label="Page table of contents"></aside>
+    </div>
+
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <div class="drawer-panel">
+        <button id="closeMobileNav" aria-label="Close navigation">Close</button>
+        <nav id="mobileNav"></nav>
+      </div>
+    </div>
+
+    <nav class="mobile-bottom" aria-label="Mobile quick navigation">
+      <a href="#dashboard" data-route-link="dashboard">Home</a>
+      <a href="#documentation" data-route-link="documentation">Docs</a>
+      <button id="mobileSearch">Search</button>
+      <a href="#architecture" data-route-link="architecture">Architecture</a>
+      <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+
+    <div class="command-palette" id="commandPalette" aria-hidden="true" role="dialog" aria-label="Command palette">
+      <div class="command-card">
+        <div class="command-header">
+          <input id="commandSearch" type="search" placeholder="Search pages, policies, controls, integrations" />
+          <button id="closeSearch" aria-label="Close command palette">Close</button>
         </div>
-        <div id="endpointRemediationDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Type <select id="filterEndpointRemediationKind"><option value="">Any</option><option value="endpoint-drift-remediation-request">Request</option><option value="endpoint-drift-remediation-execution">Execution</option></select></label>
-          <label>Approval <select id="filterEndpointRemediationApproval"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
-          <label>Reconciliation <input id="filterEndpointRemediationReconciliation" placeholder="mer_" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Remediation</th>
-                <th>Reconciliation</th>
-                <th>Type</th>
-                <th>Strategy</th>
-                <th>Actions</th>
-                <th>Status</th>
-                <th>Approval</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="endpointRemediationRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Remediation Handoffs</h2>
-            <p>Package approved or pending remediation plans for ITSM, ChatOps, and private endpoint connector queues.</p>
-          </div>
-          <button id="refreshEndpointRemediationHandoff">Refresh</button>
-        </div>
-        <div id="endpointRemediationHandoffDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Provider <select id="filterEndpointRemediationHandoffProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="private_queue">Private queue</option></select></label>
-          <label>Approval <select id="filterEndpointRemediationHandoffApproval"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option></select></label>
-          <label>Request <input id="filterEndpointRemediationHandoffRequest" placeholder="err_" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Handoff</th>
-                <th>Request</th>
-                <th>Providers</th>
-                <th>Actions</th>
-                <th>Approval</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="endpointRemediationHandoffRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Handoff Status</h2>
-            <p>Track ITSM, ChatOps, and private connector callback status for remediation handoffs.</p>
-          </div>
-          <button id="refreshEndpointRemediationHandoffStatus">Refresh</button>
-        </div>
-        <div id="endpointRemediationHandoffStatusDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Provider <select id="filterEndpointRemediationHandoffStatusProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="private_queue">Private queue</option></select></label>
-          <label>Status <select id="filterEndpointRemediationHandoffStatusState"><option value="">Any</option><option value="queued">Queued</option><option value="delivered">Delivered</option><option value="acknowledged">Acknowledged</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option><option value="failed">Failed</option></select></label>
-          <label>Handoff <input id="filterEndpointRemediationHandoffStatusId" placeholder="erh_" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Handoff</th>
-                <th>Provider</th>
-                <th>State</th>
-                <th>External Ref</th>
-                <th>Recorded</th>
-              </tr>
-            </thead>
-            <tbody id="endpointRemediationHandoffStatusRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Endpoint Remediation SLA</h2>
-            <p>Review SLA breaches, escalation readiness, and executive release governance summaries.</p>
-          </div>
-          <div class="console-actions">
-            <span id="endpointRemediationSlaDeliveryStatus" class="status-line"></span>
-            <button id="deliverEndpointRemediationSla">Notify</button>
-            <button id="refreshEndpointRemediationSla">Refresh</button>
-          </div>
-        </div>
-        <div id="endpointRemediationSlaDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Alert <select id="filterEndpointRemediationSlaAlert"><option value="">Any</option><option value="healthy">Healthy</option><option value="warning">Warning</option><option value="critical">Critical</option></select></label>
-          <label>Minimum breached <input id="filterEndpointRemediationSlaBreached" type="number" min="0" value="0" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Report</th>
-                <th>Alert</th>
-                <th>Tracked</th>
-                <th>Completed</th>
-                <th>At Risk</th>
-                <th>Breached</th>
-                <th>Generated</th>
-              </tr>
-            </thead>
-            <tbody id="endpointRemediationSlaRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Recurrence Operations</h2>
-            <p>Inspect failed-batch retry plans, owner digests, suppression trends, scheduled worker outcomes, automation health, and alert acknowledgements.</p>
-          </div>
-          <button id="refreshEndpointRecurrenceOperations">Refresh</button>
-        </div>
-        <div id="endpointRecurrenceOperationsDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Owner <input id="filterEndpointRecurrenceOwner" placeholder="release-governance" /></label>
-          <label>Provider <select id="filterEndpointRecurrenceProvider"><option value="">Any</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="private_queue">Private queue</option></select></label>
-          <label>Action <select id="filterEndpointRecurrenceAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="retry">Retry</option><option value="wait">Wait</option><option value="suppress">Suppress</option></select></label>
-          <label>Category <select id="filterEndpointRecurrenceCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="maximum_recurrence">Maximum recurrence</option><option value="maximum_retry">Maximum retry</option><option value="recurrence_interval_wait">Interval wait</option><option value="owner_review">Owner review</option><option value="wait">Wait</option><option value="other">Other</option></select></label>
-          <label>Worker <select id="filterEndpointRecurrenceWorkerMode"><option value="">Any</option><option value="dry_run">Dry run</option><option value="executed">Executed</option></select></label>
-        </div>
-        <div class="recurrence-grid">
-          <div>
-            <h3>Retry Plans</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Plan</th>
-                    <th>Alert</th>
-                    <th>Retry</th>
-                    <th>Waiting</th>
-                    <th>Suppressed</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointRecurrenceRetryRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Owner Digests</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Digest</th>
-                    <th>Owners</th>
-                    <th>Unresolved</th>
-                    <th>Retryable</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointRecurrenceDigestRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Suppression Trends</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Trend</th>
-                    <th>Alert</th>
-                    <th>Events</th>
-                    <th>Top Category</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointRecurrenceTrendRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Worker Runs</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Run</th>
-                    <th>Mode</th>
-                    <th>Retryable</th>
-                    <th>Digests</th>
-                    <th>Trend Events</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointRecurrenceAutomationRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Health Alerts</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Record</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Provider</th>
-                    <th>Acks</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="endpointRecurrenceHealthAlertRows"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div id="endpointRecurrenceDetail" class="detail-panel">Select Details from a recurrence operations row.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Go Rollback Drill Notifications</h2>
-            <p>Review acknowledgement coverage, delivery status, and escalation routes for promoted Go backend rollback drills.</p>
-          </div>
-          <button id="refreshGoRollbackDrillNotifications">Refresh</button>
-        </div>
-        <div id="goRollbackDrillNotificationDashboard" class="release-delivery-dashboard"></div>
-        <div class="search-controls">
-          <label>Owner <input id="filterGoDrillNotificationOwner" placeholder="release-governance" /></label>
-          <label>Provider <select id="filterGoDrillNotificationProvider"><option value="">Any</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="webhook">Webhook</option><option value="splunk">Splunk</option><option value="sentinel">Microsoft Sentinel</option><option value="datadog">Datadog</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option><option value="email">Email</option><option value="pagerduty">PagerDuty</option></select></label>
-          <label>State <select id="filterGoDrillNotificationState"><option value="">Any</option><option value="acknowledged">Acknowledged</option><option value="dismissed">Dismissed</option><option value="escalated">Escalated</option><option value="resolved">Resolved</option><option value="outstanding">Outstanding</option><option value="delivered">Delivered</option><option value="delivery_failed">Delivery failed</option><option value="critical">Critical</option><option value="healthy">Healthy</option></select></label>
-          <label>Kind <select id="filterGoDrillNotificationKind"><option value="">Any</option><option value="go-backend-rollback-drill-notification-plan">Notification plan</option><option value="go-backend-rollback-drill-notification-ack">Acknowledgement</option><option value="go-backend-rollback-drill-notification-escalation-plan">Escalation plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-package">Ack audit package</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-plan">Ack audit delivery</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-plan">Ack audit retry plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-ack">Ack audit retry ack</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-plan">Retry approval plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-approval-decision">Retry approval decision</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-execution-record">Retry execution record</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-playbook">Connector recovery playbook</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-connector-recovery-closure">Recovery closure</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-retry-recovery-report">Retry recovery report</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-plan">Recovery escalation plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-ack">Recovery escalation ack</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-delivery-retry-plan">Recovery escalation retry</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-worker-run">Recovery retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-execution-record">Recovery retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health">Recovery retry health</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-plan">Recovery retry health alert</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-ack">Recovery retry health ack</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-delivery-retry-plan">Health alert retry plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-delivery-retry-worker-run">Health alert retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-escalation-retry-health-alert-delivery-retry-execution-record">Health alert retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report">Recovery executive report</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-schedule-run">Executive schedule run</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-plan">Executive delivery retry</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-worker-run">Executive retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-execution-record">Executive retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health">Executive retry health</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-plan">Executive retry health alert</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-ack">Executive retry health ack</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-plan">Executive alert retry plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-worker-run">Executive alert retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-recovery-executive-report-delivery-retry-health-alert-delivery-retry-execution-record">Executive alert retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-summary">Final release readiness</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-operator-runbook-export">Final runbook export</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-readiness-approval-decision">Final readiness approval</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-record-attachment">Final release attachment</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closure-packet-verification">Final packet verification</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export">Final auditor export</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-plan">Final auditor retry</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-worker-run">Final auditor retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-auditor-export-delivery-retry-execution-record">Final auditor retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-immutable-archive-reference">Final archive ref</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health">Final archive health</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-plan">Final archive alert</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-archive-reference-health-alert-ack">Final archive ack</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-readiness-bundle">Closeout bundle</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-signed-archive-manifest">Signed manifest</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-summary">Release closeout</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery">Closeout delivery</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-request">Retention review</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-review-decision">Retention decision</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-artifact-bundle">Artifact bundle</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health">Retention health</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-closeout-retention-health-alert-plan">Retention health alert</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-plan">Closeout retry plan</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-worker-run">Closeout retry worker</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-final-reporting-release-closeout-delivery-retry-execution-record">Closeout retry execution</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-worker-run">Ack audit worker run</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-plan">Worker health alert</option><option value="go-backend-rollback-drill-acknowledgement-audit-delivery-worker-health-alert-ack">Worker health ack</option><option value="release-connector-delivery">Connector delivery</option></select></label>
-          <label>Delivery source <select id="filterGoDrillDeliverySource"><option value="">Any</option><option value="go_backend_rollback_drill_notification">Drill notification</option><option value="go_backend_rollback_drill_acknowledgement_audit">Ack audit</option><option value="go_backend_rollback_drill_acknowledgement_audit_worker_health_alert">Ack audit worker health</option><option value="go_backend_rollback_drill_acknowledgement_audit_recovery_escalation">Recovery escalation</option><option value="go_backend_rollback_drill_acknowledgement_audit_recovery_escalation_retry_health_alert">Recovery retry health alert</option><option value="go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report">Executive report</option><option value="go_backend_rollback_drill_acknowledgement_audit_recovery_executive_report_delivery_retry_health_alert">Executive retry health alert</option><option value="go_backend_rollback_drill_acknowledgement_audit_final_reporting_auditor_export">Final auditor export</option><option value="go_backend_rollback_drill_acknowledgement_audit_final_reporting_release_closeout">Final closeout</option><option value="go_backend_rollback_drill_acknowledgement_audit_final_reporting_closeout_retention_health_alert">Retention health alert</option></select></label>
-          <label>Route action <select id="filterGoDrillNotificationAction"><option value="">Any</option><option value="deliver">Deliver</option><option value="suppress">Suppress</option></select></label>
-          <label>Suppression <select id="filterGoDrillNotificationCategory"><option value="">Any</option><option value="maintenance_window">Maintenance window</option><option value="owner_calendar">Owner calendar</option><option value="healthy_schedule">Healthy schedule</option><option value="other">Other</option></select></label>
-        </div>
-        <div class="search-controls">
-          <label>Ack actor <input id="goDrillAckActor" placeholder="release-manager" /></label>
-          <label>External ref <input id="goDrillAckExternalRef" placeholder="CHG-123" /></label>
-          <label>Audit delivery <select id="goDrillAckAuditDeliveryProvider"><option value="webhook">Webhook</option><option value="splunk">Splunk</option><option value="sentinel">Microsoft Sentinel</option><option value="datadog">Datadog</option><option value="slack">Slack</option><option value="teams">Teams</option><option value="jira">Jira</option><option value="servicenow">ServiceNow</option></select></label>
-          <label>Notes <input id="goDrillAckNotes" placeholder="Acknowledgement context" /></label>
-          <span id="goDrillAckStatus" class="status-line">Authenticated deployments use the signed console actor.</span>
-        </div>
-        <div class="console-actions">
-          <button id="goDrillBulkAckOutstanding">Bulk Ack Outstanding</button>
-          <button id="goDrillBulkEscalateBreached" class="secondary">Bulk Escalate Breached</button>
-          <button id="goDrillExportAckAudit" class="secondary">Export Ack Audit</button>
-          <button id="goDrillDeliverAckAudit" class="secondary">Deliver Ack Audit</button>
-          <button id="goDrillPlanAckAuditRetry" class="secondary">Plan Audit Retry</button>
-          <button id="goDrillRunAckAuditWorker" class="secondary">Run Audit Worker</button>
-          <button id="goDrillSendAckAuditWorkerAlert" class="secondary">Send Worker Alert</button>
-          <button id="goDrillAckAuditRetryAck" class="secondary">Ack Retry</button>
-          <button id="goDrillPlanRetryExecutionApproval" class="secondary">Plan Retry Approval</button>
-          <button id="goDrillApproveRetryExecution" class="secondary">Approve Retry</button>
-          <button id="goDrillExecuteApprovedRetry" class="secondary">Execute Retry</button>
-          <button id="goDrillBuildConnectorRecovery" class="secondary">Recovery Playbook</button>
-          <button id="goDrillCloseConnectorRecovery" class="secondary">Close Recovery</button>
-          <button id="goDrillPlanRecoveryEscalation" class="secondary">Plan Recovery Escalation</button>
-          <button id="goDrillDeliverRecoveryEscalation" class="secondary">Deliver Recovery Escalation</button>
-          <button id="goDrillBuildRecoveryExecutiveReport" class="secondary">Executive Recovery Report</button>
-          <button id="goDrillAckRecoveryEscalation" class="secondary">Ack Recovery Escalation</button>
-          <button id="goDrillPlanRecoveryEscalationRetry" class="secondary">Plan Escalation Retry</button>
-          <button id="goDrillRunRecoveryEscalationRetry" class="secondary">Run Escalation Retry</button>
-          <button id="goDrillBuildRecoveryEscalationRetryHealth" class="secondary">Retry Health</button>
-          <button id="goDrillSendRecoveryRetryHealthAlert" class="secondary">Send Retry Health Alert</button>
-          <button id="goDrillPlanRecoveryRetryHealthAlertRetry" class="secondary">Plan Health Alert Retry</button>
-          <button id="goDrillRunRecoveryRetryHealthAlertRetry" class="secondary">Run Health Alert Retry</button>
-          <button id="goDrillScheduleRecoveryExecutiveReport" class="secondary">Schedule Executive Report</button>
-          <button id="goDrillDeliverRecoveryExecutiveReport" class="secondary">Deliver Executive Report</button>
-          <button id="goDrillPlanExecutiveDeliveryRetry" class="secondary">Plan Executive Retry</button>
-          <button id="goDrillRunExecutiveDeliveryRetry" class="secondary">Run Executive Retry</button>
-          <button id="goDrillBuildExecutiveDeliveryRetryHealth" class="secondary">Exec Retry Health</button>
-          <button id="goDrillSendExecutiveDeliveryRetryHealthAlert" class="secondary">Send Exec Health Alert</button>
-          <button id="goDrillPlanExecutiveRetryHealthAlertRetry" class="secondary">Plan Exec Alert Retry</button>
-          <button id="goDrillRunExecutiveRetryHealthAlertRetry" class="secondary">Run Exec Alert Retry</button>
-          <button id="goDrillShowFinalReportingClosure" class="secondary">Final Closure</button>
-          <button id="goDrillShowReleaseReadiness" class="secondary">Release Readiness</button>
-          <button id="goDrillExportOperatorRunbook" class="secondary">Export Runbook</button>
-          <button id="goDrillApproveReleaseReadiness" class="secondary">Approve Readiness</button>
-          <button id="goDrillAttachReleaseRecord" class="secondary">Attach Release Record</button>
-          <button id="goDrillVerifyClosurePacket" class="secondary">Verify Packet</button>
-          <button id="goDrillExportAuditorPacket" class="secondary">Auditor Export</button>
-          <button id="goDrillDeliverAuditorPacket" class="secondary">Deliver Auditor</button>
-          <button id="goDrillPlanAuditorDeliveryRetry" class="secondary">Plan Auditor Retry</button>
-          <button id="goDrillRunAuditorDeliveryRetry" class="secondary">Run Auditor Retry</button>
-          <button id="goDrillArchiveAuditorPacket" class="secondary">Archive Ref</button>
-          <button id="goDrillCheckArchiveHealth" class="secondary">Archive Health</button>
-          <button id="goDrillSendArchiveHealthAlert" class="secondary">Send Archive Alert</button>
-          <button id="goDrillAckArchiveHealthAlert" class="secondary">Ack Archive Alert</button>
-          <button id="goDrillBuildReadinessBundle" class="secondary">Readiness Bundle</button>
-          <button id="goDrillSignArchiveManifest" class="secondary">Sign Archive Manifest</button>
-          <button id="goDrillShowCloseoutSummary" class="secondary">Closeout Summary</button>
-          <button id="goDrillDeliverCloseoutSummary" class="secondary">Deliver Closeout</button>
-          <button id="goDrillRequestCloseoutRetention" class="secondary">Retention Review</button>
-          <button id="goDrillApproveCloseoutRetention" class="secondary">Approve Retention</button>
-          <button id="goDrillDownloadCloseoutArtifactBundle" class="secondary">Download Closeout Bundle</button>
-          <button id="goDrillCheckCloseoutRetentionHealth" class="secondary">Retention Health</button>
-          <button id="goDrillSendCloseoutRetentionHealthAlert" class="secondary">Send Retention Alert</button>
-          <button id="goDrillPlanCloseoutDeliveryRetry" class="secondary">Plan Closeout Retry</button>
-          <button id="goDrillRunCloseoutDeliveryRetry" class="secondary">Run Closeout Retry</button>
-        </div>
-        <div class="recurrence-grid">
-          <div>
-            <h3>Notification History</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Record</th>
-                    <th>Kind</th>
-                    <th>Provider</th>
-                    <th>Status</th>
-                    <th>Schedule</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="goDrillNotificationRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Escalation Routes</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Schedule</th>
-                    <th>Provider</th>
-                    <th>Owner</th>
-                    <th>State</th>
-                    <th>Age / SLO</th>
-                    <th>Action</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="goDrillEscalationRows"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="recurrence-grid">
-          <div>
-            <h3>Routing History</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Route</th>
-                    <th>Owner</th>
-                    <th>Provider</th>
-                    <th>Action</th>
-                    <th>Category</th>
-                    <th>Reason</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="goDrillRouteRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Suppression Summary</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Category</th>
-                    <th>Events</th>
-                    <th>Top Owner</th>
-                    <th>Top Provider</th>
-                    <th>Generated</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="goDrillSuppressionTrendRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>Retry Recovery SLO</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Provider</th>
-                    <th>Executions</th>
-                    <th>Failed</th>
-                    <th>Open Recovery</th>
-                    <th>SLO Breached</th>
-                    <th>Latest Closure</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="goDrillRetryRecoveryRows"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div id="goDrillNotificationDetail" class="detail-panel">Select Details from a drill notification row.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Evidence Search</h2>
-            <p>Filter persisted evidence metadata by signer, risk, approval state, rollout type, and endpoint deployment status.</p>
-          </div>
-          <div class="console-actions">
-            <span id="apiStatus">API: loading</span>
-            <button id="refreshEvidence">Refresh</button>
-          </div>
-        </div>
-        <div class="search-controls">
-          <label>Signer <input id="filterSigner" placeholder="security" /></label>
-          <label>Kind <select id="filterMetadataKind"><option value="">Any</option><option value="managed-endpoint-rollout">Endpoint rollout</option><option value="rollout-promotion-execution">Promotion execution</option><option value="rollout-rollback-execution">Rollback execution</option><option value="final-closeout-trial">Final closeout trial</option></select></label>
-          <label>Rollout status <select id="filterRolloutStatus"><option value="">Any</option><option value="planned">Planned</option><option value="staged">Staged</option><option value="succeeded">Succeeded</option><option value="promoted">Promoted</option><option value="failed">Failed</option><option value="rolled_back">Rolled back</option></select></label>
-          <label>Environment <input id="filterEnvironment" placeholder="production" /></label>
-          <label>Deployment target <input id="filterDeploymentTarget" placeholder="github-actions-linux-amd64-runner" /></label>
-          <label>Minimum blocked <input id="filterBlocked" type="number" min="0" value="0" /></label>
-          <label>Approval required <select id="filterApprovals"><option value="">Any</option><option value="true">Yes</option><option value="false">No</option></select></label>
-          <label>Limit <input id="filterLimit" type="number" min="1" max="50" value="10" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Session</th>
-                <th>Kind</th>
-                <th>Signer</th>
-                <th>Rollout</th>
-                <th>Decisions</th>
-                <th>Blocked</th>
-                <th>Approvals</th>
-                <th>Retention</th>
-                <th>Readiness</th>
-                <th>Artifacts</th>
-              </tr>
-            </thead>
-            <tbody id="evidenceRows"></tbody>
-          </table>
-        </div>
-        <div id="evidenceArtifacts" class="detail-panel">Select Artifacts from an evidence row to review downloadable bundle files.</div>
-      </section>
-      <section class="console split">
-        <div>
-          <div class="console-header compact">
-            <div>
-              <h2>PR Attestation Verification</h2>
-              <p>Confirm the attestation covers the selected evidence session and decision targets.</p>
-            </div>
-            <button id="verifyAttestation">Verify</button>
-          </div>
-          <label>Session <select id="attestationSession"></select></label>
-          <ul id="attestationResult" class="verification"></ul>
-        </div>
-        <div>
-          <h2>Operational Readiness</h2>
-          <ul class="readiness">
-            <li>Trust-root verification supports key IDs and active signing keys.</li>
-            <li>SQLite search supports filters and pagination for self-hosted pilots.</li>
-            <li>PR attestation verification produces reviewer-ready JSON and Markdown artifacts.</li>
-            <li>Production migration SQL is maintained under migrations.</li>
-          </ul>
-        </div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Console Security Boundary</h2>
-            <p>Review OIDC, RBAC, CORS, and operator boundaries for deployed console/API topologies.</p>
-          </div>
-          <button id="refreshSecurityBoundary">Refresh</button>
-        </div>
-        <div id="securityBoundary" class="detail-panel">Security boundary status is loading.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Production Readiness</h2>
-            <p>Validate deployment controls for authenticated console/API topologies.</p>
-          </div>
-          <button id="refreshDeploymentReadiness">Refresh</button>
-        </div>
-        <div id="deploymentReadiness" class="detail-panel">Production readiness status is loading.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Console Session</h2>
-            <p>Validate signed OIDC context and repository-scoped console permissions.</p>
-          </div>
-          <button id="refreshConsoleSession">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Bearer token <input id="consoleToken" type="password" placeholder="OIDC JWT" /></label>
-          <button id="saveConsoleToken" class="secondary">Use token</button>
-          <button id="clearConsoleToken" class="secondary">Clear</button>
-        </div>
-        <div id="consoleSession" class="detail-panel">Console session status is loading.</div>
-      </section>
-      <section class="console">
-        <div class="console-header">
-          <div>
-            <h2>Approval Queue</h2>
-            <p>Review pending, approved, denied, expired, and break-glass approval records.</p>
-          </div>
-          <button id="refreshApprovals">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>State <select id="filterApprovalState"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="denied">Denied</option><option value="expired">Expired</option><option value="break_glass">Break glass</option></select></label>
-          <label>Approver group <input id="filterApprovalGroup" placeholder="Platform Security" /></label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Approval</th>
-                <th>State</th>
-                <th>Group</th>
-                <th>Requester</th>
-                <th>Decision</th>
-                <th>External Ref</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="approvalRows"></tbody>
-          </table>
-        </div>
-      </section>
-      <section class="console approval-workbench">
-        <div>
-          <div class="console-header compact">
-            <div>
-              <h2>Break Glass</h2>
-              <p>Create a mandatory-reason emergency override with incident or change evidence.</p>
-            </div>
-            <button id="createBreakGlass">Create</button>
-          </div>
-          <div class="form-grid">
-            <label>Target <input id="breakGlassTarget" value="terraform apply" /></label>
-            <label>Rule <input id="breakGlassRule" value="commands.block" /></label>
-            <label>Actor <input id="breakGlassActor" value="incident-commander" /></label>
-            <label>Group <input id="breakGlassGroup" value="Change Advisory Board" /></label>
-            <label>External ref <input id="breakGlassRef" value="INC-777" /></label>
-            <label>TTL hours <input id="breakGlassTtl" type="number" min="1" max="24" value="4" /></label>
-          </div>
-          <label class="wide-field">Reason <input id="breakGlassReason" value="Production recovery for active incident." /></label>
-          <p id="breakGlassStatus" class="status-line">No emergency override submitted.</p>
-        </div>
-        <div>
-          <div class="console-header compact">
-            <div>
-              <h2>Approval Audit</h2>
-              <p>Inspect lifecycle state, decision context, evidence references, and history.</p>
-            </div>
-          </div>
-          <div id="approvalDetail" class="detail-panel">Select Details from an approval row.</div>
-        </div>
-      </section>
-      <section class="console registry-console">
-        <div class="console-header">
-          <div>
-            <h2>Agent and MCP Registry</h2>
-            <p>Inspect governed agent profiles, active agent identities, approved MCP servers, and tool capability risk.</p>
-          </div>
-          <button id="refreshRegistry">Refresh</button>
-        </div>
-        <div class="search-controls">
-          <label>Agent status <select id="filterAgentStatus"><option value="">Any</option><option value="active">Active</option><option value="disabled">Disabled</option><option value="retired">Retired</option></select></label>
-          <label>Agent owner <input id="filterAgentOwner" placeholder="AI Platform" /></label>
-          <label>MCP trust <select id="filterMcpTrust"><option value="">Any</option><option value="trusted">Trusted</option><option value="approved">Approved</option><option value="experimental">Experimental</option><option value="blocked">Blocked</option><option value="unknown">Unknown</option></select></label>
-          <label>Capability <select id="filterMcpCapability"><option value="">Any</option><option value="filesystem">Filesystem</option><option value="shell">Shell</option><option value="network">Network</option><option value="database">Database</option><option value="saas">SaaS</option><option value="cloud">Cloud</option><option value="repository">Repository</option></select></label>
-        </div>
-        <div class="registry-grid">
-          <div>
-            <h3>Agents</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Agent</th>
-                    <th>Vendor</th>
-                    <th>Owner</th>
-                    <th>Status</th>
-                    <th>Capabilities</th>
-                    <th>Risk</th>
-                  </tr>
-                </thead>
-                <tbody id="agentRows"></tbody>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3>MCP Trust</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Server</th>
-                    <th>Trust</th>
-                    <th>Approval</th>
-                    <th>Capabilities</th>
-                    <th>Tools</th>
-                  </tr>
-                </thead>
-                <tbody id="mcpRows"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="registry-grid secondary-grid">
-          <div>
-            <h3>Capability Profiles</h3>
-            <div id="agentProfileRows" class="profile-list"></div>
-          </div>
-          <div>
-            <h3>MCP Tool Classification</h3>
-            <div id="mcpClassificationRows" class="profile-list"></div>
-          </div>
-        </div>
-      </section>
-    </main>
+        <div id="commandResults" class="command-results"></div>
+      </div>
+    </div>
+
+    <div class="legacy-smoke-anchors" aria-hidden="true">
+      <div id="communityGaChecklist"></div>
+      <div id="communityGaCommands"></div>
+      <div id="communityGaLinks"></div>
+      <div id="releaseNotes"></div>
+      <div class="console saas-automation-console">
+        <button id="refreshSaasAutomation">Refresh SaaS</button>
+        <div id="saasAutomationSummary"></div>
+        <div id="saasAutomationChecks"></div>
+        <pre id="saasAutomationRequest"></pre>
+        <pre id="saasAutomationResponse"></pre>
+      </div>
+    </div>
+
     <script src="./config.js"></script>
     <script src="./sandbox.js"></script>
   </body>
