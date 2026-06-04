@@ -223,8 +223,11 @@ Portal smoke validation is documented at
 Console closeout operator experience is documented at
 `docs/console-closeout-operator-experience.md` and enforced by
 `scripts/validate-console-closeout.py`.
-Next recommended slice: tie policy, evidence, console, Go runtime readiness, and release verification
-into one final user-verifiable GA path.
+Community GA user-verifiable path is documented at
+`docs/community-ga-user-verifiable-path.md` and enforced by
+`scripts/validate-community-ga-path.py`.
+Next recommended slice: validate production deployment guide coverage for install, configuration,
+storage, backup, restore, CORS/API, and GitHub Pages portal checks.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -135,6 +135,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community GA v0.1.0 Release Packet: `Community-GA-v0.1.0-Release-Packet.md`
 - Community GA v0.1.0 Release Publication: `Community-GA-v0.1.0-Release-Publication.md`
 - Community GA v0.1.0 Post-Release Verification: `Community-GA-v0.1.0-Post-Release-Verification.md`
+- Community GA User-Verifiable Path: `Community-GA-User-Verifiable-Path.md`
 - Community Release Verification Runbook: `Community-Release-Verification-Runbook.md`
 - Community GA v0.1.0 Release Notes: `Community-GA-v0.1.0-Release-Notes.md`
 - Community Maintenance Release Checklist: `Community-Maintenance-Release-Checklist.md`

@@ -33,5 +33,5 @@ customer records are not part of this public dry-run.
 
 ## Next Recommendation
 
-Tie policy, evidence, console, Go runtime readiness, and release verification
-into one final user-verifiable GA path.
+Validate production deployment guide coverage for install, configuration,
+storage, backup, restore, CORS/API, and GitHub Pages portal checks.

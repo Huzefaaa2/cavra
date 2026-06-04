@@ -99,6 +99,7 @@ Open-core architecture and boundaries:
 - [Community GA v0.1.0 GitHub Release](https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0)
 - [Community GA v0.1.0 release publication](docs/community-ga-v0.1.0-release-publication.md)
 - [Community GA v0.1.0 post-release verification](docs/release-verifications/community-v0.1.0-post-release-verification.md)
+- [Community GA user-verifiable path](docs/community-ga-user-verifiable-path.md)
 - [Community release verification runbook](docs/community-release-verification-runbook.md)
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
@@ -518,11 +519,17 @@ Current phase status:
 
 Latest delivery:
 
-- The private `Huzefaaa2/cavra-enterprise` repository now includes managed tenant database adapter and driver package contracts, managed database migration readiness evidence, private envelope/KMS provider registry and readiness evidence, private cloud object storage provider registry, object-lock readiness evidence, managed infrastructure readiness rollups, scheduled object storage and database driver health probes, retry planning, dashboard persistence, trial package readiness gates, customer pilot handoff evidence, tenant onboarding readiness evidence, entitlement and license-service handoff evidence, paid-pilot promotion evidence, customer rollout closeout evidence, hosted policy registry readiness evidence, tenant audit-store operating evidence, SaaS operating readiness rollup evidence, billing and license-service observability evidence, support and customer-success operating handoff evidence, operating dashboard and support escalation rollup evidence, final SaaS customer operating closeout evidence, SaaS operating automation plan evidence, SaaS operating automation final closure rollups, customer-success handoff packages, executive summary packages, release governance packages, public contract sync evidence, and release-readiness approval summaries. Provider secrets, customer metadata, Enterprise source code, SaaS backend implementation details, license-service implementation details, billing records, support ticket contents, customer-success notes, automation worker internals, production dashboard URLs, private package paths, and production driver implementation details remain outside this public Community repository.
+- The public Community repository now includes the user-verifiable Community GA
+  path. It links policy gates, release packets, post-release verification,
+  Evidence Console validation, Go runtime disabled/promoted status, README
+  links, wiki navigation, and workflow enforcement through
+  [docs/community-ga-user-verifiable-path.md](docs/community-ga-user-verifiable-path.md)
+  and `scripts/validate-community-ga-path.py`.
 
 Next recommended implementation work:
 
-- Add private Enterprise/SaaS worker execution readiness evidence and keep the public contract sync documentation current. Public-safe contract models, API, CLI, documentation-sync, worker handoff guidance, and Evidence Console surfaces are now delivered for contract discovery and request/response generation; private billing/license observability, support handoff, operating dashboard escalation, final customer operating closeout, SaaS operating automation plan evidence, final closure, customer-success handoff, executive summary, release governance, and public contract sync evidence are delivered in `cavra-enterprise` PRs #70-#74 and #81-#85 and summarized in the [SaaS customer operating closeout batch sync](docs/saas-customer-operating-closeout-batch-sync.md), [SaaS operating automation batch sync](docs/saas-operating-automation-batch-sync.md), [SaaS operating automation public contract sync](docs/saas-operating-automation-public-contract-sync.md), [SaaS operating automation worker handoff](docs/architecture/saas-operating-automation-worker-handoff.md), and [SaaS operating automation contract](docs/architecture/saas-operating-automation-contract.md).
+- Validate production deployment guide coverage for install, configuration,
+  storage, backup, restore, CORS/API, and GitHub Pages portal checks.
 
 ## User stories and enterprise value
 
