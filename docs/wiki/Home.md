@@ -145,6 +145,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community Release Index: `Community-Release-Index.md`
 - Community Release Index Freshness: `Community-Release-Index-Freshness.md`
 - Community Release Readiness Dashboard: `Community-Release-Readiness-Dashboard.md`
+- Community Release Readiness Dashboard Validation: `Community-Release-Readiness-Dashboard-Validation.md`
 - CAVRA Developer Portal Redesign: `CAVRA-Developer-Portal-Redesign.md`
 - Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
 - Runtime Policy Modes: `Runtime-Policy-Modes.md`

@@ -121,7 +121,7 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community release readiness dashboard validation, building on the completed dashboard, release index
+Portal smoke validation, building on the completed developer portal redesign, dashboard validator, release index
 freshness validator, release index page, v0.1.1 maintenance-release dry-run
 evidence, release-note freshness validator, maintenance-release checklist,
 schema validation, and CI enforcement.
@@ -577,6 +577,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Add a Community release readiness dashboard validator that checks dashboard
-rows, release links, freshness controls, verification commands, README
-navigation, wiki navigation, and publication state.
+Add a portal smoke validator that checks required routes, command palette
+content, mobile navigation, architecture nodes, compliance filters, GitHub Pages
+workflow strings, and brand assets.
