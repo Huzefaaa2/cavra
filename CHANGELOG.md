@@ -14,6 +14,9 @@
   verification packet to exercise the post-GA Community release evidence path.
 - Added the Community release index for public Community release states, notes,
   verification packets, and next actions.
+- Added Community release index freshness validation to keep indexed Community
+  release states, release notes, verification packets, README links, and wiki
+  navigation in sync.
 
 ## Community GA v0.1.0 - 2026-06-04
 

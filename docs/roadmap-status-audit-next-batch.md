@@ -108,6 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Add a Community release index freshness validator that checks every indexed
-Community release has matching release notes, verification evidence, README
-links, wiki links, and a valid publication state.
+Create a Community release readiness dashboard that rolls up the release index,
+freshness validators, release verification commands, CI evidence, publication
+state, and next action for maintainers.
