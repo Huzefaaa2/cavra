@@ -101,6 +101,5 @@ sync happens after merge.
 
 ## Follow-Up Work
 
-- Add automated JSON schema validation for Community GA release packets in CI.
 - Create a final tagged Community GA release packet when the maintainer is ready
   to publish an official Community GA release.

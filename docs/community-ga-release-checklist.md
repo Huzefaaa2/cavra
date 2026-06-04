@@ -136,5 +136,5 @@ and JSON schema for every public Community GA release packet.
 
 ## Next Recommendation
 
-Continue with automated JSON schema validation for Community GA release packets
-in CI.
+Continue with a final tagged Community GA release packet when the maintainer is
+ready to publish an official Community GA release.
