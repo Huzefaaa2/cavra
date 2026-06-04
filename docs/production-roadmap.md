@@ -235,9 +235,12 @@ Go enforcement production hardening is documented at
 Enterprise integration validation is documented at
 `docs/enterprise-integration-validation.md` and enforced by
 `scripts/validate-enterprise-integration-readiness.py`.
-Next recommended slice: validate production readiness and procurement closeout for performance,
-concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
-advisory drills, and final release integrity evidence.
+Production readiness procurement closeout is documented at
+`docs/production-readiness-procurement-closeout.md` and enforced by
+`scripts/validate-production-readiness-procurement-closeout.py`.
+Next recommended slice: prepare the next official Community maintenance
+release by converting the v0.1.1 dry-run packet into real release artifacts,
+verification evidence, release notes, README links, and wiki navigation.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -128,17 +128,22 @@ yet fully production-complete. Remaining themes are:
   with GitHub App/orchestrator governance, GitLab CI parity, Azure DevOps
   parity, SAML identity readiness, SIEM workflow evidence, ITSM workflow
   evidence, README navigation, wiki navigation, and CI workflow wiring.
+- Production readiness procurement closeout is delivered in
+  [Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout)
+  with performance, concurrency, backup/restore, upgrade/migration, SOC 2
+  readiness, security advisory drills, release integrity evidence, README
+  navigation, wiki navigation, and CI workflow wiring.
 
 ## Next Slice
 
-Production readiness and procurement closeout, building on the completed
-enterprise integration validation, Go enforcement production hardening,
-production deployment guide validation, Community GA user-verifiable path,
-console closeout operator experience, developer portal redesign, portal smoke
-validator, dashboard validator, release index freshness validator, release
-index page, v0.1.1 maintenance-release dry-run evidence, release-note
-freshness validator, maintenance-release checklist, schema validation, and CI
-enforcement.
+Community v0.1.1 real maintenance release conversion, building on the completed
+production readiness procurement closeout, enterprise integration validation,
+Go enforcement production hardening, production deployment guide validation,
+Community GA user-verifiable path, console closeout operator experience,
+developer portal redesign, portal smoke validator, dashboard validator,
+release index freshness validator, release index page, v0.1.1
+maintenance-release dry-run evidence, release-note freshness validator,
+maintenance-release checklist, schema validation, and CI enforcement.
 
 Console closeout operator experience is documented at
 `docs/console-closeout-operator-experience.md` and enforced by
@@ -155,6 +160,9 @@ Go enforcement production hardening is documented at
 Enterprise integration validation is documented at
 `docs/enterprise-integration-validation.md` and enforced by
 `scripts/validate-enterprise-integration-readiness.py`.
+Production readiness procurement closeout is documented at
+`docs/production-readiness-procurement-closeout.md` and enforced by
+`scripts/validate-production-readiness-procurement-closeout.py`.
 
 ## Why This Is Next
 
@@ -607,6 +615,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Validate production readiness and procurement closeout for performance,
-concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
-advisory drills, and final release integrity evidence.
+Prepare the next official Community maintenance release by converting the
+v0.1.1 dry-run packet into real release artifacts, verification evidence,
+release notes, README links, and wiki navigation.

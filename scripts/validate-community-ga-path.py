@@ -9,9 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NEXT_RECOMMENDATION = (
-    "Validate production readiness and procurement closeout for performance, "
-    "concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security "
-    "advisory drills, and final release integrity evidence."
+    "Prepare the next official Community maintenance release by converting the "
+    "v0.1.1 dry-run packet into real release artifacts, verification evidence, "
+    "release notes, README links, and wiki navigation."
 )
 
 

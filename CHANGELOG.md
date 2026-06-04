@@ -49,6 +49,10 @@
   governance, GitLab and Azure DevOps parity, SAML identity readiness,
   SIEM/ITSM workflow evidence, CI wiring, README navigation, and wiki
   navigation.
+- Added production readiness procurement closeout validation for performance,
+  concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+  advisory drills, final release integrity evidence, CI wiring, README
+  navigation, and wiki navigation.
 
 ## Community GA v0.1.0 - 2026-06-04
 

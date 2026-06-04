@@ -86,6 +86,8 @@ Go enforcement production hardening: `docs/go-enforcement-production-hardening.m
 
 Enterprise integration validation: `docs/enterprise-integration-validation.md` and `scripts/validate-enterprise-integration-readiness.py` keep GitHub App/orchestrator governance, GitLab CI parity, Azure DevOps parity, SAML identity readiness, SIEM workflow evidence, ITSM workflow evidence, README links, wiki navigation, and CI workflow wiring aligned without exposing Enterprise source code or provider credentials.
 
+Production readiness procurement closeout: `docs/production-readiness-procurement-closeout.md` and `scripts/validate-production-readiness-procurement-closeout.py` keep performance, concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security advisory drill, release integrity, README links, wiki navigation, and CI workflow wiring aligned for procurement handoff.
+
 Community maintenance-release governance: `docs/community-maintenance-release-checklist.md`, `docs/community-maintenance-release-evidence-template.md`, `docs/release-verifications/community-maintenance-release.schema.json`, `examples/release-verifications/community-maintenance-release.example.json`, and `scripts/validate-maintenance-release-evidence.py` define and enforce the post-GA public Community maintenance release gate set for release notes, changelog, README, wiki, verification workflow, artifact checksums, install smoke, public boundary, and CI evidence.
 
 Community release-note freshness: `docs/community-release-note-freshness.md` and `scripts/validate-community-release-note-freshness.py` enforce that every `docs/releases/community-v*.md` page has a matching GitHub Release URL, verification packet, README link, wiki release notes page, and wiki verification entry.

@@ -211,7 +211,7 @@ def main() -> int:
     for doc in [redesign_doc, smoke_doc, wiki_smoke_doc]:
         require(
             doc,
-            "production readiness and procurement closeout",
+            "v0.1.1 dry-run packet",
             "GA path next recommendation",
             failures,
         )

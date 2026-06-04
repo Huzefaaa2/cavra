@@ -103,6 +103,7 @@ Open-core architecture and boundaries:
 - [Production deployment guide validation](docs/production-deployment-guide-validation.md)
 - [Go enforcement production hardening](docs/go-enforcement-production-hardening.md)
 - [Enterprise integration validation](docs/enterprise-integration-validation.md)
+- [Production readiness procurement closeout](docs/production-readiness-procurement-closeout.md)
 - [Community release verification runbook](docs/community-release-verification-runbook.md)
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
@@ -544,12 +545,18 @@ Latest delivery:
   SIEM/ITSM workflow evidence, README navigation, and wiki navigation through
   [docs/enterprise-integration-validation.md](docs/enterprise-integration-validation.md)
   and `scripts/validate-enterprise-integration-readiness.py`.
+- Production readiness procurement closeout now links performance,
+  concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+  advisory drills, final release integrity evidence, README navigation, and
+  wiki navigation through
+  [docs/production-readiness-procurement-closeout.md](docs/production-readiness-procurement-closeout.md)
+  and `scripts/validate-production-readiness-procurement-closeout.py`.
 
 Next recommended implementation work:
 
-- Validate production readiness and procurement closeout for performance,
-  concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
-  advisory drills, and final release integrity evidence.
+- Prepare the next official Community maintenance release by converting the
+  v0.1.1 dry-run packet into real release artifacts, verification evidence,
+  release notes, README links, and wiki navigation.
 
 ## User stories and enterprise value
 
@@ -609,6 +616,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Go Backend Deployment Readiness](docs/wiki/Go-Backend-Deployment-Readiness.md)
 - [Go Release Packaging](docs/wiki/Go-Release-Packaging.md)
 - [Enterprise Integration Validation](docs/wiki/Enterprise-Integration-Validation.md)
+- [Production Readiness Procurement Closeout](docs/wiki/Production-Readiness-Procurement-Closeout.md)
 - [SaaS Operating Automation Public Contract Sync](docs/wiki/SaaS-Operating-Automation-Public-Contract-Sync.md)
 - [SaaS Operating Automation Worker Handoff](docs/wiki/SaaS-Operating-Automation-Worker-Handoff.md)
 - [Vulnerability Disclosure](docs/vulnerability-disclosure.md)
