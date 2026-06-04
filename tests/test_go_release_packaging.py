@@ -2765,6 +2765,7 @@ def test_go_release_workflow_requires_signed_release_artifacts() -> None:
     text = Path(".github/workflows/go-release.yml").read_text(encoding="utf-8")
 
     assert "Go Runtime Release Package" in text
+    assert "startsWith(github.event.release.tag_name, 'go-runtime-v')" in text
     assert "contents: write" in text
     assert "go-version-file: go/cavra-runtime/go.mod" in text
     assert "GOOS=" in text

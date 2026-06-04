@@ -66,6 +66,10 @@ def test_go_release_workflow_packages_signed_release_artifacts() -> None:
     assert workflow["permissions"]["attestations"] == "write"
     assert workflow["permissions"]["artifact-metadata"] == "write"
     assert workflow["jobs"]["package"]["name"] == "package-go-runtime"
+    assert (
+        workflow["jobs"]["package"]["if"]
+        == "github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'go-runtime-v')"
+    )
     assert "actions/setup-go@v6" in text
     assert "actions/attest@v4" in text
     assert "github-keyless-attestation.json" in text
@@ -77,6 +81,17 @@ def test_go_release_workflow_packages_signed_release_artifacts() -> None:
     assert "CAVRA_GO_RELEASE_SIGNING_KEY" in text
     assert "--signing-required" in text
     assert "cavra-go-runtime-release-package" in text
+
+
+def test_pypi_publish_workflow_is_explicitly_gated() -> None:
+    workflow_path = ".github/workflows/publish-pypi.yml"
+    workflow = _load_yaml(workflow_path)
+
+    assert "workflow_dispatch" in workflow[True]
+    assert workflow["jobs"]["publish"]["if"] == (
+        "github.event_name == 'workflow_dispatch' || "
+        "startsWith(github.event.release.tag_name, 'pypi-v')"
+    )
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:
