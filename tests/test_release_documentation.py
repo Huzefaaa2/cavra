@@ -1,4 +1,7 @@
 import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -44,6 +47,12 @@ def test_community_ga_release_packet_template_is_linked_and_structured() -> None
     )
     readme = Path("README.md").read_text(encoding="utf-8")
     wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    validation_doc = Path("docs/community-ga-release-packet-validation.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_validation_doc = Path("docs/wiki/Community-GA-Release-Packet-Validation.md").read_text(
+        encoding="utf-8"
+    )
     release_policy = Path("docs/release-documentation-policy.md").read_text(encoding="utf-8")
     checklist = Path("docs/community-ga-release-checklist.md").read_text(encoding="utf-8")
 
@@ -61,13 +70,17 @@ def test_community_ga_release_packet_template_is_linked_and_structured() -> None
     }
 
     assert "docs/community-ga-release-packet-template.md" in readme
+    assert "docs/community-ga-release-packet-validation.md" in readme
     assert "Community-GA-Release-Packet-Template.md" in wiki_home
+    assert "Community-GA-Release-Packet-Validation.md" in wiki_home
     assert "Community GA release packet" in release_policy
     assert "Community GA release packet template" in checklist
     assert "community-ga-release-packet.schema.json" in template
     assert "community-ga-release-packet.example.json" in template
     assert "Public Boundary Review" in template
     assert "Public Boundary Review" in wiki_template
+    assert "scripts/validate-release-packets.py" in validation_doc
+    assert "scripts/validate-release-packets.py" in wiki_validation_doc
 
     schema_required = set(schema["required"])
     for field in (
@@ -128,7 +141,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "JSON schema validation" in next_slice
+    assert "automated packet validation" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -143,5 +156,59 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert len(packet_json["accepted_risks"]) == 2
     assert all(risk["severity"] == "low" for risk in packet_json["accepted_risks"])
     assert packet_json["next_recommendation"] == (
-        "Add automated JSON schema validation for Community GA release packets in CI."
+        "Create a final tagged Community GA release packet when the maintainer is ready "
+        "to publish an official Community GA release."
     )
+
+
+def test_release_packet_validation_script_accepts_repository_packets() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/validate-release-packets.py"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "CAVRA release packet validation passed." in result.stdout
+
+
+def test_release_packet_validation_script_rejects_missing_required_gate(tmp_path: Path) -> None:
+    schema_dir = tmp_path / "docs" / "release-packets"
+    example_dir = tmp_path / "examples" / "release-packets"
+    schema_dir.mkdir(parents=True)
+    example_dir.mkdir(parents=True)
+    shutil.copy(
+        "docs/release-packets/community-ga-release-packet.schema.json",
+        schema_dir / "community-ga-release-packet.schema.json",
+    )
+    packet = json.loads(
+        Path("docs/release-packets/community-ga-dry-run-2026-06-04.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    packet["gates"] = [gate for gate in packet["gates"] if gate["name"] != "CI evidence"]
+    (schema_dir / "community-ga-invalid.json").write_text(json.dumps(packet), encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, "scripts/validate-release-packets.py", "--root", str(tmp_path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "missing required gates: CI evidence" in result.stdout
+
+
+def test_release_packet_validation_runs_in_public_ci_workflows() -> None:
+    workflow_paths = [
+        ".github/workflows/community-ci.yml",
+        ".github/workflows/security-scan.yml",
+        ".github/workflows/cavra-governance.yml",
+        ".github/workflows/release-community.yml",
+    ]
+
+    for workflow_path in workflow_paths:
+        workflow = Path(workflow_path).read_text(encoding="utf-8")
+        assert "python scripts/validate-release-packets.py" in workflow, workflow_path

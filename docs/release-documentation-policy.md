@@ -51,3 +51,5 @@ They must also produce a public-safe
 [Community GA release packet](community-ga-release-packet-template.md) in
 Markdown and JSON form so the release decision, gate evidence, accepted risks,
 boundary review, and wiki sync commit can be verified later.
+The JSON packet must pass `scripts/validate-release-packets.py` before merge and
+before Community release publication.

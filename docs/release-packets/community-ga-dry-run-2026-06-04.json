@@ -180,5 +180,5 @@
     "status": "approve",
     "rationale": "The public Community GA release gates are executable and the first baseline packet is reviewable. Remaining warnings are expected for a dry run."
   },
-  "next_recommendation": "Add automated JSON schema validation for Community GA release packets in CI."
+  "next_recommendation": "Create a final tagged Community GA release packet when the maintainer is ready to publish an official Community GA release."
 }

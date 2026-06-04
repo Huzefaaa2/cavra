@@ -108,5 +108,5 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Add automated JSON schema validation for Community GA release packets in CI so
-future packet JSON artifacts cannot drift from the public schema.
+Create a final tagged Community GA release packet when the maintainer is ready
+to publish an official Community GA release.
