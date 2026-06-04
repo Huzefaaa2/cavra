@@ -23,6 +23,6 @@ python3 scripts/validate-community-release-note-freshness.py
 
 ## Next Recommendation
 
-Create a Community release readiness dashboard that rolls up the release index,
-freshness validators, release verification commands, CI evidence, publication
-state, and next action for maintainers.
+Add a Community release readiness dashboard validator that checks dashboard
+rows, release links, freshness controls, verification commands, README
+navigation, wiki navigation, and publication state.

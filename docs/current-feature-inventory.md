@@ -88,6 +88,8 @@ Community release index: `docs/community-release-index.md` summarizes public Com
 
 Community release index freshness: `docs/community-release-index-freshness.md` and `scripts/validate-community-release-index.py` enforce that every indexed Community release has matching release notes, verification evidence, README links, wiki links, and a valid publication state.
 
+Community release readiness dashboard: `docs/community-release-readiness-dashboard.md` rolls up public Community release states, release evidence, verification packets, freshness controls, validation commands, CI evidence, and maintainer next actions.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions and allowlisted managed endpoint rollout evidence files when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. Rollout listings include checksum integrity and promotion readiness. The console shows artifact lists, bundle download links, rollout integrity, and readiness indicators from evidence rows.

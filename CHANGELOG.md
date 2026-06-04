@@ -17,6 +17,9 @@
 - Added Community release index freshness validation to keep indexed Community
   release states, release notes, verification packets, README links, and wiki
   navigation in sync.
+- Added the Community release readiness dashboard to roll up release state,
+  freshness controls, verification commands, CI evidence, and maintainer next
+  actions.
 
 ## Community GA v0.1.0 - 2026-06-04
 
