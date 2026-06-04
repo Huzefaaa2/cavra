@@ -45,6 +45,10 @@
   transport, gRPC boundary planning, air-gapped packaging, reproducibility,
   upgrade validation, performance smoke evidence, operational readiness, CI
   wiring, README navigation, and wiki navigation.
+- Added Enterprise integration validation for GitHub App/orchestrator
+  governance, GitLab and Azure DevOps parity, SAML identity readiness,
+  SIEM/ITSM workflow evidence, CI wiring, README navigation, and wiki
+  navigation.
 
 ## Community GA v0.1.0 - 2026-06-04
 

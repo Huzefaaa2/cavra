@@ -102,6 +102,7 @@ Open-core architecture and boundaries:
 - [Community GA user-verifiable path](docs/community-ga-user-verifiable-path.md)
 - [Production deployment guide validation](docs/production-deployment-guide-validation.md)
 - [Go enforcement production hardening](docs/go-enforcement-production-hardening.md)
+- [Enterprise integration validation](docs/enterprise-integration-validation.md)
 - [Community release verification runbook](docs/community-release-verification-runbook.md)
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
@@ -538,10 +539,17 @@ Latest delivery:
   navigation, and wiki navigation through
   [docs/go-enforcement-production-hardening.md](docs/go-enforcement-production-hardening.md)
   and `scripts/validate-go-production-hardening.py`.
+- Enterprise integration validation now links GitHub App/orchestrator
+  governance, GitLab and Azure DevOps parity, SAML identity readiness,
+  SIEM/ITSM workflow evidence, README navigation, and wiki navigation through
+  [docs/enterprise-integration-validation.md](docs/enterprise-integration-validation.md)
+  and `scripts/validate-enterprise-integration-readiness.py`.
 
 Next recommended implementation work:
 
-- Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
+- Validate production readiness and procurement closeout for performance,
+  concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+  advisory drills, and final release integrity evidence.
 
 ## User stories and enterprise value
 
@@ -600,6 +608,7 @@ Wiki-ready documentation is maintained under [docs/wiki](docs/wiki):
 - [Go Backend Pilot](docs/wiki/Go-Backend-Pilot.md)
 - [Go Backend Deployment Readiness](docs/wiki/Go-Backend-Deployment-Readiness.md)
 - [Go Release Packaging](docs/wiki/Go-Release-Packaging.md)
+- [Enterprise Integration Validation](docs/wiki/Enterprise-Integration-Validation.md)
 - [SaaS Operating Automation Public Contract Sync](docs/wiki/SaaS-Operating-Automation-Public-Contract-Sync.md)
 - [SaaS Operating Automation Worker Handoff](docs/wiki/SaaS-Operating-Automation-Worker-Handoff.md)
 - [Vulnerability Disclosure](docs/vulnerability-disclosure.md)

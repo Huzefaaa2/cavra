@@ -42,6 +42,6 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
    tests, production hardening validation, package verification,
    release-candidate upgrade validation, performance smoke evidence, and
    rollback evidence pass.
-2. Complete enterprise integration validation for GitHub App/orchestrator
-   production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
-   and SIEM/ITSM workflow evidence.
+2. Validate production readiness and procurement closeout for performance,
+concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+advisory drills, and final release integrity evidence.
