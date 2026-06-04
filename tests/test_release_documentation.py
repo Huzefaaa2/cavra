@@ -141,7 +141,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "automated packet validation" in next_slice
+    assert "GitHub Release notes" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -158,6 +158,58 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert packet_json["next_recommendation"] == (
         "Create a final tagged Community GA release packet when the maintainer is ready "
         "to publish an official Community GA release."
+    )
+
+
+def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
+    packet_md = Path("docs/release-packets/community-ga-v0.1.0.md").read_text(
+        encoding="utf-8"
+    )
+    packet_json = json.loads(
+        Path("docs/release-packets/community-ga-v0.1.0.json").read_text(encoding="utf-8")
+    )
+    wiki_packet = Path("docs/wiki/Community-GA-v0.1.0-Release-Packet.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+
+    required_gates = {
+        "Public boundary",
+        "Policy signing",
+        "Policy validation",
+        "Runtime modes",
+        "Golden decisions",
+        "Evidence Console",
+        "Deployment validation",
+        "Go runtime readiness",
+        "Documentation",
+        "CI evidence",
+    }
+    packet_gate_names = {gate["name"] for gate in packet_json["gates"]}
+
+    assert "docs/release-packets/community-ga-v0.1.0.md" in readme
+    assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
+    assert "community-ga-v0.1.0.json" in roadmap
+    assert "GitHub Release notes" in next_slice
+    assert "community-v0.1.0" in packet_md
+    assert "community-v0.1.0" in wiki_packet
+
+    assert packet_json["packet_id"] == "community-ga-v0.1.0"
+    assert packet_json["release_state"] == "ready_for_community_ga"
+    assert packet_json["tag"] == "community-v0.1.0"
+    assert packet_json["accepted_risks"] == []
+    assert required_gates == packet_gate_names
+    assert {gate["status"] for gate in packet_json["gates"]} <= {"pass", "disabled"}
+    assert packet_json["decision"]["status"] == "approve"
+    assert packet_json["public_boundary_review"]["validation_result"] == "pass"
+    assert packet_json["public_boundary_review"]["enterprise_code_present"] is False
+    assert packet_json["public_boundary_review"]["secrets_present"] is False
+    assert packet_json["next_recommendation"] == (
+        "Publish Community GA GitHub Release notes and attach distribution artifacts after "
+        "the community-v0.1.0 release workflow completes."
     )
 
 

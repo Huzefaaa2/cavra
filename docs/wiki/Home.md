@@ -132,6 +132,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community GA Release Packet Template: `Community-GA-Release-Packet-Template.md`
 - Community GA Dry-Run Release Packet: `Community-GA-Dry-Run-Release-Packet.md`
 - Community GA Release Packet Validation: `Community-GA-Release-Packet-Validation.md`
+- Community GA v0.1.0 Release Packet: `Community-GA-v0.1.0-Release-Packet.md`
 - Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
 - Runtime Policy Modes: `Runtime-Policy-Modes.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`

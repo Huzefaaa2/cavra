@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Final tagged Community GA release packet, building on the delivered checklist,
-packet template, dry-run packet, and automated packet validation.
+Community GA GitHub Release notes and distribution artifact publication,
+building on the delivered `community-v0.1.0` packet.
 
 ## Why This Is Next
 
@@ -575,5 +575,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create a final tagged Community GA release packet when the maintainer is ready
-to publish an official Community GA release.
+Publish Community GA GitHub Release notes and attach distribution artifacts
+after the `community-v0.1.0` release workflow completes.
