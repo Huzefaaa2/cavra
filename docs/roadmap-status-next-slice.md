@@ -123,19 +123,22 @@ yet fully production-complete. Remaining themes are:
   with Unix-socket transport, gRPC boundary planning, air-gapped packaging,
   reproducibility, upgrade validation, performance smoke, and operational
   readiness evidence validation.
-- Enterprise integration validation remains active for GitHub App/orchestrator
-  production hardening, GitLab/Azure DevOps parity, SAML identity readiness,
-  and SIEM/ITSM workflow evidence.
+- Enterprise integration validation is delivered in
+  [enterprise-integration-validation.md](enterprise-integration-validation.md)
+  with GitHub App/orchestrator governance, GitLab CI parity, Azure DevOps
+  parity, SAML identity readiness, SIEM workflow evidence, ITSM workflow
+  evidence, README navigation, wiki navigation, and CI workflow wiring.
 
 ## Next Slice
 
-Enterprise integration validation, building on the completed Go enforcement
-production hardening, production deployment guide validation, Community GA
-user-verifiable path, console closeout operator experience, developer portal
-redesign, portal smoke validator, dashboard validator, release index freshness
-validator, release index page, v0.1.1 maintenance-release dry-run evidence,
-release-note freshness validator, maintenance-release checklist, schema
-validation, and CI enforcement.
+Production readiness and procurement closeout, building on the completed
+enterprise integration validation, Go enforcement production hardening,
+production deployment guide validation, Community GA user-verifiable path,
+console closeout operator experience, developer portal redesign, portal smoke
+validator, dashboard validator, release index freshness validator, release
+index page, v0.1.1 maintenance-release dry-run evidence, release-note
+freshness validator, maintenance-release checklist, schema validation, and CI
+enforcement.
 
 Console closeout operator experience is documented at
 `docs/console-closeout-operator-experience.md` and enforced by
@@ -149,6 +152,9 @@ Production deployment guide validation is documented at
 Go enforcement production hardening is documented at
 `docs/go-enforcement-production-hardening.md` and enforced by
 `scripts/validate-go-production-hardening.py`.
+Enterprise integration validation is documented at
+`docs/enterprise-integration-validation.md` and enforced by
+`scripts/validate-enterprise-integration-readiness.py`.
 
 ## Why This Is Next
 
@@ -601,4 +607,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
+Validate production readiness and procurement closeout for performance,
+concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+advisory drills, and final release integrity evidence.

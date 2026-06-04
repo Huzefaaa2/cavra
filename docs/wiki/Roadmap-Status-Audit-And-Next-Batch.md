@@ -138,6 +138,14 @@ Go enforcement production hardening is documented at
 [Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening)
 and enforced by `scripts/validate-go-production-hardening.py`.
 
+## Delivered Enterprise Integration Validation
+
+Enterprise integration validation is documented at
+[Enterprise-Integration-Validation](Enterprise-Integration-Validation)
+and enforced by `scripts/validate-enterprise-integration-readiness.py`.
+
 ## Recommended Next PR
 
-Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
+Validate production readiness and procurement closeout for performance,
+concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+advisory drills, and final release integrity evidence.

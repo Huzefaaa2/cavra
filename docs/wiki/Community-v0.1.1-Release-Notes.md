@@ -26,4 +26,6 @@ documentation path before a real `community-v0.1.1` tag is published.
 
 ## Next Recommendation
 
-Complete enterprise integration validation for GitHub App/orchestrator production hardening, GitLab/Azure DevOps parity, SAML identity readiness, and SIEM/ITSM workflow evidence.
+Validate production readiness and procurement closeout for performance,
+concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
+advisory drills, and final release integrity evidence.
