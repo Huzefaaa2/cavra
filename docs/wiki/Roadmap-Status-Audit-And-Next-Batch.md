@@ -108,6 +108,5 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Create a Community GA dry-run release packet that fills the public packet
-template against the current `main` branch and records the first baseline
-release packet for public review.
+Add automated JSON schema validation for Community GA release packets in CI so
+future packet JSON artifacts cannot drift from the public schema.

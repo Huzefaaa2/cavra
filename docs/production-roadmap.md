@@ -173,7 +173,11 @@ Community GA release packet template documentation and schema are now available
 at `docs/community-ga-release-packet-template.md`,
 `docs/release-packets/community-ga-release-packet.schema.json`, and
 `examples/release-packets/community-ga-release-packet.example.json`.
-Next recommended slice: Community GA dry-run release packet.
+Community GA dry-run release packet documentation is now available at
+`docs/release-packets/community-ga-dry-run-2026-06-04.md` and
+`docs/release-packets/community-ga-dry-run-2026-06-04.json`.
+Next recommended slice: automated Community GA release packet JSON schema
+validation in CI.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

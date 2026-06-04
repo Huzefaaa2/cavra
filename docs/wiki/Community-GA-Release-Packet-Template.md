@@ -123,6 +123,5 @@ not synced, or Go promotion is requested without required readiness evidence.
 
 ## Next Recommendation
 
-Continue with a Community GA dry-run release packet that fills this template
-against the current `main` branch and records the first baseline release packet
-for public review.
+Continue with automated JSON schema validation for Community GA release packets
+in CI.
