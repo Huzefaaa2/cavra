@@ -129,6 +129,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community GA Control Hardening Sync: `Community-GA-Control-Hardening-Sync.md`
 - Evidence Console Community GA Closeout: `Evidence-Console-Community-GA-Closeout.md`
 - Community GA Release Checklist: `Community-GA-Release-Checklist.md`
+- Community GA Release Packet Template: `Community-GA-Release-Packet-Template.md`
 - Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
 - Runtime Policy Modes: `Runtime-Policy-Modes.md`
 - Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`

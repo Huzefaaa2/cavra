@@ -50,7 +50,12 @@ compensating control.
 golden decisions regress, runtime modes are ambiguous, required checks fail, or
 Go promotion is requested without complete readiness and rollback evidence.
 
+## Public Evidence Packet
+
+Use the Community GA release packet template and JSON schema for every public
+Community GA release packet.
+
 ## Next Recommendation
 
-Continue with a public Community GA release packet template that captures the
-checklist outputs in a repeatable markdown/JSON artifact for future release PRs.
+Continue with a Community GA dry-run release packet that fills the public packet
+template against the current `main` branch.

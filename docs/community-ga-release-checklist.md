@@ -130,7 +130,11 @@ A Community GA release packet should include:
 - Go backend readiness status or explicit disabled status;
 - README/docs/wiki sync commit.
 
+Use the
+[Community GA release packet template](community-ga-release-packet-template.md)
+and JSON schema for every public Community GA release packet.
+
 ## Next Recommendation
 
-Continue with a public Community GA release packet template that captures the
-checklist outputs in a repeatable markdown/JSON artifact for future release PRs.
+Continue with a Community GA dry-run release packet that fills the public
+template against the current `main` branch.

@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Public Community GA release packet template, building on the delivered
-Community GA release checklist.
+Community GA dry-run release packet, building on the delivered Community GA
+release checklist and packet template.
 
 ## Why This Is Next
 
@@ -575,6 +575,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create a public Community GA release packet template that captures checklist
-outputs, validation results, evidence links, accepted risks, and wiki sync
-references in repeatable markdown/JSON artifacts for future release PRs.
+Create a Community GA dry-run release packet that fills the public packet
+template against the current `main` branch and records the first baseline
+release packet for public review.
