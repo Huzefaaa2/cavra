@@ -2,6 +2,14 @@
 
 CAVRA now exposes a deployment readiness report for authenticated console/API topologies.
 
+## Guide Coverage
+
+The public deployment guide must cover Install, Configuration, Storage, Backup,
+Restore, CORS/API, GitHub Pages portal checks, persistent stores, evidence
+artifact root configuration, and release validation commands. Run
+`python scripts/validate-production-deployment-guide.py` before release notes,
+roadmap pages, or wiki pages claim production deployment readiness.
+
 ## Endpoint
 
 - `GET /deployment/production-readiness`
@@ -30,6 +38,23 @@ The report checks:
 ```bash
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
+
+Production deployment validation should be paired with these public operator
+checks:
+
+```bash
+cavra ops stores
+cavra ops backup --output .cavra/backups/production-check
+cavra ops restore .cavra/backups/production-check/manifest.json --target-dir /tmp/cavra-restore-test
+python scripts/validate-sandbox-portal.py
+python scripts/validate-console-closeout.py
+python scripts/validate-community-ga-path.py
+python scripts/validate-production-deployment-guide.py
+```
+
+Set `CAVRA_PUBLIC_API_BASE_URL` for hosted console API access and restrict
+`CAVRA_CORS_ORIGINS` to the deployed console origin, such as the GitHub Pages
+portal or the internal console URL.
 
 Run this in the same environment that hosts the API and console. Attach the
 report to release evidence before enterprise pilots. For the public Community

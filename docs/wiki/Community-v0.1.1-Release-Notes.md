@@ -26,5 +26,4 @@ documentation path before a real `community-v0.1.1` tag is published.
 
 ## Next Recommendation
 
-Validate production deployment guide coverage for install, configuration,
-storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.

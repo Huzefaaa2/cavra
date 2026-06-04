@@ -226,8 +226,10 @@ Console closeout operator experience is documented at
 Community GA user-verifiable path is documented at
 `docs/community-ga-user-verifiable-path.md` and enforced by
 `scripts/validate-community-ga-path.py`.
-Next recommended slice: validate production deployment guide coverage for install, configuration,
-storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+Production deployment guide validation is documented at
+`docs/production-deployment-guide-validation.md` and enforced by
+`scripts/validate-production-deployment-guide.py`.
+Next recommended slice: harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -35,5 +35,4 @@ private deployment evidence.
 
 ## Next Recommendation
 
-Validate production deployment guide coverage for install, configuration,
-storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.

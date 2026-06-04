@@ -100,6 +100,7 @@ Open-core architecture and boundaries:
 - [Community GA v0.1.0 release publication](docs/community-ga-v0.1.0-release-publication.md)
 - [Community GA v0.1.0 post-release verification](docs/release-verifications/community-v0.1.0-post-release-verification.md)
 - [Community GA user-verifiable path](docs/community-ga-user-verifiable-path.md)
+- [Production deployment guide validation](docs/production-deployment-guide-validation.md)
 - [Community release verification runbook](docs/community-release-verification-runbook.md)
 - [Community GA v0.1.0 release notes](docs/releases/community-v0.1.0.md)
 - [Community maintenance release checklist](docs/community-maintenance-release-checklist.md)
@@ -525,11 +526,15 @@ Latest delivery:
   links, wiki navigation, and workflow enforcement through
   [docs/community-ga-user-verifiable-path.md](docs/community-ga-user-verifiable-path.md)
   and `scripts/validate-community-ga-path.py`.
+- Production deployment guide validation now links install, configuration,
+  storage, backup, restore, CORS/API, GitHub Pages portal checks, release
+  validators, README navigation, and wiki navigation through
+  [docs/production-deployment-guide-validation.md](docs/production-deployment-guide-validation.md)
+  and `scripts/validate-production-deployment-guide.py`.
 
 Next recommended implementation work:
 
-- Validate production deployment guide coverage for install, configuration,
-  storage, backup, restore, CORS/API, and GitHub Pages portal checks.
+- Harden the Go enforcement plane production path for Unix-socket/gRPC interface completion, air-gapped packaging, reproducibility, upgrade validation, performance, and operational readiness evidence.
 
 ## User stories and enterprise value
 
