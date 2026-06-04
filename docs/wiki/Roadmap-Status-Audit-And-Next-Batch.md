@@ -108,6 +108,5 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Add a reusable Community maintenance-release checklist that requires the manual
-verification workflow result, release notes, changelog entry, README link, and
-wiki link before publishing the next public Community tag.
+Add a release-note freshness validator that checks every Community release notes
+page has a matching verification packet, README link, and wiki navigation entry.

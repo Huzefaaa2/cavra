@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cavra.dev/schemas/community-maintenance-release.schema.json",
+  "title": "CAVRA Community Maintenance Release Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "packet_id",
+    "release_name",
+    "release_state",
+    "prepared_at",
+    "repository",
+    "tag",
+    "version",
+    "release_url",
+    "release_notes",
+    "verification_packet",
+    "verification_workflow",
+    "gates",
+    "validation_commands",
+    "accepted_risks",
+    "public_boundary",
+    "decision",
+    "next_recommendation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.community_maintenance_release.v1"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_state": {
+      "enum": ["ready_for_publication", "ready_with_accepted_risk", "blocked"]
+    },
+    "prepared_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "const": "Huzefaaa2/cavra"
+    },
+    "tag": {
+      "type": "string",
+      "pattern": "^community-v"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "release_notes": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification_packet": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification_workflow": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 9,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "evidence", "owner", "notes"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": ["pass", "warn", "fail"]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation_commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "status", "output_reference"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": ["pass", "warn", "fail"]
+          },
+          "output_reference": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "accepted_risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["risk", "severity", "owner", "expiry", "compensating_control", "decision"],
+        "properties": {
+          "risk": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": ["low", "medium", "high"]
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expiry": {
+            "type": "string",
+            "minLength": 1
+          },
+          "compensating_control": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "enum": ["accepted", "rejected"]
+          }
+        }
+      }
+    },
+    "public_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enterprise_source_included",
+        "paid_policy_packs_included",
+        "customer_records_included",
+        "private_keys_included",
+        "private_registry_credentials_included",
+        "validation_result"
+      ],
+      "properties": {
+        "enterprise_source_included": {
+          "type": "boolean"
+        },
+        "paid_policy_packs_included": {
+          "type": "boolean"
+        },
+        "customer_records_included": {
+          "type": "boolean"
+        },
+        "private_keys_included": {
+          "type": "boolean"
+        },
+        "private_registry_credentials_included": {
+          "type": "boolean"
+        },
+        "validation_result": {
+          "enum": ["pass", "warn", "fail"]
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rationale"],
+      "properties": {
+        "status": {
+          "enum": ["approve", "block", "defer"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "next_recommendation": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

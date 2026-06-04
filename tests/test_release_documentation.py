@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "Community release verification operating cadence" in next_slice
+    assert "Community release-note freshness validation" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "Community release verification operating cadence" in next_slice
+    assert "Community release-note freshness validation" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "Community release verification operating cadence" in next_slice
+    assert "Community release-note freshness validation" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -324,6 +324,92 @@ def test_community_ga_v010_post_release_verification_is_linked_and_complete() ->
     )
     assert module.sha256_file(sample) == module.sha256_file(sample)
     assert module.DEFAULT_TAG == "community-v0.1.0"
+
+
+def test_community_maintenance_release_checklist_is_linked_and_validated() -> None:
+    checklist = Path("docs/community-maintenance-release-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    template = Path("docs/community-maintenance-release-evidence-template.md").read_text(
+        encoding="utf-8"
+    )
+    schema = json.loads(
+        Path("docs/release-verifications/community-maintenance-release.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    example = json.loads(
+        Path(
+            "examples/release-verifications/community-maintenance-release.example.json"
+        ).read_text(encoding="utf-8")
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    wiki_checklist = Path("docs/wiki/Community-Maintenance-Release-Checklist.md").read_text(
+        encoding="utf-8"
+    )
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+    community_ci = Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8")
+    security_scan = Path(".github/workflows/security-scan.yml").read_text(
+        encoding="utf-8"
+    )
+    release_workflow = Path(".github/workflows/release-community.yml").read_text(
+        encoding="utf-8"
+    )
+    governance = Path(".github/workflows/cavra-governance.yml").read_text(
+        encoding="utf-8"
+    )
+
+    required_gates = {
+        "Release notes",
+        "Changelog",
+        "README link",
+        "Wiki link",
+        "Verification workflow",
+        "Artifact checksums",
+        "Install smoke",
+        "Public boundary",
+        "CI evidence",
+    }
+
+    assert "docs/community-maintenance-release-checklist.md" in readme
+    assert "docs/community-maintenance-release-evidence-template.md" in readme
+    assert "Community-Maintenance-Release-Checklist.md" in wiki_home
+    assert "Community-Maintenance-Release-Evidence-Template.md" in wiki_home
+    assert "Community maintenance-release governance" in roadmap
+    assert "release-note freshness validator" in next_slice
+    assert "release notes" in checklist
+    assert "community-maintenance-release.schema.json" in template
+    assert "Community maintenance-release checklist" in changelog
+    assert "Required Gates" in wiki_checklist
+
+    assert schema["properties"]["schema_version"]["const"] == (
+        "cavra.community_maintenance_release.v1"
+    )
+    assert example["schema_version"] == "cavra.community_maintenance_release.v1"
+    assert example["release_state"] == "ready_for_publication"
+    assert example["accepted_risks"] == []
+    assert {gate["name"] for gate in example["gates"]} == required_gates
+    assert all(gate["status"] == "pass" for gate in example["gates"])
+    assert example["public_boundary"]["enterprise_source_included"] is False
+    assert example["public_boundary"]["paid_policy_packs_included"] is False
+    assert example["public_boundary"]["customer_records_included"] is False
+    assert example["public_boundary"]["private_keys_included"] is False
+    assert example["decision"]["status"] == "approve"
+
+    for workflow in (community_ci, security_scan, release_workflow, governance):
+        assert "scripts/validate-maintenance-release-evidence.py" in workflow
+
+    result = subprocess.run(
+        [sys.executable, "scripts/validate-maintenance-release-evidence.py"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "CAVRA maintenance release evidence validation passed." in result.stdout
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

@@ -121,9 +121,9 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community release verification operating cadence for future public Community
-tags, building on the completed `community-v0.1.0` post-release verification
-packet, reusable verifier script, manual workflow, runbook, and release notes.
+Community release-note freshness validation for future public Community tags,
+building on the completed maintenance-release checklist, evidence template,
+schema, validator, example packet, and CI enforcement.
 
 ## Why This Is Next
 
@@ -576,6 +576,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Add a reusable Community maintenance-release checklist that requires the manual
-verification workflow result, release notes, changelog entry, README link, and
-wiki link before publishing the next public Community tag.
+Add a release-note freshness validator that checks every Community release notes
+page has a matching verification packet, README link, and wiki navigation entry.
