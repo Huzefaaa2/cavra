@@ -108,6 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Create a post-release verification packet for artifact downloadability,
-checksum verification, install smoke testing, and README/wiki release-link
-freshness.
+Add a reusable Community maintenance-release checklist that requires the manual
+verification workflow result, release notes, changelog entry, README link, and
+wiki link before publishing the next public Community tag.

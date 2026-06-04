@@ -39,6 +39,6 @@ included.
 
 ## Next Recommendation
 
-Continue with a post-release verification packet that confirms artifact
-downloadability, checksum verification, install smoke testing, and README/wiki
-release-link freshness after publication.
+Use the manual `Verify Community Release` workflow for every future Community
+release tag and publish verification results in the release notes before moving
+to the next public Community maintenance release.
