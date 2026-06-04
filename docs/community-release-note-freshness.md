@@ -1,0 +1,40 @@
+# Community Release Note Freshness
+
+CAVRA validates public Community release notes so release documentation cannot
+drift from verification evidence, README links, or wiki navigation.
+
+## What Is Checked
+
+`scripts/validate-community-release-note-freshness.py` scans
+`docs/releases/community-v*.md` and verifies each release notes page has:
+
+- a GitHub Release URL for the matching `community-v*` tag;
+- at least one matching verification packet under `docs/release-verifications/`;
+- a README link to the release notes page;
+- a README link to the matching verification packet;
+- a wiki release notes page linked from `docs/wiki/Home.md`;
+- a wiki verification page linked from `docs/wiki/Home.md`.
+
+## Command
+
+```bash
+python3 scripts/validate-community-release-note-freshness.py
+```
+
+## CI Enforcement
+
+The freshness validator runs in Community CI, security scan, release-community,
+and `cavra-required-check` so stale release notes block public release work.
+
+## Boundary Rules
+
+This validator checks public Community release documentation only. It does not
+inspect private Enterprise packages, paid policy packs, SaaS backend artifacts,
+license-service internals, customer records, private registry credentials, or
+private deployment evidence.
+
+## Next Recommendation
+
+Create the first Community maintenance-release dry-run evidence packet for a
+future `community-v0.1.1` tag using the new maintenance-release checklist and
+freshness validator.

@@ -8,6 +8,8 @@
 - Added the Community maintenance-release checklist, evidence template, JSON
   schema, validator, example packet, CI enforcement, and wiki-ready
   documentation for future public Community tags.
+- Added Community release-note freshness validation to keep release notes,
+  verification packets, README links, and wiki navigation in sync.
 
 ## Community GA v0.1.0 - 2026-06-04
 

@@ -198,9 +198,13 @@ validation in
 `docs/release-verifications/community-maintenance-release.schema.json`,
 `examples/release-verifications/community-maintenance-release.example.json`, and
 `scripts/validate-maintenance-release-evidence.py`.
-Next recommended slice: add a release-note freshness validator that checks every
-Community release notes page has a matching verification packet, README link,
-and wiki navigation entry.
+Community release-note freshness validation is now documented at
+`docs/community-release-note-freshness.md` and enforced by
+`scripts/validate-community-release-note-freshness.py` in Community CI, security
+scan, release-community, and `cavra-required-check`.
+Next recommended slice: create the first Community maintenance-release dry-run
+evidence packet for a future `community-v0.1.1` tag using the new
+maintenance-release checklist and freshness validator.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
