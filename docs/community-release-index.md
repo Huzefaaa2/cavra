@@ -10,28 +10,22 @@ artifacts are published and which release evidence is ready for publication.
 | Release | State | GitHub Release | Release Notes | Verification Packet | Next Action |
 | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Use as the current public Community GA baseline. |
-| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
-| Community v0.1.2 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-maintenance-verification.md` | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
+| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
+| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness. |
 
 ## Current Public Baseline
 
-Community GA v0.1.0 is the current published public Community release. It has a
+Community v0.1.2 is the current published public Community release. It has a
 GitHub Release, attached source distribution and wheel artifacts, recorded
-SHA-256 checksums, and a clean install smoke result.
+SHA-256 checksums, and a clean install smoke result. Community GA v0.1.0
+remains the GA baseline record.
 
 ## Current Maintenance Release
 
-Community v0.1.1 is the current maintenance-release record. It records the
+Community v0.1.2 is the current maintenance-release record. It records the
 package version bump, public artifact names, SHA-256 checksums, install-smoke
-result, release documentation, evidence packet, public boundary, and freshness
-checks for the official maintenance release. Its post-release verification
-packet confirms the published GitHub Release assets are downloadable, match the
-recorded checksums, and install cleanly.
-
-Community v0.1.2 is the current dry-run maintenance-release candidate. It
-records release notes, package metadata closure, release workflow guard
-evidence, public boundary status, and accepted risk for the missing real
-artifacts that must exist before official publication.
+result, release documentation, evidence packet, public boundary, freshness
+checks, and post-release verification for the official maintenance release.
 
 ## Verification Controls
 
@@ -53,4 +47,4 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
+Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.

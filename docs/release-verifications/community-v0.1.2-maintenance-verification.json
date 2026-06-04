@@ -2,8 +2,8 @@
   "schema_version": "cavra.community_maintenance_release.v1",
   "packet_id": "community-v0.1.2-maintenance-verification",
   "release_name": "CAVRA Community v0.1.2",
-  "release_state": "ready_with_accepted_risk",
-  "prepared_at": "2026-06-04T00:00:00Z",
+  "release_state": "ready_for_publication",
+  "prepared_at": "2026-06-04T13:41:44Z",
   "repository": "Huzefaaa2/cavra",
   "tag": "community-v0.1.2",
   "version": "0.1.2",
@@ -17,63 +17,63 @@
       "status": "pass",
       "evidence": "docs/releases/community-v0.1.2.md",
       "owner": "release-agent",
-      "notes": "Dry-run maintenance release notes are present and linked."
+      "notes": "Official maintenance release notes are present and linked."
     },
     {
       "name": "Changelog",
       "status": "pass",
       "evidence": "CHANGELOG.md",
       "owner": "release-agent",
-      "notes": "Changelog records the v0.1.2 dry-run release-notes and verification packet."
+      "notes": "Changelog records the v0.1.2 package version bump, release publication, checksums, and verification evidence."
     },
     {
       "name": "README link",
       "status": "pass",
       "evidence": "README.md",
       "owner": "docs-agent",
-      "notes": "README links the v0.1.2 dry-run release notes and verification packet."
+      "notes": "README links the v0.1.2 release notes, maintenance verification, and post-release verification packet."
     },
     {
       "name": "Wiki link",
       "status": "pass",
       "evidence": "docs/wiki/Home.md",
       "owner": "docs-agent",
-      "notes": "Wiki-ready navigation links v0.1.2 release notes and verification pages."
+      "notes": "Wiki-ready navigation links v0.1.2 release notes, maintenance verification, and post-release verification pages."
     },
     {
       "name": "Verification workflow",
       "status": "pass",
       "evidence": ".github/workflows/verify-community-release.yml",
       "owner": "release-agent",
-      "notes": "Manual verification workflow remains available for the eventual published v0.1.2 artifacts."
+      "notes": "Manual verification workflow remains available for published v0.1.2 artifacts."
     },
     {
       "name": "Artifact checksums",
-      "status": "warn",
-      "evidence": "pending real community-v0.1.2 GitHub Release artifacts",
+      "status": "pass",
+      "evidence": "cavra-0.1.2-py3-none-any.whl=bbdb2f593ce3c14742446c1682c23bef7933925a02382a874e59b8ef7e389163; cavra-0.1.2.tar.gz=f7a477cfef65d77bd4c36520a83d256c1086e7b81ffcd9411ee9c68d017ab1d0",
       "owner": "release-agent",
-      "notes": "Dry-run packet does not claim wheel or source distribution checksums."
+      "notes": "Published GitHub Release asset checksums match the expected SHA-256 values."
     },
     {
       "name": "Install smoke",
-      "status": "warn",
-      "evidence": "pending real cavra-0.1.2 wheel",
+      "status": "pass",
+      "evidence": "cavra version -> cavra 0.1.2",
       "owner": "test-agent",
-      "notes": "Clean install smoke is deferred until v0.1.2 artifacts exist."
+      "notes": "Published wheel installed in a clean temporary virtual environment and reported the expected CLI version."
     },
     {
       "name": "Public boundary",
       "status": "pass",
       "evidence": "bash scripts/validate-boundaries.sh .",
       "owner": "security-agent",
-      "notes": "Public boundary validation covers this dry-run packet."
+      "notes": "Public boundary validation covers this release packet."
     },
     {
       "name": "CI evidence",
       "status": "pass",
-      "evidence": "Community CI, package metadata validation, and workflow guard tests",
+      "evidence": "Community CI, Test, CodeQL, Release Community, Release Security Readiness, and tag Test workflows passed for commit e3cd7a1d6a3435188b4225d3bf49d79a9f6de128.",
       "owner": "release-agent",
-      "notes": "Required checks validate package metadata closure and release workflow guard evidence."
+      "notes": "Required checks validate package metadata, release workflow guards, public boundary, and tag-triggered release readiness."
     }
   ],
   "validation_commands": [
@@ -83,9 +83,24 @@
       "output_reference": "CAVRA Python package metadata validation passed."
     },
     {
-      "command": "python3 -m pytest tests/test_package_metadata.py tests/test_ci_templates.py -q",
+      "command": "python3 -m pytest -q",
       "status": "pass",
-      "output_reference": "Package metadata and workflow guard tests passed."
+      "output_reference": "405 passed."
+    },
+    {
+      "command": "python3 -m build",
+      "status": "pass",
+      "output_reference": "Successfully built cavra-0.1.2.tar.gz and cavra-0.1.2-py3-none-any.whl."
+    },
+    {
+      "command": "python3 -m twine check dist/*",
+      "status": "pass",
+      "output_reference": "PASSED for wheel and source distribution."
+    },
+    {
+      "command": "python3 scripts/verify-community-release-artifacts.py --tag community-v0.1.2 --version 0.1.2 --wheel-sha256 bbdb2f593ce3c14742446c1682c23bef7933925a02382a874e59b8ef7e389163 --sdist-sha256 f7a477cfef65d77bd4c36520a83d256c1086e7b81ffcd9411ee9c68d017ab1d0",
+      "status": "pass",
+      "output_reference": "Published assets downloaded, checksums matched, and clean install smoke returned cavra 0.1.2."
     },
     {
       "command": "python3 scripts/validate-maintenance-release-evidence.py",
@@ -103,16 +118,7 @@
       "output_reference": "CAVRA public boundary validation passed."
     }
   ],
-  "accepted_risks": [
-    {
-      "risk": "Dry-run packet does not include real v0.1.2 release artifacts, checksums, or clean-install smoke evidence.",
-      "severity": "low",
-      "owner": "release-agent",
-      "expiry": "2026-06-18",
-      "compensating_control": "The packet is explicitly marked as dry-run and blocked from official publication until artifacts are built, checksummed, published, and smoke-tested.",
-      "decision": "accepted"
-    }
-  ],
+  "accepted_risks": [],
   "public_boundary": {
     "enterprise_source_included": false,
     "paid_policy_packs_included": false,
@@ -122,8 +128,8 @@
     "validation_result": "pass"
   },
   "decision": {
-    "status": "defer",
-    "rationale": "The Community v0.1.2 release notes and dry-run verification packet are ready for review, but official publication is deferred until maintainer approval and real artifact publication."
+    "status": "approve",
+    "rationale": "The Community v0.1.2 release notes, package metadata, artifact checksums, install-smoke evidence, README links, wiki-ready pages, release index, release dashboard, and public boundary checks are aligned for official publication."
   },
-  "next_recommendation": "Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication."
+  "next_recommendation": "Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness."
 }

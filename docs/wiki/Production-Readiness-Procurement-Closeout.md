@@ -129,4 +129,4 @@ and source-boundary evidence without exposing the private Enterprise product.
 
 ## Next Recommendation
 
-Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
+Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.

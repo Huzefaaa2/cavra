@@ -115,7 +115,8 @@ Open-core architecture and boundaries:
 - [Community v0.1.1 post-release verification](docs/release-verifications/community-v0.1.1-post-release-verification.md)
 - [Community v0.1.2 readiness](docs/community-v0.1.2-readiness.md)
 - [Community v0.1.2 release notes](docs/releases/community-v0.1.2.md)
-- [Community v0.1.2 dry-run verification](docs/release-verifications/community-v0.1.2-maintenance-verification.md)
+- [Community v0.1.2 maintenance verification](docs/release-verifications/community-v0.1.2-maintenance-verification.md)
+- [Community v0.1.2 post-release verification](docs/release-verifications/community-v0.1.2-post-release-verification.md)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -559,7 +560,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.
+- Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.
 
 ## User stories and enterprise value
 
