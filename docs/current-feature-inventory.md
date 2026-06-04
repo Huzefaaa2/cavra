@@ -74,6 +74,8 @@ Community GA release packet validation: `scripts/validate-release-packets.py` va
 
 Community GA v0.1.0 release packet: `docs/release-packets/community-ga-v0.1.0.md` and `docs/release-packets/community-ga-v0.1.0.json` record the first official public Community GA release packet for tag `community-v0.1.0`, with all Community GA gates passing and no accepted risks.
 
+Community GA v0.1.0 release publication: `docs/community-ga-v0.1.0-release-publication.md` records the public GitHub Release URL, successful release workflow, attached source distribution and wheel artifacts, SHA-256 checksums, and public Community boundary notice.
+
 Console security boundary and sessions: `GET /console/security-boundary` reports OIDC, repository RBAC, CORS, console permission categories, and operator notes for deployed console/API topologies. `GET /console/session` validates bearer-token OIDC context, returns actor identity, repository permissions, and console permission flags, and console approval or break-glass mutations require verified actor context when OIDC or RBAC is configured. Entra ID and Okta reference bundles live under `examples/identity/`.
 
 Evidence artifact retrieval: `GET /evidence/{session_id}/artifacts`, `GET /evidence/{session_id}/artifacts/{artifact_name}`, and `GET /evidence/{session_id}/artifact-bundle` expose allowlisted bundle files for indexed sessions and allowlisted managed endpoint rollout evidence files when `CAVRA_EVIDENCE_ARTIFACT_ROOT` is configured. Rollout listings include checksum integrity and promotion readiness. The console shows artifact lists, bundle download links, rollout integrity, and readiness indicators from evidence rows.

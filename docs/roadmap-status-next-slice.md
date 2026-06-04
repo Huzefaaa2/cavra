@@ -121,8 +121,8 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community GA GitHub Release notes and distribution artifact publication,
-building on the delivered `community-v0.1.0` packet.
+Community GA post-release verification packet, building on the published
+`community-v0.1.0` GitHub Release and attached distribution artifacts.
 
 ## Why This Is Next
 
@@ -575,5 +575,6 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Publish Community GA GitHub Release notes and attach distribution artifacts
-after the `community-v0.1.0` release workflow completes.
+Create a post-release verification packet for artifact downloadability,
+checksum verification, install smoke testing, and README/wiki release-link
+freshness.

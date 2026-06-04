@@ -141,7 +141,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "GitHub Release notes" in next_slice
+    assert "post-release verification packet" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -193,7 +193,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "GitHub Release notes" in next_slice
+    assert "post-release verification packet" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -211,6 +211,39 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
         "Publish Community GA GitHub Release notes and attach distribution artifacts after "
         "the community-v0.1.0 release workflow completes."
     )
+
+
+def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
+    publication = Path("docs/community-ga-v0.1.0-release-publication.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_publication = Path("docs/wiki/Community-GA-v0.1.0-Release-Publication.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    next_slice = Path("docs/roadmap-status-next-slice.md").read_text(encoding="utf-8")
+
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0"
+    workflow_url = "https://github.com/Huzefaaa2/cavra/actions/runs/26929259433"
+    sdist_sha = "35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e"
+    wheel_sha = "1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8"
+
+    assert release_url in readme
+    assert "docs/community-ga-v0.1.0-release-publication.md" in readme
+    assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
+    assert release_url in roadmap
+    assert "post-release verification packet" in next_slice
+
+    for document in (publication, wiki_publication):
+        assert release_url in document
+        assert workflow_url in document
+        assert "cavra-0.1.0.tar.gz" in document
+        assert "cavra-0.1.0-py3-none-any.whl" in document
+        assert sdist_sha in document
+        assert wheel_sha in document
+        assert "Enterprise/private source included: no" in document
 
 
 def test_release_packet_validation_script_accepts_repository_packets() -> None:

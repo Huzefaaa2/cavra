@@ -182,8 +182,13 @@ release-community, and `cavra-required-check` workflows.
 Community GA v0.1.0 release packet documentation is now available at
 `docs/release-packets/community-ga-v0.1.0.md` and
 `docs/release-packets/community-ga-v0.1.0.json`.
-Next recommended slice: publish Community GA GitHub Release notes and attach
-distribution artifacts after the `community-v0.1.0` release workflow completes.
+Community GA v0.1.0 is published at
+`https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0` with source
+distribution and wheel artifacts attached. Publication details are documented in
+`docs/community-ga-v0.1.0-release-publication.md`.
+Next recommended slice: post-release verification packet for artifact
+downloadability, checksum verification, install smoke testing, and release-link
+freshness.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

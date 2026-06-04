@@ -96,6 +96,8 @@ Open-core architecture and boundaries:
 - [Community GA dry-run release packet](docs/release-packets/community-ga-dry-run-2026-06-04.md)
 - [Community GA release packet validation](docs/community-ga-release-packet-validation.md)
 - [Community GA v0.1.0 release packet](docs/release-packets/community-ga-v0.1.0.md)
+- [Community GA v0.1.0 GitHub Release](https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0)
+- [Community GA v0.1.0 release publication](docs/community-ga-v0.1.0-release-publication.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)
