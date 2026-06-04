@@ -202,9 +202,12 @@ Community release-note freshness validation is now documented at
 `docs/community-release-note-freshness.md` and enforced by
 `scripts/validate-community-release-note-freshness.py` in Community CI, security
 scan, release-community, and `cavra-required-check`.
-Next recommended slice: create the first Community maintenance-release dry-run
-evidence packet for a future `community-v0.1.1` tag using the new
-maintenance-release checklist and freshness validator.
+Community v0.1.1 maintenance-release dry-run evidence is now documented at
+`docs/releases/community-v0.1.1.md` and
+`docs/release-verifications/community-v0.1.1-maintenance-verification.md`.
+Next recommended slice: create a Community release index page that summarizes
+public Community tags, release notes, verification packets, publication state,
+and next action.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

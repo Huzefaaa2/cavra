@@ -92,5 +92,5 @@ include all required gate names from the checklist.
 
 ## Next Recommendation
 
-Add a release-note freshness validator that checks every Community release notes
-page has a matching verification packet, README link, and wiki navigation entry.
+Create a Community release index page that summarizes public Community tags,
+release notes, verification packets, publication state, and next action.

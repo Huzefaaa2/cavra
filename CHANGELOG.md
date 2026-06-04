@@ -10,6 +10,8 @@
   documentation for future public Community tags.
 - Added Community release-note freshness validation to keep release notes,
   verification packets, README links, and wiki navigation in sync.
+- Added the first Community v0.1.1 maintenance-release dry-run notes and
+  verification packet to exercise the post-GA Community release evidence path.
 
 ## Community GA v0.1.0 - 2026-06-04
 

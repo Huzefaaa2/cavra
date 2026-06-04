@@ -121,10 +121,9 @@ yet fully production-complete. Remaining themes are:
 
 ## Next Slice
 
-Community maintenance-release dry-run evidence for a future public
-`community-v0.1.1` tag, building on the completed maintenance-release checklist,
-evidence template, schema, validator, release-note freshness validator, and CI
-enforcement.
+Community release index documentation, building on the completed v0.1.1
+maintenance-release dry-run evidence, release-note freshness validator,
+maintenance-release checklist, schema validation, and CI enforcement.
 
 ## Why This Is Next
 
@@ -577,6 +576,5 @@ or provisioning secrets.
 
 ## Recommended Next PR
 
-Create the first Community maintenance-release dry-run evidence packet for a
-future `community-v0.1.1` tag using the new maintenance-release checklist and
-freshness validator.
+Create a Community release index page that summarizes public Community tags,
+release notes, verification packets, publication state, and next action.
