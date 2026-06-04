@@ -35,3 +35,6 @@ Community GA releases must also follow the
 public boundary validation, Ed25519 policy signing, runtime mode checks, golden
 decision snapshots, Evidence Console smoke validation, deployment readiness, Go
 runtime readiness or explicit disabled status, and live wiki synchronization.
+They must also produce a public-safe Community GA release packet in Markdown and
+JSON form so the release decision, gate evidence, accepted risks, boundary
+review, and wiki sync commit can be verified later.

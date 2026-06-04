@@ -108,6 +108,6 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Create a public Community GA release packet template that captures checklist
-outputs, validation results, evidence links, accepted risks, and wiki sync
-references in repeatable markdown/JSON artifacts for future release PRs.
+Create a Community GA dry-run release packet that fills the public packet
+template against the current `main` branch and records the first baseline
+release packet for public review.

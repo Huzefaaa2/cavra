@@ -92,6 +92,7 @@ Open-core architecture and boundaries:
 - [Community GA control hardening sync](docs/community-ga-control-hardening-sync.md)
 - [Evidence Console Community GA closeout](docs/evidence-console-community-ga-closeout.md)
 - [Community GA release checklist](docs/community-ga-release-checklist.md)
+- [Community GA release packet template](docs/community-ga-release-packet-template.md)
 - [Policy signing key workflow](docs/policy-signing-key-workflow.md)
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)

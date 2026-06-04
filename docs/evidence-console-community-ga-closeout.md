@@ -32,5 +32,5 @@ evidence, or production provisioning records.
 ## Next Recommendation
 
 Delivered in [community-ga-release-checklist.md](community-ga-release-checklist.md).
-Continue with a public Community GA release packet template that captures the
-checklist outputs in repeatable markdown/JSON artifacts for future release PRs.
+Continue with a Community GA dry-run release packet that fills the public packet
+template against the current `main` branch.

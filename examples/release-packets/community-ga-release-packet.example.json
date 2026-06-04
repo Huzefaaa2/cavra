@@ -1,0 +1,122 @@
+{
+  "packet_id": "community-ga-example",
+  "release_name": "CAVRA Community GA Example",
+  "release_state": "ready_for_community_ga",
+  "prepared_by": "release-agent[bot]",
+  "approved_by": "maintainer",
+  "prepared_at": "2026-06-04T00:00:00Z",
+  "repository": "Huzefaaa2/cavra",
+  "branch": "main",
+  "pull_request": "https://github.com/Huzefaaa2/cavra/pull/<release-pr>",
+  "commit": "<release-commit-sha>",
+  "tag": "<release-tag>",
+  "wiki_sync_commit": "<wiki-sync-commit-sha>",
+  "gates": [
+    {
+      "name": "Public boundary",
+      "status": "pass",
+      "evidence_reference": "scripts/validate-boundaries.sh",
+      "owner": "security-agent",
+      "notes": "No prohibited public-boundary content detected."
+    },
+    {
+      "name": "Policy signing",
+      "status": "pass",
+      "evidence_reference": "cavra policy verify output",
+      "owner": "security-agent",
+      "notes": "Baseline policy signature verified with public key."
+    },
+    {
+      "name": "Policy validation",
+      "status": "pass",
+      "evidence_reference": "cavra policy validate / compile / diff output",
+      "owner": "backend-agent",
+      "notes": "Bundled Community policy packs validated and compiled."
+    },
+    {
+      "name": "Runtime modes",
+      "status": "pass",
+      "evidence_reference": "cavra evaluate --policy-mode command output",
+      "owner": "backend-agent",
+      "notes": "Audit, enforce, strict, and break-glass modes were explicit."
+    },
+    {
+      "name": "Golden decisions",
+      "status": "pass",
+      "evidence_reference": "tests/test_golden_decisions.py",
+      "owner": "test-agent",
+      "notes": "Critical decisions matched public fixtures."
+    },
+    {
+      "name": "Evidence Console",
+      "status": "pass",
+      "evidence_reference": "sandbox smoke validation",
+      "owner": "frontend-agent",
+      "notes": "Community GA Control Hardening section was visible."
+    },
+    {
+      "name": "Deployment validation",
+      "status": "pass",
+      "evidence_reference": "/deployment/production-readiness",
+      "owner": "release-agent",
+      "notes": "Readiness report showed required public checks."
+    },
+    {
+      "name": "Go runtime readiness",
+      "status": "disabled",
+      "evidence_reference": "cavra runtime go-deployment-readiness --mode disabled --json",
+      "owner": "architect-agent",
+      "notes": "Go backend remained opt-in and disabled."
+    },
+    {
+      "name": "Documentation",
+      "status": "pass",
+      "evidence_reference": "README, docs, docs/wiki, live wiki commit",
+      "owner": "docs-agent",
+      "notes": "Public documentation and wiki source were synced."
+    },
+    {
+      "name": "CI evidence",
+      "status": "pass",
+      "evidence_reference": "GitHub required checks",
+      "owner": "test-agent",
+      "notes": "Required checks completed successfully."
+    }
+  ],
+  "validation_commands": [
+    {
+      "command": "scripts/validate-boundaries.sh",
+      "status": "pass",
+      "output_reference": "local release validation"
+    },
+    {
+      "command": "python3 -m ruff check src tests",
+      "status": "pass",
+      "output_reference": "local release validation"
+    },
+    {
+      "command": "python3 -m pytest -q",
+      "status": "pass",
+      "output_reference": "local release validation"
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass",
+      "output_reference": "local release validation"
+    }
+  ],
+  "accepted_risks": [],
+  "public_boundary_review": {
+    "enterprise_code_present": false,
+    "secrets_present": false,
+    "customer_material_present": false,
+    "private_policy_packs_present": false,
+    "validation_result": "pass",
+    "notes": "Example packet contains public-safe placeholder references only."
+  },
+  "decision": {
+    "status": "approve",
+    "rationale": "All required public Community GA gates passed in the example packet."
+  },
+  "next_recommendation": "Create a real Community GA dry-run packet for the current main branch."
+}
