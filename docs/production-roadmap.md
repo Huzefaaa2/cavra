@@ -179,7 +179,11 @@ Community GA dry-run release packet documentation is now available at
 Automated Community GA release packet JSON schema validation is now available at
 `scripts/validate-release-packets.py` and runs in Community CI, security scan,
 release-community, and `cavra-required-check` workflows.
-Next recommended slice: final tagged Community GA release packet.
+Community GA v0.1.0 release packet documentation is now available at
+`docs/release-packets/community-ga-v0.1.0.md` and
+`docs/release-packets/community-ga-v0.1.0.json`.
+Next recommended slice: publish Community GA GitHub Release notes and attach
+distribution artifacts after the `community-v0.1.0` release workflow completes.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -108,5 +108,5 @@ This batch must not add:
 
 ## Recommended Next PR
 
-Create a final tagged Community GA release packet when the maintainer is ready
-to publish an official Community GA release.
+Publish Community GA GitHub Release notes and attach distribution artifacts
+after the `community-v0.1.0` release workflow completes.
