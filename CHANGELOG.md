@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Closed Community v0.1.2 package metadata warnings by making
+  `pyproject.toml` the source of package metadata, adding package metadata
+  validation to Community CI and release workflows, and documenting release
+  workflow guard evidence.
 - Added Community GA v0.1.0 post-release verification evidence, reusable
   artifact verifier, manual GitHub Actions verification workflow, verification
   runbook, and public release notes.

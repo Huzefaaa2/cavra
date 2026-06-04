@@ -86,12 +86,24 @@ def test_go_release_workflow_packages_signed_release_artifacts() -> None:
 def test_pypi_publish_workflow_is_explicitly_gated() -> None:
     workflow_path = ".github/workflows/publish-pypi.yml"
     workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
 
     assert "workflow_dispatch" in workflow[True]
     assert workflow["jobs"]["publish"]["if"] == (
         "github.event_name == 'workflow_dispatch' || "
         "startsWith(github.event.release.tag_name, 'pypi-v')"
     )
+    assert "python -m twine check dist/*" in text
+
+
+def test_community_workflows_validate_python_package_metadata() -> None:
+    community_ci = Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8")
+    release_community = Path(".github/workflows/release-community.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "python scripts/validate-python-package-metadata.py" in community_ci
+    assert "python scripts/validate-python-package-metadata.py" in release_community
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:

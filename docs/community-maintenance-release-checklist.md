@@ -21,6 +21,8 @@ registries.
 | README link | `README.md` | README links the release notes, verification packet, and release page. |
 | Wiki link | `docs/wiki/Home.md` and live wiki | Wiki navigation links release notes, verification packet, and runbook pages. |
 | Verification workflow | `Verify Community Release` | Manual workflow runs against the tag, version, and expected artifact checksums. |
+| Python package metadata | `scripts/validate-python-package-metadata.py` | Build output has no setuptools metadata warnings, `twine check` passes, BUSL-1.1 license metadata is present, project URLs are declared, and packaged schemas are included. |
+| Release workflow guards | `.github/workflows/publish-pypi.yml` and `.github/workflows/go-release.yml` | PyPI publishing only runs for manual dispatch or `pypi-v*` releases, and Go runtime release packaging only runs for manual dispatch or `go-runtime-v*` releases. |
 | Artifact checksums | Release artifacts and verification packet | Wheel and source distribution checksums match release metadata. |
 | Install smoke | Clean virtual environment | Wheel installs and `cavra version` returns the expected version. |
 | Public boundary | `scripts/validate-boundaries.sh .` | No prohibited Enterprise, customer, private key, or paid policy-pack material is present. |
@@ -63,6 +65,7 @@ registries.
 
    ```bash
    python3 scripts/validate-maintenance-release-evidence.py
+   python3 scripts/validate-python-package-metadata.py
    python3 scripts/validate-release-packets.py
    bash scripts/validate-boundaries.sh .
    python3 -m pytest -q
@@ -93,4 +96,5 @@ safe example at
 
 ## Next Recommendation
 
-Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist.
+Prepare Community v0.1.2 release notes and dry-run verification packet using
+the package metadata and release workflow guard evidence.

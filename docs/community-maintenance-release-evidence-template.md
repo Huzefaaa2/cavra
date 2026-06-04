@@ -44,6 +44,8 @@ Prepared At: <ISO-8601 timestamp>
 | README link | <pass/fail/warn> | <path or commit> | <owner> | <summary> |
 | Wiki link | <pass/fail/warn> | <page or commit> | <owner> | <summary> |
 | Verification workflow | <pass/fail/warn> | <workflow run URL> | <owner> | <summary> |
+| Python package metadata | <pass/fail/warn> | <build log or validation command> | <owner> | <summary> |
+| Release workflow guards | <pass/fail/warn> | <workflow files or PR> | <owner> | <summary> |
 | Artifact checksums | <pass/fail/warn> | <verification packet> | <owner> | <summary> |
 | Install smoke | <pass/fail/warn> | <command output> | <owner> | <summary> |
 | Public boundary | <pass/fail/warn> | <command output> | <owner> | <summary> |
@@ -53,6 +55,7 @@ Prepared At: <ISO-8601 timestamp>
 
 ```bash
 python3 scripts/validate-maintenance-release-evidence.py
+python3 scripts/validate-python-package-metadata.py
 python3 scripts/validate-release-packets.py
 bash scripts/validate-boundaries.sh .
 python3 -m pytest -q
@@ -92,4 +95,5 @@ include all required gate names from the checklist.
 
 ## Next Recommendation
 
-Prepare Community v0.1.2 readiness by closing Python packaging metadata warnings and adding release workflow guard evidence to the maintenance checklist.
+Prepare Community v0.1.2 release notes and dry-run verification packet using
+the package metadata and release workflow guard evidence.
