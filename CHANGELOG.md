@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Community v0.1.2 dry-run release notes and maintenance verification
+  evidence using package metadata and release workflow guard validation, while
+  deferring official publication until real artifacts exist.
 - Closed Community v0.1.2 package metadata warnings by making
   `pyproject.toml` the source of package metadata, adding package metadata
   validation to Community CI and release workflows, and documenting release

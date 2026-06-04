@@ -10,7 +10,8 @@ each public Community release record.
 | Release | State | Public Release | Release Evidence | Verification | Readiness | Next Action |
 | --- | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Ready | Use as the current public Community GA baseline. |
-| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Ready | Prepare Community v0.1.2 release notes and dry-run verification packet using the package metadata and release workflow guard evidence. |
+| Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Ready | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
+| Community v0.1.2 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-maintenance-verification.md` | Pending real artifacts | Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication. |
 
 ## Control Rollup
 
@@ -73,4 +74,4 @@ records.
 
 ## Next Recommendation
 
-Prepare Community v0.1.2 release notes and dry-run verification packet using the package metadata and release workflow guard evidence.
+Convert Community v0.1.2 dry-run into an official maintenance release after maintainer approval and artifact publication.

@@ -179,7 +179,7 @@ def test_sandbox_portal_smoke_validator_is_linked_and_enforced() -> None:
     assert "scripts/validate-sandbox-portal.py" in docs
     assert "scripts/validate-sandbox-portal.py" in wiki_docs
     assert "scripts/validate-sandbox-portal.py" in production_roadmap
-    assert "dry-run verification packet" in next_slice
+    assert "official maintenance release" in next_slice
 
     for workflow in workflows.values():
         assert "python scripts/validate-sandbox-portal.py" in workflow
