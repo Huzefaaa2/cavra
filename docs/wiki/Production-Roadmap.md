@@ -202,7 +202,7 @@ Community release-note freshness validation is now documented at
 `docs/community-release-note-freshness.md` and enforced by
 `scripts/validate-community-release-note-freshness.py` in Community CI, security
 scan, release-community, and `cavra-required-check`.
-Community v0.1.1 maintenance-release dry-run evidence is now documented at
+Community v0.1.1 maintenance-release evidence is now documented at
 `docs/releases/community-v0.1.1.md` and
 `docs/release-verifications/community-v0.1.1-maintenance-verification.md`.
 Community release index documentation is now available at
@@ -238,9 +238,8 @@ Enterprise integration validation is documented at
 Production readiness procurement closeout is documented at
 `docs/production-readiness-procurement-closeout.md` and enforced by
 `scripts/validate-production-readiness-procurement-closeout.py`.
-Next recommended slice: prepare the next official Community maintenance
-release by converting the v0.1.1 dry-run packet into real release artifacts,
-verification evidence, release notes, README links, and wiki navigation.
+Next recommended slice: archive the post-publication Community v0.1.1 verifier
+output and begin the next maintenance-release readiness slice.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

@@ -142,7 +142,7 @@ def test_community_ga_dry_run_release_packet_is_linked_and_complete() -> None:
     assert "docs/release-packets/community-ga-dry-run-2026-06-04.md" in readme
     assert "Community-GA-Dry-Run-Release-Packet.md" in wiki_home
     assert "community-ga-dry-run-2026-06-04.json" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "not an official tagged GA release" in packet_md
     assert "not an official tagged GA release" in wiki_packet
 
@@ -194,7 +194,7 @@ def test_community_ga_v010_release_packet_is_linked_and_ready() -> None:
     assert "docs/release-packets/community-ga-v0.1.0.md" in readme
     assert "Community-GA-v0.1.0-Release-Packet.md" in wiki_home
     assert "community-ga-v0.1.0.json" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "community-v0.1.0" in packet_md
     assert "community-v0.1.0" in wiki_packet
 
@@ -235,7 +235,7 @@ def test_community_ga_v010_release_publication_is_linked_and_complete() -> None:
     assert "docs/community-ga-v0.1.0-release-publication.md" in readme
     assert "Community-GA-v0.1.0-Release-Publication.md" in wiki_home
     assert release_url in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
 
     for document in (publication, wiki_publication):
         assert release_url in document
@@ -323,7 +323,7 @@ def test_community_ga_v010_post_release_verification_is_linked_and_complete() ->
         "docs/release-verifications/community-v0.1.0-post-release-verification.json"
     )
     assert module.sha256_file(sample) == module.sha256_file(sample)
-    assert module.DEFAULT_TAG == "community-v0.1.0"
+    assert module.DEFAULT_TAG == "community-v0.1.1"
 
 
 def test_community_maintenance_release_checklist_is_linked_and_validated() -> None:
@@ -379,7 +379,7 @@ def test_community_maintenance_release_checklist_is_linked_and_validated() -> No
     assert "Community-Maintenance-Release-Checklist.md" in wiki_home
     assert "Community-Maintenance-Release-Evidence-Template.md" in wiki_home
     assert "Community maintenance-release governance" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "release notes" in checklist
     assert "community-maintenance-release.schema.json" in template
     assert "Community maintenance-release checklist" in changelog
@@ -454,7 +454,7 @@ def test_community_release_note_freshness_is_linked_and_validated() -> None:
     assert script in doc
     assert script in wiki_doc
     assert script in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "release-note freshness validation" in changelog
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
@@ -470,7 +470,7 @@ def test_community_release_note_freshness_is_linked_and_validated() -> None:
     assert "CAVRA Community release note freshness validation passed." in result.stdout
 
 
-def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
+def test_community_v011_maintenance_release_is_linked_and_validated() -> None:
     release_notes = Path("docs/releases/community-v0.1.1.md").read_text(
         encoding="utf-8"
     )
@@ -519,31 +519,30 @@ def test_community_v011_maintenance_dry_run_is_linked_and_validated() -> None:
     assert verification_path in release_notes
     assert "Community-v0.1.1-Release-Notes.md" in wiki_home
     assert "Community-v0.1.1-Maintenance-Verification.md" in wiki_home
-    assert "dry-run release notes" in wiki_release_notes
-    assert "ready_with_accepted_risk" in wiki_verification
-    assert "Community v0.1.1 maintenance-release dry-run notes" in changelog
+    assert "CAVRA Community v0.1.1 Release Notes" in wiki_release_notes
+    assert "ready_for_publication" in wiki_verification
+    assert "Converted the Community v0.1.1 maintenance-release packet" in changelog
     assert "community-v0.1.1-maintenance-verification.md" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
 
     assert verification_json["schema_version"] == "cavra.community_maintenance_release.v1"
     assert verification_json["packet_id"] == "community-v0.1.1-maintenance-verification"
-    assert verification_json["release_state"] == "ready_with_accepted_risk"
+    assert verification_json["release_state"] == "ready_for_publication"
     assert verification_json["tag"] == "community-v0.1.1"
     assert verification_json["release_notes"] == release_notes_path
     assert verification_json["verification_packet"] == verification_path
     assert {gate["name"] for gate in verification_json["gates"]} == required_gates
-    assert {
-        gate["name"]
-        for gate in verification_json["gates"]
-        if gate["status"] == "warn"
-    } == {"Verification workflow", "Artifact checksums", "Install smoke"}
+    assert all(gate["status"] == "pass" for gate in verification_json["gates"])
+    assert "32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a" in verification
+    assert "b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950" in verification
+    assert "cavra 0.1.1" in verification
     assert verification_json["public_boundary"]["enterprise_source_included"] is False
     assert verification_json["public_boundary"]["paid_policy_packs_included"] is False
     assert verification_json["public_boundary"]["customer_records_included"] is False
     assert verification_json["public_boundary"]["private_keys_included"] is False
-    assert verification_json["accepted_risks"][0]["severity"] == "low"
-    assert verification_json["decision"]["status"] == "defer"
-    assert "v0.1.1 dry-run packet" in verification_json["next_recommendation"]
+    assert verification_json["accepted_risks"] == []
+    assert verification_json["decision"]["status"] == "approve"
+    assert "post-publication Community v0.1.1 verifier output" in verification_json["next_recommendation"]
 
     maintenance_result = subprocess.run(
         [sys.executable, "scripts/validate-maintenance-release-evidence.py"],
@@ -593,14 +592,13 @@ def test_community_release_index_is_linked_and_current() -> None:
     assert "Community-Release-Index.md" in wiki_home
     assert "Community release index" in changelog
     assert "Community release index documentation" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "Community release index:" in inventory
 
     for document in (release_index, wiki_release_index):
         assert "Community GA v0.1.0" in document
         assert "Community v0.1.1" in document
         assert "Published" in document
-        assert "Dry run" in document
         assert v010_release in document
         assert v011_release in document
         assert v010_notes in document
@@ -609,7 +607,7 @@ def test_community_release_index_is_linked_and_current() -> None:
         assert v011_verification in document
         assert "scripts/validate-community-release-note-freshness.py" in document
         assert "scripts/validate-community-release-index.py" in document
-        assert "v0.1.1 dry-run packet" in document
+        assert "post-publication Community v0.1.1 verifier output" in document
 
 
 def test_community_release_index_freshness_is_linked_and_validated() -> None:
@@ -643,7 +641,7 @@ def test_community_release_index_freshness_is_linked_and_validated() -> None:
     assert script in wiki_doc
     assert script in roadmap
     assert script in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
 
     for workflow in (community_ci, security_scan, release_workflow, governance):
         assert script in workflow
@@ -676,9 +674,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
         "Community GA v0.1.0",
         "Community v0.1.1",
         "Published",
-        "Dry run",
         "Ready",
-        "Pending real artifacts",
         "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0",
         "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1",
         "docs/releases/community-v0.1.0.md",
@@ -717,7 +713,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
     assert "Community release readiness dashboard" in changelog
     assert "Community release readiness dashboard documentation" in roadmap
     assert "Community release readiness dashboard:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
 
     for document in (dashboard, wiki_dashboard):
         for required_ref in required_release_refs + required_control_refs:
@@ -727,7 +723,7 @@ def test_community_release_readiness_dashboard_is_linked_and_current() -> None:
         for workflow in required_workflows:
             assert workflow in document
         assert "Enterprise source code" in document
-        assert "v0.1.1 dry-run packet" in document
+        assert "post-publication Community v0.1.1 verifier output" in document
 
 
 def test_community_release_readiness_dashboard_validation_is_linked_and_validated() -> None:
@@ -761,7 +757,7 @@ def test_community_release_readiness_dashboard_validation_is_linked_and_validate
     assert "Community release readiness dashboard validation" in changelog
     assert "Community release readiness dashboard validation" in roadmap
     assert "Community release readiness dashboard validation:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert script in doc
     assert script in wiki_doc
 
@@ -829,7 +825,7 @@ def test_community_ga_user_verifiable_path_is_linked_and_validated() -> None:
     assert "Community-GA-User-Verifiable-Path.md" in wiki_home
     assert "user-verifiable Community GA path" in changelog
     assert "Community GA user-verifiable path is documented" in roadmap
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert script in dashboard
 
     assert packet["release_state"] == "ready_for_community_ga"
@@ -894,7 +890,7 @@ def test_production_deployment_guide_validation_is_linked_and_enforced() -> None
             "cavra ops restore",
             "CAVRA_PUBLIC_API_BASE_URL",
             "CAVRA_CORS_ORIGINS",
-            "v0.1.1 dry-run packet",
+            "post-publication Community v0.1.1 verifier output",
         ]:
             assert required in document
 
@@ -903,7 +899,7 @@ def test_production_deployment_guide_validation_is_linked_and_enforced() -> None
     assert "production deployment guide validation" in changelog
     assert "Production deployment guide validation is documented" in roadmap
     assert "Production deployment guide validation:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert script in deployment
     assert script in readiness
 
@@ -959,7 +955,7 @@ def test_go_enforcement_production_hardening_is_linked_and_enforced() -> None:
             "cavra release verify-airgap-bundle",
             "cavra release validate-upgrade",
             "cavra release verify-go-package",
-            "v0.1.1 dry-run packet",
+            "post-publication Community v0.1.1 verifier output",
             script,
         ]:
             assert required in document
@@ -969,7 +965,7 @@ def test_go_enforcement_production_hardening_is_linked_and_enforced() -> None:
     assert "Go enforcement production hardening" in changelog
     assert "Go enforcement production hardening is documented" in production_roadmap
     assert "Go enforcement production hardening:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "Go enforcement production hardening is documented" in go_roadmap
     assert "BenchmarkEvaluateAllowCommand" in runtime_readme
     assert "gRPC remains a documented future transport" in runtime_readme
@@ -1039,7 +1035,7 @@ def test_enterprise_integration_validation_is_linked_and_enforced() -> None:
             "Public Boundary",
             "User Stories",
             "Enterprise Challenge Solved",
-            "v0.1.1 dry-run packet",
+            "post-publication Community v0.1.1 verifier output",
             script,
         ]:
             assert required in document
@@ -1049,7 +1045,7 @@ def test_enterprise_integration_validation_is_linked_and_enforced() -> None:
     assert "Enterprise integration validation" in changelog
     assert "Enterprise integration validation is documented" in production_roadmap
     assert "Enterprise integration validation:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "The orchestrator should not own policy decisions" in orchestration_doc
     assert "GitLab CI" in integrations_doc
     assert "Azure Pipelines" in integrations_doc
@@ -1120,7 +1116,7 @@ def test_production_readiness_procurement_closeout_is_linked_and_enforced() -> N
             "Operator Runbook",
             "User Stories",
             "Enterprise Challenge Solved",
-            "v0.1.1 dry-run packet",
+            "post-publication Community v0.1.1 verifier output",
             script,
         ]:
             assert required in document
@@ -1130,7 +1126,7 @@ def test_production_readiness_procurement_closeout_is_linked_and_enforced() -> N
     assert "production readiness procurement closeout" in changelog
     assert "Production readiness procurement closeout is documented" in production_roadmap
     assert "Production readiness procurement closeout:" in inventory
-    assert "v0.1.1 dry-run packet" in next_slice
+    assert "post-publication Community v0.1.1 verifier output" in next_slice
     assert "SOC 2 Readiness Roadmap" in procurement
     assert "cavra ops backup" in operations
     assert "schema_migrations" in migrations

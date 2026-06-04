@@ -16,10 +16,10 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_TAG = "community-v0.1.0"
-DEFAULT_VERSION = "0.1.0"
-DEFAULT_WHEEL_SHA256 = "1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8"
-DEFAULT_SDIST_SHA256 = "35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e"
+DEFAULT_TAG = "community-v0.1.1"
+DEFAULT_VERSION = "0.1.1"
+DEFAULT_WHEEL_SHA256 = "32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a"
+DEFAULT_SDIST_SHA256 = "b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950"
 RELEASE_BASE_URL = "https://github.com/Huzefaaa2/cavra/releases/download"
 
 

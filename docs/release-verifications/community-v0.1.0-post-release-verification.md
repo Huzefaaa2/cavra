@@ -46,7 +46,11 @@ python3 -m venv /tmp/cavra-v010-verify/venv
 Reusable verification is available with:
 
 ```bash
-python scripts/verify-community-release-artifacts.py
+python scripts/verify-community-release-artifacts.py \
+  --tag community-v0.1.0 \
+  --version 0.1.0 \
+  --wheel-sha256 1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8 \
+  --sdist-sha256 35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e
 ```
 
 ## Boundary Notice

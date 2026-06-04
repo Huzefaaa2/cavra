@@ -6,19 +6,19 @@ on:
       tag:
         description: Community release tag to verify.
         required: true
-        default: community-v0.1.0
+        default: community-v0.1.1
       version:
         description: Community package version to verify.
         required: true
-        default: "0.1.0"
+        default: "0.1.1"
       wheel_sha256:
         description: Expected wheel SHA-256.
         required: true
-        default: 1a586ce0fe91af6c24c14b0f8b833d722f9de9e24cfcb1fd81dafc0f016306d8
+        default: 32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a
       sdist_sha256:
         description: Expected source distribution SHA-256.
         required: true
-        default: 35370dea724612c8619100db812635c048b91ede65fd905e8d8c189b7c07c26e
+        default: b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950
 
 permissions:
   contents: read

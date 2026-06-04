@@ -10,8 +10,9 @@
   documentation for future public Community tags.
 - Added Community release-note freshness validation to keep release notes,
   verification packets, README links, and wiki navigation in sync.
-- Added the first Community v0.1.1 maintenance-release dry-run notes and
-  verification packet to exercise the post-GA Community release evidence path.
+- Converted the Community v0.1.1 maintenance-release packet from dry-run
+  evidence into official release notes, artifact checksums, install-smoke
+  evidence, and publication-ready verification.
 - Added the Community release index for public Community release states, notes,
   verification packets, and next actions.
 - Added Community release index freshness validation to keep indexed Community
@@ -53,6 +54,20 @@
   concurrency, backup/restore, upgrade/migration, SOC 2 readiness, security
   advisory drills, final release integrity evidence, CI wiring, README
   navigation, and wiki navigation.
+
+## Community v0.1.1 - 2026-06-04
+
+- Bumped the Community Python package metadata, CLI version output, and MCP
+  server version advertisement to `0.1.1`.
+- Built public Community wheel and source distribution artifacts for
+  `community-v0.1.1`.
+- Recorded SHA-256 checksums for `cavra-0.1.1.tar.gz` and
+  `cavra-0.1.1-py3-none-any.whl`.
+- Verified a clean wheel install smoke with `cavra version` returning
+  `cavra 0.1.1`.
+- Updated README, release index, readiness dashboard, release notes,
+  verification packet, and wiki-ready pages for the official maintenance
+  release.
 
 ## Community GA v0.1.0 - 2026-06-04
 
