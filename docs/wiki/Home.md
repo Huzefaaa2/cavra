@@ -14,6 +14,12 @@ packs, SaaS backend, and license service implementation must live in private
 repositories. Start with the [Open-Core Implementation Plan](Open-Core-Implementation-Plan),
 [Edition Boundaries](Edition-Boundaries), and [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan).
 
+Community v1.0.0 is published and verified. CAVRA Enterprise Trial package
+`2026.06.05` is ready for approved private evaluators through a gated GHCR image
+with public-safe digest, signed trial license validation, revoked-license
+failure validation, private registry pull validation, and runtime license
+enforcement. See [Enterprise Trial Availability](Enterprise-Trial-Availability).
+
 ## Current Phase Status
 
 Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA identity, CLI, MCP server, Claude Code setup, policy packs, runtime decisions, Docker validation, API contract, sandbox, and enterprise documentation.
@@ -100,6 +106,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - SaaS Operating Automation Public Contract Sync: `SaaS-Operating-Automation-Public-Contract-Sync.md`
 - SaaS Operating Automation Worker Handoff: `SaaS-Operating-Automation-Worker-Handoff.md`
 - Enterprise Trial Distribution Sync: `Enterprise-Trial-Distribution-Sync.md`
+- Enterprise Trial Availability: `Enterprise-Trial-Availability.md`
 - Trial License Evaluator Access Sync: `Trial-License-Evaluator-Access-Sync.md`
 - Trial Access Expiry Sync: `Trial-Access-Expiry-Sync.md`
 - Trial Expired Follow-Up Sync: `Trial-Expired-Followup-Sync.md`
