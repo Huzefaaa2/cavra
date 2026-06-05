@@ -2,6 +2,12 @@
 
 CAVRA Enterprise Trial is ready for approved private evaluators.
 
+Request access through the live approved-access portal:
+
+```text
+https://cavra-trial.mind-ops.cloud
+```
+
 Public-safe package status:
 
 - package ID: `cavra-enterprise-trial-2026.06.05`;
@@ -14,7 +20,10 @@ Public-safe package status:
 - signed license validation passed;
 - revoked-license validation failed closed;
 - private registry push and pull validation passed;
-- runtime license enforcement passed.
+- runtime license enforcement passed;
+- hosted request portal health, PostgreSQL storage, signup, approval, license
+  validation, and revocation were validated on 2026-06-05 using synthetic
+  public-safe evidence.
 
 Approved evaluators need private GHCR access plus a time-limited CAVRA trial
 license. Public CAVRA does not publish Enterprise source code, license keys,

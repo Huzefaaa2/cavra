@@ -22,6 +22,9 @@ enforcement. See [Enterprise Trial Availability](Enterprise-Trial-Availability).
 The public portal now includes a self-service approved access request page that
 can connect to the private Trial Access Portal backend. See
 [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access).
+The live trial request API is hosted at `https://cavra-trial.mind-ops.cloud`
+and has public-safe validation evidence for health, PostgreSQL storage, signup,
+approval, license validation, and revocation as of 2026-06-05.
 
 ## Current Phase Status
 

@@ -2,6 +2,12 @@
 
 CAVRA Enterprise Trial is ready for approved private evaluators.
 
+Request access through the live approved-access portal:
+
+```text
+https://cavra-trial.mind-ops.cloud
+```
+
 The trial package is distributed as a gated private GHCR image:
 
 ```text
@@ -21,6 +27,9 @@ Public-safe release evidence records:
 - signed trial license validation passed;
 - revoked trial license validation failed closed;
 - pushed private registry image was pulled and runtime license validation passed.
+- hosted request portal health, PostgreSQL storage, signup, approval, license
+  validation, and revocation were validated on 2026-06-05 using synthetic
+  public-safe evidence.
 
 The private release workflow retained readiness evidence in the private
 `Huzefaaa2/cavra-enterprise` repository. This public repository records only
