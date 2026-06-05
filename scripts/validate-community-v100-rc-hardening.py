@@ -142,7 +142,7 @@ def validate(root: Path) -> list[str]:
     ):
         require(document, "Community v1.0.0 release-candidate hardening", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
+    require(changelog, NEXT_RECOMMENDATION, "CHANGELOG historical next recommendation", failures)
 
     if packet.get("schema_version") != "cavra.community_v100_rc_hardening.v1":
         failures.append(f"{PACKET_PATH}: invalid schema_version")

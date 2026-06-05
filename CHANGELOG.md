@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added Community v1.0.0 RC1 publication preparation with dry-run release
+  notes, publication readiness verification, a publication packet, release
+  index and dashboard coverage, README/wiki navigation, and CI validation
+  through `docs/community-v1.0.0-release-candidate-publication.md`.
+  Next recommendation: Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
 - Added Community v1.0.0 release-candidate hardening with public-safe signed
   artifact, provenance, announcement checklist, final operator evidence,
   boundary validation, CI validation, README/wiki navigation, and roadmap

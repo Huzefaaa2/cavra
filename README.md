@@ -125,6 +125,10 @@ Open-core architecture and boundaries:
 - [Community v1.0.0 stabilization packet](docs/release-verifications/community-v1.0.0-stabilization-plan.json)
 - [Community v1.0.0 release-candidate hardening](docs/community-v1.0.0-release-candidate-hardening.md)
 - [Community v1.0.0 release-candidate hardening packet](docs/release-verifications/community-v1.0.0-release-candidate-hardening.json)
+- [Community v1.0.0 release-candidate publication preparation](docs/community-v1.0.0-release-candidate-publication.md)
+- [Community v1.0.0 RC1 release notes](docs/releases/community-v1.0.0-rc.1.md)
+- [Community v1.0.0 RC1 publication readiness](docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md)
+- [Community v1.0.0 release-candidate publication packet](docs/release-verifications/community-v1.0.0-release-candidate-publication.json)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -568,7 +572,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Prepare Community v1.0.0 release-candidate publication from the completed Node 24 readiness baseline with signed artifact verification, provenance evidence, release notes, and announcement readiness.
+- Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
 
 ## User stories and enterprise value
 
