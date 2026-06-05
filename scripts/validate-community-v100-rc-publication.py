@@ -195,8 +195,8 @@ def validate(root: Path) -> list[str]:
         failures.append(f"{PACKET_PATH}: status must be dry_run_publication_ready")
     if packet.get("tag") != "community-v1.0.0-rc.1":
         failures.append(f"{PACKET_PATH}: tag must be community-v1.0.0-rc.1")
-    if packet.get("version") != "1.0.0":
-        failures.append(f"{PACKET_PATH}: version must be 1.0.0")
+    if packet.get("version") != "1.0.0rc1":
+        failures.append(f"{PACKET_PATH}: version must be 1.0.0rc1")
     if packet.get("planned_github_release") != RELEASE_URL:
         failures.append(f"{PACKET_PATH}: planned_github_release does not match")
     if packet.get("release_notes") != str(RELEASE_NOTES_PATH):

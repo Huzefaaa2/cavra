@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bumped the Community package metadata and runtime version to `1.0.0rc1`
+  for the `community-v1.0.0-rc.1` release-candidate artifact publication.
 - Added Community v1.0.0 RC1 publication preparation with dry-run release
   notes, publication readiness verification, a publication packet, release
   index and dashboard coverage, README/wiki navigation, and CI validation

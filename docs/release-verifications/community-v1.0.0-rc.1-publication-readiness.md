@@ -12,7 +12,7 @@ exist yet.
 | State | `dry-run-publication-ready` |
 | Repository | `Huzefaaa2/cavra` |
 | Tag | `community-v1.0.0-rc.1` |
-| Version | `1.0.0` |
+| Package version | `1.0.0rc1` |
 | Planned GitHub Release | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> |
 | Release notes | `docs/releases/community-v1.0.0-rc.1.md` |
 | Publication preparation | `docs/community-v1.0.0-release-candidate-publication.md` |

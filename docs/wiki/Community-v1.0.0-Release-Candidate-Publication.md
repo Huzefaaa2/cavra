@@ -18,6 +18,7 @@ registry credentials, or customer material.
 | --- | --- |
 | Candidate | CAVRA Community v1.0.0 RC1 |
 | Tag | `community-v1.0.0-rc.1` |
+| Package version | `1.0.0rc1` |
 | Release state | `dry-run-publication-ready` |
 | Planned GitHub Release | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> |
 | Release notes draft | `docs/releases/community-v1.0.0-rc.1.md` |
@@ -61,7 +62,7 @@ registry credentials, or customer material.
 - [ ] Published artifacts include SHA-256 checksums.
 - [ ] Published artifacts include detached signatures or keyless attestation evidence.
 - [ ] Published artifacts include SBOM and SLSA provenance references when generated.
-- [ ] Clean install smoke records `cavra 1.0.0`.
+- [ ] Clean install smoke records `cavra 1.0.0rc1`.
 
 ## User Stories
 
