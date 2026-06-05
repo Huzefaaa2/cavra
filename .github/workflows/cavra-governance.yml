@@ -58,6 +58,7 @@ jobs:
           python scripts/validate-community-v100-ga-readiness.py
           python scripts/validate-community-v100-ga-publication-package.py
           python scripts/validate-community-v100-ga-post-publication.py
+          python scripts/validate-community-release-keyless-attestation.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

@@ -1,0 +1,164 @@
+name: Attest Community Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Community release tag to attest.
+        required: true
+        default: community-v1.0.0
+      version:
+        description: Community package version to attest.
+        required: true
+        default: "1.0.0"
+      wheel_sha256:
+        description: Expected wheel SHA-256.
+        required: true
+        default: "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914"
+      sdist_sha256:
+        description: Expected source distribution SHA-256.
+        required: true
+        default: "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"
+      checksum_sha256:
+        description: Expected checksum manifest SHA-256.
+        required: true
+        default: "c9049c68d23e089f2129ab3f1f130f7a8e07aecc4bb1e8b4b5360b22a5c617fd"
+      provenance_sha256:
+        description: Expected provenance metadata SHA-256.
+        required: true
+        default: "38b6e2127695050e697d33dde22f111eaee5cccbcf598cb82fc60c6a795c99aa"
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  attest-community-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download published release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/community-release
+          gh release download "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir dist/community-release \
+            --pattern "cavra-${VERSION}-py3-none-any.whl" \
+            --pattern "cavra-${VERSION}.tar.gz" \
+            --pattern "cavra-${VERSION}-SHA256SUMS.txt" \
+            --pattern "cavra-${VERSION}.provenance.json"
+
+      - name: Verify release asset checksums
+        env:
+          VERSION: ${{ inputs.version }}
+          WHEEL_SHA256: ${{ inputs.wheel_sha256 }}
+          SDIST_SHA256: ${{ inputs.sdist_sha256 }}
+          CHECKSUM_SHA256: ${{ inputs.checksum_sha256 }}
+          PROVENANCE_SHA256: ${{ inputs.provenance_sha256 }}
+        run: |
+          set -euo pipefail
+          cd dist/community-release
+          printf "%s  cavra-%s-py3-none-any.whl\n" "$WHEEL_SHA256" "$VERSION" > expected.sha256
+          printf "%s  cavra-%s.tar.gz\n" "$SDIST_SHA256" "$VERSION" >> expected.sha256
+          printf "%s  cavra-%s.provenance.json\n" "$PROVENANCE_SHA256" "$VERSION" >> expected.sha256
+          printf "%s  cavra-%s-SHA256SUMS.txt\n" "$CHECKSUM_SHA256" "$VERSION" >> expected.sha256
+          sha256sum -c expected.sha256
+          sha256sum -c "cavra-${VERSION}-SHA256SUMS.txt"
+
+      - name: Generate keyless release asset attestation
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/community-release/cavra-${{ inputs.version }}-py3-none-any.whl
+            dist/community-release/cavra-${{ inputs.version }}.tar.gz
+            dist/community-release/cavra-${{ inputs.version }}-SHA256SUMS.txt
+            dist/community-release/cavra-${{ inputs.version }}.provenance.json
+
+      - name: Verify generated attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          SIGNER_WORKFLOW: ${{ github.repository }}/.github/workflows/attest-community-release.yml
+        run: |
+          set -euo pipefail
+          for artifact in \
+            "cavra-${VERSION}-py3-none-any.whl" \
+            "cavra-${VERSION}.tar.gz" \
+            "cavra-${VERSION}-SHA256SUMS.txt" \
+            "cavra-${VERSION}.provenance.json"; do
+            gh attestation verify "dist/community-release/${artifact}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$SIGNER_WORKFLOW" \
+              --deny-self-hosted-runners \
+              --format json > "dist/community-release/${artifact}.attestation-verification.json"
+          done
+
+      - name: Record release attestation evidence
+        env:
+          TAG: ${{ inputs.tag }}
+          VERSION: ${{ inputs.version }}
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+          STORAGE_RECORD_IDS: ${{ steps.attest.outputs.storage-record-ids }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path("dist/community-release")
+          version = os.environ["VERSION"]
+          artifacts = [
+              f"cavra-{version}-py3-none-any.whl",
+              f"cavra-{version}.tar.gz",
+              f"cavra-{version}-SHA256SUMS.txt",
+              f"cavra-{version}.provenance.json",
+          ]
+          evidence = {
+              "schema_version": "cavra.community_release_keyless_attestation.v1",
+              "tag": os.environ["TAG"],
+              "version": version,
+              "repository": os.environ.get("GITHUB_REPOSITORY", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", ""),
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "sha": os.environ.get("GITHUB_SHA", ""),
+              "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              "attestation_id": os.environ.get("ATTESTATION_ID", ""),
+              "attestation_url": os.environ.get("ATTESTATION_URL", ""),
+              "bundle_path": os.environ.get("BUNDLE_PATH", ""),
+              "storage_record_ids": os.environ.get("STORAGE_RECORD_IDS", ""),
+              "artifact_count": len(artifacts),
+              "artifacts": artifacts,
+              "verification_files": [f"{artifact}.attestation-verification.json" for artifact in artifacts],
+              "status": "pass",
+          }
+          (root / "community-release-keyless-attestation-evidence.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload attestation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: community-release-keyless-attestation-${{ inputs.version }}
+          path: |
+            dist/community-release/*.attestation-verification.json
+            dist/community-release/community-release-keyless-attestation-evidence.json

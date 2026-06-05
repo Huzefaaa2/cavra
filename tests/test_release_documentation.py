@@ -2404,6 +2404,77 @@ def test_community_v100_ga_post_publication_is_linked_and_validated() -> None:
     assert packet["signature_evidence"]["provenance_file_recorded"] is True
     assert packet["signature_evidence"]["detached_signature_attached"] is False
     assert packet["signature_evidence"]["keyless_attestation_attached"] is False
+    assert (
+        packet["signature_evidence"]["keyless_attestation_workflow"]
+        == ".github/workflows/attest-community-release.yml"
+    )
+    assert (
+        packet["signature_evidence"]["keyless_attestation_runbook"]
+        == "docs/community-release-keyless-attestation.md"
+    )
+    assert packet["signature_evidence"]["keyless_attestation_status"] == "workflow_ready"
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_community_release_keyless_attestation_is_linked_and_validated() -> None:
+    doc = Path("docs/community-release-keyless-attestation.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_doc = Path("docs/wiki/Community-Release-Keyless-Attestation.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    release_notes = Path("docs/releases/community-v1.0.0.md").read_text(
+        encoding="utf-8"
+    )
+    post_publication = Path(
+        "docs/release-verifications/community-v1.0.0-post-publication-verification.md"
+    ).read_text(encoding="utf-8")
+    post_publication_json = Path(
+        "docs/release-verifications/community-v1.0.0-post-publication-verification.json"
+    ).read_text(encoding="utf-8")
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-release-keyless-attestation.py"
+
+    for document in (doc, wiki_doc):
+        for term in (
+            "Attest Community Release",
+            ".github/workflows/attest-community-release.yml",
+            "actions/attest@v4",
+            "id-token: write",
+            "attestations: write",
+            "artifact-metadata: write",
+            "gh attestation verify",
+            "community-v1.0.0",
+            "Huzefaaa2/cavra/.github/workflows/attest-community-release.yml",
+            "Enterprise source code",
+            "private signing keys",
+            "customer records",
+        ):
+            assert term in document
+
+    assert "docs/community-release-keyless-attestation.md" in readme
+    assert "Community-Release-Keyless-Attestation.md" in wiki_home
+    for document in (release_notes, post_publication, post_publication_json):
+        assert "keyless attestation" in document
+        assert ".github/workflows/attest-community-release.yml" in document
+        assert "docs/community-release-keyless-attestation.md" in document
 
     for workflow in workflows:
         assert f"python {script}" in workflow

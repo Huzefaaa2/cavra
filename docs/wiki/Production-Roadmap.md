@@ -280,6 +280,10 @@ Community v1.0.0 post-publication verification is documented at
 recorded in
 `docs/release-verifications/community-v1.0.0-post-publication-verification.json`,
 and enforced by `scripts/validate-community-v100-ga-post-publication.py`.
+Community release keyless attestation is documented at
+`docs/community-release-keyless-attestation.md`, implemented by
+`.github/workflows/attest-community-release.yml`, and enforced by
+`scripts/validate-community-release-keyless-attestation.py`.
 Historical GA publication next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 Next recommended slice: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.
 Public Community source remains free of Enterprise implementation details.

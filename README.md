@@ -139,6 +139,7 @@ Open-core architecture and boundaries:
 - [Community v1.0.0 GA publication package packet](docs/release-verifications/community-v1.0.0-ga-publication-package.json)
 - [Community v1.0.0 post-publication verification](docs/release-verifications/community-v1.0.0-post-publication-verification.md)
 - [Community v1.0.0 post-publication packet](docs/release-verifications/community-v1.0.0-post-publication-verification.json)
+- [Community release keyless attestation](docs/community-release-keyless-attestation.md)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
