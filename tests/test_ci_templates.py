@@ -127,10 +127,10 @@ def test_community_release_workflows_are_node24_ready() -> None:
     verifier = Path(".github/workflows/verify-community-release.yml").read_text(
         encoding="utf-8"
     )
-    assert "default: community-v0.1.3" in verifier
-    assert 'default: "0.1.3"' in verifier
-    assert "843cf0c13914e4e9d95ebacd8f0a74aaf4c66969e213e8337d1c0d1c8843cb2e" in verifier
-    assert "83ddaeb4a36502bfa8a5441a15b7b089ac6d5c1dcc58692e942e3ad601d3c29f" in verifier
+    assert "default: community-v1.0.0-rc.1" in verifier
+    assert 'default: "1.0.0rc1"' in verifier
+    assert "6d06bd04965d3b1340ecacf007bc39111c8a8d5d0a73ee32f44aeb06ebb1be01" in verifier
+    assert "f4312e51a4d4180387982eafa86f301c584be5af147ba09098d733d187662e0c" in verifier
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:

@@ -13,14 +13,15 @@ artifacts are published and which release evidence is ready for publication.
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
 | Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Use as the previous published Community maintenance baseline. |
 | Community v0.1.3 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-post-release-verification.md` | Use as the current published Community maintenance baseline while v1.0.0 stabilization planning begins. |
-| Community v1.0.0 RC1 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md` | Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence. |
+| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates. |
 
 ## Current Public Baseline
 
-Community v0.1.3 is the current published public Community release. It has a
-GitHub Release, attached source distribution and wheel artifacts, recorded
-SHA-256 checksums, and a clean install smoke result. Community GA v0.1.0
-remains the GA baseline record.
+Community v1.0.0 RC1 is the current published public Community release
+candidate. It has a GitHub Release, attached source distribution and wheel
+artifacts, recorded SHA-256 checksums, provenance metadata, and a clean install
+smoke result. Community v0.1.3 remains the current published maintenance
+baseline, and Community GA v0.1.0 remains the GA baseline record.
 
 ## Current Maintenance Release
 
@@ -32,11 +33,13 @@ Community v0.1.2 remains the previous published maintenance baseline.
 
 ## Current Release Candidate
 
-Community v1.0.0 RC1 is prepared as a dry-run release-candidate record. It has
-release notes, publication readiness verification, README links, wiki
-navigation, release index coverage, and release dashboard coverage. Real
-artifact checksums, signatures, provenance, GitHub Release links, and
-post-publication verification remain pending until artifacts are published.
+Community v1.0.0 RC1 is the current published release-candidate record. It has
+release notes, publication readiness verification, post-publication
+verification, README links, wiki navigation, release index coverage, release
+dashboard coverage, artifact checksums, provenance metadata, GitHub Release
+links, workflow evidence, and clean install smoke evidence. Detached signature
+and keyless attestation evidence remain GA hardening gates before final v1.0.0
+announcement.
 
 ## Verification Controls
 
@@ -58,4 +61,4 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
+Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.

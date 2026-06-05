@@ -1,0 +1,92 @@
+{
+  "schema_version": "cavra.community_v100_rc_post_publication.v1",
+  "status": "published",
+  "release": "CAVRA Community v1.0.0 RC1",
+  "tag": "community-v1.0.0-rc.1",
+  "version": "1.0.0rc1",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1",
+  "verification_date": "2026-06-05",
+  "published_at": "2026-06-05T05:49:28Z",
+  "release_target": "e04ba0025f00b13bf05ab468669bcb3fb494eb89",
+  "release_notes": "docs/releases/community-v1.0.0-rc.1.md",
+  "publication_doc": "docs/community-v1.0.0-release-candidate-publication.md",
+  "readiness_verification": "docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md",
+  "post_publication_verification": "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md",
+  "artifacts": [
+    {
+      "name": "cavra-1.0.0rc1-py3-none-any.whl",
+      "sha256": "6d06bd04965d3b1340ecacf007bc39111c8a8d5d0a73ee32f44aeb06ebb1be01",
+      "size": 324003,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0rc1.tar.gz",
+      "sha256": "f4312e51a4d4180387982eafa86f301c584be5af147ba09098d733d187662e0c",
+      "size": 1030541,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0rc1-SHA256SUMS.txt",
+      "sha256": "73a4f20e42ea4823a8087bfb9d703bf224cd8e9128ed5590a9eaad047a8ea166",
+      "size": 283,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0rc1.provenance.json",
+      "sha256": "fdb69a24e6f76a737e225b2d259c8842a08172cd929fdf3f5e41020ad5d32217",
+      "size": 1140,
+      "downloadable": true,
+      "checksum_match": true
+    }
+  ],
+  "workflow_evidence": [
+    {
+      "name": "Release Community",
+      "status": "pass",
+      "url": "https://github.com/Huzefaaa2/cavra/actions/runs/26997968188"
+    },
+    {
+      "name": "Test",
+      "status": "pass",
+      "url": "https://github.com/Huzefaaa2/cavra/actions/runs/26997968186"
+    },
+    {
+      "name": "Release Security Readiness",
+      "status": "pass",
+      "url": "https://github.com/Huzefaaa2/cavra/actions/runs/26997989076"
+    }
+  ],
+  "install_smoke": {
+    "environment": "temporary Python virtual environment",
+    "command": "cavra version",
+    "output": "cavra 1.0.0rc1",
+    "status": "pass"
+  },
+  "documentation_freshness": {
+    "readme_release_link": "pass",
+    "wiki_release_link": "pass",
+    "release_index": "pass",
+    "release_dashboard": "pass"
+  },
+  "node24_readiness_baseline": "pass",
+  "signature_evidence": {
+    "checksum_file_recorded": true,
+    "provenance_file_recorded": true,
+    "detached_signature_attached": false,
+    "keyless_attestation_attached": false,
+    "ga_gate": "required_before_final_v1.0.0"
+  },
+  "public_boundary": {
+    "community_artifacts_only": true,
+    "enterprise_source_included": false,
+    "paid_policy_packs_included": false,
+    "private_signing_keys_included": false,
+    "private_registry_credentials_included": false,
+    "customer_records_included": false
+  },
+  "decision": "pass",
+  "next_recommendation": "Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates."
+}

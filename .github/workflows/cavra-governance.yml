@@ -54,6 +54,7 @@ jobs:
           python scripts/validate-community-v100-stabilization.py
           python scripts/validate-community-v100-rc-hardening.py
           python scripts/validate-community-v100-rc-publication.py
+          python scripts/validate-community-v100-rc-post-publication.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

@@ -150,13 +150,29 @@ def validate(root: Path) -> list[str]:
     for document_name, document in (
         (str(DOC_PATH), doc),
         (str(WIKI_DOC_PATH), wiki_doc),
-        (str(RELEASE_NOTES_PATH), release_notes),
-        (str(WIKI_RELEASE_NOTES_PATH), wiki_release_notes),
         (str(READINESS_PATH), readiness),
         (str(WIKI_READINESS_PATH), wiki_readiness),
     ):
         for term in REQUIRED_DOC_TERMS:
             require(document, term, f"{document_name} term", failures)
+        require(document, RELEASE_URL, f"{document_name} release URL", failures)
+
+    for document_name, document in (
+        (str(RELEASE_NOTES_PATH), release_notes),
+        (str(WIKI_RELEASE_NOTES_PATH), wiki_release_notes),
+    ):
+        for term in (
+            "Community v1.0.0 RC1",
+            "community-v1.0.0-rc.1",
+            "Node 24 readiness baseline",
+            "SHA-256",
+            "provenance",
+            "Public boundary",
+            "Enterprise source code",
+            "private signing keys",
+            "customer records",
+        ):
+            require(document, term, f"{document_name} release-note term", failures)
         require(document, RELEASE_URL, f"{document_name} release URL", failures)
 
     for public_link in REQUIRED_PUBLIC_LINKS:
@@ -175,7 +191,6 @@ def validate(root: Path) -> list[str]:
     ):
         require(document, "Community v1.0.0 release-candidate publication", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
 
     for document_name, document in (
         (str(RELEASE_INDEX_PATH), release_index),
@@ -183,11 +198,8 @@ def validate(root: Path) -> list[str]:
         (str(WIKI_DASHBOARD_PATH), wiki_dashboard),
     ):
         require(document, "Community v1.0.0 RC1", document_name, failures)
-        require(document, "Dry run", document_name, failures)
         require(document, RELEASE_URL, document_name, failures)
         require(document, str(RELEASE_NOTES_PATH), document_name, failures)
-        require(document, str(READINESS_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
 
     if packet.get("schema_version") != "cavra.community_v100_rc_publication.v1":
         failures.append(f"{PACKET_PATH}: invalid schema_version")

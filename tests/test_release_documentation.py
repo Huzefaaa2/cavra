@@ -1493,9 +1493,6 @@ def test_community_v013_post_release_evidence_is_current_baseline() -> None:
     dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
         encoding="utf-8"
     )
-    verifier = Path(".github/workflows/verify-community-release.yml").read_text(
-        encoding="utf-8"
-    )
     changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
 
     release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3"
@@ -1527,10 +1524,6 @@ def test_community_v013_post_release_evidence_is_current_baseline() -> None:
     assert "| Community v0.1.3 | Published |" in dashboard
     assert post_release_path in release_index
     assert post_release_path in dashboard
-    assert "default: community-v0.1.3" in verifier
-    assert 'default: "0.1.3"' in verifier
-    assert wheel_sha in verifier
-    assert sdist_sha in verifier
     assert "Published Community v0.1.3 GitHub Release artifacts" in changelog
 
     assert post_release_json["tag"] == "community-v0.1.3"
@@ -1731,12 +1724,6 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
     wiki_doc = Path("docs/wiki/Community-v1.0.0-Release-Candidate-Publication.md").read_text(
         encoding="utf-8"
     )
-    release_notes = Path("docs/releases/community-v1.0.0-rc.1.md").read_text(
-        encoding="utf-8"
-    )
-    wiki_release_notes = Path("docs/wiki/Community-v1.0.0-rc.1-Release-Notes.md").read_text(
-        encoding="utf-8"
-    )
     readiness = Path(
         "docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md"
     ).read_text(encoding="utf-8")
@@ -1753,10 +1740,6 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
     roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
     inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
     changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
-    release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
-    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
-        encoding="utf-8"
-    )
     workflows = [
         Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
         Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
@@ -1788,14 +1771,7 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
         "customer records",
         next_recommendation,
     ]
-    for document in (
-        doc,
-        wiki_doc,
-        release_notes,
-        wiki_release_notes,
-        readiness,
-        wiki_readiness,
-    ):
+    for document in (doc, wiki_doc, readiness, wiki_readiness):
         for term in required_terms:
             assert term in document
         assert release_url in document
@@ -1816,14 +1792,6 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
     assert "docs/community-v1.0.0-release-candidate-publication.md" in roadmap
     assert "Community v1.0.0 release-candidate publication:" in inventory
     assert "Community v1.0.0 RC1 publication preparation" in changelog
-    assert "| Community v1.0.0 RC1 | Dry run |" in release_index
-    assert "| Community v1.0.0 RC1 | Dry run |" in dashboard
-    assert "Pending real artifacts" in dashboard
-    assert next_recommendation in readme
-    assert next_recommendation in roadmap
-    assert next_recommendation in inventory
-    assert next_recommendation in release_index
-    assert next_recommendation in dashboard
 
     assert packet["schema_version"] == "cavra.community_v100_rc_publication.v1"
     assert packet["status"] == "dry_run_publication_ready"
@@ -1837,6 +1805,132 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
     assert gate_statuses["Provenance evidence"] == "pending_real_artifacts"
     assert gate_statuses["Public boundary"] == "pass"
     assert packet["decision"]["status"] == "approve_dry_run_publication_readiness"
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_community_v100_rc1_post_publication_is_linked_and_validated() -> None:
+    doc = Path(
+        "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md"
+    ).read_text(encoding="utf-8")
+    wiki_doc = Path(
+        "docs/wiki/Community-v1.0.0-rc.1-Post-Publication-Verification.md"
+    ).read_text(encoding="utf-8")
+    packet = json.loads(
+        Path(
+            "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.json"
+        ).read_text(encoding="utf-8")
+    )
+    release_notes = Path("docs/releases/community-v1.0.0-rc.1.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_release_notes = Path(
+        "docs/wiki/Community-v1.0.0-rc.1-Release-Notes.md"
+    ).read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
+    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_index = Path("docs/wiki/Community-Release-Index.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_dashboard = Path("docs/wiki/Community-Release-Readiness-Dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-v100-rc-post-publication.py"
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1"
+    next_recommendation = (
+        "Advance Community v1.0.0 RC1 feedback from the completed Node 24 "
+        "readiness baseline into GA release readiness by validating upgrade notes, "
+        "installer paths, announcement copy, and final GA evidence gates."
+    )
+    wheel_sha = "6d06bd04965d3b1340ecacf007bc39111c8a8d5d0a73ee32f44aeb06ebb1be01"
+    sdist_sha = "f4312e51a4d4180387982eafa86f301c584be5af147ba09098d733d187662e0c"
+
+    required_terms = [
+        "Community v1.0.0 RC1",
+        "community-v1.0.0-rc.1",
+        "1.0.0rc1",
+        "Node 24 readiness baseline",
+        "SHA-256",
+        "provenance",
+        "cavra 1.0.0rc1",
+        wheel_sha,
+        sdist_sha,
+        "detached signature",
+        "keyless attestation",
+        "Public boundary",
+        "Enterprise source code",
+        "private signing keys",
+        "customer records",
+        next_recommendation,
+    ]
+    for document in (doc, wiki_doc, release_notes, wiki_release_notes):
+        for term in required_terms:
+            assert term in document
+        assert release_url in document
+
+    assert "docs/releases/community-v1.0.0-rc.1.md" in readme
+    assert (
+        "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md"
+        in readme
+    )
+    assert (
+        "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.json"
+        in readme
+    )
+    assert "Community-v1.0.0-rc.1-Release-Notes.md" in wiki_home
+    assert "Community-v1.0.0-rc.1-Post-Publication-Verification.md" in wiki_home
+    assert "| Community v1.0.0 RC1 | Published |" in release_index
+    assert "| Community v1.0.0 RC1 | Published |" in dashboard
+    assert "| Ready |" in dashboard
+    for rollup in (release_index, dashboard, wiki_index, wiki_dashboard):
+        assert "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md" in rollup
+        assert next_recommendation in rollup
+    assert "Community v1.0.0 RC1 post-publication verification" in roadmap
+    assert "Community v1.0.0 RC1 post-publication verification" in inventory
+    assert "Community v1.0.0 RC1 post-publication verification" in changelog
+    assert next_recommendation in readme
+    assert next_recommendation in roadmap
+    assert next_recommendation in inventory
+
+    assert packet["schema_version"] == "cavra.community_v100_rc_post_publication.v1"
+    assert packet["status"] == "published"
+    assert packet["tag"] == "community-v1.0.0-rc.1"
+    assert packet["version"] == "1.0.0rc1"
+    assert packet["release_url"] == release_url
+    assert packet["release_target"] == "e04ba0025f00b13bf05ab468669bcb3fb494eb89"
+    assert packet["install_smoke"]["output"] == "cavra 1.0.0rc1"
+    assert packet["node24_readiness_baseline"] == "pass"
+    assert packet["next_recommendation"] == next_recommendation
+    artifact_hashes = {artifact["name"]: artifact["sha256"] for artifact in packet["artifacts"]}
+    assert artifact_hashes["cavra-1.0.0rc1-py3-none-any.whl"] == wheel_sha
+    assert artifact_hashes["cavra-1.0.0rc1.tar.gz"] == sdist_sha
+    assert packet["public_boundary"]["enterprise_source_included"] is False
+    assert packet["signature_evidence"]["checksum_file_recorded"] is True
+    assert packet["signature_evidence"]["provenance_file_recorded"] is True
+    assert packet["signature_evidence"]["detached_signature_attached"] is False
+    assert packet["signature_evidence"]["keyless_attestation_attached"] is False
 
     for workflow in workflows:
         assert f"python {script}" in workflow
