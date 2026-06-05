@@ -83,11 +83,12 @@ Observed clean install smoke:
 cavra 1.0.0
 ```
 
-The release is ready for GitHub keyless release asset attestation through
-`.github/workflows/attest-community-release.yml`. The workflow downloads the
-published assets, validates SHA-256 checksums, generates a Sigstore-backed
-attestation with `actions/attest@v4`, and verifies each asset with
-`gh attestation verify`. detached signature assets remain optional future
+The release has GitHub keyless release asset attestation through
+`.github/workflows/attest-community-release.yml`. Workflow run `27003626701`
+downloaded the published assets, validated SHA-256 checksums, generated a
+Sigstore-backed attestation with `actions/attest@v4`, and verified each asset
+with `gh attestation verify`. Attestation `29988580` is available at
+<https://github.com/Huzefaaa2/cavra/attestations/29988580>. detached signature assets remain optional future
 hardening because this path uses GitHub keyless attestation instead of a
 maintainer-managed private signing key.
 
@@ -108,7 +109,8 @@ maintainer-managed private signing key.
 - Published provenance metadata: pass.
 - Clean install smoke: pass.
 - Community Docker build: pass.
-- Keyless attestation workflow: ready.
+- Keyless attestation workflow: pass.
+- Keyless attestation verification: pass.
 - Public boundary validation: pass.
 
 ## Boundary Notice

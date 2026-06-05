@@ -34,6 +34,20 @@ The default v1.0.0 attestation covers:
 | `cavra-1.0.0-SHA256SUMS.txt` | `c9049c68d23e089f2129ab3f1f130f7a8e07aecc4bb1e8b4b5360b22a5c617fd` |
 | `cavra-1.0.0.provenance.json` | `38b6e2127695050e697d33dde22f111eaee5cccbcf598cb82fc60c6a795c99aa` |
 
+## v1.0.0 Attestation Evidence
+
+| Field | Value |
+| --- | --- |
+| Workflow run | <https://github.com/Huzefaaa2/cavra/actions/runs/27003626701> |
+| Attestation ID | `29988580` |
+| Attestation URL | <https://github.com/Huzefaaa2/cavra/attestations/29988580> |
+| Workflow commit | `a06d996927117e59ad012b7b575b386ef9b9d663` |
+| Signer identity | `https://github.com/Huzefaaa2/cavra/.github/workflows/attest-community-release.yml@refs/heads/main` |
+| Predicate type | `https://slsa.dev/provenance/v1` |
+| Rekor timestamp | `2026-06-05T08:13:01Z` |
+| Evidence artifact | `community-release-keyless-attestation-1.0.0` |
+| Status | Pass |
+
 ## Maintainer Runbook
 
 1. Publish the Community GitHub Release assets.

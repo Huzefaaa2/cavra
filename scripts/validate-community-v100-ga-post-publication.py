@@ -241,11 +241,26 @@ def validate(root: Path) -> list[str]:
         "checksum_file_recorded": True,
         "provenance_file_recorded": True,
         "detached_signature_attached": False,
-        "keyless_attestation_attached": False,
-        "follow_up_required": True,
+        "keyless_attestation_attached": True,
+        "follow_up_required": False,
     }
     for key, value in expected_signature.items():
         if signature.get(key) is not value:
+            failures.append(f"{PACKET_PATH}: signature_evidence.{key} must be {value!r}")
+    expected_attestation = {
+        "keyless_attestation_workflow": ".github/workflows/attest-community-release.yml",
+        "keyless_attestation_runbook": "docs/community-release-keyless-attestation.md",
+        "keyless_attestation_status": "verified",
+        "keyless_attestation_workflow_run_id": "27003626701",
+        "keyless_attestation_workflow_run_url": "https://github.com/Huzefaaa2/cavra/actions/runs/27003626701",
+        "keyless_attestation_id": "29988580",
+        "keyless_attestation_url": "https://github.com/Huzefaaa2/cavra/attestations/29988580",
+        "keyless_attestation_rekor_timestamp": "2026-06-05T08:13:01Z",
+        "keyless_attestation_source_sha": "a06d996927117e59ad012b7b575b386ef9b9d663",
+        "keyless_attestation_predicate_type": "https://slsa.dev/provenance/v1",
+    }
+    for key, value in expected_attestation.items():
+        if signature.get(key) != value:
             failures.append(f"{PACKET_PATH}: signature_evidence.{key} must be {value!r}")
 
     workflow_defaults = packet.get("workflow_defaults", {})

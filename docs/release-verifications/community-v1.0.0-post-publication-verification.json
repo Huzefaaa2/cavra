@@ -53,11 +53,20 @@
     "checksum_file_recorded": true,
     "provenance_file_recorded": true,
     "detached_signature_attached": false,
-    "keyless_attestation_attached": false,
+    "keyless_attestation_attached": true,
     "keyless_attestation_workflow": ".github/workflows/attest-community-release.yml",
     "keyless_attestation_runbook": "docs/community-release-keyless-attestation.md",
-    "keyless_attestation_status": "workflow_ready",
-    "follow_up_required": true
+    "keyless_attestation_status": "verified",
+    "keyless_attestation_workflow_run_id": "27003626701",
+    "keyless_attestation_workflow_run_url": "https://github.com/Huzefaaa2/cavra/actions/runs/27003626701",
+    "keyless_attestation_id": "29988580",
+    "keyless_attestation_url": "https://github.com/Huzefaaa2/cavra/attestations/29988580",
+    "keyless_attestation_generated_at": "2026-06-05T08:13:16Z",
+    "keyless_attestation_rekor_timestamp": "2026-06-05T08:13:01Z",
+    "keyless_attestation_signer": "https://github.com/Huzefaaa2/cavra/.github/workflows/attest-community-release.yml@refs/heads/main",
+    "keyless_attestation_source_sha": "a06d996927117e59ad012b7b575b386ef9b9d663",
+    "keyless_attestation_predicate_type": "https://slsa.dev/provenance/v1",
+    "follow_up_required": false
   },
   "public_boundary": {
     "enterprise_source_included": false,

@@ -2403,7 +2403,7 @@ def test_community_v100_ga_post_publication_is_linked_and_validated() -> None:
     assert packet["signature_evidence"]["checksum_file_recorded"] is True
     assert packet["signature_evidence"]["provenance_file_recorded"] is True
     assert packet["signature_evidence"]["detached_signature_attached"] is False
-    assert packet["signature_evidence"]["keyless_attestation_attached"] is False
+    assert packet["signature_evidence"]["keyless_attestation_attached"] is True
     assert (
         packet["signature_evidence"]["keyless_attestation_workflow"]
         == ".github/workflows/attest-community-release.yml"
@@ -2412,7 +2412,21 @@ def test_community_v100_ga_post_publication_is_linked_and_validated() -> None:
         packet["signature_evidence"]["keyless_attestation_runbook"]
         == "docs/community-release-keyless-attestation.md"
     )
-    assert packet["signature_evidence"]["keyless_attestation_status"] == "workflow_ready"
+    assert packet["signature_evidence"]["keyless_attestation_status"] == "verified"
+    assert packet["signature_evidence"]["keyless_attestation_workflow_run_id"] == "27003626701"
+    assert (
+        packet["signature_evidence"]["keyless_attestation_workflow_run_url"]
+        == "https://github.com/Huzefaaa2/cavra/actions/runs/27003626701"
+    )
+    assert packet["signature_evidence"]["keyless_attestation_id"] == "29988580"
+    assert (
+        packet["signature_evidence"]["keyless_attestation_url"]
+        == "https://github.com/Huzefaaa2/cavra/attestations/29988580"
+    )
+    assert (
+        packet["signature_evidence"]["keyless_attestation_rekor_timestamp"]
+        == "2026-06-05T08:13:01Z"
+    )
 
     for workflow in workflows:
         assert f"python {script}" in workflow
@@ -2463,6 +2477,12 @@ def test_community_release_keyless_attestation_is_linked_and_validated() -> None
             "gh attestation verify",
             "community-v1.0.0",
             "Huzefaaa2/cavra/.github/workflows/attest-community-release.yml",
+            "27003626701",
+            "29988580",
+            "https://github.com/Huzefaaa2/cavra/attestations/29988580",
+            "a06d996927117e59ad012b7b575b386ef9b9d663",
+            "https://slsa.dev/provenance/v1",
+            "2026-06-05T08:13:01Z",
             "Enterprise source code",
             "private signing keys",
             "customer records",

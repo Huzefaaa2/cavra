@@ -54,13 +54,13 @@ cavra 1.0.0
 | Provenance metadata | Pass | `cavra-1.0.0.provenance.json` is attached. |
 | Clean install smoke | Pass | `cavra version` returned `cavra 1.0.0`. |
 | Community Docker build | Pass | `docker build -f docker/Dockerfile.community .` completed successfully. |
-| Keyless attestation workflow | Ready | `.github/workflows/attest-community-release.yml` attests published assets with `actions/attest@v4` and verifies them with `gh attestation verify`. |
+| Keyless attestation workflow | Pass | `.github/workflows/attest-community-release.yml` attested published assets with `actions/attest@v4` in run `27003626701`. |
 | README link | Pass | README links release notes and this post-publication packet. |
 | Wiki navigation | Pass | `docs/wiki/Home.md` links release notes and this verification packet. |
 | Release index | Pass | `docs/community-release-index.md` marks Community v1.0.0 as Published. |
 | Release readiness dashboard | Pass | `docs/community-release-readiness-dashboard.md` marks Community v1.0.0 as Ready. |
 | Detached signature | Follow-up | No detached signature asset is attached to this release. |
-| Keyless attestation | Ready | `docs/community-release-keyless-attestation.md` defines the release asset attestation runbook and workflow dispatch defaults. |
+| Keyless attestation | Pass | Attestation `29988580` at <https://github.com/Huzefaaa2/cavra/attestations/29988580> covers all four v1.0.0 release assets and verifies with `gh attestation verify`. |
 | Public boundary | Pass | Enterprise source code, paid policy packs, private signing keys, private registry credentials, and customer records are excluded. |
 
 ## Boundary Notice
@@ -70,12 +70,27 @@ artifacts only. Enterprise source code, paid policy packs, SaaS backend
 implementation, license-service internals, private signing keys, private
 registry credentials, and customer records are not part of this public release.
 
+The Community release keyless attestation runbook is
+`docs/community-release-keyless-attestation.md`.
+
 ## Validation
 
 ```bash
 python3 scripts/validate-community-v100-ga-post-publication.py
 python3 scripts/validate-community-release-keyless-attestation.py
 ```
+
+Keyless attestation verification:
+
+```bash
+gh attestation verify cavra-1.0.0-py3-none-any.whl \
+  --repo Huzefaaa2/cavra \
+  --signer-workflow Huzefaaa2/cavra/.github/workflows/attest-community-release.yml \
+  --deny-self-hosted-runners
+```
+
+The same command passed for `cavra-1.0.0.tar.gz`,
+`cavra-1.0.0-SHA256SUMS.txt`, and `cavra-1.0.0.provenance.json`.
 
 ## Decision
 
