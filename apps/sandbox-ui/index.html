@@ -28,6 +28,7 @@
       <nav class="top-actions" aria-label="Top navigation">
         <a href="#documentation" data-route-link="documentation">Documentation</a>
         <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
         <a href="#dashboard" data-route-link="dashboard">Demo</a>
         <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download</a>
         <button id="themeToggle" aria-label="Toggle theme">Dark</button>
@@ -225,6 +226,69 @@
             </p>
           </div>
           <div id="operatorPathCards" class="operator-path-grid"></div>
+        </section>
+
+        <section class="page-panel" id="enterprise-trial" data-title="Enterprise Trial">
+          <div class="section-heading">
+            <p class="eyebrow">Self-service approved access</p>
+            <h2>Enterprise Trial Access Portal</h2>
+            <p>
+              Request private evaluator access to the licensed Enterprise Trial
+              package, then receive gated GHCR instructions after approval.
+            </p>
+          </div>
+          <div class="trial-layout">
+            <form id="trialSignupForm" class="trial-form">
+              <label>
+                Full name
+                <input name="full_name" autocomplete="name" required />
+              </label>
+              <label>
+                Work email
+                <input name="work_email" type="email" autocomplete="email" required />
+              </label>
+              <label>
+                Company
+                <input name="company" autocomplete="organization" required />
+              </label>
+              <label>
+                Role
+                <input name="role" autocomplete="organization-title" required />
+              </label>
+              <label>
+                GitHub username
+                <input name="github_username" autocomplete="username" required />
+              </label>
+              <label>
+                Evaluation use case
+                <textarea name="use_case" rows="5" required></textarea>
+              </label>
+              <label class="checkbox-row">
+                <input name="terms_accepted" type="checkbox" required />
+                <span>I confirm this request is for a business evaluation and I will not place license keys, pull secrets, customer records, or Enterprise artifacts in a public repository.</span>
+              </label>
+              <button type="submit">Request Enterprise Trial</button>
+            </form>
+            <aside class="trial-status-panel">
+              <div>
+                <span>Current package</span>
+                <strong>2026.06.05</strong>
+                <p>Gated GHCR image with signed license validation and revocation checks.</p>
+              </div>
+              <div>
+                <span>Distribution</span>
+                <strong>Approved private access</strong>
+                <p>Evaluator package access is granted after request review and license issuance.</p>
+              </div>
+              <div>
+                <span>Runtime gate</span>
+                <strong>License required</strong>
+                <p>The container validates CAVRA_LICENSE_KEY before use.</p>
+              </div>
+              <pre id="trialAccessStatus" class="code-panel">Submit the form to start a trial access request.</pre>
+            </aside>
+          </div>
+          <div id="trialAccessCards" class="trial-card-grid"></div>
         </section>
 
         <section class="page-panel" id="documentation" data-title="Documentation">

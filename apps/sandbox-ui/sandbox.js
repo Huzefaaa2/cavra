@@ -5,6 +5,7 @@ const navItems = [
   { id: "evidence", label: "Evidence Collector", icon: "archive", group: "Core Components", description: "Audit trails, attestations, and chain of custody." },
   { id: "use-cases", label: "Use Cases", icon: "layers", group: "Use Cases", description: "Terraform, Kubernetes, AI-agent, MCP, and supply-chain governance." },
   { id: "operator-experience", label: "Operator Paths", icon: "route", group: "Use Cases", description: "Persona-specific closeout journeys for prospects, auditors, platform teams, and CISOs." },
+  { id: "enterprise-trial", label: "Enterprise Trial", icon: "key", group: "Platform", description: "Self-service approved access for the licensed Enterprise Trial package." },
   { id: "integrations", label: "Integrations", icon: "plug", group: "Platform", description: "GitHub, GitLab, clouds, IaC, Kubernetes, and MCP servers." },
   { id: "compliance", label: "Compliance", icon: "check", group: "Platform", description: "NIST, SOC2, ISO27001, CIS, PCI DSS, and OWASP mappings." },
   { id: "roadmap", label: "Roadmap", icon: "map", group: "Platform", description: "Interactive Community, Enterprise, SaaS, and release roadmap." },
@@ -18,6 +19,7 @@ const icons = {
   archive: "▣",
   layers: "▤",
   route: "▥",
+  key: "◐",
   plug: "◇",
   check: "✓",
   map: "◎",
@@ -196,6 +198,13 @@ const operatorPaths = [
   ]
 ];
 
+const trialAccessCards = [
+  ["Package", "2026.06.05", "ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05"],
+  ["Integrity", "Verified", "Digest sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47"],
+  ["Access", "Gated", "Private GHCR access plus a time-limited trial license."],
+  ["Controls", "Enforced", "Signed license, revocation, expiry, registry pull, and runtime checks."]
+];
+
 const timeline = [
   ["Intent captured", "Agent action is normalized with actor, target, repository, tool, and context."],
   ["Policy evaluated", "Policy Engine returns allow, block, approval, or attestation decision."],
@@ -212,7 +221,8 @@ const docsLinks = [
   ["API Reference", "docs/api.md"],
   ["Deployment", "docs/deployment.md"],
   ["Open-Core Model", "docs/architecture/open-core-model.md"],
-  ["Enterprise Trial", "docs/enterprise/trial.md"]
+  ["Enterprise Trial", "docs/enterprise/trial.md"],
+  ["Self-Service Trial Access", "docs/enterprise/trial-self-service-access.md"]
 ];
 
 const roadmap = [
@@ -228,7 +238,8 @@ const routeContent = [
   ...integrations.map((item) => ({ type: "Integration", label: item[0], route: "integrations", description: item[1] })),
   ...complianceRows.map((item) => ({ type: "Control", label: `${item[0]} ${item[1]}`, route: "compliance", description: item[3] })),
   ...useCases.map((item) => ({ type: "Use Case", label: item[0], route: "use-cases", description: item[1] })),
-  ...operatorPaths.map((item) => ({ type: "Operator Path", label: item[0], route: "operator-experience", description: item[1] }))
+  ...operatorPaths.map((item) => ({ type: "Operator Path", label: item[0], route: "operator-experience", description: item[1] })),
+  ...trialAccessCards.map((item) => ({ type: "Enterprise Trial", label: item[0], route: "enterprise-trial", description: item[2] }))
 ];
 
 function el(selector) {
@@ -394,6 +405,16 @@ function renderOperatorPaths() {
   `).join("");
 }
 
+function renderTrialAccess() {
+  el("#trialAccessCards").innerHTML = trialAccessCards.map(([label, value, detail]) => `
+    <article class="trial-access-card">
+      <span>${label}</span>
+      <strong>${value}</strong>
+      <p>${detail}</p>
+    </article>
+  `).join("");
+}
+
 function renderDocs() {
   el("#docsNav").innerHTML = docsLinks.map(([label, path]) => `
     <a href="https://github.com/Huzefaaa2/cavra/blob/main/${path}" target="_blank" rel="noreferrer">${label}<span>${path}</span></a>
@@ -407,6 +428,46 @@ function renderRoadmap() {
       <ol>${items.map((item) => `<li>${item}</li>`).join("")}</ol>
     </section>
   `).join("");
+}
+
+async function submitTrialAccessRequest(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const payload = Object.fromEntries(formData.entries());
+  payload.terms_accepted = formData.get("terms_accepted") === "on";
+  const apiBase = String(window.CAVRA_TRIAL_API_URL || localStorage.getItem("cavra.trialApiUrl") || "").replace(/\/$/, "");
+  el("#trialAccessStatus").textContent = "Submitting trial request...";
+  try {
+    let responsePayload;
+    if (apiBase) {
+      const response = await fetch(`${apiBase}/trial/signup`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      responsePayload = await response.json();
+      if (!response.ok) throw new Error(responsePayload.error || "Trial request failed.");
+    } else {
+      responsePayload = {
+        request_id: `static-preview-${Date.now()}`,
+        status: "pending_approval",
+        decision_reason: "Static portal preview captured this request locally. Configure CAVRA_TRIAL_API_URL for live private portal submission."
+      };
+      localStorage.setItem("cavra.trialPreviewRequest", JSON.stringify({ ...payload, ...responsePayload }));
+    }
+    el("#trialAccessStatus").textContent = JSON.stringify({
+      request_id: responsePayload.request_id,
+      status: responsePayload.status,
+      next_step: responsePayload.decision_reason || "A trial operator will review the request and issue private access after approval."
+    }, null, 2);
+    form.reset();
+  } catch (error) {
+    el("#trialAccessStatus").textContent = JSON.stringify({
+      status: "failed",
+      reason: error.message
+    }, null, 2);
+  }
 }
 
 function openCommandPalette() {
@@ -497,6 +558,7 @@ function wireEvents() {
   el("#savePilotIntake").addEventListener("click", () => {
     el("#scenarioStatus").textContent = "Pilot intake snapshot saved locally for this static demo.";
   });
+  el("#trialSignupForm").addEventListener("submit", submitTrialAccessRequest);
   el("#copyInstall").addEventListener("click", async () => {
     await navigator.clipboard?.writeText("claude mcp add cavra -- cavra-mcp-server");
     el("#scenarioStatus").textContent = "Install command copied.";
@@ -519,6 +581,7 @@ function init() {
   renderCompliance();
   renderUseCases();
   renderOperatorPaths();
+  renderTrialAccess();
   renderDocs();
   renderRoadmap();
   wireEvents();

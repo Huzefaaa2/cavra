@@ -91,6 +91,8 @@ jobs:
           grep -q "Evidence Console" index.html
           grep -q "Community GA Control Hardening" index.html
           grep -q "Production Pilot Readiness" index.html
+          grep -q "Enterprise Trial Access Portal" index.html
+          grep -q "Request Enterprise Trial" index.html
           grep -q "sandbox.js" index.html
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}styles.css" >/dev/null
