@@ -7,6 +7,8 @@
   Release assets, validates final SHA-256 checksums, generates a GitHub
   Actions OIDC/Sigstore attestation with `actions/attest@v4`, verifies assets
   with `gh attestation verify`, and uploads verifier evidence.
+- Verified Community v1.0.0 keyless attestation in workflow run `27003626701`
+  and recorded attestation `29988580` for all four public release assets.
 - Published Community v1.0.0 as the stable public Community baseline and
   recorded Community v1.0.0 post-publication verification at
   `docs/release-verifications/community-v1.0.0-post-publication-verification.md`

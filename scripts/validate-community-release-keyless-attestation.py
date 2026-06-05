@@ -46,6 +46,13 @@ WORKFLOW_TERMS = {
 DOC_TERMS = {
     *WORKFLOW_TERMS,
     "Huzefaaa2/cavra/.github/workflows/attest-community-release.yml",
+    "27003626701",
+    "29988580",
+    "https://github.com/Huzefaaa2/cavra/attestations/29988580",
+    "a06d996927117e59ad012b7b575b386ef9b9d663",
+    "https://slsa.dev/provenance/v1",
+    "2026-06-05T08:13:01Z",
+    "Pass",
     "Enterprise source code",
     "private signing keys",
     "customer records",
@@ -110,6 +117,9 @@ def validate(root: Path) -> list[str]:
         require(document, "keyless attestation", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
         require(document, ".github/workflows/attest-community-release.yml", document_name, failures)
+        require(document, "27003626701", document_name, failures)
+        require(document, "29988580", document_name, failures)
+        require(document, "https://github.com/Huzefaaa2/cavra/attestations/29988580", document_name, failures)
 
     return failures
 
