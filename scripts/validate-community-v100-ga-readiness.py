@@ -63,7 +63,6 @@ REQUIRED_TERMS = {
     "private registry credentials",
     "customer records",
     SCRIPT_REF,
-    NEXT_RECOMMENDATION,
 }
 
 
@@ -143,7 +142,6 @@ def validate(root: Path) -> list[str]:
         require(document, "Community v1.0.0 GA readiness", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
         require(document, str(PACKET_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
 
     for document_name, document in (
         (str(RELEASE_NOTES_PATH), release_notes),
@@ -151,7 +149,6 @@ def validate(root: Path) -> list[str]:
     ):
         require(document, "Community v1.0.0 RC1", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
 
     for document_name, document in (
         (str(RELEASE_INDEX_PATH), release_index),
@@ -161,7 +158,6 @@ def validate(root: Path) -> list[str]:
     ):
         require(document, "Community v1.0.0 RC1", document_name, failures)
         require(document, "Published", document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next action", failures)
 
     expected_scalars = {
         "schema_version": "cavra.community_v100_ga_readiness.v1",

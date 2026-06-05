@@ -133,6 +133,10 @@ Open-core architecture and boundaries:
 - [Community v1.0.0 RC1 post-publication packet](docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.json)
 - [Community v1.0.0 GA readiness](docs/community-v1.0.0-ga-readiness.md)
 - [Community v1.0.0 GA readiness packet](docs/release-verifications/community-v1.0.0-ga-readiness.json)
+- [Community v1.0.0 GA publication package](docs/community-v1.0.0-ga-publication-package.md)
+- [Community v1.0.0 release notes](docs/releases/community-v1.0.0.md)
+- [Community v1.0.0 publication readiness](docs/release-verifications/community-v1.0.0-publication-readiness.md)
+- [Community v1.0.0 GA publication package packet](docs/release-verifications/community-v1.0.0-ga-publication-package.json)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -576,7 +580,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence.
+- Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
 
 ## User stories and enterprise value
 
