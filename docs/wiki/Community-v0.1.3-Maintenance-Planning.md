@@ -11,6 +11,9 @@ Node 24 readiness and release-verification freshness. It does not add
 Enterprise source code, private SaaS logic, paid policy packs, license signing
 keys, customer records, or private trial package internals.
 
+The GitHub Actions Node 24 readiness scope covers Community CI, security scan,
+release build, and release verification workflows.
+
 ## Public Boundary
 
 This planning artifact is public Community release evidence only. Enterprise
@@ -57,4 +60,4 @@ launch preparation.
 
 ## Next Recommendation
 
-Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.
+Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.

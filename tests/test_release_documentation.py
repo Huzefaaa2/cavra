@@ -1456,7 +1456,7 @@ def test_community_v013_maintenance_planning_is_linked_and_node24_ready() -> Non
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
         "current v0.1.2 release artifacts",
         "Public Boundary",
-        "Publish Community v0.1.3 maintenance release",
+        "Publish Community v0.1.3 GitHub Release",
     ]
     for document in (plan, wiki_plan):
         for term in required_terms:

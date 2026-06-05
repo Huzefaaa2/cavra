@@ -11,7 +11,8 @@ artifacts are published and which release evidence is ready for publication.
 | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Use as the current public Community GA baseline. |
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
-| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete. |
+| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Use as the current published Community maintenance baseline until v0.1.3 is published. |
+| Community v0.1.3 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-maintenance-verification.md` | Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification. |
 
 ## Current Public Baseline
 
@@ -22,10 +23,12 @@ remains the GA baseline record.
 
 ## Current Maintenance Release
 
-Community v0.1.2 is the current maintenance-release record. It records the
-package version bump, public artifact names, SHA-256 checksums, install-smoke
-result, release documentation, evidence packet, public boundary, freshness
-checks, and post-release verification for the official maintenance release.
+Community v0.1.3 is the current maintenance-release preparation record. It
+records the package version bump, Node 24-ready workflow path, release
+documentation, maintenance verification packet, public boundary, and pending
+artifact evidence before publication. Community v0.1.2 remains the current
+published maintenance baseline until v0.1.3 artifacts are published and
+post-release verification is recorded.
 
 ## Verification Controls
 
@@ -47,4 +50,4 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.
+Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.

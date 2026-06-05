@@ -152,4 +152,4 @@ and enforced by `scripts/validate-production-readiness-procurement-closeout.py`.
 
 ## Recommended Next PR
 
-Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.
+Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
