@@ -28,7 +28,7 @@ credentials, and signing keys must remain outside the public repository.
 | `.github/workflows/community-ci.yml` | Uses `actions/checkout@v6`, `actions/setup-python@v6`, and sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`. | Ready |
 | `.github/workflows/security-scan.yml` | Uses `actions/checkout@v6`, `actions/setup-python@v6`, and sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`. | Ready |
 | `.github/workflows/release-community.yml` | Uses `actions/checkout@v6`, `actions/setup-python@v6`, and sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`. | Ready |
-| `.github/workflows/verify-community-release.yml` | Uses `actions/checkout@v6`, `actions/setup-python@v6`, sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, and defaults to the current v0.1.2 release artifacts. | Ready |
+| `.github/workflows/verify-community-release.yml` | Uses `actions/checkout@v6`, `actions/setup-python@v6`, sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, and defaults to the current v0.1.3 release artifacts. | Ready |
 
 ## Release Candidate Checklist
 
@@ -60,4 +60,4 @@ launch preparation.
 
 ## Next Recommendation
 
-Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
+Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence.

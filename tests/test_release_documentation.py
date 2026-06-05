@@ -1454,9 +1454,9 @@ def test_community_v013_maintenance_planning_is_linked_and_node24_ready() -> Non
         "actions/checkout@v6",
         "actions/setup-python@v6",
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
-        "current v0.1.2 release artifacts",
+        "current v0.1.3 release artifacts",
         "Public Boundary",
-        "Publish Community v0.1.3 GitHub Release",
+        "Start Community v1.0.0 stabilization planning",
     ]
     for document in (plan, wiki_plan):
         for term in required_terms:
@@ -1467,3 +1467,79 @@ def test_community_v013_maintenance_planning_is_linked_and_node24_ready() -> Non
     assert "community-v0.1.3-maintenance-planning.md" in roadmap
     assert "Community v0.1.3 maintenance planning:" in inventory
     assert "Community v0.1.3 maintenance planning" in changelog
+
+
+def test_community_v013_post_release_evidence_is_current_baseline() -> None:
+    release_notes = Path("docs/releases/community-v0.1.3.md").read_text(
+        encoding="utf-8"
+    )
+    post_release = Path(
+        "docs/release-verifications/community-v0.1.3-post-release-verification.md"
+    ).read_text(encoding="utf-8")
+    post_release_json = json.loads(
+        Path(
+            "docs/release-verifications/community-v0.1.3-post-release-verification.json"
+        ).read_text(encoding="utf-8")
+    )
+    wiki_release_notes = Path("docs/wiki/Community-v0.1.3-Release-Notes.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_post_release = Path(
+        "docs/wiki/Community-v0.1.3-Post-Release-Verification.md"
+    ).read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
+    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    verifier = Path(".github/workflows/verify-community-release.yml").read_text(
+        encoding="utf-8"
+    )
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3"
+    release_notes_path = "docs/releases/community-v0.1.3.md"
+    maintenance_path = (
+        "docs/release-verifications/community-v0.1.3-maintenance-verification.md"
+    )
+    post_release_path = (
+        "docs/release-verifications/community-v0.1.3-post-release-verification.md"
+    )
+    wheel_sha = "843cf0c13914e4e9d95ebacd8f0a74aaf4c66969e213e8337d1c0d1c8843cb2e"
+    sdist_sha = "83ddaeb4a36502bfa8a5441a15b7b089ac6d5c1dcc58692e942e3ad601d3c29f"
+
+    for document in (release_notes, post_release, wiki_release_notes, wiki_post_release):
+        assert release_url in document
+        assert wheel_sha in document
+        assert sdist_sha in document
+        assert "cavra 0.1.3" in document
+
+    assert maintenance_path in release_notes
+    assert post_release_path in release_notes
+    assert release_notes_path in readme
+    assert maintenance_path in readme
+    assert post_release_path in readme
+    assert "Community-v0.1.3-Release-Notes.md" in wiki_home
+    assert "Community-v0.1.3-Maintenance-Verification.md" in wiki_home
+    assert "Community-v0.1.3-Post-Release-Verification.md" in wiki_home
+    assert "| Community v0.1.3 | Published |" in release_index
+    assert "| Community v0.1.3 | Published |" in dashboard
+    assert post_release_path in release_index
+    assert post_release_path in dashboard
+    assert "default: community-v0.1.3" in verifier
+    assert 'default: "0.1.3"' in verifier
+    assert wheel_sha in verifier
+    assert sdist_sha in verifier
+    assert "Published Community v0.1.3 GitHub Release artifacts" in changelog
+
+    assert post_release_json["tag"] == "community-v0.1.3"
+    assert post_release_json["version"] == "0.1.3"
+    assert post_release_json["release_target"] == (
+        "5173db90af69410d27b5cd6ef4274c35e26d6a08"
+    )
+    assert post_release_json["install_smoke"]["output"] == "cavra 0.1.3"
+    assert {artifact["sha256"] for artifact in post_release_json["artifacts"]} == {
+        wheel_sha,
+        sdist_sha,
+    }

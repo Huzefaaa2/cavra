@@ -1,9 +1,9 @@
 # CAVRA Community v0.1.3 Maintenance Verification
 
-This packet prepares Community v0.1.3 for publication after the release-prep
-branch lands on `main`. It is public-safe release-prep dry-run evidence: final artifact
-checksums and clean-install smoke evidence remain pending until the GitHub
-Release is built from merged `main`.
+This packet prepared Community v0.1.3 for publication after the release-prep
+branch landed on `main`. It remains public-safe release-prep evidence. Final
+artifact checksums and clean-install smoke evidence are recorded in
+`docs/release-verifications/community-v0.1.3-post-release-verification.md`.
 
 ## Release Metadata
 
@@ -68,4 +68,4 @@ and post-release verification is recorded.
 
 ## Next Recommendation
 
-Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
+Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence.

@@ -42,4 +42,4 @@ The scaffold intentionally mirrors a critical subset of policy behavior. It can 
    tests, production hardening validation, package verification,
    release-candidate upgrade validation, performance smoke evidence, and
    rollback evidence pass.
-2. Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
+2. Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence.

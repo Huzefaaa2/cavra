@@ -251,10 +251,11 @@ Published Community v0.1.2 post-release verification is documented at
 `docs/release-verifications/community-v0.1.2-post-release-verification.md`.
 Community v0.1.3 maintenance planning and GitHub Actions Node 24 workflow
 readiness are documented at `docs/community-v0.1.3-maintenance-planning.md`.
-Community v0.1.3 release-prep notes and maintenance verification are documented
-at `docs/releases/community-v0.1.3.md` and
-`docs/release-verifications/community-v0.1.3-maintenance-verification.md`.
-Next recommended slice: publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
+Community v0.1.3 release notes, maintenance verification, and post-release
+verification are documented at `docs/releases/community-v0.1.3.md`,
+`docs/release-verifications/community-v0.1.3-maintenance-verification.md`, and
+`docs/release-verifications/community-v0.1.3-post-release-verification.md`.
+Next recommended slice: Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

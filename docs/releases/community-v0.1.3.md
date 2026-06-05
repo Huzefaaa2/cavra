@@ -1,10 +1,9 @@
 # CAVRA Community v0.1.3 Release Notes
 
-CAVRA Community v0.1.3 is a public Community Edition maintenance release
-candidate. It prepares the package version, release notes, maintenance
-evidence, README links, wiki navigation, release index, and readiness dashboard
-for publication after the Node 24-ready Community workflow path is verified on
-`main`.
+CAVRA Community v0.1.3 is a public Community Edition maintenance release. It
+publishes the package version bump, release notes, maintenance evidence, README
+links, wiki navigation, release index, readiness dashboard, and post-release
+artifact verification for the Node 24-ready Community workflow path.
 
 ## Release Links
 
@@ -12,6 +11,8 @@ for publication after the Node 24-ready Community workflow path is verified on
   <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3>
 - Maintenance verification:
   `docs/release-verifications/community-v0.1.3-maintenance-verification.md`
+- Post-release verification:
+  `docs/release-verifications/community-v0.1.3-post-release-verification.md`
 - Community v0.1.3 maintenance planning:
   `docs/community-v0.1.3-maintenance-planning.md`
 - Maintenance-release checklist:
@@ -34,32 +35,34 @@ for publication after the Node 24-ready Community workflow path is verified on
   `actions/setup-python@v6`, and `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`.
 - Preserved package metadata validation for BUSL-1.1, project URLs,
   license-file metadata, packaged schemas, and setuptools warning rejection.
+- Published the `community-v0.1.3` GitHub Release with public Community wheel
+  and source distribution artifacts.
+- Verified published asset downloads, SHA-256 checksums, and clean wheel
+  install smoke using `scripts/verify-community-release-artifacts.py`.
 - Prepared public release notes, README navigation, wiki navigation, release
-  index coverage, and readiness dashboard coverage.
+  index coverage, readiness dashboard coverage, and post-release evidence.
 
 ## Artifact Checksums
 
-Final artifact checksums are pending until `community-v0.1.3` is built from
-merged `main` and published as a GitHub Release.
-
 | Artifact | SHA-256 |
 | --- | --- |
-| `cavra-0.1.3.tar.gz` | Pending publication |
-| `cavra-0.1.3-py3-none-any.whl` | Pending publication |
+| `cavra-0.1.3.tar.gz` | `83ddaeb4a36502bfa8a5441a15b7b089ac6d5c1dcc58692e942e3ad601d3c29f` |
+| `cavra-0.1.3-py3-none-any.whl` | `843cf0c13914e4e9d95ebacd8f0a74aaf4c66969e213e8337d1c0d1c8843cb2e` |
 
 ## Verification Summary
 
-- Local package metadata validation: pending release-prep PR validation.
-- Local package build: pending release-prep PR validation.
-- `twine check`: pending release-prep PR validation.
-- GitHub Release publication: pending merge to `main`.
-- Published asset download: pending publication.
-- Published asset checksum match: pending publication.
-- Clean wheel install smoke: pending publication.
-- CLI version output: expected `cavra 0.1.3`.
-- Public boundary validation: pending release-prep PR validation.
-- Release-note freshness validation: pending release-prep PR validation.
-- Maintenance-release evidence validation: pending release-prep PR validation.
+- Local package metadata validation: pass.
+- Local package build: pass.
+- `twine check`: pass.
+- GitHub Release publication: pass.
+- Published asset download: pass.
+- Published asset checksum match: pass.
+- Clean wheel install smoke: pass.
+- CLI version output: `cavra 0.1.3`.
+- Public boundary validation: pass.
+- Release-note freshness validation: pass.
+- Maintenance-release evidence validation: pass.
+- Post-release artifact verification: pass.
 
 ## Boundary Notice
 
@@ -70,4 +73,6 @@ not part of this public release.
 
 ## Next Recommendation
 
-Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
+Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing,
+reproducible provenance, GA announcement readiness, and final operator
+evidence.
