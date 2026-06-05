@@ -13,7 +13,7 @@ artifacts are published and which release evidence is ready for publication.
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
 | Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Use as the previous published Community maintenance baseline. |
 | Community v0.1.3 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-post-release-verification.md` | Use as the current published Community maintenance baseline while v1.0.0 stabilization planning begins. |
-| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates. |
+| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence. |
 
 ## Current Public Baseline
 
@@ -61,4 +61,4 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.
+Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence.
