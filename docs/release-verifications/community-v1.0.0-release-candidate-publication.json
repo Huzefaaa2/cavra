@@ -1,0 +1,76 @@
+{
+  "schema_version": "cavra.community_v100_rc_publication.v1",
+  "status": "dry_run_publication_ready",
+  "release": "CAVRA Community v1.0.0 RC1",
+  "tag": "community-v1.0.0-rc.1",
+  "version": "1.0.0",
+  "baseline_release": "community-v0.1.3",
+  "planned_github_release": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1",
+  "release_notes": "docs/releases/community-v1.0.0-rc.1.md",
+  "readiness_verification": "docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md",
+  "publication_doc": "docs/community-v1.0.0-release-candidate-publication.md",
+  "gates": [
+    {
+      "name": "Node 24 readiness baseline",
+      "status": "pass",
+      "evidence": "Community CI, release, security, governance, and verification workflows use Node 24-ready actions."
+    },
+    {
+      "name": "Release notes",
+      "status": "pass",
+      "evidence": "docs/releases/community-v1.0.0-rc.1.md"
+    },
+    {
+      "name": "Signed artifact verification",
+      "status": "pending_real_artifacts",
+      "evidence": "Final SHA-256 checksums, detached signatures, and keyless attestation links must be recorded after artifacts exist."
+    },
+    {
+      "name": "Provenance evidence",
+      "status": "pending_real_artifacts",
+      "evidence": "SBOM metadata and SLSA provenance must be recorded after the release workflow produces artifacts."
+    },
+    {
+      "name": "Announcement readiness",
+      "status": "pass",
+      "evidence": "README, wiki navigation, release index, readiness dashboard, and release notes point to the RC1 dry-run record."
+    },
+    {
+      "name": "Public boundary",
+      "status": "pass",
+      "evidence": "Boundary validation remains required before final publication."
+    }
+  ],
+  "operator_commands": [
+    "python3 scripts/validate-community-v100-rc-publication.py",
+    "python3 scripts/validate-community-v100-rc-hardening.py",
+    "python3 scripts/validate-community-release-note-freshness.py",
+    "python3 scripts/validate-community-release-index.py",
+    "python3 scripts/validate-community-release-readiness-dashboard.py",
+    "bash scripts/validate-boundaries.sh .",
+    "python3 scripts/verify-community-release-artifacts.py --tag community-v1.0.0-rc.1 --version 1.0.0"
+  ],
+  "must_never_include": [
+    "Enterprise source code",
+    "paid policy packs",
+    "private signing keys",
+    "license-service secrets",
+    "private registry credentials",
+    "private trial packages",
+    "customer records"
+  ],
+  "accepted_risks": [
+    {
+      "id": "rc1-artifacts-not-yet-published",
+      "severity": "low",
+      "reason": "This packet prepares RC1 publication before the final community-v1.0.0-rc.1 tag and artifacts exist.",
+      "exit_condition": "Publish RC1 artifacts and record checksums, signatures, provenance, GitHub Release links, clean install smoke, and post-publication verification."
+    }
+  ],
+  "decision": {
+    "status": "approve_dry_run_publication_readiness",
+    "owner": "release-agent",
+    "summary": "The public Community v1.0.0 RC1 publication path is ready as a dry-run record. Real artifacts and post-publication verification are still required before announcement."
+  },
+  "next_recommendation": "Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence."
+}

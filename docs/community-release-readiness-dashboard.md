@@ -13,6 +13,7 @@ each public Community release record.
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Ready | Use as the previous public Community maintenance baseline. |
 | Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Ready | Use as the previous published Community maintenance baseline. |
 | Community v0.1.3 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-post-release-verification.md` | Ready | Use as the current published Community maintenance baseline while v1.0.0 stabilization planning begins. |
+| Community v1.0.0 RC1 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md` | Pending real artifacts | Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence. |
 
 ## Control Rollup
 
@@ -75,4 +76,4 @@ records.
 
 ## Next Recommendation
 
-Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
+Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.

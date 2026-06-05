@@ -37,4 +37,5 @@ jobs:
       - run: python scripts/validate-production-readiness-procurement-closeout.py
       - run: python scripts/validate-community-v100-stabilization.py
       - run: python scripts/validate-community-v100-rc-hardening.py
+      - run: python scripts/validate-community-v100-rc-publication.py
       - run: bash scripts/validate-boundaries.sh .
