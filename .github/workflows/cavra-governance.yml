@@ -51,6 +51,7 @@ jobs:
           python scripts/validate-go-production-hardening.py
           python scripts/validate-enterprise-integration-readiness.py
           python scripts/validate-production-readiness-procurement-closeout.py
+          python scripts/validate-community-v100-stabilization.py
       - name: Generate required-check evidence
         env:
           FALLBACK_EVIDENCE_KEY: cavra-required-check-demo-key

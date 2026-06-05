@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added Community v1.0.0 stabilization planning, a public-safe stabilization
+  packet, CI validation, README/wiki navigation, and roadmap handoff for
+  release signing, reproducible provenance, GA announcement readiness, final
+  operator evidence, and open-core boundary validation through
+  `docs/community-v1.0.0-stabilization-plan.md`.
+  Next recommendation: Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
 - Added Community v0.1.3 maintenance planning and upgraded public Community
   release workflows to Node 24-ready action versions.
 - Bumped the Community package metadata and runtime version to `0.1.3`, and
