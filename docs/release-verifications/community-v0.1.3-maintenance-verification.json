@@ -45,7 +45,7 @@
       "status": "pass",
       "evidence": ".github/workflows/verify-community-release.yml",
       "owner": "release-agent",
-      "notes": "Manual verification workflow remains available; defaults still point at the current published v0.1.2 artifacts until v0.1.3 is published."
+      "notes": "Manual verification workflow remains available and now defaults to the current published v0.1.3 artifacts."
     },
     {
       "name": "Artifact checksums",
@@ -133,7 +133,7 @@
   },
   "decision": {
     "status": "defer",
-    "rationale": "The v0.1.3 release-prep documentation and version bump are ready, but final artifact evidence must be produced from merged main before the release can be marked ready_for_publication."
+    "rationale": "This v0.1.3 release-prep packet was intentionally deferred until artifacts were produced from merged main; final artifact evidence is recorded in docs/release-verifications/community-v0.1.3-post-release-verification.md."
   },
-  "next_recommendation": "Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification."
+  "next_recommendation": "Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence."
 }
