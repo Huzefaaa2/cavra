@@ -151,6 +151,7 @@ Open-core architecture and boundaries:
 - [Runtime policy modes](docs/runtime-policy-modes.md)
 - [Enterprise features](docs/enterprise/features.md)
 - [Enterprise trial](docs/enterprise/trial.md)
+- [Enterprise trial self-service access](docs/enterprise/trial-self-service-access.md)
 - [Private Enterprise repo plan](docs/architecture/private-enterprise-repo-plan.md)
 
 ## Why CAVRA exists
@@ -256,6 +257,7 @@ Trial access:
 
 - Trial source code is not public.
 - Enterprise Trial package `2026.06.05` is ready for approved private evaluators.
+- The public portal now includes a self-service Enterprise Trial request page for approved access workflows.
 - Trial artifacts are distributed through private Docker images, binaries, or hosted SaaS access.
 - The current private distribution target is gated GHCR image `ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05`.
 - Public-safe image digest: `sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47`.
@@ -270,6 +272,7 @@ Trial access:
 - Trial license validation is implemented by the private Enterprise license service and exposed to evaluators only through approved trial access.
 - See [docs/enterprise/trial.md](docs/enterprise/trial.md).
 - See [docs/enterprise/trial-availability.md](docs/enterprise/trial-availability.md).
+- See [docs/enterprise/trial-self-service-access.md](docs/enterprise/trial-self-service-access.md).
 - See [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
 - See [docs/trial-license-evaluator-access-sync.md](docs/trial-license-evaluator-access-sync.md).
 - See [docs/trial-access-expiry-sync.md](docs/trial-access-expiry-sync.md).

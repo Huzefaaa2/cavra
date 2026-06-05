@@ -19,6 +19,9 @@ Community v1.0.0 is published and verified. CAVRA Enterprise Trial package
 with public-safe digest, signed trial license validation, revoked-license
 failure validation, private registry pull validation, and runtime license
 enforcement. See [Enterprise Trial Availability](Enterprise-Trial-Availability).
+The public portal now includes a self-service approved access request page that
+can connect to the private Trial Access Portal backend. See
+[Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access).
 
 ## Current Phase Status
 
@@ -107,6 +110,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - SaaS Operating Automation Worker Handoff: `SaaS-Operating-Automation-Worker-Handoff.md`
 - Enterprise Trial Distribution Sync: `Enterprise-Trial-Distribution-Sync.md`
 - Enterprise Trial Availability: `Enterprise-Trial-Availability.md`
+- Enterprise Trial Self-Service Access: `Enterprise-Trial-Self-Service-Access.md`
 - Trial License Evaluator Access Sync: `Trial-License-Evaluator-Access-Sync.md`
 - Trial Access Expiry Sync: `Trial-Access-Expiry-Sync.md`
 - Trial Expired Follow-Up Sync: `Trial-Expired-Followup-Sync.md`

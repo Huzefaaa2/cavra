@@ -72,6 +72,7 @@ def main() -> int:
         "compliance",
         "use-cases",
         "operator-experience",
+        "enterprise-trial",
         "documentation",
         "roadmap",
     ]
@@ -106,6 +107,9 @@ def main() -> int:
         'id="complianceRows"',
         'id="useCaseCards"',
         'id="operatorPathCards"',
+        'id="trialSignupForm"',
+        'id="trialAccessStatus"',
+        'id="trialAccessCards"',
         'id="docsNav"',
         'id="roadmapBoard"',
     ]
@@ -122,6 +126,7 @@ def main() -> int:
         'type: "Control"',
         'type: "Use Case"',
         'type: "Operator Path"',
+        'type: "Enterprise Trial"',
     ]:
         require(js, needle, "command palette contract", failures)
     require_any([html, js], "Ctrl K", "command palette shortcut label", failures)
@@ -166,6 +171,8 @@ def main() -> int:
         'grep -q "Evidence Console"',
         'grep -q "Community GA Control Hardening"',
         'grep -q "Production Pilot Readiness"',
+        'grep -q "Enterprise Trial Access Portal"',
+        'grep -q "Request Enterprise Trial"',
         "sandbox.js",
         "styles.css",
         "brand/cavra-mark.svg",
@@ -185,8 +192,19 @@ def main() -> int:
         "Evidence Console",
         "Community GA Control Hardening",
         "Production Pilot Readiness",
+        "Enterprise Trial Access Portal",
+        "Request Enterprise Trial",
     ]:
         require(html, needle, "brand and page signal", failures)
+
+    for needle in [
+        "submitTrialAccessRequest",
+        "CAVRA_TRIAL_API_URL",
+        "/trial/signup",
+        "trialAccessCards",
+        "renderTrialAccess",
+    ]:
+        require(js, needle, "Enterprise Trial portal contract", failures)
 
     require(readme, "docs/sandbox-portal-redesign.md", "README portal redesign link", failures)
     require(
