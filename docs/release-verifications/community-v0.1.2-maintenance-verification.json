@@ -131,5 +131,5 @@
     "status": "approve",
     "rationale": "The Community v0.1.2 release notes, package metadata, artifact checksums, install-smoke evidence, README links, wiki-ready pages, release index, release dashboard, and public boundary checks are aligned for official publication."
   },
-  "next_recommendation": "Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness."
+  "next_recommendation": "Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete."
 }

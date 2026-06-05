@@ -65,4 +65,4 @@ surface, to evidence signal.
 
 ## Next Recommendation
 
-Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.
+Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.

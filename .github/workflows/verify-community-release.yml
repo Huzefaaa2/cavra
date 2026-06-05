@@ -6,29 +6,32 @@ on:
       tag:
         description: Community release tag to verify.
         required: true
-        default: community-v0.1.1
+        default: community-v0.1.2
       version:
         description: Community package version to verify.
         required: true
-        default: "0.1.1"
+        default: "0.1.2"
       wheel_sha256:
         description: Expected wheel SHA-256.
         required: true
-        default: 32ab7a220eb5f25ea5ab42ccbc62a43b7260de12b9a0d3f3d7bdafa1501a5d6a
+        default: bbdb2f593ce3c14742446c1682c23bef7933925a02382a874e59b8ef7e389163
       sdist_sha256:
         description: Expected source distribution SHA-256.
         required: true
-        default: b123c6d2aadd72b055ba916caa68953af94122d34f1215756804d74e91174950
+        default: f7a477cfef65d77bd4c36520a83d256c1086e7b81ffcd9411ee9c68d017ab1d0
 
 permissions:
   contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   verify-community-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: |

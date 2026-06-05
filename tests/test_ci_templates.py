@@ -106,6 +106,33 @@ def test_community_workflows_validate_python_package_metadata() -> None:
     assert "python scripts/validate-python-package-metadata.py" in release_community
 
 
+def test_community_release_workflows_are_node24_ready() -> None:
+    workflow_paths = [
+        ".github/workflows/community-ci.yml",
+        ".github/workflows/security-scan.yml",
+        ".github/workflows/release-community.yml",
+        ".github/workflows/verify-community-release.yml",
+    ]
+
+    for workflow_path in workflow_paths:
+        workflow = _load_yaml(workflow_path)
+        text = Path(workflow_path).read_text(encoding="utf-8")
+
+        assert workflow["env"]["FORCE_JAVASCRIPT_ACTIONS_TO_NODE24"] == "true"
+        assert "actions/checkout@v6" in text
+        assert "actions/setup-python@v6" in text
+        assert "actions/checkout@v4" not in text
+        assert "actions/setup-python@v5" not in text
+
+    verifier = Path(".github/workflows/verify-community-release.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "default: community-v0.1.2" in verifier
+    assert 'default: "0.1.2"' in verifier
+    assert "bbdb2f593ce3c14742446c1682c23bef7933925a02382a874e59b8ef7e389163" in verifier
+    assert "f7a477cfef65d77bd4c36520a83d256c1086e7b81ffcd9411ee9c68d017ab1d0" in verifier
+
+
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:
     for workflow_path in [
         "examples/github-actions/cavra-required-check.yml",
