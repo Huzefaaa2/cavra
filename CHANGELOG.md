@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added Community v0.1.3 maintenance planning and upgraded public Community
+  release workflows to Node 24-ready action versions.
 - Bumped the Community package metadata and runtime version to `0.1.2` so
   the `community-v0.1.2` release artifacts can be built and published from
   main before final checksum and install-smoke evidence is recorded.

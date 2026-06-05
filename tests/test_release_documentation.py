@@ -1433,3 +1433,37 @@ def test_release_packet_validation_runs_in_public_ci_workflows() -> None:
     for workflow_path in workflow_paths:
         workflow = Path(workflow_path).read_text(encoding="utf-8")
         assert "python scripts/validate-release-packets.py" in workflow, workflow_path
+
+
+def test_community_v013_maintenance_planning_is_linked_and_node24_ready() -> None:
+    plan = Path("docs/community-v0.1.3-maintenance-planning.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_plan = Path("docs/wiki/Community-v0.1.3-Maintenance-Planning.md").read_text(
+        encoding="utf-8"
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+
+    required_terms = [
+        "Community v0.1.3",
+        "GitHub Actions Node 24 readiness",
+        "actions/checkout@v6",
+        "actions/setup-python@v6",
+        "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
+        "current v0.1.2 release artifacts",
+        "Public Boundary",
+        "Publish Community v0.1.3 maintenance release",
+    ]
+    for document in (plan, wiki_plan):
+        for term in required_terms:
+            assert term in document
+
+    assert "docs/community-v0.1.3-maintenance-planning.md" in readme
+    assert "Community-v0.1.3-Maintenance-Planning.md" in wiki_home
+    assert "community-v0.1.3-maintenance-planning.md" in roadmap
+    assert "Community v0.1.3 maintenance planning:" in inventory
+    assert "Community v0.1.3 maintenance planning" in changelog

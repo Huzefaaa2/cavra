@@ -11,7 +11,7 @@ artifacts are published and which release evidence is ready for publication.
 | --- | --- | --- | --- | --- | --- |
 | Community GA v0.1.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.0> | `docs/releases/community-v0.1.0.md` | `docs/release-verifications/community-v0.1.0-post-release-verification.md` | Use as the current public Community GA baseline. |
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
-| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness. |
+| Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete. |
 
 ## Verification Controls
 
@@ -26,4 +26,4 @@ Public Community releases are checked by:
 
 ## Next Recommendation
 
-Prepare Community v0.1.3 maintenance planning and GitHub Actions Node 24 readiness.
+Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.
