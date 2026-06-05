@@ -129,8 +129,14 @@ def test_community_release_workflows_are_node24_ready() -> None:
     )
     assert "default: community-v1.0.0" in verifier
     assert 'default: "1.0.0"' in verifier
-    assert 'default: "<final wheel SHA-256>"' in verifier
-    assert 'default: "<final source distribution SHA-256>"' in verifier
+    assert (
+        'default: "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914"'
+        in verifier
+    )
+    assert (
+        'default: "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"'
+        in verifier
+    )
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:

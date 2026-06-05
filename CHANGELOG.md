@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Published Community v1.0.0 as the stable public Community baseline and
+  recorded Community v1.0.0 post-publication verification at
+  `docs/release-verifications/community-v1.0.0-post-publication-verification.md`
+  for final artifact SHA-256 checksums, checksum manifest, provenance metadata,
+  clean install smoke, Community Docker build evidence, verifier workflow
+  defaults, release index state, readiness dashboard state, README links, wiki
+  navigation, and public boundary validation.
+  Next recommendation: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.
 - Bumped the Community package metadata, runtime version, and release verifier
   tag/version defaults to final `1.0.0`, while keeping final checksum defaults
   as explicit placeholders until the `community-v1.0.0` GitHub Release assets

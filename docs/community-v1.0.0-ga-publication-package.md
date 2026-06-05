@@ -1,11 +1,13 @@
 # Community v1.0.0 GA Publication Package
 
-This package prepares CAVRA Community v1.0.0 for final GA publication from the
-validated RC1 feedback baseline and the completed Node 24 readiness baseline.
-It now carries the final `1.0.0` package metadata bump, defines the v1.0.0
-artifact build plan, records verifier inputs, and captures announcement
-approval evidence, including announcement approval evidence, before final
-`community-v1.0.0` artifacts are published from the merged `main` branch.
+This historical dry-run package prepared CAVRA Community v1.0.0 for final GA
+publication from the validated RC1 feedback baseline and the completed Node 24
+readiness baseline. It carries the final `1.0.0` package metadata bump, defines
+the v1.0.0 artifact build plan, records verifier inputs, and captures
+announcement approval evidence. The final `community-v1.0.0` artifacts are now
+published; use
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`
+as the current release evidence.
 
 ## Publication Target
 
@@ -53,20 +55,20 @@ Observed output:
 cavra 1.0.0
 ```
 
-These are pre-publication checks only. Final release checksums and provenance
-must be generated from the `community-v1.0.0` tag after this branch is merged
-to `main`, because the source distribution includes public docs and workflows.
+These were pre-publication checks only. Final release checksums and provenance
+were generated from the published `community-v1.0.0` release and recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Verifier Inputs
 
-The reusable Community release verifier must be updated after the final
-artifacts exist:
+The reusable Community release verifier was updated after the final artifacts
+were published. Final verifier inputs are:
 
 ```yaml
 tag: community-v1.0.0
 version: "1.0.0"
-wheel_sha256: "<final wheel SHA-256>"
-sdist_sha256: "<final source distribution SHA-256>"
+wheel_sha256: "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914"
+sdist_sha256: "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"
 ```
 
 The final verification command must be:
@@ -75,8 +77,8 @@ The final verification command must be:
 python3 scripts/verify-community-release-artifacts.py \
   --tag community-v1.0.0 \
   --version 1.0.0 \
-  --wheel-sha256 <final wheel SHA-256> \
-  --sdist-sha256 <final source distribution SHA-256>
+  --wheel-sha256 464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914 \
+  --sdist-sha256 851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331
 ```
 
 ## Announcement Approval Evidence
@@ -138,10 +140,9 @@ python3 scripts/validate-community-v100-ga-publication-package.py
 
 Decision: approve final GA artifact publication preparation.
 
-Community v1.0.0 final artifacts are not published yet. The next step is to
-merge this metadata bump, create the `community-v1.0.0` tag from `main`, build
-and upload final GitHub Release assets, record checksums/provenance, update
-verifier defaults, and complete post-publication verification.
+Community v1.0.0 final artifacts are now published. This dry-run preparation
+record is superseded by
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Next Recommendation
 

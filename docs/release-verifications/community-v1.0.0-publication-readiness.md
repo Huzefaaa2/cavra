@@ -2,8 +2,9 @@
 
 This packet verifies that the CAVRA Community v1.0.0 GA publication package is
 ready for final artifact publication. The package metadata is bumped to
-`1.0.0`; this packet does not claim that final GitHub Release artifacts exist
-yet.
+`1.0.0`. This is a historical dry-run readiness packet; the final GitHub
+Release artifacts are now published and recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Release Metadata
 
@@ -62,11 +63,9 @@ and customer records are not included.
 
 Decision: approve final GA artifact publication preparation.
 
-Final publication still requires merging the `1.0.0` package metadata bump,
-creating the `community-v1.0.0` tag from `main`, building and uploading final
-artifacts, recording checksums, provenance evidence, signature or keyless
-attestation evidence, GitHub Release links, verifier defaults, and
-post-publication verification.
+Final publication has been completed. This historical readiness packet is
+superseded by
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Next Recommendation
 

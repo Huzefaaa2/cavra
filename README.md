@@ -137,6 +137,8 @@ Open-core architecture and boundaries:
 - [Community v1.0.0 release notes](docs/releases/community-v1.0.0.md)
 - [Community v1.0.0 publication readiness](docs/release-verifications/community-v1.0.0-publication-readiness.md)
 - [Community v1.0.0 GA publication package packet](docs/release-verifications/community-v1.0.0-ga-publication-package.json)
+- [Community v1.0.0 post-publication verification](docs/release-verifications/community-v1.0.0-post-publication-verification.md)
+- [Community v1.0.0 post-publication packet](docs/release-verifications/community-v1.0.0-post-publication-verification.json)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -580,7 +582,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+- Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.
 
 ## User stories and enterprise value
 

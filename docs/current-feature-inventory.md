@@ -114,7 +114,11 @@ Community v1.0.0 GA readiness: `docs/community-v1.0.0-ga-readiness.md`, `docs/re
 
 Community v1.0.0 GA publication package: `docs/community-v1.0.0-ga-publication-package.md`, `docs/releases/community-v1.0.0.md`, `docs/release-verifications/community-v1.0.0-publication-readiness.md`, `docs/release-verifications/community-v1.0.0-ga-publication-package.json`, and `scripts/validate-community-v100-ga-publication-package.py` define and enforce the public-safe final GA publication package for release notes, artifact build planning, verifier inputs, announcement approval evidence, release index coverage, release dashboard coverage, and public boundary validation.
 
-Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+Community v1.0.0 post-publication verification: `docs/releases/community-v1.0.0.md`, `docs/release-verifications/community-v1.0.0-post-publication-verification.md`, `docs/release-verifications/community-v1.0.0-post-publication-verification.json`, and `scripts/validate-community-v100-ga-post-publication.py` define and enforce the published GA evidence path for GitHub Release links, final artifact SHA-256 checksums, checksum manifest, provenance metadata, clean install smoke, Community Docker build evidence, verifier workflow defaults, README links, release index status, release dashboard status, wiki navigation, and public boundary validation.
+
+Historical GA publication next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+
+Next recommendation: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.
 
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 

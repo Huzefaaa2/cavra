@@ -2,8 +2,10 @@
 
 This wiki page mirrors the public GA publication package for CAVRA Community
 v1.0.0. It now carries the final `1.0.0` package metadata bump, artifact build
-planning, verifier inputs, and announcement approval evidence before final
-artifacts are published from the merged `main` branch.
+planning, verifier inputs, and announcement approval evidence. This is a
+historical dry-run preparation packet; final artifacts are now published and
+recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Publication Target
 
@@ -33,8 +35,8 @@ artifacts are published from the merged `main` branch.
 ```yaml
 tag: community-v1.0.0
 version: "1.0.0"
-wheel_sha256: "<final wheel SHA-256>"
-sdist_sha256: "<final source distribution SHA-256>"
+wheel_sha256: "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914"
+sdist_sha256: "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"
 ```
 
 ## Pre-Publication Build Smoke
@@ -46,8 +48,8 @@ verified a clean virtualenv wheel install. Observed output:
 cavra 1.0.0
 ```
 
-Final release checksums and provenance must be generated from the
-`community-v1.0.0` tag after this branch is merged to `main`.
+Final release checksums and provenance are recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Announcement Approval Evidence
 
@@ -70,9 +72,9 @@ Draft announcement:
 - [x] Package metadata is bumped from `1.0.0rc1` to `1.0.0`.
 - [x] Pre-publication local build and clean wheel install smoke return
   `cavra 1.0.0`.
-- [ ] Final artifacts are built and attached to the GitHub Release.
-- [ ] Final artifact SHA-256 checksums are recorded.
-- [ ] Clean install smoke returns `cavra 1.0.0`.
+- [x] Final artifacts are built and attached to the GitHub Release.
+- [x] Final artifact SHA-256 checksums are recorded.
+- [x] Clean install smoke returns `cavra 1.0.0`.
 
 ## Boundary Notice
 
