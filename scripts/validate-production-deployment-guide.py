@@ -8,9 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NEXT_RECOMMENDATION = (
-    "Implement Community v1.0.0 release-candidate hardening packet from the "
-    "completed Node 24 readiness baseline with signed artifacts, reproducible "
-    "provenance verification, GA announcement checklist, and final operator evidence."
+    "Prepare Community v1.0.0 release-candidate publication from the completed "
+    "Node 24 readiness baseline with signed artifact verification, provenance "
+    "evidence, release notes, and announcement readiness."
 )
 
 

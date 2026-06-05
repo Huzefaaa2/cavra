@@ -1,0 +1,115 @@
+{
+  "schema_version": "cavra.community_v100_rc_hardening.v1",
+  "status": "ready_for_rc_publication",
+  "target_tag": "community-v1.0.0",
+  "baseline_release": "community-v0.1.3",
+  "baseline_evidence": [
+    "docs/community-v0.1.3-maintenance-planning.md",
+    "docs/releases/community-v0.1.3.md",
+    "docs/release-verifications/community-v0.1.3-post-release-verification.md",
+    "docs/community-v1.0.0-stabilization-plan.md"
+  ],
+  "required_workstreams": [
+    {
+      "name": "signed_artifacts",
+      "status": "planned_for_rc_publication",
+      "evidence": [
+        "SHA-256 checksum manifest",
+        "detached signature references",
+        "keyless attestation references"
+      ]
+    },
+    {
+      "name": "reproducible_provenance_verification",
+      "status": "planned_for_rc_publication",
+      "evidence": [
+        "SLSA provenance reference",
+        "SBOM metadata reference",
+        "public source tag",
+        "release verifier output"
+      ]
+    },
+    {
+      "name": "ga_announcement_checklist",
+      "status": "ready_for_rc_draft",
+      "evidence": [
+        "README navigation",
+        "wiki navigation",
+        "release index",
+        "release readiness dashboard",
+        "announcement checklist"
+      ]
+    },
+    {
+      "name": "final_operator_evidence",
+      "status": "ready_for_rc_draft",
+      "evidence": [
+        "Community release verification runbook",
+        "Evidence Console path",
+        "boundary validation",
+        "CI validator wiring"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "name": "Node 24 readiness baseline",
+      "status": "ready",
+      "evidence": "Community CI, release, governance, and security workflows use Node 24-ready action versions."
+    },
+    {
+      "name": "Signed artifacts",
+      "status": "planned_for_rc_publication",
+      "evidence": "Final artifact checksums, detached signatures, and attestation links must be recorded after the RC artifacts exist."
+    },
+    {
+      "name": "Reproducible provenance verification",
+      "status": "planned_for_rc_publication",
+      "evidence": "SLSA provenance, SBOM metadata, public source tag, and verifier output must be recorded with the RC."
+    },
+    {
+      "name": "GA announcement checklist",
+      "status": "ready_for_rc_draft",
+      "evidence": "README, wiki navigation, release index, dashboard, and announcement checklist have RC hardening references."
+    },
+    {
+      "name": "Final operator evidence",
+      "status": "ready_for_rc_draft",
+      "evidence": "Release verification runbook, Evidence Console path, boundary validation, and CI validators are wired."
+    },
+    {
+      "name": "Public boundary",
+      "status": "ready",
+      "evidence": "Boundary validation remains required before RC publication."
+    }
+  ],
+  "operator_commands": [
+    "python scripts/validate-community-v100-rc-hardening.py",
+    "python scripts/validate-community-v100-stabilization.py",
+    "bash scripts/validate-boundaries.sh .",
+    "python scripts/verify-community-release-artifacts.py --tag community-v1.0.0"
+  ],
+  "must_never_include": [
+    "Enterprise source code",
+    "paid policy packs",
+    "private signing keys",
+    "license-service secrets",
+    "private registry credentials",
+    "private trial packages",
+    "customer records"
+  ],
+  "accepted_risks": [
+    {
+      "id": "rc-artifacts-not-yet-published",
+      "severity": "low",
+      "reason": "This packet prepares the RC path before the final community-v1.0.0 tag and artifacts exist.",
+      "exit_condition": "Publish the RC artifacts and record checksums, signatures, provenance, verifier output, and post-release verification."
+    }
+  ],
+  "decision": {
+    "status": "approve_for_rc_preparation",
+    "owner": "release-agent",
+    "summary": "The public Community v1.0.0 RC path is hardened enough to prepare the tagged RC publication. Final artifact evidence remains gated on actual release artifacts."
+  },
+  "next_recommendation": "Prepare Community v1.0.0 release-candidate publication from the completed Node 24 readiness baseline with signed artifact verification, provenance evidence, release notes, and announcement readiness."
+}
