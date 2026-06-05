@@ -46,6 +46,30 @@ The static public portal supports two modes:
 - Live private portal mode: posts the signup payload to
   `CAVRA_TRIAL_API_URL/trial/signup`.
 
+For GitHub Pages, set repository variable `CAVRA_PUBLIC_TRIAL_API_URL` to the
+private HTTPS Trial Access Portal origin. The Pages workflow writes that value
+into `public/config.js` as `window.CAVRA_TRIAL_API_URL`.
+
+## GitHub Pages and Jekyll Fit
+
+GitHub Pages is suitable for the public CAVRA landing portal, documentation,
+trial request form, and static evaluator instructions. Jekyll can be used later
+if the docs move to a generated documentation site, but it is not required for
+the current HTML portal.
+
+GitHub Pages must not host the private Trial Access Portal service, license
+service, signing keys, evaluator records, revocation state, GHCR pull secrets,
+or Enterprise source. The public page should only submit requests to a separate
+HTTPS API endpoint controlled by the private Enterprise deployment.
+
+Recommended split:
+
+- GitHub Pages: public CAVRA portal, docs, signup form, static trial overview.
+- Private HTTPS service: `/trial/signup`, `/trial/approve`, `/trial/revoke`,
+  `/trial/status/{request_id}`, license issuance, expiry, revocation, and
+  operator workflows.
+- GHCR: private Enterprise Trial package, gated by approved evaluator access.
+
 The private API must be hosted behind HTTPS, bot protection, rate limits, audit
 logging, and operator approval controls before public launch.
 

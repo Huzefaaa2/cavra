@@ -132,6 +132,8 @@ Community release readiness dashboard validation: `docs/community-release-readin
 
 CAVRA developer portal redesign: `apps/sandbox-ui` now presents the public GitHub Pages site as a Backstage-style portal with persistent navigation, command palette search, mobile drawer and bottom navigation, interactive architecture explorer, policy/evidence/integration/compliance/use-case/documentation/roadmap pages, and a static-hostable design path documented in `docs/sandbox-portal-redesign.md`.
 
+Enterprise Trial hosted portal wiring: GitHub Pages deployment now writes `window.CAVRA_TRIAL_API_URL` from repository variable `CAVRA_PUBLIC_TRIAL_API_URL`. GitHub Pages and Jekyll remain public-static surfaces only; the private Trial Access Portal, license service, evaluator records, GHCR access, expiry, and revocation workflows remain outside the public repository.
+
 CAVRA developer portal smoke validation: `scripts/validate-sandbox-portal.py` keeps public GitHub Pages routes, command palette content, mobile navigation, architecture nodes, compliance filters, workflow smoke strings, brand assets, README links, and wiki navigation aligned before deployment.
 
 Console closeout operator experience: `apps/sandbox-ui` includes an `Operator Paths` route for prospects, auditors, platform teams, and CISOs. `scripts/validate-console-closeout.py` keeps the route, persona cards, command palette entries, docs, wiki navigation, roadmap handoff, and CI wiring aligned.

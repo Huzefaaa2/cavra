@@ -39,12 +39,16 @@ jobs:
       - name: Build static sandbox artifact
         env:
           CAVRA_PUBLIC_API_BASE_URL: ${{ vars.CAVRA_PUBLIC_API_BASE_URL }}
+          CAVRA_PUBLIC_TRIAL_API_URL: ${{ vars.CAVRA_PUBLIC_TRIAL_API_URL }}
         run: |
           set -euo pipefail
           rm -rf public
           mkdir -p public
           cp -R apps/sandbox-ui/. public/
-          printf 'window.CAVRA_API_BASE = %s;\n' "$(python -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_API_BASE_URL", "")))')" > public/config.js
+          {
+            printf 'window.CAVRA_API_BASE = %s;\n' "$(python -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_API_BASE_URL", "")))')"
+            printf 'window.CAVRA_TRIAL_API_URL = %s;\n' "$(python -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_TRIAL_API_URL", "")))')"
+          } > public/config.js
           mkdir -p public/assets
           cp -R assets/brand public/assets/
           mkdir -p public/evidence/before-the-agent-acts
@@ -95,6 +99,7 @@ jobs:
           grep -q "Request Enterprise Trial" index.html
           grep -q "sandbox.js" index.html
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
+          curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}config.js" | grep -q "CAVRA_TRIAL_API_URL"
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}styles.css" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}brand/cavra-mark.svg" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}assets/brand/cavra-logo-horizontal.svg" >/dev/null
