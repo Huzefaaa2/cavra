@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added Community v1.0.0 release-candidate hardening with public-safe signed
+  artifact, provenance, announcement checklist, final operator evidence,
+  boundary validation, CI validation, README/wiki navigation, and roadmap
+  handoff through `docs/community-v1.0.0-release-candidate-hardening.md`.
+  Next recommendation: Prepare Community v1.0.0 release-candidate publication from the completed Node 24 readiness baseline with signed artifact verification, provenance evidence, release notes, and announcement readiness.
 - Added Community v1.0.0 stabilization planning, a public-safe stabilization
   packet, CI validation, README/wiki navigation, and roadmap handoff for
   release signing, reproducible provenance, GA announcement readiness, final

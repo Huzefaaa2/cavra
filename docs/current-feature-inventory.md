@@ -104,7 +104,9 @@ Community v0.1.3 release record: `docs/releases/community-v0.1.3.md`, `docs/rele
 
 Community v1.0.0 stabilization planning: `docs/community-v1.0.0-stabilization-plan.md`, `docs/release-verifications/community-v1.0.0-stabilization-plan.json`, and `scripts/validate-community-v100-stabilization.py` define and enforce the public-safe v1.0.0 path for release signing, reproducible provenance, GA announcement readiness, final operator evidence, and public boundary validation.
 
-Next recommendation: Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
+Community v1.0.0 release-candidate hardening: `docs/community-v1.0.0-release-candidate-hardening.md`, `docs/release-verifications/community-v1.0.0-release-candidate-hardening.json`, and `scripts/validate-community-v100-rc-hardening.py` define and enforce the public-safe RC path for signed artifact verification, reproducible provenance verification, GA announcement checklist, final operator evidence, and public boundary validation.
+
+Next recommendation: Prepare Community v1.0.0 release-candidate publication from the completed Node 24 readiness baseline with signed artifact verification, provenance evidence, release notes, and announcement readiness.
 
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 

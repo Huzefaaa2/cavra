@@ -1602,8 +1602,6 @@ def test_community_v100_stabilization_plan_is_linked_and_validated() -> None:
     assert "docs/community-v1.0.0-stabilization-plan.md" in roadmap
     assert "Community v1.0.0 stabilization planning:" in inventory
     assert "Community v1.0.0 stabilization planning" in changelog
-    assert next_recommendation in readme
-    assert next_recommendation in roadmap
 
     assert packet["schema_version"] == "cavra.community_v100_stabilization.v1"
     assert packet["status"] == "planned"
@@ -1619,6 +1617,103 @@ def test_community_v100_stabilization_plan_is_linked_and_validated() -> None:
     gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
     assert gate_statuses["Node 24 readiness baseline"] == "ready"
     assert gate_statuses["Public boundary"] == "ready"
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_community_v100_rc_hardening_is_linked_and_validated() -> None:
+    doc = Path("docs/community-v1.0.0-release-candidate-hardening.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_doc = Path("docs/wiki/Community-v1.0.0-Release-Candidate-Hardening.md").read_text(
+        encoding="utf-8"
+    )
+    packet = json.loads(
+        Path(
+            "docs/release-verifications/community-v1.0.0-release-candidate-hardening.json"
+        ).read_text(encoding="utf-8")
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-v100-rc-hardening.py"
+    next_recommendation = (
+        "Prepare Community v1.0.0 release-candidate publication from the completed "
+        "Node 24 readiness baseline with signed artifact verification, provenance "
+        "evidence, release notes, and announcement readiness."
+    )
+
+    required_terms = [
+        "Community v1.0.0",
+        "release-candidate",
+        "Node 24 readiness baseline",
+        "Signed artifacts",
+        "SHA-256",
+        "detached signatures",
+        "keyless attestation",
+        "Reproducible provenance verification",
+        "SLSA provenance",
+        "SBOM",
+        "GA announcement checklist",
+        "Final operator evidence",
+        "Evidence Console",
+        "Public boundary",
+        "Enterprise source code",
+        "private signing keys",
+        "customer records",
+        script,
+        next_recommendation,
+    ]
+    for document in (doc, wiki_doc):
+        for term in required_terms:
+            assert term in document
+
+    assert "docs/community-v1.0.0-release-candidate-hardening.md" in readme
+    assert (
+        "docs/release-verifications/community-v1.0.0-release-candidate-hardening.json"
+        in readme
+    )
+    assert "Community-v1.0.0-Release-Candidate-Hardening.md" in wiki_home
+    assert "docs/community-v1.0.0-release-candidate-hardening.md" in roadmap
+    assert "Community v1.0.0 release-candidate hardening:" in inventory
+    assert "Community v1.0.0 release-candidate hardening" in changelog
+    assert next_recommendation in readme
+    assert next_recommendation in roadmap
+    assert next_recommendation in inventory
+
+    assert packet["schema_version"] == "cavra.community_v100_rc_hardening.v1"
+    assert packet["status"] == "ready_for_rc_publication"
+    assert packet["target_tag"] == "community-v1.0.0"
+    assert packet["baseline_release"] == "community-v0.1.3"
+    assert packet["next_recommendation"] == next_recommendation
+    assert {item["name"] for item in packet["required_workstreams"]} == {
+        "signed_artifacts",
+        "reproducible_provenance_verification",
+        "ga_announcement_checklist",
+        "final_operator_evidence",
+    }
+    gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
+    assert gate_statuses["Node 24 readiness baseline"] == "ready"
+    assert gate_statuses["Public boundary"] == "ready"
+    assert packet["decision"]["status"] == "approve_for_rc_preparation"
+    assert packet["accepted_risks"][0]["id"] == "rc-artifacts-not-yet-published"
 
     for workflow in workflows:
         assert f"python {script}" in workflow

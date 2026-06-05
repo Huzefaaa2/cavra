@@ -258,7 +258,10 @@ verification are documented at `docs/releases/community-v0.1.3.md`,
 Community v1.0.0 stabilization planning is documented at
 `docs/community-v1.0.0-stabilization-plan.md` and enforced by
 `scripts/validate-community-v100-stabilization.py`.
-Next recommended slice: Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
+Community v1.0.0 release-candidate hardening is documented at
+`docs/community-v1.0.0-release-candidate-hardening.md` and enforced by
+`scripts/validate-community-v100-rc-hardening.py`.
+Next recommended slice: Prepare Community v1.0.0 release-candidate publication from the completed Node 24 readiness baseline with signed artifact verification, provenance evidence, release notes, and announcement readiness.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

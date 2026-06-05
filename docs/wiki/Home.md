@@ -157,6 +157,7 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Community v0.1.3 Maintenance Verification: `Community-v0.1.3-Maintenance-Verification.md`
 - Community v0.1.3 Post-Release Verification: `Community-v0.1.3-Post-Release-Verification.md`
 - Community v1.0.0 Stabilization Plan: `Community-v1.0.0-Stabilization-Plan.md`
+- Community v1.0.0 Release-Candidate Hardening: `Community-v1.0.0-Release-Candidate-Hardening.md`
 - Community Release Index: `Community-Release-Index.md`
 - Community Release Index Freshness: `Community-Release-Index-Freshness.md`
 - Community Release Readiness Dashboard: `Community-Release-Readiness-Dashboard.md`
