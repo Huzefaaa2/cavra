@@ -47,7 +47,7 @@ this dry-run section with:
 - detached signature or keyless attestation references;
 - SBOM metadata reference;
 - SLSA provenance reference;
-- clean install smoke output for `cavra 1.0.0`.
+- clean install smoke output for `cavra 1.0.0rc1`.
 
 ## Verification Summary
 

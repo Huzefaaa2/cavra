@@ -1828,7 +1828,7 @@ def test_community_v100_rc_publication_is_linked_and_validated() -> None:
     assert packet["schema_version"] == "cavra.community_v100_rc_publication.v1"
     assert packet["status"] == "dry_run_publication_ready"
     assert packet["tag"] == "community-v1.0.0-rc.1"
-    assert packet["version"] == "1.0.0"
+    assert packet["version"] == "1.0.0rc1"
     assert packet["planned_github_release"] == release_url
     assert packet["next_recommendation"] == next_recommendation
     gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
