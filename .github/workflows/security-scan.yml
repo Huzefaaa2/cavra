@@ -40,5 +40,6 @@ jobs:
       - run: python scripts/validate-community-v100-ga-readiness.py
       - run: python scripts/validate-community-v100-ga-publication-package.py
       - run: python scripts/validate-community-v100-ga-post-publication.py
+      - run: python scripts/validate-community-release-keyless-attestation.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m compileall src

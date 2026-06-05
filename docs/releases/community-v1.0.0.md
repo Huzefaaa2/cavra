@@ -15,6 +15,8 @@ checksum manifest, and provenance metadata assets.
   `docs/release-verifications/community-v1.0.0-post-publication-verification.md`
 - Post-publication packet:
   `docs/release-verifications/community-v1.0.0-post-publication-verification.json`
+- Keyless attestation workflow:
+  `docs/community-release-keyless-attestation.md`
 - GA publication package:
   `docs/community-v1.0.0-ga-publication-package.md`
 - Publication readiness verification:
@@ -81,10 +83,13 @@ Observed clean install smoke:
 cavra 1.0.0
 ```
 
-Detached signature and keyless attestation assets are not attached to this
-Community v1.0.0 release. The release includes checksum and provenance
-verification now; detached signatures or keyless attestation remain follow-up
-release integrity hardening gates.
+The release is ready for GitHub keyless release asset attestation through
+`.github/workflows/attest-community-release.yml`. The workflow downloads the
+published assets, validates SHA-256 checksums, generates a Sigstore-backed
+attestation with `actions/attest@v4`, and verifies each asset with
+`gh attestation verify`. detached signature assets remain optional future
+hardening because this path uses GitHub keyless attestation instead of a
+maintainer-managed private signing key.
 
 ## Verification Summary
 
@@ -103,6 +108,7 @@ release integrity hardening gates.
 - Published provenance metadata: pass.
 - Clean install smoke: pass.
 - Community Docker build: pass.
+- Keyless attestation workflow: ready.
 - Public boundary validation: pass.
 
 ## Boundary Notice

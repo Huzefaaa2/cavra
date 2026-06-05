@@ -139,6 +139,25 @@ def test_community_release_workflows_are_node24_ready() -> None:
     )
 
 
+def test_community_release_attestation_workflow_uses_keyless_permissions() -> None:
+    workflow_path = ".github/workflows/attest-community-release.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    assert workflow["name"] == "Attest Community Release"
+    assert workflow["permissions"]["contents"] == "read"
+    assert workflow["permissions"]["id-token"] == "write"
+    assert workflow["permissions"]["attestations"] == "write"
+    assert workflow["permissions"]["artifact-metadata"] == "write"
+    assert "actions/checkout@v6" in text
+    assert "actions/attest@v4" in text
+    assert "gh release download" in text
+    assert "sha256sum -c expected.sha256" in text
+    assert "gh attestation verify" in text
+    assert "--deny-self-hosted-runners" in text
+    assert "community-release-keyless-attestation-evidence.json" in text
+
+
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:
     for workflow_path in [
         "examples/github-actions/cavra-required-check.yml",

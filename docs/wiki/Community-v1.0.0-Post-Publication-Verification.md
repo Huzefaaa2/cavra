@@ -54,12 +54,13 @@ cavra 1.0.0
 | Provenance metadata | Pass | `cavra-1.0.0.provenance.json` is attached. |
 | Clean install smoke | Pass | `cavra version` returned `cavra 1.0.0`. |
 | Community Docker build | Pass | `docker build -f docker/Dockerfile.community .` completed successfully. |
+| Keyless attestation workflow | Ready | `.github/workflows/attest-community-release.yml` attests published assets with `actions/attest@v4` and verifies them with `gh attestation verify`. |
 | README link | Pass | README links release notes and this post-publication packet. |
 | Wiki navigation | Pass | `docs/wiki/Home.md` links release notes and this verification packet. |
 | Release index | Pass | `docs/community-release-index.md` marks Community v1.0.0 as Published. |
 | Release readiness dashboard | Pass | `docs/community-release-readiness-dashboard.md` marks Community v1.0.0 as Ready. |
 | Detached signature | Follow-up | No detached signature asset is attached to this release. |
-| Keyless attestation | Follow-up | No keyless attestation asset is attached to this release. |
+| Keyless attestation | Ready | `docs/community-release-keyless-attestation.md` defines the release asset attestation runbook and workflow dispatch defaults. |
 | Public boundary | Pass | Enterprise source code, paid policy packs, private signing keys, private registry credentials, and customer records are excluded. |
 
 ## Boundary Notice
@@ -73,6 +74,7 @@ registry credentials, and customer records are not part of this public release.
 
 ```bash
 python3 scripts/validate-community-v100-ga-post-publication.py
+python3 scripts/validate-community-release-keyless-attestation.py
 ```
 
 ## Decision
