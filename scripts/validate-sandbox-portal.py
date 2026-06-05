@@ -107,8 +107,6 @@ def main() -> int:
         'id="complianceRows"',
         'id="useCaseCards"',
         'id="operatorPathCards"',
-        'id="trialSignupForm"',
-        'id="trialAccessStatus"',
         'id="trialAccessCards"',
         'id="docsNav"',
         'id="roadmapBoard"',
@@ -173,7 +171,7 @@ def main() -> int:
         'grep -q "Community GA Control Hardening"',
         'grep -q "Production Pilot Readiness"',
         'grep -q "Enterprise Trial Access Portal"',
-        'grep -q "Request Enterprise Trial"',
+        'grep -q "https://cavra-trial.mind-ops.cloud/"',
         "sandbox.js",
         "styles.css",
         "brand/cavra-mark.svg",
@@ -194,14 +192,12 @@ def main() -> int:
         "Community GA Control Hardening",
         "Production Pilot Readiness",
         "Enterprise Trial Access Portal",
-        "Request Enterprise Trial",
+        "https://cavra-trial.mind-ops.cloud/",
+        "Open CAVRA Trial Portal",
     ]:
         require(html, needle, "brand and page signal", failures)
 
     for needle in [
-        "submitTrialAccessRequest",
-        "CAVRA_TRIAL_API_URL",
-        "/trial/signup",
         "trialAccessCards",
         "renderTrialAccess",
     ]:

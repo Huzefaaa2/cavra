@@ -19,8 +19,8 @@ Community v1.0.0 is published and verified. CAVRA Enterprise Trial package
 with public-safe digest, signed trial license validation, revoked-license
 failure validation, private registry pull validation, and runtime license
 enforcement. See [Enterprise Trial Availability](Enterprise-Trial-Availability).
-The public portal now includes a self-service approved access request page that
-can connect to the private Trial Access Portal backend. See
+The public portal now links to the dedicated Enterprise Trial landing page and
+approved-access request form. See
 [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access).
 The live trial request API is hosted at `https://cavra-trial.mind-ops.cloud`
 and has public-safe validation evidence for health, PostgreSQL storage, signup,

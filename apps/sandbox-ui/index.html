@@ -233,42 +233,27 @@
             <p class="eyebrow">Self-service approved access</p>
             <h2>Enterprise Trial Access Portal</h2>
             <p>
-              Request private evaluator access to the licensed Enterprise Trial
-              package, then receive gated GHCR instructions after approval.
+              The dedicated CAVRA Enterprise Trial landing page now handles
+              evaluator requests, approval workflow, and private package access.
             </p>
           </div>
           <div class="trial-layout">
-            <form id="trialSignupForm" class="trial-form">
-              <label>
-                Full name
-                <input name="full_name" autocomplete="name" required />
-              </label>
-              <label>
-                Work email
-                <input name="work_email" type="email" autocomplete="email" required />
-              </label>
-              <label>
-                Company
-                <input name="company" autocomplete="organization" required />
-              </label>
-              <label>
-                Role
-                <input name="role" autocomplete="organization-title" required />
-              </label>
-              <label>
-                GitHub username
-                <input name="github_username" autocomplete="username" required />
-              </label>
-              <label>
-                Evaluation use case
-                <textarea name="use_case" rows="5" required></textarea>
-              </label>
-              <label class="checkbox-row">
-                <input name="terms_accepted" type="checkbox" required />
-                <span>I confirm this request is for a business evaluation and I will not place license keys, pull secrets, customer records, or Enterprise artifacts in a public repository.</span>
-              </label>
-              <button type="submit">Request Enterprise Trial</button>
-            </form>
+            <article class="trial-form">
+              <h3>Start on the trial domain</h3>
+              <p>
+                Use the branded trial portal for new requests. The portal runs
+                on the private Trial Access service and submits directly to the
+                approval backend.
+              </p>
+              <a href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">
+                Open CAVRA Trial Portal
+              </a>
+              <p>
+                Approved evaluators receive private GHCR access, time-limited
+                license material, and install instructions through a controlled
+                channel after operator review.
+              </p>
+            </article>
             <aside class="trial-status-panel">
               <div>
                 <span>Current package</span>
@@ -285,7 +270,7 @@
                 <strong>License required</strong>
                 <p>The container validates CAVRA_LICENSE_KEY before use.</p>
               </div>
-              <pre id="trialAccessStatus" class="code-panel">Submit the form to start a trial access request.</pre>
+              <pre class="code-panel">https://cavra-trial.mind-ops.cloud/</pre>
             </aside>
           </div>
           <div id="trialAccessCards" class="trial-card-grid"></div>
