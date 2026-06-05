@@ -27,6 +27,8 @@ WIKI_DASHBOARD_PATH = Path("docs/wiki/Community-Release-Readiness-Dashboard.md")
 
 SCRIPT_REF = "scripts/validate-community-v100-ga-publication-package.py"
 RELEASE_URL = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0"
+WHEEL_SHA = "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914"
+SDIST_SHA = "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"
 NEXT_RECOMMENDATION = (
     "Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 "
     "tag from main, build and upload final GitHub Release assets, then record "
@@ -54,6 +56,19 @@ REQUIRED_TERMS = {
     "private signing keys",
     "customer records",
     NEXT_RECOMMENDATION,
+}
+
+PUBLISHED_RELEASE_TERMS = {
+    "Community v1.0.0",
+    "community-v1.0.0",
+    "1.0.0",
+    RELEASE_URL,
+    "SHA-256",
+    "provenance",
+    "Enterprise source code",
+    "paid policy packs",
+    "private signing keys",
+    "customer records",
 }
 
 REQUIRED_PACKAGE_TERMS = {
@@ -142,12 +157,17 @@ def validate(root: Path) -> list[str]:
     for document_name, document in (
         (str(DOC_PATH), doc),
         (str(WIKI_DOC_PATH), wiki_doc),
-        (str(RELEASE_NOTES_PATH), release_notes),
-        (str(WIKI_RELEASE_NOTES_PATH), wiki_release_notes),
         (str(READINESS_PATH), readiness),
         (str(WIKI_READINESS_PATH), wiki_readiness),
     ):
         for term in REQUIRED_TERMS:
+            require(document, term, f"{document_name} term", failures)
+
+    for document_name, document in (
+        (str(RELEASE_NOTES_PATH), release_notes),
+        (str(WIKI_RELEASE_NOTES_PATH), wiki_release_notes),
+    ):
+        for term in PUBLISHED_RELEASE_TERMS:
             require(document, term, f"{document_name} term", failures)
 
     for document_name, document in ((str(DOC_PATH), doc),):
@@ -186,11 +206,15 @@ def validate(root: Path) -> list[str]:
         (str(WIKI_DASHBOARD_PATH), wiki_dashboard),
     ):
         require(document, "Community v1.0.0", document_name, failures)
-        require(document, "Dry run", document_name, failures)
+        require(document, "Published", document_name, failures)
         require(document, RELEASE_URL, document_name, failures)
         require(document, str(RELEASE_NOTES_PATH), document_name, failures)
-        require(document, str(READINESS_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next action", failures)
+        require(
+            document,
+            "docs/release-verifications/community-v1.0.0-post-publication-verification.md",
+            document_name,
+            failures,
+        )
 
     expected_scalars = {
         "schema_version": "cavra.community_v100_ga_publication_package.v1",
@@ -230,10 +254,10 @@ def validate(root: Path) -> list[str]:
         failures.append(f"{PACKET_PATH}: verifier tag must be community-v1.0.0")
     if verifier_inputs.get("version") != "1.0.0":
         failures.append(f"{PACKET_PATH}: verifier version must be 1.0.0")
-    if verifier_inputs.get("wheel_sha256") != "<final wheel SHA-256>":
-        failures.append(f"{PACKET_PATH}: verifier wheel placeholder must be explicit")
-    if verifier_inputs.get("sdist_sha256") != "<final source distribution SHA-256>":
-        failures.append(f"{PACKET_PATH}: verifier sdist placeholder must be explicit")
+    if verifier_inputs.get("wheel_sha256") != WHEEL_SHA:
+        failures.append(f"{PACKET_PATH}: verifier wheel hash must match final release")
+    if verifier_inputs.get("sdist_sha256") != SDIST_SHA:
+        failures.append(f"{PACKET_PATH}: verifier sdist hash must match final release")
 
     metadata_bump = packet.get("metadata_bump", {})
     expected_metadata = {

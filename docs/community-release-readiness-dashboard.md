@@ -13,8 +13,8 @@ each public Community release record.
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Ready | Use as the previous public Community maintenance baseline. |
 | Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Ready | Use as the previous published Community maintenance baseline. |
 | Community v0.1.3 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-post-release-verification.md` | Ready | Use as the current published Community maintenance baseline while v1.0.0 stabilization planning begins. |
-| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Ready | Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification. |
-| Community v1.0.0 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0> | `docs/releases/community-v1.0.0.md` | `docs/release-verifications/community-v1.0.0-publication-readiness.md` | Pending real artifacts | Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification. |
+| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Ready | Use as the previous release-candidate baseline for v1.0.0 provenance comparison. |
+| Community v1.0.0 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0> | `docs/releases/community-v1.0.0.md` | `docs/release-verifications/community-v1.0.0-post-publication-verification.md` | Ready | Use as the stable public Community baseline and begin the v1.0.1 maintenance planning path. |
 
 ## Control Rollup
 
@@ -43,6 +43,7 @@ python3 scripts/validate-community-release-readiness-dashboard.py
 python3 scripts/validate-community-v100-rc-post-publication.py
 python3 scripts/validate-community-v100-ga-readiness.py
 python3 scripts/validate-community-v100-ga-publication-package.py
+python3 scripts/validate-community-v100-ga-post-publication.py
 python3 scripts/validate-community-ga-path.py
 bash scripts/validate-boundaries.sh .
 python3 -m pytest tests/test_release_documentation.py -q
@@ -83,4 +84,4 @@ records.
 
 ## Next Recommendation
 
-Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.

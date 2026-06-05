@@ -1,0 +1,75 @@
+{
+  "schema_version": "cavra.community_v100_ga_post_publication.v1",
+  "status": "published",
+  "release": "CAVRA Community v1.0.0",
+  "tag": "community-v1.0.0",
+  "version": "1.0.0",
+  "release_url": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0",
+  "verification_date": "2026-06-05",
+  "published_at": "2026-06-05T07:30:35Z",
+  "release_target": "bb5dd1005e9c2efb6e7e4df40ad153751476a6d2",
+  "release_notes": "docs/releases/community-v1.0.0.md",
+  "post_publication_verification": "docs/release-verifications/community-v1.0.0-post-publication-verification.md",
+  "artifacts": [
+    {
+      "name": "cavra-1.0.0-py3-none-any.whl",
+      "sha256": "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914",
+      "size": 324060,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0.tar.gz",
+      "sha256": "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331",
+      "size": 1043690,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0-SHA256SUMS.txt",
+      "sha256": "c9049c68d23e089f2129ab3f1f130f7a8e07aecc4bb1e8b4b5360b22a5c617fd",
+      "size": 274,
+      "downloadable": true,
+      "checksum_match": true
+    },
+    {
+      "name": "cavra-1.0.0.provenance.json",
+      "sha256": "38b6e2127695050e697d33dde22f111eaee5cccbcf598cb82fc60c6a795c99aa",
+      "size": 893,
+      "downloadable": true,
+      "checksum_match": true
+    }
+  ],
+  "install_smoke": {
+    "command": "cavra version",
+    "output": "cavra 1.0.0",
+    "status": "pass"
+  },
+  "docker_build": {
+    "command": "docker build -f docker/Dockerfile.community .",
+    "status": "pass"
+  },
+  "signature_evidence": {
+    "checksum_file_recorded": true,
+    "provenance_file_recorded": true,
+    "detached_signature_attached": false,
+    "keyless_attestation_attached": false,
+    "follow_up_required": true
+  },
+  "public_boundary": {
+    "enterprise_source_included": false,
+    "paid_policy_packs_included": false,
+    "private_signing_keys_included": false,
+    "private_registry_credentials_included": false,
+    "customer_records_included": false
+  },
+  "workflow_defaults": {
+    "tag": "community-v1.0.0",
+    "version": "1.0.0",
+    "wheel_sha256": "464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914",
+    "sdist_sha256": "851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331"
+  },
+  "node24_readiness_baseline": "pass",
+  "next_recommendation": "Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.",
+  "decision": "pass"
+}

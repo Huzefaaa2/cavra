@@ -2,7 +2,9 @@
 
 This wiki page mirrors the public publication readiness verification for the
 CAVRA Community v1.0.0 GA publication package. The package metadata is bumped
-to `1.0.0`; final GitHub Release artifacts are not published yet.
+to `1.0.0`. This is a historical dry-run readiness packet; the final GitHub
+Release artifacts are now published and recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`.
 
 ## Release Metadata
 

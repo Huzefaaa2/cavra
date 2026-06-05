@@ -275,7 +275,13 @@ Community v1.0.0 GA publication package preparation is documented at
 `docs/community-v1.0.0-ga-publication-package.md`, recorded in
 `docs/release-verifications/community-v1.0.0-ga-publication-package.json`, and
 enforced by `scripts/validate-community-v100-ga-publication-package.py`.
-Next recommended slice: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+Community v1.0.0 post-publication verification is documented at
+`docs/release-verifications/community-v1.0.0-post-publication-verification.md`,
+recorded in
+`docs/release-verifications/community-v1.0.0-post-publication-verification.json`,
+and enforced by `scripts/validate-community-v100-ga-post-publication.py`.
+Historical GA publication next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
+Next recommended slice: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation
@@ -639,5 +645,8 @@ Latest completed slice:
 - Closed the active private MVP follow-up batch with provider credentials, customer metadata, Enterprise source code, and production driver implementation details kept outside the public Community repository.
 
 Immediate next tasks:
+- Use Community v1.0.0 as the stable public baseline and begin the v1.0.1
+  maintenance planning path for post-GA fixes, release integrity hardening,
+  detached signing or keyless attestation, and adoption feedback.
 - Reconcile the public roadmap, wiki-ready pages, and README with private PRs #56-#60.
 - Define public SaaS Control Plane request and response shapes for tenant status, license validation boundaries, policy registry lookup, and evidence export without implementing private SaaS services.
