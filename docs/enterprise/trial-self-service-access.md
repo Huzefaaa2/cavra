@@ -9,6 +9,15 @@ service in `Huzefaaa2/cavra-enterprise`.
 
 ## Availability
 
+Live request portal:
+
+```text
+https://cavra-trial.mind-ops.cloud
+```
+
+The public CAVRA portal is configured to submit Enterprise Trial requests to
+this HTTPS endpoint through `window.CAVRA_TRIAL_API_URL`.
+
 Current approved trial package:
 
 ```text
@@ -23,6 +32,12 @@ sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47
 
 Enterprise Trial is not an anonymous public download. It is available through
 self-service request and approved private access.
+
+Latest public-safe validation: on 2026-06-05, the hosted portal health check,
+PostgreSQL storage health check, public portal configuration, synthetic signup,
+operator approval, license validation, and revocation flow were validated using
+a synthetic evaluator request. No license token, signing key, operator token, or
+Enterprise source code is stored in the public repository.
 
 ## Evaluator Flow
 
@@ -49,6 +64,12 @@ The static public portal supports two modes:
 For GitHub Pages, set repository variable `CAVRA_PUBLIC_TRIAL_API_URL` to the
 private HTTPS Trial Access Portal origin. The Pages workflow writes that value
 into `public/config.js` as `window.CAVRA_TRIAL_API_URL`.
+
+Current production value:
+
+```text
+CAVRA_PUBLIC_TRIAL_API_URL=https://cavra-trial.mind-ops.cloud
+```
 
 ## GitHub Pages and Jekyll Fit
 
