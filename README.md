@@ -255,9 +255,11 @@ docker compose -f docker/docker-compose.community.yml up --build
 Trial access:
 
 - Trial source code is not public.
+- Enterprise Trial package `2026.06.05` is ready for approved private evaluators.
 - Trial artifacts are distributed through private Docker images, binaries, or hosted SaaS access.
-- The first private distribution target is gated GHCR image `ghcr.io/huzefaaa2/cavra-enterprise-trial:<version>`.
-- Trial release approval is blocked unless private license-service readiness is true.
+- The current private distribution target is gated GHCR image `ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05`.
+- Public-safe image digest: `sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47`.
+- Trial release approval requires private license-service readiness, source exclusion, customer-data exclusion, private registry push/pull validation, signed license validation, revoked-license failure validation, and runtime license enforcement.
 - Approved trial package releases are followed by private license issuance and evaluator access evidence; public docs record references only.
 - Private expiry evidence records whether evaluator access was revoked, renewed, or escalated at the end of the approved trial window.
 - Private expired-trial follow-up evidence records notification, grace-period, and commercial handoff references after expiry.
@@ -265,8 +267,9 @@ Trial access:
 - Private conversion activation and production handoff evidence records paid-pilot activation or production handoff gates for approved conversions.
 - Private conversion closeout and revenue handoff evidence records customer-success, support, release-management, finance, revenue, billing, subscription/order, renewal forecast, and revenue-recognition gates for activated conversions.
 - Private conversion executive summary and renewal action evidence records leadership, account-team, customer-success, risk-owner, renewal-owner, expansion, commercial follow-up, and action due-date gates for closed-out conversions.
-- Trial license validation must be implemented by the private Enterprise/SaaS license service.
+- Trial license validation is implemented by the private Enterprise license service and exposed to evaluators only through approved trial access.
 - See [docs/enterprise/trial.md](docs/enterprise/trial.md).
+- See [docs/enterprise/trial-availability.md](docs/enterprise/trial-availability.md).
 - See [docs/trial-enterprise-distribution-sync.md](docs/trial-enterprise-distribution-sync.md).
 - See [docs/trial-license-evaluator-access-sync.md](docs/trial-license-evaluator-access-sync.md).
 - See [docs/trial-access-expiry-sync.md](docs/trial-access-expiry-sync.md).

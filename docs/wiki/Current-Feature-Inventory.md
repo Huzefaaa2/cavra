@@ -118,6 +118,8 @@ Community v1.0.0 post-publication verification: `docs/releases/community-v1.0.0.
 
 Community release keyless attestation: `docs/community-release-keyless-attestation.md`, `.github/workflows/attest-community-release.yml`, and `scripts/validate-community-release-keyless-attestation.py` define and enforce the public Community release asset attestation path for published artifact download, checksum validation, GitHub Actions OIDC/Sigstore attestation generation, `gh attestation verify` evidence, README links, wiki navigation, and public boundary validation.
 
+Enterprise Trial availability: the private `Huzefaaa2/cavra-enterprise` repository now publishes approved private evaluator package `ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05` with public-safe digest `sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47`. Private evidence records source exclusion, customer-data exclusion, private registry push/pull validation, signed license validation, revoked-license failure validation, and runtime license enforcement without exposing Enterprise source, signing keys, evaluator license tokens, registry pull secrets, customer records, or commercial policy packs.
+
 Historical GA publication next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 
 Next recommendation: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.

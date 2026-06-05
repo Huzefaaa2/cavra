@@ -11,12 +11,19 @@ Private Enterprise distribution status:
 
 - `Huzefaaa2/cavra-enterprise` now contains the private trial package release
   pipeline.
-- The first distribution target is the gated GHCR image
-  `ghcr.io/huzefaaa2/cavra-enterprise-trial:<version>`.
+- Enterprise Trial package `2026.06.05` is ready for approved private
+  evaluators through the gated GHCR image
+  `ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05`.
+- The public-safe package digest is
+  `sha256:2d5f0d338a5528205f11674917d1526db7aa9732ef2af6ca3bd957b6230b4b47`.
 - Private release evidence records image digest metadata, trial duration,
   release ownership, source-exclusion status, and license-service readiness.
 - Trial package approval is blocked unless private license-service readiness is
   true.
+- The private release workflow validates signed trial licenses, revoked-license
+  failure behavior, source exclusion, customer-data exclusion, private registry
+  push, private registry pull, and runtime license enforcement before the trial
+  package is approved.
 - Approved trial package releases are followed by private license issuance and
   evaluator access evidence. The private evidence records references for license
   issuance, entitlement, evaluator access grants, support ownership, onboarding,
@@ -50,17 +57,25 @@ Private Enterprise distribution status:
   publishing customer records, customer health records, finance records, billing
   secrets, license-service internals, or production provisioning secrets.
 
-Example future install flow:
+Example approved evaluator install flow:
 
 ```bash
 docker login ghcr.io
-docker pull ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
-docker run -e CAVRA_LICENSE_KEY=... ghcr.io/huzefaaa2/cavra-enterprise-trial:latest
+docker pull ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05
+docker run --rm \
+  -e CAVRA_LICENSE_KEY \
+  -e CAVRA_LICENSE_PUBLIC_KEY_B64 \
+  -e CAVRA_TRIAL_ARTIFACT_REFERENCE=ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05 \
+  -e CAVRA_TRIAL_PACKAGE_VERSION=2026.06.05 \
+  ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05
 ```
 
-Use the actual `<version>` and license key issued through the approved trial
-process. Do not place license keys, registry pull secrets, customer records, or
-Enterprise artifacts in this public repository.
+Use the license key, public validation key, and private registry access issued
+through the approved trial process. Do not place license keys, registry pull
+secrets, customer records, or Enterprise artifacts in this public repository.
+
+See [trial-availability.md](trial-availability.md) for the public-safe
+availability record.
 
 ## Final Closeout Trial Workflow
 
