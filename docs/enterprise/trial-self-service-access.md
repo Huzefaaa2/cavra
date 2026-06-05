@@ -43,15 +43,23 @@ Enterprise source code is stored in the public repository.
 ## Evaluator Flow
 
 1. Evaluator submits the public trial request form.
-2. The private portal stores the request in private deployment storage.
-3. Personal email domains, missing terms acceptance, and unapproved domains can
+2. The evaluator receives a professional request-submitted email at the work
+   email used in the form.
+3. The private portal stores the request in private deployment storage.
+4. Personal email domains, missing terms acceptance, and unapproved domains can
    be rejected automatically.
-4. A trial operator approves the request.
-5. The private license service issues a time-limited signed trial license.
-6. The portal stores only the token digest and access metadata.
-7. The evaluator receives private GHCR access, license material, validation key
-   material, and install instructions through an approved private channel.
-8. Access can be expired or revoked.
+5. The trial operator receives an approval alert and reviews the request in the
+   private operator dashboard.
+6. A trial operator approves the request.
+7. The private license service issues a time-limited signed trial license.
+8. The portal stores only the token digest and access metadata.
+9. The evaluator receives private GHCR access, license material, validation key
+   material, and install instructions through the submitted work email and any
+   additional approved private handoff channel.
+10. Access can be expired or revoked.
+
+Approval emails contain license material for the named evaluator only. Do not
+forward approval emails to public channels, issue trackers, or shared documents.
 
 ## Public Portal Integration
 
@@ -87,6 +95,8 @@ Recommended split:
 - Private HTTPS service: `/trial/signup`, `/trial/approve`, `/trial/revoke`,
   `/trial/status/{request_id}`, license issuance, expiry, revocation, and
   operator workflows.
+- Private email delivery: request acknowledgement, operator alert, and approved
+  evaluator handoff through the configured CAVRA trial mailbox.
 - GHCR: private Enterprise Trial package, gated by approved evaluator access.
 
 The private API must be hosted behind HTTPS, bot protection, rate limits, audit
