@@ -100,6 +100,8 @@ Community v0.1.2 release record: `docs/releases/community-v0.1.2.md`, `docs/rele
 
 Community v0.1.3 maintenance planning: `docs/community-v0.1.3-maintenance-planning.md` records GitHub Actions Node 24 workflow readiness, current v0.1.2 verification defaults, and the public-safe release-candidate checklist for the next Community maintenance release.
 
+Community v0.1.3 release-prep record: `docs/releases/community-v0.1.3.md`, `docs/release-verifications/community-v0.1.3-maintenance-verification.md`, `docs/release-verifications/community-v0.1.3-maintenance-verification.json`, `docs/community-release-index.md`, and `docs/community-release-readiness-dashboard.md` record the package version bump, release-prep evidence, public boundary, and pending artifact publication state before final post-release verification.
+
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 
 Community release index freshness: `docs/community-release-index-freshness.md` and `scripts/validate-community-release-index.py` enforce that every indexed Community release has matching release notes, verification evidence, README links, wiki links, and a valid publication state.

@@ -118,6 +118,8 @@ Open-core architecture and boundaries:
 - [Community v0.1.2 maintenance verification](docs/release-verifications/community-v0.1.2-maintenance-verification.md)
 - [Community v0.1.2 post-release verification](docs/release-verifications/community-v0.1.2-post-release-verification.md)
 - [Community v0.1.3 maintenance planning](docs/community-v0.1.3-maintenance-planning.md)
+- [Community v0.1.3 release notes](docs/releases/community-v0.1.3.md)
+- [Community v0.1.3 maintenance verification](docs/release-verifications/community-v0.1.3-maintenance-verification.md)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -561,7 +563,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Publish Community v0.1.3 maintenance release after GitHub Actions Node 24 readiness and workflow verification are complete.
+- Publish Community v0.1.3 GitHub Release from merged main after Node 24 readiness and replace pending artifact evidence with post-release verification.
 
 ## User stories and enterprise value
 
