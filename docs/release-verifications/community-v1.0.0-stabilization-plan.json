@@ -1,0 +1,100 @@
+{
+  "schema_version": "cavra.community_v100_stabilization.v1",
+  "plan_id": "community-v1.0.0-stabilization-plan",
+  "release": "CAVRA Community v1.0.0",
+  "version": "1.0.0",
+  "target_tag": "community-v1.0.0",
+  "status": "planned",
+  "prepared_at": "2026-06-05T04:05:00Z",
+  "baseline_release": "community-v0.1.3",
+  "baseline_evidence": "docs/release-verifications/community-v0.1.3-post-release-verification.md",
+  "public_plan": "docs/community-v1.0.0-stabilization-plan.md",
+  "wiki_plan": "docs/wiki/Community-v1.0.0-Stabilization-Plan.md",
+  "required_workstreams": [
+    {
+      "name": "release_signing",
+      "status": "planned",
+      "required_evidence": [
+        "release signing operations metadata",
+        "detached artifact signatures",
+        "keyless attestation guidance"
+      ],
+      "public_boundary": "No private signing keys or signing-service secrets are stored in the public repository."
+    },
+    {
+      "name": "reproducible_provenance",
+      "status": "planned",
+      "required_evidence": [
+        "SLSA provenance",
+        "checksum manifest",
+        "SBOM metadata",
+        "rebuild instructions"
+      ],
+      "public_boundary": "Build provenance must not expose private builder credentials or customer environment details."
+    },
+    {
+      "name": "ga_announcement_readiness",
+      "status": "planned",
+      "required_evidence": [
+        "README quickstart",
+        "release notes",
+        "wiki navigation",
+        "release readiness dashboard",
+        "announcement checklist"
+      ],
+      "public_boundary": "Announcement material must describe Enterprise value without exposing Enterprise implementation."
+    },
+    {
+      "name": "final_operator_evidence",
+      "status": "planned",
+      "required_evidence": [
+        "operator runbook",
+        "Evidence Console path",
+        "release verifier output",
+        "public boundary validation"
+      ],
+      "public_boundary": "Operator evidence must be public-safe and free of customer records."
+    }
+  ],
+  "gates": [
+    {
+      "name": "Node 24 readiness baseline",
+      "status": "ready",
+      "evidence": "docs/community-v0.1.3-maintenance-planning.md"
+    },
+    {
+      "name": "Release signing plan",
+      "status": "planned",
+      "evidence": "docs/release-signing-operations.md"
+    },
+    {
+      "name": "Provenance plan",
+      "status": "planned",
+      "evidence": "docs/go-release-packaging.md"
+    },
+    {
+      "name": "GA announcement checklist",
+      "status": "planned",
+      "evidence": "docs/community-v1.0.0-stabilization-plan.md"
+    },
+    {
+      "name": "Final operator evidence",
+      "status": "planned",
+      "evidence": "docs/community-ga-user-verifiable-path.md"
+    },
+    {
+      "name": "Public boundary",
+      "status": "ready",
+      "evidence": "scripts/validate-boundaries.sh ."
+    }
+  ],
+  "must_never_include": [
+    "Enterprise source code",
+    "paid policy packs",
+    "private signing keys",
+    "license-service secrets",
+    "private registry credentials",
+    "customer records"
+  ],
+  "next_recommendation": "Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence."
+}

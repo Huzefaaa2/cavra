@@ -131,5 +131,5 @@
     "status": "approve",
     "rationale": "The Community v0.1.2 release notes, package metadata, artifact checksums, install-smoke evidence, README links, wiki-ready pages, release index, release dashboard, and public boundary checks are aligned for official publication."
   },
-  "next_recommendation": "Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence."
+  "next_recommendation": "Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence."
 }

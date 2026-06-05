@@ -102,6 +102,10 @@ Community v0.1.3 maintenance planning: `docs/community-v0.1.3-maintenance-planni
 
 Community v0.1.3 release record: `docs/releases/community-v0.1.3.md`, `docs/release-verifications/community-v0.1.3-maintenance-verification.md`, `docs/release-verifications/community-v0.1.3-maintenance-verification.json`, `docs/release-verifications/community-v0.1.3-post-release-verification.md`, `docs/release-verifications/community-v0.1.3-post-release-verification.json`, `docs/community-release-index.md`, and `docs/community-release-readiness-dashboard.md` record the package version bump, release evidence, public boundary, artifact checksums, clean-install smoke, and final post-release verification.
 
+Community v1.0.0 stabilization planning: `docs/community-v1.0.0-stabilization-plan.md`, `docs/release-verifications/community-v1.0.0-stabilization-plan.json`, and `scripts/validate-community-v100-stabilization.py` define and enforce the public-safe v1.0.0 path for release signing, reproducible provenance, GA announcement readiness, final operator evidence, and public boundary validation.
+
+Next recommendation: Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
+
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 
 Community release index freshness: `docs/community-release-index-freshness.md` and `scripts/validate-community-release-index.py` enforce that every indexed Community release has matching release notes, verification evidence, README links, wiki links, and a valid publication state.

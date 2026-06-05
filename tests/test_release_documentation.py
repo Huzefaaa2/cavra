@@ -1456,7 +1456,7 @@ def test_community_v013_maintenance_planning_is_linked_and_node24_ready() -> Non
         "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
         "current v0.1.3 release artifacts",
         "Public Boundary",
-        "Start Community v1.0.0 stabilization planning",
+        "Implement Community v1.0.0 release-candidate hardening packet",
     ]
     for document in (plan, wiki_plan):
         for term in required_terms:
@@ -1543,3 +1543,90 @@ def test_community_v013_post_release_evidence_is_current_baseline() -> None:
         wheel_sha,
         sdist_sha,
     }
+
+
+def test_community_v100_stabilization_plan_is_linked_and_validated() -> None:
+    plan = Path("docs/community-v1.0.0-stabilization-plan.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_plan = Path("docs/wiki/Community-v1.0.0-Stabilization-Plan.md").read_text(
+        encoding="utf-8"
+    )
+    packet = json.loads(
+        Path("docs/release-verifications/community-v1.0.0-stabilization-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-v100-stabilization.py"
+    next_recommendation = (
+        "Implement Community v1.0.0 release-candidate hardening packet from the "
+        "completed Node 24 readiness baseline with signed artifacts, reproducible "
+        "provenance verification, GA announcement checklist, and final operator evidence."
+    )
+
+    required_terms = [
+        "Community v1.0.0",
+        "Node 24 readiness baseline",
+        "Release signing",
+        "Reproducible provenance",
+        "SLSA provenance",
+        "SBOM metadata",
+        "GA announcement readiness",
+        "Final operator evidence",
+        "Evidence Console",
+        "Public boundary",
+        "Enterprise source code",
+        "private signing keys",
+        "customer records",
+        script,
+        next_recommendation,
+    ]
+    for document in (plan, wiki_plan):
+        for term in required_terms:
+            assert term in document
+
+    assert "docs/community-v1.0.0-stabilization-plan.md" in readme
+    assert "docs/release-verifications/community-v1.0.0-stabilization-plan.json" in readme
+    assert "Community-v1.0.0-Stabilization-Plan.md" in wiki_home
+    assert "docs/community-v1.0.0-stabilization-plan.md" in roadmap
+    assert "Community v1.0.0 stabilization planning:" in inventory
+    assert "Community v1.0.0 stabilization planning" in changelog
+    assert next_recommendation in readme
+    assert next_recommendation in roadmap
+
+    assert packet["schema_version"] == "cavra.community_v100_stabilization.v1"
+    assert packet["status"] == "planned"
+    assert packet["target_tag"] == "community-v1.0.0"
+    assert packet["baseline_release"] == "community-v0.1.3"
+    assert packet["next_recommendation"] == next_recommendation
+    assert {item["name"] for item in packet["required_workstreams"]} == {
+        "release_signing",
+        "reproducible_provenance",
+        "ga_announcement_readiness",
+        "final_operator_evidence",
+    }
+    gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
+    assert gate_statuses["Node 24 readiness baseline"] == "ready"
+    assert gate_statuses["Public boundary"] == "ready"
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr

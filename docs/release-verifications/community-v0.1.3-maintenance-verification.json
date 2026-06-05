@@ -135,5 +135,5 @@
     "status": "defer",
     "rationale": "This v0.1.3 release-prep packet was intentionally deferred until artifacts were produced from merged main; final artifact evidence is recorded in docs/release-verifications/community-v0.1.3-post-release-verification.md."
   },
-  "next_recommendation": "Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence."
+  "next_recommendation": "Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence."
 }

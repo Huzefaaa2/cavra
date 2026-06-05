@@ -121,6 +121,8 @@ Open-core architecture and boundaries:
 - [Community v0.1.3 release notes](docs/releases/community-v0.1.3.md)
 - [Community v0.1.3 maintenance verification](docs/release-verifications/community-v0.1.3-maintenance-verification.md)
 - [Community v0.1.3 post-release verification](docs/release-verifications/community-v0.1.3-post-release-verification.md)
+- [Community v1.0.0 stabilization plan](docs/community-v1.0.0-stabilization-plan.md)
+- [Community v1.0.0 stabilization packet](docs/release-verifications/community-v1.0.0-stabilization-plan.json)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -564,7 +566,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Start Community v1.0.0 stabilization planning from the completed Node 24 readiness baseline with release signing, reproducible provenance, GA announcement readiness, and final operator evidence.
+- Implement Community v1.0.0 release-candidate hardening packet from the completed Node 24 readiness baseline with signed artifacts, reproducible provenance verification, GA announcement checklist, and final operator evidence.
 
 ## User stories and enterprise value
 
