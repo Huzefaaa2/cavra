@@ -65,4 +65,4 @@ surface, to evidence signal.
 
 ## Next Recommendation
 
-Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence.
+Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.

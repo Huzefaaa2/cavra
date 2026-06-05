@@ -1,0 +1,117 @@
+{
+  "schema_version": "cavra.community_v100_ga_publication_package.v1",
+  "status": "dry_run_publication_ready",
+  "release": "CAVRA Community v1.0.0",
+  "target_tag": "community-v1.0.0",
+  "target_version": "1.0.0",
+  "prepared_at": "2026-06-05T06:55:00Z",
+  "baseline_release_candidate": "community-v1.0.0-rc.1",
+  "baseline_evidence": "docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md",
+  "ga_readiness": "docs/community-v1.0.0-ga-readiness.md",
+  "publication_doc": "docs/community-v1.0.0-ga-publication-package.md",
+  "release_notes": "docs/releases/community-v1.0.0.md",
+  "publication_readiness": "docs/release-verifications/community-v1.0.0-publication-readiness.md",
+  "planned_github_release": "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0",
+  "artifact_build_plan": [
+    {
+      "name": "python_wheel",
+      "planned_artifact": "cavra-1.0.0-py3-none-any.whl",
+      "build_command": "python3 -m build",
+      "required_verification": "SHA-256 checksum, clean install smoke, and cavra version returns cavra 1.0.0."
+    },
+    {
+      "name": "source_distribution",
+      "planned_artifact": "cavra-1.0.0.tar.gz",
+      "build_command": "python3 -m build",
+      "required_verification": "SHA-256 checksum, install from sdist, and no private dependencies."
+    },
+    {
+      "name": "checksum_manifest",
+      "planned_artifact": "cavra-1.0.0-SHA256SUMS.txt",
+      "required_verification": "Contains wheel, sdist, and provenance checksums."
+    },
+    {
+      "name": "provenance_metadata",
+      "planned_artifact": "cavra-1.0.0.provenance.json",
+      "required_verification": "Records tag, commit, build command, Python version, and public artifact hashes."
+    },
+    {
+      "name": "community_docker_image",
+      "planned_artifact": "docker/Dockerfile.community",
+      "build_command": "docker build -f docker/Dockerfile.community .",
+      "required_verification": "Builds only Community source and runs without a license key."
+    }
+  ],
+  "verifier_inputs": {
+    "tag": "community-v1.0.0",
+    "version": "1.0.0",
+    "wheel_sha256": "<final wheel SHA-256>",
+    "sdist_sha256": "<final source distribution SHA-256>"
+  },
+  "announcement_approval": {
+    "status": "ready_for_final_maintainer_review",
+    "message_scope": "public Community v1.0.0 only",
+    "requires_final_artifact_integrity": true,
+    "requires_clean_install_smoke": true,
+    "requires_public_boundary_validation": true
+  },
+  "gates": [
+    {
+      "name": "RC1 feedback baseline",
+      "status": "pass"
+    },
+    {
+      "name": "Node 24 readiness baseline",
+      "status": "pass"
+    },
+    {
+      "name": "Final release notes",
+      "status": "pass"
+    },
+    {
+      "name": "Artifact build plan",
+      "status": "pass"
+    },
+    {
+      "name": "Verifier inputs",
+      "status": "pass"
+    },
+    {
+      "name": "Announcement approval evidence",
+      "status": "pass"
+    },
+    {
+      "name": "Artifact checksums",
+      "status": "pending_final_artifacts"
+    },
+    {
+      "name": "Provenance evidence",
+      "status": "pending_final_artifacts"
+    },
+    {
+      "name": "Signature or keyless attestation evidence",
+      "status": "pending_final_artifacts"
+    },
+    {
+      "name": "Clean install smoke",
+      "status": "pending_final_artifacts"
+    },
+    {
+      "name": "Public boundary",
+      "status": "pass"
+    }
+  ],
+  "must_never_include": [
+    "Enterprise source code",
+    "paid policy packs",
+    "private signing keys",
+    "license-service secrets",
+    "private registry credentials",
+    "customer records"
+  ],
+  "decision": {
+    "status": "approve_final_ga_artifact_publication_preparation",
+    "summary": "The Community v1.0.0 GA publication package is ready for final artifact build and publication. Final artifacts are not yet published."
+  },
+  "next_recommendation": "Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification."
+}

@@ -13,7 +13,8 @@ artifacts are published and which release evidence is ready for publication.
 | Community v0.1.1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.1> | `docs/releases/community-v0.1.1.md` | `docs/release-verifications/community-v0.1.1-post-release-verification.md` | Use as the previous public Community maintenance baseline. |
 | Community v0.1.2 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.2> | `docs/releases/community-v0.1.2.md` | `docs/release-verifications/community-v0.1.2-post-release-verification.md` | Use as the previous published Community maintenance baseline. |
 | Community v0.1.3 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v0.1.3> | `docs/releases/community-v0.1.3.md` | `docs/release-verifications/community-v0.1.3-post-release-verification.md` | Use as the current published Community maintenance baseline while v1.0.0 stabilization planning begins. |
-| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence. |
+| Community v1.0.0 RC1 | Published | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0-rc.1> | `docs/releases/community-v1.0.0-rc.1.md` | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` | Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification. |
+| Community v1.0.0 | Dry run | <https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0> | `docs/releases/community-v1.0.0.md` | `docs/release-verifications/community-v1.0.0-publication-readiness.md` | Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification. |
 
 ## Current Public Baseline
 
@@ -41,6 +42,13 @@ links, workflow evidence, and clean install smoke evidence. Detached signature
 and keyless attestation evidence remain GA hardening gates before final v1.0.0
 announcement.
 
+Community v1.0.0 is prepared as a dry-run GA publication package. It has draft
+final release notes, publication readiness verification, artifact build plan,
+verifier inputs, announcement approval evidence, README links, wiki navigation,
+release index coverage, and release dashboard coverage. Real final artifacts,
+checksums, provenance, signature or attestation evidence, clean install smoke,
+and post-publication verification remain pending until artifacts are published.
+
 ## Verification Controls
 
 Public Community releases are checked by:
@@ -61,4 +69,4 @@ not part of this public release index.
 
 ## Next Recommendation
 
-Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence.
+Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.

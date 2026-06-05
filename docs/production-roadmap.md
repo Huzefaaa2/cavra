@@ -271,7 +271,11 @@ Community v1.0.0 GA readiness is documented at
 `docs/community-v1.0.0-ga-readiness.md`, recorded in
 `docs/release-verifications/community-v1.0.0-ga-readiness.json`, and enforced
 by `scripts/validate-community-v100-ga-readiness.py`.
-Next recommended slice: Prepare Community v1.0.0 GA publication package from validated RC1 feedback and the completed Node 24 readiness baseline by drafting final release notes, v1.0.0 artifact build plan, verifier inputs, and announcement approval evidence.
+Community v1.0.0 GA publication package preparation is documented at
+`docs/community-v1.0.0-ga-publication-package.md`, recorded in
+`docs/release-verifications/community-v1.0.0-ga-publication-package.json`, and
+enforced by `scripts/validate-community-v100-ga-publication-package.py`.
+Next recommended slice: Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

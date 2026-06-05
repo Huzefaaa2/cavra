@@ -2007,7 +2007,6 @@ def test_community_v100_ga_readiness_is_linked_and_validated() -> None:
         "private signing keys",
         "private registry credentials",
         "customer records",
-        next_recommendation,
     ]
     for document in (doc, wiki_doc):
         for term in required_terms:
@@ -2025,11 +2024,6 @@ def test_community_v100_ga_readiness_is_linked_and_validated() -> None:
     assert "docs/release-verifications/community-v1.0.0-ga-readiness.json" in inventory
     for rollup in (release_index, dashboard, wiki_index, wiki_dashboard):
         assert "| Community v1.0.0 RC1 | Published |" in rollup
-        assert next_recommendation in rollup
-    assert next_recommendation in readme
-    assert next_recommendation in roadmap
-    assert next_recommendation in inventory
-    assert next_recommendation in release_notes
 
     assert packet["schema_version"] == "cavra.community_v100_ga_readiness.v1"
     assert packet["status"] == "ready_for_ga_publication_package"
@@ -2066,6 +2060,187 @@ def test_community_v100_ga_readiness_is_linked_and_validated() -> None:
         "public_boundary",
         "announcement_approval",
     }
+
+    for workflow in workflows:
+        assert f"python {script}" in workflow
+
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_community_v100_ga_publication_package_is_linked_and_validated() -> None:
+    doc = Path("docs/community-v1.0.0-ga-publication-package.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_doc = Path(
+        "docs/wiki/Community-v1.0.0-GA-Publication-Package.md"
+    ).read_text(encoding="utf-8")
+    release_notes = Path("docs/releases/community-v1.0.0.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_release_notes = Path("docs/wiki/Community-v1.0.0-Release-Notes.md").read_text(
+        encoding="utf-8"
+    )
+    readiness = Path(
+        "docs/release-verifications/community-v1.0.0-publication-readiness.md"
+    ).read_text(encoding="utf-8")
+    wiki_readiness = Path(
+        "docs/wiki/Community-v1.0.0-Publication-Verification.md"
+    ).read_text(encoding="utf-8")
+    packet = json.loads(
+        Path(
+            "docs/release-verifications/community-v1.0.0-ga-publication-package.json"
+        ).read_text(encoding="utf-8")
+    )
+    readme = Path("README.md").read_text(encoding="utf-8")
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/production-roadmap.md").read_text(encoding="utf-8")
+    inventory = Path("docs/current-feature-inventory.md").read_text(encoding="utf-8")
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    release_index = Path("docs/community-release-index.md").read_text(encoding="utf-8")
+    dashboard = Path("docs/community-release-readiness-dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_index = Path("docs/wiki/Community-Release-Index.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_dashboard = Path("docs/wiki/Community-Release-Readiness-Dashboard.md").read_text(
+        encoding="utf-8"
+    )
+    workflows = [
+        Path(".github/workflows/community-ci.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/release-community.yml").read_text(encoding="utf-8"),
+        Path(".github/workflows/cavra-governance.yml").read_text(encoding="utf-8"),
+    ]
+    script = "scripts/validate-community-v100-ga-publication-package.py"
+    release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0"
+    next_recommendation = (
+        "Publish Community v1.0.0 GA artifacts from the approved publication "
+        "package and completed Node 24 readiness baseline by bumping package "
+        "metadata to 1.0.0, building final artifacts, attaching GitHub Release "
+        "assets, recording checksums and provenance, and completing "
+        "post-publication verification."
+    )
+
+    required_terms = [
+        "Community v1.0.0",
+        "community-v1.0.0",
+        "1.0.0",
+        release_url,
+        "dry-run",
+        "SHA-256",
+        "provenance",
+        "Enterprise source code",
+        "paid policy packs",
+        "private signing keys",
+        "customer records",
+        next_recommendation,
+    ]
+    for document in (
+        doc,
+        wiki_doc,
+        release_notes,
+        wiki_release_notes,
+        readiness,
+        wiki_readiness,
+    ):
+        for term in required_terms:
+            assert term in document
+
+    package_terms = [
+        "Community v1.0.0 GA Publication Package",
+        "final release notes",
+        "artifact build plan",
+        "verifier inputs",
+        "announcement approval evidence",
+        "cavra-1.0.0-py3-none-any.whl",
+        "cavra-1.0.0.tar.gz",
+        "cavra-1.0.0-SHA256SUMS.txt",
+        "cavra-1.0.0.provenance.json",
+        "python3 -m build",
+        "python3 scripts/verify-community-release-artifacts.py",
+        "cavra 1.0.0",
+        "Signature or keyless attestation",
+        "Public boundary",
+        "private registry credentials",
+        script,
+    ]
+    for term in package_terms:
+        assert term in doc
+
+    assert "docs/community-v1.0.0-ga-publication-package.md" in readme
+    assert "docs/releases/community-v1.0.0.md" in readme
+    assert "docs/release-verifications/community-v1.0.0-publication-readiness.md" in readme
+    assert (
+        "docs/release-verifications/community-v1.0.0-ga-publication-package.json"
+        in readme
+    )
+    assert "Community-v1.0.0-GA-Publication-Package.md" in wiki_home
+    assert "Community-v1.0.0-Release-Notes.md" in wiki_home
+    assert "Community-v1.0.0-Publication-Verification.md" in wiki_home
+    assert "Community v1.0.0 GA publication package" in roadmap
+    assert "Community v1.0.0 GA publication package" in inventory
+    assert "Community v1.0.0 GA publication package" in changelog
+    assert "docs/community-v1.0.0-ga-publication-package.md" in roadmap
+    assert (
+        "docs/release-verifications/community-v1.0.0-ga-publication-package.json"
+        in inventory
+    )
+    for rollup in (release_index, dashboard, wiki_index, wiki_dashboard):
+        assert "| Community v1.0.0 | Dry run |" in rollup
+        assert "docs/releases/community-v1.0.0.md" in rollup
+        assert "docs/release-verifications/community-v1.0.0-publication-readiness.md" in rollup
+        assert next_recommendation in rollup
+    assert "Pending real artifacts" in dashboard
+    assert next_recommendation in readme
+    assert next_recommendation in roadmap
+    assert next_recommendation in inventory
+    assert next_recommendation in release_notes
+
+    assert packet["schema_version"] == "cavra.community_v100_ga_publication_package.v1"
+    assert packet["status"] == "dry_run_publication_ready"
+    assert packet["target_tag"] == "community-v1.0.0"
+    assert packet["target_version"] == "1.0.0"
+    assert packet["planned_github_release"] == release_url
+    assert packet["publication_doc"] == "docs/community-v1.0.0-ga-publication-package.md"
+    assert packet["release_notes"] == "docs/releases/community-v1.0.0.md"
+    assert (
+        packet["publication_readiness"]
+        == "docs/release-verifications/community-v1.0.0-publication-readiness.md"
+    )
+    assert packet["next_recommendation"] == next_recommendation
+    assert packet["verifier_inputs"] == {
+        "tag": "community-v1.0.0",
+        "version": "1.0.0",
+        "wheel_sha256": "<final wheel SHA-256>",
+        "sdist_sha256": "<final source distribution SHA-256>",
+    }
+    artifact_plan = {item["planned_artifact"] for item in packet["artifact_build_plan"]}
+    assert artifact_plan == {
+        "cavra-1.0.0-py3-none-any.whl",
+        "cavra-1.0.0.tar.gz",
+        "cavra-1.0.0-SHA256SUMS.txt",
+        "cavra-1.0.0.provenance.json",
+        "docker/Dockerfile.community",
+    }
+    gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
+    assert gate_statuses["Artifact checksums"] == "pending_final_artifacts"
+    assert gate_statuses["Provenance evidence"] == "pending_final_artifacts"
+    assert (
+        gate_statuses["Signature or keyless attestation evidence"]
+        == "pending_final_artifacts"
+    )
+    assert gate_statuses["Clean install smoke"] == "pending_final_artifacts"
+    assert (
+        packet["decision"]["status"]
+        == "approve_final_ga_artifact_publication_preparation"
+    )
 
     for workflow in workflows:
         assert f"python {script}" in workflow
