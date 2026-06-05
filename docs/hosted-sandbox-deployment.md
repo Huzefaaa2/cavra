@@ -11,7 +11,8 @@ The workflow:
 - Runs on manual dispatch and pushes to `main` that affect the sandbox, docs, or workflow file.
 - Validates `apps/sandbox-ui/config.js` and `apps/sandbox-ui/sandbox.js` with `node --check`.
 - Copies `apps/sandbox-ui` into a static `public/` artifact.
-- Writes `public/config.js` from the optional `CAVRA_PUBLIC_API_BASE_URL` repository variable.
+- Writes `public/config.js` from the optional `CAVRA_PUBLIC_API_BASE_URL`
+  and `CAVRA_PUBLIC_TRIAL_API_URL` repository variables.
 - Packages the generated Before the Agent Acts sample evidence at `evidence/before-the-agent-acts/evidence.json`.
 - Includes SVG diagrams from `docs/diagrams`.
 - Configures the already-enabled GitHub Pages site for GitHub Actions publishing.

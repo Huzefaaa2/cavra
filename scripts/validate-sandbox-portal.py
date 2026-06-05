@@ -168,6 +168,7 @@ def main() -> int:
         "node --check apps/sandbox-ui/config.js",
         "node --check apps/sandbox-ui/sandbox.js",
         "python scripts/validate-sandbox-portal.py",
+        "CAVRA_PUBLIC_TRIAL_API_URL",
         'grep -q "Evidence Console"',
         'grep -q "Community GA Control Hardening"',
         'grep -q "Production Pilot Readiness"',

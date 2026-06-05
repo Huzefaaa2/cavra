@@ -122,6 +122,8 @@ Enterprise Trial availability: the private `Huzefaaa2/cavra-enterprise` reposito
 
 Enterprise Trial self-service approved access: the public portal now includes an Enterprise Trial request route that can post evaluator requests to the private Trial Access Portal service. The private backend records signup requests, supports operator approval, issues time-limited signed trial licenses through the private license service, stores only token digests and access metadata, and tracks expiry plus revocation while keeping Enterprise source, signing keys, license tokens, registry pull secrets, customer records, private approval notes, and paid policy packs outside public source control.
 
+Enterprise Trial hosted portal wiring: GitHub Pages deployment now writes `window.CAVRA_TRIAL_API_URL` from repository variable `CAVRA_PUBLIC_TRIAL_API_URL`. GitHub Pages and Jekyll remain public-static surfaces only; the private Trial Access Portal, license service, evaluator records, GHCR access, expiry, and revocation workflows remain outside the public repository.
+
 Historical GA publication next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 
 Next recommendation: Use Community v1.0.0 as the stable public baseline and begin the v1.0.1 maintenance planning path for post-GA fixes, release integrity hardening, detached signing or keyless attestation, and adoption feedback.

@@ -12,7 +12,13 @@ Deploy from GitHub Pages:
 gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
 ```
 
-The workflow at `.github/workflows/deploy-sandbox.yml` validates `config.js` and `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, writes `public/config.js` from `CAVRA_PUBLIC_API_BASE_URL`, includes the repository SVG diagrams, uploads the artifact with `actions/upload-pages-artifact`, opts JavaScript-based GitHub Actions into Node.js 24, and deploys with `actions/deploy-pages` only when the workflow runs on `main`.
+The workflow at `.github/workflows/deploy-sandbox.yml` validates `config.js`
+and `sandbox.js`, copies `apps/sandbox-ui` into a static Pages artifact, writes
+`public/config.js` from `CAVRA_PUBLIC_API_BASE_URL` and
+`CAVRA_PUBLIC_TRIAL_API_URL`, includes the repository SVG diagrams, uploads the
+artifact with `actions/upload-pages-artifact`, opts JavaScript-based GitHub
+Actions into Node.js 24, and deploys with `actions/deploy-pages` only when the
+workflow runs on `main`.
 
 The sandbox includes selectable scenarios. The flagship simulated AI-agent scenario uses real CAVRA policy decisions for pre-action governance. The final closeout trial scenario uses synthetic public-safe release evidence to demonstrate release criteria, retention health, retry planning, and the Community-to-Enterprise upgrade path.
 
@@ -58,6 +64,7 @@ Cross-origin deployment:
 
 ```bash
 CAVRA_PUBLIC_API_BASE_URL=https://api.cavra.example \
+CAVRA_PUBLIC_TRIAL_API_URL=https://trial.cavra.example \
 CAVRA_CORS_ORIGINS=https://console.cavra.example \
 CAVRA_EVIDENCE_METADATA_DB=.cavra/evidence/metadata.db \
 CAVRA_EVIDENCE_ARTIFACT_ROOT=.cavra/evidence/artifacts \
@@ -67,7 +74,39 @@ CAVRA_APPROVAL_RBAC_FILE=.cavra/approval-rbac.yaml \
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
 
-If the page is hosted separately, set `window.CAVRA_API_BASE = "https://api.cavra.example"` in `config.js` before loading `sandbox.js`. For GitHub Pages, set the repository variable `CAVRA_PUBLIC_API_BASE_URL` before running the deploy workflow. The console first reads `/console/config`, then posts `/api/sandbox/run` for backend-driven scenario runs, reads `/api/sandbox/metrics` for telemetry-free public counters, queries `/console/session`, `/deployment/production-readiness`, `/policy-pack-catalog`, `/saas/control-plane/contract`, `/saas/operating-automation`, `/saas/operating-automation/worker-handoff`, `/evidence` with signer, blocked-count, approval-state, and limit filters, `/evidence/{session_id}/artifacts` for artifact downloads, `/endpoint-remediation-sla-escalation-actions` for retry-plan, owner-digest, and suppression-trend metadata, `/endpoint-remediation-sla-escalation-actions/dashboard` for recurrence operations counters, `/endpoint-remediation-sla-escalation-recurrence-automations` for worker run history, `/endpoint-remediation-sla-escalation-recurrence-automations/dashboard` for dry-run and execution outcomes, `/endpoint-remediation-sla-escalation-recurrence-automations/health` for missed-run and stale-metadata health, `/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts` and `/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard` for alert delivery and acknowledgement history, and `/approvals` with state and approver-group filters. Policy drafts post to `/policy-packs/draft`; rollout plans post to `/policy-rollouts/change-plan`; rollout applies post to `/policy-rollouts/apply-change`. Pending approval actions post to `/approvals/{approval_id}/approve`, `/approvals/{approval_id}/deny`, or `/approvals/{approval_id}/expire`. Break-glass creation posts to `/approvals/break-glass`, and audit details read `/approvals/{approval_id}`.
+If the page is hosted separately, set
+`window.CAVRA_API_BASE = "https://api.cavra.example"` and
+`window.CAVRA_TRIAL_API_URL = "https://trial.cavra.example"` in `config.js`
+before loading `sandbox.js`. For GitHub Pages, set repository variables
+`CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_PUBLIC_TRIAL_API_URL` before running the
+deploy workflow. The console first reads `/console/config`, then posts
+`/api/sandbox/run` for backend-driven scenario runs, reads
+`/api/sandbox/metrics` for telemetry-free public counters, queries
+`/console/session`, `/deployment/production-readiness`, `/policy-pack-catalog`,
+`/saas/control-plane/contract`, `/saas/operating-automation`,
+`/saas/operating-automation/worker-handoff`, `/evidence` with signer,
+blocked-count, approval-state, and limit filters,
+`/evidence/{session_id}/artifacts` for artifact downloads,
+`/endpoint-remediation-sla-escalation-actions` for retry-plan, owner-digest, and
+suppression-trend metadata, `/endpoint-remediation-sla-escalation-actions/dashboard`
+for recurrence operations counters,
+`/endpoint-remediation-sla-escalation-recurrence-automations` for worker run
+history, `/endpoint-remediation-sla-escalation-recurrence-automations/dashboard`
+for dry-run and execution outcomes,
+`/endpoint-remediation-sla-escalation-recurrence-automations/health` for
+missed-run and stale-metadata health,
+`/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts` and
+`/endpoint-remediation-sla-escalation-recurrence-automation-health-alerts/dashboard`
+for alert delivery and acknowledgement history, and `/approvals` with state and
+approver-group filters. The Enterprise Trial page posts signup requests to
+`CAVRA_TRIAL_API_URL/trial/signup`; approval, license issuance, revocation, and
+GHCR access remain private operator workflows. Policy drafts post to
+`/policy-packs/draft`; rollout plans post to `/policy-rollouts/change-plan`;
+rollout applies post to `/policy-rollouts/apply-change`. Pending approval
+actions post to `/approvals/{approval_id}/approve`,
+`/approvals/{approval_id}/deny`, or `/approvals/{approval_id}/expire`.
+Break-glass creation posts to `/approvals/break-glass`, and audit details read
+`/approvals/{approval_id}`.
 
 Backend scenario runs are available through:
 
