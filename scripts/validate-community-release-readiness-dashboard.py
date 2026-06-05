@@ -26,6 +26,7 @@ REQUIRED_COMMANDS = {
     "python3 scripts/validate-community-release-index.py",
     "python3 scripts/validate-community-release-readiness-dashboard.py",
     "python3 scripts/validate-community-v100-rc-post-publication.py",
+    "python3 scripts/validate-community-v100-ga-readiness.py",
     "bash scripts/validate-boundaries.sh .",
     "python3 -m pytest tests/test_release_documentation.py -q",
 }

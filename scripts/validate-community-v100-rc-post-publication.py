@@ -71,7 +71,6 @@ REQUIRED_TERMS = {
     "private signing keys",
     "private registry credentials",
     "customer records",
-    NEXT_RECOMMENDATION,
 }
 
 
@@ -169,7 +168,6 @@ def validate(root: Path) -> list[str]:
         require(document, RELEASE_URL, document_name, failures)
         require(document, str(RELEASE_NOTES_PATH), document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next action", failures)
 
     for document_name, document in (
         (str(ROADMAP_PATH), roadmap),
@@ -178,7 +176,6 @@ def validate(root: Path) -> list[str]:
     ):
         require(document, "Community v1.0.0 RC1 post-publication verification", document_name, failures)
         require(document, str(DOC_PATH), document_name, failures)
-        require(document, NEXT_RECOMMENDATION, f"{document_name} next recommendation", failures)
 
     expected_scalars = {
         "schema_version": "cavra.community_v100_rc_post_publication.v1",
