@@ -30,6 +30,9 @@ Public-safe release evidence records:
 - hosted request portal health, PostgreSQL storage, signup, approval, license
   validation, and revocation were validated on 2026-06-05 using synthetic
   public-safe evidence.
+- request acknowledgement, operator approval alert, and approved evaluator
+  email handoff are supported by the private Trial Access Portal when the
+  production SMTP mailbox is configured.
 
 The private release workflow retained readiness evidence in the private
 `Huzefaaa2/cavra-enterprise` repository. This public repository records only
@@ -43,6 +46,11 @@ Enterprise Trial access requires:
 2. GHCR package access for `ghcr.io/huzefaaa2/cavra-enterprise-trial`;
 3. a time-limited trial license issued by CAVRA;
 4. runtime configuration for the issued license and public validation key.
+
+After submitting the Trial Access form, the evaluator receives a submission
+acknowledgement email. After approval, the evaluator receives the private
+handoff bundle at the submitted work email address. That email includes license
+material and should be treated as confidential evaluator-only information.
 
 Example evaluator flow:
 

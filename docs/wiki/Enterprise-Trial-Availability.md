@@ -24,11 +24,18 @@ Public-safe package status:
 - hosted request portal health, PostgreSQL storage, signup, approval, license
   validation, and revocation were validated on 2026-06-05 using synthetic
   public-safe evidence.
+- request acknowledgement, operator approval alert, and approved evaluator
+  email handoff are supported by the private Trial Access Portal when the
+  production SMTP mailbox is configured.
 
 Approved evaluators need private GHCR access plus a time-limited CAVRA trial
-license. Public CAVRA does not publish Enterprise source code, license keys,
-signing keys, registry pull secrets, customer records, revocation state, or paid
-policy packs.
+license. After submitting the Trial Access form, the evaluator receives a
+submission acknowledgement email. After approval, the evaluator receives the
+private handoff bundle at the submitted work email address. That email includes
+license material and should be treated as confidential evaluator-only
+information. Public CAVRA does not publish Enterprise source code, license keys,
+signing keys, registry pull secrets, customer records, revocation state, or
+paid policy packs.
 
 Public docs:
 
