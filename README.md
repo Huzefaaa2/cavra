@@ -129,6 +129,8 @@ Open-core architecture and boundaries:
 - [Community v1.0.0 RC1 release notes](docs/releases/community-v1.0.0-rc.1.md)
 - [Community v1.0.0 RC1 publication readiness](docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md)
 - [Community v1.0.0 release-candidate publication packet](docs/release-verifications/community-v1.0.0-release-candidate-publication.json)
+- [Community v1.0.0 RC1 post-publication verification](docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md)
+- [Community v1.0.0 RC1 post-publication packet](docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.json)
 - [Community release index](docs/community-release-index.md)
 - [Community release index freshness](docs/community-release-index-freshness.md)
 - [Community release readiness dashboard](docs/community-release-readiness-dashboard.md)
@@ -572,7 +574,7 @@ Latest delivery:
 
 Next recommended implementation work:
 
-- Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
+- Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.
 
 ## User stories and enterprise value
 

@@ -264,7 +264,10 @@ Community v1.0.0 release-candidate hardening is documented at
 Community v1.0.0 release-candidate publication preparation is documented at
 `docs/community-v1.0.0-release-candidate-publication.md` and enforced by
 `scripts/validate-community-v100-rc-publication.py`.
-Next recommended slice: Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
+Community v1.0.0 RC1 post-publication verification is documented at
+`docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md`
+and enforced by `scripts/validate-community-v100-rc-post-publication.py`.
+Next recommended slice: Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.
 Public Community source remains free of Enterprise implementation details.
 
 ## Phase 1: Productization Foundation

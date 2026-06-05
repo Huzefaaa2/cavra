@@ -108,7 +108,9 @@ Community v1.0.0 release-candidate hardening: `docs/community-v1.0.0-release-can
 
 Community v1.0.0 release-candidate publication: `docs/community-v1.0.0-release-candidate-publication.md`, `docs/releases/community-v1.0.0-rc.1.md`, `docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md`, `docs/release-verifications/community-v1.0.0-release-candidate-publication.json`, and `scripts/validate-community-v100-rc-publication.py` define and enforce the public-safe RC1 dry-run publication path for release notes, signed artifact verification readiness, provenance evidence readiness, announcement readiness, release index coverage, release dashboard coverage, and public boundary validation.
 
-Next recommendation: Publish Community v1.0.0 release-candidate artifacts from the completed Node 24 readiness baseline and record signed artifact checksums, provenance, GitHub Release links, and post-publication verification evidence.
+Community v1.0.0 RC1 post-publication verification: `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md`, `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.json`, and `scripts/validate-community-v100-rc-post-publication.py` define and enforce the published RC1 evidence path for GitHub Release links, artifact SHA-256 checksums, provenance metadata, workflow evidence, clean install smoke, README links, release index status, release dashboard status, wiki navigation, and public boundary validation.
+
+Next recommendation: Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.
 
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 

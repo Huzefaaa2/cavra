@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added Community v1.0.0 RC1 post-publication verification for the published
+  `community-v1.0.0-rc.1` GitHub Release, including artifact SHA-256
+  checksums, provenance metadata, workflow evidence, clean install smoke,
+  README links, release index status, release dashboard status, wiki navigation,
+  the verification packet at
+  `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md`,
+  and the validator at `scripts/validate-community-v100-rc-post-publication.py`.
+  Next recommendation: Advance Community v1.0.0 RC1 feedback from the completed Node 24 readiness baseline into GA release readiness by validating upgrade notes, installer paths, announcement copy, and final GA evidence gates.
 - Bumped the Community package metadata and runtime version to `1.0.0rc1`
   for the `community-v1.0.0-rc.1` release-candidate artifact publication.
 - Added Community v1.0.0 RC1 publication preparation with dry-run release
