@@ -1,9 +1,9 @@
 # Community v1.0.0 GA Publication Package
 
 This wiki page mirrors the public GA publication package for CAVRA Community
-v1.0.0. It prepares final release notes, artifact build planning, verifier
-inputs, and announcement approval evidence before final artifacts are
-published.
+v1.0.0. It now carries the final `1.0.0` package metadata bump, artifact build
+planning, verifier inputs, and announcement approval evidence before final
+artifacts are published from the merged `main` branch.
 
 ## Publication Target
 
@@ -37,6 +37,18 @@ wheel_sha256: "<final wheel SHA-256>"
 sdist_sha256: "<final source distribution SHA-256>"
 ```
 
+## Pre-Publication Build Smoke
+
+The metadata-bump branch produced local artifacts with `python3 -m build` and
+verified a clean virtualenv wheel install. Observed output:
+
+```text
+cavra 1.0.0
+```
+
+Final release checksums and provenance must be generated from the
+`community-v1.0.0` tag after this branch is merged to `main`.
+
 ## Announcement Approval Evidence
 
 Draft announcement:
@@ -55,7 +67,9 @@ Draft announcement:
   `docs/release-verifications/community-v1.0.0-publication-readiness.md`.
 - [x] Release index and dashboard include a dry-run GA publication row.
 - [x] README and wiki navigation link the GA publication package.
-- [ ] Package metadata is bumped from `1.0.0rc1` to `1.0.0`.
+- [x] Package metadata is bumped from `1.0.0rc1` to `1.0.0`.
+- [x] Pre-publication local build and clean wheel install smoke return
+  `cavra 1.0.0`.
 - [ ] Final artifacts are built and attached to the GitHub Release.
 - [ ] Final artifact SHA-256 checksums are recorded.
 - [ ] Clean install smoke returns `cavra 1.0.0`.
@@ -79,4 +93,4 @@ Decision: approve final GA artifact publication preparation.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.

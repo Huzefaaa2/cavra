@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Bumped the Community package metadata, runtime version, and release verifier
+  tag/version defaults to final `1.0.0`, while keeping final checksum defaults
+  as explicit placeholders until the `community-v1.0.0` GitHub Release assets
+  are uploaded from merged `main`. The GA publication package now records the
+  metadata bump and pre-publication clean wheel install smoke for `cavra 1.0.0`.
+  Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 - Added Community v1.0.0 GA publication package preparation with draft final
   release notes, publication readiness verification, artifact build plan,
   verifier inputs, announcement approval evidence, release index/dashboard
@@ -10,14 +16,14 @@
   package is stored at `docs/community-v1.0.0-ga-publication-package.md` with
   structured evidence at
   `docs/release-verifications/community-v1.0.0-ga-publication-package.json`.
-  Next recommendation: Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+  Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 - Added Community v1.0.0 GA readiness evidence with upgrade notes, installer
   paths, draft announcement copy, final GA evidence gates, README/wiki links,
   roadmap coverage, and the validator at
   `scripts/validate-community-v100-ga-readiness.py`. The readiness packet is
   stored at `docs/community-v1.0.0-ga-readiness.md` with structured evidence at
   `docs/release-verifications/community-v1.0.0-ga-readiness.json`.
-  Next recommendation: Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+  Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 - Added Community v1.0.0 RC1 post-publication verification for the published
   `community-v1.0.0-rc.1` GitHub Release, including artifact SHA-256
   checksums, provenance metadata, workflow evidence, clean install smoke,
@@ -25,7 +31,7 @@
   the verification packet at
   `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md`,
   and the validator at `scripts/validate-community-v100-rc-post-publication.py`.
-  Next recommendation: Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+  Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 - Bumped the Community package metadata and runtime version to `1.0.0rc1`
   for the `community-v1.0.0-rc.1` release-candidate artifact publication.
 - Added Community v1.0.0 RC1 publication preparation with dry-run release

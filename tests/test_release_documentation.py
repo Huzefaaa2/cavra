@@ -2121,11 +2121,10 @@ def test_community_v100_ga_publication_package_is_linked_and_validated() -> None
     script = "scripts/validate-community-v100-ga-publication-package.py"
     release_url = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0"
     next_recommendation = (
-        "Publish Community v1.0.0 GA artifacts from the approved publication "
-        "package and completed Node 24 readiness baseline by bumping package "
-        "metadata to 1.0.0, building final artifacts, attaching GitHub Release "
-        "assets, recording checksums and provenance, and completing "
-        "post-publication verification."
+        "Merge the Community v1.0.0 metadata bump, create the "
+        "community-v1.0.0 tag from main, build and upload final GitHub "
+        "Release assets, then record final checksums, provenance, verifier "
+        "defaults, and post-publication verification."
     )
 
     required_terms = [
@@ -2159,6 +2158,8 @@ def test_community_v100_ga_publication_package_is_linked_and_validated() -> None
         "artifact build plan",
         "verifier inputs",
         "announcement approval evidence",
+        "Package metadata is bumped",
+        "Pre-Publication Build Smoke",
         "cavra-1.0.0-py3-none-any.whl",
         "cavra-1.0.0.tar.gz",
         "cavra-1.0.0-SHA256SUMS.txt",
@@ -2221,6 +2222,12 @@ def test_community_v100_ga_publication_package_is_linked_and_validated() -> None
         "wheel_sha256": "<final wheel SHA-256>",
         "sdist_sha256": "<final source distribution SHA-256>",
     }
+    assert packet["metadata_bump"] == {
+        "status": "pass",
+        "pyproject_version": "1.0.0",
+        "runtime_version": "1.0.0",
+        "pre_publication_install_smoke": "cavra 1.0.0",
+    }
     artifact_plan = {item["planned_artifact"] for item in packet["artifact_build_plan"]}
     assert artifact_plan == {
         "cavra-1.0.0-py3-none-any.whl",
@@ -2230,6 +2237,8 @@ def test_community_v100_ga_publication_package_is_linked_and_validated() -> None
         "docker/Dockerfile.community",
     }
     gate_statuses = {item["name"]: item["status"] for item in packet["gates"]}
+    assert gate_statuses["Package metadata"] == "pass"
+    assert gate_statuses["Pre-publication wheel smoke"] == "pass"
     assert gate_statuses["Artifact checksums"] == "pending_final_artifacts"
     assert gate_statuses["Provenance evidence"] == "pending_final_artifacts"
     assert (
