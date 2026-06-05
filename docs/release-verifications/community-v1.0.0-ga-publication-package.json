@@ -48,6 +48,12 @@
     "wheel_sha256": "<final wheel SHA-256>",
     "sdist_sha256": "<final source distribution SHA-256>"
   },
+  "metadata_bump": {
+    "status": "pass",
+    "pyproject_version": "1.0.0",
+    "runtime_version": "1.0.0",
+    "pre_publication_install_smoke": "cavra 1.0.0"
+  },
   "announcement_approval": {
     "status": "ready_for_final_maintainer_review",
     "message_scope": "public Community v1.0.0 only",
@@ -78,6 +84,14 @@
     },
     {
       "name": "Announcement approval evidence",
+      "status": "pass"
+    },
+    {
+      "name": "Package metadata",
+      "status": "pass"
+    },
+    {
+      "name": "Pre-publication wheel smoke",
       "status": "pass"
     },
     {
@@ -113,5 +127,5 @@
     "status": "approve_final_ga_artifact_publication_preparation",
     "summary": "The Community v1.0.0 GA publication package is ready for final artifact build and publication. Final artifacts are not yet published."
   },
-  "next_recommendation": "Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification."
+  "next_recommendation": "Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification."
 }

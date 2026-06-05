@@ -28,10 +28,10 @@ WIKI_DASHBOARD_PATH = Path("docs/wiki/Community-Release-Readiness-Dashboard.md")
 SCRIPT_REF = "scripts/validate-community-v100-ga-publication-package.py"
 RELEASE_URL = "https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0"
 NEXT_RECOMMENDATION = (
-    "Publish Community v1.0.0 GA artifacts from the approved publication package "
-    "and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching "
-    "GitHub Release assets, recording checksums and provenance, and completing "
-    "post-publication verification."
+    "Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 "
+    "tag from main, build and upload final GitHub Release assets, then record "
+    "final checksums, provenance, verifier defaults, and post-publication "
+    "verification."
 )
 
 REQUIRED_WORKFLOWS = {
@@ -62,6 +62,8 @@ REQUIRED_PACKAGE_TERMS = {
     "artifact build plan",
     "verifier inputs",
     "announcement approval evidence",
+    "Package metadata is bumped",
+    "Pre-Publication Build Smoke",
     "cavra-1.0.0-py3-none-any.whl",
     "cavra-1.0.0.tar.gz",
     "cavra-1.0.0-SHA256SUMS.txt",
@@ -233,6 +235,17 @@ def validate(root: Path) -> list[str]:
     if verifier_inputs.get("sdist_sha256") != "<final source distribution SHA-256>":
         failures.append(f"{PACKET_PATH}: verifier sdist placeholder must be explicit")
 
+    metadata_bump = packet.get("metadata_bump", {})
+    expected_metadata = {
+        "status": "pass",
+        "pyproject_version": "1.0.0",
+        "runtime_version": "1.0.0",
+        "pre_publication_install_smoke": "cavra 1.0.0",
+    }
+    for key, value in expected_metadata.items():
+        if metadata_bump.get(key) != value:
+            failures.append(f"{PACKET_PATH}: metadata_bump.{key} must be {value!r}")
+
     gate_statuses = {
         item.get("name"): item.get("status")
         for item in packet.get("gates", [])
@@ -245,6 +258,8 @@ def validate(root: Path) -> list[str]:
         "Artifact build plan",
         "Verifier inputs",
         "Announcement approval evidence",
+        "Package metadata",
+        "Pre-publication wheel smoke",
         "Artifact checksums",
         "Provenance evidence",
         "Signature or keyless attestation evidence",
@@ -261,6 +276,9 @@ def validate(root: Path) -> list[str]:
     ):
         if gate_statuses.get(gate) != "pending_final_artifacts":
             failures.append(f"{PACKET_PATH}: {gate} must await final artifacts")
+    for gate in ("Package metadata", "Pre-publication wheel smoke"):
+        if gate_statuses.get(gate) != "pass":
+            failures.append(f"{PACKET_PATH}: {gate} must pass before final artifact publication")
     if packet.get("decision", {}).get("status") != "approve_final_ga_artifact_publication_preparation":
         failures.append(f"{PACKET_PATH}: decision must approve final artifact publication preparation")
 

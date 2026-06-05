@@ -2,9 +2,10 @@
 
 This package prepares CAVRA Community v1.0.0 for final GA publication from the
 validated RC1 feedback baseline and the completed Node 24 readiness baseline.
-It drafts final release notes, defines the v1.0.0 artifact build plan, records
-verifier inputs, and captures announcement approval evidence before final
-`community-v1.0.0` artifacts are published.
+It now carries the final `1.0.0` package metadata bump, defines the v1.0.0
+artifact build plan, records verifier inputs, and captures announcement
+approval evidence, including announcement approval evidence, before final
+`community-v1.0.0` artifacts are published from the merged `main` branch.
 
 ## Publication Target
 
@@ -23,8 +24,8 @@ verifier inputs, and captures announcement approval evidence before final
 
 ## Artifact Build Plan
 
-The final GA release must be built from the approved `main` commit after the
-package version changes from `1.0.0rc1` to `1.0.0`.
+The final GA release must be built from the approved `main` commit after this
+metadata bump is merged.
 
 | Artifact | Planned Name | Build Source | Required Verification |
 | --- | --- | --- | --- |
@@ -33,6 +34,28 @@ package version changes from `1.0.0rc1` to `1.0.0`.
 | Checksum manifest | `cavra-1.0.0-SHA256SUMS.txt` | Generated from release artifacts | Contains wheel, sdist, and provenance checksums. |
 | Provenance metadata | `cavra-1.0.0.provenance.json` | Public build metadata | Records tag, commit, build command, Python version, and public artifact hashes. |
 | Community Docker image | Community image from `docker/Dockerfile.community` | Public source tree only | Builds without Enterprise packages and runs without a license key. |
+
+## Pre-Publication Build Smoke
+
+The metadata-bump branch produced local artifacts with `python3 -m build` and
+verified a clean virtualenv install of the wheel:
+
+```bash
+python3 -m build --outdir dist
+python3 -m venv /tmp/cavra-v100-smoke
+/tmp/cavra-v100-smoke/bin/python -m pip install dist/cavra-1.0.0-py3-none-any.whl
+/tmp/cavra-v100-smoke/bin/cavra version
+```
+
+Observed output:
+
+```text
+cavra 1.0.0
+```
+
+These are pre-publication checks only. Final release checksums and provenance
+must be generated from the `community-v1.0.0` tag after this branch is merged
+to `main`, because the source distribution includes public docs and workflows.
 
 ## Verifier Inputs
 
@@ -86,7 +109,9 @@ Draft announcement:
 - [x] Release index and dashboard include a dry-run GA publication row.
 - [x] README and wiki navigation link the GA publication package.
 - [x] Public boundary requirements are documented.
-- [ ] Package metadata is bumped from `1.0.0rc1` to `1.0.0`.
+- [x] Package metadata is bumped from `1.0.0rc1` to `1.0.0`.
+- [x] Pre-publication local build and clean wheel install smoke return
+  `cavra 1.0.0`.
 - [ ] `community-v1.0.0` tag is created from approved `main`.
 - [ ] Final artifacts are built and attached to the GitHub Release.
 - [ ] Final artifact SHA-256 checksums are recorded.
@@ -114,10 +139,10 @@ python3 scripts/validate-community-v100-ga-publication-package.py
 Decision: approve final GA artifact publication preparation.
 
 Community v1.0.0 final artifacts are not published yet. The next step is to
-bump package metadata to `1.0.0`, build final artifacts, attach them to the
-GitHub Release, record checksums/provenance, and complete post-publication
-verification.
+merge this metadata bump, create the `community-v1.0.0` tag from `main`, build
+and upload final GitHub Release assets, record checksums/provenance, update
+verifier defaults, and complete post-publication verification.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.

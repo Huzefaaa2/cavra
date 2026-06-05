@@ -127,10 +127,10 @@ def test_community_release_workflows_are_node24_ready() -> None:
     verifier = Path(".github/workflows/verify-community-release.yml").read_text(
         encoding="utf-8"
     )
-    assert "default: community-v1.0.0-rc.1" in verifier
-    assert 'default: "1.0.0rc1"' in verifier
-    assert "6d06bd04965d3b1340ecacf007bc39111c8a8d5d0a73ee32f44aeb06ebb1be01" in verifier
-    assert "f4312e51a4d4180387982eafa86f301c584be5af147ba09098d733d187662e0c" in verifier
+    assert "default: community-v1.0.0" in verifier
+    assert 'default: "1.0.0"' in verifier
+    assert 'default: "<final wheel SHA-256>"' in verifier
+    assert 'default: "<final source distribution SHA-256>"' in verifier
 
 
 def test_github_required_check_templates_parse_and_verify_evidence() -> None:

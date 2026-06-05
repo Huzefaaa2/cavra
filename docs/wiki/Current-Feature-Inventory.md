@@ -114,7 +114,7 @@ Community v1.0.0 GA readiness: `docs/community-v1.0.0-ga-readiness.md`, `docs/re
 
 Community v1.0.0 GA publication package: `docs/community-v1.0.0-ga-publication-package.md`, `docs/releases/community-v1.0.0.md`, `docs/release-verifications/community-v1.0.0-publication-readiness.md`, `docs/release-verifications/community-v1.0.0-ga-publication-package.json`, and `scripts/validate-community-v100-ga-publication-package.py` define and enforce the public-safe final GA publication package for release notes, artifact build planning, verifier inputs, announcement approval evidence, release index coverage, release dashboard coverage, and public boundary validation.
 
-Next recommendation: Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Next recommendation: Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
 
 Community release index: `docs/community-release-index.md` summarizes public Community tags, release notes, verification packets, publication state, and next action for published and dry-run Community release records.
 

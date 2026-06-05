@@ -1,7 +1,8 @@
 # Community v1.0.0 Publication Readiness Verification
 
 This wiki page mirrors the public publication readiness verification for the
-CAVRA Community v1.0.0 GA publication package.
+CAVRA Community v1.0.0 GA publication package. The package metadata is bumped
+to `1.0.0`; final GitHub Release artifacts are not published yet.
 
 ## Release Metadata
 
@@ -21,10 +22,12 @@ CAVRA Community v1.0.0 GA publication package.
 | --- | --- | --- |
 | RC1 feedback baseline | Pass | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` |
 | Node 24 readiness baseline | Pass | Current Community workflows use Node 24-ready action versions. |
+| Package metadata | Pass | `pyproject.toml` and `src/cavra/__init__.py` use `1.0.0`. |
 | Final release notes | Pass | `docs/releases/community-v1.0.0.md` |
 | Artifact build plan | Pass | `docs/community-v1.0.0-ga-publication-package.md` |
 | Verifier inputs | Pass | Planned tag, version, wheel checksum, and source distribution checksum inputs are documented. |
 | Announcement approval evidence | Pass | Draft public announcement and approval checks are documented. |
+| Pre-publication wheel smoke | Pass | Local clean virtualenv install returned `cavra 1.0.0`. |
 | Artifact checksums | Warn | Pending final `community-v1.0.0` artifacts and SHA-256 checksums. |
 | Provenance evidence | Warn | Pending final provenance metadata. |
 | Signature or keyless attestation evidence | Warn | Pending final signature or attestation evidence. |
@@ -43,4 +46,4 @@ Decision: approve final GA artifact publication preparation.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.

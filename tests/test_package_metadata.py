@@ -11,8 +11,8 @@ def test_package_metadata_uses_pyproject_as_source_of_truth() -> None:
     setup_py = Path("setup.py").read_text(encoding="utf-8")
     manifest = Path("MANIFEST.in").read_text(encoding="utf-8")
 
-    assert 'version = "1.0.0rc1"' in pyproject
-    assert '__version__ = "1.0.0rc1"' in runtime
+    assert 'version = "1.0.0"' in pyproject
+    assert '__version__ = "1.0.0"' in runtime
     assert 'requires = ["setuptools>=77", "wheel"]' in pyproject
     assert 'license = "BUSL-1.1"' in pyproject
     assert 'license-files = ["LICENSE", "NOTICE"]' in pyproject

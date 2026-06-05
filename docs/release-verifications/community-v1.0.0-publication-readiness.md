@@ -1,8 +1,9 @@
 # Community v1.0.0 Publication Readiness Verification
 
 This packet verifies that the CAVRA Community v1.0.0 GA publication package is
-ready for final artifact publication. It does not claim that final artifacts
-exist yet.
+ready for final artifact publication. The package metadata is bumped to
+`1.0.0`; this packet does not claim that final GitHub Release artifacts exist
+yet.
 
 ## Release Metadata
 
@@ -25,12 +26,14 @@ exist yet.
 | --- | --- | --- |
 | RC1 feedback baseline | Pass | `docs/release-verifications/community-v1.0.0-rc.1-post-publication-verification.md` |
 | Node 24 readiness baseline | Pass | Current Community workflows use Node 24-ready action versions. |
+| Package metadata | Pass | `pyproject.toml` and `src/cavra/__init__.py` use `1.0.0`. |
 | Final release notes | Pass | `docs/releases/community-v1.0.0.md` |
 | Artifact build plan | Pass | `docs/community-v1.0.0-ga-publication-package.md` |
 | Verifier inputs | Pass | Planned tag, version, wheel checksum, and source distribution checksum inputs are documented. |
 | Announcement approval evidence | Pass | Draft public announcement and approval checks are documented. |
 | Release index | Pass | `docs/community-release-index.md` includes v1.0.0 as a dry-run GA publication row. |
 | Readiness dashboard | Pass | `docs/community-release-readiness-dashboard.md` includes v1.0.0 with pending final artifacts. |
+| Pre-publication wheel smoke | Pass | Local clean virtualenv install returned `cavra 1.0.0`. |
 | Artifact checksums | Warn | Pending final `community-v1.0.0` artifacts and SHA-256 checksums. |
 | Provenance evidence | Warn | Pending final provenance metadata from the release workflow or local publication run. |
 | Signature or keyless attestation evidence | Warn | Pending final signature or attestation evidence. |
@@ -59,10 +62,12 @@ and customer records are not included.
 
 Decision: approve final GA artifact publication preparation.
 
-Final publication still requires the `1.0.0` package metadata bump, final
-artifacts, checksums, provenance evidence, signature or keyless attestation
-evidence, GitHub Release links, and post-publication verification.
+Final publication still requires merging the `1.0.0` package metadata bump,
+creating the `community-v1.0.0` tag from `main`, building and uploading final
+artifacts, recording checksums, provenance evidence, signature or keyless
+attestation evidence, GitHub Release links, verifier defaults, and
+post-publication verification.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.

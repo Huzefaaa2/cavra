@@ -1,9 +1,10 @@
 # CAVRA Community v1.0.0 Release Notes
 
 CAVRA Community v1.0.0 is prepared as the final GA publication package after
-the published Community v1.0.0 RC1 baseline. The final `community-v1.0.0`
-artifacts are not published yet; this release note is a dry-run GA record that
-defines the final artifact, verification, installer, and announcement path.
+the published Community v1.0.0 RC1 baseline. The package metadata is now bumped
+to final `1.0.0`; the final `community-v1.0.0` artifacts are not published yet.
+This release note remains a dry-run GA record until the merged `main` branch is
+tagged and the GitHub Release assets are uploaded.
 
 ## Release Links
 
@@ -32,9 +33,13 @@ defines the final artifact, verification, installer, and announcement path.
 - Defined the artifact build plan for the wheel, source distribution, checksum
   manifest, provenance metadata, and Community Docker image path.
 - Defined verifier inputs for the reusable Community release verifier.
+- Bumped the public package metadata and runtime version from `1.0.0rc1` to
+  final `1.0.0`.
+- Verified a pre-publication local wheel build and clean virtualenv install
+  smoke with `cavra version` returning `cavra 1.0.0`.
 - Kept final SHA-256 checksums, signature or keyless attestation evidence,
-  clean install smoke, and post-publication verification as required
-  publication blockers until final artifacts exist.
+  final tagged-artifact clean install smoke, and post-publication verification
+  as required publication blockers until final artifacts exist.
 - Confirmed the package remains public Community documentation only and does
   not include Enterprise source code or private release material.
 
@@ -61,6 +66,10 @@ replace this dry-run section with:
 - detached signature or keyless attestation evidence;
 - clean install smoke output for `cavra 1.0.0`.
 
+Pre-publication local build smoke for this metadata-bump branch returned
+`cavra 1.0.0`. Final checksums are intentionally not recorded here until the
+`community-v1.0.0` tag exists on `main`.
+
 ## Verification Summary
 
 - GA publication package: pass.
@@ -71,6 +80,8 @@ replace this dry-run section with:
 - Wiki release link freshness: pass.
 - Release index dry-run row: pass.
 - Release readiness dashboard dry-run row: pass.
+- Package metadata bump: pass.
+- Pre-publication local wheel install smoke: pass.
 - Artifact checksums: pending final artifacts.
 - Provenance evidence: pending final artifacts.
 - Signature or keyless attestation evidence: pending final artifacts.
@@ -87,4 +98,4 @@ record.
 
 ## Next Recommendation
 
-Publish Community v1.0.0 GA artifacts from the approved publication package and completed Node 24 readiness baseline by bumping package metadata to 1.0.0, building final artifacts, attaching GitHub Release assets, recording checksums and provenance, and completing post-publication verification.
+Merge the Community v1.0.0 metadata bump, create the community-v1.0.0 tag from main, build and upload final GitHub Release assets, then record final checksums, provenance, verifier defaults, and post-publication verification.
