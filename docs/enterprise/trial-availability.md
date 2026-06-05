@@ -2,7 +2,7 @@
 
 CAVRA Enterprise Trial is ready for approved private evaluators.
 
-Request access through the live approved-access portal:
+Request access through the live approved-access landing page:
 
 ```text
 https://cavra-trial.mind-ops.cloud

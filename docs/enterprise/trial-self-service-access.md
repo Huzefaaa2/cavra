@@ -9,14 +9,15 @@ service in `Huzefaaa2/cavra-enterprise`.
 
 ## Availability
 
-Live request portal:
+Live request landing page and portal:
 
 ```text
 https://cavra-trial.mind-ops.cloud
 ```
 
-The public CAVRA portal is configured to submit Enterprise Trial requests to
-this HTTPS endpoint through `window.CAVRA_TRIAL_API_URL`.
+The CAVRA Trial domain is the canonical evaluator-facing landing page. It hosts
+the branded request form and submits directly to the private Trial Access
+service.
 
 Current approved trial package:
 
@@ -54,16 +55,12 @@ Enterprise source code is stored in the public repository.
 
 ## Public Portal Integration
 
-The static public portal supports two modes:
+The public GitHub Pages portal links users to the dedicated Trial domain. It no
+longer acts as the primary request form.
 
-- Static preview mode: stores request status locally when no private API URL is
-  configured.
-- Live private portal mode: posts the signup payload to
-  `CAVRA_TRIAL_API_URL/trial/signup`.
-
-For GitHub Pages, set repository variable `CAVRA_PUBLIC_TRIAL_API_URL` to the
-private HTTPS Trial Access Portal origin. The Pages workflow writes that value
-into `public/config.js` as `window.CAVRA_TRIAL_API_URL`.
+For GitHub Pages, keep repository variable `CAVRA_PUBLIC_TRIAL_API_URL` pointed
+at the private HTTPS Trial Access Portal origin for compatibility with older
+static builds. New evaluator requests should start at the Trial domain.
 
 Current production value:
 
@@ -85,7 +82,8 @@ HTTPS API endpoint controlled by the private Enterprise deployment.
 
 Recommended split:
 
-- GitHub Pages: public CAVRA portal, docs, signup form, static trial overview.
+- GitHub Pages: public CAVRA portal, docs, and static trial overview.
+- Replit custom domain: branded Enterprise Trial landing page and request form.
 - Private HTTPS service: `/trial/signup`, `/trial/approve`, `/trial/revoke`,
   `/trial/status/{request_id}`, license issuance, expiry, revocation, and
   operator workflows.

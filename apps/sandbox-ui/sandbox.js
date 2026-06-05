@@ -430,46 +430,6 @@ function renderRoadmap() {
   `).join("");
 }
 
-async function submitTrialAccessRequest(event) {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const formData = new FormData(form);
-  const payload = Object.fromEntries(formData.entries());
-  payload.terms_accepted = formData.get("terms_accepted") === "on";
-  const apiBase = String(window.CAVRA_TRIAL_API_URL || localStorage.getItem("cavra.trialApiUrl") || "").replace(/\/$/, "");
-  el("#trialAccessStatus").textContent = "Submitting trial request...";
-  try {
-    let responsePayload;
-    if (apiBase) {
-      const response = await fetch(`${apiBase}/trial/signup`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      responsePayload = await response.json();
-      if (!response.ok) throw new Error(responsePayload.error || "Trial request failed.");
-    } else {
-      responsePayload = {
-        request_id: `static-preview-${Date.now()}`,
-        status: "pending_approval",
-        decision_reason: "Static portal preview captured this request locally. Configure CAVRA_TRIAL_API_URL for live private portal submission."
-      };
-      localStorage.setItem("cavra.trialPreviewRequest", JSON.stringify({ ...payload, ...responsePayload }));
-    }
-    el("#trialAccessStatus").textContent = JSON.stringify({
-      request_id: responsePayload.request_id,
-      status: responsePayload.status,
-      next_step: responsePayload.decision_reason || "A trial operator will review the request and issue private access after approval."
-    }, null, 2);
-    form.reset();
-  } catch (error) {
-    el("#trialAccessStatus").textContent = JSON.stringify({
-      status: "failed",
-      reason: error.message
-    }, null, 2);
-  }
-}
-
 function openCommandPalette() {
   el("#commandPalette").classList.add("is-open");
   el("#commandPalette").setAttribute("aria-hidden", "false");
@@ -558,7 +518,6 @@ function wireEvents() {
   el("#savePilotIntake").addEventListener("click", () => {
     el("#scenarioStatus").textContent = "Pilot intake snapshot saved locally for this static demo.";
   });
-  el("#trialSignupForm").addEventListener("submit", submitTrialAccessRequest);
   el("#copyInstall").addEventListener("click", async () => {
     await navigator.clipboard?.writeText("claude mcp add cavra -- cavra-mcp-server");
     el("#scenarioStatus").textContent = "Install command copied.";
