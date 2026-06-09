@@ -1,0 +1,92 @@
+{
+  "schema_version": "cavra.aispm.behavior_fingerprints.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:04:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "summary": {
+    "total_agents": 2,
+    "review_required": 1,
+    "unusual_behavior": 1,
+    "baseline": 0,
+    "evidence_confidence": "activity_evidence_refs"
+  },
+  "items": [
+    {
+      "fingerprint_id": "fingerprint-codex-agent",
+      "agent_id": "codex-agent",
+      "repositories": ["payments/api"],
+      "session_count": 1,
+      "decision_count": 2,
+      "action_profile": [
+        { "name": "execute_command", "count": 1 },
+        { "name": "read_file", "count": 1 }
+      ],
+      "decision_profile": [
+        { "name": "require_approval", "count": 1 },
+        { "name": "block", "count": 1 }
+      ],
+      "policy_packs": ["cavra-ai-agent-baseline", "cloud-iam-prod"],
+      "control_surfaces": ["infrastructure_iac", "sensitive_data"],
+      "risk_signals": [
+        "blocked_action",
+        "approval_gate",
+        "critical_or_high_decision",
+        "sensitive_data_access",
+        "infrastructure_change",
+        "multiple_policy_packs"
+      ],
+      "drift_status": "review_required",
+      "drift_score": 82,
+      "evidence_refs": [
+        "sample://evidence/iac-production-change",
+        "sample://evidence/secret-read-block"
+      ],
+      "last_seen_at": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "fingerprint_id": "fingerprint-claude-code-agent",
+      "agent_id": "claude-code-agent",
+      "repositories": ["platform/infra"],
+      "session_count": 1,
+      "decision_count": 1,
+      "action_profile": [{ "name": "mcp_tool_call", "count": 1 }],
+      "decision_profile": [{ "name": "warn", "count": 1 }],
+      "policy_packs": ["mcp-enterprise"],
+      "control_surfaces": ["mcp_tools"],
+      "risk_signals": ["warned_action", "mcp_or_tool_activity"],
+      "drift_status": "unusual_behavior",
+      "drift_score": 17,
+      "evidence_refs": ["sample://evidence/mcp-warning"],
+      "last_seen_at": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "redaction": {
+    "prompt_capture": "requires_cavra_enterprise",
+    "reasoning_trace": "requires_cavra_enterprise",
+    "raw_tool_output": "requires_cavra_enterprise",
+    "tool_call_graph": "requires_cavra_enterprise",
+    "customer_context": "requires_cavra_enterprise",
+    "private_behavior_baselines": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "organization-specific behavior baselines",
+      "cross-repository anomaly detection",
+      "live streaming behavior drift alerts",
+      "identity and RBAC-aware agent owner mapping",
+      "SIEM export for behavior drift events"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

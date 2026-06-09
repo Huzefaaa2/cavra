@@ -281,6 +281,40 @@ const aispmFallback = {
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
   ],
+  behavior_fingerprints: [
+    {
+      fingerprint_id: "fingerprint-codex-agent",
+      agent_id: "codex-agent",
+      repositories: ["payments/api"],
+      session_count: 1,
+      decision_count: 2,
+      action_profile: [{ name: "execute_command", count: 1 }, { name: "read_file", count: 1 }],
+      decision_profile: [{ name: "require_approval", count: 1 }, { name: "block", count: 1 }],
+      policy_packs: ["cavra-ai-agent-baseline", "cloud-iam-prod"],
+      control_surfaces: ["infrastructure_iac", "sensitive_data"],
+      risk_signals: ["blocked_action", "approval_gate", "critical_or_high_decision", "sensitive_data_access", "infrastructure_change", "multiple_policy_packs"],
+      drift_status: "review_required",
+      drift_score: 82,
+      evidence_refs: ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block"],
+      last_seen_at: "2026-06-09T00:01:00+00:00"
+    },
+    {
+      fingerprint_id: "fingerprint-claude-code-agent",
+      agent_id: "claude-code-agent",
+      repositories: ["platform/infra"],
+      session_count: 1,
+      decision_count: 1,
+      action_profile: [{ name: "mcp_tool_call", count: 1 }],
+      decision_profile: [{ name: "warn", count: 1 }],
+      policy_packs: ["mcp-enterprise"],
+      control_surfaces: ["mcp_tools"],
+      risk_signals: ["warned_action", "mcp_or_tool_activity"],
+      drift_status: "unusual_behavior",
+      drift_score: 17,
+      evidence_refs: ["sample://evidence/mcp-warning"],
+      last_seen_at: "2026-06-09T00:02:00+00:00"
+    }
+  ],
   approval_lineage: [
     {
       lineage_id: "lineage-sample-apr-001",
@@ -452,6 +486,45 @@ const aispmApprovalLineageFallback = {
   }
 };
 
+const aispmBehaviorFingerprintFallback = {
+  schema_version: "cavra.aispm.behavior_fingerprints.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:04:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    total_agents: 2,
+    review_required: 1,
+    unusual_behavior: 1,
+    baseline: 0,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  items: aispmFallback.behavior_fingerprints,
+  redaction: {
+    prompt_capture: "requires_cavra_enterprise",
+    reasoning_trace: "requires_cavra_enterprise",
+    raw_tool_output: "requires_cavra_enterprise",
+    tool_call_graph: "requires_cavra_enterprise",
+    customer_context: "requires_cavra_enterprise",
+    private_behavior_baselines: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "organization-specific behavior baselines",
+      "cross-repository anomaly detection",
+      "live streaming behavior drift alerts",
+      "identity and RBAC-aware agent owner mapping",
+      "SIEM export for behavior drift events"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -466,7 +539,8 @@ const routeContent = [
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
-  { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." }
+  { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
+  { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." }
 ];
 
 function el(selector) {
@@ -640,6 +714,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
       </div>
     </article>
   `).join("") || `<p class="empty-state">No near misses in the current local activity window.</p>`;
+  renderAispmBehaviorFingerprints({
+    ...aispmBehaviorFingerprintFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeBehaviorFingerprints(payload.behavior_fingerprints || aispmBehaviorFingerprintFallback.items),
+    items: payload.behavior_fingerprints || aispmBehaviorFingerprintFallback.items
+  }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
       <h3>${escapeHtml(event.title || event.event_type || "timeline event")}</h3>
@@ -839,6 +919,77 @@ function renderAispmApprovalLineage(packet, note = "sample lineage") {
       <small>${escapeHtml((item.evidence_refs || []).join(", ") || "no evidence refs")}</small>
     </article>
   `).join("") || `<p class="empty-state">No approval lineage records available.</p>`;
+}
+
+function summarizeBehaviorFingerprints(items) {
+  const counts = (items || []).reduce((acc, item) => {
+    acc[item.drift_status] = (acc[item.drift_status] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    total_agents: (items || []).length,
+    review_required: counts.review_required || 0,
+    unusual_behavior: counts.unusual_behavior || 0,
+    baseline: counts.baseline || 0,
+    evidence_confidence: (items || []).some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmBehaviorFingerprints() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/behavior-fingerprints`);
+      if (!response.ok) throw new Error(`Behavior fingerprints HTTP ${response.status}`);
+      renderAispmBehaviorFingerprints(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmBehaviorFingerprints(aispmBehaviorFingerprintFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmBehaviorFingerprints(aispmBehaviorFingerprintFallback, "static sample fingerprints");
+}
+
+function renderAispmBehaviorFingerprints(packet, note = "sample fingerprints") {
+  const summary = packet.summary || {};
+  const items = packet.items || [];
+  const summaryCards = [
+    ["Fingerprints", summary.total_agents ?? items.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Review Required", summary.review_required ?? 0, "Blocked, approval-gated, or high-risk drift"],
+    ["Unusual Behavior", summary.unusual_behavior ?? 0, `Baseline: ${summary.baseline ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Public-safe metadata only"]
+  ];
+  el("#aispmFingerprintSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmBehaviorFingerprints").innerHTML = items.slice(0, 6).map((item) => {
+    const actions = (item.action_profile || []).slice(0, 3).map((entry) => `${entry.name}:${entry.count}`).join(" · ") || "no actions";
+    const decisions = (item.decision_profile || []).slice(0, 3).map((entry) => `${entry.name}:${entry.count}`).join(" · ") || "no decisions";
+    const signals = (item.risk_signals || []).slice(0, 6).map((signal) => `<span>${escapeHtml(signal.replaceAll("_", " "))}</span>`).join("");
+    return `
+      <article class="fingerprint-card">
+        <div class="fingerprint-card-header">
+          <div>
+            <span>${escapeHtml(item.drift_status || "baseline")}</span>
+            <strong>${escapeHtml(item.agent_id || "unknown-agent")}</strong>
+          </div>
+          <b>${escapeHtml(item.drift_score ?? 0)}</b>
+        </div>
+        <p>${escapeHtml((item.repositories || []).join(", ") || "local")} · ${escapeHtml(item.decision_count || 0)} decisions · ${escapeHtml(item.session_count || 0)} sessions</p>
+        <dl>
+          <dt>Actions</dt><dd>${escapeHtml(actions)}</dd>
+          <dt>Decisions</dt><dd>${escapeHtml(decisions)}</dd>
+          <dt>Surfaces</dt><dd>${escapeHtml((item.control_surfaces || []).join(", ") || "none observed")}</dd>
+        </dl>
+        <div class="risk-signal-list">${signals || "<span>baseline</span>"}</div>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No behavior fingerprints available for this activity window.</p>`;
 }
 
 function renderAispmTraceReplay(packet, note = "sample replay") {
@@ -1049,6 +1200,7 @@ function wireEvents() {
   el("#runScenario").addEventListener("click", runScenario);
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
+  el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1084,6 +1236,7 @@ function init() {
   wireEvents();
   loadAispmDashboard();
   loadAispmApprovalLineage();
+  loadAispmBehaviorFingerprints();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

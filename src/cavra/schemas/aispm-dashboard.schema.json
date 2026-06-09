@@ -14,6 +14,7 @@
     "timeline",
     "control_coverage",
     "near_misses",
+    "behavior_fingerprints",
     "control_plane"
   ],
   "properties": {
@@ -107,6 +108,58 @@
             "items": { "type": "string" }
           },
           "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "behavior_fingerprints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fingerprint_id",
+          "agent_id",
+          "decision_count",
+          "action_profile",
+          "decision_profile",
+          "risk_signals",
+          "drift_status",
+          "drift_score"
+        ],
+        "properties": {
+          "fingerprint_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repositories": { "type": "array", "items": { "type": "string" } },
+          "session_count": { "type": "integer", "minimum": 0 },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "action_profile": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "count"],
+              "properties": {
+                "name": { "type": "string" },
+                "count": { "type": "integer", "minimum": 0 }
+              }
+            }
+          },
+          "decision_profile": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "count"],
+              "properties": {
+                "name": { "type": "string" },
+                "count": { "type": "integer", "minimum": 0 }
+              }
+            }
+          },
+          "policy_packs": { "type": "array", "items": { "type": "string" } },
+          "control_surfaces": { "type": "array", "items": { "type": "string" } },
+          "risk_signals": { "type": "array", "items": { "type": "string" } },
+          "drift_status": { "enum": ["baseline", "unusual_behavior", "review_required"] },
+          "drift_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "last_seen_at": { "type": ["string", "null"] }
         }
       }
     },

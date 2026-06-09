@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added public-safe AISPM behavior fingerprinting for Community, including
+  `/aispm/behavior-fingerprints`, packaged schema/sample data, dashboard
+  summary cards, risk-signal chips, docs/wiki updates, and Enterprise-locked
+  private behavior baseline boundaries.
 - Added public-safe AISPM approval lineage for Community, including the
   `/aispm/approval-lineage` API endpoint, packaged schema/sample, dashboard
   panel, docs/wiki updates, and role-labelled actor redaction for local

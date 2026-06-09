@@ -9,6 +9,7 @@ from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.aispm import (
     build_aispm_approval_lineage,
+    build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
     build_aispm_posture,
     build_aispm_trace_replay_packet,
@@ -626,6 +627,7 @@ def create_app():
                 "aispm_near_misses": "/aispm/near-misses",
                 "aispm_trace_replay": "/aispm/trace-replay/{session_id}",
                 "aispm_approval_lineage": "/aispm/approval-lineage",
+                "aispm_behavior_fingerprints": "/aispm/behavior-fingerprints",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1041,6 +1043,21 @@ def create_app():
             "items": posture["near_misses"],
             "total": len(posture["near_misses"]),
         }
+
+    @app.get("/aispm/behavior-fingerprints")
+    def aispm_behavior_fingerprints(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_behavior_fingerprints(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
 
     @app.get("/aispm/trace-replay/{session_id}")
     def aispm_trace_replay(session_id: str, limit: int = 200) -> dict:

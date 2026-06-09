@@ -225,6 +225,19 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .approval-lineage-row strong { display: block; overflow-wrap: anywhere; }
 .approval-lineage-row p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
 .approval-lineage-row small { color: var(--muted); overflow-wrap: anywhere; }
+.behavior-fingerprint-panel { display: grid; gap: 16px; }
+.fingerprint-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.fingerprint-card { border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 14px; background: var(--panel-soft); }
+.fingerprint-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.fingerprint-card-header span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
+.fingerprint-card-header strong { display: block; margin-top: 5px; font-size: 22px; overflow-wrap: anywhere; }
+.fingerprint-card-header b { display: grid; place-items: center; min-width: 48px; min-height: 48px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--primary) 46%, transparent); background: color-mix(in srgb, var(--primary) 15%, transparent); font-size: 19px; }
+.fingerprint-card p { color: var(--muted); line-height: 1.45; }
+.fingerprint-card dl { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px 10px; margin: 12px 0; }
+.fingerprint-card dt { color: var(--muted); font-weight: 900; }
+.fingerprint-card dd { margin: 0; overflow-wrap: anywhere; }
+.risk-signal-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.risk-signal-list span { display: inline-flex; border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); border-radius: 999px; padding: 4px 8px; color: var(--text); background: color-mix(in srgb, var(--primary) 11%, transparent); font-size: 12px; font-weight: 850; }
 .operator-path-card span { color: var(--accent); text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
 .operator-path-card h3 { margin: 10px 0 14px; font-size: 24px; }
 .operator-path-card dl { margin: 0 0 16px; }
@@ -336,7 +349,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .hero-product-mark { width: 108px; }
   .hero-copy { padding-right: 0; }
   h1 { font-size: 58px; }
-  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
+  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .fingerprint-grid, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
   .architecture-map { display: flex; overflow-x: auto; min-height: 240px; scroll-snap-type: x mandatory; }
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }

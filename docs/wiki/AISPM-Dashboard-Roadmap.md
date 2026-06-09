@@ -25,11 +25,12 @@ Enterprise should provide the live CSO/CISO operating surface:
 
 Community should keep a public-safe dashboard demo and local activity view,
 including observed control coverage, near-miss queues, trace replay packets
-derived from local decisions, and approval lineage from local approval records.
+derived from local decisions, approval lineage from local approval records, and
+behavior fingerprints from normalized local activity metadata.
 Enterprise should own authenticated multi-tenant ingestion, streaming updates,
 centralized retention, private policy context, organization controls, raw
-prompt/reasoning replay, private IdP/RBAC context, and commercial compliance
-exports.
+prompt/reasoning replay, private behavior baselines, private IdP/RBAC context,
+and commercial compliance exports.
 
 The detailed implementation plan is maintained in
 `docs/ai-security-posture-dashboard-roadmap.md`.

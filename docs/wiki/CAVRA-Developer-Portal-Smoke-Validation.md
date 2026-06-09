@@ -27,7 +27,8 @@ CAVRA sandbox portal smoke validation passed.
   roadmap.
 - The command palette includes page, policy, integration, control, and use-case
   search content, plus AI Posture entries for agent observability, kill switch,
-  evidence confidence, trace replay, and approval lineage.
+  evidence confidence, trace replay, approval lineage, and behavior
+  fingerprinting.
 - Theme selectors remain available on desktop and mobile for Sentinel, Classic,
   Retro, and Executive dashboard themes.
 - Mobile drawer and bottom navigation anchors remain available.
@@ -35,8 +36,9 @@ CAVRA sandbox portal smoke validation passed.
   CAVRA, Policy Engine, Evidence Engine, Audit Trail, and cloud providers.
 - AI Posture DOM anchors remain available for provenance, overview cards,
   agent coverage, findings, control coverage, near misses, timeline, trace
-  replay drill-down, approval lineage, payload, `/aispm/posture`,
-  `/aispm/trace-replay`, and `/aispm/approval-lineage` fallback loading.
+  replay drill-down, approval lineage, behavior fingerprinting, payload,
+  `/aispm/posture`, `/aispm/trace-replay`, `/aispm/approval-lineage`, and
+  `/aispm/behavior-fingerprints` fallback loading.
 - Compliance filters still include NIST, SOC2, ISO27001, CIS, PCI DSS, and
   OWASP.
 - The GitHub Pages workflow still smoke-tests the page, JavaScript, stylesheet,

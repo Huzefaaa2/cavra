@@ -22,16 +22,19 @@ Activity endpoints:
 - `GET /aispm/near-misses`: list warned, approval-gated, or attested risky actions that should be reviewed before they become incidents.
 - `GET /aispm/trace-replay/{session_id}`: return a public-safe replay packet for one local activity session with sensitive targets summarized and raw prompt, reasoning, tool output, and customer context locked to Enterprise.
 - `GET /aispm/approval-lineage`: return public-safe "who approved what" approval lineage from the local approval store with human actors reduced to role labels and private IdP/RBAC context locked to Enterprise.
+- `GET /aispm/behavior-fingerprints`: return public-safe behavior fingerprints and drift signals from local activity metadata with raw prompts, reasoning traces, tool output, private baselines, and customer context locked to Enterprise.
 
 Default activity path: `.cavra/api/activity.json`.
 
 Set `CAVRA_ACTIVITY_STORE` to override the JSON path. Set `CAVRA_ACTIVITY_DB` to use SQLite-backed activity persistence. `GET /console/config` includes `activity_mode`.
 The AISPM endpoints are Community-safe local/sample surfaces. Community trace
-replay reconstructs normalized decision steps only. Live prompt traces, model
-reasoning, raw tool output, tool-call graphing, private identity-provider
-claims, organization-wide coverage, multi-tenant retention, kill switch, policy
-toggles, runtime overrides, and compliance exports remain Enterprise
-capabilities.
+replay reconstructs normalized decision steps only, and Community behavior
+fingerprints use normalized decisions, action types, repositories, control
+surfaces, and evidence references only. Live prompt traces, model reasoning,
+raw tool output, tool-call graphing, private behavior baselines, private
+identity-provider claims, organization-wide coverage, multi-tenant retention,
+kill switch, policy toggles, runtime overrides, and compliance exports remain
+Enterprise capabilities.
 
 ## Repository Inventory and Policy Rollout
 

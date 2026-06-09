@@ -49,6 +49,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "near-miss queue for warnings and approval-gated actions",
                 "public-safe trace replay packets from local session decisions",
                 "public-safe approval lineage from local approval records",
+                "public-safe behavior fingerprints and drift signals from local activity metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -74,6 +75,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "near_miss_queue",
             "trace_replay_packet",
             "approval_lineage",
+            "behavior_fingerprints",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -85,6 +87,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "near_misses": "/aispm/near-misses",
             "trace_replay": "/aispm/trace-replay/{session_id}",
             "approval_lineage": "/aispm/approval-lineage",
+            "behavior_fingerprints": "/aispm/behavior-fingerprints",
         },
     }
 
@@ -116,6 +119,7 @@ def build_aispm_posture(
     timeline = _timeline(decisions, sessions)
     agents = _agent_observability(decisions, sessions)
     overview = _posture_overview(decisions, sessions, findings)
+    behavior_fingerprints = _behavior_fingerprints(decisions, sessions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -138,8 +142,85 @@ def build_aispm_posture(
         "control_coverage": _control_coverage(decisions),
         "near_misses": _near_misses(decisions),
         "approval_lineage": [],
+        "behavior_fingerprints": behavior_fingerprints,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
+    }
+
+
+def build_aispm_behavior_fingerprints(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build public-safe agent behavior fingerprints from activity metadata.
+
+    Community fingerprints use only normalized metadata that already exists in
+    the local activity store. Private raw prompts, model reasoning, raw tool
+    output, customer context, and organization-specific baselines remain
+    Enterprise-only ingestion fields.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    items = _behavior_fingerprints(decisions, sessions)
+    status_counts = Counter(str(item.get("drift_status", "baseline")) for item in items)
+    return {
+        "schema_version": "cavra.aispm.behavior_fingerprints.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "total_agents": len(items),
+            "review_required": status_counts["review_required"],
+            "unusual_behavior": status_counts["unusual_behavior"],
+            "baseline": status_counts["baseline"],
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items,
+        "redaction": {
+            "prompt_capture": LOCKED_ENTERPRISE_STATUS,
+            "reasoning_trace": LOCKED_ENTERPRISE_STATUS,
+            "raw_tool_output": LOCKED_ENTERPRISE_STATUS,
+            "tool_call_graph": LOCKED_ENTERPRISE_STATUS,
+            "customer_context": LOCKED_ENTERPRISE_STATUS,
+            "private_behavior_baselines": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "organization-specific behavior baselines",
+                "cross-repository anomaly detection",
+                "live streaming behavior drift alerts",
+                "identity and RBAC-aware agent owner mapping",
+                "SIEM export for behavior drift events",
+            ],
+            "private_package": "cavra_enterprise",
+        },
     }
 
 
@@ -244,6 +325,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "control_coverage": _control_coverage(decisions),
         "near_misses": _near_misses(decisions),
         "approval_lineage": _sample_approval_lineage(decisions),
+        "behavior_fingerprints": _behavior_fingerprints(decisions, sessions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -539,6 +621,145 @@ def _agent_observability(decisions: list[dict[str, Any]], sessions: list[dict[st
             }
         )
     return agents
+
+
+def _behavior_fingerprints(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped_decisions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    grouped_sessions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for decision in decisions:
+        grouped_decisions[str(decision.get("agent_id", "unknown-agent"))].append(decision)
+    for session in sessions:
+        grouped_sessions[str(session.get("agent_id", "unknown-agent"))].append(session)
+
+    fingerprints: list[dict[str, Any]] = []
+    for agent_id in sorted(set(grouped_decisions) | set(grouped_sessions)):
+        agent_decisions = grouped_decisions.get(agent_id, [])
+        agent_sessions = grouped_sessions.get(agent_id, [])
+        decision_counts = Counter(str(item.get("decision", "unknown")) for item in agent_decisions)
+        severity_counts = Counter(str(item.get("severity", "low")) for item in agent_decisions)
+        action_counts = Counter(str(item.get("action_type", "unknown")) for item in agent_decisions)
+        repositories = sorted(
+            {str(item.get("repository", "local")) for item in [*agent_decisions, *agent_sessions] if item.get("repository")}
+        )
+        policy_packs = sorted({str(item.get("policy_pack", "cavra-ai-agent-baseline")) for item in agent_decisions})
+        control_surfaces = sorted({_control_surface(item) for item in agent_decisions})
+        risk_signals = _behavior_risk_signals(
+            agent_decisions,
+            repositories=repositories,
+            policy_packs=policy_packs,
+            control_surfaces=control_surfaces,
+            action_counts=action_counts,
+            decision_counts=decision_counts,
+            severity_counts=severity_counts,
+        )
+        drift_score = _behavior_drift_score(
+            decision_counts=decision_counts,
+            severity_counts=severity_counts,
+            repositories=repositories,
+            policy_packs=policy_packs,
+            control_surfaces=control_surfaces,
+            action_counts=action_counts,
+        )
+        fingerprints.append(
+            {
+                "fingerprint_id": f"fingerprint-{agent_id}",
+                "agent_id": agent_id,
+                "repositories": repositories,
+                "session_count": len(agent_sessions),
+                "decision_count": len(agent_decisions),
+                "action_profile": _counter_profile(action_counts),
+                "decision_profile": _counter_profile(decision_counts),
+                "policy_packs": policy_packs,
+                "control_surfaces": control_surfaces,
+                "risk_signals": risk_signals,
+                "drift_status": _behavior_drift_status(drift_score, risk_signals),
+                "drift_score": drift_score,
+                "evidence_refs": sorted({ref for item in agent_decisions for ref in item.get("evidence_refs", [])})[:8],
+                "last_seen_at": max(
+                    [str(item.get("timestamp", "")) for item in agent_decisions if item.get("timestamp")]
+                    + [str(item.get("updated_at", "")) for item in agent_sessions if item.get("updated_at")],
+                    default=None,
+                ),
+            }
+        )
+    return sorted(fingerprints, key=lambda item: (-int(item.get("drift_score", 0)), str(item.get("agent_id", ""))))
+
+
+def _counter_profile(counter: Counter[str]) -> list[dict[str, Any]]:
+    return [{"name": name, "count": count} for name, count in counter.most_common()]
+
+
+def _behavior_drift_score(
+    *,
+    decision_counts: Counter[str],
+    severity_counts: Counter[str],
+    repositories: list[str],
+    policy_packs: list[str],
+    control_surfaces: list[str],
+    action_counts: Counter[str],
+) -> int:
+    score = (
+        decision_counts["block"] * 20
+        + decision_counts["require_approval"] * 14
+        + decision_counts["warn"] * 8
+        + decision_counts["allow_with_attestation"] * 4
+        + severity_counts["critical"] * 18
+        + severity_counts["high"] * 10
+        + severity_counts["medium"] * 4
+    )
+    if len(repositories) > 1:
+        score += min(12, (len(repositories) - 1) * 4)
+    if len(policy_packs) > 1:
+        score += min(10, (len(policy_packs) - 1) * 5)
+    if len(control_surfaces) > 1:
+        score += min(12, (len(control_surfaces) - 1) * 4)
+    if len(action_counts) > 2:
+        score += min(10, (len(action_counts) - 2) * 3)
+    return max(0, min(score, 100))
+
+
+def _behavior_drift_status(drift_score: int, risk_signals: list[str]) -> str:
+    if "blocked_action" in risk_signals or "approval_gate" in risk_signals or drift_score >= 35:
+        return "review_required"
+    if risk_signals or drift_score >= 12:
+        return "unusual_behavior"
+    return "baseline"
+
+
+def _behavior_risk_signals(
+    decisions: list[dict[str, Any]],
+    *,
+    repositories: list[str],
+    policy_packs: list[str],
+    control_surfaces: list[str],
+    action_counts: Counter[str],
+    decision_counts: Counter[str],
+    severity_counts: Counter[str],
+) -> list[str]:
+    signals: list[str] = []
+    if decision_counts["block"]:
+        signals.append("blocked_action")
+    if decision_counts["require_approval"]:
+        signals.append("approval_gate")
+    if decision_counts["warn"]:
+        signals.append("warned_action")
+    if severity_counts["critical"] or severity_counts["high"]:
+        signals.append("critical_or_high_decision")
+    if "sensitive_data" in control_surfaces:
+        signals.append("sensitive_data_access")
+    if "infrastructure_iac" in control_surfaces:
+        signals.append("infrastructure_change")
+    if "mcp_tools" in control_surfaces:
+        signals.append("mcp_or_tool_activity")
+    if len(repositories) > 1:
+        signals.append("multi_repository_activity")
+    if len(policy_packs) > 1:
+        signals.append("multiple_policy_packs")
+    if len(action_counts) > 2:
+        signals.append("broad_action_profile")
+    if decisions and not any(item.get("evidence_refs") for item in decisions):
+        signals.append("metadata_only_evidence")
+    return signals
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -3,7 +3,8 @@
 CAVRA now exposes the first public-safe AI Security Posture Management
 dashboard contract for Community Edition. The current public implementation
 includes Phase A contract fields plus Phase B control coverage, near-miss
-visibility, public-safe trace replay packets, and public-safe approval lineage.
+visibility, public-safe trace replay packets, public-safe approval lineage, and
+public-safe behavior fingerprints.
 
 Community Edition provides:
 
@@ -17,12 +18,13 @@ Community Edition provides:
 - `GET /aispm/near-misses`
 - `GET /aispm/trace-replay/{session_id}`
 - `GET /aispm/approval-lineage`
+- `GET /aispm/behavior-fingerprints`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
 `window.CAVRA_API_BASE` is configured. The route shows posture overview, agent
 coverage, risk findings, control coverage, near misses, execution timeline, and
-approval lineage, and the raw public-safe payload.
+approval lineage, behavior fingerprinting, and the raw public-safe payload.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -34,6 +36,12 @@ records using approver groups, state, timestamps, decision linkage, and evidence
 references. Human actors are reduced to role labels; raw identity-provider
 claims, RBAC policy context, private routing rules, and connector payloads
 remain Enterprise-only.
+
+Community behavior fingerprinting summarizes agent action profiles, decision
+profiles, observed repositories, control surfaces, risk signals, drift status,
+and evidence references. Raw prompts, reasoning traces, tool output, private
+customer context, and organization-specific behavior baselines remain
+Enterprise-only.
 
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
@@ -51,3 +59,7 @@ packet at `examples/aispm/community-trace-replay-sample.json`.
 The packaged Community approval lineage schema is
 `src/cavra/schemas/aispm-approval-lineage.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-approval-lineage-sample.json`.
+The packaged Community behavior fingerprint schema is
+`src/cavra/schemas/aispm-behavior-fingerprints.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-behavior-fingerprints-sample.json`.

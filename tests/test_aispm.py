@@ -6,6 +6,7 @@ import jsonschema
 from cavra.activity import ActivityStore
 from cavra.aispm import (
     build_aispm_approval_lineage,
+    build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
     build_aispm_posture,
     build_aispm_trace_replay_packet,
@@ -90,6 +91,10 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["overview"]["evidence_confidence"] == "signed_evidence"
     assert posture["agents"][0]["agent_id"] == "codex-agent"
     assert posture["agents"][0]["drift_status"] == "review_required"
+    assert posture["behavior_fingerprints"][0]["agent_id"] == "codex-agent"
+    assert posture["behavior_fingerprints"][0]["drift_status"] == "review_required"
+    assert "blocked_action" in posture["behavior_fingerprints"][0]["risk_signals"]
+    assert "sensitive_data_access" in posture["behavior_fingerprints"][0]["risk_signals"]
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -109,6 +114,52 @@ def test_aispm_sample_dashboard_matches_packaged_schema() -> None:
 
     assert dashboard_schema.is_file()
     jsonschema.validate(sample, schema=json.loads(dashboard_schema.read_text(encoding="utf-8")))
+
+
+def test_aispm_behavior_fingerprints_track_public_safe_drift(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+        )
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-1",
+            "agent_id": "codex-agent",
+            "repository": "payments/api",
+            "state": "completed",
+            "updated_at": "2026-06-09T00:02:00+00:00",
+        }
+    )
+
+    packet = build_aispm_behavior_fingerprints(store)
+
+    assert packet["schema_version"] == "cavra.aispm.behavior_fingerprints.v1"
+    assert packet["summary"]["review_required"] == 1
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    assert packet["items"][0]["agent_id"] == "codex-agent"
+    assert packet["items"][0]["drift_status"] == "review_required"
+    assert packet["items"][0]["drift_score"] > 50
+    assert "approval_gate" in packet["items"][0]["risk_signals"]
+    assert packet["redaction"]["private_behavior_baselines"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
@@ -231,4 +282,16 @@ def test_aispm_approval_lineage_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(lineage_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_behavior_fingerprint_sample_matches_packaged_schema() -> None:
+    fingerprint_schema = Path("src/cavra/schemas/aispm-behavior-fingerprints.schema.json")
+    sample = Path("examples/aispm/community-behavior-fingerprints-sample.json")
+
+    assert fingerprint_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(fingerprint_schema.read_text(encoding="utf-8")),
     )
