@@ -26,7 +26,7 @@ Delivered UX:
   documentation, and roadmap pages, including a public-safe trace replay
   drill-down for normalized decision steps, approval lineage for role-labelled
   approval records, and behavior fingerprinting for baseline-vs-unusual agent
-  drift signals;
+  drift signals, plus policy context gaps for policy-invisible risk;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
@@ -35,7 +35,7 @@ Delivered UX:
 | Route | Purpose |
 | --- | --- |
 | `#dashboard` | Hero, mission, feature cards, risk score, governance metrics, Community GA controls, and production pilot readiness. |
-| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, timeline, approval lineage, behavior fingerprinting, trace replay packet drill-down, and Enterprise locked controls. |
+| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, policy context gaps, timeline, approval lineage, behavior fingerprinting, trace replay packet drill-down, and Enterprise locked controls. |
 | `#architecture` | Interactive node explorer for source platforms, IaC/cloud, CAVRA, Policy Engine, Evidence Engine, and audit trail. |
 | `#policy-engine` | Policy packs, risk levels, violation examples, and remediation guidance. |
 | `#evidence` | Evidence workflow, attestations, chain of custody, and sample evidence payload. |

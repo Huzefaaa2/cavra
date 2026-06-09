@@ -362,6 +362,95 @@
     "total_sessions": 2,
     "warned_actions": 1
   },
+  "policy_context_gaps": [
+    {
+      "action_type": "execute_command",
+      "agent_id": "codex-agent",
+      "control_surface": "infrastructure_iac",
+      "decision": "require_approval",
+      "decision_id": "sample-dec-001",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "gap_id": "context-gap-sample-dec-001",
+      "gap_status": "requires_context_review",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "service_owner",
+        "change_window",
+        "blast_radius",
+        "approval_route"
+      ],
+      "policy_pack": "cloud-iam-prod",
+      "present_context": [],
+      "recommended_action": "Attach service owner, change window, and blast-radius context before execution. Missing: environment_tier, system_criticality, service_owner, change_window, blast_radius, approval_route.",
+      "repository": "payments/api",
+      "risk_classification": "infrastructure_change_risk",
+      "rule_id": "iac.production-change",
+      "session_id": "sample-session-001",
+      "severity": "high",
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "action_type": "read_file",
+      "agent_id": "codex-agent",
+      "control_surface": "sensitive_data",
+      "decision": "block",
+      "decision_id": "sample-dec-002",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "gap_id": "context-gap-sample-dec-002",
+      "gap_status": "requires_context_review",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "data_owner",
+        "data_classification",
+        "customer_region",
+        "approval_route"
+      ],
+      "policy_pack": "cavra-ai-agent-baseline",
+      "present_context": [],
+      "recommended_action": "Attach data-owner, classification, and regional context before relying on the decision. Missing: environment_tier, system_criticality, data_owner, data_classification, customer_region, approval_route.",
+      "repository": "payments/api",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "rule_id": "secrets.block-sensitive-read",
+      "session_id": "sample-session-001",
+      "severity": "critical",
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "action_type": "mcp_tool_call",
+      "agent_id": "claude-code-agent",
+      "control_surface": "mcp_tools",
+      "decision": "warn",
+      "decision_id": "sample-dec-003",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "gap_id": "context-gap-sample-dec-003",
+      "gap_status": "requires_context_review",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "tool_owner",
+        "tool_trust_tier"
+      ],
+      "policy_pack": "mcp-enterprise",
+      "present_context": [
+        "business_justification"
+      ],
+      "recommended_action": "Attach tool owner, trust tier, and business justification before broad tool use. Missing: environment_tier, system_criticality, tool_owner, tool_trust_tier.",
+      "repository": "platform/infra",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "rule_id": "mcp.untrusted-tool",
+      "session_id": "sample-session-002",
+      "severity": "medium",
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
   "product": "CAVRA",
   "schema_version": "cavra.aispm.dashboard.v1",
   "telemetry": "disabled",

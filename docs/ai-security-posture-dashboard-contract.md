@@ -4,7 +4,8 @@ CAVRA now exposes the first public-safe AI Security Posture Management
 dashboard contract for Community Edition. Phase A defines the contract, and the
 current Phase B hardening adds Community control coverage, near-miss visibility,
 public-safe trace replay packets, public-safe approval lineage, and behavior
-fingerprints without exposing Enterprise live-ingestion logic.
+fingerprints plus policy context gaps without exposing Enterprise live-ingestion
+logic.
 
 ## Community Boundary
 
@@ -32,6 +33,8 @@ Community Edition provides local and sample posture views only:
   locked to Enterprise.
 - `GET /aispm/behavior-fingerprints` returns public-safe agent behavior
   fingerprints and drift signals from normalized local activity metadata.
+- `GET /aispm/policy-context-gaps` returns public-safe policy-invisible risk
+  findings when a decision lacks required business context.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -39,6 +42,8 @@ loads `/aispm/posture`; otherwise it falls back to deterministic sample data and
 labels the view as `sample_data`. The route includes posture overview, agent
 coverage, risk findings, control coverage, near-miss queue, execution timeline,
 approval lineage, behavior fingerprinting, and the raw public-safe payload.
+The route also shows policy context gaps for missing environment, ownership,
+data, change-window, criticality, approval-route, or trust-tier metadata.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -55,6 +60,12 @@ Community behavior fingerprinting summarizes agent action profiles, decision
 profiles, observed repositories, control surfaces, risk signals, drift status,
 and evidence references. It does not expose prompts, reasoning traces, raw tool
 output, private customer context, or organization-specific behavior baselines.
+
+Community policy context gap detection identifies when the local decision
+record lacks the business metadata needed to make a policy decision fully
+explainable. It flags missing fields only; private enrichment from CMDB, data
+catalogs, identity providers, cloud inventory, ticketing, and change calendars
+remains Enterprise-only.
 
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
@@ -102,3 +113,8 @@ The packaged Community behavior fingerprint schema is available at
 `src/cavra/schemas/aispm-behavior-fingerprints.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-behavior-fingerprints-sample.json`.
+
+The packaged Community policy context gap schema is available at
+`src/cavra/schemas/aispm-policy-context-gaps.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-policy-context-gaps-sample.json`.

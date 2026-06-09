@@ -50,6 +50,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "public-safe trace replay packets from local session decisions",
                 "public-safe approval lineage from local approval records",
                 "public-safe behavior fingerprints and drift signals from local activity metadata",
+                "policy context gap detection for decisions missing business-critical metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -76,6 +77,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "trace_replay_packet",
             "approval_lineage",
             "behavior_fingerprints",
+            "policy_context_gaps",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -88,6 +90,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "trace_replay": "/aispm/trace-replay/{session_id}",
             "approval_lineage": "/aispm/approval-lineage",
             "behavior_fingerprints": "/aispm/behavior-fingerprints",
+            "policy_context_gaps": "/aispm/policy-context-gaps",
         },
     }
 
@@ -120,6 +123,7 @@ def build_aispm_posture(
     agents = _agent_observability(decisions, sessions)
     overview = _posture_overview(decisions, sessions, findings)
     behavior_fingerprints = _behavior_fingerprints(decisions, sessions)
+    policy_context_gaps = _policy_context_gaps(decisions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -143,6 +147,7 @@ def build_aispm_posture(
         "near_misses": _near_misses(decisions),
         "approval_lineage": [],
         "behavior_fingerprints": behavior_fingerprints,
+        "policy_context_gaps": policy_context_gaps,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -218,6 +223,75 @@ def build_aispm_behavior_fingerprints(
                 "live streaming behavior drift alerts",
                 "identity and RBAC-aware agent owner mapping",
                 "SIEM export for behavior drift events",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
+def build_aispm_policy_context_gaps(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build public-safe policy context gap findings from local decisions.
+
+    Community can flag that required context is absent from a decision record.
+    Enterprise owns private enrichment from CMDB, data catalogs, identity
+    providers, cloud inventory, ticketing systems, and change calendars.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    items = _policy_context_gaps(decisions)
+    status_counts = Counter(str(item.get("gap_status", "monitor")) for item in items)
+    return {
+        "schema_version": "cavra.aispm.policy_context_gaps.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "total_gaps": sum(len(item.get("missing_context", [])) for item in items),
+            "decisions_with_gaps": len(items),
+            "requires_context_review": status_counts["requires_context_review"],
+            "monitor": status_counts["monitor"],
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items,
+        "redaction": {
+            "private_cmdb_records": LOCKED_ENTERPRISE_STATUS,
+            "data_catalog_records": LOCKED_ENTERPRISE_STATUS,
+            "identity_provider_claims": LOCKED_ENTERPRISE_STATUS,
+            "cloud_inventory": LOCKED_ENTERPRISE_STATUS,
+            "change_calendar": LOCKED_ENTERPRISE_STATUS,
+            "ticketing_metadata": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "CMDB and service catalog enrichment",
+                "data-owner and data-classification lookup",
+                "cloud account and environment-tier enrichment",
+                "change-window and ticket correlation",
+                "policy decisions that require private context before execution",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -326,6 +400,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "near_misses": _near_misses(decisions),
         "approval_lineage": _sample_approval_lineage(decisions),
         "behavior_fingerprints": _behavior_fingerprints(decisions, sessions),
+        "policy_context_gaps": _policy_context_gaps(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -760,6 +835,133 @@ def _behavior_risk_signals(
     if decisions and not any(item.get("evidence_refs") for item in decisions):
         signals.append("metadata_only_evidence")
     return signals
+
+
+def _policy_context_gaps(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    gaps: list[dict[str, Any]] = []
+    for decision in decisions:
+        required_context = _required_policy_context(decision)
+        present_context: list[str] = []
+        missing_context: list[str] = []
+        for field in required_context:
+            if _context_value(decision, field) in {None, ""}:
+                missing_context.append(field)
+            else:
+                present_context.append(field)
+        if not missing_context:
+            continue
+        surface = _control_surface(decision)
+        gaps.append(
+            {
+                "gap_id": f"context-gap-{decision.get('decision_id', 'unknown')}",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+                "rule_id": decision.get("rule_id", "runtime.default"),
+                "action_type": decision.get("action_type", "unknown"),
+                "decision": decision.get("decision", "unknown"),
+                "severity": decision.get("severity", "low"),
+                "risk_classification": _risk_classification(decision),
+                "control_surface": surface,
+                "missing_context": missing_context,
+                "present_context": present_context,
+                "gap_status": _policy_context_gap_status(decision, missing_context),
+                "recommended_action": _policy_context_recommended_action(surface, missing_context),
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+    return sorted(
+        gaps,
+        key=lambda item: (
+            0 if item.get("gap_status") == "requires_context_review" else 1,
+            str(item.get("timestamp", "")),
+        ),
+        reverse=False,
+    )
+
+
+def _required_policy_context(decision: dict[str, Any]) -> list[str]:
+    surface = _control_surface(decision)
+    severity = str(decision.get("severity", "low"))
+    outcome = str(decision.get("decision", "unknown"))
+    required = ["environment_tier", "system_criticality"]
+    if surface == "sensitive_data":
+        required.extend(["data_owner", "data_classification", "customer_region"])
+    elif surface == "infrastructure_iac":
+        required.extend(["service_owner", "change_window", "blast_radius"])
+    elif surface == "mcp_tools":
+        required.extend(["tool_owner", "tool_trust_tier", "business_justification"])
+    elif surface == "source_control":
+        required.extend(["repository_owner", "branch_protection_tier", "change_ticket"])
+    elif surface == "runtime_commands":
+        required.extend(["service_owner", "execution_environment", "change_ticket"])
+    else:
+        required.extend(["service_owner", "business_justification"])
+    if severity in {"critical", "high"} or outcome in {"block", "require_approval"}:
+        required.append("approval_route")
+    return list(dict.fromkeys(required))
+
+
+def _context_value(decision: dict[str, Any], field: str) -> Any:
+    aliases = {
+        "environment_tier": ("environment_tier", "environment", "deployment_environment", "env"),
+        "system_criticality": ("system_criticality", "criticality", "risk_tier"),
+        "data_owner": ("data_owner", "owner", "service_owner"),
+        "data_classification": ("data_classification", "classification", "data_class"),
+        "customer_region": ("customer_region", "region", "data_region"),
+        "service_owner": ("service_owner", "owner", "team"),
+        "change_window": ("change_window", "maintenance_window", "release_window"),
+        "blast_radius": ("blast_radius", "impact_scope", "scope"),
+        "tool_owner": ("tool_owner", "owner", "mcp_owner"),
+        "tool_trust_tier": ("tool_trust_tier", "trust_tier", "mcp_trust_tier"),
+        "business_justification": ("business_justification", "justification", "reason"),
+        "repository_owner": ("repository_owner", "owner", "repo_owner"),
+        "branch_protection_tier": ("branch_protection_tier", "branch_tier", "protection_tier"),
+        "change_ticket": ("change_ticket", "ticket", "external_ref"),
+        "execution_environment": ("execution_environment", "runtime_environment", "environment"),
+        "approval_route": ("approval_route", "approver_group", "approval_group"),
+    }
+    keys = aliases.get(field, (field,))
+    containers = [
+        decision,
+        decision.get("context") if isinstance(decision.get("context"), dict) else {},
+        decision.get("metadata") if isinstance(decision.get("metadata"), dict) else {},
+        decision.get("labels") if isinstance(decision.get("labels"), dict) else {},
+    ]
+    for container in containers:
+        if not isinstance(container, dict):
+            continue
+        for key in keys:
+            value = container.get(key)
+            if value not in {None, ""}:
+                return value
+    return None
+
+
+def _policy_context_gap_status(decision: dict[str, Any], missing_context: list[str]) -> str:
+    severity = str(decision.get("severity", "low"))
+    outcome = str(decision.get("decision", "unknown"))
+    if severity in {"critical", "high"} or outcome in {"block", "require_approval"}:
+        return "requires_context_review"
+    if len(missing_context) >= 3:
+        return "requires_context_review"
+    return "monitor"
+
+
+def _policy_context_recommended_action(surface: str, missing_context: list[str]) -> str:
+    missing = ", ".join(missing_context)
+    if surface == "sensitive_data":
+        return f"Attach data-owner, classification, and regional context before relying on the decision. Missing: {missing}."
+    if surface == "infrastructure_iac":
+        return f"Attach service owner, change window, and blast-radius context before execution. Missing: {missing}."
+    if surface == "mcp_tools":
+        return f"Attach tool owner, trust tier, and business justification before broad tool use. Missing: {missing}."
+    if surface == "source_control":
+        return f"Attach repository owner, branch protection tier, and change ticket before source-control mutation. Missing: {missing}."
+    return f"Attach missing business context before treating the decision as fully governed. Missing: {missing}."
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

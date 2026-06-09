@@ -8,6 +8,7 @@ from cavra.aispm import (
     build_aispm_approval_lineage,
     build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
+    build_aispm_policy_context_gaps,
     build_aispm_posture,
     build_aispm_trace_replay_packet,
     build_sample_aispm_dashboard,
@@ -95,6 +96,8 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["behavior_fingerprints"][0]["drift_status"] == "review_required"
     assert "blocked_action" in posture["behavior_fingerprints"][0]["risk_signals"]
     assert "sensitive_data_access" in posture["behavior_fingerprints"][0]["risk_signals"]
+    assert posture["policy_context_gaps"][0]["gap_status"] == "requires_context_review"
+    assert "environment_tier" in posture["policy_context_gaps"][0]["missing_context"]
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -160,6 +163,79 @@ def test_aispm_behavior_fingerprints_track_public_safe_drift(tmp_path: Path) -> 
     assert "approval_gate" in packet["items"][0]["risk_signals"]
     assert packet["redaction"]["private_behavior_baselines"] == "requires_cavra_enterprise"
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
+def test_aispm_policy_context_gaps_detect_missing_business_context(tmp_path: Path) -> None:
+    class _DecisionStore:
+        def list_decisions(self, **_: object) -> dict[str, object]:
+            return {
+                "items": [
+                    _decision(
+                        decision_id="dec-context-gap",
+                        session_id="session-1",
+                        agent_id="codex-agent",
+                        decision="require_approval",
+                        severity="high",
+                        action_type="execute_command",
+                        target="terraform apply",
+                    ),
+                    {
+                        **_decision(
+                            decision_id="dec-context-complete",
+                            session_id="session-2",
+                            agent_id="codex-agent",
+                            decision="allow",
+                            severity="low",
+                            action_type="mcp_tool_call",
+                            target="filesystem.read",
+                            rule_id="mcp.registered-tool",
+                        ),
+                        "context": {
+                            "environment_tier": "development",
+                            "system_criticality": "low",
+                            "tool_owner": "platform",
+                            "tool_trust_tier": "approved",
+                            "business_justification": "Read generated docs.",
+                        },
+                    },
+                ]
+            }
+
+    store = _DecisionStore()
+
+    packet = build_aispm_policy_context_gaps(store)
+
+    assert packet["schema_version"] == "cavra.aispm.policy_context_gaps.v1"
+    assert packet["summary"]["decisions_with_gaps"] == 1
+    assert packet["summary"]["requires_context_review"] == 1
+    assert packet["items"][0]["decision_id"] == "dec-context-gap"
+    assert packet["items"][0]["control_surface"] == "infrastructure_iac"
+    assert "change_window" in packet["items"][0]["missing_context"]
+    assert "approval_route" in packet["items"][0]["missing_context"]
+    assert packet["redaction"]["private_cmdb_records"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
+def test_aispm_policy_context_gaps_from_activity_store_metadata(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-context-gap",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+            action_type="execute_command",
+            target="terraform apply",
+        )
+    )
+
+    packet = build_aispm_policy_context_gaps(store)
+
+    assert packet["schema_version"] == "cavra.aispm.policy_context_gaps.v1"
+    assert packet["summary"]["decisions_with_gaps"] == 1
+    assert packet["summary"]["requires_context_review"] == 1
+    assert packet["items"][0]["decision_id"] == "dec-context-gap"
 
 
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
@@ -294,4 +370,16 @@ def test_aispm_behavior_fingerprint_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(fingerprint_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_policy_context_gap_sample_matches_packaged_schema() -> None:
+    gap_schema = Path("src/cavra/schemas/aispm-policy-context-gaps.schema.json")
+    sample = Path("examples/aispm/community-policy-context-gaps-sample.json")
+
+    assert gap_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(gap_schema.read_text(encoding="utf-8")),
     )

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added public-safe AISPM policy context gap detection for Community, including
+  `/aispm/policy-context-gaps`, packaged schema/sample data, dashboard summary
+  cards, docs/wiki updates, and Enterprise-locked private CMDB, data catalog,
+  identity, cloud inventory, ticketing, and change-calendar enrichment.
 - Added public-safe AISPM behavior fingerprinting for Community, including
   `/aispm/behavior-fingerprints`, packaged schema/sample data, dashboard
   summary cards, risk-signal chips, docs/wiki updates, and Enterprise-locked

@@ -281,6 +281,68 @@ const aispmFallback = {
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
   ],
+  policy_context_gaps: [
+    {
+      gap_id: "context-gap-sample-dec-001",
+      decision_id: "sample-dec-001",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cloud-iam-prod",
+      rule_id: "iac.production-change",
+      action_type: "execute_command",
+      decision: "require_approval",
+      severity: "high",
+      risk_classification: "infrastructure_change_risk",
+      control_surface: "infrastructure_iac",
+      missing_context: ["environment_tier", "system_criticality", "service_owner", "change_window", "blast_radius", "approval_route"],
+      present_context: [],
+      gap_status: "requires_context_review",
+      recommended_action: "Attach service owner, change window, and blast-radius context before execution. Missing: environment_tier, system_criticality, service_owner, change_window, blast_radius, approval_route.",
+      evidence_refs: ["sample://evidence/iac-production-change"],
+      timestamp: "2026-06-09T00:00:00+00:00"
+    },
+    {
+      gap_id: "context-gap-sample-dec-002",
+      decision_id: "sample-dec-002",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cavra-ai-agent-baseline",
+      rule_id: "secrets.block-sensitive-read",
+      action_type: "read_file",
+      decision: "block",
+      severity: "critical",
+      risk_classification: "credential_or_sensitive_data_exposure",
+      control_surface: "sensitive_data",
+      missing_context: ["environment_tier", "system_criticality", "data_owner", "data_classification", "customer_region", "approval_route"],
+      present_context: [],
+      gap_status: "requires_context_review",
+      recommended_action: "Attach data-owner, classification, and regional context before relying on the decision. Missing: environment_tier, system_criticality, data_owner, data_classification, customer_region, approval_route.",
+      evidence_refs: ["sample://evidence/secret-read-block"],
+      timestamp: "2026-06-09T00:01:00+00:00"
+    },
+    {
+      gap_id: "context-gap-sample-dec-003",
+      decision_id: "sample-dec-003",
+      session_id: "sample-session-002",
+      agent_id: "claude-code-agent",
+      repository: "platform/infra",
+      policy_pack: "mcp-enterprise",
+      rule_id: "mcp.untrusted-tool",
+      action_type: "mcp_tool_call",
+      decision: "warn",
+      severity: "medium",
+      risk_classification: "tool_or_mcp_governance_risk",
+      control_surface: "mcp_tools",
+      missing_context: ["environment_tier", "system_criticality", "tool_owner", "tool_trust_tier"],
+      present_context: ["business_justification"],
+      gap_status: "requires_context_review",
+      recommended_action: "Attach tool owner, trust tier, and business justification before broad tool use. Missing: environment_tier, system_criticality, tool_owner, tool_trust_tier.",
+      evidence_refs: ["sample://evidence/mcp-warning"],
+      timestamp: "2026-06-09T00:02:00+00:00"
+    }
+  ],
   behavior_fingerprints: [
     {
       fingerprint_id: "fingerprint-codex-agent",
@@ -525,6 +587,45 @@ const aispmBehaviorFingerprintFallback = {
   }
 };
 
+const aispmPolicyContextGapFallback = {
+  schema_version: "cavra.aispm.policy_context_gaps.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:05:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    total_gaps: 16,
+    decisions_with_gaps: 3,
+    requires_context_review: 3,
+    monitor: 0,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  items: aispmFallback.policy_context_gaps,
+  redaction: {
+    private_cmdb_records: "requires_cavra_enterprise",
+    data_catalog_records: "requires_cavra_enterprise",
+    identity_provider_claims: "requires_cavra_enterprise",
+    cloud_inventory: "requires_cavra_enterprise",
+    change_calendar: "requires_cavra_enterprise",
+    ticketing_metadata: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "CMDB and service catalog enrichment",
+      "data-owner and data-classification lookup",
+      "cloud account and environment-tier enrichment",
+      "change-window and ticket correlation",
+      "policy decisions that require private context before execution"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -540,7 +641,8 @@ const routeContent = [
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
-  { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." }
+  { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
+  { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." }
 ];
 
 function el(selector) {
@@ -719,6 +821,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     summary: summarizeBehaviorFingerprints(payload.behavior_fingerprints || aispmBehaviorFingerprintFallback.items),
     items: payload.behavior_fingerprints || aispmBehaviorFingerprintFallback.items
+  }, "posture sample");
+  renderAispmPolicyContextGaps({
+    ...aispmPolicyContextGapFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizePolicyContextGaps(payload.policy_context_gaps || aispmPolicyContextGapFallback.items),
+    items: payload.policy_context_gaps || aispmPolicyContextGapFallback.items
   }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
@@ -992,6 +1100,70 @@ function renderAispmBehaviorFingerprints(packet, note = "sample fingerprints") {
   }).join("") || `<p class="empty-state">No behavior fingerprints available for this activity window.</p>`;
 }
 
+function summarizePolicyContextGaps(items) {
+  const counts = (items || []).reduce((acc, item) => {
+    acc[item.gap_status] = (acc[item.gap_status] || 0) + 1;
+    acc.totalGaps += (item.missing_context || []).length;
+    return acc;
+  }, { totalGaps: 0 });
+  return {
+    total_gaps: counts.totalGaps,
+    decisions_with_gaps: (items || []).length,
+    requires_context_review: counts.requires_context_review || 0,
+    monitor: counts.monitor || 0,
+    evidence_confidence: (items || []).some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmPolicyContextGaps() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/policy-context-gaps`);
+      if (!response.ok) throw new Error(`Policy context gaps HTTP ${response.status}`);
+      renderAispmPolicyContextGaps(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmPolicyContextGaps(aispmPolicyContextGapFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmPolicyContextGaps(aispmPolicyContextGapFallback, "static sample gaps");
+}
+
+function renderAispmPolicyContextGaps(packet, note = "sample context gaps") {
+  const summary = packet.summary || {};
+  const items = packet.items || [];
+  const summaryCards = [
+    ["Context Gaps", summary.total_gaps ?? 0, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Decisions", summary.decisions_with_gaps ?? items.length, "Decisions missing required business context"],
+    ["Review Required", summary.requires_context_review ?? 0, `Monitor: ${summary.monitor ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Private enrichment stays Enterprise"]
+  ];
+  el("#aispmContextGapSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmPolicyContextGaps").innerHTML = items.slice(0, 8).map((item) => {
+    const missing = (item.missing_context || []).slice(0, 8).map((field) => `<span>${escapeHtml(field.replaceAll("_", " "))}</span>`).join("");
+    return `
+      <article class="context-gap-row">
+        <span class="severity ${escapeHtml(item.gap_status === "requires_context_review" ? "high" : "medium")}">${escapeHtml(item.gap_status || "monitor")}</span>
+        <div>
+          <strong>${escapeHtml(item.risk_classification || "policy_context_gap")}</strong>
+          <p>${escapeHtml(item.recommended_action || "Attach missing business context before relying on the decision.")}</p>
+          <small>${escapeHtml(item.agent_id || "unknown-agent")} · ${escapeHtml(item.repository || "local")} · ${escapeHtml(item.control_surface || "general_policy")}</small>
+          <div class="risk-signal-list">${missing || "<span>context complete</span>"}</div>
+        </div>
+        <small>${escapeHtml((item.evidence_refs || []).join(", ") || "no evidence refs")}</small>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No policy context gaps detected in this activity window.</p>`;
+}
+
 function renderAispmTraceReplay(packet, note = "sample replay") {
   const summary = packet.summary || {};
   const session = packet.session || {};
@@ -1201,6 +1373,7 @@ function wireEvents() {
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
+  el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1237,6 +1410,7 @@ function init() {
   loadAispmDashboard();
   loadAispmApprovalLineage();
   loadAispmBehaviorFingerprints();
+  loadAispmPolicyContextGaps();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

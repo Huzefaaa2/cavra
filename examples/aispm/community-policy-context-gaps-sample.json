@@ -1,0 +1,123 @@
+{
+  "schema_version": "cavra.aispm.policy_context_gaps.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:05:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "summary": {
+    "total_gaps": 16,
+    "decisions_with_gaps": 3,
+    "requires_context_review": 3,
+    "monitor": 0,
+    "evidence_confidence": "activity_evidence_refs"
+  },
+  "items": [
+    {
+      "gap_id": "context-gap-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "rule_id": "iac.production-change",
+      "action_type": "execute_command",
+      "decision": "require_approval",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "control_surface": "infrastructure_iac",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "service_owner",
+        "change_window",
+        "blast_radius",
+        "approval_route"
+      ],
+      "present_context": [],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach service owner, change window, and blast-radius context before execution. Missing: environment_tier, system_criticality, service_owner, change_window, blast_radius, approval_route.",
+      "evidence_refs": ["sample://evidence/iac-production-change"],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "gap_id": "context-gap-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "secrets.block-sensitive-read",
+      "action_type": "read_file",
+      "decision": "block",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "control_surface": "sensitive_data",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "data_owner",
+        "data_classification",
+        "customer_region",
+        "approval_route"
+      ],
+      "present_context": [],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach data-owner, classification, and regional context before relying on the decision. Missing: environment_tier, system_criticality, data_owner, data_classification, customer_region, approval_route.",
+      "evidence_refs": ["sample://evidence/secret-read-block"],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "gap_id": "context-gap-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "rule_id": "mcp.untrusted-tool",
+      "action_type": "mcp_tool_call",
+      "decision": "warn",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "control_surface": "mcp_tools",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "tool_owner",
+        "tool_trust_tier"
+      ],
+      "present_context": ["business_justification"],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach tool owner, trust tier, and business justification before broad tool use. Missing: environment_tier, system_criticality, tool_owner, tool_trust_tier.",
+      "evidence_refs": ["sample://evidence/mcp-warning"],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "redaction": {
+    "private_cmdb_records": "requires_cavra_enterprise",
+    "data_catalog_records": "requires_cavra_enterprise",
+    "identity_provider_claims": "requires_cavra_enterprise",
+    "cloud_inventory": "requires_cavra_enterprise",
+    "change_calendar": "requires_cavra_enterprise",
+    "ticketing_metadata": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "CMDB and service catalog enrichment",
+      "data-owner and data-classification lookup",
+      "cloud account and environment-tier enrichment",
+      "change-window and ticket correlation",
+      "policy decisions that require private context before execution"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

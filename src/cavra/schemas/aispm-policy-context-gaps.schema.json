@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Policy Context Gaps",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "items",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.policy_context_gaps.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["total_gaps", "decisions_with_gaps", "requires_context_review", "monitor", "evidence_confidence"],
+      "properties": {
+        "total_gaps": { "type": "integer", "minimum": 0 },
+        "decisions_with_gaps": { "type": "integer", "minimum": 0 },
+        "requires_context_review": { "type": "integer", "minimum": 0 },
+        "monitor": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "gap_id",
+          "decision_id",
+          "agent_id",
+          "risk_classification",
+          "control_surface",
+          "missing_context",
+          "present_context",
+          "gap_status",
+          "recommended_action",
+          "evidence_refs"
+        ],
+        "properties": {
+          "gap_id": { "type": "string" },
+          "decision_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "policy_pack": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "action_type": { "type": "string" },
+          "decision": { "type": "string" },
+          "severity": { "type": "string" },
+          "risk_classification": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "missing_context": { "type": "array", "items": { "type": "string" } },
+          "present_context": { "type": "array", "items": { "type": "string" } },
+          "gap_status": { "enum": ["requires_context_review", "monitor"] },
+          "recommended_action": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "timestamp": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

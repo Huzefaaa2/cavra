@@ -238,6 +238,12 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .fingerprint-card dd { margin: 0; overflow-wrap: anywhere; }
 .risk-signal-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .risk-signal-list span { display: inline-flex; border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); border-radius: 999px; padding: 4px 8px; color: var(--text); background: color-mix(in srgb, var(--primary) 11%, transparent); font-size: 12px; font-weight: 850; }
+.context-gap-panel { display: grid; gap: 16px; }
+.context-gap-list { display: grid; gap: 10px; }
+.context-gap-row { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(180px, .42fr); gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
+.context-gap-row strong { display: block; overflow-wrap: anywhere; }
+.context-gap-row p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
+.context-gap-row small { color: var(--muted); overflow-wrap: anywhere; }
 .operator-path-card span { color: var(--accent); text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
 .operator-path-card h3 { margin: 10px 0 14px; font-size: 24px; }
 .operator-path-card dl { margin: 0 0 16px; }
@@ -354,7 +360,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }
   .console-header { flex-direction: column; }
-  .approval-lineage-row { grid-template-columns: 1fr; }
+  .approval-lineage-row, .context-gap-row { grid-template-columns: 1fr; }
   .mobile-bottom { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; height: 62px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid var(--line); background: var(--header); backdrop-filter: blur(14px); }
   .mobile-bottom a, .mobile-bottom button { display: grid; place-items: center; min-height: 48px; padding: 6px 4px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 }
