@@ -8,6 +8,7 @@ from cavra.aispm import (
     build_aispm_approval_lineage,
     build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
+    build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
@@ -102,6 +103,8 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["pre_action_risk_forecasts"][0]["forecast_status"] == "block_recommended"
     assert posture["pre_action_risk_forecasts"][0]["projected_blast_radius"] == "secret_scope"
     assert posture["pre_action_risk_forecasts"][1]["forecast_status"] == "approval_recommended"
+    assert posture["intent_action_drift"][0]["drift_status"] == "unknown_intent"
+    assert "missing_declared_intent" in posture["intent_action_drift"][0]["drift_signals"]
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -287,6 +290,55 @@ def test_aispm_pre_action_risk_forecasts_project_public_safe_impact(tmp_path: Pa
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_intent_action_drift_detects_sensitive_scope_change(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-block-secret",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="block",
+                severity="critical",
+                action_type="read_file",
+                target=".env.production",
+                rule_id="secrets.block-sensitive-read",
+            ),
+            "declared_intent": "Inspect deployment configuration",
+        }
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-doc-write",
+                session_id="session-2",
+                agent_id="claude-code-agent",
+                decision="warn",
+                severity="medium",
+                action_type="mcp_tool_call",
+                target="filesystem.write",
+                rule_id="mcp.untrusted-tool",
+            ),
+            "declared_intent": "Write generated infrastructure documentation",
+        }
+    )
+
+    packet = build_aispm_intent_action_drift(store)
+
+    assert packet["schema_version"] == "cavra.aispm.intent_action_drift.v1"
+    assert packet["summary"]["total_items"] == 2
+    assert packet["summary"]["high_drift"] == 1
+    assert packet["summary"]["aligned"] == 1
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    assert packet["items"][0]["drift_status"] == "high_drift"
+    assert packet["items"][0]["target_redacted"] is True
+    assert "sensitive_target_not_declared" in packet["items"][0]["drift_signals"]
+    assert packet["items"][0]["recommended_action"].startswith("Block or escalate")
+    assert packet["items"][1]["drift_status"] == "aligned"
+    assert packet["redaction"]["raw_prompt"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -369,6 +421,18 @@ def test_aispm_pre_action_forecast_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(forecast_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_intent_action_drift_sample_matches_packaged_schema() -> None:
+    drift_schema = Path("src/cavra/schemas/aispm-intent-action-drift.schema.json")
+    sample = Path("examples/aispm/community-intent-action-drift-sample.json")
+
+    assert drift_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(drift_schema.read_text(encoding="utf-8")),
     )
 
 

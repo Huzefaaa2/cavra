@@ -153,6 +153,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     behavior_fingerprints = client.get("/aispm/behavior-fingerprints")
     policy_context_gaps = client.get("/aispm/policy-context-gaps")
     pre_action_forecasts = client.get("/aispm/pre-action-risk-forecasts")
+    intent_action_drift = client.get("/aispm/intent-action-drift")
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
@@ -167,6 +168,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_behavior_fingerprints"] == "/aispm/behavior-fingerprints"
     assert config["endpoints"]["aispm_policy_context_gaps"] == "/aispm/policy-context-gaps"
     assert config["endpoints"]["aispm_pre_action_risk_forecasts"] == "/aispm/pre-action-risk-forecasts"
+    assert config["endpoints"]["aispm_intent_action_drift"] == "/aispm/intent-action-drift"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -195,6 +197,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert pre_action_forecasts.json()["items"][0]["forecast_status"] == "block_recommended"
     assert pre_action_forecasts.json()["items"][0]["target_redacted"] is True
     assert pre_action_forecasts.json()["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
+    assert intent_action_drift.status_code == 200
+    assert intent_action_drift.json()["schema_version"] == "cavra.aispm.intent_action_drift.v1"
+    assert intent_action_drift.json()["summary"]["total_items"] == 1
+    assert intent_action_drift.json()["summary"]["unknown_intent"] == 1
+    assert intent_action_drift.json()["items"][0]["drift_status"] == "unknown_intent"
+    assert "missing_declared_intent" in intent_action_drift.json()["items"][0]["drift_signals"]
+    assert intent_action_drift.json()["redaction"]["raw_prompt"] == "requires_cavra_enterprise"
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

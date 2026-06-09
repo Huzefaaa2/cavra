@@ -23,7 +23,7 @@ def normalize_decision_record(payload: dict[str, Any]) -> dict[str, Any]:
     decision_id = payload.get("decision_id") or f"dec_{uuid.uuid4().hex[:12]}"
     timestamp = payload.get("timestamp") or utc_now()
     session_id = str(payload.get("session_id") or "local")
-    return {
+    record = {
         "schema_version": "cavra.decision.v1",
         "decision_id": str(decision_id),
         "session_id": session_id,
@@ -44,6 +44,13 @@ def normalize_decision_record(payload: dict[str, Any]) -> dict[str, Any]:
         "timestamp": timestamp,
         "correlation_id": str(payload.get("correlation_id") or f"corr_{uuid.uuid4().hex[:12]}"),
     }
+    for key in ("declared_intent", "intent", "requested_intent", "user_intent", "task_intent", "business_intent"):
+        if payload.get(key) not in {None, ""}:
+            record[key] = str(payload[key])
+    for key in ("context", "metadata", "labels"):
+        if isinstance(payload.get(key), dict):
+            record[key] = payload[key]
+    return record
 
 
 def normalize_session_record(payload: dict[str, Any], decisions: list[dict[str, Any]] | None = None) -> dict[str, Any]:

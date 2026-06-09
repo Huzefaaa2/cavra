@@ -254,6 +254,13 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .forecast-card dl { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 8px 10px; margin: 12px 0; }
 .forecast-card dt { color: var(--muted); font-weight: 900; }
 .forecast-card dd { margin: 0; overflow-wrap: anywhere; }
+.intent-drift-panel { display: grid; gap: 16px; }
+.intent-drift-list { display: grid; gap: 10px; }
+.intent-drift-row { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(170px, .34fr); gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
+.intent-drift-row strong { display: block; overflow-wrap: anywhere; }
+.intent-drift-row p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
+.intent-drift-row small { color: var(--muted); overflow-wrap: anywhere; }
+.intent-score { display: grid; place-items: center; min-width: 50px; min-height: 50px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--primary) 44%, transparent); background: color-mix(in srgb, var(--primary) 14%, transparent); font-size: 18px; font-weight: 950; }
 .operator-path-card span { color: var(--accent); text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
 .operator-path-card h3 { margin: 10px 0 14px; font-size: 24px; }
 .operator-path-card dl { margin: 0 0 16px; }
@@ -370,7 +377,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }
   .console-header { flex-direction: column; }
-  .approval-lineage-row, .context-gap-row { grid-template-columns: 1fr; }
+  .approval-lineage-row, .context-gap-row, .intent-drift-row { grid-template-columns: 1fr; }
   .mobile-bottom { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; height: 62px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid var(--line); background: var(--header); backdrop-filter: blur(14px); }
   .mobile-bottom a, .mobile-bottom button { display: grid; place-items: center; min-height: 48px; padding: 6px 4px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 }

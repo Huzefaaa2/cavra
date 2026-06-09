@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM intent-to-action drift detection for Community,
+  including `/aispm/intent-action-drift`, packaged schema/sample data,
+  dashboard summary cards, drift score rows, ActivityStore preservation for
+  declared intent/context metadata, docs/wiki updates, and Enterprise-locked
+  raw prompt, reasoning, ticket, full tool payload, and semantic intent
+  boundaries.
 - Added public-safe AISPM pre-action risk forecasts for Community, including
   `/aispm/pre-action-risk-forecasts`, packaged schema/sample data, dashboard
   summary cards, projected blast-radius cards, docs/wiki updates, and

@@ -352,6 +352,80 @@ const aispmFallback = {
       timestamp: "2026-06-09T00:02:00+00:00"
     }
   ],
+  intent_action_drift: [
+    {
+      drift_id: "intent-drift-sample-dec-002",
+      decision_id: "sample-dec-002",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cavra-ai-agent-baseline",
+      rule_id: "secrets.block-sensitive-read",
+      declared_intent: "Inspect deployment configuration",
+      action_type: "read_file",
+      target_summary: "sensitive target redacted",
+      target_redacted: true,
+      decision: "block",
+      severity: "critical",
+      risk_classification: "credential_or_sensitive_data_exposure",
+      control_surface: "sensitive_data",
+      drift_status: "high_drift",
+      drift_score: 81,
+      drift_signals: ["sensitive_target_not_declared", "blocked_after_declared_intent", "critical_or_high_intent_drift", "action_type_not_explicit_in_intent"],
+      recommended_action: "Block or escalate until the declared intent explicitly covers sensitive-data access.",
+      confidence: "metadata_intent_comparison",
+      evidence_refs: ["sample://evidence/secret-read-block"],
+      timestamp: "2026-06-09T00:01:00+00:00"
+    },
+    {
+      drift_id: "intent-drift-sample-dec-001",
+      decision_id: "sample-dec-001",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cloud-iam-prod",
+      rule_id: "iac.production-change",
+      declared_intent: "Apply approved production infrastructure change",
+      action_type: "execute_command",
+      target_summary: "terraform apply",
+      target_redacted: false,
+      decision: "require_approval",
+      severity: "high",
+      risk_classification: "infrastructure_change_risk",
+      control_surface: "infrastructure_iac",
+      drift_status: "needs_review",
+      drift_score: 35,
+      drift_signals: ["approval_required_after_declared_intent", "critical_or_high_intent_drift", "action_type_not_explicit_in_intent"],
+      recommended_action: "Verify the requested change, blast radius, approval route, and execution target before allowing the action.",
+      confidence: "metadata_intent_comparison",
+      evidence_refs: ["sample://evidence/iac-production-change"],
+      timestamp: "2026-06-09T00:00:00+00:00"
+    },
+    {
+      drift_id: "intent-drift-sample-dec-003",
+      decision_id: "sample-dec-003",
+      session_id: "sample-session-002",
+      agent_id: "claude-code-agent",
+      repository: "platform/infra",
+      policy_pack: "mcp-enterprise",
+      rule_id: "mcp.untrusted-tool",
+      declared_intent: "Write generated infrastructure documentation",
+      action_type: "mcp_tool_call",
+      target_summary: "filesystem.write",
+      target_redacted: false,
+      decision: "warn",
+      severity: "medium",
+      risk_classification: "tool_or_mcp_governance_risk",
+      control_surface: "mcp_tools",
+      drift_status: "aligned",
+      drift_score: 6,
+      drift_signals: ["action_type_not_explicit_in_intent"],
+      recommended_action: "Verify tool trust tier, write scope, and declared workflow intent before allowing broad tool use.",
+      confidence: "metadata_intent_comparison",
+      evidence_refs: ["sample://evidence/mcp-warning"],
+      timestamp: "2026-06-09T00:02:00+00:00"
+    }
+  ],
   policy_context_gaps: [
     {
       gap_id: "context-gap-sample-dec-001",
@@ -737,6 +811,46 @@ const aispmPreActionForecastFallback = {
   }
 };
 
+const aispmIntentActionDriftFallback = {
+  schema_version: "cavra.aispm.intent_action_drift.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:07:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    total_items: 3,
+    high_drift: 1,
+    needs_review: 1,
+    unknown_intent: 0,
+    aligned: 1,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  items: aispmFallback.intent_action_drift,
+  redaction: {
+    raw_prompt: "requires_cavra_enterprise",
+    reasoning_trace: "requires_cavra_enterprise",
+    conversation_history: "requires_cavra_enterprise",
+    private_ticket_context: "requires_cavra_enterprise",
+    full_tool_payload: "requires_cavra_enterprise",
+    semantic_intent_model: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "prompt-derived semantic intent extraction",
+      "task, ticket, and pull-request intent correlation",
+      "private workflow and change-management context comparison",
+      "live drift alerts for tool and target changes",
+      "SIEM export for intent-to-action drift events"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -754,7 +868,8 @@ const routeContent = [
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." },
-  { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." }
+  { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." },
+  { type: "AI Posture", label: "Intent-To-Action Drift", route: "ai-posture", description: "Compare declared intent with observed action, target, and policy outcome." }
 ];
 
 function el(selector) {
@@ -945,6 +1060,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     summary: summarizePreActionForecasts(payload.pre_action_risk_forecasts || aispmPreActionForecastFallback.items),
     items: payload.pre_action_risk_forecasts || aispmPreActionForecastFallback.items
+  }, "posture sample");
+  renderAispmIntentActionDrift({
+    ...aispmIntentActionDriftFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeIntentActionDrift(payload.intent_action_drift || aispmIntentActionDriftFallback.items),
+    items: payload.intent_action_drift || aispmIntentActionDriftFallback.items
   }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
@@ -1357,6 +1478,72 @@ function renderAispmPreActionForecasts(packet, note = "sample forecasts") {
   }).join("") || `<p class="empty-state">No pre-action forecasts available for this activity window.</p>`;
 }
 
+function summarizeIntentActionDrift(items) {
+  const counts = (items || []).reduce((acc, item) => {
+    acc[item.drift_status] = (acc[item.drift_status] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    total_items: (items || []).length,
+    high_drift: counts.high_drift || 0,
+    needs_review: counts.needs_review || 0,
+    unknown_intent: counts.unknown_intent || 0,
+    aligned: counts.aligned || 0,
+    evidence_confidence: (items || []).some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmIntentActionDrift() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/intent-action-drift`);
+      if (!response.ok) throw new Error(`Intent drift HTTP ${response.status}`);
+      renderAispmIntentActionDrift(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmIntentActionDrift(aispmIntentActionDriftFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmIntentActionDrift(aispmIntentActionDriftFallback, "static sample drift");
+}
+
+function renderAispmIntentActionDrift(packet, note = "sample drift") {
+  const summary = packet.summary || {};
+  const items = packet.items || [];
+  const summaryCards = [
+    ["Intent Rows", summary.total_items ?? items.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["High Drift", summary.high_drift ?? 0, `Needs review: ${summary.needs_review ?? 0}`],
+    ["Unknown Intent", summary.unknown_intent ?? 0, `Aligned: ${summary.aligned ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Raw prompt intent stays Enterprise"]
+  ];
+  el("#aispmIntentDriftSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmIntentActionDrift").innerHTML = items.slice(0, 8).map((item) => {
+    const status = String(item.drift_status || "aligned").replaceAll("_", " ");
+    const signals = (item.drift_signals || []).slice(0, 6).map((signal) => `<span>${escapeHtml(signal.replaceAll("_", " "))}</span>`).join("");
+    const risk = String(item.risk_classification || "policy_decision_review").replaceAll("_", " ");
+    return `
+      <article class="intent-drift-row">
+        <span class="intent-score">${escapeHtml(item.drift_score ?? 0)}</span>
+        <div>
+          <strong>${escapeHtml(status)} · ${escapeHtml(item.declared_intent || "intent not recorded")}</strong>
+          <p>${escapeHtml(item.action_type || "unknown action")} → ${escapeHtml(item.target_summary || "target not recorded")} · ${escapeHtml(risk)}</p>
+          <small>${escapeHtml(item.agent_id || "unknown-agent")} · ${escapeHtml(item.repository || "local")} · ${escapeHtml(item.decision || "recorded")}</small>
+          <div class="risk-signal-list">${signals || "<span>aligned</span>"}</div>
+        </div>
+        <small>${escapeHtml(item.recommended_action || "Compare declared intent with observed action before allowing execution.")}</small>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No intent-to-action drift records available for this activity window.</p>`;
+}
+
 function renderAispmTraceReplay(packet, note = "sample replay") {
   const summary = packet.summary || {};
   const session = packet.session || {};
@@ -1568,6 +1755,7 @@ function wireEvents() {
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
+  el("#refreshAispmIntentDrift").addEventListener("click", loadAispmIntentActionDrift);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1606,6 +1794,7 @@ function init() {
   loadAispmBehaviorFingerprints();
   loadAispmPolicyContextGaps();
   loadAispmPreActionForecasts();
+  loadAispmIntentActionDrift();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

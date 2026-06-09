@@ -5,7 +5,7 @@ dashboard contract for Community Edition. The current public implementation
 includes Phase A contract fields plus Phase B control coverage, near-miss
 visibility, public-safe trace replay packets, public-safe approval lineage,
 public-safe behavior fingerprints, public-safe policy context gaps, and
-public-safe pre-action risk forecasts.
+public-safe pre-action risk forecasts, and public-safe intent-to-action drift.
 
 Community Edition provides:
 
@@ -22,13 +22,15 @@ Community Edition provides:
 - `GET /aispm/behavior-fingerprints`
 - `GET /aispm/policy-context-gaps`
 - `GET /aispm/pre-action-risk-forecasts`
+- `GET /aispm/intent-action-drift`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
 `window.CAVRA_API_BASE` is configured. The route shows posture overview, agent
 coverage, risk findings, control coverage, near misses, execution timeline, and
 approval lineage, behavior fingerprinting, pre-action risk forecasts, and the
-raw public-safe payload. It also shows policy context gaps for missing
+intent-to-action drift queue, and the raw public-safe payload. It also shows
+policy context gaps for missing
 environment, ownership, data, change-window, criticality, approval-route, or
 trust-tier metadata.
 
@@ -59,14 +61,21 @@ normalized local decision metadata. Private asset graphs, dependency graphs,
 identity blast radius, cloud inventory, runtime state, and prompt-intent context
 remain Enterprise-only.
 
+Community intent-to-action drift compares declared intent metadata with
+observed action type, target summary, control surface, and policy outcome.
+Raw prompt intent extraction, reasoning analysis, conversation history, private
+ticket context, full tool payloads, and semantic intent models remain
+Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
 
 Enterprise remains responsible for live authenticated multi-tenant posture,
-prompt/reasoning traces, private asset-graph forecasting, tool-call graphs,
-full trace replay, organization controls, kill switch, runtime overrides,
-centralized retention, immutable audit exports, and compliance reporting.
+prompt/reasoning traces, private asset-graph forecasting, prompt-derived
+intent extraction, private workflow correlation, tool-call graphs, full trace
+replay, organization controls, kill switch, runtime overrides, centralized
+retention, immutable audit exports, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
 The packaged Community trace replay schema is
@@ -86,3 +95,7 @@ The packaged Community pre-action risk forecast schema is
 `src/cavra/schemas/aispm-pre-action-risk-forecasts.schema.json`, with a
 deterministic sample packet at
 `examples/aispm/community-pre-action-risk-forecasts-sample.json`.
+The packaged Community intent-to-action drift schema is
+`src/cavra/schemas/aispm-intent-action-drift.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-intent-action-drift-sample.json`.

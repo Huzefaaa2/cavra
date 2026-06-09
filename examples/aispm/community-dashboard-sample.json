@@ -250,7 +250,8 @@
       "organization-wide control coverage",
       "kill switch and runtime overrides",
       "compliance exports and immutable retention",
-      "private asset-graph and identity-aware pre-action forecasting"
+      "private asset-graph and identity-aware pre-action forecasting",
+      "prompt-derived semantic intent extraction and private workflow correlation"
     ],
     "private_package": "cavra_enterprise",
     "status": "requires_cavra_enterprise"
@@ -312,6 +313,97 @@
     }
   ],
   "generated_at": "2026-06-09T00:03:00+00:00",
+  "intent_action_drift": [
+    {
+      "action_type": "read_file",
+      "agent_id": "codex-agent",
+      "confidence": "metadata_intent_comparison",
+      "control_surface": "sensitive_data",
+      "decision": "block",
+      "decision_id": "sample-dec-002",
+      "declared_intent": "Inspect deployment configuration",
+      "drift_id": "intent-drift-sample-dec-002",
+      "drift_score": 81,
+      "drift_signals": [
+        "sensitive_target_not_declared",
+        "blocked_after_declared_intent",
+        "critical_or_high_intent_drift",
+        "action_type_not_explicit_in_intent"
+      ],
+      "drift_status": "high_drift",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "policy_pack": "cavra-ai-agent-baseline",
+      "recommended_action": "Block or escalate until the declared intent explicitly covers sensitive-data access.",
+      "repository": "payments/api",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "rule_id": "secrets.block-sensitive-read",
+      "session_id": "sample-session-001",
+      "severity": "critical",
+      "target_redacted": true,
+      "target_summary": "sensitive target redacted",
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "action_type": "execute_command",
+      "agent_id": "codex-agent",
+      "confidence": "metadata_intent_comparison",
+      "control_surface": "infrastructure_iac",
+      "decision": "require_approval",
+      "decision_id": "sample-dec-001",
+      "declared_intent": "Apply approved production infrastructure change",
+      "drift_id": "intent-drift-sample-dec-001",
+      "drift_score": 35,
+      "drift_signals": [
+        "approval_required_after_declared_intent",
+        "critical_or_high_intent_drift",
+        "action_type_not_explicit_in_intent"
+      ],
+      "drift_status": "needs_review",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "policy_pack": "cloud-iam-prod",
+      "recommended_action": "Verify the requested change, blast radius, approval route, and execution target before allowing the action.",
+      "repository": "payments/api",
+      "risk_classification": "infrastructure_change_risk",
+      "rule_id": "iac.production-change",
+      "session_id": "sample-session-001",
+      "severity": "high",
+      "target_redacted": false,
+      "target_summary": "terraform apply",
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "action_type": "mcp_tool_call",
+      "agent_id": "claude-code-agent",
+      "confidence": "metadata_intent_comparison",
+      "control_surface": "mcp_tools",
+      "decision": "warn",
+      "decision_id": "sample-dec-003",
+      "declared_intent": "Write generated infrastructure documentation",
+      "drift_id": "intent-drift-sample-dec-003",
+      "drift_score": 6,
+      "drift_signals": [
+        "action_type_not_explicit_in_intent"
+      ],
+      "drift_status": "aligned",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "policy_pack": "mcp-enterprise",
+      "recommended_action": "Verify tool trust tier, write scope, and declared workflow intent before allowing broad tool use.",
+      "repository": "platform/infra",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "rule_id": "mcp.untrusted-tool",
+      "session_id": "sample-session-002",
+      "severity": "medium",
+      "target_redacted": false,
+      "target_summary": "filesystem.write",
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
   "mode": "sample",
   "near_misses": [
     {

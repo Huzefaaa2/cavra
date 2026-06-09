@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Intent Action Drift",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "items",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.intent_action_drift.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["total_items", "high_drift", "needs_review", "unknown_intent", "aligned"],
+      "properties": {
+        "total_items": { "type": "integer", "minimum": 0 },
+        "high_drift": { "type": "integer", "minimum": 0 },
+        "needs_review": { "type": "integer", "minimum": 0 },
+        "unknown_intent": { "type": "integer", "minimum": 0 },
+        "aligned": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "drift_id",
+          "decision_id",
+          "agent_id",
+          "declared_intent",
+          "action_type",
+          "target_summary",
+          "target_redacted",
+          "drift_status",
+          "drift_score",
+          "drift_signals",
+          "recommended_action",
+          "confidence"
+        ],
+        "properties": {
+          "drift_id": { "type": "string" },
+          "decision_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "policy_pack": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "declared_intent": { "type": "string" },
+          "action_type": { "type": "string" },
+          "target_summary": { "type": "string" },
+          "target_redacted": { "type": "boolean" },
+          "decision": { "type": "string" },
+          "severity": { "type": "string" },
+          "risk_classification": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "drift_status": { "enum": ["aligned", "needs_review", "high_drift", "unknown_intent"] },
+          "drift_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "drift_signals": { "type": "array", "items": { "type": "string" } },
+          "recommended_action": { "type": "string" },
+          "confidence": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "timestamp": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

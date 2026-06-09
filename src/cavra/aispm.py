@@ -52,6 +52,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "public-safe behavior fingerprints and drift signals from local activity metadata",
                 "policy context gap detection for decisions missing business-critical metadata",
                 "pre-action risk forecasts from local decision metadata before agent execution",
+                "intent-to-action drift detection from declared intent and local decision metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -66,6 +67,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "kill switch and runtime overrides",
                 "compliance exports and immutable retention",
                 "private asset-graph and identity-aware pre-action forecasting",
+                "prompt-derived semantic intent extraction and private workflow correlation",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -81,6 +83,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "behavior_fingerprints",
             "policy_context_gaps",
             "pre_action_risk_forecasts",
+            "intent_action_drift",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -95,6 +98,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "behavior_fingerprints": "/aispm/behavior-fingerprints",
             "policy_context_gaps": "/aispm/policy-context-gaps",
             "pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
+            "intent_action_drift": "/aispm/intent-action-drift",
         },
     }
 
@@ -129,6 +133,7 @@ def build_aispm_posture(
     behavior_fingerprints = _behavior_fingerprints(decisions, sessions)
     policy_context_gaps = _policy_context_gaps(decisions)
     pre_action_risk_forecasts = _pre_action_risk_forecasts(decisions)
+    intent_action_drift = _intent_action_drift(decisions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -154,6 +159,7 @@ def build_aispm_posture(
         "behavior_fingerprints": behavior_fingerprints,
         "policy_context_gaps": policy_context_gaps,
         "pre_action_risk_forecasts": pre_action_risk_forecasts,
+        "intent_action_drift": intent_action_drift,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -375,6 +381,77 @@ def build_aispm_pre_action_risk_forecasts(
     }
 
 
+def build_aispm_intent_action_drift(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build public-safe intent-to-action drift signals from local decisions.
+
+    Community compares declared intent metadata to the normalized action,
+    target, control surface, and policy outcome. Enterprise owns prompt-derived
+    intent extraction, semantic comparison against private tickets, and live
+    workflow correlation.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    items = _intent_action_drift(decisions)
+    status_counts = Counter(str(item.get("drift_status", "aligned")) for item in items)
+    return {
+        "schema_version": "cavra.aispm.intent_action_drift.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "total_items": len(items),
+            "high_drift": status_counts["high_drift"],
+            "needs_review": status_counts["needs_review"],
+            "unknown_intent": status_counts["unknown_intent"],
+            "aligned": status_counts["aligned"],
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items,
+        "redaction": {
+            "raw_prompt": LOCKED_ENTERPRISE_STATUS,
+            "reasoning_trace": LOCKED_ENTERPRISE_STATUS,
+            "conversation_history": LOCKED_ENTERPRISE_STATUS,
+            "private_ticket_context": LOCKED_ENTERPRISE_STATUS,
+            "full_tool_payload": LOCKED_ENTERPRISE_STATUS,
+            "semantic_intent_model": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "prompt-derived semantic intent extraction",
+                "task, ticket, and pull-request intent correlation",
+                "private workflow and change-management context comparison",
+                "live drift alerts for tool and target changes",
+                "SIEM export for intent-to-action drift events",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -387,6 +464,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "repository": "payments/api",
             "action_type": "execute_command",
             "target": "terraform apply",
+            "declared_intent": "Apply approved production infrastructure change",
             "policy_pack": "cloud-iam-prod",
             "rule_id": "iac.production-change",
             "decision": "require_approval",
@@ -403,6 +481,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "repository": "payments/api",
             "action_type": "read_file",
             "target": ".env.production",
+            "declared_intent": "Inspect deployment configuration",
             "policy_pack": "cavra-ai-agent-baseline",
             "rule_id": "secrets.block-sensitive-read",
             "decision": "block",
@@ -419,6 +498,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "repository": "platform/infra",
             "action_type": "mcp_tool_call",
             "target": "filesystem.write",
+            "declared_intent": "Write generated infrastructure documentation",
             "policy_pack": "mcp-enterprise",
             "rule_id": "mcp.untrusted-tool",
             "decision": "warn",
@@ -479,6 +559,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "behavior_fingerprints": _behavior_fingerprints(decisions, sessions),
         "policy_context_gaps": _policy_context_gaps(decisions),
         "pre_action_risk_forecasts": _pre_action_risk_forecasts(decisions),
+        "intent_action_drift": _intent_action_drift(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -1164,6 +1245,164 @@ def _pre_action_controls(status: str, surface: str) -> list[str]:
         "runtime_commands": ["verify_execution_environment"],
     }
     return list(dict.fromkeys([*controls, *surface_controls.get(surface, [])]))
+
+
+def _intent_action_drift(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    drift_items: list[dict[str, Any]] = []
+    for decision in decisions:
+        declared_intent = _declared_intent(decision)
+        target_summary, target_redacted = _safe_target_summary(decision)
+        surface = _control_surface(decision)
+        signals = _intent_drift_signals(decision, declared_intent, surface, target_redacted)
+        drift_score = _intent_drift_score(decision, signals)
+        drift_items.append(
+            {
+                "drift_id": f"intent-drift-{decision.get('decision_id', 'unknown')}",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+                "rule_id": decision.get("rule_id", "runtime.default"),
+                "declared_intent": declared_intent or "intent not recorded",
+                "action_type": decision.get("action_type", "unknown"),
+                "target_summary": target_summary,
+                "target_redacted": target_redacted,
+                "decision": decision.get("decision", "unknown"),
+                "severity": decision.get("severity", "low"),
+                "risk_classification": _risk_classification(decision),
+                "control_surface": surface,
+                "drift_status": _intent_drift_status(drift_score, declared_intent),
+                "drift_score": drift_score,
+                "drift_signals": signals,
+                "recommended_action": _intent_drift_recommended_action(signals, surface),
+                "confidence": "metadata_intent_comparison",
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+    return sorted(
+        drift_items,
+        key=lambda item: (int(item.get("drift_score", 0)), str(item.get("timestamp", ""))),
+        reverse=True,
+    )
+
+
+def _declared_intent(decision: dict[str, Any]) -> str | None:
+    aliases = (
+        "declared_intent",
+        "intent",
+        "requested_intent",
+        "user_intent",
+        "task_intent",
+        "business_intent",
+    )
+    containers = [
+        decision,
+        decision.get("context") if isinstance(decision.get("context"), dict) else {},
+        decision.get("metadata") if isinstance(decision.get("metadata"), dict) else {},
+        decision.get("labels") if isinstance(decision.get("labels"), dict) else {},
+    ]
+    for container in containers:
+        if not isinstance(container, dict):
+            continue
+        for key in aliases:
+            value = container.get(key)
+            if value not in {None, ""}:
+                return str(value)
+    return None
+
+
+def _intent_drift_signals(
+    decision: dict[str, Any],
+    declared_intent: str | None,
+    surface: str,
+    target_redacted: bool,
+) -> list[str]:
+    signals: list[str] = []
+    normalized_intent = (declared_intent or "").lower()
+    action_type = str(decision.get("action_type", "")).lower()
+    target = str(decision.get("target") or decision.get("requested_operation") or "").lower()
+    outcome = str(decision.get("decision", "unknown"))
+    severity = str(decision.get("severity", "low"))
+
+    if not declared_intent:
+        signals.append("missing_declared_intent")
+    if target_redacted and not _intent_contains_any(normalized_intent, ["secret", "credential", "token", ".env", "sensitive"]):
+        signals.append("sensitive_target_not_declared")
+    if surface == "infrastructure_iac" and not _intent_contains_any(
+        normalized_intent, ["infrastructure", "terraform", "tofu", "deploy", "apply", "cloud", "kubernetes", "change"]
+    ):
+        signals.append("infrastructure_action_not_declared")
+    if surface == "mcp_tools" and "write" in target and not _intent_contains_any(
+        normalized_intent, ["write", "modify", "update", "generate", "tool", "filesystem"]
+    ):
+        signals.append("tool_write_not_declared")
+    if surface == "source_control" and not _intent_contains_any(normalized_intent, ["git", "branch", "commit", "pull request", "pr"]):
+        signals.append("source_control_action_not_declared")
+    if surface == "runtime_commands" and not _intent_contains_any(normalized_intent, ["run", "execute", "script", "command", "install"]):
+        signals.append("runtime_execution_not_declared")
+    if outcome == "block":
+        signals.append("blocked_after_declared_intent")
+    if outcome == "require_approval":
+        signals.append("approval_required_after_declared_intent")
+    if severity in {"critical", "high"}:
+        signals.append("critical_or_high_intent_drift")
+    if declared_intent and action_type and action_type.replace("_", " ") not in normalized_intent:
+        signals.append("action_type_not_explicit_in_intent")
+    return list(dict.fromkeys(signals))
+
+
+def _intent_contains_any(intent: str, terms: list[str]) -> bool:
+    return any(term in intent for term in terms)
+
+
+def _intent_drift_score(decision: dict[str, Any], signals: list[str]) -> int:
+    weights = {
+        "missing_declared_intent": 35,
+        "sensitive_target_not_declared": 35,
+        "infrastructure_action_not_declared": 24,
+        "tool_write_not_declared": 20,
+        "source_control_action_not_declared": 20,
+        "runtime_execution_not_declared": 20,
+        "blocked_after_declared_intent": 18,
+        "approval_required_after_declared_intent": 10,
+        "critical_or_high_intent_drift": 14,
+        "action_type_not_explicit_in_intent": 6,
+    }
+    score = sum(weights.get(signal, 0) for signal in signals)
+    severity = str(decision.get("severity", "low"))
+    if severity == "critical":
+        score += 8
+    elif severity == "high":
+        score += 5
+    return max(0, min(score, 100))
+
+
+def _intent_drift_status(drift_score: int, declared_intent: str | None) -> str:
+    if not declared_intent:
+        return "unknown_intent"
+    if drift_score >= 70:
+        return "high_drift"
+    if drift_score >= 35:
+        return "needs_review"
+    return "aligned"
+
+
+def _intent_drift_recommended_action(signals: list[str], surface: str) -> str:
+    if "missing_declared_intent" in signals:
+        return "Require the agent or workflow to attach declared intent before evaluating the action."
+    if "sensitive_target_not_declared" in signals:
+        return "Block or escalate until the declared intent explicitly covers sensitive-data access."
+    if surface == "infrastructure_iac":
+        return "Verify the requested change, blast radius, approval route, and execution target before allowing the action."
+    if surface == "mcp_tools":
+        return "Verify tool trust tier, write scope, and declared workflow intent before allowing broad tool use."
+    if surface == "source_control":
+        return "Verify branch protection, review path, and requested repository change before allowing mutation."
+    if surface == "runtime_commands":
+        return "Verify execution environment and command purpose before allowing runtime execution."
+    return "Compare declared intent with the observed action and require attestation if the scope changed."
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -11,6 +11,7 @@ from cavra.aispm import (
     build_aispm_approval_lineage,
     build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
+    build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
@@ -632,6 +633,7 @@ def create_app():
                 "aispm_behavior_fingerprints": "/aispm/behavior-fingerprints",
                 "aispm_policy_context_gaps": "/aispm/policy-context-gaps",
                 "aispm_pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
+                "aispm_intent_action_drift": "/aispm/intent-action-drift",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1086,6 +1088,21 @@ def create_app():
         limit: int = 200,
     ) -> dict:
         return build_aispm_pre_action_risk_forecasts(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/intent-action-drift")
+    def aispm_intent_action_drift(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_intent_action_drift(
             activity_store,
             agent_id=agent_id,
             repository=repository,
