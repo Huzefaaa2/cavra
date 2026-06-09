@@ -89,6 +89,8 @@ def test_api_saas_operating_automation_contract_surface(monkeypatch, tmp_path) -
 def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)
     monkeypatch.setenv("CAVRA_ACTIVITY_STORE", str(tmp_path / "activity.json"))
+    monkeypatch.delenv("CAVRA_APPROVAL_DB", raising=False)
+    monkeypatch.setenv("CAVRA_APPROVAL_STORE", str(tmp_path / "approvals.json"))
     client = TestClient(create_app())
 
     config = client.get("/console/config").json()
@@ -96,6 +98,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     client.post(
         "/decisions",
         json={
+            "decision_id": "dec-aispm-secret-block",
             "session_id": "aispm-session",
             "agent_id": "codex-agent",
             "actor": "codex-agent",
@@ -111,6 +114,35 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
             "reason": "Sensitive file access is blocked.",
         },
     )
+    approval_decision = {
+        "decision_id": "dec-aispm-approval",
+        "session_id": "aispm-session",
+        "agent_id": "codex-agent",
+        "actor": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "execute_command",
+        "target": "terraform apply",
+        "requested_operation": "terraform apply",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "policy_id": "cavra-ai-agent-baseline",
+        "rule_id": "iac.production-change",
+        "decision": "require_approval",
+        "severity": "high",
+        "reason": "Production-impacting infrastructure action requires approval.",
+        "evidence_refs": ["signed://evidence/dec-aispm-approval"],
+    }
+    approval = client.post(
+        "/approvals",
+        json={
+            "decision": approval_decision,
+            "approver_group": "Cloud Security",
+            "requested_by": "codex-agent",
+        },
+    )
+    client.post(
+        f"/approvals/{approval.json()['approval_id']}/approve",
+        json={"actor": "human.approver@example.com", "reason": "Approved change window.", "external_ref": "CAB-123"},
+    )
 
     posture = client.get("/aispm/posture")
     findings = client.get("/aispm/findings")
@@ -120,6 +152,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     near_misses = client.get("/aispm/near-misses")
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
+    approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
     sample = client.get("/aispm/dashboard/sample")
 
     assert config["endpoints"]["aispm_dashboard_contract"] == "/aispm/dashboard/contract"
@@ -127,10 +160,12 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_control_coverage"] == "/aispm/control-coverage"
     assert config["endpoints"]["aispm_near_misses"] == "/aispm/near-misses"
     assert config["endpoints"]["aispm_trace_replay"] == "/aispm/trace-replay/{session_id}"
+    assert config["endpoints"]["aispm_approval_lineage"] == "/aispm/approval-lineage"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
     assert posture.json()["overview"]["blocked_actions"] == 1
+    assert posture.json()["overview"]["approval_required_actions"] == 0
     assert posture.json()["overview"]["evidence_confidence"] in {"activity_evidence_refs", "activity_metadata_only"}
     assert findings.json()["total"] == 1
     assert agents.json()["items"][0]["agent_id"] == "codex-agent"
@@ -140,9 +175,16 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1
+    assert trace_replay.json()["summary"]["approval_required_actions"] == 0
     assert trace_replay.json()["steps"][0]["target_redacted"] is True
     assert trace_replay.json()["redaction"]["full_trace_replay"] == "requires_cavra_enterprise"
     assert missing_trace_replay.status_code == 404
+    assert approval_lineage.status_code == 200
+    assert approval_lineage.json()["schema_version"] == "cavra.aispm.approval_lineage.v1"
+    assert approval_lineage.json()["summary"]["approved"] == 1
+    assert approval_lineage.json()["items"][0]["decided_by"] == "role:approver"
+    assert approval_lineage.json()["items"][0]["requested_by"] == "automation:codex-agent"
+    assert approval_lineage.json()["redaction"]["raw_rbac_policy"] == "requires_cavra_enterprise"
     assert sample.json()["mode"] == "sample"
 
 

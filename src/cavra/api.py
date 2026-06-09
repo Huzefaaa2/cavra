@@ -8,6 +8,7 @@ from urllib.parse import quote
 from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.aispm import (
+    build_aispm_approval_lineage,
     build_aispm_dashboard_contract,
     build_aispm_posture,
     build_aispm_trace_replay_packet,
@@ -624,6 +625,7 @@ def create_app():
                 "aispm_control_coverage": "/aispm/control-coverage",
                 "aispm_near_misses": "/aispm/near-misses",
                 "aispm_trace_replay": "/aispm/trace-replay/{session_id}",
+                "aispm_approval_lineage": "/aispm/approval-lineage",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1046,6 +1048,22 @@ def create_app():
         if packet is None:
             raise HTTPException(status_code=404, detail="trace replay session not found")
         return packet
+
+    @app.get("/aispm/approval-lineage")
+    def aispm_approval_lineage(
+        state: Optional[str] = None,
+        approver_group: Optional[str] = None,
+        session_id: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_approval_lineage(
+            approval_store,
+            activity_store,
+            state=state,
+            approver_group=approver_group,
+            session_id=session_id,
+            limit=limit,
+        )
 
     @app.get("/operations/stores")
     def operations_store_index() -> dict:

@@ -281,6 +281,34 @@ const aispmFallback = {
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
   ],
+  approval_lineage: [
+    {
+      lineage_id: "lineage-sample-apr-001",
+      approval_id: "sample-apr-001",
+      decision_id: "sample-dec-001",
+      session_id: "sample-session-001",
+      state: "approved",
+      approver_group: "Cloud Security",
+      requested_by: "automation:codex-agent",
+      decided_by: "role:approver",
+      requested_at: "2026-06-09T00:00:10+00:00",
+      decided_at: "2026-06-09T00:00:40+00:00",
+      external_ref: "ticket://sample-change-42",
+      break_glass: false,
+      decision: {
+        action_type: "execute_command",
+        target_summary: "terraform apply",
+        risk_classification: "infrastructure_change_risk",
+        control_surface: "infrastructure_iac",
+        severity: "high",
+        repository: "payments/api",
+        policy_pack: "cloud-iam-prod",
+        rule_id: "iac.production-change"
+      },
+      evidence_refs: ["approval://sample-apr-001", "sample://evidence/iac-production-change"],
+      redacted_fields: ["identity_provider_claims", "raw_rbac_context", "connector_payloads"]
+    }
+  ],
   control_plane: {
     community_status: "local_activity_ready",
     enterprise_status: "requires_cavra_enterprise",
@@ -384,6 +412,46 @@ const aispmTraceReplayFallback = {
   }
 };
 
+const aispmApprovalLineageFallback = {
+  schema_version: "cavra.aispm.approval_lineage.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:04:00+00:00",
+  filters: { state: null, approver_group: null, session_id: null, limit: 200 },
+  summary: {
+    total: 1,
+    pending: 0,
+    approved: 1,
+    denied: 0,
+    expired: 0,
+    break_glass: 0,
+    evidence_confidence: "approval_evidence_refs"
+  },
+  items: aispmFallback.approval_lineage,
+  redaction: {
+    identity_provider_claims: "requires_cavra_enterprise",
+    raw_rbac_policy: "requires_cavra_enterprise",
+    private_routing_rules: "requires_cavra_enterprise",
+    connector_payloads: "requires_cavra_enterprise",
+    human_actor_identifiers: "role labels only"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "identity-provider backed approver context",
+      "RBAC-scoped lineage by role and tenant",
+      "approval latency SLOs and escalations",
+      "immutable multi-tenant approval audit retention",
+      "SIEM and ITSM approval workflow exports"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -397,7 +465,8 @@ const routeContent = [
   { type: "AI Posture", label: "Agent Observability", route: "ai-posture", description: "Live-ready agent coverage, risk findings, and execution timeline." },
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
-  { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." }
+  { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
+  { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." }
 ];
 
 function el(selector) {
@@ -577,6 +646,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
       <p>${escapeHtml(event.agent_id || "unknown-agent")} · ${escapeHtml(event.repository || "local")} · ${escapeHtml(event.outcome || "recorded")}</p>
     </div>
   `).join("") || `<p class="empty-state">No timeline events available.</p>`;
+  renderAispmApprovalLineage({
+    ...aispmApprovalLineageFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeApprovalLineage(payload.approval_lineage || aispmApprovalLineageFallback.items),
+    items: payload.approval_lineage || aispmApprovalLineageFallback.items
+  }, "posture sample");
   el("#aispmPayload").textContent = JSON.stringify(payload, null, 2);
   syncTraceReplaySessions(payload);
 }
@@ -703,6 +778,67 @@ async function loadAispmTraceReplay(sessionId) {
     }
   }
   renderAispmTraceReplay(traceReplayFromPosture(currentAispmPayload, sessionId), "static sample replay");
+}
+
+function summarizeApprovalLineage(items) {
+  const counts = (items || []).reduce((acc, item) => {
+    acc[item.state] = (acc[item.state] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    total: (items || []).length,
+    pending: counts.pending || 0,
+    approved: counts.approved || 0,
+    denied: counts.denied || 0,
+    expired: counts.expired || 0,
+    break_glass: counts.break_glass || 0,
+    evidence_confidence: (items || []).every((item) => (item.evidence_refs || []).length) ? "approval_evidence_refs" : "approval_metadata_only"
+  };
+}
+
+async function loadAispmApprovalLineage() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/approval-lineage`);
+      if (!response.ok) throw new Error(`Approval lineage HTTP ${response.status}`);
+      renderAispmApprovalLineage(await response.json(), "API local approval store");
+      return;
+    } catch (error) {
+      renderAispmApprovalLineage(aispmApprovalLineageFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmApprovalLineage(aispmApprovalLineageFallback, "static sample lineage");
+}
+
+function renderAispmApprovalLineage(packet, note = "sample lineage") {
+  const summary = packet.summary || {};
+  const items = packet.items || [];
+  const summaryCards = [
+    ["Lineage", summary.total ?? items.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Approved", summary.approved ?? 0, `Pending: ${summary.pending ?? 0}`],
+    ["Denied/Expired", (summary.denied ?? 0) + (summary.expired ?? 0), `Break-glass: ${summary.break_glass ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Public-safe metadata"]
+  ];
+  el("#aispmApprovalSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmApprovalLineage").innerHTML = items.slice(0, 8).map((item) => `
+    <article class="approval-lineage-row">
+      <span class="severity ${escapeHtml(item.state || "pending")}">${escapeHtml(item.state || "pending")}</span>
+      <div>
+        <strong>${escapeHtml(item.approver_group || "Unassigned")} approved ${escapeHtml(item.decision?.action_type || "action")}</strong>
+        <p>${escapeHtml(item.decision?.target_summary || "target not recorded")} · ${escapeHtml(item.decision?.risk_classification || "policy_decision_review")}</p>
+        <small>${escapeHtml(item.requested_by || "unknown requester")} → ${escapeHtml(item.decided_by || "pending")} · ${escapeHtml(item.external_ref || item.approval_id || "approval record")}</small>
+      </div>
+      <small>${escapeHtml((item.evidence_refs || []).join(", ") || "no evidence refs")}</small>
+    </article>
+  `).join("") || `<p class="empty-state">No approval lineage records available.</p>`;
 }
 
 function renderAispmTraceReplay(packet, note = "sample replay") {
@@ -912,6 +1048,7 @@ function wireEvents() {
   });
   el("#runScenario").addEventListener("click", runScenario);
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
+  el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -946,6 +1083,7 @@ function init() {
   renderRoadmap();
   wireEvents();
   loadAispmDashboard();
+  loadAispmApprovalLineage();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

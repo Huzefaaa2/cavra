@@ -48,6 +48,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "control coverage summary from observed local decisions",
                 "near-miss queue for warnings and approval-gated actions",
                 "public-safe trace replay packets from local session decisions",
+                "public-safe approval lineage from local approval records",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -72,6 +73,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "control_coverage",
             "near_miss_queue",
             "trace_replay_packet",
+            "approval_lineage",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -82,6 +84,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "control_coverage": "/aispm/control-coverage",
             "near_misses": "/aispm/near-misses",
             "trace_replay": "/aispm/trace-replay/{session_id}",
+            "approval_lineage": "/aispm/approval-lineage",
         },
     }
 
@@ -134,6 +137,7 @@ def build_aispm_posture(
         "timeline": timeline,
         "control_coverage": _control_coverage(decisions),
         "near_misses": _near_misses(decisions),
+        "approval_lineage": [],
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -239,8 +243,84 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "timeline": _timeline(decisions, sessions),
         "control_coverage": _control_coverage(decisions),
         "near_misses": _near_misses(decisions),
+        "approval_lineage": _sample_approval_lineage(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
+    }
+
+
+def build_aispm_approval_lineage(
+    approval_store: Any,
+    activity_store: Any | None = None,
+    *,
+    state: str | None = None,
+    approver_group: str | None = None,
+    session_id: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build Community-safe approval lineage from local approval records.
+
+    The lineage intentionally omits raw identity-provider claims, authorization
+    tokens, private routing rules, and connector payloads. Human actors are
+    reduced to role-style labels unless the stored actor is an automation
+    identity.
+    """
+
+    limit = max(1, min(limit, 500))
+    approvals = approval_store.list(state=state, approver_group=approver_group, limit=limit)["items"]
+    if session_id:
+        approvals = [item for item in approvals if item.get("session_id") == session_id]
+
+    decisions_by_id: dict[str, dict[str, Any]] = {}
+    if activity_store is not None:
+        for item in activity_store.list_decisions(limit=limit)["items"]:
+            decisions_by_id[str(item.get("decision_id"))] = item
+
+    items = [_approval_lineage_item(approval, decisions_by_id.get(str(approval.get("decision_id")))) for approval in approvals]
+    summary_counts = Counter(str(item.get("state", "unknown")) for item in items)
+    return {
+        "schema_version": "cavra.aispm.approval_lineage.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_approval_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "state": state,
+            "approver_group": approver_group,
+            "session_id": session_id,
+            "limit": limit,
+        },
+        "summary": {
+            "total": len(items),
+            "pending": summary_counts["pending"],
+            "approved": summary_counts["approved"],
+            "denied": summary_counts["denied"],
+            "expired": summary_counts["expired"],
+            "break_glass": summary_counts["break_glass"],
+            "evidence_confidence": _approval_evidence_confidence(items),
+        },
+        "items": items,
+        "redaction": {
+            "identity_provider_claims": LOCKED_ENTERPRISE_STATUS,
+            "raw_rbac_policy": LOCKED_ENTERPRISE_STATUS,
+            "private_routing_rules": LOCKED_ENTERPRISE_STATUS,
+            "connector_payloads": LOCKED_ENTERPRISE_STATUS,
+            "human_actor_identifiers": "role labels only",
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "identity-provider backed approver context",
+                "RBAC-scoped lineage by role and tenant",
+                "approval latency SLOs and escalations",
+                "immutable multi-tenant approval audit retention",
+                "SIEM and ITSM approval workflow exports",
+            ],
+            "private_package": "cavra_enterprise",
+        },
     }
 
 
@@ -338,6 +418,90 @@ def _posture_overview(
         ),
         "evidence_confidence": _evidence_confidence(decisions),
     }
+
+
+def _sample_approval_lineage(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    approval_decision = next((item for item in decisions if item.get("decision") == "require_approval"), None)
+    if not approval_decision:
+        return []
+    return [
+        {
+            "lineage_id": "lineage-sample-apr-001",
+            "approval_id": "sample-apr-001",
+            "decision_id": approval_decision.get("decision_id"),
+            "session_id": approval_decision.get("session_id"),
+            "state": "approved",
+            "approver_group": "Cloud Security",
+            "requested_by": "automation:codex-agent",
+            "decided_by": "role:approver",
+            "requested_at": "2026-06-09T00:00:10+00:00",
+            "decided_at": "2026-06-09T00:00:40+00:00",
+            "external_ref": "ticket://sample-change-42",
+            "break_glass": False,
+            "decision": {
+                "action_type": approval_decision.get("action_type"),
+                "target_summary": _safe_target_summary(approval_decision)[0],
+                "risk_classification": _risk_classification(approval_decision),
+                "severity": approval_decision.get("severity"),
+                "repository": approval_decision.get("repository"),
+                "policy_pack": approval_decision.get("policy_pack"),
+                "rule_id": approval_decision.get("rule_id"),
+            },
+            "evidence_refs": ["approval://sample-apr-001", *approval_decision.get("evidence_refs", [])],
+            "redacted_fields": ["identity_provider_claims", "raw_rbac_context"],
+        }
+    ]
+
+
+def _approval_lineage_item(approval: dict[str, Any], stored_decision: dict[str, Any] | None) -> dict[str, Any]:
+    decision = stored_decision or approval.get("decision") or {}
+    target_summary, _target_redacted = _safe_target_summary(decision)
+    return {
+        "lineage_id": f"lineage-{approval.get('approval_id', 'unknown')}",
+        "approval_id": approval.get("approval_id"),
+        "decision_id": approval.get("decision_id") or decision.get("decision_id"),
+        "session_id": approval.get("session_id") or decision.get("session_id"),
+        "state": approval.get("state", "unknown"),
+        "approver_group": approval.get("approver_group", "unassigned"),
+        "requested_by": _safe_actor_label(approval.get("requested_by")),
+        "decided_by": _safe_actor_label(approval.get("decided_by")),
+        "requested_at": approval.get("requested_at"),
+        "decided_at": approval.get("decided_at"),
+        "expires_at": approval.get("expires_at"),
+        "external_ref": approval.get("external_ref"),
+        "break_glass": bool(approval.get("break_glass", False)),
+        "decision": {
+            "action_type": decision.get("action_type", "unknown"),
+            "target_summary": target_summary,
+            "risk_classification": _risk_classification(decision),
+            "control_surface": _control_surface(decision),
+            "severity": decision.get("severity", "low"),
+            "repository": decision.get("repository", "local"),
+            "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+            "rule_id": decision.get("rule_id", "runtime.default"),
+        },
+        "evidence_refs": list(approval.get("evidence_refs", [])),
+        "redacted_fields": ["identity_provider_claims", "raw_rbac_context", "connector_payloads"],
+    }
+
+
+def _approval_evidence_confidence(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return "no_approval_records"
+    if all(item.get("evidence_refs") for item in items):
+        return "approval_evidence_refs"
+    return "approval_metadata_only"
+
+
+def _safe_actor_label(actor: Any) -> str | None:
+    if actor in {None, ""}:
+        return None
+    value = str(actor)
+    lowered = value.lower()
+    automation_markers = ("agent", "bot", "automation", "cavra", "codex", "claude")
+    if any(marker in lowered for marker in automation_markers):
+        return f"automation:{value}"
+    return "role:approver"
 
 
 def _agent_observability(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -> list[dict[str, Any]]:

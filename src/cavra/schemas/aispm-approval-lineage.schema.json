@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Approval Lineage",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "items",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.approval_lineage.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "const": "local_approval_store" },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["total", "pending", "approved", "denied", "expired", "evidence_confidence"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0 },
+        "approved": { "type": "integer", "minimum": 0 },
+        "denied": { "type": "integer", "minimum": 0 },
+        "expired": { "type": "integer", "minimum": 0 },
+        "break_glass": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "lineage_id",
+          "approval_id",
+          "decision_id",
+          "session_id",
+          "state",
+          "approver_group",
+          "requested_by",
+          "decision",
+          "evidence_refs",
+          "redacted_fields"
+        ],
+        "properties": {
+          "lineage_id": { "type": "string" },
+          "approval_id": { "type": "string" },
+          "decision_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "state": { "type": "string" },
+          "approver_group": { "type": "string" },
+          "requested_by": { "type": ["string", "null"] },
+          "decided_by": { "type": ["string", "null"] },
+          "requested_at": { "type": ["string", "null"] },
+          "decided_at": { "type": ["string", "null"] },
+          "expires_at": { "type": ["string", "null"] },
+          "external_ref": { "type": ["string", "null"] },
+          "break_glass": { "type": "boolean" },
+          "decision": {
+            "type": "object",
+            "required": ["action_type", "target_summary", "risk_classification", "control_surface", "severity"],
+            "properties": {
+              "action_type": { "type": "string" },
+              "target_summary": { "type": "string" },
+              "risk_classification": { "type": "string" },
+              "control_surface": { "type": "string" },
+              "severity": { "type": "string" },
+              "repository": { "type": "string" },
+              "policy_pack": { "type": "string" },
+              "rule_id": { "type": "string" }
+            }
+          },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "redacted_fields": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

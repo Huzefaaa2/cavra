@@ -219,6 +219,12 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .trace-redaction-list div { border-bottom: 1px solid color-mix(in srgb, var(--line) 64%, transparent); padding: 8px 0; }
 .trace-redaction-list div:last-child { border-bottom: 0; }
 .trace-redaction-list strong { display: block; margin-top: 4px; overflow-wrap: anywhere; }
+.approval-lineage-panel { display: grid; gap: 16px; }
+.approval-lineage-list { display: grid; gap: 10px; }
+.approval-lineage-row { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(180px, .45fr); gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
+.approval-lineage-row strong { display: block; overflow-wrap: anywhere; }
+.approval-lineage-row p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
+.approval-lineage-row small { color: var(--muted); overflow-wrap: anywhere; }
 .operator-path-card span { color: var(--accent); text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
 .operator-path-card h3 { margin: 10px 0 14px; font-size: 24px; }
 .operator-path-card dl { margin: 0 0 16px; }
@@ -270,6 +276,9 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .high { background: rgba(245, 158, 11, .16); color: #fde68a; }
 .medium { background: rgba(59, 130, 246, .16); color: #bfdbfe; }
 .low { background: rgba(16, 185, 129, .16); color: #bbf7d0; }
+.approved { background: rgba(16, 185, 129, .16); color: #bbf7d0; }
+.pending { background: rgba(245, 158, 11, .16); color: #fde68a; }
+.denied, .expired { background: rgba(239, 68, 68, .16); color: #fecaca; }
 .timeline { display: grid; gap: 14px; }
 .timeline-item { position: relative; border-left: 3px solid var(--primary); padding: 2px 0 2px 18px; }
 .timeline-item h3 { margin: 0 0 6px; }
@@ -332,6 +341,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }
   .console-header { flex-direction: column; }
+  .approval-lineage-row { grid-template-columns: 1fr; }
   .mobile-bottom { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; height: 62px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid var(--line); background: var(--header); backdrop-filter: blur(14px); }
   .mobile-bottom a, .mobile-bottom button { display: grid; place-items: center; min-height: 48px; padding: 6px 4px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 }

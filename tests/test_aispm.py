@@ -5,11 +5,13 @@ import jsonschema
 
 from cavra.activity import ActivityStore
 from cavra.aispm import (
+    build_aispm_approval_lineage,
     build_aispm_dashboard_contract,
     build_aispm_posture,
     build_aispm_trace_replay_packet,
     build_sample_aispm_dashboard,
 )
+from cavra.approvals import ApprovalStore
 
 
 def _decision(
@@ -179,4 +181,54 @@ def test_aispm_trace_replay_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(replay_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_approval_lineage_redacts_human_actors(tmp_path: Path) -> None:
+    activity = ActivityStore(tmp_path / "activity.json")
+    approval_store = ApprovalStore(tmp_path / "approvals.json")
+    decision = activity.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+        )
+    )
+    approval = approval_store.create_request(
+        decision,
+        approver_group="Cloud Security",
+        requested_by="codex-agent",
+    )
+    approval_store.decide(
+        approval["approval_id"],
+        state="approved",
+        actor="human.approver@example.com",
+        reason="Reviewed change window.",
+        external_ref="CAB-123",
+    )
+
+    lineage = build_aispm_approval_lineage(approval_store, activity, session_id="session-1")
+
+    assert lineage["schema_version"] == "cavra.aispm.approval_lineage.v1"
+    assert lineage["summary"]["approved"] == 1
+    assert lineage["summary"]["evidence_confidence"] == "approval_evidence_refs"
+    assert lineage["items"][0]["requested_by"] == "automation:codex-agent"
+    assert lineage["items"][0]["decided_by"] == "role:approver"
+    assert lineage["items"][0]["decision"]["target_summary"] == "terraform apply"
+    assert lineage["items"][0]["decision"]["risk_classification"] == "infrastructure_change_risk"
+    assert lineage["redaction"]["identity_provider_claims"] == "requires_cavra_enterprise"
+    assert "raw_rbac_context" in lineage["items"][0]["redacted_fields"]
+
+
+def test_aispm_approval_lineage_sample_matches_packaged_schema() -> None:
+    lineage_schema = Path("src/cavra/schemas/aispm-approval-lineage.schema.json")
+    sample = Path("examples/aispm/community-approval-lineage-sample.json")
+
+    assert lineage_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(lineage_schema.read_text(encoding="utf-8")),
     )

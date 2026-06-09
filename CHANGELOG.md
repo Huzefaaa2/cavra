@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added public-safe AISPM approval lineage for Community, including the
+  `/aispm/approval-lineage` API endpoint, packaged schema/sample, dashboard
+  panel, docs/wiki updates, and role-labelled actor redaction for local
+  approval records.
 - Added a public-safe AISPM trace replay drill-down to the GitHub Pages
   dashboard, including a session selector, replay summary cards, normalized
   decision steps, redaction boundary status, API-backed

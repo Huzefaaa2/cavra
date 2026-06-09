@@ -153,6 +153,9 @@ These features should help position CAVRA as more than another log dashboard:
 - Add public-safe trace replay packets derived from local decisions so
   operators can inspect sequence, risk, evidence references, and redaction
   status while raw prompts, reasoning, and tool output remain Enterprise.
+- Add public-safe approval lineage derived from local approval records so
+  operators can inspect state, approver group, decision linkage, timestamps,
+  and evidence references while private IdP/RBAC context remains Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.
 

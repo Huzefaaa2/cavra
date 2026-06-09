@@ -1,0 +1,79 @@
+{
+  "data_provenance": "local_approval_store",
+  "edition": "community",
+  "enterprise_unlocks": {
+    "capabilities": [
+      "identity-provider backed approver context",
+      "RBAC-scoped lineage by role and tenant",
+      "approval latency SLOs and escalations",
+      "immutable multi-tenant approval audit retention",
+      "SIEM and ITSM approval workflow exports"
+    ],
+    "private_package": "cavra_enterprise",
+    "status": "requires_cavra_enterprise"
+  },
+  "filters": {
+    "approver_group": null,
+    "limit": 200,
+    "session_id": null,
+    "state": null
+  },
+  "generated_at": "2026-06-09T00:04:00+00:00",
+  "items": [
+    {
+      "approval_id": "sample-apr-001",
+      "approver_group": "Cloud Security",
+      "break_glass": false,
+      "decided_at": "2026-06-09T00:00:40+00:00",
+      "decided_by": "role:approver",
+      "decision": {
+        "action_type": "execute_command",
+        "control_surface": "infrastructure_iac",
+        "policy_pack": "cloud-iam-prod",
+        "repository": "payments/api",
+        "risk_classification": "infrastructure_change_risk",
+        "rule_id": "iac.production-change",
+        "severity": "high",
+        "target_summary": "terraform apply"
+      },
+      "decision_id": "sample-dec-001",
+      "evidence_refs": [
+        "approval://sample-apr-001",
+        "sample://evidence/iac-production-change"
+      ],
+      "expires_at": "2026-06-10T00:00:10+00:00",
+      "external_ref": "ticket://sample-change-42",
+      "lineage_id": "lineage-sample-apr-001",
+      "redacted_fields": [
+        "identity_provider_claims",
+        "raw_rbac_context",
+        "connector_payloads"
+      ],
+      "requested_at": "2026-06-09T00:00:10+00:00",
+      "requested_by": "automation:codex-agent",
+      "session_id": "sample-session-001",
+      "state": "approved"
+    }
+  ],
+  "mode": "local_activity",
+  "product": "CAVRA",
+  "redaction": {
+    "connector_payloads": "requires_cavra_enterprise",
+    "human_actor_identifiers": "role labels only",
+    "identity_provider_claims": "requires_cavra_enterprise",
+    "private_routing_rules": "requires_cavra_enterprise",
+    "raw_rbac_policy": "requires_cavra_enterprise"
+  },
+  "schema_version": "cavra.aispm.approval_lineage.v1",
+  "summary": {
+    "approved": 1,
+    "break_glass": 0,
+    "denied": 0,
+    "evidence_confidence": "approval_evidence_refs",
+    "expired": 0,
+    "pending": 0,
+    "total": 1
+  },
+  "telemetry": "disabled",
+  "tracking": "none"
+}
