@@ -281,6 +281,77 @@ const aispmFallback = {
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
   ],
+  pre_action_risk_forecasts: [
+    {
+      forecast_id: "forecast-sample-dec-002",
+      decision_id: "sample-dec-002",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cavra-ai-agent-baseline",
+      rule_id: "secrets.block-sensitive-read",
+      action_type: "read_file",
+      target_summary: "sensitive target redacted",
+      target_redacted: true,
+      decision: "block",
+      severity: "critical",
+      risk_classification: "credential_or_sensitive_data_exposure",
+      control_surface: "sensitive_data",
+      forecast_status: "block_recommended",
+      projected_blast_radius: "secret_scope",
+      likely_impacts: ["credential_or_sensitive_data_exposure", "data_exfiltration", "audit_scope_expansion"],
+      pre_action_controls: ["block_before_execution", "require_operator_review", "capture_evidence", "redact_sensitive_target"],
+      confidence: "metadata_forecast",
+      evidence_refs: ["sample://evidence/secret-read-block"],
+      timestamp: "2026-06-09T00:01:00+00:00"
+    },
+    {
+      forecast_id: "forecast-sample-dec-001",
+      decision_id: "sample-dec-001",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      policy_pack: "cloud-iam-prod",
+      rule_id: "iac.production-change",
+      action_type: "execute_command",
+      target_summary: "terraform apply",
+      target_redacted: false,
+      decision: "require_approval",
+      severity: "high",
+      risk_classification: "infrastructure_change_risk",
+      control_surface: "infrastructure_iac",
+      forecast_status: "approval_recommended",
+      projected_blast_radius: "production_infrastructure",
+      likely_impacts: ["production_infrastructure_change", "configuration_drift", "service_availability_impact"],
+      pre_action_controls: ["require_human_approval", "verify_change_window", "attach_evidence", "require_blast_radius_context"],
+      confidence: "metadata_forecast",
+      evidence_refs: ["sample://evidence/iac-production-change"],
+      timestamp: "2026-06-09T00:00:00+00:00"
+    },
+    {
+      forecast_id: "forecast-sample-dec-003",
+      decision_id: "sample-dec-003",
+      session_id: "sample-session-002",
+      agent_id: "claude-code-agent",
+      repository: "platform/infra",
+      policy_pack: "mcp-enterprise",
+      rule_id: "mcp.untrusted-tool",
+      action_type: "mcp_tool_call",
+      target_summary: "filesystem.write",
+      target_redacted: false,
+      decision: "warn",
+      severity: "medium",
+      risk_classification: "tool_or_mcp_governance_risk",
+      control_surface: "mcp_tools",
+      forecast_status: "warn_recommended",
+      projected_blast_radius: "tooling_surface",
+      likely_impacts: ["untrusted_tool_write_access", "workspace_mutation", "toolchain_expansion"],
+      pre_action_controls: ["warn_operator", "require_attestation", "monitor_follow_up", "verify_tool_trust_tier"],
+      confidence: "metadata_forecast",
+      evidence_refs: ["sample://evidence/mcp-warning"],
+      timestamp: "2026-06-09T00:02:00+00:00"
+    }
+  ],
   policy_context_gaps: [
     {
       gap_id: "context-gap-sample-dec-001",
@@ -626,6 +697,46 @@ const aispmPolicyContextGapFallback = {
   }
 };
 
+const aispmPreActionForecastFallback = {
+  schema_version: "cavra.aispm.pre_action_risk_forecasts.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:06:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    total_forecasts: 3,
+    critical_or_high_forecasts: 2,
+    approval_recommended: 1,
+    block_recommended: 1,
+    warn_recommended: 1,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  items: aispmFallback.pre_action_risk_forecasts,
+  redaction: {
+    private_asset_graph: "requires_cavra_enterprise",
+    dependency_graph: "requires_cavra_enterprise",
+    cloud_resource_inventory: "requires_cavra_enterprise",
+    identity_blast_radius: "requires_cavra_enterprise",
+    runtime_state: "requires_cavra_enterprise",
+    prompt_intent_context: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "asset graph blast-radius forecasting",
+      "identity and permission blast-radius analysis",
+      "live dependency graph forecasting",
+      "cost, performance, and SLO impact forecasts",
+      "pre-action simulation against the private SaaS control plane"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -642,7 +753,8 @@ const routeContent = [
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
-  { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." }
+  { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." },
+  { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." }
 ];
 
 function el(selector) {
@@ -827,6 +939,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     summary: summarizePolicyContextGaps(payload.policy_context_gaps || aispmPolicyContextGapFallback.items),
     items: payload.policy_context_gaps || aispmPolicyContextGapFallback.items
+  }, "posture sample");
+  renderAispmPreActionForecasts({
+    ...aispmPreActionForecastFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizePreActionForecasts(payload.pre_action_risk_forecasts || aispmPreActionForecastFallback.items),
+    items: payload.pre_action_risk_forecasts || aispmPreActionForecastFallback.items
   }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
@@ -1164,6 +1282,81 @@ function renderAispmPolicyContextGaps(packet, note = "sample context gaps") {
   }).join("") || `<p class="empty-state">No policy context gaps detected in this activity window.</p>`;
 }
 
+function summarizePreActionForecasts(items) {
+  const counts = (items || []).reduce((acc, item) => {
+    acc[item.forecast_status] = (acc[item.forecast_status] || 0) + 1;
+    if (["critical", "high"].includes(item.severity)) acc.criticalHigh += 1;
+    return acc;
+  }, { criticalHigh: 0 });
+  return {
+    total_forecasts: (items || []).length,
+    critical_or_high_forecasts: counts.criticalHigh,
+    approval_recommended: counts.approval_recommended || 0,
+    block_recommended: counts.block_recommended || 0,
+    warn_recommended: counts.warn_recommended || 0,
+    evidence_confidence: (items || []).some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmPreActionForecasts() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/pre-action-risk-forecasts`);
+      if (!response.ok) throw new Error(`Pre-action forecasts HTTP ${response.status}`);
+      renderAispmPreActionForecasts(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmPreActionForecasts(aispmPreActionForecastFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmPreActionForecasts(aispmPreActionForecastFallback, "static sample forecasts");
+}
+
+function renderAispmPreActionForecasts(packet, note = "sample forecasts") {
+  const summary = packet.summary || {};
+  const items = packet.items || [];
+  const summaryCards = [
+    ["Forecasts", summary.total_forecasts ?? items.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Block", summary.block_recommended ?? 0, "Stop before execution"],
+    ["Approval", summary.approval_recommended ?? 0, `Warn: ${summary.warn_recommended ?? 0}`],
+    ["Critical/High", summary.critical_or_high_forecasts ?? 0, `Evidence: ${summary.evidence_confidence || "unknown"}`]
+  ];
+  el("#aispmForecastSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmPreActionForecasts").innerHTML = items.slice(0, 6).map((item) => {
+    const impacts = (item.likely_impacts || []).slice(0, 4).map((impact) => `<span>${escapeHtml(impact.replaceAll("_", " "))}</span>`).join("");
+    const controls = (item.pre_action_controls || []).slice(0, 4).map((control) => control.replaceAll("_", " ")).join(" · ");
+    const status = String(item.forecast_status || "monitor").replaceAll("_", " ");
+    const blastRadius = String(item.projected_blast_radius || "local_policy_scope").replaceAll("_", " ");
+    const risk = String(item.risk_classification || "policy_decision_review").replaceAll("_", " ");
+    return `
+      <article class="forecast-card">
+        <header>
+          <div>
+            <span>${escapeHtml(status)}</span>
+            <strong>${escapeHtml(blastRadius)}</strong>
+          </div>
+          <span class="severity ${escapeHtml(item.severity || "low")}">${escapeHtml(item.severity || "low")}</span>
+        </header>
+        <p>${escapeHtml(item.target_summary || "target not recorded")} · ${escapeHtml(risk)}</p>
+        <dl>
+          <dt>Agent</dt><dd>${escapeHtml(item.agent_id || "unknown-agent")}</dd>
+          <dt>Repo</dt><dd>${escapeHtml(item.repository || "local")}</dd>
+          <dt>Control</dt><dd>${escapeHtml(controls || "record decision")}</dd>
+        </dl>
+        <div class="risk-signal-list">${impacts || "<span>policy visibility</span>"}</div>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No pre-action forecasts available for this activity window.</p>`;
+}
+
 function renderAispmTraceReplay(packet, note = "sample replay") {
   const summary = packet.summary || {};
   const session = packet.session || {};
@@ -1374,6 +1567,7 @@ function wireEvents() {
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
+  el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1411,6 +1605,7 @@ function init() {
   loadAispmApprovalLineage();
   loadAispmBehaviorFingerprints();
   loadAispmPolicyContextGaps();
+  loadAispmPreActionForecasts();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

@@ -32,13 +32,15 @@ with a static-hostable `AI Posture` portal route that reads `/aispm/posture`
 when an API base is configured and otherwise labels deterministic sample data.
 Phase B hardening now includes Community-safe control coverage, near-miss
 queues, public-safe trace replay packets, public-safe approval lineage, and
-public-safe behavior fingerprints plus policy context gaps through
+public-safe behavior fingerprints, policy context gaps, and pre-action risk
+forecasts through
 `/aispm/control-coverage`, `/aispm/near-misses`,
 `/aispm/trace-replay/{session_id}`, `/aispm/approval-lineage`,
-`/aispm/behavior-fingerprints`, and `/aispm/policy-context-gaps`; Enterprise
-still owns live organization-wide coverage, streaming, full trace replay,
-private behavior baselines, private context enrichment, private IdP/RBAC
-context, and control-plane actions.
+`/aispm/behavior-fingerprints`, `/aispm/policy-context-gaps`, and
+`/aispm/pre-action-risk-forecasts`; Enterprise still owns live
+organization-wide coverage, streaming, full trace replay, private behavior
+baselines, private context enrichment, private asset/dependency/identity
+forecasting, private IdP/RBAC context, and control-plane actions.
 See `docs/ai-security-posture-dashboard-contract.md`.
 
 ## Current Enterprise Batch Sync

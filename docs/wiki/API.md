@@ -24,6 +24,7 @@ Activity endpoints:
 - `GET /aispm/approval-lineage`: return public-safe "who approved what" approval lineage from the local approval store with human actors reduced to role labels and private IdP/RBAC context locked to Enterprise.
 - `GET /aispm/behavior-fingerprints`: return public-safe behavior fingerprints and drift signals from local activity metadata with raw prompts, reasoning traces, tool output, private baselines, and customer context locked to Enterprise.
 - `GET /aispm/policy-context-gaps`: return public-safe policy-invisible risk findings for decisions missing environment, owner, data, change-window, criticality, approval-route, or trust-tier context.
+- `GET /aispm/pre-action-risk-forecasts`: return public-safe pre-action forecasts for projected blast radius, likely impact, and required controls from local decision metadata.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -33,10 +34,13 @@ replay reconstructs normalized decision steps only, and Community behavior
 fingerprints use normalized decisions, action types, repositories, control
 surfaces, and evidence references only. Community policy context gaps can flag
 missing business metadata but do not enrich from private CMDB, data catalog,
-identity-provider, cloud inventory, ticketing, or change-calendar systems. Live
-prompt traces, model reasoning, raw tool output, tool-call graphing, private
-behavior baselines, private context enrichment, private identity-provider
-claims, organization-wide coverage, multi-tenant retention, kill switch, policy
+identity-provider, cloud inventory, ticketing, or change-calendar systems.
+Community pre-action forecasts are metadata forecasts only; private asset
+graphs, dependency graphs, identity blast radius, cloud inventory, runtime
+state, and prompt-intent context remain Enterprise-only. Live prompt traces,
+model reasoning, raw tool output, tool-call graphing, private behavior
+baselines, private context enrichment, private identity-provider claims,
+organization-wide coverage, multi-tenant retention, kill switch, policy
 toggles, runtime overrides, and compliance exports remain Enterprise
 capabilities.
 

@@ -10,6 +10,7 @@ from cavra.aispm import (
     build_aispm_dashboard_contract,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
+    build_aispm_pre_action_risk_forecasts,
     build_aispm_trace_replay_packet,
     build_sample_aispm_dashboard,
 )
@@ -98,6 +99,9 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert "sensitive_data_access" in posture["behavior_fingerprints"][0]["risk_signals"]
     assert posture["policy_context_gaps"][0]["gap_status"] == "requires_context_review"
     assert "environment_tier" in posture["policy_context_gaps"][0]["missing_context"]
+    assert posture["pre_action_risk_forecasts"][0]["forecast_status"] == "block_recommended"
+    assert posture["pre_action_risk_forecasts"][0]["projected_blast_radius"] == "secret_scope"
+    assert posture["pre_action_risk_forecasts"][1]["forecast_status"] == "approval_recommended"
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -238,6 +242,51 @@ def test_aispm_policy_context_gaps_from_activity_store_metadata(tmp_path: Path) 
     assert packet["items"][0]["decision_id"] == "dec-context-gap"
 
 
+def test_aispm_pre_action_risk_forecasts_project_public_safe_impact(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+            action_type="execute_command",
+            target="terraform apply",
+        )
+    )
+
+    packet = build_aispm_pre_action_risk_forecasts(store)
+
+    assert packet["schema_version"] == "cavra.aispm.pre_action_risk_forecasts.v1"
+    assert packet["summary"]["total_forecasts"] == 2
+    assert packet["summary"]["block_recommended"] == 1
+    assert packet["summary"]["approval_recommended"] == 1
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    assert packet["items"][0]["forecast_status"] == "block_recommended"
+    assert packet["items"][0]["target_redacted"] is True
+    assert packet["items"][0]["projected_blast_radius"] == "secret_scope"
+    assert "credential_or_sensitive_data_exposure" in packet["items"][0]["likely_impacts"]
+    assert "redact_sensitive_target" in packet["items"][0]["pre_action_controls"]
+    assert packet["items"][1]["forecast_status"] == "approval_recommended"
+    assert packet["items"][1]["projected_blast_radius"] == "production_infrastructure"
+    assert "require_blast_radius_context" in packet["items"][1]["pre_action_controls"]
+    assert packet["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -308,6 +357,18 @@ def test_aispm_trace_replay_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(replay_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_pre_action_forecast_sample_matches_packaged_schema() -> None:
+    forecast_schema = Path("src/cavra/schemas/aispm-pre-action-risk-forecasts.schema.json")
+    sample = Path("examples/aispm/community-pre-action-risk-forecasts-sample.json")
+
+    assert forecast_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(forecast_schema.read_text(encoding="utf-8")),
     )
 
 

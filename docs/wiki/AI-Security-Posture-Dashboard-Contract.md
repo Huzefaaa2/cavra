@@ -4,7 +4,8 @@ CAVRA now exposes the first public-safe AI Security Posture Management
 dashboard contract for Community Edition. The current public implementation
 includes Phase A contract fields plus Phase B control coverage, near-miss
 visibility, public-safe trace replay packets, public-safe approval lineage,
-public-safe behavior fingerprints, and public-safe policy context gaps.
+public-safe behavior fingerprints, public-safe policy context gaps, and
+public-safe pre-action risk forecasts.
 
 Community Edition provides:
 
@@ -20,14 +21,16 @@ Community Edition provides:
 - `GET /aispm/approval-lineage`
 - `GET /aispm/behavior-fingerprints`
 - `GET /aispm/policy-context-gaps`
+- `GET /aispm/pre-action-risk-forecasts`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
 `window.CAVRA_API_BASE` is configured. The route shows posture overview, agent
 coverage, risk findings, control coverage, near misses, execution timeline, and
-approval lineage, behavior fingerprinting, and the raw public-safe payload.
-It also shows policy context gaps for missing environment, ownership, data,
-change-window, criticality, approval-route, or trust-tier metadata.
+approval lineage, behavior fingerprinting, pre-action risk forecasts, and the
+raw public-safe payload. It also shows policy context gaps for missing
+environment, ownership, data, change-window, criticality, approval-route, or
+trust-tier metadata.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -51,14 +54,19 @@ is missing business context required for explainable governance. Private
 enrichment from CMDB, data catalogs, identity providers, cloud inventory,
 ticketing, and change calendars remains Enterprise-only.
 
+Community pre-action risk forecasts project blast radius and likely impact from
+normalized local decision metadata. Private asset graphs, dependency graphs,
+identity blast radius, cloud inventory, runtime state, and prompt-intent context
+remain Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
 
 Enterprise remains responsible for live authenticated multi-tenant posture,
-prompt/reasoning traces, tool-call graphs, full trace replay, organization
-controls, kill switch, runtime overrides, centralized retention, immutable audit
-exports, and compliance reporting.
+prompt/reasoning traces, private asset-graph forecasting, tool-call graphs,
+full trace replay, organization controls, kill switch, runtime overrides,
+centralized retention, immutable audit exports, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
 The packaged Community trace replay schema is
@@ -74,3 +82,7 @@ deterministic sample packet at
 The packaged Community policy context gap schema is
 `src/cavra/schemas/aispm-policy-context-gaps.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-policy-context-gaps-sample.json`.
+The packaged Community pre-action risk forecast schema is
+`src/cavra/schemas/aispm-pre-action-risk-forecasts.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-pre-action-risk-forecasts-sample.json`.

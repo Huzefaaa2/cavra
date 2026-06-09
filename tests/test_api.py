@@ -152,6 +152,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     near_misses = client.get("/aispm/near-misses")
     behavior_fingerprints = client.get("/aispm/behavior-fingerprints")
     policy_context_gaps = client.get("/aispm/policy-context-gaps")
+    pre_action_forecasts = client.get("/aispm/pre-action-risk-forecasts")
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
@@ -165,6 +166,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_approval_lineage"] == "/aispm/approval-lineage"
     assert config["endpoints"]["aispm_behavior_fingerprints"] == "/aispm/behavior-fingerprints"
     assert config["endpoints"]["aispm_policy_context_gaps"] == "/aispm/policy-context-gaps"
+    assert config["endpoints"]["aispm_pre_action_risk_forecasts"] == "/aispm/pre-action-risk-forecasts"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -186,6 +188,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert policy_context_gaps.json()["summary"]["decisions_with_gaps"] == 1
     assert policy_context_gaps.json()["items"][0]["gap_status"] == "requires_context_review"
     assert "environment_tier" in policy_context_gaps.json()["items"][0]["missing_context"]
+    assert pre_action_forecasts.status_code == 200
+    assert pre_action_forecasts.json()["schema_version"] == "cavra.aispm.pre_action_risk_forecasts.v1"
+    assert pre_action_forecasts.json()["summary"]["total_forecasts"] == 1
+    assert pre_action_forecasts.json()["summary"]["block_recommended"] == 1
+    assert pre_action_forecasts.json()["items"][0]["forecast_status"] == "block_recommended"
+    assert pre_action_forecasts.json()["items"][0]["target_redacted"] is True
+    assert pre_action_forecasts.json()["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

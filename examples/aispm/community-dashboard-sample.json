@@ -249,7 +249,8 @@
       "full trace replay",
       "organization-wide control coverage",
       "kill switch and runtime overrides",
-      "compliance exports and immutable retention"
+      "compliance exports and immutable retention",
+      "private asset-graph and identity-aware pre-action forecasting"
     ],
     "private_package": "cavra_enterprise",
     "status": "requires_cavra_enterprise"
@@ -448,6 +449,110 @@
       "rule_id": "mcp.untrusted-tool",
       "session_id": "sample-session-002",
       "severity": "medium",
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "pre_action_risk_forecasts": [
+    {
+      "action_type": "read_file",
+      "agent_id": "codex-agent",
+      "confidence": "metadata_forecast",
+      "control_surface": "sensitive_data",
+      "decision": "block",
+      "decision_id": "sample-dec-002",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "forecast_id": "forecast-sample-dec-002",
+      "forecast_status": "block_recommended",
+      "likely_impacts": [
+        "credential_or_sensitive_data_exposure",
+        "data_exfiltration",
+        "audit_scope_expansion"
+      ],
+      "policy_pack": "cavra-ai-agent-baseline",
+      "pre_action_controls": [
+        "block_before_execution",
+        "require_operator_review",
+        "capture_evidence",
+        "redact_sensitive_target"
+      ],
+      "projected_blast_radius": "secret_scope",
+      "repository": "payments/api",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "rule_id": "secrets.block-sensitive-read",
+      "session_id": "sample-session-001",
+      "severity": "critical",
+      "target_redacted": true,
+      "target_summary": "sensitive target redacted",
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "action_type": "execute_command",
+      "agent_id": "codex-agent",
+      "confidence": "metadata_forecast",
+      "control_surface": "infrastructure_iac",
+      "decision": "require_approval",
+      "decision_id": "sample-dec-001",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "forecast_id": "forecast-sample-dec-001",
+      "forecast_status": "approval_recommended",
+      "likely_impacts": [
+        "production_infrastructure_change",
+        "configuration_drift",
+        "service_availability_impact"
+      ],
+      "policy_pack": "cloud-iam-prod",
+      "pre_action_controls": [
+        "require_human_approval",
+        "verify_change_window",
+        "attach_evidence",
+        "require_blast_radius_context"
+      ],
+      "projected_blast_radius": "production_infrastructure",
+      "repository": "payments/api",
+      "risk_classification": "infrastructure_change_risk",
+      "rule_id": "iac.production-change",
+      "session_id": "sample-session-001",
+      "severity": "high",
+      "target_redacted": false,
+      "target_summary": "terraform apply",
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "action_type": "mcp_tool_call",
+      "agent_id": "claude-code-agent",
+      "confidence": "metadata_forecast",
+      "control_surface": "mcp_tools",
+      "decision": "warn",
+      "decision_id": "sample-dec-003",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "forecast_id": "forecast-sample-dec-003",
+      "forecast_status": "warn_recommended",
+      "likely_impacts": [
+        "untrusted_tool_write_access",
+        "workspace_mutation",
+        "toolchain_expansion"
+      ],
+      "policy_pack": "mcp-enterprise",
+      "pre_action_controls": [
+        "warn_operator",
+        "require_attestation",
+        "monitor_follow_up",
+        "verify_tool_trust_tier"
+      ],
+      "projected_blast_radius": "tooling_surface",
+      "repository": "platform/infra",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "rule_id": "mcp.untrusted-tool",
+      "session_id": "sample-session-002",
+      "severity": "medium",
+      "target_redacted": false,
+      "target_summary": "filesystem.write",
       "timestamp": "2026-06-09T00:02:00+00:00"
     }
   ],

@@ -10,7 +10,8 @@ governance, and audit evidence.
 CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
-policy context gap detection, and a public-safe sandbox portal.
+policy context gap detection, pre-action risk forecasts, and a public-safe
+sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -57,6 +58,8 @@ CAVRA dashboard recommendation.
 - Risk classification for proposed and completed actions, including blast
   radius, production impact, data exposure, credential exposure, and
   infrastructure-change risk.
+- Pre-action risk forecasting for projected blast radius, likely impact,
+  required controls, and private asset/dependency/identity enrichment.
 - Drift detection for agent behavior, policy coverage, MCP tool inventory,
   repository guardrails, and approved capability profiles.
 - Threat pattern detection for prompt injection, suspicious tool chaining,

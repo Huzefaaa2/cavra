@@ -25,14 +25,16 @@ Delivered UX:
   documentation, and roadmap pages, including a public-safe trace replay
   drill-down for normalized decision steps, approval lineage for role-labelled
   approval records, and behavior fingerprinting for baseline-vs-unusual agent
-  drift signals, plus policy context gaps for policy-invisible risk;
+  drift signals, policy context gaps for policy-invisible risk, and
+  pre-action risk forecasts for projected blast radius;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
 The `#ai-posture` route renders the public-safe AISPM contract with sample data
 by default and reads `/aispm/posture` when `window.CAVRA_API_BASE` is
 configured. It includes posture overview, agent coverage, risk findings,
-control coverage, near-miss queue, policy context gaps, execution timeline,
+control coverage, near-miss queue, policy context gaps, pre-action risk
+forecasts, execution timeline,
 public-safe trace replay packet inspection, approval lineage, behavior
 fingerprinting, and raw
 public-safe payload inspection.

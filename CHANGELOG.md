@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added public-safe AISPM pre-action risk forecasts for Community, including
+  `/aispm/pre-action-risk-forecasts`, packaged schema/sample data, dashboard
+  summary cards, projected blast-radius cards, docs/wiki updates, and
+  Enterprise-locked private asset, dependency, identity, runtime, and
+  prompt-intent enrichment.
 - Added public-safe AISPM policy context gap detection for Community, including
   `/aispm/policy-context-gaps`, packaged schema/sample data, dashboard summary
   cards, docs/wiki updates, and Enterprise-locked private CMDB, data catalog,

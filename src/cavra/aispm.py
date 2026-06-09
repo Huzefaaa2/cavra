@@ -51,6 +51,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "public-safe approval lineage from local approval records",
                 "public-safe behavior fingerprints and drift signals from local activity metadata",
                 "policy context gap detection for decisions missing business-critical metadata",
+                "pre-action risk forecasts from local decision metadata before agent execution",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -64,6 +65,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "organization-wide control coverage",
                 "kill switch and runtime overrides",
                 "compliance exports and immutable retention",
+                "private asset-graph and identity-aware pre-action forecasting",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -78,6 +80,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "approval_lineage",
             "behavior_fingerprints",
             "policy_context_gaps",
+            "pre_action_risk_forecasts",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -91,6 +94,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "approval_lineage": "/aispm/approval-lineage",
             "behavior_fingerprints": "/aispm/behavior-fingerprints",
             "policy_context_gaps": "/aispm/policy-context-gaps",
+            "pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
         },
     }
 
@@ -124,6 +128,7 @@ def build_aispm_posture(
     overview = _posture_overview(decisions, sessions, findings)
     behavior_fingerprints = _behavior_fingerprints(decisions, sessions)
     policy_context_gaps = _policy_context_gaps(decisions)
+    pre_action_risk_forecasts = _pre_action_risk_forecasts(decisions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -148,6 +153,7 @@ def build_aispm_posture(
         "approval_lineage": [],
         "behavior_fingerprints": behavior_fingerprints,
         "policy_context_gaps": policy_context_gaps,
+        "pre_action_risk_forecasts": pre_action_risk_forecasts,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -298,6 +304,77 @@ def build_aispm_policy_context_gaps(
     }
 
 
+def build_aispm_pre_action_risk_forecasts(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build public-safe pre-action risk forecasts from local decisions.
+
+    Community forecasts project impact from normalized decision metadata only.
+    Enterprise owns private asset graphs, dependency graphs, identity context,
+    cloud inventory, runtime state, and SaaS simulation before execution.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    items = _pre_action_risk_forecasts(decisions)
+    status_counts = Counter(str(item.get("forecast_status", "monitor")) for item in items)
+    severity_counts = Counter(str(item.get("severity", "low")) for item in items)
+    return {
+        "schema_version": "cavra.aispm.pre_action_risk_forecasts.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "total_forecasts": len(items),
+            "critical_or_high_forecasts": severity_counts["critical"] + severity_counts["high"],
+            "approval_recommended": status_counts["approval_recommended"],
+            "block_recommended": status_counts["block_recommended"],
+            "warn_recommended": status_counts["warn_recommended"],
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items,
+        "redaction": {
+            "private_asset_graph": LOCKED_ENTERPRISE_STATUS,
+            "dependency_graph": LOCKED_ENTERPRISE_STATUS,
+            "cloud_resource_inventory": LOCKED_ENTERPRISE_STATUS,
+            "identity_blast_radius": LOCKED_ENTERPRISE_STATUS,
+            "runtime_state": LOCKED_ENTERPRISE_STATUS,
+            "prompt_intent_context": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "asset graph blast-radius forecasting",
+                "identity and permission blast-radius analysis",
+                "live dependency graph forecasting",
+                "cost, performance, and SLO impact forecasts",
+                "pre-action simulation against the private SaaS control plane",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -401,6 +478,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "approval_lineage": _sample_approval_lineage(decisions),
         "behavior_fingerprints": _behavior_fingerprints(decisions, sessions),
         "policy_context_gaps": _policy_context_gaps(decisions),
+        "pre_action_risk_forecasts": _pre_action_risk_forecasts(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -962,6 +1040,130 @@ def _policy_context_recommended_action(surface: str, missing_context: list[str])
     if surface == "source_control":
         return f"Attach repository owner, branch protection tier, and change ticket before source-control mutation. Missing: {missing}."
     return f"Attach missing business context before treating the decision as fully governed. Missing: {missing}."
+
+
+def _pre_action_risk_forecasts(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    forecasts: list[dict[str, Any]] = []
+    for decision in decisions:
+        status = _forecast_status(decision)
+        target_summary, target_redacted = _safe_target_summary(decision)
+        surface = _control_surface(decision)
+        forecasts.append(
+            {
+                "forecast_id": f"forecast-{decision.get('decision_id', 'unknown')}",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+                "rule_id": decision.get("rule_id", "runtime.default"),
+                "action_type": decision.get("action_type", "unknown"),
+                "target_summary": target_summary,
+                "target_redacted": target_redacted,
+                "decision": decision.get("decision", "unknown"),
+                "severity": decision.get("severity", "low"),
+                "risk_classification": _risk_classification(decision),
+                "control_surface": surface,
+                "forecast_status": status,
+                "projected_blast_radius": _projected_blast_radius(surface),
+                "likely_impacts": _likely_forecast_impacts(surface),
+                "pre_action_controls": _pre_action_controls(status, surface),
+                "confidence": "metadata_forecast",
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+    return sorted(
+        forecasts,
+        key=lambda item: (
+            _forecast_priority(str(item.get("forecast_status", ""))),
+            str(item.get("timestamp", "")),
+        ),
+        reverse=True,
+    )
+
+
+def _forecast_status(decision: dict[str, Any]) -> str:
+    outcome = str(decision.get("decision", "unknown"))
+    severity = str(decision.get("severity", "low"))
+    if outcome == "block" or severity == "critical":
+        return "block_recommended"
+    if outcome == "require_approval" or severity == "high":
+        return "approval_recommended"
+    if outcome in {"warn", "allow_with_attestation"} or severity == "medium":
+        return "warn_recommended"
+    return "monitor"
+
+
+def _forecast_priority(status: str) -> int:
+    priorities = {
+        "block_recommended": 4,
+        "approval_recommended": 3,
+        "warn_recommended": 2,
+        "monitor": 1,
+    }
+    return priorities.get(status, 0)
+
+
+def _projected_blast_radius(surface: str) -> str:
+    radii = {
+        "sensitive_data": "secret_scope",
+        "infrastructure_iac": "production_infrastructure",
+        "mcp_tools": "tooling_surface",
+        "source_control": "source_control_scope",
+        "runtime_commands": "runtime_scope",
+        "general_policy": "local_policy_scope",
+    }
+    return radii.get(surface, "local_policy_scope")
+
+
+def _likely_forecast_impacts(surface: str) -> list[str]:
+    impacts = {
+        "sensitive_data": [
+            "credential_or_sensitive_data_exposure",
+            "data_exfiltration",
+            "audit_scope_expansion",
+        ],
+        "infrastructure_iac": [
+            "production_infrastructure_change",
+            "configuration_drift",
+            "service_availability_impact",
+        ],
+        "mcp_tools": [
+            "untrusted_tool_write_access",
+            "workspace_mutation",
+            "toolchain_expansion",
+        ],
+        "source_control": [
+            "protected_branch_mutation",
+            "release_integrity_impact",
+            "review_bypass_risk",
+        ],
+        "runtime_commands": [
+            "local_runtime_mutation",
+            "dependency_or_script_execution",
+            "workstation_state_change",
+        ],
+        "general_policy": ["policy_visibility_gap"],
+    }
+    return impacts.get(surface, impacts["general_policy"])
+
+
+def _pre_action_controls(status: str, surface: str) -> list[str]:
+    controls = {
+        "block_recommended": ["block_before_execution", "require_operator_review", "capture_evidence"],
+        "approval_recommended": ["require_human_approval", "verify_change_window", "attach_evidence"],
+        "warn_recommended": ["warn_operator", "require_attestation", "monitor_follow_up"],
+        "monitor": ["record_decision", "capture_evidence"],
+    }.get(status, ["record_decision", "capture_evidence"])
+    surface_controls = {
+        "sensitive_data": ["redact_sensitive_target"],
+        "infrastructure_iac": ["require_blast_radius_context"],
+        "mcp_tools": ["verify_tool_trust_tier"],
+        "source_control": ["verify_branch_protection"],
+        "runtime_commands": ["verify_execution_environment"],
+    }
+    return list(dict.fromkeys([*controls, *surface_controls.get(surface, [])]))
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

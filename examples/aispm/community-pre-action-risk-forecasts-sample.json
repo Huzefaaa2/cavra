@@ -1,0 +1,141 @@
+{
+  "schema_version": "cavra.aispm.pre_action_risk_forecasts.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:03:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "summary": {
+    "total_forecasts": 3,
+    "critical_or_high_forecasts": 2,
+    "approval_recommended": 1,
+    "block_recommended": 1,
+    "warn_recommended": 1,
+    "evidence_confidence": "activity_evidence_refs"
+  },
+  "items": [
+    {
+      "forecast_id": "forecast-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "secrets.block-sensitive-read",
+      "action_type": "read_file",
+      "target_summary": "sensitive target redacted",
+      "target_redacted": true,
+      "decision": "block",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "control_surface": "sensitive_data",
+      "forecast_status": "block_recommended",
+      "projected_blast_radius": "secret_scope",
+      "likely_impacts": [
+        "credential_or_sensitive_data_exposure",
+        "data_exfiltration",
+        "audit_scope_expansion"
+      ],
+      "pre_action_controls": [
+        "block_before_execution",
+        "require_operator_review",
+        "capture_evidence",
+        "redact_sensitive_target"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": ["sample://evidence/secret-read-block"],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "forecast_id": "forecast-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "rule_id": "iac.production-change",
+      "action_type": "execute_command",
+      "target_summary": "terraform apply",
+      "target_redacted": false,
+      "decision": "require_approval",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "control_surface": "infrastructure_iac",
+      "forecast_status": "approval_recommended",
+      "projected_blast_radius": "production_infrastructure",
+      "likely_impacts": [
+        "production_infrastructure_change",
+        "configuration_drift",
+        "service_availability_impact"
+      ],
+      "pre_action_controls": [
+        "require_human_approval",
+        "verify_change_window",
+        "attach_evidence",
+        "require_blast_radius_context"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": ["sample://evidence/iac-production-change"],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "forecast_id": "forecast-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "rule_id": "mcp.untrusted-tool",
+      "action_type": "mcp_tool_call",
+      "target_summary": "filesystem.write",
+      "target_redacted": false,
+      "decision": "warn",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "control_surface": "mcp_tools",
+      "forecast_status": "warn_recommended",
+      "projected_blast_radius": "tooling_surface",
+      "likely_impacts": [
+        "untrusted_tool_write_access",
+        "workspace_mutation",
+        "toolchain_expansion"
+      ],
+      "pre_action_controls": [
+        "warn_operator",
+        "require_attestation",
+        "monitor_follow_up",
+        "verify_tool_trust_tier"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": ["sample://evidence/mcp-warning"],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "redaction": {
+    "private_asset_graph": "requires_cavra_enterprise",
+    "dependency_graph": "requires_cavra_enterprise",
+    "cloud_resource_inventory": "requires_cavra_enterprise",
+    "identity_blast_radius": "requires_cavra_enterprise",
+    "runtime_state": "requires_cavra_enterprise",
+    "prompt_intent_context": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "asset graph blast-radius forecasting",
+      "identity and permission blast-radius analysis",
+      "live dependency graph forecasting",
+      "cost, performance, and SLO impact forecasts",
+      "pre-action simulation against the private SaaS control plane"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}
