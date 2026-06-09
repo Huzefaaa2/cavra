@@ -293,6 +293,99 @@ const aispmFallback = {
   }
 };
 
+const aispmTraceReplayFallback = {
+  schema_version: "cavra.aispm.trace_replay.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:02:00+00:00",
+  session: {
+    session_id: "sample-session-001",
+    agent_id: "codex-agent",
+    actor: "codex-agent",
+    repository: "payments/api",
+    policy_pack: "cloud-iam-prod",
+    state: "completed",
+    started_at: "2026-06-09T00:00:00+00:00",
+    updated_at: "2026-06-09T00:01:00+00:00"
+  },
+  summary: {
+    step_count: 2,
+    blocked_actions: 1,
+    approval_required_actions: 1,
+    warned_actions: 0,
+    critical_or_high_steps: 2,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  steps: [
+    {
+      step: 1,
+      event_type: "policy_decision",
+      decision_id: "sample-dec-001",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      action_type: "execute_command",
+      target_summary: "terraform apply",
+      target_redacted: false,
+      decision: "require_approval",
+      severity: "high",
+      rule_id: "iac.production-change",
+      policy_pack: "cloud-iam-prod",
+      risk_classification: "infrastructure_change_risk",
+      control_surface: "infrastructure_iac",
+      reason: "Production-impacting infrastructure action requires approval.",
+      evidence_refs: ["sample://evidence/iac-production-change"],
+      timestamp: "2026-06-09T00:00:00+00:00"
+    },
+    {
+      step: 2,
+      event_type: "policy_decision",
+      decision_id: "sample-dec-002",
+      session_id: "sample-session-001",
+      agent_id: "codex-agent",
+      repository: "payments/api",
+      action_type: "read_file",
+      target_summary: "sensitive target redacted",
+      target_redacted: true,
+      decision: "block",
+      severity: "critical",
+      rule_id: "secrets.block-sensitive-read",
+      policy_pack: "cavra-ai-agent-baseline",
+      risk_classification: "credential_or_sensitive_data_exposure",
+      control_surface: "sensitive_data",
+      reason: "Sensitive production secret file access is blocked.",
+      evidence_refs: ["sample://evidence/secret-read-block"],
+      timestamp: "2026-06-09T00:01:00+00:00"
+    }
+  ],
+  evidence_refs: ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block"],
+  redaction: {
+    target_redaction: "sensitive targets are summarized",
+    prompt_capture: "requires_cavra_enterprise",
+    reasoning_trace: "requires_cavra_enterprise",
+    raw_tool_output: "requires_cavra_enterprise",
+    full_trace_replay: "requires_cavra_enterprise",
+    customer_context: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "raw prompt and response replay",
+      "model reasoning trace capture",
+      "tool-call graph with raw tool results",
+      "approval lineage with identity-provider context",
+      "immutable multi-tenant replay retention"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
+let currentAispmPayload = aispmFallback;
+
 const routeContent = [
   ...navItems.map((item) => ({ type: "Page", label: item.label, route: item.id, description: item.description })),
   ...policies.map((item) => ({ type: "Policy", label: item[1], route: "policy-engine", description: item[2] })),
@@ -303,7 +396,8 @@ const routeContent = [
   ...trialAccessCards.map((item) => ({ type: "Enterprise Trial", label: item[0], route: "enterprise-trial", description: item[2] })),
   { type: "AI Posture", label: "Agent Observability", route: "ai-posture", description: "Live-ready agent coverage, risk findings, and execution timeline." },
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
-  { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." }
+  { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
+  { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." }
 ];
 
 function el(selector) {
@@ -422,6 +516,7 @@ function renderEvidence() {
 }
 
 function renderAispmDashboard(payload, note = "sample fallback") {
+  currentAispmPayload = payload;
   const overview = payload.overview || {};
   const controlPlane = payload.control_plane || {};
   el("#aispmSourceBadge").textContent = `${payload.data_provenance || "sample_data"} · ${note}`;
@@ -483,6 +578,7 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     </div>
   `).join("") || `<p class="empty-state">No timeline events available.</p>`;
   el("#aispmPayload").textContent = JSON.stringify(payload, null, 2);
+  syncTraceReplaySessions(payload);
 }
 
 async function loadAispmDashboard() {
@@ -494,10 +590,157 @@ async function loadAispmDashboard() {
   try {
     const response = await fetch(`${apiBase}/aispm/posture`);
     if (!response.ok) throw new Error(`AISPM posture HTTP ${response.status}`);
-    renderAispmDashboard(await response.json(), "API local activity");
+    const payload = await response.json();
+    renderAispmDashboard(payload, "API local activity");
   } catch (error) {
     renderAispmDashboard(aispmFallback, "API unavailable, sample shown");
   }
+}
+
+function sessionIdsFromPosture(payload) {
+  const candidates = [
+    ...(payload.timeline || []),
+    ...(payload.findings || []),
+    ...(payload.near_misses || [])
+  ];
+  const ids = [...new Set(candidates.map((item) => item.session_id).filter(Boolean))];
+  return ids.length ? ids : [aispmTraceReplayFallback.session.session_id];
+}
+
+function syncTraceReplaySessions(payload) {
+  const picker = el("#aispmTraceSession");
+  if (!picker) return;
+  const previous = picker.value;
+  const sessions = sessionIdsFromPosture(payload);
+  picker.innerHTML = sessions.map((sessionId) => `
+    <option value="${escapeHtml(sessionId)}">${escapeHtml(sessionId)}</option>
+  `).join("");
+  picker.value = sessions.includes(previous) ? previous : sessions[0];
+  loadAispmTraceReplay(picker.value);
+}
+
+function traceReplayFromPosture(payload, sessionId) {
+  if (sessionId === aispmTraceReplayFallback.session.session_id) return aispmTraceReplayFallback;
+  const decisions = (payload.timeline || []).filter((event) => event.session_id === sessionId);
+  if (!decisions.length) {
+    return {
+      ...aispmTraceReplayFallback,
+      data_provenance: payload.data_provenance || "sample_data",
+      session: { ...aispmTraceReplayFallback.session, session_id: sessionId, state: "not_observed_locally" },
+      summary: { ...aispmTraceReplayFallback.summary, step_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, critical_or_high_steps: 0 },
+      steps: [],
+      evidence_refs: []
+    };
+  }
+  const steps = decisions.slice().reverse().map((event, index) => {
+    const target = String(event.target || event.title || "target not recorded");
+    const targetRedacted = target.toLowerCase().includes("secret") || target.toLowerCase().includes(".env");
+    return {
+      step: index + 1,
+      event_type: "policy_decision",
+      decision_id: event.decision_id || event.event_id,
+      session_id: sessionId,
+      agent_id: event.agent_id || "unknown-agent",
+      repository: event.repository || "local",
+      action_type: String(event.title || "policy_decision").split(" ").slice(1).join(" ") || "unknown",
+      target_summary: targetRedacted ? "sensitive target redacted" : target,
+      target_redacted: targetRedacted,
+      decision: event.outcome || "recorded",
+      severity: event.severity || "low",
+      rule_id: "local.timeline",
+      policy_pack: "cavra-ai-agent-baseline",
+      risk_classification: event.severity === "critical" ? "credential_or_sensitive_data_exposure" : "policy_decision_review",
+      control_surface: event.severity === "critical" ? "sensitive_data" : "general_policy",
+      reason: "Derived from the public-safe local execution timeline.",
+      evidence_refs: event.evidence_refs || [],
+      timestamp: event.timestamp
+    };
+  });
+  const counts = steps.reduce((acc, step) => {
+    acc[step.decision] = (acc[step.decision] || 0) + 1;
+    if (["critical", "high"].includes(step.severity)) acc.criticalHigh += 1;
+    return acc;
+  }, { criticalHigh: 0 });
+  return {
+    ...aispmTraceReplayFallback,
+    data_provenance: payload.data_provenance || "local_activity_store",
+    session: {
+      session_id: sessionId,
+      agent_id: steps[0]?.agent_id || "unknown-agent",
+      actor: steps[0]?.agent_id || "ai-agent",
+      repository: steps[0]?.repository || "local",
+      policy_pack: steps[0]?.policy_pack || "cavra-ai-agent-baseline",
+      state: "derived_from_timeline",
+      started_at: steps[0]?.timestamp,
+      updated_at: steps.at(-1)?.timestamp
+    },
+    summary: {
+      step_count: steps.length,
+      blocked_actions: counts.block || 0,
+      approval_required_actions: counts.require_approval || 0,
+      warned_actions: counts.warn || 0,
+      critical_or_high_steps: counts.criticalHigh,
+      evidence_confidence: payload.overview?.evidence_confidence || "activity_metadata_only"
+    },
+    steps,
+    evidence_refs: [...new Set(steps.flatMap((step) => step.evidence_refs || []))]
+  };
+}
+
+async function loadAispmTraceReplay(sessionId) {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  const status = el("#aispmTraceStatus");
+  status.textContent = "Loading replay packet...";
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/trace-replay/${encodeURIComponent(sessionId)}`);
+      if (!response.ok) throw new Error(`Trace replay HTTP ${response.status}`);
+      renderAispmTraceReplay(await response.json(), "API local activity replay");
+      return;
+    } catch (error) {
+      renderAispmTraceReplay(traceReplayFromPosture(currentAispmPayload, sessionId), "API unavailable, derived replay shown");
+      return;
+    }
+  }
+  renderAispmTraceReplay(traceReplayFromPosture(currentAispmPayload, sessionId), "static sample replay");
+}
+
+function renderAispmTraceReplay(packet, note = "sample replay") {
+  const summary = packet.summary || {};
+  const session = packet.session || {};
+  el("#aispmTraceStatus").textContent = `${packet.data_provenance || "sample_data"} · ${note}`;
+  const summaryCards = [
+    ["Session", session.session_id || "unknown", `${session.agent_id || "unknown-agent"} · ${session.repository || "local"}`],
+    ["Replay Steps", summary.step_count ?? 0, `Critical/high: ${summary.critical_or_high_steps ?? 0}`],
+    ["Blocked", summary.blocked_actions ?? 0, `Approval gates: ${summary.approval_required_actions ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", `${(packet.evidence_refs || []).length} references`]
+  ];
+  el("#aispmTraceSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmTraceSteps").innerHTML = (packet.steps || []).map((step) => `
+    <article class="trace-step">
+      <span class="trace-step-number">${escapeHtml(step.step || "-")}</span>
+      <div>
+        <strong>${escapeHtml(step.decision || "recorded")} · ${escapeHtml(step.action_type || "unknown")}</strong>
+        <p>${escapeHtml(step.reason || "CAVRA policy decision recorded.")}</p>
+        <small>${escapeHtml(step.target_summary || "target not recorded")} · ${escapeHtml(step.risk_classification || "policy_decision_review")}</small>
+      </div>
+      <span class="severity ${escapeHtml(step.severity || "low")}">${escapeHtml(step.severity || "low")}</span>
+    </article>
+  `).join("") || `<p class="empty-state">No replay steps available for this session.</p>`;
+  const redaction = packet.redaction || {};
+  el("#aispmTraceRedaction").innerHTML = Object.entries(redaction).map(([key, value]) => `
+    <div>
+      <span>${escapeHtml(key.replaceAll("_", " "))}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `).join("");
+  el("#aispmTracePayload").textContent = JSON.stringify(packet, null, 2);
 }
 
 function renderIntegrations() {
@@ -669,6 +912,7 @@ function wireEvents() {
   });
   el("#runScenario").addEventListener("click", runScenario);
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
+  el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
     el("#scenarioStatus").textContent = "Pilot intake snapshot saved locally for this static demo.";

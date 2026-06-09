@@ -206,6 +206,31 @@
             </div>
             <div id="aispmTimeline" class="timeline"></div>
           </section>
+          <section class="posture-panel trace-replay-panel">
+            <div class="console-header">
+              <div>
+                <h3>Trace Replay Drill-Down</h3>
+                <p>Inspect a Community-safe replay packet with normalized steps, evidence references, and redaction boundaries.</p>
+              </div>
+              <label class="trace-session-picker" for="aispmTraceSession">
+                <span>Session</span>
+                <select id="aispmTraceSession" aria-label="Trace replay session"></select>
+              </label>
+            </div>
+            <div id="aispmTraceStatus" class="trace-status">Replay packet will load from sample data.</div>
+            <div id="aispmTraceSummary" class="trace-summary-grid"></div>
+            <div class="trace-replay-layout">
+              <div>
+                <h4>Normalized Steps</h4>
+                <div id="aispmTraceSteps" class="trace-step-list"></div>
+              </div>
+              <aside class="trace-redaction-panel">
+                <h4>Redaction Boundary</h4>
+                <div id="aispmTraceRedaction" class="trace-redaction-list"></div>
+              </aside>
+            </div>
+            <pre id="aispmTracePayload" class="code-panel">Trace replay packet will load from local sample data.</pre>
+          </section>
           <pre id="aispmPayload" class="code-panel">AISPM payload will load from local sample data.</pre>
         </section>
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a public-safe AISPM trace replay drill-down to the GitHub Pages
+  dashboard, including a session selector, replay summary cards, normalized
+  decision steps, redaction boundary status, API-backed
+  `/aispm/trace-replay/{session_id}` loading, and static sample fallback.
 - Added the Community release keyless attestation workflow and runbook for
   `community-v1.0.0` release assets. The workflow downloads published GitHub
   Release assets, validates final SHA-256 checksums, generates a GitHub

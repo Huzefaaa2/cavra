@@ -198,6 +198,27 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .finding-row strong { display: block; }
 .finding-row p { margin: 5px 0; color: var(--muted); }
 .finding-row small, .empty-state { color: var(--muted); }
+.trace-replay-panel { display: grid; gap: 16px; }
+.trace-session-picker { display: grid; gap: 6px; min-width: min(100%, 270px); color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
+.trace-session-picker select { width: 100%; min-height: 42px; }
+.trace-status { width: fit-content; max-width: 100%; border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent); border-radius: 999px; padding: 6px 10px; color: var(--text); background: color-mix(in srgb, var(--primary) 13%, transparent); font-size: 13px; font-weight: 850; }
+.trace-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.trace-summary-card { border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: var(--panel-soft); }
+.trace-summary-card span, .trace-redaction-list span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
+.trace-summary-card strong { display: block; margin-top: 6px; font-size: 20px; overflow-wrap: anywhere; }
+.trace-summary-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; }
+.trace-replay-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+.trace-replay-layout h4 { margin: 0 0 10px; }
+.trace-step-list, .trace-redaction-list { display: grid; gap: 10px; }
+.trace-step { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
+.trace-step-number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--text); font-weight: 900; }
+.trace-step strong { display: block; overflow-wrap: anywhere; }
+.trace-step p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
+.trace-step small { color: var(--muted); overflow-wrap: anywhere; }
+.trace-redaction-panel { border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 14px; background: var(--panel-soft); }
+.trace-redaction-list div { border-bottom: 1px solid color-mix(in srgb, var(--line) 64%, transparent); padding: 8px 0; }
+.trace-redaction-list div:last-child { border-bottom: 0; }
+.trace-redaction-list strong { display: block; margin-top: 4px; overflow-wrap: anywhere; }
 .operator-path-card span { color: var(--accent); text-transform: uppercase; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
 .operator-path-card h3 { margin: 10px 0 14px; font-size: 24px; }
 .operator-path-card dl { margin: 0 0 16px; }
@@ -306,7 +327,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .hero-product-mark { width: 108px; }
   .hero-copy { padding-right: 0; }
   h1 { font-size: 58px; }
-  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
+  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
   .architecture-map { display: flex; overflow-x: auto; min-height: 240px; scroll-snap-type: x mandatory; }
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }

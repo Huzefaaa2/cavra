@@ -23,7 +23,8 @@ Delivered UX:
 - interactive architecture explorer with clickable nodes and an inspector
   panel;
 - AI Posture, policy, evidence, integrations, compliance, use-case,
-  documentation, and roadmap pages;
+  documentation, and roadmap pages, including a public-safe trace replay
+  drill-down for normalized decision steps;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
@@ -32,7 +33,7 @@ Delivered UX:
 | Route | Purpose |
 | --- | --- |
 | `#dashboard` | Hero, mission, feature cards, risk score, governance metrics, Community GA controls, and production pilot readiness. |
-| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, timeline, and Enterprise locked controls. |
+| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, timeline, trace replay packet drill-down, and Enterprise locked controls. |
 | `#architecture` | Interactive node explorer for source platforms, IaC/cloud, CAVRA, Policy Engine, Evidence Engine, and audit trail. |
 | `#policy-engine` | Policy packs, risk levels, violation examples, and remediation guidance. |
 | `#evidence` | Evidence workflow, attestations, chain of custody, and sample evidence payload. |
