@@ -17,20 +17,22 @@ Delivered UX:
 - center content panels that switch without page reloads;
 - sticky right table of contents on desktop;
 - mobile drawer navigation and bottom navigation;
+- professional dashboard themes: Sentinel, Classic, Retro, and Executive;
 - command palette with `Ctrl+K` search for pages, policies, controls,
   integrations, documentation, and examples;
 - interactive architecture explorer with clickable nodes and an inspector
   panel;
-- policy, evidence, integrations, compliance, use-case, documentation, and
-  roadmap pages;
-- dark-mode-first enterprise security visual design with accessible focus
-  states and reduced scrolling.
+- AI Posture, policy, evidence, integrations, compliance, use-case,
+  documentation, and roadmap pages;
+- CAVRA-branded enterprise security visual design with accessible focus states,
+  reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
 ## Pages
 
 | Route | Purpose |
 | --- | --- |
 | `#dashboard` | Hero, mission, feature cards, risk score, governance metrics, Community GA controls, and production pilot readiness. |
+| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, timeline, and Enterprise locked controls. |
 | `#architecture` | Interactive node explorer for source platforms, IaC/cloud, CAVRA, Policy Engine, Evidence Engine, and audit trail. |
 | `#policy-engine` | Policy packs, risk levels, violation examples, and remediation guidance. |
 | `#evidence` | Evidence workflow, attestations, chain of custody, and sample evidence payload. |

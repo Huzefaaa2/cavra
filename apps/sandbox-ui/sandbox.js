@@ -1,5 +1,6 @@
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: "grid", group: "Overview", description: "Mission, platform overview, risk score, and release readiness." },
+  { id: "ai-posture", label: "AI Posture", icon: "posture", group: "Overview", description: "AI security posture, agent observability, findings, and execution timeline." },
   { id: "architecture", label: "Architecture", icon: "network", group: "Overview", description: "Interactive runtime, policy, evidence, and audit architecture." },
   { id: "policy-engine", label: "Policy Engine", icon: "shield", group: "Core Components", description: "Policy packs, categories, violations, remediation, and risk levels." },
   { id: "evidence", label: "Evidence Collector", icon: "archive", group: "Core Components", description: "Audit trails, attestations, and chain of custody." },
@@ -14,6 +15,7 @@ const navItems = [
 
 const icons = {
   grid: "▦",
+  posture: "◉",
   network: "⌘",
   shield: "◈",
   archive: "▣",
@@ -24,6 +26,13 @@ const icons = {
   check: "✓",
   map: "◎",
   book: "▰"
+};
+
+const themes = {
+  sentinel: "Sentinel",
+  classic: "Classic",
+  retro: "Retro",
+  executive: "Executive"
 };
 
 const metrics = [
@@ -226,11 +235,63 @@ const docsLinks = [
 ];
 
 const roadmap = [
-  ["Community", ["Release readiness dashboard", "Dashboard freshness validator", "Public docs/wiki sync"]],
-  ["Enterprise", ["Private trial package", "SSO/RBAC", "Commercial policy packs"]],
+  ["Community", ["AISPM public contract", "AI Posture demo route", "Release readiness dashboard"]],
+  ["Enterprise", ["Live AISPM ingestion", "SSO/RBAC", "Kill switch and runtime overrides"]],
   ["SaaS", ["Tenant control plane", "Billing and license service", "Compliance reporting"]],
   ["Ecosystem", ["GitLab and Azure DevOps", "Policy/plugin marketplace", "Managed evidence storage"]]
 ];
+
+const aispmFallback = {
+  schema_version: "cavra.aispm.dashboard.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "sample",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  overview: {
+    posture_score: 12,
+    risk_level: "critical",
+    total_sessions: 2,
+    total_decisions: 3,
+    blocked_actions: 1,
+    approval_required_actions: 1,
+    warned_actions: 1,
+    risk_findings: 3,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  agents: [
+    { agent_id: "codex-agent", repository_count: 1, session_count: 1, decision_count: 2, blocked_actions: 1, approval_required_actions: 1, warned_actions: 0, coverage_status: "observed", drift_status: "review_required" },
+    { agent_id: "claude-code-agent", repository_count: 1, session_count: 1, decision_count: 1, blocked_actions: 0, approval_required_actions: 0, warned_actions: 1, coverage_status: "observed", drift_status: "baseline" }
+  ],
+  findings: [
+    { finding_id: "finding-sample-dec-002", decision_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", severity: "critical", risk_classification: "credential_or_sensitive_data_exposure", decision: "block", rule_id: "secrets.block-sensitive-read", reason: "Sensitive production secret file access is blocked.", evidence_refs: ["sample://evidence/secret-read-block"], timestamp: "2026-06-09T00:01:00+00:00" },
+    { finding_id: "finding-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", severity: "high", risk_classification: "infrastructure_change_risk", decision: "require_approval", rule_id: "iac.production-change", reason: "Production-impacting infrastructure action requires approval.", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" }
+  ],
+  timeline: [
+    { event_id: "decision-sample-dec-002", event_type: "policy_decision", decision_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", title: "block read_file", outcome: "block", severity: "critical", target: ".env.production", timestamp: "2026-06-09T00:01:00+00:00", evidence_refs: ["sample://evidence/secret-read-block"] },
+    { event_id: "decision-sample-dec-001", event_type: "policy_decision", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", title: "require_approval execute_command", outcome: "require_approval", severity: "high", target: "terraform apply", timestamp: "2026-06-09T00:00:00+00:00", evidence_refs: ["sample://evidence/iac-production-change"] }
+  ],
+  control_coverage: [
+    { surface_id: "sensitive_data", label: "Secrets and sensitive data", description: "Reads or writes that could expose credentials, tokens, customer data, or protected files.", coverage_status: "enforced", decision_count: 1, blocked_actions: 1, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/secret-read-block"] },
+    { surface_id: "infrastructure_iac", label: "Infrastructure and IaC", description: "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions.", coverage_status: "approval_gated", decision_count: 1, blocked_actions: 0, approval_required_actions: 1, warned_actions: 0, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/iac-production-change"] },
+    { surface_id: "mcp_tools", label: "MCP and tool calls", description: "External tool, MCP server, filesystem, browser, and automation actions.", coverage_status: "warning_only", decision_count: 1, blocked_actions: 0, approval_required_actions: 0, warned_actions: 1, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/mcp-warning"] }
+  ],
+  near_misses: [
+    { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
+    { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
+  ],
+  control_plane: {
+    community_status: "local_activity_ready",
+    enterprise_status: "requires_cavra_enterprise",
+    live_streaming: "requires_cavra_enterprise",
+    kill_switch: "requires_cavra_enterprise",
+    runtime_overrides: "requires_cavra_enterprise",
+    policy_distribution: "requires_cavra_enterprise",
+    trace_replay: "local_timeline_available",
+    data_provenance_required: true
+  }
+};
 
 const routeContent = [
   ...navItems.map((item) => ({ type: "Page", label: item.label, route: item.id, description: item.description })),
@@ -239,7 +300,10 @@ const routeContent = [
   ...complianceRows.map((item) => ({ type: "Control", label: `${item[0]} ${item[1]}`, route: "compliance", description: item[3] })),
   ...useCases.map((item) => ({ type: "Use Case", label: item[0], route: "use-cases", description: item[1] })),
   ...operatorPaths.map((item) => ({ type: "Operator Path", label: item[0], route: "operator-experience", description: item[1] })),
-  ...trialAccessCards.map((item) => ({ type: "Enterprise Trial", label: item[0], route: "enterprise-trial", description: item[2] }))
+  ...trialAccessCards.map((item) => ({ type: "Enterprise Trial", label: item[0], route: "enterprise-trial", description: item[2] })),
+  { type: "AI Posture", label: "Agent Observability", route: "ai-posture", description: "Live-ready agent coverage, risk findings, and execution timeline." },
+  { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
+  { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." }
 ];
 
 function el(selector) {
@@ -287,6 +351,7 @@ function setRoute(route) {
   });
   localStorage.setItem("cavra.activeRoute", nextRoute);
   if (location.hash.slice(1) !== nextRoute) history.replaceState(null, "", `#${nextRoute}`);
+  window.scrollTo(0, 0);
   renderToc(nextRoute);
   el("#mainContent")?.focus({ preventScroll: true });
 }
@@ -354,6 +419,85 @@ function renderEvidence() {
   el("#evidenceTimeline").innerHTML = timeline.map(([title, detail]) => `
     <div class="timeline-item"><h3>${title}</h3><p>${detail}</p></div>
   `).join("");
+}
+
+function renderAispmDashboard(payload, note = "sample fallback") {
+  const overview = payload.overview || {};
+  const controlPlane = payload.control_plane || {};
+  el("#aispmSourceBadge").textContent = `${payload.data_provenance || "sample_data"} · ${note}`;
+  const overviewCards = [
+    ["Posture Score", overview.posture_score ?? "0", `Risk level: ${overview.risk_level || "unknown"}`],
+    ["Blocked Actions", overview.blocked_actions ?? "0", "Policy decisions stopped before execution"],
+    ["Approval Gates", overview.approval_required_actions ?? "0", "Actions requiring human approval"],
+    ["Risk Findings", overview.risk_findings ?? "0", `Evidence: ${overview.evidence_confidence || "unknown"}`],
+    ["Enterprise Controls", "Locked", `Kill switch: ${controlPlane.kill_switch || "requires_cavra_enterprise"}`]
+  ];
+  el("#aispmOverviewCards").innerHTML = overviewCards.map(([label, value, detail]) => `
+    <article class="posture-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmAgentCards").innerHTML = (payload.agents || []).map((agent) => `
+    <article class="posture-card">
+      <span>${escapeHtml(agent.coverage_status || "unknown")}</span>
+      <strong>${escapeHtml(agent.agent_id || "unknown-agent")}</strong>
+      <p>${escapeHtml(agent.decision_count || 0)} decisions · ${escapeHtml(agent.blocked_actions || 0)} blocked · ${escapeHtml(agent.approval_required_actions || 0)} approvals</p>
+      <p>Drift: <b>${escapeHtml(agent.drift_status || "unknown")}</b></p>
+    </article>
+  `).join("") || `<p class="empty-state">No local agent activity found. Sample or Enterprise ingestion is required.</p>`;
+  el("#aispmFindings").innerHTML = (payload.findings || []).map((finding) => `
+    <article class="finding-row">
+      <span class="severity ${escapeHtml(finding.severity || "low")}">${escapeHtml(finding.severity || "low")}</span>
+      <div>
+        <strong>${escapeHtml(finding.risk_classification || "policy_violation")}</strong>
+        <p>${escapeHtml(finding.reason || "Policy finding requires review.")}</p>
+        <small>${escapeHtml(finding.agent_id || "unknown-agent")} · ${escapeHtml(finding.repository || "local")} · ${escapeHtml(finding.decision || "review")}</small>
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">No findings in the current local activity window.</p>`;
+  el("#aispmControlCoverage").innerHTML = (payload.control_coverage || []).map((control) => `
+    <article class="posture-card">
+      <span>${escapeHtml(control.coverage_status || "unknown")}</span>
+      <strong>${escapeHtml(control.label || control.surface_id || "Control surface")}</strong>
+      <p>${escapeHtml(control.description || "Observed local control activity.")}</p>
+      <p>${escapeHtml(control.decision_count || 0)} decisions · ${escapeHtml(control.blocked_actions || 0)} blocked · ${escapeHtml(control.approval_required_actions || 0)} approvals</p>
+      <p>Evidence: <b>${escapeHtml(control.evidence_confidence || "unknown")}</b></p>
+    </article>
+  `).join("") || `<p class="empty-state">No local control coverage data found.</p>`;
+  el("#aispmNearMisses").innerHTML = (payload.near_misses || []).slice(0, 8).map((item) => `
+    <article class="finding-row">
+      <span class="severity ${escapeHtml(item.severity || "low")}">${escapeHtml(item.decision || "review")}</span>
+      <div>
+        <strong>${escapeHtml(item.operator_signal || "review_recommended")}</strong>
+        <p>${escapeHtml(item.reason || "Near-miss event requires operator review.")}</p>
+        <small>${escapeHtml(item.agent_id || "unknown-agent")} · ${escapeHtml(item.repository || "local")} · ${escapeHtml(item.surface_id || "general_policy")}</small>
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">No near misses in the current local activity window.</p>`;
+  el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
+    <div class="timeline-item">
+      <h3>${escapeHtml(event.title || event.event_type || "timeline event")}</h3>
+      <p>${escapeHtml(event.agent_id || "unknown-agent")} · ${escapeHtml(event.repository || "local")} · ${escapeHtml(event.outcome || "recorded")}</p>
+    </div>
+  `).join("") || `<p class="empty-state">No timeline events available.</p>`;
+  el("#aispmPayload").textContent = JSON.stringify(payload, null, 2);
+}
+
+async function loadAispmDashboard() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (!apiBase) {
+    renderAispmDashboard(aispmFallback, "static sample");
+    return;
+  }
+  try {
+    const response = await fetch(`${apiBase}/aispm/posture`);
+    if (!response.ok) throw new Error(`AISPM posture HTTP ${response.status}`);
+    renderAispmDashboard(await response.json(), "API local activity");
+  } catch (error) {
+    renderAispmDashboard(aispmFallback, "API unavailable, sample shown");
+  }
 }
 
 function renderIntegrations() {
@@ -469,11 +613,19 @@ function runScenario() {
   setRoute("evidence");
 }
 
-function toggleTheme() {
-  document.body.classList.toggle("light");
-  const light = document.body.classList.contains("light");
-  el("#themeToggle").textContent = light ? "Light" : "Dark";
-  localStorage.setItem("cavra.theme", light ? "light" : "dark");
+function normalizeTheme(theme) {
+  if (theme === "light") return "classic";
+  if (theme === "dark") return "sentinel";
+  return themes[theme] ? theme : "sentinel";
+}
+
+function applyTheme(theme) {
+  const normalized = normalizeTheme(theme);
+  document.body.dataset.theme = normalized;
+  document.querySelectorAll("[data-theme-select]").forEach((picker) => {
+    picker.value = normalized;
+  });
+  localStorage.setItem("cavra.theme", normalized);
 }
 
 function wireEvents() {
@@ -512,8 +664,11 @@ function wireEvents() {
   });
   el("#openMobileNav").addEventListener("click", () => el("#mobileDrawer").classList.add("is-open"));
   el("#closeMobileNav").addEventListener("click", () => el("#mobileDrawer").classList.remove("is-open"));
-  el("#themeToggle").addEventListener("click", toggleTheme);
+  document.querySelectorAll("[data-theme-select]").forEach((picker) => {
+    picker.addEventListener("change", (event) => applyTheme(event.target.value));
+  });
   el("#runScenario").addEventListener("click", runScenario);
+  el("#refreshAispm").addEventListener("click", loadAispmDashboard);
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
     el("#scenarioStatus").textContent = "Pilot intake snapshot saved locally for this static demo.";
@@ -530,12 +685,14 @@ function wireEvents() {
 }
 
 function init() {
+  applyTheme(localStorage.getItem("cavra.theme") || "sentinel");
   renderNav(el("#portalNav"));
   renderNav(el("#mobileNav"));
   renderMetrics();
   renderArchitecture();
   renderPolicies();
   renderEvidence();
+  renderAispmDashboard(aispmFallback, "static sample");
   renderIntegrations();
   renderCompliance();
   renderUseCases();
@@ -544,7 +701,7 @@ function init() {
   renderDocs();
   renderRoadmap();
   wireEvents();
-  if (localStorage.getItem("cavra.theme") === "light") document.body.classList.add("light");
+  loadAispmDashboard();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

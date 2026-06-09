@@ -12,10 +12,22 @@ Activity endpoints:
 - `GET /decisions`: list persisted decisions with optional `session_id`, `agent_id`, `repository`, `policy_pack`, `decision`, `severity`, `action_type`, `limit`, and `offset` filters.
 - `POST /decisions`: evaluate an action and persist the resulting decision.
 - `GET /decisions/{decision_id}`: fetch one decision.
+- `GET /aispm/dashboard/contract`: describe the public-safe AISPM dashboard contract and Community/Enterprise boundaries.
+- `GET /aispm/dashboard/sample`: return deterministic public-safe AISPM sample data for demos and static portal use.
+- `GET /aispm/posture`: derive a posture overview, agent summaries, findings, timeline, control coverage, near misses, and control-plane readiness from local activity metadata.
+- `GET /aispm/agents`: list AISPM agent coverage summaries.
+- `GET /aispm/findings`: list AISPM risk findings derived from stored CAVRA decisions.
+- `GET /aispm/timeline`: list AISPM execution timeline events derived from sessions and decisions.
+- `GET /aispm/control-coverage`: list observed Community control coverage by sensitive data, infrastructure, MCP/tool, source-control, runtime-command, and general policy surfaces.
+- `GET /aispm/near-misses`: list warned, approval-gated, or attested risky actions that should be reviewed before they become incidents.
 
 Default activity path: `.cavra/api/activity.json`.
 
 Set `CAVRA_ACTIVITY_STORE` to override the JSON path. Set `CAVRA_ACTIVITY_DB` to use SQLite-backed activity persistence. `GET /console/config` includes `activity_mode`.
+The AISPM endpoints are Community-safe local/sample surfaces. Live prompt traces,
+tool-call graphing, organization-wide coverage, multi-tenant retention, kill
+switch, policy toggles, runtime overrides, and compliance exports remain
+Enterprise capabilities.
 
 ## Repository Inventory and Policy Rollout
 

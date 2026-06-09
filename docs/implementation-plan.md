@@ -43,6 +43,8 @@ Management plane:
 - MCP Trust Registry.
 - FastAPI backend.
 - Console UI.
+- AI Security Posture Dashboard with Community demo/local activity views and
+  Enterprise live multi-tenant posture visibility.
 
 Enforcement plane:
 - Python runtime interface.
@@ -60,6 +62,9 @@ Enterprise integrations:
 - ITSM approval connectors.
 - OIDC/RBAC.
 - Immutable evidence storage.
+- Enterprise event ingestion for prompts, tool calls, runtime decisions,
+  approval lineage, trace replay, posture findings, drift signals, and
+  control-plane overrides.
 
 Developer adoption:
 - Claude Code MCP flow.
@@ -96,6 +101,10 @@ Medium priority:
 - Public/private key policy signing.
 - Audit-only, enforce, strict regulated, and break-glass modes.
 - Console UI.
+- Public-safe AISPM dashboard contract, Community demo route, control coverage,
+  and near-miss queue.
+- Enterprise live AISPM dashboard with CSO/CISO posture tiles, execution
+  timelines, violation queue, kill switch, and runtime override evidence.
 - SIEM exporters.
 - ServiceNow/Jira reference connectors.
 - OIDC and RBAC.

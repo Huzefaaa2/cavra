@@ -8,6 +8,34 @@ Transparent CAVRA engineering agents may execute implementation work for these p
 
 CAVRA becomes the enterprise runtime authority layer for AI coding agents. Enterprises can safely adopt Claude Code, GitHub Copilot, OpenAI Codex, Cursor, Gemini CLI, AWS Q Developer, MCP tools, Terraform, Kubernetes, cloud CLI, and AI-assisted CI/CD because CAVRA governs sensitive agent actions before execution and produces audit-ready evidence after every decision.
 
+## AI Security Posture Dashboard Roadmap
+
+The next major Enterprise product surface is the CAVRA AI Security Posture
+Dashboard. The current Community Evidence Console is a public-safe demo and
+local evidence surface; it is not yet a production-grade real-time AISPM
+dashboard. The Enterprise roadmap now tracks live agent observability, prompts,
+reasoning traces, tool calls, execution timelines, risk and violation queues,
+drift detection, approval workflows, RBAC-scoped governance, full trace replay,
+SOC 2-style audit logs, kill switches, policy toggles, and runtime overrides.
+
+Community should provide a static-hostable demo and local activity view with
+clear data provenance labels. Enterprise should provide authenticated,
+multi-tenant, near-real-time posture visibility with private ingestion,
+centralized retention, compliance exports, and control-plane actions. The
+public-safe implementation plan is documented in
+`docs/ai-security-posture-dashboard-roadmap.md`.
+
+Phase A has started with a public-safe dashboard contract, packaged schema,
+sample dashboard payload, and read-only Community API endpoints for posture,
+agent summaries, risk findings, and execution timeline. Phase B has started
+with a static-hostable `AI Posture` portal route that reads `/aispm/posture`
+when an API base is configured and otherwise labels deterministic sample data.
+Phase B hardening now includes Community-safe control coverage and near-miss
+queues through `/aispm/control-coverage` and `/aispm/near-misses`; Enterprise
+still owns live organization-wide coverage, streaming, and control-plane
+actions.
+See `docs/ai-security-posture-dashboard-contract.md`.
+
 ## Current Enterprise Batch Sync
 
 Status: public-safe documentation synchronized after private Enterprise PRs

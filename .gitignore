@@ -42,6 +42,7 @@ venv.bak/
 .pytest_cache/
 .coverage
 htmlcov/
+node_modules/
 
 # CAVRA
 .cavra/

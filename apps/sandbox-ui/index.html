@@ -31,7 +31,15 @@
         <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
         <a href="#dashboard" data-route-link="dashboard">Demo</a>
         <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download</a>
-        <button id="themeToggle" aria-label="Toggle theme">Dark</button>
+        <label class="theme-picker" for="themeSelect">
+          <span>Theme</span>
+          <select id="themeSelect" data-theme-select aria-label="Dashboard theme">
+            <option value="sentinel">Sentinel</option>
+            <option value="classic">Classic</option>
+            <option value="retro">Retro</option>
+            <option value="executive">Executive</option>
+          </select>
+        </label>
         <span class="version-badge">v1.0.0</span>
       </nav>
       <button class="mobile-menu-button" id="openMobileNav" aria-label="Open navigation">Menu</button>
@@ -128,6 +136,77 @@
             </div>
             <div id="pilotReadinessSummary" class="pilot-readiness-grid"></div>
           </section>
+        </section>
+
+        <section class="page-panel" id="ai-posture" data-title="AI Posture">
+          <div class="section-heading">
+            <p class="eyebrow">AI Security Posture</p>
+            <h2>Agent activity, risk findings, and execution timeline</h2>
+            <p>
+              Public-safe posture visibility for CSO/CISO review. Community
+              shows sample or local activity metadata; live multi-tenant
+              streaming, kill switch, runtime overrides, and trace replay
+              require CAVRA Enterprise.
+            </p>
+          </div>
+          <div class="posture-toolbar">
+            <div>
+              <span>Data provenance</span>
+              <strong id="aispmSourceBadge">sample_data</strong>
+            </div>
+            <button id="refreshAispm">Refresh Posture</button>
+          </div>
+          <div id="aispmOverviewCards" class="posture-overview-grid"></div>
+          <div class="posture-layout">
+            <section class="posture-panel">
+              <div class="console-header">
+                <div>
+                  <h3>Agent Observability</h3>
+                  <p>Coverage, last-seen state, blocked actions, approval gates, and drift signal.</p>
+                </div>
+              </div>
+              <div id="aispmAgentCards" class="posture-card-grid"></div>
+            </section>
+            <section class="posture-panel">
+              <div class="console-header">
+                <div>
+                  <h3>Risk And Violations</h3>
+                  <p>Policy findings grouped into a public-safe review queue.</p>
+                </div>
+              </div>
+              <div id="aispmFindings" class="posture-list"></div>
+            </section>
+          </div>
+          <div class="posture-layout">
+            <section class="posture-panel">
+              <div class="console-header">
+                <div>
+                  <h3>Control Coverage</h3>
+                  <p>Observed enforcement, approval, warning, and evidence posture by control surface.</p>
+                </div>
+              </div>
+              <div id="aispmControlCoverage" class="posture-card-grid"></div>
+            </section>
+            <section class="posture-panel">
+              <div class="console-header">
+                <div>
+                  <h3>Near-Miss Queue</h3>
+                  <p>Risky actions that were warned, approval-gated, or allowed with attestation.</p>
+                </div>
+              </div>
+              <div id="aispmNearMisses" class="posture-list"></div>
+            </section>
+          </div>
+          <section class="posture-panel">
+            <div class="console-header">
+              <div>
+                <h3>Execution Timeline</h3>
+                <p>Ordered local session and policy-decision activity with evidence references.</p>
+              </div>
+            </div>
+            <div id="aispmTimeline" class="timeline"></div>
+          </section>
+          <pre id="aispmPayload" class="code-panel">AISPM payload will load from local sample data.</pre>
         </section>
 
         <section class="page-panel" id="architecture" data-title="Architecture">
@@ -311,6 +390,15 @@ cavra evidence verify .cavra/evidence/required-check</code><button class="copy-c
       <div class="drawer-panel">
         <button id="closeMobileNav" aria-label="Close navigation">Close</button>
         <nav id="mobileNav"></nav>
+        <label class="theme-picker mobile-theme-picker" for="mobileThemeSelect">
+          <span>Theme</span>
+          <select id="mobileThemeSelect" data-theme-select aria-label="Mobile dashboard theme">
+            <option value="sentinel">Sentinel</option>
+            <option value="classic">Classic</option>
+            <option value="retro">Retro</option>
+            <option value="executive">Executive</option>
+          </select>
+        </label>
       </div>
     </div>
 

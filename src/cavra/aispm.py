@@ -1,0 +1,544 @@
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+from typing import Any
+
+from cavra.activity import utc_now
+
+
+AISPM_SCHEMA_VERSION = "cavra.aispm.dashboard.v1"
+LOCKED_ENTERPRISE_STATUS = "requires_cavra_enterprise"
+
+RISK_WEIGHTS = {
+    "critical": 30,
+    "high": 18,
+    "medium": 9,
+    "low": 3,
+}
+
+DECISION_RISK_WEIGHTS = {
+    "block": 16,
+    "require_approval": 10,
+    "warn": 5,
+    "audit_only": 2,
+    "allow_with_attestation": 1,
+    "allow": 0,
+}
+
+
+def build_aispm_dashboard_contract() -> dict[str, Any]:
+    """Describe the public-safe AISPM dashboard contract.
+
+    Community exposes local/sample posture views only. Enterprise owns live
+    ingestion, multi-tenant retention, private policy context, and runtime
+    control actions.
+    """
+
+    return {
+        "schema_version": "cavra.aispm.contract.v1",
+        "product": "CAVRA",
+        "community_boundary": {
+            "status": "available",
+            "capabilities": [
+                "local activity posture summary",
+                "public-safe sample dashboard",
+                "decision timeline from local activity store",
+                "risk finding summaries from stored decisions",
+                "agent coverage summary from local sessions",
+                "control coverage summary from observed local decisions",
+                "near-miss queue for warnings and approval-gated actions",
+            ],
+            "data_provenance": ["local_activity_store", "sample_data"],
+        },
+        "enterprise_boundary": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "live multi-tenant ingestion",
+                "prompt and reasoning trace capture",
+                "tool-call graph",
+                "full trace replay",
+                "organization-wide control coverage",
+                "kill switch and runtime overrides",
+                "compliance exports and immutable retention",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+        "objects": [
+            "posture_overview",
+            "agent_observability",
+            "risk_findings",
+            "execution_timeline",
+            "control_coverage",
+            "near_miss_queue",
+            "control_plane_readiness",
+        ],
+        "endpoints": {
+            "posture": "/aispm/posture",
+            "agents": "/aispm/agents",
+            "findings": "/aispm/findings",
+            "timeline": "/aispm/timeline",
+            "control_coverage": "/aispm/control-coverage",
+            "near_misses": "/aispm/near-misses",
+        },
+    }
+
+
+def build_aispm_posture(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe posture dashboard from existing activity metadata."""
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    findings = _risk_findings(decisions)
+    timeline = _timeline(decisions, sessions)
+    agents = _agent_observability(decisions, sessions)
+    overview = _posture_overview(decisions, sessions, findings)
+    return {
+        "schema_version": AISPM_SCHEMA_VERSION,
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "overview": overview,
+        "agents": agents,
+        "findings": findings,
+        "timeline": timeline,
+        "control_coverage": _control_coverage(decisions),
+        "near_misses": _near_misses(decisions),
+        "control_plane": _control_plane_readiness(decisions),
+        "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
+    }
+
+
+def build_sample_aispm_dashboard() -> dict[str, Any]:
+    """Return deterministic sample data for the public static portal."""
+
+    decisions = [
+        {
+            "decision_id": "sample-dec-001",
+            "session_id": "sample-session-001",
+            "agent_id": "codex-agent",
+            "actor": "codex-agent",
+            "repository": "payments/api",
+            "action_type": "execute_command",
+            "target": "terraform apply",
+            "policy_pack": "cloud-iam-prod",
+            "rule_id": "iac.production-change",
+            "decision": "require_approval",
+            "severity": "high",
+            "reason": "Production-impacting infrastructure action requires approval.",
+            "timestamp": "2026-06-09T00:00:00+00:00",
+            "evidence_refs": ["sample://evidence/iac-production-change"],
+        },
+        {
+            "decision_id": "sample-dec-002",
+            "session_id": "sample-session-001",
+            "agent_id": "codex-agent",
+            "actor": "codex-agent",
+            "repository": "payments/api",
+            "action_type": "read_file",
+            "target": ".env.production",
+            "policy_pack": "cavra-ai-agent-baseline",
+            "rule_id": "secrets.block-sensitive-read",
+            "decision": "block",
+            "severity": "critical",
+            "reason": "Sensitive production secret file access is blocked.",
+            "timestamp": "2026-06-09T00:01:00+00:00",
+            "evidence_refs": ["sample://evidence/secret-read-block"],
+        },
+        {
+            "decision_id": "sample-dec-003",
+            "session_id": "sample-session-002",
+            "agent_id": "claude-code-agent",
+            "actor": "claude-code-agent",
+            "repository": "platform/infra",
+            "action_type": "mcp_tool_call",
+            "target": "filesystem.write",
+            "policy_pack": "mcp-enterprise",
+            "rule_id": "mcp.untrusted-tool",
+            "decision": "warn",
+            "severity": "medium",
+            "reason": "MCP tool requires registration before broad rollout.",
+            "timestamp": "2026-06-09T00:02:00+00:00",
+            "evidence_refs": ["sample://evidence/mcp-warning"],
+        },
+    ]
+    sessions = [
+        {
+            "session_id": "sample-session-001",
+            "agent_id": "codex-agent",
+            "actor": "codex-agent",
+            "repository": "payments/api",
+            "policy_pack": "cloud-iam-prod",
+            "state": "completed",
+            "started_at": "2026-06-09T00:00:00+00:00",
+            "updated_at": "2026-06-09T00:01:00+00:00",
+            "decision_count": 2,
+            "blocked_count": 1,
+            "approval_required_count": 1,
+            "evidence_refs": ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block"],
+        },
+        {
+            "session_id": "sample-session-002",
+            "agent_id": "claude-code-agent",
+            "actor": "claude-code-agent",
+            "repository": "platform/infra",
+            "policy_pack": "mcp-enterprise",
+            "state": "active",
+            "started_at": "2026-06-09T00:02:00+00:00",
+            "updated_at": "2026-06-09T00:02:00+00:00",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+            "evidence_refs": ["sample://evidence/mcp-warning"],
+        },
+    ]
+    findings = _risk_findings(decisions)
+    return {
+        "schema_version": AISPM_SCHEMA_VERSION,
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "sample",
+        "data_provenance": "sample_data",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": "2026-06-09T00:03:00+00:00",
+        "filters": {"repository": None, "agent_id": None, "policy_pack": None, "limit": 200},
+        "overview": _posture_overview(decisions, sessions, findings),
+        "agents": _agent_observability(decisions, sessions),
+        "findings": findings,
+        "timeline": _timeline(decisions, sessions),
+        "control_coverage": _control_coverage(decisions),
+        "near_misses": _near_misses(decisions),
+        "control_plane": _control_plane_readiness(decisions),
+        "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
+    }
+
+
+def _posture_overview(
+    decisions: list[dict[str, Any]],
+    sessions: list[dict[str, Any]],
+    findings: list[dict[str, Any]],
+) -> dict[str, Any]:
+    decision_counts = Counter(str(item.get("decision", "unknown")) for item in decisions)
+    severity_counts = Counter(str(item.get("severity", "low")) for item in decisions)
+    risk_penalty = sum(DECISION_RISK_WEIGHTS.get(str(item.get("decision", "")), 0) for item in decisions)
+    risk_penalty += sum(RISK_WEIGHTS.get(str(item.get("severity", "low")), 0) for item in findings)
+    posture_score = max(0, min(100, 100 - risk_penalty))
+    return {
+        "posture_score": posture_score,
+        "risk_level": _risk_level(posture_score),
+        "total_sessions": len(sessions),
+        "total_decisions": len(decisions),
+        "blocked_actions": decision_counts["block"],
+        "approval_required_actions": decision_counts["require_approval"],
+        "warned_actions": decision_counts["warn"],
+        "risk_findings": len(findings),
+        "critical_findings": severity_counts["critical"],
+        "high_findings": severity_counts["high"],
+        "latest_activity_at": max(
+            [str(item.get("timestamp", "")) for item in decisions if item.get("timestamp")]
+            + [str(item.get("updated_at", "")) for item in sessions if item.get("updated_at")],
+            default=None,
+        ),
+        "evidence_confidence": _evidence_confidence(decisions),
+    }
+
+
+def _agent_observability(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped_decisions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    grouped_sessions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for decision in decisions:
+        grouped_decisions[str(decision.get("agent_id", "unknown-agent"))].append(decision)
+    for session in sessions:
+        grouped_sessions[str(session.get("agent_id", "unknown-agent"))].append(session)
+
+    agent_ids = sorted(set(grouped_decisions) | set(grouped_sessions))
+    agents: list[dict[str, Any]] = []
+    for agent_id in agent_ids:
+        agent_decisions = grouped_decisions.get(agent_id, [])
+        agent_sessions = grouped_sessions.get(agent_id, [])
+        decision_counts = Counter(str(item.get("decision", "unknown")) for item in agent_decisions)
+        agents.append(
+            {
+                "agent_id": agent_id,
+                "repository_count": len({str(item.get("repository", "local")) for item in agent_decisions + agent_sessions}),
+                "session_count": len(agent_sessions),
+                "decision_count": len(agent_decisions),
+                "blocked_actions": decision_counts["block"],
+                "approval_required_actions": decision_counts["require_approval"],
+                "warned_actions": decision_counts["warn"],
+                "last_seen_at": max(
+                    [str(item.get("timestamp", "")) for item in agent_decisions if item.get("timestamp")]
+                    + [str(item.get("updated_at", "")) for item in agent_sessions if item.get("updated_at")],
+                    default=None,
+                ),
+                "coverage_status": "observed" if agent_decisions or agent_sessions else "unknown",
+                "drift_status": "review_required"
+                if decision_counts["block"] or decision_counts["require_approval"]
+                else "baseline",
+            }
+        )
+    return agents
+
+
+def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    for decision in decisions:
+        outcome = str(decision.get("decision", ""))
+        severity = str(decision.get("severity", "low"))
+        if outcome not in {"block", "require_approval", "warn"} and severity not in {"critical", "high"}:
+            continue
+        findings.append(
+            {
+                "finding_id": f"finding-{decision.get('decision_id', 'unknown')}",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "severity": severity,
+                "risk_classification": _risk_classification(decision),
+                "decision": outcome,
+                "rule_id": decision.get("rule_id"),
+                "reason": decision.get("reason") or "CAVRA policy decision requires operator review.",
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+    return sorted(findings, key=lambda item: str(item.get("timestamp", "")), reverse=True)
+
+
+def _timeline(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for session in sessions:
+        events.append(
+            {
+                "event_id": f"session-{session.get('session_id')}",
+                "event_type": "session",
+                "session_id": session.get("session_id"),
+                "agent_id": session.get("agent_id"),
+                "repository": session.get("repository"),
+                "title": f"Session {session.get('state', 'active')}",
+                "outcome": session.get("state"),
+                "timestamp": session.get("updated_at") or session.get("started_at"),
+                "evidence_refs": list(session.get("evidence_refs", [])),
+            }
+        )
+    for decision in decisions:
+        events.append(
+            {
+                "event_id": f"decision-{decision.get('decision_id')}",
+                "event_type": "policy_decision",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id"),
+                "repository": decision.get("repository"),
+                "title": f"{decision.get('decision')} {decision.get('action_type')}",
+                "outcome": decision.get("decision"),
+                "severity": decision.get("severity"),
+                "target": decision.get("target"),
+                "timestamp": decision.get("timestamp"),
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+            }
+        )
+    return sorted(events, key=lambda item: str(item.get("timestamp", "")), reverse=True)
+
+
+def _control_coverage(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    surfaces = {
+        "sensitive_data": {
+            "label": "Secrets and sensitive data",
+            "description": "Reads or writes that could expose credentials, tokens, customer data, or protected files.",
+        },
+        "infrastructure_iac": {
+            "label": "Infrastructure and IaC",
+            "description": "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions.",
+        },
+        "mcp_tools": {
+            "label": "MCP and tool calls",
+            "description": "External tool, MCP server, filesystem, browser, and automation actions.",
+        },
+        "source_control": {
+            "label": "Source control",
+            "description": "Git, branch, commit, PR, and repository mutation actions.",
+        },
+        "runtime_commands": {
+            "label": "Runtime commands",
+            "description": "Shell commands, scripts, package operations, and local execution.",
+        },
+        "general_policy": {
+            "label": "General policy",
+            "description": "Policy decisions that do not map to a more specific control surface.",
+        },
+    }
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for decision in decisions:
+        grouped[_control_surface(decision)].append(decision)
+
+    coverage: list[dict[str, Any]] = []
+    for surface_id, surface in surfaces.items():
+        surface_decisions = grouped.get(surface_id, [])
+        decision_counts = Counter(str(item.get("decision", "unknown")) for item in surface_decisions)
+        evidence_refs = [ref for item in surface_decisions for ref in item.get("evidence_refs", [])]
+        coverage.append(
+            {
+                "surface_id": surface_id,
+                "label": surface["label"],
+                "description": surface["description"],
+                "coverage_status": _coverage_status(decision_counts, bool(surface_decisions)),
+                "decision_count": len(surface_decisions),
+                "blocked_actions": decision_counts["block"],
+                "approval_required_actions": decision_counts["require_approval"],
+                "warned_actions": decision_counts["warn"],
+                "evidence_confidence": _evidence_confidence(surface_decisions),
+                "evidence_refs": evidence_refs[:8],
+            }
+        )
+    return coverage
+
+
+def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    near_miss_decisions = []
+    for decision in decisions:
+        outcome = str(decision.get("decision", ""))
+        severity = str(decision.get("severity", "low"))
+        if outcome not in {"warn", "require_approval", "allow_with_attestation"} and severity not in {"critical", "high"}:
+            continue
+        if outcome == "block":
+            continue
+        near_miss_decisions.append(
+            {
+                "near_miss_id": f"near-miss-{decision.get('decision_id', 'unknown')}",
+                "decision_id": decision.get("decision_id"),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "surface_id": _control_surface(decision),
+                "severity": severity,
+                "decision": outcome,
+                "risk_classification": _risk_classification(decision),
+                "reason": decision.get("reason") or "CAVRA allowed the action with warning, approval, or attestation.",
+                "operator_signal": _near_miss_signal(outcome),
+                "evidence_refs": list(decision.get("evidence_refs", [])),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+    return sorted(near_miss_decisions, key=lambda item: str(item.get("timestamp", "")), reverse=True)
+
+
+def _control_plane_readiness(decisions: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "community_status": "local_activity_ready",
+        "enterprise_status": LOCKED_ENTERPRISE_STATUS,
+        "live_streaming": LOCKED_ENTERPRISE_STATUS,
+        "kill_switch": LOCKED_ENTERPRISE_STATUS,
+        "runtime_overrides": LOCKED_ENTERPRISE_STATUS,
+        "policy_distribution": LOCKED_ENTERPRISE_STATUS,
+        "trace_replay": "local_timeline_available" if decisions else "sample_or_enterprise_required",
+        "data_provenance_required": True,
+    }
+
+
+def _risk_classification(decision: dict[str, Any]) -> str:
+    action_type = str(decision.get("action_type", "")).lower()
+    target = str(decision.get("target", "")).lower()
+    rule_id = str(decision.get("rule_id", "")).lower()
+    if "secret" in target or ".env" in target or "secret" in rule_id:
+        return "credential_or_sensitive_data_exposure"
+    if "terraform" in target or "tofu" in target or "iac" in rule_id:
+        return "infrastructure_change_risk"
+    if "mcp" in action_type or "mcp" in rule_id:
+        return "tool_or_mcp_governance_risk"
+    if "git" in action_type:
+        return "source_control_risk"
+    if "command" in action_type:
+        return "runtime_command_risk"
+    return "policy_violation"
+
+
+def _control_surface(decision: dict[str, Any]) -> str:
+    action_type = str(decision.get("action_type", "")).lower()
+    target = str(decision.get("target", "")).lower()
+    rule_id = str(decision.get("rule_id", "")).lower()
+    if "secret" in target or ".env" in target or "credential" in rule_id or "secret" in rule_id:
+        return "sensitive_data"
+    if "terraform" in target or "tofu" in target or "kubernetes" in target or "iac" in rule_id:
+        return "infrastructure_iac"
+    if "mcp" in action_type or "mcp" in rule_id or "tool" in action_type:
+        return "mcp_tools"
+    if "git" in action_type or "pull_request" in action_type or "branch" in target:
+        return "source_control"
+    if "command" in action_type or "shell" in action_type or "script" in action_type:
+        return "runtime_commands"
+    return "general_policy"
+
+
+def _coverage_status(decision_counts: Counter[str], observed: bool) -> str:
+    if not observed:
+        return "not_observed_locally"
+    if decision_counts["block"]:
+        return "enforced"
+    if decision_counts["require_approval"]:
+        return "approval_gated"
+    if decision_counts["warn"]:
+        return "warning_only"
+    if decision_counts["allow_with_attestation"]:
+        return "attested"
+    return "observed"
+
+
+def _near_miss_signal(outcome: str) -> str:
+    if outcome == "require_approval":
+        return "approval_prevented_unreviewed_execution"
+    if outcome == "warn":
+        return "warning_allowed_with_operator_visibility"
+    if outcome == "allow_with_attestation":
+        return "allowed_with_evidence_attestation"
+    return "review_recommended"
+
+
+def _risk_level(score: int) -> str:
+    if score >= 85:
+        return "low"
+    if score >= 65:
+        return "medium"
+    if score >= 40:
+        return "high"
+    return "critical"
+
+
+def _evidence_confidence(decisions: list[dict[str, Any]]) -> str:
+    if not decisions:
+        return "sample_or_empty"
+    refs = [str(ref) for decision in decisions for ref in decision.get("evidence_refs", [])]
+    if any(ref.startswith("signed://") or "signature" in ref for ref in refs):
+        return "signed_evidence"
+    if refs:
+        return "activity_evidence_refs"
+    return "activity_metadata_only"

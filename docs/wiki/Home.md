@@ -114,6 +114,8 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - Enterprise Trial Distribution Sync: `Enterprise-Trial-Distribution-Sync.md`
 - Enterprise Trial Availability: `Enterprise-Trial-Availability.md`
 - Enterprise Trial Self-Service Access: `Enterprise-Trial-Self-Service-Access.md`
+- AISPM Dashboard Roadmap: `AISPM-Dashboard-Roadmap.md`
+- AI Security Posture Dashboard Contract: `AI-Security-Posture-Dashboard-Contract.md`
 - Trial License Evaluator Access Sync: `Trial-License-Evaluator-Access-Sync.md`
 - Trial Access Expiry Sync: `Trial-Access-Expiry-Sync.md`
 - Trial Expired Follow-Up Sync: `Trial-Expired-Followup-Sync.md`

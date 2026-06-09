@@ -86,6 +86,57 @@ def test_api_saas_operating_automation_contract_surface(monkeypatch, tmp_path) -
     assert payload["response"]["payload"]["summary"]["blockers"] == ["escalation drill owner pending"]
 
 
+def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_ACTIVITY_DB", raising=False)
+    monkeypatch.setenv("CAVRA_ACTIVITY_STORE", str(tmp_path / "activity.json"))
+    client = TestClient(create_app())
+
+    config = client.get("/console/config").json()
+    contract = client.get("/aispm/dashboard/contract")
+    client.post(
+        "/decisions",
+        json={
+            "session_id": "aispm-session",
+            "agent_id": "codex-agent",
+            "actor": "codex-agent",
+            "repository": "payments/api",
+            "action_type": "read_file",
+            "target": ".env",
+            "requested_operation": "read .env",
+            "policy_pack": "cavra-ai-agent-baseline",
+            "policy_id": "cavra-ai-agent-baseline",
+            "rule_id": "secrets.block-sensitive-read",
+            "decision": "block",
+            "severity": "critical",
+            "reason": "Sensitive file access is blocked.",
+        },
+    )
+
+    posture = client.get("/aispm/posture")
+    findings = client.get("/aispm/findings")
+    agents = client.get("/aispm/agents")
+    timeline = client.get("/aispm/timeline")
+    control_coverage = client.get("/aispm/control-coverage")
+    near_misses = client.get("/aispm/near-misses")
+    sample = client.get("/aispm/dashboard/sample")
+
+    assert config["endpoints"]["aispm_dashboard_contract"] == "/aispm/dashboard/contract"
+    assert config["endpoints"]["aispm_posture"] == "/aispm/posture"
+    assert config["endpoints"]["aispm_control_coverage"] == "/aispm/control-coverage"
+    assert config["endpoints"]["aispm_near_misses"] == "/aispm/near-misses"
+    assert contract.status_code == 200
+    assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
+    assert posture.status_code == 200
+    assert posture.json()["overview"]["blocked_actions"] == 1
+    assert posture.json()["overview"]["evidence_confidence"] in {"activity_evidence_refs", "activity_metadata_only"}
+    assert findings.json()["total"] == 1
+    assert agents.json()["items"][0]["agent_id"] == "codex-agent"
+    assert timeline.json()["total"] >= 1
+    assert control_coverage.json()["total"] >= 6
+    assert near_misses.json()["total"] == 0
+    assert sample.json()["mode"] == "sample"
+
+
 def test_api_saas_operating_automation_rejects_sensitive_values(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
     client = TestClient(create_app())

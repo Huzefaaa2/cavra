@@ -7,6 +7,11 @@ from urllib.parse import quote
 
 from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.agent_enforcement import agent_enforcement_readiness_report
+from cavra.aispm import (
+    build_aispm_dashboard_contract,
+    build_aispm_posture,
+    build_sample_aispm_dashboard,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -609,6 +614,14 @@ def create_app():
                 "approvals": "/approvals",
                 "sessions": "/sessions",
                 "decisions": "/decisions",
+                "aispm_dashboard_contract": "/aispm/dashboard/contract",
+                "aispm_sample": "/aispm/dashboard/sample",
+                "aispm_posture": "/aispm/posture",
+                "aispm_agents": "/aispm/agents",
+                "aispm_findings": "/aispm/findings",
+                "aispm_timeline": "/aispm/timeline",
+                "aispm_control_coverage": "/aispm/control-coverage",
+                "aispm_near_misses": "/aispm/near-misses",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -896,6 +909,134 @@ def create_app():
         if item is None:
             raise HTTPException(status_code=404, detail="session not found")
         return item
+
+    @app.get("/aispm/dashboard/contract")
+    def aispm_dashboard_contract() -> dict:
+        return build_aispm_dashboard_contract()
+
+    @app.get("/aispm/dashboard/sample")
+    def aispm_dashboard_sample() -> dict:
+        return build_sample_aispm_dashboard()
+
+    @app.get("/aispm/posture")
+    def aispm_posture(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/agents")
+    def aispm_agents(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        posture = build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+        return {
+            "schema_version": "cavra.aispm.agents.v1",
+            "data_provenance": posture["data_provenance"],
+            "items": posture["agents"],
+            "total": len(posture["agents"]),
+        }
+
+    @app.get("/aispm/findings")
+    def aispm_findings(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        posture = build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+        return {
+            "schema_version": "cavra.aispm.findings.v1",
+            "data_provenance": posture["data_provenance"],
+            "items": posture["findings"],
+            "total": len(posture["findings"]),
+        }
+
+    @app.get("/aispm/timeline")
+    def aispm_timeline(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        posture = build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+        return {
+            "schema_version": "cavra.aispm.timeline.v1",
+            "data_provenance": posture["data_provenance"],
+            "items": posture["timeline"],
+            "total": len(posture["timeline"]),
+        }
+
+    @app.get("/aispm/control-coverage")
+    def aispm_control_coverage(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        posture = build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+        return {
+            "schema_version": "cavra.aispm.control_coverage.v1",
+            "data_provenance": posture["data_provenance"],
+            "items": posture["control_coverage"],
+            "total": len(posture["control_coverage"]),
+        }
+
+    @app.get("/aispm/near-misses")
+    def aispm_near_misses(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        posture = build_aispm_posture(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+        return {
+            "schema_version": "cavra.aispm.near_misses.v1",
+            "data_provenance": posture["data_provenance"],
+            "items": posture["near_misses"],
+            "total": len(posture["near_misses"]),
+        }
 
     @app.get("/operations/stores")
     def operations_store_index() -> dict:

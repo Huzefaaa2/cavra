@@ -65,6 +65,7 @@ def main() -> int:
 
     routes = [
         "dashboard",
+        "ai-posture",
         "architecture",
         "policy-engine",
         "evidence",
@@ -97,8 +98,20 @@ def main() -> int:
         'id="openMobileNav"',
         'id="closeMobileNav"',
         'id="mobileSearch"',
+        'id="themeSelect"',
+        'id="mobileThemeSelect"',
+        "data-theme-select",
         'id="architectureMap"',
         'id="nodeInspector"',
+        'id="aispmSourceBadge"',
+        'id="refreshAispm"',
+        'id="aispmOverviewCards"',
+        'id="aispmAgentCards"',
+        'id="aispmFindings"',
+        'id="aispmControlCoverage"',
+        'id="aispmNearMisses"',
+        'id="aispmTimeline"',
+        'id="aispmPayload"',
         'id="policyExplorer"',
         'id="evidenceTimeline"',
         'id="integrationCards"',
@@ -125,6 +138,10 @@ def main() -> int:
         'type: "Use Case"',
         'type: "Operator Path"',
         'type: "Enterprise Trial"',
+        'type: "AI Posture"',
+        "applyTheme",
+        "normalizeTheme",
+        "[data-theme-select]",
     ]:
         require(js, needle, "command palette contract", failures)
     require_any([html, js], "Ctrl K", "command palette shortcut label", failures)
@@ -133,6 +150,10 @@ def main() -> int:
         "@media (max-width: 900px)",
         ".mobile-bottom",
         ".mobile-drawer",
+        ".theme-picker",
+        'body[data-theme="classic"]',
+        'body[data-theme="retro"]',
+        'body[data-theme="executive"]',
     ]:
         require(css, needle, "mobile portal CSS", failures)
 
@@ -148,6 +169,12 @@ def main() -> int:
         "AWS / Azure / GCP",
         "renderArchitecture",
         "renderNodeInspector",
+        "renderAispmDashboard",
+        "loadAispmDashboard",
+        "/aispm/posture",
+        "control_coverage",
+        "near_misses",
+        "requires_cavra_enterprise",
     ]:
         require(js, needle, "architecture node contract", failures)
 

@@ -17,11 +17,21 @@ Delivered UX:
 - center content panels that switch without page reloads;
 - sticky right table of contents on desktop;
 - mobile drawer navigation and bottom navigation;
+- professional dashboard themes: Sentinel, Classic, Retro, and Executive;
 - command palette with `Ctrl+K` search;
 - interactive architecture explorer with clickable nodes and an inspector
   panel;
-- policy, evidence, integrations, compliance, use-case, documentation, and
-  roadmap pages;
+- AI Posture, policy, evidence, integrations, compliance, use-case,
+  documentation, and roadmap pages;
+- CAVRA-branded enterprise security visual design with accessible focus states,
+  reduced scrolling, and a fixed Classic light theme for high-contrast reading.
+
+The `#ai-posture` route renders the public-safe AISPM contract with sample data
+by default and reads `/aispm/posture` when `window.CAVRA_API_BASE` is
+configured. It includes posture overview, agent coverage, risk findings,
+control coverage, near-miss queue, execution timeline, and raw public-safe
+payload inspection. Enterprise live ingestion, trace replay, kill switch, and
+runtime overrides remain private Enterprise capabilities.
 - dark-mode-first enterprise security visual design with accessible focus
   states and reduced scrolling.
 
