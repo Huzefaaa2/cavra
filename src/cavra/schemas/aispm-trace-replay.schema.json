@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Trace Replay Packet",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "session",
+    "summary",
+    "steps",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.trace_replay.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "const": "local_activity_store" },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "session": {
+      "type": "object",
+      "required": ["session_id", "agent_id", "repository", "state"],
+      "properties": {
+        "session_id": { "type": "string" },
+        "agent_id": { "type": "string" },
+        "actor": { "type": "string" },
+        "repository": { "type": "string" },
+        "policy_pack": { "type": "string" },
+        "state": { "type": "string" },
+        "started_at": { "type": ["string", "null"] },
+        "updated_at": { "type": ["string", "null"] }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["step_count", "blocked_actions", "approval_required_actions", "evidence_confidence"],
+      "properties": {
+        "step_count": { "type": "integer", "minimum": 0 },
+        "blocked_actions": { "type": "integer", "minimum": 0 },
+        "approval_required_actions": { "type": "integer", "minimum": 0 },
+        "warned_actions": { "type": "integer", "minimum": 0 },
+        "critical_or_high_steps": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "event_type", "decision_id", "target_summary", "target_redacted", "decision", "risk_classification"],
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "event_type": { "const": "policy_decision" },
+          "decision_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "action_type": { "type": "string" },
+          "target_summary": { "type": "string" },
+          "target_redacted": { "type": "boolean" },
+          "decision": { "type": "string" },
+          "severity": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "policy_pack": { "type": "string" },
+          "risk_classification": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

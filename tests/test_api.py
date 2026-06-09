@@ -118,12 +118,15 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     timeline = client.get("/aispm/timeline")
     control_coverage = client.get("/aispm/control-coverage")
     near_misses = client.get("/aispm/near-misses")
+    trace_replay = client.get("/aispm/trace-replay/aispm-session")
+    missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     sample = client.get("/aispm/dashboard/sample")
 
     assert config["endpoints"]["aispm_dashboard_contract"] == "/aispm/dashboard/contract"
     assert config["endpoints"]["aispm_posture"] == "/aispm/posture"
     assert config["endpoints"]["aispm_control_coverage"] == "/aispm/control-coverage"
     assert config["endpoints"]["aispm_near_misses"] == "/aispm/near-misses"
+    assert config["endpoints"]["aispm_trace_replay"] == "/aispm/trace-replay/{session_id}"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -134,6 +137,12 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert timeline.json()["total"] >= 1
     assert control_coverage.json()["total"] >= 6
     assert near_misses.json()["total"] == 0
+    assert trace_replay.status_code == 200
+    assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
+    assert trace_replay.json()["summary"]["blocked_actions"] == 1
+    assert trace_replay.json()["steps"][0]["target_redacted"] is True
+    assert trace_replay.json()["redaction"]["full_trace_replay"] == "requires_cavra_enterprise"
+    assert missing_trace_replay.status_code == 404
     assert sample.json()["mode"] == "sample"
 
 

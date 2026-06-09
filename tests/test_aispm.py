@@ -4,7 +4,12 @@ import json
 import jsonschema
 
 from cavra.activity import ActivityStore
-from cavra.aispm import build_aispm_dashboard_contract, build_aispm_posture, build_sample_aispm_dashboard
+from cavra.aispm import (
+    build_aispm_dashboard_contract,
+    build_aispm_posture,
+    build_aispm_trace_replay_packet,
+    build_sample_aispm_dashboard,
+)
 
 
 def _decision(
@@ -102,3 +107,76 @@ def test_aispm_sample_dashboard_matches_packaged_schema() -> None:
 
     assert dashboard_schema.is_file()
     jsonschema.validate(sample, schema=json.loads(dashboard_schema.read_text(encoding="utf-8")))
+
+
+def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-approval-iac",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="require_approval",
+                severity="high",
+            ),
+            "timestamp": "2026-06-09T00:01:00+00:00",
+        }
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-block-secret",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="block",
+                severity="critical",
+                action_type="read_file",
+                target=".env.production",
+                rule_id="secrets.block-sensitive-read",
+            ),
+            "timestamp": "2026-06-09T00:00:00+00:00",
+        }
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-1",
+            "agent_id": "codex-agent",
+            "repository": "payments/api",
+            "state": "completed",
+            "started_at": "2026-06-09T00:00:00+00:00",
+            "updated_at": "2026-06-09T00:01:00+00:00",
+        }
+    )
+
+    packet = build_aispm_trace_replay_packet(store, "session-1")
+
+    assert packet is not None
+    assert packet["schema_version"] == "cavra.aispm.trace_replay.v1"
+    assert packet["edition"] == "community"
+    assert packet["summary"]["blocked_actions"] == 1
+    assert packet["summary"]["approval_required_actions"] == 1
+    assert packet["summary"]["critical_or_high_steps"] == 2
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    assert [step["decision_id"] for step in packet["steps"]] == ["dec-block-secret", "dec-approval-iac"]
+    assert packet["steps"][0]["target_summary"] == "sensitive target redacted"
+    assert packet["steps"][0]["target_redacted"] is True
+    assert packet["steps"][1]["target_summary"] == "terraform apply"
+    assert packet["redaction"]["prompt_capture"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+    assert packet["evidence_refs"] == [
+        "signed://evidence/dec-approval-iac",
+        "signed://evidence/dec-block-secret",
+    ]
+
+
+def test_aispm_trace_replay_sample_matches_packaged_schema() -> None:
+    replay_schema = Path("src/cavra/schemas/aispm-trace-replay.schema.json")
+    sample = Path("examples/aispm/community-trace-replay-sample.json")
+
+    assert replay_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(replay_schema.read_text(encoding="utf-8")),
+    )

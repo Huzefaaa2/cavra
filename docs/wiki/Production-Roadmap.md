@@ -28,10 +28,11 @@ sample dashboard payload, and read-only Community API endpoints for posture,
 agent summaries, risk findings, and execution timeline. Phase B has started
 with a static-hostable `AI Posture` portal route that reads `/aispm/posture`
 when an API base is configured and otherwise labels deterministic sample data.
-Phase B hardening now includes Community-safe control coverage and near-miss
-queues through `/aispm/control-coverage` and `/aispm/near-misses`; Enterprise
-still owns live organization-wide coverage, streaming, and control-plane
-actions.
+Phase B hardening now includes Community-safe control coverage, near-miss
+queues, and public-safe trace replay packets through
+`/aispm/control-coverage`, `/aispm/near-misses`, and
+`/aispm/trace-replay/{session_id}`; Enterprise still owns live organization-wide
+coverage, streaming, full trace replay, and control-plane actions.
 See `docs/ai-security-posture-dashboard-contract.md`.
 
 ## Current Enterprise Batch Sync

@@ -1,0 +1,97 @@
+{
+  "data_provenance": "local_activity_store",
+  "edition": "community",
+  "enterprise_unlocks": {
+    "capabilities": [
+      "raw prompt and response replay",
+      "model reasoning trace capture",
+      "tool-call graph with raw tool results",
+      "approval lineage with identity-provider context",
+      "immutable multi-tenant replay retention"
+    ],
+    "private_package": "cavra_enterprise",
+    "status": "requires_cavra_enterprise"
+  },
+  "evidence_refs": [
+    "sample://evidence/iac-production-change",
+    "sample://evidence/secret-read-block"
+  ],
+  "generated_at": "2026-06-09T00:02:00+00:00",
+  "mode": "local_activity",
+  "product": "CAVRA",
+  "redaction": {
+    "customer_context": "requires_cavra_enterprise",
+    "full_trace_replay": "requires_cavra_enterprise",
+    "prompt_capture": "requires_cavra_enterprise",
+    "raw_tool_output": "requires_cavra_enterprise",
+    "reasoning_trace": "requires_cavra_enterprise",
+    "target_redaction": "sensitive targets are summarized"
+  },
+  "schema_version": "cavra.aispm.trace_replay.v1",
+  "session": {
+    "actor": "codex-agent",
+    "agent_id": "codex-agent",
+    "policy_pack": "cloud-iam-prod",
+    "repository": "payments/api",
+    "session_id": "sample-session-001",
+    "started_at": "2026-06-09T00:00:00+00:00",
+    "state": "completed",
+    "updated_at": "2026-06-09T00:01:00+00:00"
+  },
+  "steps": [
+    {
+      "action_type": "execute_command",
+      "agent_id": "codex-agent",
+      "control_surface": "infrastructure_iac",
+      "decision": "require_approval",
+      "decision_id": "sample-dec-001",
+      "event_type": "policy_decision",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "policy_pack": "cloud-iam-prod",
+      "reason": "Production-impacting infrastructure action requires approval.",
+      "repository": "payments/api",
+      "risk_classification": "infrastructure_change_risk",
+      "rule_id": "iac.production-change",
+      "session_id": "sample-session-001",
+      "severity": "high",
+      "step": 1,
+      "target_redacted": false,
+      "target_summary": "terraform apply",
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "action_type": "read_file",
+      "agent_id": "codex-agent",
+      "control_surface": "sensitive_data",
+      "decision": "block",
+      "decision_id": "sample-dec-002",
+      "event_type": "policy_decision",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "policy_pack": "cavra-ai-agent-baseline",
+      "reason": "Sensitive production secret file access is blocked.",
+      "repository": "payments/api",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "rule_id": "secrets.block-sensitive-read",
+      "session_id": "sample-session-001",
+      "severity": "critical",
+      "step": 2,
+      "target_redacted": true,
+      "target_summary": "sensitive target redacted",
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    }
+  ],
+  "summary": {
+    "approval_required_actions": 1,
+    "blocked_actions": 1,
+    "critical_or_high_steps": 2,
+    "evidence_confidence": "activity_evidence_refs",
+    "step_count": 2,
+    "warned_actions": 0
+  },
+  "telemetry": "disabled",
+  "tracking": "none"
+}

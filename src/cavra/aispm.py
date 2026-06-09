@@ -47,6 +47,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "agent coverage summary from local sessions",
                 "control coverage summary from observed local decisions",
                 "near-miss queue for warnings and approval-gated actions",
+                "public-safe trace replay packets from local session decisions",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -70,6 +71,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "execution_timeline",
             "control_coverage",
             "near_miss_queue",
+            "trace_replay_packet",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -79,6 +81,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "timeline": "/aispm/timeline",
             "control_coverage": "/aispm/control-coverage",
             "near_misses": "/aispm/near-misses",
+            "trace_replay": "/aispm/trace-replay/{session_id}",
         },
     }
 
@@ -238,6 +241,72 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "near_misses": _near_misses(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
+    }
+
+
+def build_aispm_trace_replay_packet(
+    activity_store: Any,
+    session_id: str,
+    *,
+    limit: int = 200,
+) -> dict[str, Any] | None:
+    """Build a Community-safe replay packet from local session decisions.
+
+    Community replay reconstructs the public decision sequence only. Raw
+    prompts, model reasoning, tool output, and customer-specific context remain
+    private Enterprise ingestion fields and are represented as locked metadata.
+    """
+
+    limit = max(1, min(limit, 500))
+    session = activity_store.get_session(session_id)
+    decisions = activity_store.list_decisions(session_id=session_id, limit=limit)["items"]
+    if session is None and not decisions:
+        return None
+
+    ordered_decisions = sorted(decisions, key=lambda item: str(item.get("timestamp", "")))
+    steps = [_trace_step(index + 1, decision) for index, decision in enumerate(ordered_decisions)]
+    evidence_refs = sorted({ref for decision in ordered_decisions for ref in decision.get("evidence_refs", [])})
+    decision_counts = Counter(str(item.get("decision", "unknown")) for item in ordered_decisions)
+    severity_counts = Counter(str(item.get("severity", "low")) for item in ordered_decisions)
+    return {
+        "schema_version": "cavra.aispm.trace_replay.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "session": _trace_session_summary(session, session_id, ordered_decisions),
+        "summary": {
+            "step_count": len(steps),
+            "blocked_actions": decision_counts["block"],
+            "approval_required_actions": decision_counts["require_approval"],
+            "warned_actions": decision_counts["warn"],
+            "critical_or_high_steps": severity_counts["critical"] + severity_counts["high"],
+            "evidence_confidence": _evidence_confidence(ordered_decisions),
+        },
+        "steps": steps,
+        "evidence_refs": evidence_refs,
+        "redaction": {
+            "target_redaction": "sensitive targets are summarized",
+            "prompt_capture": LOCKED_ENTERPRISE_STATUS,
+            "reasoning_trace": LOCKED_ENTERPRISE_STATUS,
+            "raw_tool_output": LOCKED_ENTERPRISE_STATUS,
+            "full_trace_replay": LOCKED_ENTERPRISE_STATUS,
+            "customer_context": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "raw prompt and response replay",
+                "model reasoning trace capture",
+                "tool-call graph with raw tool results",
+                "approval lineage with identity-provider context",
+                "immutable multi-tenant replay retention",
+            ],
+            "private_package": "cavra_enterprise",
+        },
     }
 
 
@@ -450,6 +519,60 @@ def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
             }
         )
     return sorted(near_miss_decisions, key=lambda item: str(item.get("timestamp", "")), reverse=True)
+
+
+def _trace_session_summary(
+    session: dict[str, Any] | None,
+    session_id: str,
+    decisions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    first_decision = decisions[0] if decisions else {}
+    last_decision = decisions[-1] if decisions else {}
+    return {
+        "session_id": session_id,
+        "agent_id": (session or {}).get("agent_id") or first_decision.get("agent_id", "unknown-agent"),
+        "actor": (session or {}).get("actor") or first_decision.get("actor", "ai-agent"),
+        "repository": (session or {}).get("repository") or first_decision.get("repository", "local"),
+        "policy_pack": (session or {}).get("policy_pack") or first_decision.get("policy_pack", "cavra-ai-agent-baseline"),
+        "state": (session or {}).get("state", "decision_only"),
+        "started_at": (session or {}).get("started_at") or first_decision.get("timestamp"),
+        "updated_at": (session or {}).get("updated_at") or last_decision.get("timestamp"),
+    }
+
+
+def _trace_step(index: int, decision: dict[str, Any]) -> dict[str, Any]:
+    target_summary, target_redacted = _safe_target_summary(decision)
+    return {
+        "step": index,
+        "event_type": "policy_decision",
+        "decision_id": decision.get("decision_id"),
+        "session_id": decision.get("session_id"),
+        "agent_id": decision.get("agent_id", "unknown-agent"),
+        "repository": decision.get("repository", "local"),
+        "action_type": decision.get("action_type", "unknown"),
+        "target_summary": target_summary,
+        "target_redacted": target_redacted,
+        "decision": decision.get("decision"),
+        "severity": decision.get("severity"),
+        "rule_id": decision.get("rule_id"),
+        "policy_pack": decision.get("policy_pack"),
+        "risk_classification": _risk_classification(decision),
+        "control_surface": _control_surface(decision),
+        "reason": decision.get("reason") or "CAVRA policy decision recorded.",
+        "evidence_refs": list(decision.get("evidence_refs", [])),
+        "timestamp": decision.get("timestamp"),
+    }
+
+
+def _safe_target_summary(decision: dict[str, Any]) -> tuple[str, bool]:
+    target = str(decision.get("target") or decision.get("requested_operation") or "")
+    target_lower = target.lower()
+    rule_id = str(decision.get("rule_id", "")).lower()
+    if "secret" in target_lower or ".env" in target_lower or "token" in target_lower or "credential" in rule_id:
+        return "sensitive target redacted", True
+    if len(target) > 120:
+        return f"{target[:117]}...", True
+    return target or "target not recorded", False
 
 
 def _control_plane_readiness(decisions: list[dict[str, Any]]) -> dict[str, Any]:

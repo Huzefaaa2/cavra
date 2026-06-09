@@ -150,6 +150,9 @@ These features should help position CAVRA as more than another log dashboard:
 - Add Community-safe control coverage and near-miss queues derived from local
   decisions so CSO/CISO users can see where enforcement, approval gates,
   warnings, and evidence exist without live Enterprise ingestion.
+- Add public-safe trace replay packets derived from local decisions so
+  operators can inspect sequence, risk, evidence references, and redaction
+  status while raw prompts, reasoning, and tool output remain Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.
 

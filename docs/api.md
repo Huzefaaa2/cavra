@@ -20,14 +20,16 @@ Activity endpoints:
 - `GET /aispm/timeline`: list AISPM execution timeline events derived from sessions and decisions.
 - `GET /aispm/control-coverage`: list observed Community control coverage by sensitive data, infrastructure, MCP/tool, source-control, runtime-command, and general policy surfaces.
 - `GET /aispm/near-misses`: list warned, approval-gated, or attested risky actions that should be reviewed before they become incidents.
+- `GET /aispm/trace-replay/{session_id}`: return a public-safe replay packet for one local activity session with sensitive targets summarized and raw prompt, reasoning, tool output, and customer context locked to Enterprise.
 
 Default activity path: `.cavra/api/activity.json`.
 
 Set `CAVRA_ACTIVITY_STORE` to override the JSON path. Set `CAVRA_ACTIVITY_DB` to use SQLite-backed activity persistence. `GET /console/config` includes `activity_mode`.
-The AISPM endpoints are Community-safe local/sample surfaces. Live prompt traces,
-tool-call graphing, organization-wide coverage, multi-tenant retention, kill
-switch, policy toggles, runtime overrides, and compliance exports remain
-Enterprise capabilities.
+The AISPM endpoints are Community-safe local/sample surfaces. Community trace
+replay reconstructs normalized decision steps only. Live prompt traces, model
+reasoning, raw tool output, tool-call graphing, organization-wide coverage,
+multi-tenant retention, kill switch, policy toggles, runtime overrides, and
+compliance exports remain Enterprise capabilities.
 
 ## Repository Inventory and Policy Rollout
 

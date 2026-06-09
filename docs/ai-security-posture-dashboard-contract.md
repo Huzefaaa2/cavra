@@ -2,8 +2,9 @@
 
 CAVRA now exposes the first public-safe AI Security Posture Management
 dashboard contract for Community Edition. Phase A defines the contract, and the
-current Phase B hardening adds Community control coverage and near-miss
-visibility without exposing Enterprise live-ingestion logic.
+current Phase B hardening adds Community control coverage, near-miss visibility,
+and public-safe trace replay packets without exposing Enterprise
+live-ingestion logic.
 
 ## Community Boundary
 
@@ -24,6 +25,8 @@ Community Edition provides local and sample posture views only:
   general-policy surfaces.
 - `GET /aispm/near-misses` returns warned, approval-gated, or attested risky
   actions that should be reviewed before they become incidents.
+- `GET /aispm/trace-replay/{session_id}` returns a public-safe replay packet
+  from local session decisions with sensitive targets summarized.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -31,6 +34,11 @@ loads `/aispm/posture`; otherwise it falls back to deterministic sample data and
 labels the view as `sample_data`. The route includes posture overview, agent
 coverage, risk findings, control coverage, near-miss queue, execution timeline,
 and the raw public-safe payload.
+
+Community trace replay reconstructs normalized decision steps, evidence
+references, risk classifications, and redaction status. It does not expose raw
+prompts, model reasoning, raw tool output, private customer context, or
+Enterprise replay retention logic.
 
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
@@ -65,3 +73,7 @@ ingestion.
 
 The packaged dashboard schema is available at
 `src/cavra/schemas/aispm-dashboard.schema.json`.
+
+The packaged Community trace replay schema is available at
+`src/cavra/schemas/aispm-trace-replay.schema.json`. A deterministic sample
+packet is available at `examples/aispm/community-trace-replay-sample.json`.

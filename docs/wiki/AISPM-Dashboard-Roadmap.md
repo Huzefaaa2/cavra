@@ -24,10 +24,11 @@ Enterprise should provide the live CSO/CISO operating surface:
   DSS, SOX, HIPAA, and internal AI governance controls.
 
 Community should keep a public-safe dashboard demo and local activity view,
-including observed control coverage and near-miss queues derived from local
-decisions. Enterprise should own authenticated multi-tenant ingestion,
-streaming updates, centralized retention, private policy context, organization
-controls, and commercial compliance exports.
+including observed control coverage, near-miss queues, and trace replay packets
+derived from local decisions. Enterprise should own authenticated multi-tenant
+ingestion, streaming updates, centralized retention, private policy context,
+organization controls, raw prompt/reasoning replay, and commercial compliance
+exports.
 
 The detailed implementation plan is maintained in
 `docs/ai-security-posture-dashboard-roadmap.md`.

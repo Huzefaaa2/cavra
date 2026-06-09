@@ -10,6 +10,7 @@ from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.aispm import (
     build_aispm_dashboard_contract,
     build_aispm_posture,
+    build_aispm_trace_replay_packet,
     build_sample_aispm_dashboard,
 )
 from cavra.approvals import (
@@ -622,6 +623,7 @@ def create_app():
                 "aispm_timeline": "/aispm/timeline",
                 "aispm_control_coverage": "/aispm/control-coverage",
                 "aispm_near_misses": "/aispm/near-misses",
+                "aispm_trace_replay": "/aispm/trace-replay/{session_id}",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1037,6 +1039,13 @@ def create_app():
             "items": posture["near_misses"],
             "total": len(posture["near_misses"]),
         }
+
+    @app.get("/aispm/trace-replay/{session_id}")
+    def aispm_trace_replay(session_id: str, limit: int = 200) -> dict:
+        packet = build_aispm_trace_replay_packet(activity_store, session_id=session_id, limit=limit)
+        if packet is None:
+            raise HTTPException(status_code=404, detail="trace replay session not found")
+        return packet
 
     @app.get("/operations/stores")
     def operations_store_index() -> dict:
