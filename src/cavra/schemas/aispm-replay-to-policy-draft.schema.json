@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Replay To Policy Draft",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "recommendations",
+    "policy_draft",
+    "write_back",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.replay_to_policy_draft.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["source_decisions", "authorable_decisions", "recommended_rules", "draft_valid", "rule_counts"],
+      "properties": {
+        "source_scope": { "type": "string" },
+        "source_decisions": { "type": "integer", "minimum": 0 },
+        "authorable_decisions": { "type": "integer", "minimum": 0 },
+        "recommended_rules": { "type": "integer", "minimum": 0 },
+        "draft_valid": { "type": "boolean" },
+        "source_sessions": { "type": "array", "items": { "type": "string" } },
+        "source_repositories": { "type": "array", "items": { "type": "string" } },
+        "rule_counts": { "type": "object" }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "decision_id",
+          "control_surface",
+          "policy_section",
+          "rule_key",
+          "proposed_value",
+          "rationale"
+        ],
+        "properties": {
+          "recommendation_id": { "type": "string" },
+          "decision_id": { "type": ["string", "null"] },
+          "session_id": { "type": ["string", "null"] },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "risk_classification": { "type": "string" },
+          "severity": { "type": "string" },
+          "decision": { "type": "string" },
+          "action_type": { "type": "string" },
+          "target_summary": { "type": "string" },
+          "target_redacted": { "type": "boolean" },
+          "policy_section": { "type": "string" },
+          "rule_key": { "type": "string" },
+          "proposed_value": {},
+          "rationale": { "type": "string" },
+          "confidence": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "policy_draft": { "type": "object" },
+    "write_back": { "type": "object" },
+    "operator_notes": { "type": "array", "items": { "type": "string" } },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

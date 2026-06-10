@@ -1782,6 +1782,182 @@
       "Raw prompts, model reasoning, customer impact, trend history, and tenant benchmarks require CAVRA Enterprise."
     ]
   },
+  "replay_to_policy_draft": {
+    "summary": {
+      "source_scope": "sample-session-001",
+      "source_decisions": 3,
+      "authorable_decisions": 3,
+      "recommended_rules": 3,
+      "draft_valid": true,
+      "source_sessions": [
+        "sample-session-001",
+        "sample-session-002"
+      ],
+      "source_repositories": [
+        "payments/api",
+        "platform/infra"
+      ],
+      "rule_counts": {
+        "filesystem": 1,
+        "commands": 1,
+        "git": 0,
+        "mcp": 1,
+        "approvals": 2,
+        "evidence": 3,
+        "compliance": 3
+      }
+    },
+    "recommendations": [
+      {
+        "recommendation_id": "policy-rec-1-sample-dec-001",
+        "decision_id": "sample-dec-001",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "policy_pack": "cloud-iam-prod",
+        "control_surface": "infrastructure_iac",
+        "risk_classification": "infrastructure_change_risk",
+        "severity": "high",
+        "decision": "require_approval",
+        "action_type": "execute_command",
+        "target_summary": "terraform apply",
+        "target_redacted": false,
+        "policy_section": "commands",
+        "rule_key": "require_approval",
+        "proposed_value": "terraform apply*",
+        "rationale": "Production-impacting infrastructure action requires approval.",
+        "confidence": "metadata_derived",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ]
+      },
+      {
+        "recommendation_id": "policy-rec-2-sample-dec-002",
+        "decision_id": "sample-dec-002",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "control_surface": "sensitive_data",
+        "risk_classification": "credential_or_sensitive_data_exposure",
+        "severity": "critical",
+        "decision": "block",
+        "action_type": "read_file",
+        "target_summary": "sensitive target redacted",
+        "target_redacted": true,
+        "policy_section": "filesystem",
+        "rule_key": "block_read",
+        "proposed_value": ".env*",
+        "rationale": "Sensitive production secret file access is blocked.",
+        "confidence": "metadata_derived",
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ]
+      },
+      {
+        "recommendation_id": "policy-rec-3-sample-dec-003",
+        "decision_id": "sample-dec-003",
+        "session_id": "sample-session-002",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "policy_pack": "mcp-enterprise",
+        "control_surface": "mcp_tools",
+        "risk_classification": "tool_or_mcp_governance_risk",
+        "severity": "medium",
+        "decision": "warn",
+        "action_type": "mcp_tool_call",
+        "target_summary": "filesystem.write",
+        "target_redacted": false,
+        "policy_section": "mcp",
+        "rule_key": "allowlist_enabled",
+        "proposed_value": true,
+        "rationale": "MCP tool requires registration before broad rollout.",
+        "confidence": "metadata_derived",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ]
+      }
+    ],
+    "policy_draft": {
+      "schema_version": "cavra.policy_pack.draft.v1",
+      "product": "CAVRA",
+      "valid": true,
+      "errors": [],
+      "policy_pack": {
+        "metadata": {
+          "id": "cavra-replay-derived-sample-session-001",
+          "title": "Replay-Derived AI Agent Controls",
+          "description": "Read-only Community draft generated from normalized AISPM replay decisions.",
+          "version": "2026.06.10",
+          "inherits": "cavra-ai-agent-baseline",
+          "mode": "enforce"
+        },
+        "filesystem": {
+          "block_read": [
+            ".env*"
+          ]
+        },
+        "commands": {
+          "require_approval": [
+            "terraform apply*"
+          ]
+        },
+        "mcp": {
+          "allowlist_enabled": true
+        },
+        "approvals": {
+          "replay_to_policy_authoring": {
+            "approvers": [
+              "Platform Security"
+            ],
+            "source": "aispm_replay_to_policy"
+          }
+        },
+        "evidence": {
+          "require_pr_attestation": true,
+          "require_replay_evidence": true,
+          "source": "aispm_replay_to_policy"
+        },
+        "compliance": {
+          "maps_to": [
+            "SOC 2 Change Management",
+            "NIST SSDF RV.1.3",
+            "Internal AI Governance"
+          ]
+        }
+      },
+      "summary": {
+        "policy_id": "cavra-replay-derived-sample-session-001",
+        "title": "Replay-Derived AI Agent Controls",
+        "version": "2026.06.10",
+        "inherits": "cavra-ai-agent-baseline",
+        "mode": "enforce",
+        "rule_counts": {
+          "filesystem": 1,
+          "commands": 1,
+          "git": 0,
+          "mcp": 1,
+          "approvals": 2,
+          "evidence": 3,
+          "compliance": 3
+        }
+      },
+      "operator_notes": [
+        "Draft generation is read-only and does not write to the policy directory.",
+        "Commit reviewed policy YAML through repository change control before rollout."
+      ]
+    },
+    "write_back": {
+      "status": "read_only_preview",
+      "next_step": "Review the draft, then use /policy-packs/publish-plan and the approval-bound publish flow.",
+      "approval_required": true
+    },
+    "operator_notes": [
+      "Replay-to-policy authoring is read-only in Community and does not write to policies/.",
+      "Recommendations use normalized decision metadata only; review every generated rule before publishing.",
+      "Use signed PR review and approval-bound policy publishing before enforcement rollout."
+    ]
+  },
   "control_plane": {
     "community_status": "local_activity_ready",
     "enterprise_status": "requires_cavra_enterprise",
@@ -1809,7 +1985,8 @@
       "organization-wide control coverage heatmap with private asset, owner, and environment enrichment",
       "immutable evidence store validation, signature verification, and external evidence correlation",
       "evidence retention proof, object-lock status, KMS status, and archive lifecycle validation",
-      "AI-assisted executive narratives with private tenant context and trend history"
+      "AI-assisted executive narratives with private tenant context and trend history",
+      "AI-assisted policy authoring with private prompt, ticket, asset, and approval context"
     ],
     "private_package": "cavra_enterprise"
   }

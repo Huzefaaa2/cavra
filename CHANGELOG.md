@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM replay-to-policy draft authoring for Community,
+  including `/aispm/replay-to-policy-draft`, packaged schema/sample data,
+  dashboard candidate-control cards, read-only policy-pack previews,
+  docs/wiki updates, and Enterprise-locked prompt, reasoning, tool-payload,
+  ticket, asset, approval-policy, simulation, and write-back automation
+  boundaries.
 - Added deterministic public-safe AISPM executive risk narratives for Community,
   including `/aispm/executive-risk-narrative`, packaged schema/sample data,
   dashboard CSO/CISO narrative cards, docs/wiki updates, and Enterprise-locked

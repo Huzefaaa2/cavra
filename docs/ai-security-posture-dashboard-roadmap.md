@@ -11,7 +11,10 @@ CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
 policy context gap detection, pre-action risk forecasts, intent-to-action
-drift detection, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO panels, deterministic executive risk narratives, and a public-safe sandbox portal.
+drift detection, tool-chain risk graphing, agent blast-radius mapping, control
+coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO
+panels, deterministic executive risk narratives, replay-to-policy draft
+previews, and a public-safe sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -143,7 +146,9 @@ These features should help position CAVRA as more than another log dashboard:
   and workflow, then flag unusual cadence, tool sequences, access paths, or
   model/tool combinations.
 - **Replay-to-policy authoring**: let operators convert a trace segment into a
-  draft policy rule or policy test fixture.
+  draft policy rule or policy test fixture. Community provides read-only
+  metadata-derived draft previews; Enterprise should add private prompt,
+  reasoning, ticket, asset, simulation, and approval-bound write-back context.
 - **Executive risk narrative**: generate public-safe weekly posture summaries
   that explain material AI-agent risks, mitigations, unresolved actions, and
   audit evidence links.
@@ -177,6 +182,10 @@ These features should help position CAVRA as more than another log dashboard:
   normalized local decision metadata while private prompt-derived intent,
   workflow correlation, raw tool payloads, cross-system traces, private asset graphs,
   and semantic models remain Enterprise.
+- Add public-safe replay-to-policy draft previews derived from normalized
+  block, require-approval, warning, high, and critical decisions while private
+  prompt/reasoning/tool-payload authoring, ticket/asset enrichment, policy
+  simulation, and automated write-back remain Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.
 

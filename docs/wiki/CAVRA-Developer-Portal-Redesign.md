@@ -31,7 +31,7 @@ Delivered UX:
   for agent/tool/target/policy edge hotspots, and agent blast-radius mapping
   for repository/target/tool/policy reach, control coverage heatmap views
   by agent, repository, and control surface, evidence confidence drilldowns,
-  and evidence freshness SLO panels;
+  evidence freshness SLO panels, and replay-to-policy draft previews;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
@@ -39,7 +39,7 @@ The `#ai-posture` route renders the public-safe AISPM contract with sample data
 by default and reads `/aispm/posture` when `window.CAVRA_API_BASE` is
 configured. It includes posture overview, agent coverage, risk findings,
 control coverage, near-miss queue, policy context gaps, pre-action risk
-forecasts, intent-to-action drift, evidence confidence drilldown, evidence freshness SLO panel, execution timeline,
+forecasts, intent-to-action drift, evidence confidence drilldown, evidence freshness SLO panel, replay-to-policy draft preview, execution timeline,
 public-safe trace replay packet inspection, approval lineage, behavior
 fingerprinting, and raw
 public-safe payload inspection.

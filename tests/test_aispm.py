@@ -18,6 +18,7 @@ from cavra.aispm import (
     build_aispm_policy_context_gaps,
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
+    build_aispm_replay_to_policy_draft,
     build_aispm_trace_replay_packet,
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
@@ -135,6 +136,10 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert "CAVRA Community reports" in posture["executive_risk_narrative"]["headline"]
     assert posture["executive_risk_narrative"]["recommended_actions"]
     assert posture["executive_risk_narrative"]["key_metrics"]["blocked_actions"] == 1
+    assert posture["replay_to_policy_draft"]["summary"]["recommended_rules"] == 2
+    assert posture["replay_to_policy_draft"]["summary"]["draft_valid"] is True
+    assert ".env*" in posture["replay_to_policy_draft"]["policy_draft"]["policy_pack"]["filesystem"]["block_read"]
+    assert "terraform apply*" in posture["replay_to_policy_draft"]["policy_draft"]["policy_pack"]["commands"]["require_approval"]
     assert [item["decision"] for item in posture["near_misses"]] == ["require_approval"]
     assert posture["near_misses"][0]["operator_signal"] == "approval_prevented_unreviewed_execution"
     assert posture["control_plane"]["kill_switch"] == "requires_cavra_enterprise"
@@ -146,6 +151,52 @@ def test_aispm_sample_dashboard_matches_packaged_schema() -> None:
 
     assert dashboard_schema.is_file()
     jsonschema.validate(sample, schema=json.loads(dashboard_schema.read_text(encoding="utf-8")))
+
+
+def test_aispm_replay_to_policy_draft_builds_valid_read_only_policy(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+            action_type="execute_command",
+            target="terraform apply",
+            rule_id="iac.production-change",
+        )
+    )
+    store.upsert_session({"session_id": "session-1", "state": "completed"})
+
+    packet = build_aispm_replay_to_policy_draft(store, session_id="session-1")
+
+    assert packet["schema_version"] == "cavra.aispm.replay_to_policy_draft.v1"
+    assert packet["edition"] == "community"
+    assert packet["summary"]["source_decisions"] == 2
+    assert packet["summary"]["authorable_decisions"] == 2
+    assert packet["summary"]["recommended_rules"] == 2
+    assert packet["summary"]["draft_valid"] is True
+    assert packet["policy_draft"]["valid"] is True
+    assert packet["policy_draft"]["policy_pack"]["metadata"]["id"] == "cavra-replay-derived-session-1"
+    assert packet["policy_draft"]["policy_pack"]["filesystem"]["block_read"] == [".env*"]
+    assert packet["policy_draft"]["policy_pack"]["commands"]["require_approval"] == ["terraform apply*"]
+    assert packet["write_back"]["status"] == "read_only_preview"
+    assert packet["redaction"]["raw_prompts"] == "requires_cavra_enterprise"
+    assert packet["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
 def test_aispm_behavior_fingerprints_track_public_safe_drift(tmp_path: Path) -> None:
@@ -909,6 +960,21 @@ def test_aispm_executive_risk_narrative_sample_matches_packaged_schema() -> None
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(narrative_schema.read_text(encoding="utf-8")),
     )
+
+
+def test_aispm_replay_to_policy_draft_sample_matches_packaged_schema() -> None:
+    draft_schema = Path("src/cavra/schemas/aispm-replay-to-policy-draft.schema.json")
+    sample = Path("examples/aispm/community-replay-to-policy-draft-sample.json")
+
+    assert draft_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(draft_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["summary"]["draft_valid"] is True
+    assert payload["write_back"]["status"] == "read_only_preview"
 
 
 def test_aispm_approval_lineage_redacts_human_actors(tmp_path: Path) -> None:

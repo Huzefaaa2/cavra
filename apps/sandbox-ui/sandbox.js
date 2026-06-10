@@ -755,6 +755,42 @@ const aispmFallback = {
       redacted_fields: ["identity_provider_claims", "raw_rbac_context", "connector_payloads"]
     }
   ],
+  replay_to_policy_draft: {
+    summary: {
+      source_scope: "sample-session-001",
+      source_decisions: 3,
+      authorable_decisions: 3,
+      recommended_rules: 3,
+      draft_valid: true,
+      source_sessions: ["sample-session-001", "sample-session-002"],
+      source_repositories: ["payments/api", "platform/infra"],
+      rule_counts: { filesystem: 1, commands: 1, git: 0, mcp: 1, approvals: 2, evidence: 3, compliance: 3 }
+    },
+    recommendations: [
+      { recommendation_id: "policy-rec-1-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", control_surface: "infrastructure_iac", risk_classification: "infrastructure_change_risk", severity: "high", decision: "require_approval", action_type: "execute_command", target_summary: "terraform apply", target_redacted: false, policy_section: "commands", rule_key: "require_approval", proposed_value: "terraform apply*", rationale: "Production-impacting infrastructure action requires approval.", confidence: "metadata_derived", evidence_refs: ["sample://evidence/iac-production-change"] },
+      { recommendation_id: "policy-rec-2-sample-dec-002", decision_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", control_surface: "sensitive_data", risk_classification: "credential_or_sensitive_data_exposure", severity: "critical", decision: "block", action_type: "read_file", target_summary: "sensitive target redacted", target_redacted: true, policy_section: "filesystem", rule_key: "block_read", proposed_value: ".env*", rationale: "Sensitive production secret file access is blocked.", confidence: "metadata_derived", evidence_refs: ["sample://evidence/secret-read-block"] },
+      { recommendation_id: "policy-rec-3-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", control_surface: "mcp_tools", risk_classification: "tool_or_mcp_governance_risk", severity: "medium", decision: "warn", action_type: "mcp_tool_call", target_summary: "filesystem.write", target_redacted: false, policy_section: "mcp", rule_key: "allowlist_enabled", proposed_value: true, rationale: "MCP tool requires registration before broad rollout.", confidence: "metadata_derived", evidence_refs: ["sample://evidence/mcp-warning"] }
+    ],
+    policy_draft: {
+      schema_version: "cavra.policy_pack.draft.v1",
+      product: "CAVRA",
+      valid: true,
+      errors: [],
+      policy_pack: {
+        metadata: { id: "cavra-replay-derived-sample-session-001", title: "Replay-Derived AI Agent Controls", description: "Read-only Community draft generated from normalized AISPM replay decisions.", version: "2026.06.10", inherits: "cavra-ai-agent-baseline", mode: "enforce" },
+        filesystem: { block_read: [".env*"] },
+        commands: { require_approval: ["terraform apply*"] },
+        mcp: { allowlist_enabled: true },
+        approvals: { replay_to_policy_authoring: { approvers: ["Platform Security"], source: "aispm_replay_to_policy" } },
+        evidence: { require_pr_attestation: true, require_replay_evidence: true, source: "aispm_replay_to_policy" },
+        compliance: { maps_to: ["SOC 2 Change Management", "NIST SSDF RV.1.3", "Internal AI Governance"] }
+      },
+      summary: { policy_id: "cavra-replay-derived-sample-session-001", title: "Replay-Derived AI Agent Controls", version: "2026.06.10", inherits: "cavra-ai-agent-baseline", mode: "enforce", rule_counts: { filesystem: 1, commands: 1, git: 0, mcp: 1, approvals: 2, evidence: 3, compliance: 3 } },
+      operator_notes: ["Draft generation is read-only and does not write to the policy directory.", "Commit reviewed policy YAML through repository change control before rollout."]
+    },
+    write_back: { status: "read_only_preview", next_step: "Review the draft, then use /policy-packs/publish-plan and the approval-bound publish flow.", approval_required: true },
+    operator_notes: ["Replay-to-policy authoring is read-only in Community and does not write to policies/.", "Recommendations use normalized decision metadata only; review every generated rule before publishing.", "Use signed PR review and approval-bound policy publishing before enforcement rollout."]
+  },
   control_plane: {
     community_status: "local_activity_ready",
     enterprise_status: "requires_cavra_enterprise",
@@ -853,6 +889,39 @@ const aispmTraceReplayFallback = {
       "tool-call graph with raw tool results",
       "approval lineage with identity-provider context",
       "immutable multi-tenant replay retention"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
+const aispmReplayPolicyFallback = {
+  schema_version: "cavra.aispm.replay_to_policy_draft.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:03:00+00:00",
+  filters: { session_id: "sample-session-001", repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  ...aispmFallback.replay_to_policy_draft,
+  redaction: {
+    raw_prompts: "requires_cavra_enterprise",
+    model_reasoning: "requires_cavra_enterprise",
+    raw_tool_payloads: "requires_cavra_enterprise",
+    ticket_or_change_context: "requires_cavra_enterprise",
+    private_asset_graph: "requires_cavra_enterprise",
+    customer_context: "requires_cavra_enterprise",
+    private_approval_policy: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "AI-assisted rule authoring from prompts, reasoning traces, and tool payloads",
+      "private ticket, CMDB, asset, identity, and service criticality enrichment",
+      "approval-bound policy publish workflow automation",
+      "policy simulation against tenant history before rollout",
+      "organization-wide policy-pack recommendation campaigns"
     ],
     private_package: "cavra_enterprise"
   }
@@ -1307,6 +1376,7 @@ const routeContent = [
   { type: "AI Posture", label: "Evidence Freshness SLO", route: "ai-posture", description: "Show stale evidence, retention gaps, and Enterprise archive-readiness boundaries." },
   { type: "AI Posture", label: "Executive Risk Narrative", route: "ai-posture", description: "Summarize Community-safe posture, top risks, evidence gaps, and leadership actions." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
+  { type: "AI Posture", label: "Replay-To-Policy Draft", route: "ai-posture", description: "Convert replay decisions into read-only candidate policy controls." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -1514,6 +1584,11 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     narrative: payload.executive_risk_narrative || aispmExecutiveNarrativeFallback.narrative
   }, "posture sample");
+  renderAispmReplayPolicy({
+    ...aispmReplayPolicyFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    ...(payload.replay_to_policy_draft || aispmReplayPolicyFallback)
+  }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
     data_provenance: payload.data_provenance || "sample_data",
@@ -1690,6 +1765,65 @@ async function loadAispmTraceReplay(sessionId) {
     }
   }
   renderAispmTraceReplay(traceReplayFromPosture(currentAispmPayload, sessionId), "static sample replay");
+}
+
+async function loadAispmReplayPolicy() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  const sessionId = el("#aispmTraceSession")?.value || aispmTraceReplayFallback.session.session_id;
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/replay-to-policy-draft?session_id=${encodeURIComponent(sessionId)}`);
+      if (!response.ok) throw new Error(`Replay-to-policy HTTP ${response.status}`);
+      renderAispmReplayPolicy(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmReplayPolicy({
+        ...aispmReplayPolicyFallback,
+        filters: { ...aispmReplayPolicyFallback.filters, session_id: sessionId }
+      }, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmReplayPolicy({
+    ...aispmReplayPolicyFallback,
+    filters: { ...aispmReplayPolicyFallback.filters, session_id: sessionId }
+  }, "static sample draft");
+}
+
+function renderAispmReplayPolicy(packet, note = "sample draft") {
+  const summary = packet.summary || {};
+  const recommendations = packet.recommendations || [];
+  const writeBack = packet.write_back || {};
+  const writeBackStatus = String(writeBack.status || "read_only_preview").replaceAll("_", " ");
+  const draft = packet.policy_draft?.policy_pack || packet.policy_draft || {};
+  const summaryCards = [
+    ["Recommended Rules", summary.recommended_rules ?? recommendations.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Draft Valid", summary.draft_valid === false ? "No" : "Yes", `Authorable: ${summary.authorable_decisions ?? recommendations.length}`],
+    ["Source Decisions", summary.source_decisions ?? "0", `Session: ${packet.filters?.session_id || "current"}`],
+    ["Write Back", writeBackStatus, writeBack.approval_required ? "Approval required" : "Preview only"]
+  ];
+  el("#aispmReplayPolicySummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmReplayPolicyRecommendations").innerHTML = recommendations.slice(0, 6).map((item) => `
+    <article class="replay-policy-card">
+      <header>
+        <div>
+          <span class="replay-policy-meta">${escapeHtml(item.control_surface || "general_policy")}</span>
+          <strong>${escapeHtml(item.policy_section || "policy")} · <code>${escapeHtml(item.rule_key || "rule")}</code></strong>
+        </div>
+        <span class="severity ${escapeHtml(item.decision || "review")}">${escapeHtml(item.decision || "review")}</span>
+      </header>
+      <p>${escapeHtml(item.rationale || "Review the generated control before publishing.")}</p>
+      <p><b>Proposed:</b> <code>${escapeHtml(JSON.stringify(item.proposed_value))}</code></p>
+      <small>${escapeHtml(item.agent_id || "unknown-agent")} · ${escapeHtml(item.repository || "local")} · ${escapeHtml(item.decision_id || item.recommendation_id || "decision")}</small>
+    </article>
+  `).join("") || `<p class="empty-state">No authorable replay decisions found for this session.</p>`;
+  el("#aispmReplayPolicyDraft").textContent = JSON.stringify(draft, null, 2);
 }
 
 function summarizeApprovalLineage(items) {
@@ -2718,13 +2852,17 @@ function wireEvents() {
   el("#refreshAispmEvidenceConfidence").addEventListener("click", loadAispmEvidenceConfidence);
   el("#refreshAispmEvidenceFreshness").addEventListener("click", loadAispmEvidenceFreshness);
   el("#refreshAispmExecutiveNarrative").addEventListener("click", loadAispmExecutiveNarrative);
+  el("#refreshAispmReplayPolicy").addEventListener("click", loadAispmReplayPolicy);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
   el("#refreshAispmIntentDrift").addEventListener("click", loadAispmIntentActionDrift);
   el("#refreshAispmToolGraph").addEventListener("click", loadAispmToolChainGraph);
   el("#refreshAispmBlastRadius").addEventListener("click", loadAispmAgentBlastRadius);
-  el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
+  el("#aispmTraceSession").addEventListener("change", (event) => {
+    loadAispmTraceReplay(event.target.value);
+    loadAispmReplayPolicy();
+  });
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
     el("#scenarioStatus").textContent = "Pilot intake snapshot saved locally for this static demo.";

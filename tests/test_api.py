@@ -160,6 +160,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     evidence_confidence = client.get("/aispm/evidence-confidence")
     evidence_freshness = client.get("/aispm/evidence-freshness")
     executive_risk_narrative = client.get("/aispm/executive-risk-narrative")
+    replay_to_policy = client.get("/aispm/replay-to-policy-draft", params={"session_id": "aispm-session"})
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
@@ -181,6 +182,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_evidence_confidence"] == "/aispm/evidence-confidence"
     assert config["endpoints"]["aispm_evidence_freshness"] == "/aispm/evidence-freshness"
     assert config["endpoints"]["aispm_executive_risk_narrative"] == "/aispm/executive-risk-narrative"
+    assert config["endpoints"]["aispm_replay_to_policy_draft"] == "/aispm/replay-to-policy-draft"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -252,6 +254,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert "CAVRA Community reports" in executive_risk_narrative.json()["narrative"]["headline"]
     assert executive_risk_narrative.json()["narrative"]["key_metrics"]["blocked_actions"] == 1
     assert executive_risk_narrative.json()["redaction"]["ai_generated_board_summary"] == "requires_cavra_enterprise"
+    assert replay_to_policy.status_code == 200
+    assert replay_to_policy.json()["schema_version"] == "cavra.aispm.replay_to_policy_draft.v1"
+    assert replay_to_policy.json()["summary"]["recommended_rules"] == 1
+    assert replay_to_policy.json()["summary"]["draft_valid"] is True
+    assert replay_to_policy.json()["policy_draft"]["policy_pack"]["filesystem"]["block_read"] == [".env*"]
+    assert replay_to_policy.json()["write_back"]["status"] == "read_only_preview"
+    assert replay_to_policy.json()["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

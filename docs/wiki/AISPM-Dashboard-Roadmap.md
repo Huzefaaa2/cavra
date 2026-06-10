@@ -24,6 +24,8 @@ Enterprise should provide the live CSO/CISO operating surface:
   timestamps, retention gaps, and archive-readiness boundaries;
 - executive risk narratives for CSO/CISO users that summarize posture, top
   risks, evidence gaps, and recommended actions;
+- replay-to-policy authoring that converts governed traces into reviewed
+  candidate controls, policy tests, and approval-bound policy changes;
 - CSO controls for kill switch, quarantine, policy toggle, runtime override,
   rollback, and post-event review;
 - compliance and audit views for SOC 2, ISO 27001, NIST SSDF, EU AI Act, PCI
@@ -34,7 +36,8 @@ including observed control coverage, near-miss queues, trace replay packets
 derived from local decisions, approval lineage from local approval records, and
 behavior fingerprints, policy context gaps, pre-action risk forecasts,
 evidence confidence drilldowns, evidence freshness SLO panels, and
-deterministic executive risk narratives from normalized local activity
+deterministic executive risk narratives, plus read-only replay-to-policy draft
+previews, from normalized local activity
 metadata, plus
 intent-to-action drift and tool-chain risk graphing from declared intent, safe
 tool labels, redacted targets, and observed action metadata.
@@ -44,8 +47,10 @@ prompt/reasoning replay, private behavior baselines, private context
 enrichment, private asset/dependency/identity forecast enrichment,
 prompt-derived semantic intent extraction, private workflow correlation, raw tool payload graphing, immutable evidence validation, cross-system execution traces,
 private IdP/RBAC context, AI-assisted board summaries, private trend history,
-tenant benchmarks, service criticality, customer-impact enrichment, and
-commercial compliance exports.
+tenant benchmarks, service criticality, customer-impact enrichment, private
+prompt/reasoning/tool-payload policy authoring, tenant-history policy
+simulation, approval-bound write-back automation, and commercial compliance
+exports.
 
 The detailed implementation plan is maintained in
 `docs/ai-security-posture-dashboard-roadmap.md`.

@@ -24,6 +24,7 @@
     "evidence_confidence_drilldown",
     "evidence_freshness_slo",
     "executive_risk_narrative",
+    "replay_to_policy_draft",
     "control_plane"
   ],
   "properties": {
@@ -477,6 +478,16 @@
         "sections": { "type": "array" },
         "top_risks": { "type": "array" },
         "recommended_actions": { "type": "array" }
+      }
+    },
+    "replay_to_policy_draft": {
+      "type": "object",
+      "required": ["summary", "recommendations", "policy_draft", "write_back"],
+      "properties": {
+        "summary": { "type": "object" },
+        "recommendations": { "type": "array" },
+        "policy_draft": { "type": "object" },
+        "write_back": { "type": "object" }
       }
     },
     "control_plane": { "type": "object" }

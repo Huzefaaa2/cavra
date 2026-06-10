@@ -60,6 +60,8 @@ Community Edition provides local and sample posture views only:
 - `GET /aispm/executive-risk-narrative` returns a deterministic public-safe
   CSO/CISO narrative from local posture metrics, top risks, evidence SLO
   status, and recommended actions.
+- `GET /aispm/replay-to-policy-draft` returns a public-safe read-only policy
+  draft generated from normalized local replay decisions.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -87,6 +89,9 @@ and Enterprise archive-readiness boundaries.
 The route also includes an executive risk narrative panel so CSO/CISO users can
 read a Community-safe leadership summary of posture, top risks, evidence gaps,
 and recommended actions.
+The route also includes a replay-to-policy draft panel so platform and
+security operators can see candidate controls derived from observed replay
+decisions before committing reviewed policy changes.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -163,6 +168,14 @@ summaries, private tenant trends, business owner and service criticality
 enrichment, customer impact analysis, scheduled executive brief delivery, and
 GRC/incident packet export remain Enterprise-only.
 
+Community replay-to-policy draft authoring converts normalized block,
+require-approval, warning, high, and critical decisions into a read-only policy
+pack preview. It can suggest public-safe filesystem, command, Git, MCP,
+approval, evidence, and compliance controls from local metadata only. It does
+not write to `policies/`, publish policy packs, inspect raw prompts, inspect
+model reasoning, read raw tool payloads, enrich from tickets or asset graphs,
+simulate tenant history, or automate production write-back.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -186,6 +199,9 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
 - AI-assisted executive narratives, private trend history, tenant benchmarks,
   service criticality, customer impact, scheduled brief delivery, and
   GRC/incident packet exports;
+- AI-assisted replay-to-policy authoring from prompts, reasoning traces, raw
+  tool payloads, tickets, asset graphs, approval policy, tenant simulation, and
+  approval-bound write-back automation;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -267,3 +283,8 @@ The packaged Community executive risk narrative schema is available at
 `src/cavra/schemas/aispm-executive-risk-narrative.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-executive-risk-narrative-sample.json`.
+
+The packaged Community replay-to-policy draft schema is available at
+`src/cavra/schemas/aispm-replay-to-policy-draft.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-replay-to-policy-draft-sample.json`.

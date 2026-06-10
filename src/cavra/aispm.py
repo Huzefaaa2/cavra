@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from cavra.activity import utc_now
+from cavra.policy_authoring import build_policy_pack_draft
 
 
 AISPM_SCHEMA_VERSION = "cavra.aispm.dashboard.v1"
@@ -60,6 +61,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "evidence confidence drilldown for decision and session evidence references",
                 "evidence freshness and retention SLO summary from local activity timestamps",
                 "deterministic executive risk narrative from local posture metrics",
+                "read-only replay-to-policy draft suggestions from normalized trace decisions",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -81,6 +83,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "immutable evidence store validation, signature verification, and external evidence correlation",
                 "evidence retention proof, object-lock status, KMS status, and archive lifecycle validation",
                 "AI-assisted executive narratives with private tenant context and trend history",
+                "AI-assisted policy authoring with private prompt, ticket, asset, and approval context",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -103,6 +106,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "evidence_confidence_drilldown",
             "evidence_freshness_slo",
             "executive_risk_narrative",
+            "replay_to_policy_draft",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -124,6 +128,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "evidence_confidence": "/aispm/evidence-confidence",
             "evidence_freshness": "/aispm/evidence-freshness",
             "executive_risk_narrative": "/aispm/executive-risk-narrative",
+            "replay_to_policy_draft": "/aispm/replay-to-policy-draft",
         },
     }
 
@@ -172,6 +177,11 @@ def build_aispm_posture(
         overview,
         evidence_freshness_slo,
     )
+    replay_to_policy_draft = _replay_to_policy_draft(
+        decisions,
+        sessions=sessions,
+        source_scope="local_activity_window",
+    )
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -204,6 +214,7 @@ def build_aispm_posture(
         "evidence_confidence_drilldown": evidence_confidence_drilldown,
         "evidence_freshness_slo": evidence_freshness_slo,
         "executive_risk_narrative": executive_risk_narrative,
+        "replay_to_policy_draft": replay_to_policy_draft,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -949,6 +960,86 @@ def build_aispm_executive_risk_narrative(
     }
 
 
+def build_aispm_replay_to_policy_draft(
+    activity_store: Any,
+    *,
+    session_id: str | None = None,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a read-only policy draft from public-safe replay metadata.
+
+    Community converts normalized policy decisions into candidate controls. It
+    does not inspect raw prompts, model reasoning, raw tool payloads, ticket
+    bodies, private asset graphs, or customer context.
+    """
+
+    limit = max(1, min(limit, 500))
+    if session_id:
+        decisions = activity_store.list_decisions(session_id=session_id, limit=limit)["items"]
+        get_session = getattr(activity_store, "get_session", None)
+        session = get_session(session_id) if callable(get_session) else None
+        source_sessions = [session] if session else []
+    else:
+        decisions = activity_store.list_decisions(
+            repository=repository,
+            agent_id=agent_id,
+            policy_pack=policy_pack,
+            limit=limit,
+        )["items"]
+        source_sessions = activity_store.list_sessions(
+            repository=repository,
+            agent_id=agent_id,
+            policy_pack=policy_pack,
+            limit=limit,
+        )["items"]
+    draft = _replay_to_policy_draft(
+        decisions,
+        sessions=source_sessions,
+        source_scope=session_id or repository or agent_id or policy_pack or "local_activity_window",
+    )
+    return {
+        "schema_version": "cavra.aispm.replay_to_policy_draft.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "session_id": session_id,
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        **draft,
+        "redaction": {
+            "raw_prompts": LOCKED_ENTERPRISE_STATUS,
+            "model_reasoning": LOCKED_ENTERPRISE_STATUS,
+            "raw_tool_payloads": LOCKED_ENTERPRISE_STATUS,
+            "ticket_or_change_context": LOCKED_ENTERPRISE_STATUS,
+            "private_asset_graph": LOCKED_ENTERPRISE_STATUS,
+            "customer_context": LOCKED_ENTERPRISE_STATUS,
+            "private_approval_policy": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "AI-assisted rule authoring from prompts, reasoning traces, and tool payloads",
+                "private ticket, CMDB, asset, identity, and service criticality enrichment",
+                "approval-bound policy publish workflow automation",
+                "policy simulation against tenant history before rollout",
+                "organization-wide policy-pack recommendation campaigns",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -1045,6 +1136,11 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
     findings = _risk_findings(decisions)
     overview = _posture_overview(decisions, sessions, findings)
     evidence_freshness_slo = _evidence_freshness_slo(decisions, sessions, generated_at="2026-06-09T00:03:00+00:00")
+    replay_to_policy_draft = _replay_to_policy_draft(
+        decisions,
+        sessions=sessions,
+        source_scope="sample-session-001",
+    )
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -1078,6 +1174,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             overview,
             evidence_freshness_slo,
         ),
+        "replay_to_policy_draft": replay_to_policy_draft,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -2989,6 +3086,189 @@ def _executive_recommended_actions(
         }
     )
     return actions
+
+
+def _replay_to_policy_draft(
+    decisions: list[dict[str, Any]],
+    *,
+    sessions: list[dict[str, Any]],
+    source_scope: str,
+) -> dict[str, Any]:
+    authorable = _policy_authoring_decisions(decisions)
+    recommendations = _policy_rule_recommendations(authorable)
+    draft_payload = _policy_draft_payload_from_recommendations(recommendations, source_scope)
+    draft = build_policy_pack_draft(draft_payload)
+    source_session_ids = sorted({str(item.get("session_id")) for item in [*decisions, *sessions] if item.get("session_id")})
+    source_repositories = sorted({str(item.get("repository")) for item in [*decisions, *sessions] if item.get("repository")})
+    return {
+        "summary": {
+            "source_scope": source_scope,
+            "source_decisions": len(decisions),
+            "authorable_decisions": len(authorable),
+            "recommended_rules": len(recommendations),
+            "draft_valid": draft["valid"],
+            "source_sessions": source_session_ids[:8],
+            "source_repositories": source_repositories[:8],
+            "rule_counts": draft["summary"]["rule_counts"],
+        },
+        "recommendations": recommendations,
+        "policy_draft": draft,
+        "write_back": {
+            "status": "read_only_preview",
+            "next_step": "Review the draft, then use /policy-packs/publish-plan and the approval-bound publish flow.",
+            "approval_required": True,
+        },
+        "operator_notes": [
+            "Replay-to-policy authoring is read-only in Community and does not write to policies/.",
+            "Recommendations use normalized decision metadata only; review every generated rule before publishing.",
+            "Use signed PR review and approval-bound policy publishing before enforcement rollout.",
+        ],
+    }
+
+
+def _policy_authoring_decisions(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    authorable = [
+        item
+        for item in decisions
+        if str(item.get("decision", "")) in {"block", "require_approval", "warn"}
+        or str(item.get("severity", "")) in {"critical", "high"}
+    ]
+    return sorted(authorable, key=lambda item: str(item.get("timestamp", "")))
+
+
+def _policy_rule_recommendations(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    recommendations = []
+    seen = set()
+    for index, decision in enumerate(decisions, start=1):
+        recommendation = _policy_rule_recommendation(index, decision)
+        key = (
+            recommendation["policy_section"],
+            recommendation["rule_key"],
+            str(recommendation["proposed_value"]),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        recommendations.append(recommendation)
+    return recommendations
+
+
+def _policy_rule_recommendation(index: int, decision: dict[str, Any]) -> dict[str, Any]:
+    surface = _control_surface(decision)
+    outcome = str(decision.get("decision", "review"))
+    action_type = str(decision.get("action_type", "unknown"))
+    target_summary, target_redacted = _safe_target_summary(decision)
+    section, rule_key, proposed_value = _policy_rule_target(decision, surface, outcome)
+    return {
+        "recommendation_id": f"policy-rec-{index}-{_slug(str(decision.get('decision_id', 'decision')))}",
+        "decision_id": decision.get("decision_id"),
+        "session_id": decision.get("session_id"),
+        "agent_id": decision.get("agent_id", "unknown-agent"),
+        "repository": decision.get("repository", "local"),
+        "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+        "control_surface": surface,
+        "risk_classification": _risk_classification(decision),
+        "severity": decision.get("severity", "low"),
+        "decision": outcome,
+        "action_type": action_type,
+        "target_summary": target_summary,
+        "target_redacted": target_redacted,
+        "policy_section": section,
+        "rule_key": rule_key,
+        "proposed_value": proposed_value,
+        "rationale": decision.get("reason") or "Observed CAVRA decision should be converted into an explicit reviewed policy rule.",
+        "confidence": "metadata_derived",
+        "evidence_refs": _evidence_refs(decision),
+    }
+
+
+def _policy_rule_target(decision: dict[str, Any], surface: str, outcome: str) -> tuple[str, str, Any]:
+    action_type = str(decision.get("action_type", "")).lower()
+    target = _policy_target_pattern(decision, surface)
+    if surface == "sensitive_data":
+        if "write" in action_type:
+            return ("filesystem", "block_write" if outcome == "block" else "require_approval_write", target)
+        return ("filesystem", "block_read", target)
+    if surface == "infrastructure_iac":
+        return ("commands", "block" if outcome == "block" else "require_approval", target)
+    if surface == "runtime_commands":
+        return ("commands", "block" if outcome == "block" else "require_approval", target)
+    if surface == "source_control":
+        if outcome == "block":
+            return ("git", "block_direct_push_to_protected_branch", True)
+        return ("git", "require_pull_request", True)
+    if surface == "mcp_tools":
+        return ("mcp", "block_unknown_servers" if outcome == "block" else "allowlist_enabled", True)
+    return ("commands", "block" if outcome == "block" else "require_approval", target)
+
+
+def _policy_target_pattern(decision: dict[str, Any], surface: str) -> str:
+    raw_target = str(decision.get("target") or decision.get("requested_operation") or "").strip()
+    lowered = raw_target.lower()
+    if surface == "sensitive_data":
+        if ".env" in lowered:
+            return ".env*"
+        if "token" in lowered:
+            return "**/*token*"
+        if "credential" in lowered:
+            return "**/*credential*"
+        return "**/*secret*"
+    if surface == "infrastructure_iac":
+        if "terraform apply" in lowered:
+            return "terraform apply*"
+        if "tofu apply" in lowered:
+            return "tofu apply*"
+        if "kubectl" in lowered:
+            return "kubectl *"
+    if surface == "source_control":
+        return "protected_branch_change"
+    if surface == "mcp_tools":
+        return "untrusted_mcp_tool"
+    if not raw_target or raw_target == "target not recorded":
+        return "review-risky-agent-action*"
+    if len(raw_target) > 80:
+        return f"{raw_target[:77]}*"
+    return f"{raw_target.rstrip('*')}*" if " " in raw_target and not raw_target.endswith("*") else raw_target
+
+
+def _policy_draft_payload_from_recommendations(
+    recommendations: list[dict[str, Any]],
+    source_scope: str,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "id": f"cavra-replay-derived-{_slug(source_scope)}",
+        "title": "Replay-Derived AI Agent Controls",
+        "description": "Read-only Community draft generated from normalized AISPM replay decisions.",
+        "version": datetime.now(timezone.utc).strftime("%Y.%m.%d"),
+        "inherits": "cavra-ai-agent-baseline",
+        "mode": "enforce",
+        "approvals": {
+            "replay_to_policy_authoring": {
+                "approvers": ["Platform Security"],
+                "source": "aispm_replay_to_policy",
+            }
+        },
+        "evidence": {
+            "require_pr_attestation": True,
+            "require_replay_evidence": True,
+            "source": "aispm_replay_to_policy",
+        },
+        "compliance": {
+            "maps_to": ["SOC 2 Change Management", "NIST SSDF RV.1.3", "Internal AI Governance"],
+        },
+    }
+    for recommendation in recommendations:
+        section = str(recommendation["policy_section"])
+        rule_key = str(recommendation["rule_key"])
+        proposed_value = recommendation["proposed_value"]
+        section_payload = payload.setdefault(section, {})
+        if isinstance(proposed_value, bool):
+            section_payload[rule_key] = proposed_value
+            continue
+        values = section_payload.setdefault(rule_key, [])
+        if proposed_value not in values:
+            values.append(proposed_value)
+    return payload
 
 
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

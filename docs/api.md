@@ -32,6 +32,7 @@ Activity endpoints:
 - `GET /aispm/evidence-confidence`: return a public-safe evidence confidence drilldown that classifies decision/session evidence as signed, activity-reference, sample, metadata-only, or missing evidence.
 - `GET /aispm/evidence-freshness`: return a public-safe evidence freshness and retention SLO packet that flags stale evidence, missing timestamps, and retention-reference gaps.
 - `GET /aispm/executive-risk-narrative`: return a deterministic public-safe CSO/CISO narrative from local posture metrics, top risks, evidence SLO status, and recommended actions.
+- `GET /aispm/replay-to-policy-draft`: return a public-safe read-only draft policy pack generated from normalized replay decisions, with private prompt, reasoning, ticket, asset, simulation, and write-back automation locked to Enterprise.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -42,7 +43,11 @@ fingerprints use normalized decisions, action types, repositories, control
 surfaces, and evidence references only. Community policy context gaps can flag
 missing business metadata but do not enrich from private CMDB, data catalog,
 identity-provider, cloud inventory, ticketing, or change-calendar systems.
-Community pre-action forecasts are metadata forecasts only; private asset
+Community replay-to-policy draft authoring converts normalized local decisions
+into read-only candidate policy controls and does not write to policies.
+Prompt-derived authoring, reasoning analysis, raw tool payloads, ticket and
+asset enrichment, policy simulation against tenant history, and automated
+write-back remain Enterprise-only. Community pre-action forecasts are metadata forecasts only; private asset
 graphs, dependency graphs, identity blast radius, cloud inventory, runtime
 state, and prompt-intent context remain Enterprise-only. Community
 intent-to-action drift uses declared intent metadata only; raw prompts,

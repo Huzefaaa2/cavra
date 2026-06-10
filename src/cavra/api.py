@@ -20,6 +20,7 @@ from cavra.aispm import (
     build_aispm_policy_context_gaps,
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
+    build_aispm_replay_to_policy_draft,
     build_aispm_trace_replay_packet,
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
@@ -646,6 +647,7 @@ def create_app():
                 "aispm_evidence_confidence": "/aispm/evidence-confidence",
                 "aispm_evidence_freshness": "/aispm/evidence-freshness",
                 "aispm_executive_risk_narrative": "/aispm/executive-risk-narrative",
+                "aispm_replay_to_policy_draft": "/aispm/replay-to-policy-draft",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1095,6 +1097,23 @@ def create_app():
     ) -> dict:
         return build_aispm_executive_risk_narrative(
             activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/replay-to-policy-draft")
+    def aispm_replay_to_policy_draft(
+        session_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_replay_to_policy_draft(
+            activity_store,
+            session_id=session_id,
             agent_id=agent_id,
             repository=repository,
             policy_pack=policy_pack,
