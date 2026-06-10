@@ -5,7 +5,7 @@ dashboard contract for Community Edition. Phase A defines the contract, and the
 current Phase B hardening adds Community control coverage, near-miss visibility,
 public-safe trace replay packets, public-safe approval lineage, behavior
 fingerprints, policy context gaps, pre-action risk forecasts, and
-intent-to-action drift without exposing Enterprise live-ingestion logic.
+intent-to-action drift, and tool-chain risk graphing without exposing Enterprise live-ingestion logic.
 
 ## Community Boundary
 
@@ -40,14 +40,16 @@ Community Edition provides local and sample posture views only:
   metadata.
 - `GET /aispm/intent-action-drift` returns public-safe declared-intent versus
   observed-action drift from local decision metadata.
+- `GET /aispm/tool-chain-graph` returns public-safe agent, tool, redacted
+  target, policy, hotspot, and risky edge summaries from local decision
+  metadata.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
 loads `/aispm/posture`; otherwise it falls back to deterministic sample data and
 labels the view as `sample_data`. The route includes posture overview, agent
 coverage, risk findings, control coverage, near-miss queue, execution timeline,
-approval lineage, behavior fingerprinting, pre-action risk forecasts,
-intent-to-action drift, and the raw public-safe payload. The route also shows
+approval lineage, behavior fingerprinting, pre-action risk forecasts, intent-to-action drift, tool-chain risk graph, and the raw public-safe payload. The route also shows
 policy context gaps for missing environment, ownership, data, change-window,
 criticality, approval-route, or trust-tier metadata.
 
@@ -84,6 +86,12 @@ does not infer intent from raw prompts, model reasoning, conversation history,
 private ticket context, full tool payloads, or semantic intent models; those
 remain Enterprise-only.
 
+Community tool-chain graphing maps agents, safe tool labels, redacted targets,
+policy packs, and risk-scored execution edges from local decision metadata. It
+does not expose raw tool request bodies, tool results, connector spans,
+cross-system call graphs, private network targets, or Enterprise trace
+correlation.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -95,7 +103,7 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
 - prompt and reasoning trace capture;
 - private asset-graph and identity-aware pre-action forecasting;
 - prompt-derived intent extraction and private workflow correlation;
-- tool-call graph and full trace replay;
+- raw tool-call graph, cross-system execution traces, and full trace replay;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -147,3 +155,8 @@ The packaged Community intent-to-action drift schema is available at
 `src/cavra/schemas/aispm-intent-action-drift.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-intent-action-drift-sample.json`.
+
+The packaged Community tool-chain graph schema is available at
+`src/cavra/schemas/aispm-tool-chain-graph.schema.json`. A deterministic sample
+packet is available at
+`examples/aispm/community-tool-chain-graph-sample.json`.

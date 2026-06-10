@@ -1,105 +1,370 @@
 {
+  "schema_version": "cavra.aispm.dashboard.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "sample",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:03:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "overview": {
+    "posture_score": 12,
+    "risk_level": "critical",
+    "total_sessions": 2,
+    "total_decisions": 3,
+    "blocked_actions": 1,
+    "approval_required_actions": 1,
+    "warned_actions": 1,
+    "risk_findings": 3,
+    "critical_findings": 1,
+    "high_findings": 1,
+    "latest_activity_at": "2026-06-09T00:02:00+00:00",
+    "evidence_confidence": "activity_evidence_refs"
+  },
   "agents": [
     {
       "agent_id": "claude-code-agent",
-      "approval_required_actions": 0,
-      "blocked_actions": 0,
-      "coverage_status": "observed",
-      "decision_count": 1,
-      "drift_status": "baseline",
-      "last_seen_at": "2026-06-09T00:02:00+00:00",
       "repository_count": 1,
       "session_count": 1,
-      "warned_actions": 1
+      "decision_count": 1,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 1,
+      "last_seen_at": "2026-06-09T00:02:00+00:00",
+      "coverage_status": "observed",
+      "drift_status": "baseline"
     },
     {
       "agent_id": "codex-agent",
-      "approval_required_actions": 1,
-      "blocked_actions": 1,
-      "coverage_status": "observed",
-      "decision_count": 2,
-      "drift_status": "review_required",
-      "last_seen_at": "2026-06-09T00:01:00+00:00",
       "repository_count": 1,
       "session_count": 1,
-      "warned_actions": 0
+      "decision_count": 2,
+      "blocked_actions": 1,
+      "approval_required_actions": 1,
+      "warned_actions": 0,
+      "last_seen_at": "2026-06-09T00:01:00+00:00",
+      "coverage_status": "observed",
+      "drift_status": "review_required"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "finding-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "decision": "warn",
+      "rule_id": "mcp.untrusted-tool",
+      "reason": "MCP tool requires registration before broad rollout.",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    },
+    {
+      "finding_id": "finding-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "decision": "block",
+      "rule_id": "secrets.block-sensitive-read",
+      "reason": "Sensitive production secret file access is blocked.",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "finding_id": "finding-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "decision": "require_approval",
+      "rule_id": "iac.production-change",
+      "reason": "Production-impacting infrastructure action requires approval.",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    }
+  ],
+  "timeline": [
+    {
+      "event_id": "session-sample-session-002",
+      "event_type": "session",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "title": "Session active",
+      "outcome": "active",
+      "timestamp": "2026-06-09T00:02:00+00:00",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ]
+    },
+    {
+      "event_id": "decision-sample-dec-003",
+      "event_type": "policy_decision",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "title": "warn mcp_tool_call",
+      "outcome": "warn",
+      "severity": "medium",
+      "target": "filesystem.write",
+      "timestamp": "2026-06-09T00:02:00+00:00",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ]
+    },
+    {
+      "event_id": "session-sample-session-001",
+      "event_type": "session",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "title": "Session completed",
+      "outcome": "completed",
+      "timestamp": "2026-06-09T00:01:00+00:00",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change",
+        "sample://evidence/secret-read-block"
+      ]
+    },
+    {
+      "event_id": "decision-sample-dec-002",
+      "event_type": "policy_decision",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "title": "block read_file",
+      "outcome": "block",
+      "severity": "critical",
+      "target": ".env.production",
+      "timestamp": "2026-06-09T00:01:00+00:00",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ]
+    },
+    {
+      "event_id": "decision-sample-dec-001",
+      "event_type": "policy_decision",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "title": "require_approval execute_command",
+      "outcome": "require_approval",
+      "severity": "high",
+      "target": "terraform apply",
+      "timestamp": "2026-06-09T00:00:00+00:00",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ]
+    }
+  ],
+  "control_coverage": [
+    {
+      "surface_id": "sensitive_data",
+      "label": "Secrets and sensitive data",
+      "description": "Reads or writes that could expose credentials, tokens, customer data, or protected files.",
+      "coverage_status": "enforced",
+      "decision_count": 1,
+      "blocked_actions": 1,
+      "approval_required_actions": 0,
+      "warned_actions": 0,
+      "evidence_confidence": "activity_evidence_refs",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ]
+    },
+    {
+      "surface_id": "infrastructure_iac",
+      "label": "Infrastructure and IaC",
+      "description": "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions.",
+      "coverage_status": "approval_gated",
+      "decision_count": 1,
+      "blocked_actions": 0,
+      "approval_required_actions": 1,
+      "warned_actions": 0,
+      "evidence_confidence": "activity_evidence_refs",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ]
+    },
+    {
+      "surface_id": "mcp_tools",
+      "label": "MCP and tool calls",
+      "description": "External tool, MCP server, filesystem, browser, and automation actions.",
+      "coverage_status": "warning_only",
+      "decision_count": 1,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 1,
+      "evidence_confidence": "activity_evidence_refs",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ]
+    },
+    {
+      "surface_id": "source_control",
+      "label": "Source control",
+      "description": "Git, branch, commit, PR, and repository mutation actions.",
+      "coverage_status": "not_observed_locally",
+      "decision_count": 0,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 0,
+      "evidence_confidence": "sample_or_empty",
+      "evidence_refs": []
+    },
+    {
+      "surface_id": "runtime_commands",
+      "label": "Runtime commands",
+      "description": "Shell commands, scripts, package operations, and local execution.",
+      "coverage_status": "not_observed_locally",
+      "decision_count": 0,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 0,
+      "evidence_confidence": "sample_or_empty",
+      "evidence_refs": []
+    },
+    {
+      "surface_id": "general_policy",
+      "label": "General policy",
+      "description": "Policy decisions that do not map to a more specific control surface.",
+      "coverage_status": "not_observed_locally",
+      "decision_count": 0,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 0,
+      "evidence_confidence": "sample_or_empty",
+      "evidence_refs": []
+    }
+  ],
+  "near_misses": [
+    {
+      "near_miss_id": "near-miss-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "surface_id": "mcp_tools",
+      "severity": "medium",
+      "decision": "warn",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "reason": "MCP tool requires registration before broad rollout.",
+      "operator_signal": "warning_allowed_with_operator_visibility",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    },
+    {
+      "near_miss_id": "near-miss-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "surface_id": "infrastructure_iac",
+      "severity": "high",
+      "decision": "require_approval",
+      "risk_classification": "infrastructure_change_risk",
+      "reason": "Production-impacting infrastructure action requires approval.",
+      "operator_signal": "approval_prevented_unreviewed_execution",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "timestamp": "2026-06-09T00:00:00+00:00"
     }
   ],
   "approval_lineage": [
     {
+      "lineage_id": "lineage-sample-apr-001",
       "approval_id": "sample-apr-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "state": "approved",
       "approver_group": "Cloud Security",
-      "break_glass": false,
-      "decided_at": "2026-06-09T00:00:40+00:00",
+      "requested_by": "automation:codex-agent",
       "decided_by": "role:approver",
+      "requested_at": "2026-06-09T00:00:10+00:00",
+      "decided_at": "2026-06-09T00:00:40+00:00",
+      "external_ref": "ticket://sample-change-42",
+      "break_glass": false,
       "decision": {
         "action_type": "execute_command",
-        "policy_pack": "cloud-iam-prod",
-        "repository": "payments/api",
+        "target_summary": "terraform apply",
         "risk_classification": "infrastructure_change_risk",
-        "rule_id": "iac.production-change",
         "severity": "high",
-        "target_summary": "terraform apply"
+        "repository": "payments/api",
+        "policy_pack": "cloud-iam-prod",
+        "rule_id": "iac.production-change"
       },
-      "decision_id": "sample-dec-001",
       "evidence_refs": [
         "approval://sample-apr-001",
         "sample://evidence/iac-production-change"
       ],
-      "external_ref": "ticket://sample-change-42",
-      "lineage_id": "lineage-sample-apr-001",
       "redacted_fields": [
         "identity_provider_claims",
         "raw_rbac_context"
-      ],
-      "requested_at": "2026-06-09T00:00:10+00:00",
-      "requested_by": "automation:codex-agent",
-      "session_id": "sample-session-001",
-      "state": "approved"
+      ]
     }
   ],
   "behavior_fingerprints": [
     {
+      "fingerprint_id": "fingerprint-codex-agent",
+      "agent_id": "codex-agent",
+      "repositories": [
+        "payments/api"
+      ],
+      "session_count": 1,
+      "decision_count": 2,
       "action_profile": [
         {
-          "count": 1,
-          "name": "execute_command"
+          "name": "execute_command",
+          "count": 1
         },
         {
-          "count": 1,
-          "name": "read_file"
+          "name": "read_file",
+          "count": 1
         }
       ],
-      "agent_id": "codex-agent",
-      "control_surfaces": [
-        "infrastructure_iac",
-        "sensitive_data"
-      ],
-      "decision_count": 2,
       "decision_profile": [
         {
-          "count": 1,
-          "name": "require_approval"
+          "name": "require_approval",
+          "count": 1
         },
         {
-          "count": 1,
-          "name": "block"
+          "name": "block",
+          "count": 1
         }
       ],
-      "drift_score": 71,
-      "drift_status": "review_required",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change",
-        "sample://evidence/secret-read-block"
-      ],
-      "fingerprint_id": "fingerprint-codex-agent",
-      "last_seen_at": "2026-06-09T00:01:00+00:00",
       "policy_packs": [
         "cavra-ai-agent-baseline",
         "cloud-iam-prod"
       ],
-      "repositories": [
-        "payments/api"
+      "control_surfaces": [
+        "infrastructure_iac",
+        "sensitive_data"
       ],
       "risk_signals": [
         "blocked_action",
@@ -109,139 +374,706 @@
         "infrastructure_change",
         "multiple_policy_packs"
       ],
-      "session_count": 1
+      "drift_status": "review_required",
+      "drift_score": 71,
+      "evidence_refs": [
+        "sample://evidence/iac-production-change",
+        "sample://evidence/secret-read-block"
+      ],
+      "last_seen_at": "2026-06-09T00:01:00+00:00"
     },
     {
+      "fingerprint_id": "fingerprint-claude-code-agent",
+      "agent_id": "claude-code-agent",
+      "repositories": [
+        "platform/infra"
+      ],
+      "session_count": 1,
+      "decision_count": 1,
       "action_profile": [
         {
-          "count": 1,
-          "name": "mcp_tool_call"
+          "name": "mcp_tool_call",
+          "count": 1
         }
       ],
-      "agent_id": "claude-code-agent",
-      "control_surfaces": [
-        "mcp_tools"
-      ],
-      "decision_count": 1,
       "decision_profile": [
         {
-          "count": 1,
-          "name": "warn"
+          "name": "warn",
+          "count": 1
         }
       ],
-      "drift_score": 12,
-      "drift_status": "unusual_behavior",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "fingerprint_id": "fingerprint-claude-code-agent",
-      "last_seen_at": "2026-06-09T00:02:00+00:00",
       "policy_packs": [
         "mcp-enterprise"
       ],
-      "repositories": [
-        "platform/infra"
+      "control_surfaces": [
+        "mcp_tools"
       ],
       "risk_signals": [
         "warned_action",
         "mcp_or_tool_activity"
       ],
-      "session_count": 1
-    }
-  ],
-  "control_coverage": [
-    {
-      "approval_required_actions": 0,
-      "blocked_actions": 1,
-      "coverage_status": "enforced",
-      "decision_count": 1,
-      "description": "Reads or writes that could expose credentials, tokens, customer data, or protected files.",
-      "evidence_confidence": "activity_evidence_refs",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "label": "Secrets and sensitive data",
-      "surface_id": "sensitive_data",
-      "warned_actions": 0
-    },
-    {
-      "approval_required_actions": 1,
-      "blocked_actions": 0,
-      "coverage_status": "approval_gated",
-      "decision_count": 1,
-      "description": "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions.",
-      "evidence_confidence": "activity_evidence_refs",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "label": "Infrastructure and IaC",
-      "surface_id": "infrastructure_iac",
-      "warned_actions": 0
-    },
-    {
-      "approval_required_actions": 0,
-      "blocked_actions": 0,
-      "coverage_status": "warning_only",
-      "decision_count": 1,
-      "description": "External tool, MCP server, filesystem, browser, and automation actions.",
-      "evidence_confidence": "activity_evidence_refs",
+      "drift_status": "unusual_behavior",
+      "drift_score": 12,
       "evidence_refs": [
         "sample://evidence/mcp-warning"
       ],
-      "label": "MCP and tool calls",
-      "surface_id": "mcp_tools",
-      "warned_actions": 1
-    },
-    {
-      "approval_required_actions": 0,
-      "blocked_actions": 0,
-      "coverage_status": "not_observed_locally",
-      "decision_count": 0,
-      "description": "Git, branch, commit, PR, and repository mutation actions.",
-      "evidence_confidence": "sample_or_empty",
-      "evidence_refs": [],
-      "label": "Source control",
-      "surface_id": "source_control",
-      "warned_actions": 0
-    },
-    {
-      "approval_required_actions": 0,
-      "blocked_actions": 0,
-      "coverage_status": "not_observed_locally",
-      "decision_count": 0,
-      "description": "Shell commands, scripts, package operations, and local execution.",
-      "evidence_confidence": "sample_or_empty",
-      "evidence_refs": [],
-      "label": "Runtime commands",
-      "surface_id": "runtime_commands",
-      "warned_actions": 0
-    },
-    {
-      "approval_required_actions": 0,
-      "blocked_actions": 0,
-      "coverage_status": "not_observed_locally",
-      "decision_count": 0,
-      "description": "Policy decisions that do not map to a more specific control surface.",
-      "evidence_confidence": "sample_or_empty",
-      "evidence_refs": [],
-      "label": "General policy",
-      "surface_id": "general_policy",
-      "warned_actions": 0
+      "last_seen_at": "2026-06-09T00:02:00+00:00"
     }
   ],
+  "policy_context_gaps": [
+    {
+      "gap_id": "context-gap-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "rule_id": "iac.production-change",
+      "action_type": "execute_command",
+      "decision": "require_approval",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "control_surface": "infrastructure_iac",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "service_owner",
+        "change_window",
+        "blast_radius",
+        "approval_route"
+      ],
+      "present_context": [],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach service owner, change window, and blast-radius context before execution. Missing: environment_tier, system_criticality, service_owner, change_window, blast_radius, approval_route.",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "gap_id": "context-gap-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "secrets.block-sensitive-read",
+      "action_type": "read_file",
+      "decision": "block",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "control_surface": "sensitive_data",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "data_owner",
+        "data_classification",
+        "customer_region",
+        "approval_route"
+      ],
+      "present_context": [],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach data-owner, classification, and regional context before relying on the decision. Missing: environment_tier, system_criticality, data_owner, data_classification, customer_region, approval_route.",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "gap_id": "context-gap-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "rule_id": "mcp.untrusted-tool",
+      "action_type": "mcp_tool_call",
+      "decision": "warn",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "control_surface": "mcp_tools",
+      "missing_context": [
+        "environment_tier",
+        "system_criticality",
+        "tool_owner",
+        "tool_trust_tier"
+      ],
+      "present_context": [
+        "business_justification"
+      ],
+      "gap_status": "requires_context_review",
+      "recommended_action": "Attach tool owner, trust tier, and business justification before broad tool use. Missing: environment_tier, system_criticality, tool_owner, tool_trust_tier.",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "pre_action_risk_forecasts": [
+    {
+      "forecast_id": "forecast-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "secrets.block-sensitive-read",
+      "action_type": "read_file",
+      "target_summary": "sensitive target redacted",
+      "target_redacted": true,
+      "decision": "block",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "control_surface": "sensitive_data",
+      "forecast_status": "block_recommended",
+      "projected_blast_radius": "secret_scope",
+      "likely_impacts": [
+        "credential_or_sensitive_data_exposure",
+        "data_exfiltration",
+        "audit_scope_expansion"
+      ],
+      "pre_action_controls": [
+        "block_before_execution",
+        "require_operator_review",
+        "capture_evidence",
+        "redact_sensitive_target"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "forecast_id": "forecast-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "rule_id": "iac.production-change",
+      "action_type": "execute_command",
+      "target_summary": "terraform apply",
+      "target_redacted": false,
+      "decision": "require_approval",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "control_surface": "infrastructure_iac",
+      "forecast_status": "approval_recommended",
+      "projected_blast_radius": "production_infrastructure",
+      "likely_impacts": [
+        "production_infrastructure_change",
+        "configuration_drift",
+        "service_availability_impact"
+      ],
+      "pre_action_controls": [
+        "require_human_approval",
+        "verify_change_window",
+        "attach_evidence",
+        "require_blast_radius_context"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "forecast_id": "forecast-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "rule_id": "mcp.untrusted-tool",
+      "action_type": "mcp_tool_call",
+      "target_summary": "filesystem.write",
+      "target_redacted": false,
+      "decision": "warn",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "control_surface": "mcp_tools",
+      "forecast_status": "warn_recommended",
+      "projected_blast_radius": "tooling_surface",
+      "likely_impacts": [
+        "untrusted_tool_write_access",
+        "workspace_mutation",
+        "toolchain_expansion"
+      ],
+      "pre_action_controls": [
+        "warn_operator",
+        "require_attestation",
+        "monitor_follow_up",
+        "verify_tool_trust_tier"
+      ],
+      "confidence": "metadata_forecast",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "intent_action_drift": [
+    {
+      "drift_id": "intent-drift-sample-dec-002",
+      "decision_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "secrets.block-sensitive-read",
+      "declared_intent": "Inspect deployment configuration",
+      "action_type": "read_file",
+      "target_summary": "sensitive target redacted",
+      "target_redacted": true,
+      "decision": "block",
+      "severity": "critical",
+      "risk_classification": "credential_or_sensitive_data_exposure",
+      "control_surface": "sensitive_data",
+      "drift_status": "high_drift",
+      "drift_score": 81,
+      "drift_signals": [
+        "sensitive_target_not_declared",
+        "blocked_after_declared_intent",
+        "critical_or_high_intent_drift",
+        "action_type_not_explicit_in_intent"
+      ],
+      "recommended_action": "Block or escalate until the declared intent explicitly covers sensitive-data access.",
+      "confidence": "metadata_intent_comparison",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "drift_id": "intent-drift-sample-dec-001",
+      "decision_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "rule_id": "iac.production-change",
+      "declared_intent": "Apply approved production infrastructure change",
+      "action_type": "execute_command",
+      "target_summary": "terraform apply",
+      "target_redacted": false,
+      "decision": "require_approval",
+      "severity": "high",
+      "risk_classification": "infrastructure_change_risk",
+      "control_surface": "infrastructure_iac",
+      "drift_status": "needs_review",
+      "drift_score": 35,
+      "drift_signals": [
+        "approval_required_after_declared_intent",
+        "critical_or_high_intent_drift",
+        "action_type_not_explicit_in_intent"
+      ],
+      "recommended_action": "Verify the requested change, blast radius, approval route, and execution target before allowing the action.",
+      "confidence": "metadata_intent_comparison",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "drift_id": "intent-drift-sample-dec-003",
+      "decision_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "rule_id": "mcp.untrusted-tool",
+      "declared_intent": "Write generated infrastructure documentation",
+      "action_type": "mcp_tool_call",
+      "target_summary": "filesystem.write",
+      "target_redacted": false,
+      "decision": "warn",
+      "severity": "medium",
+      "risk_classification": "tool_or_mcp_governance_risk",
+      "control_surface": "mcp_tools",
+      "drift_status": "aligned",
+      "drift_score": 6,
+      "drift_signals": [
+        "action_type_not_explicit_in_intent"
+      ],
+      "recommended_action": "Verify tool trust tier, write scope, and declared workflow intent before allowing broad tool use.",
+      "confidence": "metadata_intent_comparison",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "tool_chain_graph": {
+    "nodes": [
+      {
+        "node_id": "agent-claude-code-agent",
+        "node_type": "agent",
+        "label": "claude-code-agent",
+        "risk_band": "observed",
+        "risk_score": 5,
+        "decision_count": 1,
+        "metadata": {
+          "repository": "platform/infra"
+        }
+      },
+      {
+        "node_id": "agent-codex-agent",
+        "node_type": "agent",
+        "label": "codex-agent",
+        "risk_band": "low",
+        "risk_score": 5,
+        "decision_count": 2,
+        "metadata": {
+          "repository": "payments/api"
+        }
+      },
+      {
+        "node_id": "policy-cavra-ai-agent-baseline",
+        "node_type": "policy",
+        "label": "cavra-ai-agent-baseline",
+        "risk_band": "observed",
+        "risk_score": 5,
+        "decision_count": 1,
+        "metadata": {
+          "rule_id": "secrets.block-sensitive-read"
+        }
+      },
+      {
+        "node_id": "policy-cloud-iam-prod",
+        "node_type": "policy",
+        "label": "cloud-iam-prod",
+        "risk_band": "observed",
+        "risk_score": 5,
+        "decision_count": 1,
+        "metadata": {
+          "rule_id": "iac.production-change"
+        }
+      },
+      {
+        "node_id": "policy-mcp-enterprise",
+        "node_type": "policy",
+        "label": "mcp-enterprise",
+        "risk_band": "observed",
+        "risk_score": 5,
+        "decision_count": 1,
+        "metadata": {
+          "rule_id": "mcp.untrusted-tool"
+        }
+      },
+      {
+        "node_id": "target-mcp-tools-filesystem-write",
+        "node_type": "target",
+        "label": "filesystem.write",
+        "risk_band": "medium",
+        "risk_score": 38,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "mcp_tools",
+          "target_redacted": false
+        }
+      },
+      {
+        "node_id": "target-sensitive-data-sensitive-target-redacted",
+        "node_type": "target",
+        "label": "sensitive target redacted",
+        "risk_band": "critical",
+        "risk_score": 85,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "sensitive_data",
+          "target_redacted": true
+        }
+      },
+      {
+        "node_id": "target-infrastructure-iac-terraform-apply",
+        "node_type": "target",
+        "label": "terraform apply",
+        "risk_band": "high",
+        "risk_score": 62,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "infrastructure_iac",
+          "target_redacted": false
+        }
+      },
+      {
+        "node_id": "tool-filesystem",
+        "node_type": "tool",
+        "label": "filesystem",
+        "risk_band": "critical",
+        "risk_score": 85,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "sensitive_data",
+          "tool_capability": "file_read"
+        }
+      },
+      {
+        "node_id": "tool-filesystem-write",
+        "node_type": "tool",
+        "label": "filesystem.write",
+        "risk_band": "medium",
+        "risk_score": 38,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "mcp_tools",
+          "tool_capability": "workspace_write"
+        }
+      },
+      {
+        "node_id": "tool-shell",
+        "node_type": "tool",
+        "label": "shell",
+        "risk_band": "high",
+        "risk_score": 62,
+        "decision_count": 1,
+        "metadata": {
+          "control_surface": "infrastructure_iac",
+          "tool_capability": "runtime_execution"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "tool-edge-sample-dec-002-agent-tool",
+        "source": "agent-codex-agent",
+        "target": "tool-filesystem",
+        "relationship": "invoked_tool",
+        "decision_id": "sample-dec-002",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "read_file",
+        "decision": "block",
+        "severity": "critical",
+        "risk_classification": "credential_or_sensitive_data_exposure",
+        "control_surface": "sensitive_data",
+        "risk_score": 98,
+        "risk_band": "critical",
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ],
+        "timestamp": "2026-06-09T00:01:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-002-tool-target",
+        "source": "tool-filesystem",
+        "target": "target-sensitive-data-sensitive-target-redacted",
+        "relationship": "requested_target",
+        "target_redacted": true,
+        "decision_id": "sample-dec-002",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "read_file",
+        "decision": "block",
+        "severity": "critical",
+        "risk_classification": "credential_or_sensitive_data_exposure",
+        "control_surface": "sensitive_data",
+        "risk_score": 98,
+        "risk_band": "critical",
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ],
+        "timestamp": "2026-06-09T00:01:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-002-policy-decision",
+        "source": "policy-cavra-ai-agent-baseline",
+        "target": "tool-filesystem",
+        "relationship": "governed_tool",
+        "decision_id": "sample-dec-002",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "read_file",
+        "decision": "block",
+        "severity": "critical",
+        "risk_classification": "credential_or_sensitive_data_exposure",
+        "control_surface": "sensitive_data",
+        "risk_score": 98,
+        "risk_band": "critical",
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ],
+        "timestamp": "2026-06-09T00:01:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-001-agent-tool",
+        "source": "agent-codex-agent",
+        "target": "tool-shell",
+        "relationship": "invoked_tool",
+        "decision_id": "sample-dec-001",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "execute_command",
+        "decision": "require_approval",
+        "severity": "high",
+        "risk_classification": "infrastructure_change_risk",
+        "control_surface": "infrastructure_iac",
+        "risk_score": 52,
+        "risk_band": "high",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ],
+        "timestamp": "2026-06-09T00:00:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-001-tool-target",
+        "source": "tool-shell",
+        "target": "target-infrastructure-iac-terraform-apply",
+        "relationship": "requested_target",
+        "target_redacted": false,
+        "decision_id": "sample-dec-001",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "execute_command",
+        "decision": "require_approval",
+        "severity": "high",
+        "risk_classification": "infrastructure_change_risk",
+        "control_surface": "infrastructure_iac",
+        "risk_score": 52,
+        "risk_band": "high",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ],
+        "timestamp": "2026-06-09T00:00:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-001-policy-decision",
+        "source": "policy-cloud-iam-prod",
+        "target": "tool-shell",
+        "relationship": "governed_tool",
+        "decision_id": "sample-dec-001",
+        "session_id": "sample-session-001",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "action_type": "execute_command",
+        "decision": "require_approval",
+        "severity": "high",
+        "risk_classification": "infrastructure_change_risk",
+        "control_surface": "infrastructure_iac",
+        "risk_score": 52,
+        "risk_band": "high",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ],
+        "timestamp": "2026-06-09T00:00:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-003-agent-tool",
+        "source": "agent-claude-code-agent",
+        "target": "tool-filesystem-write",
+        "relationship": "invoked_tool",
+        "decision_id": "sample-dec-003",
+        "session_id": "sample-session-002",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "action_type": "mcp_tool_call",
+        "decision": "warn",
+        "severity": "medium",
+        "risk_classification": "tool_or_mcp_governance_risk",
+        "control_surface": "mcp_tools",
+        "risk_score": 32,
+        "risk_band": "medium",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ],
+        "timestamp": "2026-06-09T00:02:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-003-tool-target",
+        "source": "tool-filesystem-write",
+        "target": "target-mcp-tools-filesystem-write",
+        "relationship": "requested_target",
+        "target_redacted": false,
+        "decision_id": "sample-dec-003",
+        "session_id": "sample-session-002",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "action_type": "mcp_tool_call",
+        "decision": "warn",
+        "severity": "medium",
+        "risk_classification": "tool_or_mcp_governance_risk",
+        "control_surface": "mcp_tools",
+        "risk_score": 32,
+        "risk_band": "medium",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ],
+        "timestamp": "2026-06-09T00:02:00+00:00"
+      },
+      {
+        "edge_id": "tool-edge-sample-dec-003-policy-decision",
+        "source": "policy-mcp-enterprise",
+        "target": "tool-filesystem-write",
+        "relationship": "governed_tool",
+        "decision_id": "sample-dec-003",
+        "session_id": "sample-session-002",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "action_type": "mcp_tool_call",
+        "decision": "warn",
+        "severity": "medium",
+        "risk_classification": "tool_or_mcp_governance_risk",
+        "control_surface": "mcp_tools",
+        "risk_score": 32,
+        "risk_band": "medium",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ],
+        "timestamp": "2026-06-09T00:02:00+00:00"
+      }
+    ],
+    "hotspots": [
+      {
+        "hotspot_id": "hotspot-codex-agent-payments-api",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "decision_count": 2,
+        "blocked_edges": 1,
+        "approval_required_edges": 1,
+        "warned_edges": 0,
+        "dominant_surface": "sensitive_data",
+        "risk_score": 98,
+        "risk_band": "critical",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change",
+          "sample://evidence/secret-read-block"
+        ]
+      },
+      {
+        "hotspot_id": "hotspot-claude-code-agent-platform-infra",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "decision_count": 1,
+        "blocked_edges": 0,
+        "approval_required_edges": 0,
+        "warned_edges": 1,
+        "dominant_surface": "mcp_tools",
+        "risk_score": 32,
+        "risk_band": "medium",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ]
+      }
+    ]
+  },
   "control_plane": {
     "community_status": "local_activity_ready",
-    "data_provenance_required": true,
     "enterprise_status": "requires_cavra_enterprise",
-    "kill_switch": "requires_cavra_enterprise",
     "live_streaming": "requires_cavra_enterprise",
-    "policy_distribution": "requires_cavra_enterprise",
+    "kill_switch": "requires_cavra_enterprise",
     "runtime_overrides": "requires_cavra_enterprise",
-    "trace_replay": "local_timeline_available"
+    "policy_distribution": "requires_cavra_enterprise",
+    "trace_replay": "local_timeline_available",
+    "data_provenance_required": true
   },
-  "data_provenance": "sample_data",
-  "edition": "community",
   "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
     "capabilities": [
       "live multi-tenant ingestion",
       "prompt and reasoning trace capture",
@@ -251,482 +1083,9 @@
       "kill switch and runtime overrides",
       "compliance exports and immutable retention",
       "private asset-graph and identity-aware pre-action forecasting",
-      "prompt-derived semantic intent extraction and private workflow correlation"
+      "prompt-derived semantic intent extraction and private workflow correlation",
+      "raw tool payload graphing and cross-system execution traces"
     ],
-    "private_package": "cavra_enterprise",
-    "status": "requires_cavra_enterprise"
-  },
-  "filters": {
-    "agent_id": null,
-    "limit": 200,
-    "policy_pack": null,
-    "repository": null
-  },
-  "findings": [
-    {
-      "agent_id": "claude-code-agent",
-      "decision": "warn",
-      "decision_id": "sample-dec-003",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "finding_id": "finding-sample-dec-003",
-      "reason": "MCP tool requires registration before broad rollout.",
-      "repository": "platform/infra",
-      "risk_classification": "tool_or_mcp_governance_risk",
-      "rule_id": "mcp.untrusted-tool",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "timestamp": "2026-06-09T00:02:00+00:00"
-    },
-    {
-      "agent_id": "codex-agent",
-      "decision": "block",
-      "decision_id": "sample-dec-002",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "finding_id": "finding-sample-dec-002",
-      "reason": "Sensitive production secret file access is blocked.",
-      "repository": "payments/api",
-      "risk_classification": "credential_or_sensitive_data_exposure",
-      "rule_id": "secrets.block-sensitive-read",
-      "session_id": "sample-session-001",
-      "severity": "critical",
-      "timestamp": "2026-06-09T00:01:00+00:00"
-    },
-    {
-      "agent_id": "codex-agent",
-      "decision": "require_approval",
-      "decision_id": "sample-dec-001",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "finding_id": "finding-sample-dec-001",
-      "reason": "Production-impacting infrastructure action requires approval.",
-      "repository": "payments/api",
-      "risk_classification": "infrastructure_change_risk",
-      "rule_id": "iac.production-change",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "timestamp": "2026-06-09T00:00:00+00:00"
-    }
-  ],
-  "generated_at": "2026-06-09T00:03:00+00:00",
-  "intent_action_drift": [
-    {
-      "action_type": "read_file",
-      "agent_id": "codex-agent",
-      "confidence": "metadata_intent_comparison",
-      "control_surface": "sensitive_data",
-      "decision": "block",
-      "decision_id": "sample-dec-002",
-      "declared_intent": "Inspect deployment configuration",
-      "drift_id": "intent-drift-sample-dec-002",
-      "drift_score": 81,
-      "drift_signals": [
-        "sensitive_target_not_declared",
-        "blocked_after_declared_intent",
-        "critical_or_high_intent_drift",
-        "action_type_not_explicit_in_intent"
-      ],
-      "drift_status": "high_drift",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "policy_pack": "cavra-ai-agent-baseline",
-      "recommended_action": "Block or escalate until the declared intent explicitly covers sensitive-data access.",
-      "repository": "payments/api",
-      "risk_classification": "credential_or_sensitive_data_exposure",
-      "rule_id": "secrets.block-sensitive-read",
-      "session_id": "sample-session-001",
-      "severity": "critical",
-      "target_redacted": true,
-      "target_summary": "sensitive target redacted",
-      "timestamp": "2026-06-09T00:01:00+00:00"
-    },
-    {
-      "action_type": "execute_command",
-      "agent_id": "codex-agent",
-      "confidence": "metadata_intent_comparison",
-      "control_surface": "infrastructure_iac",
-      "decision": "require_approval",
-      "decision_id": "sample-dec-001",
-      "declared_intent": "Apply approved production infrastructure change",
-      "drift_id": "intent-drift-sample-dec-001",
-      "drift_score": 35,
-      "drift_signals": [
-        "approval_required_after_declared_intent",
-        "critical_or_high_intent_drift",
-        "action_type_not_explicit_in_intent"
-      ],
-      "drift_status": "needs_review",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "policy_pack": "cloud-iam-prod",
-      "recommended_action": "Verify the requested change, blast radius, approval route, and execution target before allowing the action.",
-      "repository": "payments/api",
-      "risk_classification": "infrastructure_change_risk",
-      "rule_id": "iac.production-change",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "target_redacted": false,
-      "target_summary": "terraform apply",
-      "timestamp": "2026-06-09T00:00:00+00:00"
-    },
-    {
-      "action_type": "mcp_tool_call",
-      "agent_id": "claude-code-agent",
-      "confidence": "metadata_intent_comparison",
-      "control_surface": "mcp_tools",
-      "decision": "warn",
-      "decision_id": "sample-dec-003",
-      "declared_intent": "Write generated infrastructure documentation",
-      "drift_id": "intent-drift-sample-dec-003",
-      "drift_score": 6,
-      "drift_signals": [
-        "action_type_not_explicit_in_intent"
-      ],
-      "drift_status": "aligned",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "policy_pack": "mcp-enterprise",
-      "recommended_action": "Verify tool trust tier, write scope, and declared workflow intent before allowing broad tool use.",
-      "repository": "platform/infra",
-      "risk_classification": "tool_or_mcp_governance_risk",
-      "rule_id": "mcp.untrusted-tool",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "target_redacted": false,
-      "target_summary": "filesystem.write",
-      "timestamp": "2026-06-09T00:02:00+00:00"
-    }
-  ],
-  "mode": "sample",
-  "near_misses": [
-    {
-      "agent_id": "claude-code-agent",
-      "decision": "warn",
-      "decision_id": "sample-dec-003",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "near_miss_id": "near-miss-sample-dec-003",
-      "operator_signal": "warning_allowed_with_operator_visibility",
-      "reason": "MCP tool requires registration before broad rollout.",
-      "repository": "platform/infra",
-      "risk_classification": "tool_or_mcp_governance_risk",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "surface_id": "mcp_tools",
-      "timestamp": "2026-06-09T00:02:00+00:00"
-    },
-    {
-      "agent_id": "codex-agent",
-      "decision": "require_approval",
-      "decision_id": "sample-dec-001",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "near_miss_id": "near-miss-sample-dec-001",
-      "operator_signal": "approval_prevented_unreviewed_execution",
-      "reason": "Production-impacting infrastructure action requires approval.",
-      "repository": "payments/api",
-      "risk_classification": "infrastructure_change_risk",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "surface_id": "infrastructure_iac",
-      "timestamp": "2026-06-09T00:00:00+00:00"
-    }
-  ],
-  "overview": {
-    "approval_required_actions": 1,
-    "blocked_actions": 1,
-    "critical_findings": 1,
-    "evidence_confidence": "activity_evidence_refs",
-    "high_findings": 1,
-    "latest_activity_at": "2026-06-09T00:02:00+00:00",
-    "posture_score": 12,
-    "risk_findings": 3,
-    "risk_level": "critical",
-    "total_decisions": 3,
-    "total_sessions": 2,
-    "warned_actions": 1
-  },
-  "policy_context_gaps": [
-    {
-      "action_type": "execute_command",
-      "agent_id": "codex-agent",
-      "control_surface": "infrastructure_iac",
-      "decision": "require_approval",
-      "decision_id": "sample-dec-001",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "gap_id": "context-gap-sample-dec-001",
-      "gap_status": "requires_context_review",
-      "missing_context": [
-        "environment_tier",
-        "system_criticality",
-        "service_owner",
-        "change_window",
-        "blast_radius",
-        "approval_route"
-      ],
-      "policy_pack": "cloud-iam-prod",
-      "present_context": [],
-      "recommended_action": "Attach service owner, change window, and blast-radius context before execution. Missing: environment_tier, system_criticality, service_owner, change_window, blast_radius, approval_route.",
-      "repository": "payments/api",
-      "risk_classification": "infrastructure_change_risk",
-      "rule_id": "iac.production-change",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "timestamp": "2026-06-09T00:00:00+00:00"
-    },
-    {
-      "action_type": "read_file",
-      "agent_id": "codex-agent",
-      "control_surface": "sensitive_data",
-      "decision": "block",
-      "decision_id": "sample-dec-002",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "gap_id": "context-gap-sample-dec-002",
-      "gap_status": "requires_context_review",
-      "missing_context": [
-        "environment_tier",
-        "system_criticality",
-        "data_owner",
-        "data_classification",
-        "customer_region",
-        "approval_route"
-      ],
-      "policy_pack": "cavra-ai-agent-baseline",
-      "present_context": [],
-      "recommended_action": "Attach data-owner, classification, and regional context before relying on the decision. Missing: environment_tier, system_criticality, data_owner, data_classification, customer_region, approval_route.",
-      "repository": "payments/api",
-      "risk_classification": "credential_or_sensitive_data_exposure",
-      "rule_id": "secrets.block-sensitive-read",
-      "session_id": "sample-session-001",
-      "severity": "critical",
-      "timestamp": "2026-06-09T00:01:00+00:00"
-    },
-    {
-      "action_type": "mcp_tool_call",
-      "agent_id": "claude-code-agent",
-      "control_surface": "mcp_tools",
-      "decision": "warn",
-      "decision_id": "sample-dec-003",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "gap_id": "context-gap-sample-dec-003",
-      "gap_status": "requires_context_review",
-      "missing_context": [
-        "environment_tier",
-        "system_criticality",
-        "tool_owner",
-        "tool_trust_tier"
-      ],
-      "policy_pack": "mcp-enterprise",
-      "present_context": [
-        "business_justification"
-      ],
-      "recommended_action": "Attach tool owner, trust tier, and business justification before broad tool use. Missing: environment_tier, system_criticality, tool_owner, tool_trust_tier.",
-      "repository": "platform/infra",
-      "risk_classification": "tool_or_mcp_governance_risk",
-      "rule_id": "mcp.untrusted-tool",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "timestamp": "2026-06-09T00:02:00+00:00"
-    }
-  ],
-  "pre_action_risk_forecasts": [
-    {
-      "action_type": "read_file",
-      "agent_id": "codex-agent",
-      "confidence": "metadata_forecast",
-      "control_surface": "sensitive_data",
-      "decision": "block",
-      "decision_id": "sample-dec-002",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "forecast_id": "forecast-sample-dec-002",
-      "forecast_status": "block_recommended",
-      "likely_impacts": [
-        "credential_or_sensitive_data_exposure",
-        "data_exfiltration",
-        "audit_scope_expansion"
-      ],
-      "policy_pack": "cavra-ai-agent-baseline",
-      "pre_action_controls": [
-        "block_before_execution",
-        "require_operator_review",
-        "capture_evidence",
-        "redact_sensitive_target"
-      ],
-      "projected_blast_radius": "secret_scope",
-      "repository": "payments/api",
-      "risk_classification": "credential_or_sensitive_data_exposure",
-      "rule_id": "secrets.block-sensitive-read",
-      "session_id": "sample-session-001",
-      "severity": "critical",
-      "target_redacted": true,
-      "target_summary": "sensitive target redacted",
-      "timestamp": "2026-06-09T00:01:00+00:00"
-    },
-    {
-      "action_type": "execute_command",
-      "agent_id": "codex-agent",
-      "confidence": "metadata_forecast",
-      "control_surface": "infrastructure_iac",
-      "decision": "require_approval",
-      "decision_id": "sample-dec-001",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "forecast_id": "forecast-sample-dec-001",
-      "forecast_status": "approval_recommended",
-      "likely_impacts": [
-        "production_infrastructure_change",
-        "configuration_drift",
-        "service_availability_impact"
-      ],
-      "policy_pack": "cloud-iam-prod",
-      "pre_action_controls": [
-        "require_human_approval",
-        "verify_change_window",
-        "attach_evidence",
-        "require_blast_radius_context"
-      ],
-      "projected_blast_radius": "production_infrastructure",
-      "repository": "payments/api",
-      "risk_classification": "infrastructure_change_risk",
-      "rule_id": "iac.production-change",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "target_redacted": false,
-      "target_summary": "terraform apply",
-      "timestamp": "2026-06-09T00:00:00+00:00"
-    },
-    {
-      "action_type": "mcp_tool_call",
-      "agent_id": "claude-code-agent",
-      "confidence": "metadata_forecast",
-      "control_surface": "mcp_tools",
-      "decision": "warn",
-      "decision_id": "sample-dec-003",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "forecast_id": "forecast-sample-dec-003",
-      "forecast_status": "warn_recommended",
-      "likely_impacts": [
-        "untrusted_tool_write_access",
-        "workspace_mutation",
-        "toolchain_expansion"
-      ],
-      "policy_pack": "mcp-enterprise",
-      "pre_action_controls": [
-        "warn_operator",
-        "require_attestation",
-        "monitor_follow_up",
-        "verify_tool_trust_tier"
-      ],
-      "projected_blast_radius": "tooling_surface",
-      "repository": "platform/infra",
-      "risk_classification": "tool_or_mcp_governance_risk",
-      "rule_id": "mcp.untrusted-tool",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "target_redacted": false,
-      "target_summary": "filesystem.write",
-      "timestamp": "2026-06-09T00:02:00+00:00"
-    }
-  ],
-  "product": "CAVRA",
-  "schema_version": "cavra.aispm.dashboard.v1",
-  "telemetry": "disabled",
-  "timeline": [
-    {
-      "agent_id": "claude-code-agent",
-      "event_id": "session-sample-session-002",
-      "event_type": "session",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "outcome": "active",
-      "repository": "platform/infra",
-      "session_id": "sample-session-002",
-      "timestamp": "2026-06-09T00:02:00+00:00",
-      "title": "Session active"
-    },
-    {
-      "agent_id": "claude-code-agent",
-      "decision_id": "sample-dec-003",
-      "event_id": "decision-sample-dec-003",
-      "event_type": "policy_decision",
-      "evidence_refs": [
-        "sample://evidence/mcp-warning"
-      ],
-      "outcome": "warn",
-      "repository": "platform/infra",
-      "session_id": "sample-session-002",
-      "severity": "medium",
-      "target": "filesystem.write",
-      "timestamp": "2026-06-09T00:02:00+00:00",
-      "title": "warn mcp_tool_call"
-    },
-    {
-      "agent_id": "codex-agent",
-      "event_id": "session-sample-session-001",
-      "event_type": "session",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change",
-        "sample://evidence/secret-read-block"
-      ],
-      "outcome": "completed",
-      "repository": "payments/api",
-      "session_id": "sample-session-001",
-      "timestamp": "2026-06-09T00:01:00+00:00",
-      "title": "Session completed"
-    },
-    {
-      "agent_id": "codex-agent",
-      "decision_id": "sample-dec-002",
-      "event_id": "decision-sample-dec-002",
-      "event_type": "policy_decision",
-      "evidence_refs": [
-        "sample://evidence/secret-read-block"
-      ],
-      "outcome": "block",
-      "repository": "payments/api",
-      "session_id": "sample-session-001",
-      "severity": "critical",
-      "target": ".env.production",
-      "timestamp": "2026-06-09T00:01:00+00:00",
-      "title": "block read_file"
-    },
-    {
-      "agent_id": "codex-agent",
-      "decision_id": "sample-dec-001",
-      "event_id": "decision-sample-dec-001",
-      "event_type": "policy_decision",
-      "evidence_refs": [
-        "sample://evidence/iac-production-change"
-      ],
-      "outcome": "require_approval",
-      "repository": "payments/api",
-      "session_id": "sample-session-001",
-      "severity": "high",
-      "target": "terraform apply",
-      "timestamp": "2026-06-09T00:00:00+00:00",
-      "title": "require_approval execute_command"
-    }
-  ],
-  "tracking": "none"
+    "private_package": "cavra_enterprise"
+  }
 }

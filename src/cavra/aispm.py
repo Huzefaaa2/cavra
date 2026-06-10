@@ -53,6 +53,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "policy context gap detection for decisions missing business-critical metadata",
                 "pre-action risk forecasts from local decision metadata before agent execution",
                 "intent-to-action drift detection from declared intent and local decision metadata",
+                "public-safe tool-chain graph from agent, tool, target, and decision metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -68,6 +69,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "compliance exports and immutable retention",
                 "private asset-graph and identity-aware pre-action forecasting",
                 "prompt-derived semantic intent extraction and private workflow correlation",
+                "raw tool payload graphing and cross-system execution traces",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -84,6 +86,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "policy_context_gaps",
             "pre_action_risk_forecasts",
             "intent_action_drift",
+            "tool_chain_graph",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -99,6 +102,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "policy_context_gaps": "/aispm/policy-context-gaps",
             "pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
             "intent_action_drift": "/aispm/intent-action-drift",
+            "tool_chain_graph": "/aispm/tool-chain-graph",
         },
     }
 
@@ -134,6 +138,7 @@ def build_aispm_posture(
     policy_context_gaps = _policy_context_gaps(decisions)
     pre_action_risk_forecasts = _pre_action_risk_forecasts(decisions)
     intent_action_drift = _intent_action_drift(decisions)
+    tool_chain_graph = _tool_chain_graph(decisions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -160,6 +165,7 @@ def build_aispm_posture(
         "policy_context_gaps": policy_context_gaps,
         "pre_action_risk_forecasts": pre_action_risk_forecasts,
         "intent_action_drift": intent_action_drift,
+        "tool_chain_graph": tool_chain_graph,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -452,6 +458,82 @@ def build_aispm_intent_action_drift(
     }
 
 
+def build_aispm_tool_chain_graph(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe tool-chain graph from local decision metadata.
+
+    Community exposes redacted node/edge summaries only. Enterprise owns raw
+    tool payloads, cross-system call graphs, connector spans, latency traces,
+    and full session replay.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    graph = _tool_chain_graph(decisions)
+    node_counts = Counter(str(node.get("node_type", "unknown")) for node in graph["nodes"])
+    high_risk_edges = [edge for edge in graph["edges"] if int(edge.get("risk_score", 0)) >= 70]
+    blocked_edges = [edge for edge in graph["edges"] if edge.get("decision") == "block"]
+    return {
+        "schema_version": "cavra.aispm.tool_chain_graph.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "node_count": len(graph["nodes"]),
+            "edge_count": len(graph["edges"]),
+            "agent_nodes": node_counts["agent"],
+            "tool_nodes": node_counts["tool"],
+            "target_nodes": node_counts["target"],
+            "high_risk_edges": len(high_risk_edges),
+            "blocked_edges": len(blocked_edges),
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "nodes": graph["nodes"],
+        "edges": graph["edges"],
+        "hotspots": graph["hotspots"],
+        "redaction": {
+            "raw_tool_payload": LOCKED_ENTERPRISE_STATUS,
+            "tool_result_body": LOCKED_ENTERPRISE_STATUS,
+            "prompt_context": LOCKED_ENTERPRISE_STATUS,
+            "connector_spans": LOCKED_ENTERPRISE_STATUS,
+            "cross_system_call_graph": LOCKED_ENTERPRISE_STATUS,
+            "private_network_targets": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "raw tool request and response graphing",
+                "cross-system call graph from MCP, shell, Git, CI, cloud, and SaaS connectors",
+                "latency and execution span correlation",
+                "private network and identity-aware target mapping",
+                "live tool-chain alerts and SIEM export",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -467,6 +549,8 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "declared_intent": "Apply approved production infrastructure change",
             "policy_pack": "cloud-iam-prod",
             "rule_id": "iac.production-change",
+            "tool": "shell",
+            "tool_capability": "runtime_execution",
             "decision": "require_approval",
             "severity": "high",
             "reason": "Production-impacting infrastructure action requires approval.",
@@ -484,6 +568,8 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "declared_intent": "Inspect deployment configuration",
             "policy_pack": "cavra-ai-agent-baseline",
             "rule_id": "secrets.block-sensitive-read",
+            "tool": "filesystem",
+            "tool_capability": "file_read",
             "decision": "block",
             "severity": "critical",
             "reason": "Sensitive production secret file access is blocked.",
@@ -501,6 +587,9 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
             "declared_intent": "Write generated infrastructure documentation",
             "policy_pack": "mcp-enterprise",
             "rule_id": "mcp.untrusted-tool",
+            "tool": "filesystem.write",
+            "server": "filesystem-mcp",
+            "tool_capability": "workspace_write",
             "decision": "warn",
             "severity": "medium",
             "reason": "MCP tool requires registration before broad rollout.",
@@ -560,6 +649,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "policy_context_gaps": _policy_context_gaps(decisions),
         "pre_action_risk_forecasts": _pre_action_risk_forecasts(decisions),
         "intent_action_drift": _intent_action_drift(decisions),
+        "tool_chain_graph": _tool_chain_graph(decisions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -1403,6 +1493,252 @@ def _intent_drift_recommended_action(signals: list[str], surface: str) -> str:
     if surface == "runtime_commands":
         return "Verify execution environment and command purpose before allowing runtime execution."
     return "Compare declared intent with the observed action and require attestation if the scope changed."
+
+
+def _tool_chain_graph(decisions: list[dict[str, Any]]) -> dict[str, Any]:
+    nodes_by_id: dict[str, dict[str, Any]] = {}
+    edges: list[dict[str, Any]] = []
+    hotspot_counts: dict[str, Counter[str]] = defaultdict(Counter)
+    hotspot_evidence: dict[str, list[str]] = defaultdict(list)
+
+    for decision in decisions:
+        agent_id = str(decision.get("agent_id", "unknown-agent"))
+        repository = str(decision.get("repository", "local"))
+        tool_label = _tool_label(decision)
+        target_summary, target_redacted = _safe_target_summary(decision)
+        surface = _control_surface(decision)
+        risk_score = _tool_chain_risk_score(decision, target_redacted)
+        risk_band = _tool_chain_risk_band(risk_score)
+        decision_id = str(decision.get("decision_id", "unknown"))
+        edge_id_prefix = f"tool-edge-{decision_id}"
+
+        agent_node = _graph_node(
+            node_id=_node_id("agent", agent_id),
+            node_type="agent",
+            label=agent_id,
+            risk_band="observed",
+            metadata={"repository": repository},
+        )
+        tool_node = _graph_node(
+            node_id=_node_id("tool", tool_label),
+            node_type="tool",
+            label=tool_label,
+            risk_band=risk_band,
+            metadata={"control_surface": surface, "tool_capability": _tool_capability(decision)},
+        )
+        target_node = _graph_node(
+            node_id=_node_id("target", f"{surface}:{target_summary}"),
+            node_type="target",
+            label=target_summary,
+            risk_band=risk_band,
+            metadata={"control_surface": surface, "target_redacted": target_redacted},
+        )
+        policy_node = _graph_node(
+            node_id=_node_id("policy", str(decision.get("policy_pack", "cavra-ai-agent-baseline"))),
+            node_type="policy",
+            label=str(decision.get("policy_pack", "cavra-ai-agent-baseline")),
+            risk_band="observed",
+            metadata={"rule_id": str(decision.get("rule_id", "runtime.default"))},
+        )
+
+        for node in (agent_node, tool_node, target_node, policy_node):
+            existing = nodes_by_id.get(str(node["node_id"]))
+            if existing:
+                existing["decision_count"] = int(existing.get("decision_count", 0)) + 1
+                existing["risk_score"] = max(int(existing.get("risk_score", 0)), int(node.get("risk_score", 0)))
+                existing["risk_band"] = _tool_chain_risk_band(int(existing["risk_score"]))
+            else:
+                nodes_by_id[str(node["node_id"])] = node
+
+        common = {
+            "decision_id": decision.get("decision_id"),
+            "session_id": decision.get("session_id"),
+            "agent_id": agent_id,
+            "repository": repository,
+            "action_type": decision.get("action_type", "unknown"),
+            "decision": decision.get("decision", "unknown"),
+            "severity": decision.get("severity", "low"),
+            "risk_classification": _risk_classification(decision),
+            "control_surface": surface,
+            "risk_score": risk_score,
+            "risk_band": risk_band,
+            "evidence_refs": list(decision.get("evidence_refs", [])),
+            "timestamp": decision.get("timestamp"),
+        }
+        edges.extend(
+            [
+                {
+                    "edge_id": f"{edge_id_prefix}-agent-tool",
+                    "source": agent_node["node_id"],
+                    "target": tool_node["node_id"],
+                    "relationship": "invoked_tool",
+                    **common,
+                },
+                {
+                    "edge_id": f"{edge_id_prefix}-tool-target",
+                    "source": tool_node["node_id"],
+                    "target": target_node["node_id"],
+                    "relationship": "requested_target",
+                    "target_redacted": target_redacted,
+                    **common,
+                },
+                {
+                    "edge_id": f"{edge_id_prefix}-policy-decision",
+                    "source": policy_node["node_id"],
+                    "target": tool_node["node_id"],
+                    "relationship": "governed_tool",
+                    **common,
+                },
+            ]
+        )
+
+        hotspot_key = f"{agent_id}::{repository}"
+        hotspot_counts[hotspot_key]["decisions"] += 1
+        hotspot_counts[hotspot_key][str(decision.get("decision", "unknown"))] += 1
+        hotspot_counts[hotspot_key][surface] += 1
+        hotspot_counts[hotspot_key]["risk_score"] = max(hotspot_counts[hotspot_key]["risk_score"], risk_score)
+        hotspot_evidence[hotspot_key].extend(list(decision.get("evidence_refs", [])))
+
+    hotspots = [
+        {
+            "hotspot_id": _node_id("hotspot", key),
+            "agent_id": key.split("::", 1)[0],
+            "repository": key.split("::", 1)[1],
+            "decision_count": counts["decisions"],
+            "blocked_edges": counts["block"],
+            "approval_required_edges": counts["require_approval"],
+            "warned_edges": counts["warn"],
+            "dominant_surface": _dominant_surface(counts),
+            "risk_score": counts["risk_score"],
+            "risk_band": _tool_chain_risk_band(counts["risk_score"]),
+            "evidence_refs": list(dict.fromkeys(hotspot_evidence[key]))[:8],
+        }
+        for key, counts in hotspot_counts.items()
+    ]
+
+    return {
+        "nodes": sorted(nodes_by_id.values(), key=lambda item: (str(item.get("node_type")), str(item.get("label")))),
+        "edges": sorted(edges, key=lambda item: (int(item.get("risk_score", 0)), str(item.get("timestamp", ""))), reverse=True),
+        "hotspots": sorted(hotspots, key=lambda item: (int(item.get("risk_score", 0)), int(item.get("decision_count", 0))), reverse=True),
+    }
+
+
+def _graph_node(
+    *,
+    node_id: str,
+    node_type: str,
+    label: str,
+    risk_band: str,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "node_id": node_id,
+        "node_type": node_type,
+        "label": label,
+        "risk_band": risk_band,
+        "risk_score": _risk_band_score(risk_band),
+        "decision_count": 1,
+        "metadata": metadata,
+    }
+
+
+def _node_id(prefix: str, value: str) -> str:
+    cleaned = "".join(ch if ch.isalnum() else "-" for ch in value.lower()).strip("-")
+    while "--" in cleaned:
+        cleaned = cleaned.replace("--", "-")
+    return f"{prefix}-{cleaned or 'unknown'}"[:120]
+
+
+def _tool_label(decision: dict[str, Any]) -> str:
+    for container in (
+        decision,
+        decision.get("context") if isinstance(decision.get("context"), dict) else {},
+        decision.get("metadata") if isinstance(decision.get("metadata"), dict) else {},
+        decision.get("labels") if isinstance(decision.get("labels"), dict) else {},
+    ):
+        if not isinstance(container, dict):
+            continue
+        for key in ("tool", "tool_name", "server", "mcp_server", "operation"):
+            value = container.get(key)
+            if value not in {None, ""}:
+                return str(value)
+    action_type = str(decision.get("action_type", "unknown"))
+    target = str(decision.get("target") or decision.get("requested_operation") or "")
+    if action_type == "mcp_tool_call" and target:
+        return target
+    if "command" in action_type and target:
+        return "shell"
+    if "file" in action_type:
+        return "filesystem"
+    if "git" in action_type:
+        return "git"
+    return action_type or "unknown-tool"
+
+
+def _tool_capability(decision: dict[str, Any]) -> str:
+    for container in (
+        decision,
+        decision.get("context") if isinstance(decision.get("context"), dict) else {},
+        decision.get("metadata") if isinstance(decision.get("metadata"), dict) else {},
+        decision.get("labels") if isinstance(decision.get("labels"), dict) else {},
+    ):
+        if not isinstance(container, dict):
+            continue
+        value = container.get("tool_capability") or container.get("capability")
+        if value not in {None, ""}:
+            return str(value)
+    return _control_surface(decision)
+
+
+def _tool_chain_risk_score(decision: dict[str, Any], target_redacted: bool) -> int:
+    score = RISK_WEIGHTS.get(str(decision.get("severity", "low")), 3)
+    score += DECISION_RISK_WEIGHTS.get(str(decision.get("decision", "audit_only")), 0)
+    surface = _control_surface(decision)
+    if surface == "sensitive_data":
+        score += 34
+    elif surface == "infrastructure_iac":
+        score += 24
+    elif surface == "mcp_tools":
+        score += 18
+    elif surface in {"runtime_commands", "source_control"}:
+        score += 14
+    if target_redacted:
+        score += 10
+    if str(decision.get("decision", "")) == "block":
+        score += 8
+    return max(0, min(score, 100))
+
+
+def _tool_chain_risk_band(score: int) -> str:
+    if score >= 70:
+        return "critical"
+    if score >= 50:
+        return "high"
+    if score >= 25:
+        return "medium"
+    return "low"
+
+
+def _risk_band_score(risk_band: str) -> int:
+    return {
+        "critical": 85,
+        "high": 62,
+        "medium": 38,
+        "low": 12,
+        "observed": 5,
+    }.get(risk_band, 0)
+
+
+def _dominant_surface(counts: Counter[str]) -> str:
+    surfaces = [
+        "sensitive_data",
+        "infrastructure_iac",
+        "mcp_tools",
+        "source_control",
+        "runtime_commands",
+        "general_policy",
+    ]
+    return max(surfaces, key=lambda surface: counts[surface], default="general_policy")
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

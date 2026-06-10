@@ -18,6 +18,7 @@
     "policy_context_gaps",
     "pre_action_risk_forecasts",
     "intent_action_drift",
+    "tool_chain_graph",
     "control_plane"
   ],
   "properties": {
@@ -277,6 +278,75 @@
           "confidence": { "type": "string" },
           "evidence_refs": { "type": "array", "items": { "type": "string" } },
           "timestamp": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "tool_chain_graph": {
+      "type": "object",
+      "required": ["nodes", "edges", "hotspots"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["node_id", "node_type", "label", "risk_band", "risk_score", "decision_count"],
+            "properties": {
+              "node_id": { "type": "string" },
+              "node_type": { "enum": ["agent", "tool", "target", "policy"] },
+              "label": { "type": "string" },
+              "risk_band": { "type": "string" },
+              "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "decision_count": { "type": "integer", "minimum": 0 },
+              "metadata": { "type": "object" }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["edge_id", "source", "target", "relationship", "decision_id", "risk_score", "risk_band"],
+            "properties": {
+              "edge_id": { "type": "string" },
+              "source": { "type": "string" },
+              "target": { "type": "string" },
+              "relationship": { "enum": ["invoked_tool", "requested_target", "governed_tool"] },
+              "decision_id": { "type": "string" },
+              "session_id": { "type": "string" },
+              "agent_id": { "type": "string" },
+              "repository": { "type": "string" },
+              "action_type": { "type": "string" },
+              "decision": { "type": "string" },
+              "severity": { "type": "string" },
+              "risk_classification": { "type": "string" },
+              "control_surface": { "type": "string" },
+              "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "risk_band": { "enum": ["low", "medium", "high", "critical"] },
+              "target_redacted": { "type": "boolean" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } },
+              "timestamp": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "hotspots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["hotspot_id", "agent_id", "repository", "decision_count", "risk_score", "risk_band"],
+            "properties": {
+              "hotspot_id": { "type": "string" },
+              "agent_id": { "type": "string" },
+              "repository": { "type": "string" },
+              "decision_count": { "type": "integer", "minimum": 0 },
+              "blocked_edges": { "type": "integer", "minimum": 0 },
+              "approval_required_edges": { "type": "integer", "minimum": 0 },
+              "warned_edges": { "type": "integer", "minimum": 0 },
+              "dominant_surface": { "type": "string" },
+              "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "risk_band": { "enum": ["low", "medium", "high", "critical"] },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
         }
       }
     },

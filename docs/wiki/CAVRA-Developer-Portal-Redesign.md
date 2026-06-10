@@ -27,7 +27,8 @@ Delivered UX:
   approval records, and behavior fingerprinting for baseline-vs-unusual agent
   drift signals, policy context gaps for policy-invisible risk, and
   pre-action risk forecasts for projected blast radius, and intent-to-action
-  drift for declared intent versus observed action;
+  drift for declared intent versus observed action, and tool-chain risk graphing
+  for agent/tool/target/policy edge hotspots;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 

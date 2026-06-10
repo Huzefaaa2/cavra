@@ -426,6 +426,28 @@ const aispmFallback = {
       timestamp: "2026-06-09T00:02:00+00:00"
     }
   ],
+  tool_chain_graph: {
+    nodes: [
+      { node_id: "agent-codex-agent", node_type: "agent", label: "codex-agent", risk_band: "low", risk_score: 5, decision_count: 2, metadata: { repository: "payments/api" } },
+      { node_id: "agent-claude-code-agent", node_type: "agent", label: "claude-code-agent", risk_band: "observed", risk_score: 5, decision_count: 1, metadata: { repository: "platform/infra" } },
+      { node_id: "tool-filesystem", node_type: "tool", label: "filesystem", risk_band: "critical", risk_score: 85, decision_count: 1, metadata: { control_surface: "sensitive_data", tool_capability: "file_read" } },
+      { node_id: "tool-shell", node_type: "tool", label: "shell", risk_band: "high", risk_score: 62, decision_count: 1, metadata: { control_surface: "infrastructure_iac", tool_capability: "runtime_execution" } },
+      { node_id: "tool-filesystem-write", node_type: "tool", label: "filesystem.write", risk_band: "medium", risk_score: 38, decision_count: 1, metadata: { control_surface: "mcp_tools", tool_capability: "workspace_write" } },
+      { node_id: "target-sensitive-data-sensitive-target-redacted", node_type: "target", label: "sensitive target redacted", risk_band: "critical", risk_score: 85, decision_count: 1, metadata: { control_surface: "sensitive_data", target_redacted: true } },
+      { node_id: "target-infrastructure-iac-terraform-apply", node_type: "target", label: "terraform apply", risk_band: "high", risk_score: 62, decision_count: 1, metadata: { control_surface: "infrastructure_iac", target_redacted: false } },
+      { node_id: "policy-cavra-ai-agent-baseline", node_type: "policy", label: "cavra-ai-agent-baseline", risk_band: "observed", risk_score: 5, decision_count: 1, metadata: { rule_id: "secrets.block-sensitive-read" } }
+    ],
+    edges: [
+      { edge_id: "tool-edge-sample-dec-002-agent-tool", source: "agent-codex-agent", target: "tool-filesystem", relationship: "invoked_tool", decision_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", action_type: "read_file", decision: "block", severity: "critical", risk_classification: "credential_or_sensitive_data_exposure", control_surface: "sensitive_data", risk_score: 98, risk_band: "critical", evidence_refs: ["sample://evidence/secret-read-block"], timestamp: "2026-06-09T00:01:00+00:00" },
+      { edge_id: "tool-edge-sample-dec-002-tool-target", source: "tool-filesystem", target: "target-sensitive-data-sensitive-target-redacted", relationship: "requested_target", target_redacted: true, decision_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", action_type: "read_file", decision: "block", severity: "critical", risk_classification: "credential_or_sensitive_data_exposure", control_surface: "sensitive_data", risk_score: 98, risk_band: "critical", evidence_refs: ["sample://evidence/secret-read-block"], timestamp: "2026-06-09T00:01:00+00:00" },
+      { edge_id: "tool-edge-sample-dec-001-agent-tool", source: "agent-codex-agent", target: "tool-shell", relationship: "invoked_tool", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", action_type: "execute_command", decision: "require_approval", severity: "high", risk_classification: "infrastructure_change_risk", control_surface: "infrastructure_iac", risk_score: 52, risk_band: "high", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
+      { edge_id: "tool-edge-sample-dec-003-agent-tool", source: "agent-claude-code-agent", target: "tool-filesystem-write", relationship: "invoked_tool", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", action_type: "mcp_tool_call", decision: "warn", severity: "medium", risk_classification: "tool_or_mcp_governance_risk", control_surface: "mcp_tools", risk_score: 32, risk_band: "medium", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
+    ],
+    hotspots: [
+      { hotspot_id: "hotspot-codex-agent-payments-api", agent_id: "codex-agent", repository: "payments/api", decision_count: 2, blocked_edges: 1, approval_required_edges: 1, warned_edges: 0, dominant_surface: "sensitive_data", risk_score: 98, risk_band: "critical", evidence_refs: ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block"] },
+      { hotspot_id: "hotspot-claude-code-agent-platform-infra", agent_id: "claude-code-agent", repository: "platform/infra", decision_count: 1, blocked_edges: 0, approval_required_edges: 0, warned_edges: 1, dominant_surface: "mcp_tools", risk_score: 32, risk_band: "medium", evidence_refs: ["sample://evidence/mcp-warning"] }
+    ]
+  },
   policy_context_gaps: [
     {
       gap_id: "context-gap-sample-dec-001",
@@ -851,6 +873,50 @@ const aispmIntentActionDriftFallback = {
   }
 };
 
+const aispmToolChainGraphFallback = {
+  schema_version: "cavra.aispm.tool_chain_graph.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:08:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    node_count: aispmFallback.tool_chain_graph.nodes.length,
+    edge_count: aispmFallback.tool_chain_graph.edges.length,
+    agent_nodes: aispmFallback.tool_chain_graph.nodes.filter((node) => node.node_type === "agent").length,
+    tool_nodes: aispmFallback.tool_chain_graph.nodes.filter((node) => node.node_type === "tool").length,
+    target_nodes: aispmFallback.tool_chain_graph.nodes.filter((node) => node.node_type === "target").length,
+    high_risk_edges: aispmFallback.tool_chain_graph.edges.filter((edge) => edge.risk_score >= 70).length,
+    blocked_edges: aispmFallback.tool_chain_graph.edges.filter((edge) => edge.decision === "block").length,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  nodes: aispmFallback.tool_chain_graph.nodes,
+  edges: aispmFallback.tool_chain_graph.edges,
+  hotspots: aispmFallback.tool_chain_graph.hotspots,
+  redaction: {
+    raw_tool_payload: "requires_cavra_enterprise",
+    tool_result_body: "requires_cavra_enterprise",
+    prompt_context: "requires_cavra_enterprise",
+    connector_spans: "requires_cavra_enterprise",
+    cross_system_call_graph: "requires_cavra_enterprise",
+    private_network_targets: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "raw tool request and response graphing",
+      "cross-system call graph from MCP, shell, Git, CI, cloud, and SaaS connectors",
+      "latency and execution span correlation",
+      "private network and identity-aware target mapping",
+      "live tool-chain alerts and SIEM export"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -869,7 +935,8 @@ const routeContent = [
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." },
   { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." },
-  { type: "AI Posture", label: "Intent-To-Action Drift", route: "ai-posture", description: "Compare declared intent with observed action, target, and policy outcome." }
+  { type: "AI Posture", label: "Intent-To-Action Drift", route: "ai-posture", description: "Compare declared intent with observed action, target, and policy outcome." },
+  { type: "AI Posture", label: "Tool-Chain Risk Graph", route: "ai-posture", description: "Map agents, tools, redacted targets, policy packs, and risky execution edges." }
 ];
 
 function el(selector) {
@@ -1066,6 +1133,14 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     summary: summarizeIntentActionDrift(payload.intent_action_drift || aispmIntentActionDriftFallback.items),
     items: payload.intent_action_drift || aispmIntentActionDriftFallback.items
+  }, "posture sample");
+  renderAispmToolChainGraph({
+    ...aispmToolChainGraphFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeToolChainGraph(payload.tool_chain_graph || aispmToolChainGraphFallback),
+    nodes: payload.tool_chain_graph?.nodes || aispmToolChainGraphFallback.nodes,
+    edges: payload.tool_chain_graph?.edges || aispmToolChainGraphFallback.edges,
+    hotspots: payload.tool_chain_graph?.hotspots || aispmToolChainGraphFallback.hotspots
   }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
@@ -1544,6 +1619,86 @@ function renderAispmIntentActionDrift(packet, note = "sample drift") {
   }).join("") || `<p class="empty-state">No intent-to-action drift records available for this activity window.</p>`;
 }
 
+function summarizeToolChainGraph(graph) {
+  const nodes = graph?.nodes || [];
+  const edges = graph?.edges || [];
+  return {
+    node_count: nodes.length,
+    edge_count: edges.length,
+    agent_nodes: nodes.filter((node) => node.node_type === "agent").length,
+    tool_nodes: nodes.filter((node) => node.node_type === "tool").length,
+    target_nodes: nodes.filter((node) => node.node_type === "target").length,
+    high_risk_edges: edges.filter((edge) => Number(edge.risk_score || 0) >= 70).length,
+    blocked_edges: edges.filter((edge) => edge.decision === "block").length,
+    evidence_confidence: edges.some((edge) => (edge.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmToolChainGraph() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/tool-chain-graph`);
+      if (!response.ok) throw new Error(`Tool graph HTTP ${response.status}`);
+      renderAispmToolChainGraph(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmToolChainGraph(aispmToolChainGraphFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmToolChainGraph(aispmToolChainGraphFallback, "static sample graph");
+}
+
+function renderAispmToolChainGraph(packet, note = "sample graph") {
+  const summary = packet.summary || summarizeToolChainGraph(packet);
+  const nodes = packet.nodes || [];
+  const edges = packet.edges || [];
+  const hotspots = packet.hotspots || [];
+  const summaryCards = [
+    ["Graph", `${summary.node_count ?? nodes.length} nodes`, `${summary.edge_count ?? edges.length} edges · ${note}`],
+    ["High-Risk Edges", summary.high_risk_edges ?? 0, `Blocked: ${summary.blocked_edges ?? 0}`],
+    ["Tools/Targets", `${summary.tool_nodes ?? 0}/${summary.target_nodes ?? 0}`, `Agents: ${summary.agent_nodes ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Raw payloads stay Enterprise"]
+  ];
+  el("#aispmToolGraphSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmToolGraphNodes").innerHTML = hotspots.slice(0, 4).map((hotspot) => `
+    <article class="tool-node-card">
+      <span class="severity ${escapeHtml(hotspot.risk_band || "low")}">${escapeHtml(hotspot.risk_band || "low")}</span>
+      <strong>${escapeHtml(hotspot.agent_id || "unknown-agent")} · ${escapeHtml(hotspot.repository || "local")}</strong>
+      <p>${escapeHtml(String(hotspot.dominant_surface || "general_policy").replaceAll("_", " "))} · ${escapeHtml(hotspot.decision_count ?? 0)} decisions</p>
+      <small>${escapeHtml((hotspot.evidence_refs || []).join(", ") || "no evidence refs")}</small>
+    </article>
+  `).join("") || nodes.slice(0, 6).map((node) => `
+    <article class="tool-node-card">
+      <span class="severity ${escapeHtml(node.risk_band || "low")}">${escapeHtml(node.node_type || "node")}</span>
+      <strong>${escapeHtml(node.label || node.node_id || "unknown")}</strong>
+      <p>${escapeHtml(node.risk_band || "observed")} · ${escapeHtml(node.decision_count ?? 0)} decisions</p>
+    </article>
+  `).join("") || `<p class="empty-state">No tool graph nodes available.</p>`;
+  el("#aispmToolGraphEdges").innerHTML = edges.slice(0, 8).map((edge) => {
+    const relationship = String(edge.relationship || "observed").replaceAll("_", " ");
+    const risk = String(edge.risk_classification || "policy_decision_review").replaceAll("_", " ");
+    return `
+      <article class="tool-edge-row">
+        <span class="tool-risk-score">${escapeHtml(edge.risk_score ?? 0)}</span>
+        <div>
+          <strong>${escapeHtml(relationship)} · ${escapeHtml(edge.decision || "recorded")}</strong>
+          <p>${escapeHtml(edge.source || "source")} → ${escapeHtml(edge.target || "target")} · ${escapeHtml(risk)}</p>
+          <small>${escapeHtml(edge.agent_id || "unknown-agent")} · ${escapeHtml(edge.repository || "local")} · ${escapeHtml(edge.control_surface || "general_policy")}</small>
+        </div>
+        <small>${escapeHtml((edge.evidence_refs || []).join(", ") || "metadata only")}</small>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No tool-chain edges available for this activity window.</p>`;
+}
+
 function renderAispmTraceReplay(packet, note = "sample replay") {
   const summary = packet.summary || {};
   const session = packet.session || {};
@@ -1756,6 +1911,7 @@ function wireEvents() {
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
   el("#refreshAispmIntentDrift").addEventListener("click", loadAispmIntentActionDrift);
+  el("#refreshAispmToolGraph").addEventListener("click", loadAispmToolChainGraph);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1795,6 +1951,7 @@ function init() {
   loadAispmPolicyContextGaps();
   loadAispmPreActionForecasts();
   loadAispmIntentActionDrift();
+  loadAispmToolChainGraph();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

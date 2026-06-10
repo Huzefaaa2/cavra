@@ -13,6 +13,7 @@ from cavra.aispm import (
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
     build_aispm_trace_replay_packet,
+    build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
 )
 from cavra.approvals import ApprovalStore
@@ -105,6 +106,8 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["pre_action_risk_forecasts"][1]["forecast_status"] == "approval_recommended"
     assert posture["intent_action_drift"][0]["drift_status"] == "unknown_intent"
     assert "missing_declared_intent" in posture["intent_action_drift"][0]["drift_signals"]
+    assert posture["tool_chain_graph"]["hotspots"][0]["risk_band"] == "critical"
+    assert posture["tool_chain_graph"]["edges"][0]["relationship"] == "invoked_tool"
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -339,6 +342,60 @@ def test_aispm_intent_action_drift_detects_sensitive_scope_change(tmp_path: Path
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_tool_chain_graph_maps_public_safe_edges(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-block-secret",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="block",
+                severity="critical",
+                action_type="read_file",
+                target=".env.production",
+                rule_id="secrets.block-sensitive-read",
+            ),
+            "tool": "filesystem",
+            "tool_capability": "file_read",
+        }
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-mcp-write",
+                session_id="session-2",
+                agent_id="claude-code-agent",
+                decision="warn",
+                severity="medium",
+                action_type="mcp_tool_call",
+                target="filesystem.write",
+                rule_id="mcp.untrusted-tool",
+            ),
+            "server": "filesystem-mcp",
+            "tool": "filesystem.write",
+            "tool_capability": "workspace_write",
+        }
+    )
+
+    packet = build_aispm_tool_chain_graph(store)
+
+    assert packet["schema_version"] == "cavra.aispm.tool_chain_graph.v1"
+    assert packet["summary"]["tool_nodes"] >= 2
+    assert packet["summary"]["high_risk_edges"] >= 2
+    assert packet["summary"]["blocked_edges"] >= 1
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    assert packet["hotspots"][0]["agent_id"] == "codex-agent"
+    assert packet["hotspots"][0]["risk_band"] == "critical"
+    edge = packet["edges"][0]
+    assert edge["risk_band"] == "critical"
+    assert edge["risk_score"] >= 70
+    assert edge["decision"] == "block"
+    assert any(node["label"] == "sensitive target redacted" for node in packet["nodes"])
+    assert packet["redaction"]["raw_tool_payload"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -433,6 +490,18 @@ def test_aispm_intent_action_drift_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(drift_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_tool_chain_graph_sample_matches_packaged_schema() -> None:
+    graph_schema = Path("src/cavra/schemas/aispm-tool-chain-graph.schema.json")
+    sample = Path("examples/aispm/community-tool-chain-graph-sample.json")
+
+    assert graph_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(graph_schema.read_text(encoding="utf-8")),
     )
 
 

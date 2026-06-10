@@ -26,6 +26,7 @@ Activity endpoints:
 - `GET /aispm/policy-context-gaps`: return public-safe policy-invisible risk findings for decisions missing environment, owner, data, change-window, criticality, approval-route, or trust-tier context.
 - `GET /aispm/pre-action-risk-forecasts`: return public-safe pre-action forecasts for projected blast radius, likely impact, and required controls from local decision metadata.
 - `GET /aispm/intent-action-drift`: return public-safe intent-to-action drift signals by comparing declared intent metadata with observed action, target, control surface, and policy outcome.
+- `GET /aispm/tool-chain-graph`: return a public-safe graph of agent, tool, redacted target, policy, and risky execution edges from local decision metadata.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -41,7 +42,7 @@ graphs, dependency graphs, identity blast radius, cloud inventory, runtime
 state, and prompt-intent context remain Enterprise-only. Community
 intent-to-action drift uses declared intent metadata only; raw prompts,
 reasoning traces, conversation history, private ticket context, full tool
-payloads, and semantic intent models remain Enterprise-only. Live prompt
+payloads, and semantic intent models remain Enterprise-only. Community tool-chain graphs use safe node and edge summaries only; raw tool request bodies, tool results, connector spans, cross-system call graphs, and private network targets remain Enterprise-only. Live prompt
 traces, model reasoning, raw tool output, tool-call graphing, private behavior
 baselines, private context enrichment, private identity-provider claims,
 organization-wide coverage, multi-tenant retention, kill switch, policy

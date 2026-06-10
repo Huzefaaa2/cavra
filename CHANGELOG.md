@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM tool-chain risk graphing for Community, including
+  `/aispm/tool-chain-graph`, packaged schema/sample data, dashboard graph
+  summary cards, hotspot and edge views, ActivityStore preservation for safe
+  tool metadata, docs/wiki updates, and Enterprise-locked raw tool payload,
+  tool result, connector span, cross-system call graph, and private network
+  target boundaries.
 - Added public-safe AISPM intent-to-action drift detection for Community,
   including `/aispm/intent-action-drift`, packaged schema/sample data,
   dashboard summary cards, drift score rows, ActivityStore preservation for

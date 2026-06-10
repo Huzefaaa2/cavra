@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Tool Chain Graph",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "nodes",
+    "edges",
+    "hotspots",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.tool_chain_graph.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["node_count", "edge_count", "agent_nodes", "tool_nodes", "target_nodes", "high_risk_edges", "blocked_edges"],
+      "properties": {
+        "node_count": { "type": "integer", "minimum": 0 },
+        "edge_count": { "type": "integer", "minimum": 0 },
+        "agent_nodes": { "type": "integer", "minimum": 0 },
+        "tool_nodes": { "type": "integer", "minimum": 0 },
+        "target_nodes": { "type": "integer", "minimum": 0 },
+        "high_risk_edges": { "type": "integer", "minimum": 0 },
+        "blocked_edges": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["node_id", "node_type", "label", "risk_band", "risk_score", "decision_count"],
+        "properties": {
+          "node_id": { "type": "string" },
+          "node_type": { "enum": ["agent", "tool", "target", "policy"] },
+          "label": { "type": "string" },
+          "risk_band": { "type": "string" },
+          "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "metadata": { "type": "object" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["edge_id", "source", "target", "relationship", "decision_id", "risk_score", "risk_band"],
+        "properties": {
+          "edge_id": { "type": "string" },
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "relationship": { "enum": ["invoked_tool", "requested_target", "governed_tool"] },
+          "decision_id": { "type": "string" },
+          "session_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "action_type": { "type": "string" },
+          "decision": { "type": "string" },
+          "severity": { "type": "string" },
+          "risk_classification": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "risk_band": { "enum": ["low", "medium", "high", "critical"] },
+          "target_redacted": { "type": "boolean" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "timestamp": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "hotspots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hotspot_id", "agent_id", "repository", "decision_count", "risk_score", "risk_band"],
+        "properties": {
+          "hotspot_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "blocked_edges": { "type": "integer", "minimum": 0 },
+          "approval_required_edges": { "type": "integer", "minimum": 0 },
+          "warned_edges": { "type": "integer", "minimum": 0 },
+          "dominant_surface": { "type": "string" },
+          "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "risk_band": { "enum": ["low", "medium", "high", "critical"] },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

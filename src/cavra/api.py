@@ -16,6 +16,7 @@ from cavra.aispm import (
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
     build_aispm_trace_replay_packet,
+    build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
 )
 from cavra.approvals import (
@@ -634,6 +635,7 @@ def create_app():
                 "aispm_policy_context_gaps": "/aispm/policy-context-gaps",
                 "aispm_pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
                 "aispm_intent_action_drift": "/aispm/intent-action-drift",
+                "aispm_tool_chain_graph": "/aispm/tool-chain-graph",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1103,6 +1105,21 @@ def create_app():
         limit: int = 200,
     ) -> dict:
         return build_aispm_intent_action_drift(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/tool-chain-graph")
+    def aispm_tool_chain_graph(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_tool_chain_graph(
             activity_store,
             agent_id=agent_id,
             repository=repository,

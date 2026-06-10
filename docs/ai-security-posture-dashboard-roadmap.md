@@ -11,7 +11,7 @@ CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
 policy context gap detection, pre-action risk forecasts, intent-to-action
-drift detection, and a public-safe sandbox portal.
+drift detection, tool-chain risk graphing, and a public-safe sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -29,6 +29,7 @@ CAVRA dashboard recommendation.
 | Capability area | Earlier CAVRA dashboard recommendation | Added AISPM recommendation | Roadmap decision |
 | --- | --- | --- | --- |
 | Agent activity | Live activity feed, agent inventory, session timeline | Prompts, reasoning, actions, Claude tool calls, execution traces | Include as first-class observability objects |
+| Tool chain | Tool-call graph as Enterprise capability | Agent, tool, target, policy, edge, hotspot graph | Include public-safe local graph and private raw payload graph |
 | Security posture | Policy decision stream, risk queue, violations | Risk classification, drift detection | Include risk scoring, posture drift, and violation triage |
 | Governance | Approval latency and blocked-action tiles | Approval workflows, RBAC, guardrails | Include approval queue, RBAC scope, guardrail coverage |
 | Audit and compliance | Drill-down evidence for every decision | Full trace replay, SOC 2-style logs, who approved what | Include immutable replay packets and approval lineage |
@@ -116,6 +117,7 @@ These features should help position CAVRA as more than another log dashboard:
   action could change, expose, or break.
 - **Intent-to-action drift**: compare the user's stated request with each
   proposed action and flag behavior that no longer matches the original intent.
+- **Tool-chain risk graph**: map agent, tool, target, policy, and edge hotspots so operators can see risky chained behavior before it becomes a blind spot.
 - **Policy-invisible risk detector**: identify decisions that require missing
   business context, such as data owner, environment tier, customer region,
   change window, or system criticality.
@@ -161,9 +163,10 @@ These features should help position CAVRA as more than another log dashboard:
   operators can inspect state, approver group, decision linkage, timestamps,
   and evidence references while private IdP/RBAC context remains Enterprise.
 - Add public-safe behavior fingerprints, policy context gaps, pre-action risk
-  forecasts, and intent-to-action drift derived from normalized local decision
-  metadata while private prompt-derived intent, workflow correlation, asset
-  graphs, and semantic models remain Enterprise.
+  forecasts, intent-to-action drift, and tool-chain risk graphing derived from
+  normalized local decision metadata while private prompt-derived intent,
+  workflow correlation, raw tool payloads, cross-system traces, asset graphs,
+  and semantic models remain Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.
 

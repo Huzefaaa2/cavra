@@ -31,16 +31,16 @@ when an API base is configured and otherwise labels deterministic sample data.
 Phase B hardening now includes Community-safe control coverage, near-miss
 queues, public-safe trace replay packets, public-safe approval lineage, and
 public-safe behavior fingerprints, policy context gaps, and pre-action risk
-forecasts, and intent-to-action drift through
+forecasts, intent-to-action drift, and tool-chain risk graphing through
 `/aispm/control-coverage`, `/aispm/near-misses`,
 `/aispm/trace-replay/{session_id}`, `/aispm/approval-lineage`,
 `/aispm/behavior-fingerprints`, `/aispm/policy-context-gaps`, and
-`/aispm/pre-action-risk-forecasts`, and `/aispm/intent-action-drift`;
+`/aispm/pre-action-risk-forecasts`, `/aispm/intent-action-drift`, and `/aispm/tool-chain-graph`;
 Enterprise still owns live
 organization-wide coverage, streaming, full trace replay, private behavior
 baselines, private context enrichment, private asset/dependency/identity
 forecasting, prompt-derived semantic intent extraction, private workflow
-correlation, private IdP/RBAC context, and control-plane actions.
+correlation, raw tool payload graphing, cross-system execution traces, private IdP/RBAC context, and control-plane actions.
 See `docs/ai-security-posture-dashboard-contract.md`.
 
 ## Current Enterprise Batch Sync

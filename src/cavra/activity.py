@@ -47,6 +47,9 @@ def normalize_decision_record(payload: dict[str, Any]) -> dict[str, Any]:
     for key in ("declared_intent", "intent", "requested_intent", "user_intent", "task_intent", "business_intent"):
         if payload.get(key) not in {None, ""}:
             record[key] = str(payload[key])
+    for key in ("tool", "tool_name", "server", "mcp_server", "tool_vendor", "tool_capability", "operation"):
+        if payload.get(key) not in {None, ""}:
+            record[key] = str(payload[key])
     for key in ("context", "metadata", "labels"):
         if isinstance(payload.get(key), dict):
             record[key] = payload[key]
