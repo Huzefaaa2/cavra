@@ -1,0 +1,147 @@
+{
+  "schema_version": "cavra.aispm.executive_risk_narrative.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:03:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "narrative": {
+    "report_id": "aispm-executive-risk-narrative-community",
+    "narrative_type": "deterministic_public_safe_summary",
+    "audience": [
+      "CSO",
+      "CISO",
+      "security leadership",
+      "platform leadership"
+    ],
+    "time_window": "local_activity_window",
+    "headline": "CAVRA Community reports critical AI-agent posture from 3 local decision(s), including 1 blocked action(s) and 1 approval-gated action(s), with 0 evidence SLO breach(es) requiring operator review.",
+    "risk_level": "critical",
+    "posture_score": 12,
+    "key_metrics": {
+      "total_sessions": 2,
+      "total_decisions": 3,
+      "blocked_actions": 1,
+      "approval_required_actions": 1,
+      "risk_findings": 3,
+      "evidence_slo_breaches": 0,
+      "evidence_retention_gaps": 0,
+      "freshness_score": 100,
+      "retention_score": 45
+    },
+    "sections": [
+      {
+        "section_id": "executive-summary",
+        "title": "Executive Summary",
+        "body": "CAVRA Community reports critical AI-agent posture from 3 local decision(s), including 1 blocked action(s) and 1 approval-gated action(s), with 0 evidence SLO breach(es) requiring operator review."
+      },
+      {
+        "section_id": "risk-posture",
+        "title": "Risk Posture",
+        "body": "CAVRA observed 3 local policy decisions across 2 agent identities. The current Community posture score is 12/100 with a critical risk level."
+      },
+      {
+        "section_id": "evidence-readiness",
+        "title": "Evidence Readiness",
+        "body": "Evidence freshness has 0 breached SLO item(s), 3 item(s) to monitor, and 0 retention gap(s). Community validates local timestamps and reference patterns only."
+      },
+      {
+        "section_id": "operator-focus",
+        "title": "Operator Focus",
+        "body": "Focus on the highest-risk agent actions, close evidence gaps, and keep Enterprise-only live controls scoped for the next paid or trial deployment."
+      }
+    ],
+    "top_risks": [
+      {
+        "risk_id": "finding-sample-dec-003",
+        "title": "Tool Or Mcp Governance Risk",
+        "severity": "medium",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "reason": "MCP tool requires registration before broad rollout.",
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ]
+      },
+      {
+        "risk_id": "finding-sample-dec-002",
+        "title": "Credential Or Sensitive Data Exposure",
+        "severity": "critical",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "reason": "Sensitive production secret file access is blocked.",
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ]
+      },
+      {
+        "risk_id": "finding-sample-dec-001",
+        "title": "Infrastructure Change Risk",
+        "severity": "high",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "reason": "Production-impacting infrastructure action requires approval.",
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ]
+      }
+    ],
+    "recommended_actions": [
+      {
+        "action_id": "review-top-ai-agent-risks",
+        "priority": "high",
+        "owner": "security leadership",
+        "action": "Review the top AI-agent risks and confirm owners for remediation."
+      },
+      {
+        "action_id": "validate-approval-latency",
+        "priority": "medium",
+        "owner": "platform leadership",
+        "action": "Validate approval routes and latency for approval-gated AI-agent actions."
+      },
+      {
+        "action_id": "plan-enterprise-live-posture",
+        "priority": "medium",
+        "owner": "security architecture",
+        "action": "Plan Enterprise live ingestion for prompts, tool calls, trace history, trend reporting, and runtime controls."
+      }
+    ],
+    "evidence_refs": [
+      "sample://evidence/iac-production-change",
+      "sample://evidence/secret-read-block",
+      "sample://evidence/mcp-warning"
+    ],
+    "limitations": [
+      "Community narrative is deterministic and based on local/sample metadata only.",
+      "Raw prompts, model reasoning, customer impact, trend history, and tenant benchmarks require CAVRA Enterprise."
+    ]
+  },
+  "redaction": {
+    "raw_prompts": "requires_cavra_enterprise",
+    "model_reasoning": "requires_cavra_enterprise",
+    "private_business_context": "requires_cavra_enterprise",
+    "customer_impact_analysis": "requires_cavra_enterprise",
+    "trend_history": "requires_cavra_enterprise",
+    "ai_generated_board_summary": "requires_cavra_enterprise",
+    "tenant_benchmarking": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "AI-assisted board and CSO narrative generation",
+      "private trend history and tenant benchmarking",
+      "business owner, service criticality, and customer-impact enrichment",
+      "scheduled executive brief delivery",
+      "GRC and incident packet export"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

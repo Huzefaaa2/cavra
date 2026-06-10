@@ -159,6 +159,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     agent_blast_radius = client.get("/aispm/agent-blast-radius")
     evidence_confidence = client.get("/aispm/evidence-confidence")
     evidence_freshness = client.get("/aispm/evidence-freshness")
+    executive_risk_narrative = client.get("/aispm/executive-risk-narrative")
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
@@ -179,6 +180,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_agent_blast_radius"] == "/aispm/agent-blast-radius"
     assert config["endpoints"]["aispm_evidence_confidence"] == "/aispm/evidence-confidence"
     assert config["endpoints"]["aispm_evidence_freshness"] == "/aispm/evidence-freshness"
+    assert config["endpoints"]["aispm_executive_risk_narrative"] == "/aispm/executive-risk-narrative"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -245,6 +247,11 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert evidence_freshness.json()["summary"]["total_items"] == 1
     assert evidence_freshness.json()["items"][0]["agent_id"] == "codex-agent"
     assert evidence_freshness.json()["redaction"]["object_lock_status"] == "requires_cavra_enterprise"
+    assert executive_risk_narrative.status_code == 200
+    assert executive_risk_narrative.json()["schema_version"] == "cavra.aispm.executive_risk_narrative.v1"
+    assert "CAVRA Community reports" in executive_risk_narrative.json()["narrative"]["headline"]
+    assert executive_risk_narrative.json()["narrative"]["key_metrics"]["blocked_actions"] == 1
+    assert executive_risk_narrative.json()["redaction"]["ai_generated_board_summary"] == "requires_cavra_enterprise"
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

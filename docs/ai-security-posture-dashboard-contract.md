@@ -6,8 +6,9 @@ current Phase B hardening adds Community control coverage, near-miss visibility,
 public-safe trace replay packets, public-safe approval lineage, behavior
 fingerprints, policy context gaps, pre-action risk forecasts, and
 intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping,
-control coverage heatmap views, and evidence confidence drilldowns without
-evidence freshness SLO panels without exposing Enterprise live-ingestion logic.
+control coverage heatmap views, evidence confidence drilldowns, evidence
+freshness SLO panels, and executive risk narratives without exposing
+Enterprise live-ingestion logic.
 
 ## Community Boundary
 
@@ -56,6 +57,9 @@ Community Edition provides local and sample posture views only:
 - `GET /aispm/evidence-freshness` returns public-safe evidence freshness and
   retention SLO rows for local decision/session timestamps and evidence
   reference patterns.
+- `GET /aispm/executive-risk-narrative` returns a deterministic public-safe
+  CSO/CISO narrative from local posture metrics, top risks, evidence SLO
+  status, and recommended actions.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -80,6 +84,9 @@ sample evidence, metadata only, or missing evidence before relying on a report.
 The route also includes an evidence freshness and retention SLO panel so
 operators can see stale evidence, missing timestamps, retention-reference gaps,
 and Enterprise archive-readiness boundaries.
+The route also includes an executive risk narrative panel so CSO/CISO users can
+read a Community-safe leadership summary of posture, top risks, evidence gaps,
+and recommended actions.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -149,6 +156,13 @@ evidence-only references, or metadata-only records. They do not probe immutable
 archives, object-lock settings, KMS key health, lifecycle policies, external
 archive metadata, or auditor export manifests.
 
+Community executive risk narratives generate deterministic, public-safe
+leadership summaries from the local posture score, top-risk queue, blocked and
+approval-gated decisions, and evidence freshness metrics. AI-assisted board
+summaries, private tenant trends, business owner and service criticality
+enrichment, customer impact analysis, scheduled executive brief delivery, and
+GRC/incident packet export remain Enterprise-only.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -169,6 +183,9 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
   external evidence correlation;
 - object-lock, KMS, retention lifecycle, archive restore, and auditor export
   validation;
+- AI-assisted executive narratives, private trend history, tenant benchmarks,
+  service criticality, customer impact, scheduled brief delivery, and
+  GRC/incident packet exports;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -245,3 +262,8 @@ The packaged Community evidence freshness schema is available at
 `src/cavra/schemas/aispm-evidence-freshness.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-evidence-freshness-sample.json`.
+
+The packaged Community executive risk narrative schema is available at
+`src/cavra/schemas/aispm-executive-risk-narrative.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-executive-risk-narrative-sample.json`.

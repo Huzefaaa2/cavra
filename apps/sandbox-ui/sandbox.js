@@ -372,6 +372,46 @@ const aispmFallback = {
       { item_id: "freshness-sample-dec-003", item_type: "policy_decision", source_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", policy_pack: "mcp-enterprise", control_surface: "mcp_tools", severity: "medium", decision: "warn", observed_at: "2026-06-09T00:02:00+00:00", age_hours: 1, freshness_status: "fresh", retention_status: "sample_reference", slo_status: "monitor", evidence_refs: ["sample://evidence/mcp-warning"], recommended_action: "Replace sample evidence with retained local or signed evidence before production reliance." }
     ]
   },
+  executive_risk_narrative: {
+    report_id: "aispm-executive-risk-narrative-community",
+    narrative_type: "deterministic_public_safe_summary",
+    audience: ["CSO", "CISO", "security leadership", "platform leadership"],
+    time_window: "local_activity_window",
+    headline: "CAVRA Community reports critical AI-agent posture from 3 local decisions, including 1 blocked action and 1 approval-gated action, with 0 evidence SLO breaches requiring operator review.",
+    risk_level: "critical",
+    posture_score: 12,
+    key_metrics: {
+      total_sessions: 2,
+      total_decisions: 3,
+      blocked_actions: 1,
+      approval_required_actions: 1,
+      risk_findings: 3,
+      evidence_slo_breaches: 0,
+      evidence_retention_gaps: 0,
+      freshness_score: 100,
+      retention_score: 45
+    },
+    sections: [
+      { section_id: "executive-summary", title: "Executive Summary", body: "CAVRA Community reports critical AI-agent posture from 3 local decisions, including 1 blocked action and 1 approval-gated action, with 0 evidence SLO breaches requiring operator review." },
+      { section_id: "risk-posture", title: "Risk Posture", body: "CAVRA observed 3 local policy decisions across 2 agent identities. The current Community posture score is 12/100 with a critical risk level." },
+      { section_id: "evidence-readiness", title: "Evidence Readiness", body: "Evidence freshness has 0 breached SLO items, 3 items to monitor, and 0 retention gaps. Community validates local timestamps and reference patterns only." },
+      { section_id: "operator-focus", title: "Operator Focus", body: "Focus on the highest-risk agent actions, close evidence gaps, and keep Enterprise-only live controls scoped for the next paid or trial deployment." }
+    ],
+    top_risks: [
+      { risk_id: "finding-sample-dec-002", title: "Credential Or Sensitive Data Exposure", severity: "critical", agent_id: "codex-agent", repository: "payments/api", reason: "Sensitive production secret file access is blocked.", evidence_refs: ["sample://evidence/secret-read-block"] },
+      { risk_id: "finding-sample-dec-001", title: "Infrastructure Change Risk", severity: "high", agent_id: "codex-agent", repository: "payments/api", reason: "Production-impacting infrastructure action requires approval.", evidence_refs: ["sample://evidence/iac-production-change"] }
+    ],
+    recommended_actions: [
+      { action_id: "review-top-ai-agent-risks", priority: "high", owner: "security leadership", action: "Review the top AI-agent risks and confirm owners for remediation." },
+      { action_id: "validate-approval-latency", priority: "medium", owner: "platform leadership", action: "Validate approval routes and latency for approval-gated AI-agent actions." },
+      { action_id: "plan-enterprise-live-posture", priority: "medium", owner: "security architecture", action: "Plan Enterprise live ingestion for prompts, tool calls, trace history, trend reporting, and runtime controls." }
+    ],
+    evidence_refs: ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block", "sample://evidence/mcp-warning"],
+    limitations: [
+      "Community narrative is deterministic and based on local/sample metadata only.",
+      "Raw prompts, model reasoning, customer impact, trend history, and tenant benchmarks require CAVRA Enterprise."
+    ]
+  },
   near_misses: [
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
@@ -1217,6 +1257,39 @@ const aispmEvidenceFreshnessFallback = {
   }
 };
 
+const aispmExecutiveNarrativeFallback = {
+  schema_version: "cavra.aispm.executive_risk_narrative.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:03:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  narrative: aispmFallback.executive_risk_narrative,
+  redaction: {
+    raw_prompts: "requires_cavra_enterprise",
+    model_reasoning: "requires_cavra_enterprise",
+    private_business_context: "requires_cavra_enterprise",
+    customer_impact_analysis: "requires_cavra_enterprise",
+    trend_history: "requires_cavra_enterprise",
+    ai_generated_board_summary: "requires_cavra_enterprise",
+    tenant_benchmarking: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "AI-assisted board and CSO narrative generation",
+      "private trend history and tenant benchmarking",
+      "business owner, service criticality, and customer-impact enrichment",
+      "scheduled executive brief delivery",
+      "GRC and incident packet export"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -1232,6 +1305,7 @@ const routeContent = [
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
   { type: "AI Posture", label: "Evidence Confidence Drilldown", route: "ai-posture", description: "Rank policy decisions by signed, activity, sample, metadata-only, or missing evidence." },
   { type: "AI Posture", label: "Evidence Freshness SLO", route: "ai-posture", description: "Show stale evidence, retention gaps, and Enterprise archive-readiness boundaries." },
+  { type: "AI Posture", label: "Executive Risk Narrative", route: "ai-posture", description: "Summarize Community-safe posture, top risks, evidence gaps, and leadership actions." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
@@ -1434,6 +1508,11 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     summary: summarizeEvidenceFreshness(payload.evidence_freshness_slo?.items || aispmEvidenceFreshnessFallback.items),
     items: payload.evidence_freshness_slo?.items || aispmEvidenceFreshnessFallback.items,
     slo_policy: payload.evidence_freshness_slo?.slo_policy || aispmEvidenceFreshnessFallback.slo_policy
+  }, "posture sample");
+  renderAispmExecutiveNarrative({
+    ...aispmExecutiveNarrativeFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    narrative: payload.executive_risk_narrative || aispmExecutiveNarrativeFallback.narrative
   }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
@@ -1906,6 +1985,89 @@ function renderAispmEvidenceFreshness(packet, note = "sample SLO") {
       <small>${escapeHtml((item.evidence_refs || []).join(", ") || "metadata only")}</small>
     </article>
   `).join("") || `<p class="empty-state">No evidence freshness SLO records available.</p>`;
+}
+
+async function loadAispmExecutiveNarrative() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/executive-risk-narrative`);
+      if (!response.ok) throw new Error(`Executive narrative HTTP ${response.status}`);
+      renderAispmExecutiveNarrative(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmExecutiveNarrative(aispmExecutiveNarrativeFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmExecutiveNarrative(aispmExecutiveNarrativeFallback, "static sample narrative");
+}
+
+function renderAispmExecutiveNarrative(packet, note = "sample narrative") {
+  const narrative = packet.narrative || aispmExecutiveNarrativeFallback.narrative;
+  const metrics = narrative.key_metrics || {};
+  const summaryCards = [
+    ["Risk Level", narrative.risk_level || "unknown", `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Posture Score", narrative.posture_score ?? 0, `${metrics.risk_findings ?? 0} findings`],
+    ["Blocked/Approval", (metrics.blocked_actions ?? 0) + (metrics.approval_required_actions ?? 0), "Controlled before execution"],
+    ["Evidence SLO", metrics.evidence_slo_breaches ?? 0, `${metrics.evidence_retention_gaps ?? 0} retention gaps`]
+  ];
+  el("#aispmExecutiveNarrativeSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmExecutiveNarrative").innerHTML = `
+    <div class="executive-narrative-headline">
+      <strong>${escapeHtml(narrative.headline || "No executive narrative available yet.")}</strong>
+    </div>
+    <div class="executive-narrative-grid">
+      <section class="executive-narrative-card">
+        <h4>Brief</h4>
+        <div class="executive-narrative-list">
+          ${(narrative.sections || []).map((section) => `
+            <article>
+              <strong>${escapeHtml(section.title || "Section")}</strong>
+              <p>${escapeHtml(section.body || "")}</p>
+            </article>
+          `).join("")}
+        </div>
+      </section>
+      <section class="executive-narrative-card">
+        <h4>Top Risks</h4>
+        <div class="executive-narrative-list">
+          ${(narrative.top_risks || []).slice(0, 5).map((risk) => `
+            <article>
+              <strong>${escapeHtml(risk.title || "Risk")}</strong>
+              <small>${escapeHtml(risk.severity || "low")} · ${escapeHtml(risk.agent_id || "unknown-agent")} · ${escapeHtml(risk.repository || "local")}</small>
+              <p>${escapeHtml(risk.reason || "Review recommended.")}</p>
+            </article>
+          `).join("") || `<p class="empty-state">No top risks in the current local activity window.</p>`}
+        </div>
+      </section>
+      <section class="executive-narrative-card">
+        <h4>Recommended Actions</h4>
+        <div class="executive-narrative-list">
+          ${(narrative.recommended_actions || []).map((action) => `
+            <article>
+              <strong>${escapeHtml(action.action || "Action")}</strong>
+              <small>${escapeHtml(action.priority || "medium")} · ${escapeHtml(action.owner || "owner")}</small>
+            </article>
+          `).join("")}
+        </div>
+      </section>
+      <section class="executive-narrative-card">
+        <h4>Boundaries</h4>
+        <div class="executive-narrative-list">
+          ${(narrative.limitations || []).map((item) => `
+            <article><p>${escapeHtml(item)}</p></article>
+          `).join("")}
+        </div>
+      </section>
+    </div>
+  `;
 }
 
 function summarizeBehaviorFingerprints(items) {
@@ -2555,6 +2717,7 @@ function wireEvents() {
   el("#refreshAispmCoverageHeatmap").addEventListener("click", loadAispmControlCoverageHeatmap);
   el("#refreshAispmEvidenceConfidence").addEventListener("click", loadAispmEvidenceConfidence);
   el("#refreshAispmEvidenceFreshness").addEventListener("click", loadAispmEvidenceFreshness);
+  el("#refreshAispmExecutiveNarrative").addEventListener("click", loadAispmExecutiveNarrative);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

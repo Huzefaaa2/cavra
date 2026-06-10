@@ -8,7 +8,8 @@ public-safe behavior fingerprints, public-safe policy context gaps, and
 public-safe pre-action risk forecasts, public-safe intent-to-action drift, and
 public-safe tool-chain risk graphing, public-safe agent blast-radius mapping,
 public-safe control coverage heatmap views, public-safe evidence confidence
-drilldowns, and public-safe evidence freshness SLO panels.
+drilldowns, public-safe evidence freshness SLO panels, and deterministic
+public-safe executive risk narratives.
 
 Community Edition provides:
 
@@ -31,6 +32,7 @@ Community Edition provides:
 - `GET /aispm/agent-blast-radius`
 - `GET /aispm/evidence-confidence`
 - `GET /aispm/evidence-freshness`
+- `GET /aispm/executive-risk-narrative`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
@@ -53,6 +55,9 @@ evidence.
 It also includes an evidence freshness and retention SLO panel for stale
 evidence, missing timestamps, retention gaps, and Enterprise archive-readiness
 boundaries.
+It also includes an executive risk narrative panel for CSO/CISO users that
+summarizes Community-safe posture, top risks, evidence gaps, and recommended
+actions.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -114,6 +119,13 @@ and public evidence-reference patterns only. Immutable archive probes,
 object-lock status, KMS key health, lifecycle policies, external archive
 metadata, and auditor export manifests remain Enterprise-only.
 
+Community executive risk narratives generate deterministic, public-safe
+leadership summaries from local posture score, top risks, blocked and
+approval-gated decisions, and evidence freshness metrics. AI-assisted board
+summaries, private tenant trends, business owner and service criticality
+enrichment, customer impact analysis, scheduled executive brief delivery, and
+GRC/incident packet export remain Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
@@ -123,8 +135,9 @@ prompt/reasoning traces, private asset-graph forecasting, prompt-derived
 intent extraction, private workflow correlation, raw tool-call graphs, cross-system execution traces, full trace
 replay, private blast-radius enrichment, organization-wide heatmaps,
 immutable evidence validation, object-lock/KMS/archive lifecycle validation,
+AI-assisted executive narratives, private trend history, tenant benchmarks,
 organization controls, kill switch, runtime overrides, centralized retention,
-immutable audit exports, and compliance reporting.
+immutable audit exports, GRC/incident packet export, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
 The packaged Community trace replay schema is
@@ -164,3 +177,7 @@ sample packet at `examples/aispm/community-evidence-confidence-sample.json`.
 The packaged Community evidence freshness schema is
 `src/cavra/schemas/aispm-evidence-freshness.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-evidence-freshness-sample.json`.
+The packaged Community executive risk narrative schema is
+`src/cavra/schemas/aispm-executive-risk-narrative.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-executive-risk-narrative-sample.json`.

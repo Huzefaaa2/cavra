@@ -11,7 +11,7 @@ CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
 policy context gap detection, pre-action risk forecasts, intent-to-action
-drift detection, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO panels, and a public-safe sandbox portal.
+drift detection, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO panels, deterministic executive risk narratives, and a public-safe sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -68,6 +68,11 @@ CAVRA dashboard recommendation.
   policy-invisible context gaps.
 - Risk posture score with trend, top contributors, unresolved findings,
   blocked actions, and approval latency.
+- Executive risk narrative for CSO/CISO users that summarizes posture, top
+  risks, evidence gaps, and recommended actions. Community provides a
+  deterministic local/sample narrative; Enterprise should add AI-assisted
+  board summaries, private trend history, tenant benchmarks, service
+  criticality, and customer-impact context.
 
 ### Governance Layer
 

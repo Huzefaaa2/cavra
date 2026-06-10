@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added deterministic public-safe AISPM executive risk narratives for Community,
+  including `/aispm/executive-risk-narrative`, packaged schema/sample data,
+  dashboard CSO/CISO narrative cards, docs/wiki updates, and Enterprise-locked
+  AI-assisted board summaries, private trend history, tenant benchmarking,
+  business criticality, customer-impact, scheduled brief, and GRC/incident
+  export boundaries.
 - Added public-safe AISPM evidence freshness and retention SLO reporting for
   Community, including `/aispm/evidence-freshness`, packaged schema/sample
   data, dashboard stale-evidence and retention-gap rows, docs/wiki updates, and

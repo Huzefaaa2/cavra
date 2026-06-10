@@ -23,6 +23,7 @@
     "agent_blast_radius",
     "evidence_confidence_drilldown",
     "evidence_freshness_slo",
+    "executive_risk_narrative",
     "control_plane"
   ],
   "properties": {
@@ -465,6 +466,17 @@
         "slo_policy": { "type": "object" },
         "summary": { "type": "object" },
         "items": { "type": "array" }
+      }
+    },
+    "executive_risk_narrative": {
+      "type": "object",
+      "required": ["headline", "key_metrics", "sections", "top_risks", "recommended_actions"],
+      "properties": {
+        "headline": { "type": "string" },
+        "key_metrics": { "type": "object" },
+        "sections": { "type": "array" },
+        "top_risks": { "type": "array" },
+        "recommended_actions": { "type": "array" }
       }
     },
     "control_plane": { "type": "object" }

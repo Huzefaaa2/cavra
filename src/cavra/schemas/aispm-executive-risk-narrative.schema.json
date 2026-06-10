@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Executive Risk Narrative",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "narrative",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.executive_risk_narrative.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "narrative": {
+      "type": "object",
+      "required": [
+        "report_id",
+        "narrative_type",
+        "audience",
+        "headline",
+        "risk_level",
+        "posture_score",
+        "key_metrics",
+        "sections",
+        "top_risks",
+        "recommended_actions",
+        "limitations"
+      ],
+      "properties": {
+        "report_id": { "type": "string" },
+        "narrative_type": { "const": "deterministic_public_safe_summary" },
+        "audience": { "type": "array", "items": { "type": "string" } },
+        "time_window": { "type": "string" },
+        "headline": { "type": "string" },
+        "risk_level": { "type": "string" },
+        "posture_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "key_metrics": { "type": "object" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["section_id", "title", "body"],
+            "properties": {
+              "section_id": { "type": "string" },
+              "title": { "type": "string" },
+              "body": { "type": "string" }
+            }
+          }
+        },
+        "top_risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["risk_id", "title", "severity", "agent_id", "repository", "reason"],
+            "properties": {
+              "risk_id": { "type": "string" },
+              "title": { "type": "string" },
+              "severity": { "type": "string" },
+              "agent_id": { "type": "string" },
+              "repository": { "type": "string" },
+              "reason": { "type": "string" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "recommended_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action_id", "priority", "owner", "action"],
+            "properties": {
+              "action_id": { "type": "string" },
+              "priority": { "type": "string" },
+              "owner": { "type": "string" },
+              "action": { "type": "string" }
+            }
+          }
+        },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

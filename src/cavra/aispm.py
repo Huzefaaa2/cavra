@@ -59,6 +59,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "control coverage heatmap by agent, repository, and control surface from local activity metadata",
                 "evidence confidence drilldown for decision and session evidence references",
                 "evidence freshness and retention SLO summary from local activity timestamps",
+                "deterministic executive risk narrative from local posture metrics",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -79,6 +80,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "organization-wide control coverage heatmap with private asset, owner, and environment enrichment",
                 "immutable evidence store validation, signature verification, and external evidence correlation",
                 "evidence retention proof, object-lock status, KMS status, and archive lifecycle validation",
+                "AI-assisted executive narratives with private tenant context and trend history",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -100,6 +102,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "control_coverage_heatmap",
             "evidence_confidence_drilldown",
             "evidence_freshness_slo",
+            "executive_risk_narrative",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -120,6 +123,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "control_coverage_heatmap": "/aispm/control-coverage-heatmap",
             "evidence_confidence": "/aispm/evidence-confidence",
             "evidence_freshness": "/aispm/evidence-freshness",
+            "executive_risk_narrative": "/aispm/executive-risk-narrative",
         },
     }
 
@@ -161,6 +165,13 @@ def build_aispm_posture(
     evidence_confidence_drilldown = _evidence_confidence_drilldown(decisions, sessions)
     generated_at = utc_now()
     evidence_freshness_slo = _evidence_freshness_slo(decisions, sessions, generated_at=generated_at)
+    executive_risk_narrative = _executive_risk_narrative(
+        decisions,
+        sessions,
+        findings,
+        overview,
+        evidence_freshness_slo,
+    )
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -192,6 +203,7 @@ def build_aispm_posture(
         "control_coverage_heatmap": control_coverage_heatmap,
         "evidence_confidence_drilldown": evidence_confidence_drilldown,
         "evidence_freshness_slo": evidence_freshness_slo,
+        "executive_risk_narrative": executive_risk_narrative,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -865,6 +877,78 @@ def build_aispm_evidence_freshness_slo(
     }
 
 
+def build_aispm_executive_risk_narrative(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a deterministic public-safe executive risk narrative.
+
+    Community narratives summarize local/sample posture metrics only. Private
+    tenant trends, business owner context, customer impact, and AI-generated
+    board-ready language remain Enterprise-only.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    generated_at = utc_now()
+    findings = _risk_findings(decisions)
+    overview = _posture_overview(decisions, sessions, findings)
+    freshness = _evidence_freshness_slo(decisions, sessions, generated_at=generated_at)
+    narrative = _executive_risk_narrative(decisions, sessions, findings, overview, freshness)
+    return {
+        "schema_version": "cavra.aispm.executive_risk_narrative.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": generated_at,
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "narrative": narrative,
+        "redaction": {
+            "raw_prompts": LOCKED_ENTERPRISE_STATUS,
+            "model_reasoning": LOCKED_ENTERPRISE_STATUS,
+            "private_business_context": LOCKED_ENTERPRISE_STATUS,
+            "customer_impact_analysis": LOCKED_ENTERPRISE_STATUS,
+            "trend_history": LOCKED_ENTERPRISE_STATUS,
+            "ai_generated_board_summary": LOCKED_ENTERPRISE_STATUS,
+            "tenant_benchmarking": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "AI-assisted board and CSO narrative generation",
+                "private trend history and tenant benchmarking",
+                "business owner, service criticality, and customer-impact enrichment",
+                "scheduled executive brief delivery",
+                "GRC and incident packet export",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -959,6 +1043,8 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         },
     ]
     findings = _risk_findings(decisions)
+    overview = _posture_overview(decisions, sessions, findings)
+    evidence_freshness_slo = _evidence_freshness_slo(decisions, sessions, generated_at="2026-06-09T00:03:00+00:00")
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -969,7 +1055,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "telemetry": "disabled",
         "generated_at": "2026-06-09T00:03:00+00:00",
         "filters": {"repository": None, "agent_id": None, "policy_pack": None, "limit": 200},
-        "overview": _posture_overview(decisions, sessions, findings),
+        "overview": overview,
         "agents": _agent_observability(decisions, sessions),
         "findings": findings,
         "timeline": _timeline(decisions, sessions),
@@ -984,7 +1070,14 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "agent_blast_radius": _agent_blast_radius(decisions, sessions),
         "control_coverage_heatmap": _control_coverage_heatmap(decisions, sessions),
         "evidence_confidence_drilldown": _evidence_confidence_drilldown(decisions, sessions),
-        "evidence_freshness_slo": _evidence_freshness_slo(decisions, sessions, generated_at="2026-06-09T00:03:00+00:00"),
+        "evidence_freshness_slo": evidence_freshness_slo,
+        "executive_risk_narrative": _executive_risk_narrative(
+            decisions,
+            sessions,
+            findings,
+            overview,
+            evidence_freshness_slo,
+        ),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -2710,6 +2803,192 @@ def _evidence_freshness_slo(
         },
         "items": items[:50],
     }
+
+
+def _executive_risk_narrative(
+    decisions: list[dict[str, Any]],
+    sessions: list[dict[str, Any]],
+    findings: list[dict[str, Any]],
+    overview: dict[str, Any],
+    evidence_freshness_slo: dict[str, Any],
+) -> dict[str, Any]:
+    blocked = int(overview.get("blocked_actions", 0))
+    approvals = int(overview.get("approval_required_actions", 0))
+    total_decisions = int(overview.get("total_decisions", len(decisions)))
+    posture_score = int(overview.get("posture_score", 0))
+    risk_level = str(overview.get("risk_level", "unknown"))
+    freshness_summary = evidence_freshness_slo.get("summary", {})
+    breached = int(freshness_summary.get("slo_breached_items", 0) or 0)
+    monitor = int(freshness_summary.get("slo_monitor_items", 0) or 0)
+    retention_gaps = int(freshness_summary.get("retention_gap_items", 0) or 0)
+    top_risks = _executive_top_risks(findings, decisions, evidence_freshness_slo)
+    recommended_actions = _executive_recommended_actions(risk_level, approvals, breached, retention_gaps, top_risks)
+    headline = _executive_headline(risk_level, blocked, approvals, total_decisions, breached)
+    sections = [
+        {
+            "section_id": "executive-summary",
+            "title": "Executive Summary",
+            "body": headline,
+        },
+        {
+            "section_id": "risk-posture",
+            "title": "Risk Posture",
+            "body": (
+                f"CAVRA observed {total_decisions} local policy decisions across "
+                f"{len({str(item.get('agent_id', 'unknown-agent')) for item in decisions if item.get('agent_id')})} agent identities. "
+                f"The current Community posture score is {posture_score}/100 with a {risk_level} risk level."
+            ),
+        },
+        {
+            "section_id": "evidence-readiness",
+            "title": "Evidence Readiness",
+            "body": (
+                f"Evidence freshness has {breached} breached SLO item(s), {monitor} item(s) to monitor, "
+                f"and {retention_gaps} retention gap(s). Community validates local timestamps and reference patterns only."
+            ),
+        },
+        {
+            "section_id": "operator-focus",
+            "title": "Operator Focus",
+            "body": "Focus on the highest-risk agent actions, close evidence gaps, and keep Enterprise-only live controls scoped for the next paid or trial deployment.",
+        },
+    ]
+    return {
+        "report_id": "aispm-executive-risk-narrative-community",
+        "narrative_type": "deterministic_public_safe_summary",
+        "audience": ["CSO", "CISO", "security leadership", "platform leadership"],
+        "time_window": "local_activity_window",
+        "headline": headline,
+        "risk_level": risk_level,
+        "posture_score": posture_score,
+        "key_metrics": {
+            "total_sessions": overview.get("total_sessions", len(sessions)),
+            "total_decisions": total_decisions,
+            "blocked_actions": blocked,
+            "approval_required_actions": approvals,
+            "risk_findings": overview.get("risk_findings", len(findings)),
+            "evidence_slo_breaches": breached,
+            "evidence_retention_gaps": retention_gaps,
+            "freshness_score": freshness_summary.get("freshness_score", 0),
+            "retention_score": freshness_summary.get("retention_score", 0),
+        },
+        "sections": sections,
+        "top_risks": top_risks,
+        "recommended_actions": recommended_actions,
+        "evidence_refs": list(
+            dict.fromkeys(ref for item in decisions for ref in _evidence_refs(item))
+        )[:10],
+        "limitations": [
+            "Community narrative is deterministic and based on local/sample metadata only.",
+            "Raw prompts, model reasoning, customer impact, trend history, and tenant benchmarks require CAVRA Enterprise.",
+        ],
+    }
+
+
+def _executive_headline(risk_level: str, blocked: int, approvals: int, total_decisions: int, breached: int) -> str:
+    if total_decisions == 0:
+        return "No local AI-agent policy activity is available yet; connect activity data before relying on posture conclusions."
+    control_phrase = f"{blocked} blocked action(s) and {approvals} approval-gated action(s)"
+    evidence_phrase = f"{breached} evidence SLO breach(es)"
+    return (
+        f"CAVRA Community reports {risk_level} AI-agent posture from {total_decisions} local decision(s), "
+        f"including {control_phrase}, with {evidence_phrase} requiring operator review."
+    )
+
+
+def _executive_top_risks(
+    findings: list[dict[str, Any]],
+    decisions: list[dict[str, Any]],
+    evidence_freshness_slo: dict[str, Any],
+) -> list[dict[str, Any]]:
+    risks = [
+        {
+            "risk_id": str(item.get("finding_id", f"finding-{index + 1}")),
+            "title": str(item.get("risk_classification", "policy_risk")).replace("_", " ").title(),
+            "severity": str(item.get("severity", "low")),
+            "agent_id": item.get("agent_id", "unknown-agent"),
+            "repository": item.get("repository", "local"),
+            "reason": item.get("reason", "Policy finding requires leadership review."),
+            "evidence_refs": _evidence_refs(item),
+        }
+        for index, item in enumerate(findings[:5])
+    ]
+    breached_items = [
+        item
+        for item in evidence_freshness_slo.get("items", [])
+        if item.get("slo_status") == "breached"
+    ][:3]
+    risks.extend(
+        {
+            "risk_id": f"evidence-slo-{item.get('source_id', index)}",
+            "title": "Evidence SLO Breach",
+            "severity": "medium",
+            "agent_id": item.get("agent_id", "unknown-agent"),
+            "repository": item.get("repository", "local"),
+            "reason": item.get("recommended_action", "Evidence freshness or retention requires review."),
+            "evidence_refs": _evidence_refs(item),
+        }
+        for index, item in enumerate(breached_items)
+    )
+    if not risks and decisions:
+        risks.append(
+            {
+                "risk_id": "community-observed-activity",
+                "title": "Observed AI-Agent Activity",
+                "severity": "low",
+                "agent_id": decisions[0].get("agent_id", "unknown-agent"),
+                "repository": decisions[0].get("repository", "local"),
+                "reason": "Local activity exists; continue collecting evidence and validating policy coverage.",
+                "evidence_refs": _evidence_refs(decisions[0]),
+            }
+        )
+    return risks[:6]
+
+
+def _executive_recommended_actions(
+    risk_level: str,
+    approvals: int,
+    breached: int,
+    retention_gaps: int,
+    top_risks: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    actions = []
+    if risk_level in {"critical", "high"} or top_risks:
+        actions.append(
+            {
+                "action_id": "review-top-ai-agent-risks",
+                "priority": "high",
+                "owner": "security leadership",
+                "action": "Review the top AI-agent risks and confirm owners for remediation.",
+            }
+        )
+    if approvals:
+        actions.append(
+            {
+                "action_id": "validate-approval-latency",
+                "priority": "medium",
+                "owner": "platform leadership",
+                "action": "Validate approval routes and latency for approval-gated AI-agent actions.",
+            }
+        )
+    if breached or retention_gaps:
+        actions.append(
+            {
+                "action_id": "close-evidence-slo-gaps",
+                "priority": "high",
+                "owner": "governance and audit",
+                "action": "Refresh stale evidence and move retained evidence references into immutable storage.",
+            }
+        )
+    actions.append(
+        {
+            "action_id": "plan-enterprise-live-posture",
+            "priority": "medium",
+            "owner": "security architecture",
+            "action": "Plan Enterprise live ingestion for prompts, tool calls, trace history, trend reporting, and runtime controls.",
+        }
+    )
+    return actions
 
 
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

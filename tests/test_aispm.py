@@ -13,6 +13,7 @@ from cavra.aispm import (
     build_aispm_dashboard_contract,
     build_aispm_evidence_confidence_drilldown,
     build_aispm_evidence_freshness_slo,
+    build_aispm_executive_risk_narrative,
     build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
@@ -131,6 +132,9 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["evidence_confidence_drilldown"]["facts"][0]["confidence_level"] == "signed_evidence"
     assert posture["evidence_freshness_slo"]["summary"]["total_items"] == 2
     assert posture["evidence_freshness_slo"]["summary"]["freshness_score"] >= 0
+    assert "CAVRA Community reports" in posture["executive_risk_narrative"]["headline"]
+    assert posture["executive_risk_narrative"]["recommended_actions"]
+    assert posture["executive_risk_narrative"]["key_metrics"]["blocked_actions"] == 1
     assert [item["decision"] for item in posture["near_misses"]] == ["require_approval"]
     assert posture["near_misses"][0]["operator_signal"] == "approval_prevented_unreviewed_execution"
     assert posture["control_plane"]["kill_switch"] == "requires_cavra_enterprise"
@@ -686,6 +690,58 @@ def test_aispm_evidence_freshness_slo_flags_stale_and_retention_gaps() -> None:
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_executive_risk_narrative_summarizes_public_safe_posture(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+        )
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-1",
+            "agent_id": "codex-agent",
+            "repository": "payments/api",
+            "state": "completed",
+            "updated_at": "2026-06-09T00:02:00+00:00",
+        }
+    )
+
+    packet = build_aispm_executive_risk_narrative(store)
+    narrative = packet["narrative"]
+
+    assert packet["schema_version"] == "cavra.aispm.executive_risk_narrative.v1"
+    assert packet["edition"] == "community"
+    assert "CAVRA Community reports" in narrative["headline"]
+    assert narrative["risk_level"] in {"high", "critical"}
+    assert narrative["key_metrics"]["blocked_actions"] == 1
+    assert narrative["key_metrics"]["approval_required_actions"] == 1
+    assert narrative["top_risks"][0]["agent_id"] == "codex-agent"
+    assert {action["action_id"] for action in narrative["recommended_actions"]} >= {
+        "review-top-ai-agent-risks",
+        "validate-approval-latency",
+    }
+    assert "security leadership" in narrative["audience"]
+    assert packet["redaction"]["ai_generated_board_summary"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -840,6 +896,18 @@ def test_aispm_evidence_freshness_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(freshness_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_executive_risk_narrative_sample_matches_packaged_schema() -> None:
+    narrative_schema = Path("src/cavra/schemas/aispm-executive-risk-narrative.schema.json")
+    sample = Path("examples/aispm/community-executive-risk-narrative-sample.json")
+
+    assert narrative_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(narrative_schema.read_text(encoding="utf-8")),
     )
 
 
