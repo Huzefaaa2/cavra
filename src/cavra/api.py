@@ -13,6 +13,7 @@ from cavra.aispm import (
     build_aispm_behavior_fingerprints,
     build_aispm_control_coverage_heatmap,
     build_aispm_dashboard_contract,
+    build_aispm_evidence_confidence_drilldown,
     build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
@@ -640,6 +641,7 @@ def create_app():
                 "aispm_intent_action_drift": "/aispm/intent-action-drift",
                 "aispm_tool_chain_graph": "/aispm/tool-chain-graph",
                 "aispm_agent_blast_radius": "/aispm/agent-blast-radius",
+                "aispm_evidence_confidence": "/aispm/evidence-confidence",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1043,6 +1045,21 @@ def create_app():
         limit: int = 200,
     ) -> dict:
         return build_aispm_control_coverage_heatmap(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/evidence-confidence")
+    def aispm_evidence_confidence(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_evidence_confidence_drilldown(
             activity_store,
             agent_id=agent_id,
             repository=repository,

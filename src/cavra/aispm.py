@@ -56,6 +56,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "public-safe tool-chain graph from agent, tool, target, and decision metadata",
                 "agent blast-radius map from repositories, surfaces, tools, policy packs, and approval metadata",
                 "control coverage heatmap by agent, repository, and control surface from local activity metadata",
+                "evidence confidence drilldown for decision and session evidence references",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -74,6 +75,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "raw tool payload graphing and cross-system execution traces",
                 "private asset, identity, cloud dependency, and permission blast-radius enrichment",
                 "organization-wide control coverage heatmap with private asset, owner, and environment enrichment",
+                "immutable evidence store validation, signature verification, and external evidence correlation",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -93,6 +95,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "tool_chain_graph",
             "agent_blast_radius",
             "control_coverage_heatmap",
+            "evidence_confidence_drilldown",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -111,6 +114,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "tool_chain_graph": "/aispm/tool-chain-graph",
             "agent_blast_radius": "/aispm/agent-blast-radius",
             "control_coverage_heatmap": "/aispm/control-coverage-heatmap",
+            "evidence_confidence": "/aispm/evidence-confidence",
         },
     }
 
@@ -149,6 +153,7 @@ def build_aispm_posture(
     tool_chain_graph = _tool_chain_graph(decisions)
     agent_blast_radius = _agent_blast_radius(decisions, sessions)
     control_coverage_heatmap = _control_coverage_heatmap(decisions, sessions)
+    evidence_confidence_drilldown = _evidence_confidence_drilldown(decisions, sessions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -178,6 +183,7 @@ def build_aispm_posture(
         "tool_chain_graph": tool_chain_graph,
         "agent_blast_radius": agent_blast_radius,
         "control_coverage_heatmap": control_coverage_heatmap,
+        "evidence_confidence_drilldown": evidence_confidence_drilldown,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -710,6 +716,75 @@ def build_aispm_control_coverage_heatmap(
     }
 
 
+def build_aispm_evidence_confidence_drilldown(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe evidence confidence drilldown.
+
+    Community evaluates only normalized evidence reference metadata already
+    stored with decisions and sessions. It does not verify private artifacts,
+    inspect evidence payloads, or call a license/SaaS evidence service.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    drilldown = _evidence_confidence_drilldown(decisions, sessions)
+    return {
+        "schema_version": "cavra.aispm.evidence_confidence.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": drilldown["summary"],
+        "facts": drilldown["facts"],
+        "redaction": {
+            "raw_evidence_payload": LOCKED_ENTERPRISE_STATUS,
+            "private_artifact_contents": LOCKED_ENTERPRISE_STATUS,
+            "signature_trust_chain": LOCKED_ENTERPRISE_STATUS,
+            "identity_provider_claims": LOCKED_ENTERPRISE_STATUS,
+            "external_ticket_payloads": LOCKED_ENTERPRISE_STATUS,
+            "customer_data": LOCKED_ENTERPRISE_STATUS,
+            "tenant_evidence_store": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "immutable evidence store verification",
+                "signed artifact and provenance validation",
+                "SIEM, GRC, and ticket correlation",
+                "evidence freshness SLO alerts",
+                "long-term retention and auditor export workflows",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -828,6 +903,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "tool_chain_graph": _tool_chain_graph(decisions),
         "agent_blast_radius": _agent_blast_radius(decisions, sessions),
         "control_coverage_heatmap": _control_coverage_heatmap(decisions, sessions),
+        "evidence_confidence_drilldown": _evidence_confidence_drilldown(decisions, sessions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -2332,6 +2408,118 @@ def _control_coverage_heatmap(
     }
 
 
+def _evidence_confidence_drilldown(
+    decisions: list[dict[str, Any]],
+    sessions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    facts: list[dict[str, Any]] = []
+
+    for decision in decisions:
+        refs = _evidence_refs(decision)
+        level = _evidence_confidence_level(refs, has_metadata=True)
+        facts.append(
+            {
+                "fact_id": f"evidence-{decision.get('decision_id', 'unknown')}",
+                "fact_type": "policy_decision",
+                "source_id": str(decision.get("decision_id", "unknown")),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+                "control_surface": _control_surface(decision),
+                "decision": decision.get("decision", "unknown"),
+                "severity": decision.get("severity", "low"),
+                "confidence_level": level,
+                "confidence_score": _evidence_confidence_score(level),
+                "evidence_count": len(refs),
+                "signed_evidence_count": len([ref for ref in refs if _is_signed_evidence_ref(ref)]),
+                "evidence_refs": refs[:8],
+                "metadata_fields": _present_metadata_fields(
+                    decision,
+                    [
+                        "decision_id",
+                        "session_id",
+                        "agent_id",
+                        "repository",
+                        "policy_pack",
+                        "rule_id",
+                        "action_type",
+                        "target",
+                        "timestamp",
+                    ],
+                ),
+                "recommended_action": _evidence_confidence_recommendation(level),
+                "timestamp": decision.get("timestamp"),
+            }
+        )
+
+    decision_session_ids = {str(item.get("session_id")) for item in decisions if item.get("session_id")}
+    for session in sessions:
+        session_id = str(session.get("session_id", "unknown"))
+        if session_id in decision_session_ids:
+            continue
+        refs = _evidence_refs(session)
+        level = _evidence_confidence_level(refs, has_metadata=True)
+        facts.append(
+            {
+                "fact_id": f"evidence-session-{session_id}",
+                "fact_type": "agent_session",
+                "source_id": session_id,
+                "session_id": session_id,
+                "agent_id": session.get("agent_id", "unknown-agent"),
+                "repository": session.get("repository", "local"),
+                "policy_pack": session.get("policy_pack", "cavra-ai-agent-baseline"),
+                "control_surface": "agent_session",
+                "decision": "session_observed",
+                "severity": "low",
+                "confidence_level": level,
+                "confidence_score": _evidence_confidence_score(level),
+                "evidence_count": len(refs),
+                "signed_evidence_count": len([ref for ref in refs if _is_signed_evidence_ref(ref)]),
+                "evidence_refs": refs[:8],
+                "metadata_fields": _present_metadata_fields(
+                    session,
+                    [
+                        "session_id",
+                        "agent_id",
+                        "repository",
+                        "policy_pack",
+                        "state",
+                        "started_at",
+                        "updated_at",
+                    ],
+                ),
+                "recommended_action": _evidence_confidence_recommendation(level),
+                "timestamp": session.get("updated_at") or session.get("started_at"),
+            }
+        )
+
+    counts = Counter(str(item["confidence_level"]) for item in facts)
+    score = int(round(sum(int(item["confidence_score"]) for item in facts) / len(facts))) if facts else 0
+    facts = sorted(
+        facts,
+        key=lambda item: (int(item["confidence_score"]), str(item.get("timestamp", ""))),
+    )
+    return {
+        "summary": {
+            "total_facts": len(facts),
+            "signed_evidence_items": counts["signed_evidence"],
+            "activity_evidence_items": counts["activity_evidence_refs"],
+            "sample_evidence_items": counts["sample_evidence_refs"],
+            "metadata_only_items": counts["activity_metadata_only"],
+            "missing_evidence_items": counts["missing_evidence"],
+            "evidence_score": score,
+            "lowest_confidence_level": facts[0]["confidence_level"] if facts else "no_local_activity",
+            "highest_confidence_level": max(
+                (str(item["confidence_level"]) for item in facts),
+                key=lambda level: _evidence_confidence_score(level),
+                default="no_local_activity",
+            ),
+        },
+        "facts": facts[:50],
+    }
+
+
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     near_miss_decisions = []
     for decision in decisions:
@@ -2538,3 +2726,65 @@ def _evidence_confidence(decisions: list[dict[str, Any]]) -> str:
     if refs:
         return "activity_evidence_refs"
     return "activity_metadata_only"
+
+
+def _evidence_refs(item: dict[str, Any]) -> list[str]:
+    refs = item.get("evidence_refs", [])
+    if not isinstance(refs, list):
+        refs = [refs]
+    return list(dict.fromkeys(str(ref) for ref in refs if ref not in {None, ""}))
+
+
+def _is_signed_evidence_ref(ref: str) -> bool:
+    normalized = ref.lower()
+    return (
+        normalized.startswith("signed://")
+        or "signature" in normalized
+        or "sigstore" in normalized
+        or normalized.endswith(".sig")
+    )
+
+
+def _evidence_confidence_level(refs: list[str], *, has_metadata: bool) -> str:
+    if any(_is_signed_evidence_ref(ref) for ref in refs):
+        return "signed_evidence"
+    if any(ref.startswith("sample://") for ref in refs):
+        return "sample_evidence_refs"
+    if refs:
+        return "activity_evidence_refs"
+    if has_metadata:
+        return "activity_metadata_only"
+    return "missing_evidence"
+
+
+def _evidence_confidence_score(level: str) -> int:
+    return {
+        "signed_evidence": 100,
+        "activity_evidence_refs": 74,
+        "sample_evidence_refs": 45,
+        "activity_metadata_only": 28,
+        "missing_evidence": 0,
+        "no_local_activity": 0,
+    }.get(level, 0)
+
+
+def _present_metadata_fields(item: dict[str, Any], fields: list[str]) -> list[str]:
+    present = []
+    for field in fields:
+        value = item.get(field)
+        if value is None or value == "" or value == []:
+            continue
+        present.append(field)
+    return present
+
+
+def _evidence_confidence_recommendation(level: str) -> str:
+    if level == "signed_evidence":
+        return "Keep signed evidence attached and validate freshness during release review."
+    if level == "activity_evidence_refs":
+        return "Promote evidence references to signed attestations for regulated workflows."
+    if level == "sample_evidence_refs":
+        return "Replace sample evidence with local or signed evidence before production evaluation."
+    if level == "activity_metadata_only":
+        return "Attach evidence references for this decision or session before audit reliance."
+    return "Capture decision metadata and evidence references before relying on this control."

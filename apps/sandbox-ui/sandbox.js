@@ -324,6 +324,24 @@ const aispmFallback = {
       { gap_id: "coverage-gap-claude-code-agent-platform-infra-mcp-tools", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", label: "MCP Tools", coverage_status: "warning_only", recommended_action: "Move MCP tools from warning-only visibility to block, approval, or attestation controls where risk justifies it.", evidence_confidence: "activity_evidence_refs" }
     ]
   },
+  evidence_confidence_drilldown: {
+    summary: {
+      total_facts: 3,
+      signed_evidence_items: 0,
+      activity_evidence_items: 0,
+      sample_evidence_items: 3,
+      metadata_only_items: 0,
+      missing_evidence_items: 0,
+      evidence_score: 45,
+      lowest_confidence_level: "sample_evidence_refs",
+      highest_confidence_level: "sample_evidence_refs"
+    },
+    facts: [
+      { fact_id: "evidence-sample-dec-001", fact_type: "policy_decision", source_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", policy_pack: "cloud-iam-prod", control_surface: "infrastructure_iac", decision: "require_approval", severity: "high", confidence_level: "sample_evidence_refs", confidence_score: 45, evidence_count: 1, signed_evidence_count: 0, evidence_refs: ["sample://evidence/iac-production-change"], metadata_fields: ["decision_id", "session_id", "agent_id", "repository", "policy_pack", "rule_id", "action_type", "target", "timestamp"], recommended_action: "Replace sample evidence with local or signed evidence before production evaluation.", timestamp: "2026-06-09T00:00:00+00:00" },
+      { fact_id: "evidence-sample-dec-002", fact_type: "policy_decision", source_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", policy_pack: "cavra-ai-agent-baseline", control_surface: "sensitive_data", decision: "block", severity: "critical", confidence_level: "sample_evidence_refs", confidence_score: 45, evidence_count: 1, signed_evidence_count: 0, evidence_refs: ["sample://evidence/secret-read-block"], metadata_fields: ["decision_id", "session_id", "agent_id", "repository", "policy_pack", "rule_id", "action_type", "target", "timestamp"], recommended_action: "Replace sample evidence with local or signed evidence before production evaluation.", timestamp: "2026-06-09T00:01:00+00:00" },
+      { fact_id: "evidence-sample-dec-003", fact_type: "policy_decision", source_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", policy_pack: "mcp-enterprise", control_surface: "mcp_tools", decision: "warn", severity: "medium", confidence_level: "sample_evidence_refs", confidence_score: 45, evidence_count: 1, signed_evidence_count: 0, evidence_refs: ["sample://evidence/mcp-warning"], metadata_fields: ["decision_id", "session_id", "agent_id", "repository", "policy_pack", "rule_id", "action_type", "target", "timestamp"], recommended_action: "Replace sample evidence with local or signed evidence before production evaluation.", timestamp: "2026-06-09T00:02:00+00:00" }
+    ]
+  },
   near_misses: [
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
@@ -1100,6 +1118,40 @@ const aispmControlCoverageHeatmapFallback = {
   }
 };
 
+const aispmEvidenceConfidenceFallback = {
+  schema_version: "cavra.aispm.evidence_confidence.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:11:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: aispmFallback.evidence_confidence_drilldown.summary,
+  facts: aispmFallback.evidence_confidence_drilldown.facts,
+  redaction: {
+    raw_evidence_payload: "requires_cavra_enterprise",
+    private_artifact_contents: "requires_cavra_enterprise",
+    signature_trust_chain: "requires_cavra_enterprise",
+    identity_provider_claims: "requires_cavra_enterprise",
+    external_ticket_payloads: "requires_cavra_enterprise",
+    customer_data: "requires_cavra_enterprise",
+    tenant_evidence_store: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "immutable evidence store verification",
+      "signed artifact and provenance validation",
+      "SIEM, GRC, and ticket correlation",
+      "evidence freshness SLO alerts",
+      "long-term retention and auditor export workflows"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -1113,6 +1165,7 @@ const routeContent = [
   { type: "AI Posture", label: "Agent Observability", route: "ai-posture", description: "Live-ready agent coverage, risk findings, and execution timeline." },
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
+  { type: "AI Posture", label: "Evidence Confidence Drilldown", route: "ai-posture", description: "Rank policy decisions by signed, activity, sample, metadata-only, or missing evidence." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
@@ -1302,6 +1355,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     surfaces: payload.control_coverage_heatmap?.surfaces || aispmControlCoverageHeatmapFallback.surfaces,
     rows: payload.control_coverage_heatmap?.rows || aispmControlCoverageHeatmapFallback.rows,
     top_gaps: payload.control_coverage_heatmap?.top_gaps || aispmControlCoverageHeatmapFallback.top_gaps
+  }, "posture sample");
+  renderAispmEvidenceConfidence({
+    ...aispmEvidenceConfidenceFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeEvidenceConfidence(payload.evidence_confidence_drilldown?.facts || aispmEvidenceConfidenceFallback.facts),
+    facts: payload.evidence_confidence_drilldown?.facts || aispmEvidenceConfidenceFallback.facts
   }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
@@ -1614,6 +1673,72 @@ function renderAispmControlCoverageHeatmap(packet, note = "sample heatmap") {
       </div>
     </article>
   `).join("") || `<p class="empty-state">No control coverage heatmap rows available.</p>`;
+}
+
+function summarizeEvidenceConfidence(facts) {
+  const items = facts || [];
+  const counts = items.reduce((acc, item) => {
+    acc[item.confidence_level] = (acc[item.confidence_level] || 0) + 1;
+    return acc;
+  }, {});
+  return {
+    total_facts: items.length,
+    signed_evidence_items: counts.signed_evidence || 0,
+    activity_evidence_items: counts.activity_evidence_refs || 0,
+    sample_evidence_items: counts.sample_evidence_refs || 0,
+    metadata_only_items: counts.activity_metadata_only || 0,
+    missing_evidence_items: counts.missing_evidence || 0,
+    evidence_score: items.length ? Math.round(items.reduce((sum, item) => sum + Number(item.confidence_score || 0), 0) / items.length) : 0,
+    lowest_confidence_level: [...items].sort((a, b) => Number(a.confidence_score || 0) - Number(b.confidence_score || 0))[0]?.confidence_level || "no_local_activity",
+    highest_confidence_level: [...items].sort((a, b) => Number(b.confidence_score || 0) - Number(a.confidence_score || 0))[0]?.confidence_level || "no_local_activity"
+  };
+}
+
+async function loadAispmEvidenceConfidence() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/evidence-confidence`);
+      if (!response.ok) throw new Error(`Evidence confidence HTTP ${response.status}`);
+      renderAispmEvidenceConfidence(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmEvidenceConfidence(aispmEvidenceConfidenceFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmEvidenceConfidence(aispmEvidenceConfidenceFallback, "static sample evidence");
+}
+
+function renderAispmEvidenceConfidence(packet, note = "sample evidence") {
+  const facts = packet.facts || [];
+  const summary = packet.summary || summarizeEvidenceConfidence(facts);
+  const summaryCards = [
+    ["Evidence Score", summary.evidence_score ?? 0, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Signed", summary.signed_evidence_items ?? 0, `Activity refs: ${summary.activity_evidence_items ?? 0}`],
+    ["Sample/Metadata", (summary.sample_evidence_items ?? 0) + (summary.metadata_only_items ?? 0), `Missing: ${summary.missing_evidence_items ?? 0}`],
+    ["Facts", summary.total_facts ?? facts.length, `Lowest: ${summary.lowest_confidence_level || "unknown"}`]
+  ];
+  el("#aispmEvidenceConfidenceSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  const orderedFacts = [...facts].sort((a, b) => Number(a.confidence_score || 0) - Number(b.confidence_score || 0));
+  el("#aispmEvidenceConfidenceRows").innerHTML = orderedFacts.slice(0, 8).map((fact) => `
+    <article class="evidence-confidence-row">
+      <div class="evidence-confidence-score">${escapeHtml(fact.confidence_score ?? 0)}</div>
+      <div>
+        <span class="evidence-confidence-level">${escapeHtml((fact.confidence_level || "unknown").replaceAll("_", " "))}</span>
+        <strong>${escapeHtml(fact.agent_id || "unknown-agent")} · ${escapeHtml(fact.repository || "local")}</strong>
+        <p>${escapeHtml(fact.decision || fact.fact_type || "evidence fact")} · ${escapeHtml(fact.control_surface || "general_policy")} · ${escapeHtml(fact.severity || "low")}</p>
+        <p>${escapeHtml(fact.recommended_action || "Review evidence confidence before audit reliance.")}</p>
+      </div>
+      <small>${escapeHtml((fact.evidence_refs || []).join(", ") || "metadata only")}</small>
+    </article>
+  `).join("") || `<p class="empty-state">No evidence confidence facts available.</p>`;
 }
 
 function summarizeBehaviorFingerprints(items) {
@@ -2261,6 +2386,7 @@ function wireEvents() {
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#refreshAispmCoverageHeatmap").addEventListener("click", loadAispmControlCoverageHeatmap);
+  el("#refreshAispmEvidenceConfidence").addEventListener("click", loadAispmEvidenceConfidence);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

@@ -1,0 +1,145 @@
+{
+  "schema_version": "cavra.aispm.evidence_confidence.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:11:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "summary": {
+    "total_facts": 3,
+    "signed_evidence_items": 0,
+    "activity_evidence_items": 0,
+    "sample_evidence_items": 3,
+    "metadata_only_items": 0,
+    "missing_evidence_items": 0,
+    "evidence_score": 45,
+    "lowest_confidence_level": "sample_evidence_refs",
+    "highest_confidence_level": "sample_evidence_refs"
+  },
+  "facts": [
+    {
+      "fact_id": "evidence-sample-dec-001",
+      "fact_type": "policy_decision",
+      "source_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "control_surface": "infrastructure_iac",
+      "decision": "require_approval",
+      "severity": "high",
+      "confidence_level": "sample_evidence_refs",
+      "confidence_score": 45,
+      "evidence_count": 1,
+      "signed_evidence_count": 0,
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "metadata_fields": [
+        "decision_id",
+        "session_id",
+        "agent_id",
+        "repository",
+        "policy_pack",
+        "rule_id",
+        "action_type",
+        "target",
+        "timestamp"
+      ],
+      "recommended_action": "Replace sample evidence with local or signed evidence before production evaluation.",
+      "timestamp": "2026-06-09T00:00:00+00:00"
+    },
+    {
+      "fact_id": "evidence-sample-dec-002",
+      "fact_type": "policy_decision",
+      "source_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "control_surface": "sensitive_data",
+      "decision": "block",
+      "severity": "critical",
+      "confidence_level": "sample_evidence_refs",
+      "confidence_score": 45,
+      "evidence_count": 1,
+      "signed_evidence_count": 0,
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "metadata_fields": [
+        "decision_id",
+        "session_id",
+        "agent_id",
+        "repository",
+        "policy_pack",
+        "rule_id",
+        "action_type",
+        "target",
+        "timestamp"
+      ],
+      "recommended_action": "Replace sample evidence with local or signed evidence before production evaluation.",
+      "timestamp": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "fact_id": "evidence-sample-dec-003",
+      "fact_type": "policy_decision",
+      "source_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "control_surface": "mcp_tools",
+      "decision": "warn",
+      "severity": "medium",
+      "confidence_level": "sample_evidence_refs",
+      "confidence_score": 45,
+      "evidence_count": 1,
+      "signed_evidence_count": 0,
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "metadata_fields": [
+        "decision_id",
+        "session_id",
+        "agent_id",
+        "repository",
+        "policy_pack",
+        "rule_id",
+        "action_type",
+        "target",
+        "timestamp"
+      ],
+      "recommended_action": "Replace sample evidence with local or signed evidence before production evaluation.",
+      "timestamp": "2026-06-09T00:02:00+00:00"
+    }
+  ],
+  "redaction": {
+    "raw_evidence_payload": "requires_cavra_enterprise",
+    "private_artifact_contents": "requires_cavra_enterprise",
+    "signature_trust_chain": "requires_cavra_enterprise",
+    "identity_provider_claims": "requires_cavra_enterprise",
+    "external_ticket_payloads": "requires_cavra_enterprise",
+    "customer_data": "requires_cavra_enterprise",
+    "tenant_evidence_store": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "immutable evidence store verification",
+      "signed artifact and provenance validation",
+      "SIEM, GRC, and ticket correlation",
+      "evidence freshness SLO alerts",
+      "long-term retention and auditor export workflows"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

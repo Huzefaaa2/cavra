@@ -6,8 +6,8 @@ current Phase B hardening adds Community control coverage, near-miss visibility,
 public-safe trace replay packets, public-safe approval lineage, behavior
 fingerprints, policy context gaps, pre-action risk forecasts, and
 intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping,
-and control coverage heatmap views without exposing Enterprise live-ingestion
-logic.
+control coverage heatmap views, and evidence confidence drilldowns without
+exposing Enterprise live-ingestion logic.
 
 ## Community Boundary
 
@@ -50,6 +50,9 @@ Community Edition provides local and sample posture views only:
 - `GET /aispm/agent-blast-radius` returns public-safe per-agent reach across
   repositories, redacted target classes, tools, policy packs, control surfaces,
   approval paths, and evidence references.
+- `GET /aispm/evidence-confidence` returns public-safe evidence confidence
+  drilldowns for decision/session evidence references, including signed,
+  activity-reference, sample, metadata-only, and missing evidence classes.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -68,6 +71,9 @@ The route also includes an agent blast-radius map so CSO/CISO users can see
 which agents have observed sensitive-data reach, production-infrastructure
 reach, multi-repository scope, approval gaps, and required compensating
 controls.
+The route also includes an evidence confidence drilldown so operators can see
+which policy decisions are backed by signed evidence, activity references,
+sample evidence, metadata only, or missing evidence before relying on a report.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -123,6 +129,13 @@ repository owner graphs, identity-provider claims, repository permission
 matrices, environment criticality, CMDB service mappings, or live organization
 baselines.
 
+Community evidence confidence drilldowns classify local decision and session
+evidence references as signed evidence, activity evidence references, sample
+evidence, metadata-only records, or missing evidence. They do not inspect raw
+evidence payloads, validate private artifact contents, resolve signature trust
+chains, read external ticket payloads, expose customer data, or access tenant
+evidence stores.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -139,6 +152,8 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
   enrichment;
 - organization-wide control coverage heatmaps with private owner, identity,
   permission, and environment enrichment;
+- immutable evidence store validation, signature trust-chain verification, and
+  external evidence correlation;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -205,3 +220,8 @@ The packaged Community control coverage heatmap schema is available at
 `src/cavra/schemas/aispm-control-coverage-heatmap.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-control-coverage-heatmap-sample.json`.
+
+The packaged Community evidence confidence schema is available at
+`src/cavra/schemas/aispm-evidence-confidence.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-evidence-confidence-sample.json`.

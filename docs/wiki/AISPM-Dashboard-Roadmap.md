@@ -18,6 +18,8 @@ Enterprise should provide the live CSO/CISO operating surface:
   and with which evidence bundle;
 - control coverage heatmaps for repositories, agent tools, CI gates, MCP
   servers, runtime modes, and enforcement backends;
+- evidence confidence drilldowns for signed, activity-reference, sample,
+  metadata-only, and missing evidence;
 - CSO controls for kill switch, quarantine, policy toggle, runtime override,
   rollback, and post-event review;
 - compliance and audit views for SOC 2, ISO 27001, NIST SSDF, EU AI Act, PCI
@@ -26,13 +28,15 @@ Enterprise should provide the live CSO/CISO operating surface:
 Community should keep a public-safe dashboard demo and local activity view,
 including observed control coverage, near-miss queues, trace replay packets
 derived from local decisions, approval lineage from local approval records, and
-behavior fingerprints, policy context gaps, and pre-action risk forecasts from
-normalized local activity metadata, plus intent-to-action drift and tool-chain risk graphing from declared intent, safe tool labels, redacted targets, and observed action metadata.
+behavior fingerprints, policy context gaps, pre-action risk forecasts, and
+evidence confidence drilldowns from normalized local activity metadata, plus
+intent-to-action drift and tool-chain risk graphing from declared intent, safe
+tool labels, redacted targets, and observed action metadata.
 Enterprise should own authenticated multi-tenant ingestion, streaming updates,
 centralized retention, private policy context, organization controls, raw
 prompt/reasoning replay, private behavior baselines, private context
 enrichment, private asset/dependency/identity forecast enrichment,
-prompt-derived semantic intent extraction, private workflow correlation, raw tool payload graphing, cross-system execution traces,
+prompt-derived semantic intent extraction, private workflow correlation, raw tool payload graphing, immutable evidence validation, cross-system execution traces,
 private IdP/RBAC context, and commercial compliance exports.
 
 The detailed implementation plan is maintained in

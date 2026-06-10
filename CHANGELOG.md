@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM evidence confidence drilldown for Community,
+  including `/aispm/evidence-confidence`, packaged schema/sample data,
+  dashboard confidence rows for signed/activity/sample/metadata-only evidence,
+  docs/wiki updates, and Enterprise-locked immutable evidence store,
+  signature trust-chain, external ticket, customer-data, and tenant evidence
+  boundaries.
 - Added public-safe AISPM control coverage heatmap for Community, including
   `/aispm/control-coverage-heatmap`, packaged schema/sample data, dashboard
   matrix cards by agent/repository/control surface, docs/wiki updates, and

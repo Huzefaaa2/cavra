@@ -10,6 +10,7 @@ from cavra.aispm import (
     build_aispm_behavior_fingerprints,
     build_aispm_control_coverage_heatmap,
     build_aispm_dashboard_contract,
+    build_aispm_evidence_confidence_drilldown,
     build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
@@ -124,6 +125,8 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert posture["control_coverage_heatmap"]["rows"][0]["agent_id"] == "codex-agent"
     assert posture["control_coverage_heatmap"]["coverage_score"] > 0
     assert any(cell["coverage_status"] == "enforced" for cell in posture["control_coverage_heatmap"]["rows"][0]["cells"])
+    assert posture["evidence_confidence_drilldown"]["summary"]["signed_evidence_items"] == 2
+    assert posture["evidence_confidence_drilldown"]["facts"][0]["confidence_level"] == "signed_evidence"
     assert [item["decision"] for item in posture["near_misses"]] == ["require_approval"]
     assert posture["near_misses"][0]["operator_signal"] == "approval_prevented_unreviewed_execution"
     assert posture["control_plane"]["kill_switch"] == "requires_cavra_enterprise"
@@ -528,6 +531,73 @@ def test_aispm_control_coverage_heatmap_maps_agent_repository_surface_cells(tmp_
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_evidence_confidence_drilldown_ranks_evidence_quality(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-signed",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-metadata-only",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="warn",
+                severity="medium",
+            ),
+            "evidence_refs": [],
+        }
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-activity-ref",
+                session_id="session-2",
+                agent_id="claude-code-agent",
+                decision="require_approval",
+                severity="high",
+            ),
+            "evidence_refs": ["artifact://evidence/dec-activity-ref"],
+        }
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-3",
+            "agent_id": "docs-agent",
+            "repository": "platform/docs",
+            "state": "completed",
+            "updated_at": "2026-06-09T00:04:00+00:00",
+            "evidence_refs": ["sample://evidence/session"],
+        }
+    )
+
+    packet = build_aispm_evidence_confidence_drilldown(store)
+
+    assert packet["schema_version"] == "cavra.aispm.evidence_confidence.v1"
+    assert packet["summary"]["total_facts"] == 4
+    assert packet["summary"]["signed_evidence_items"] == 1
+    assert packet["summary"]["activity_evidence_items"] == 1
+    assert packet["summary"]["sample_evidence_items"] == 1
+    assert packet["summary"]["metadata_only_items"] == 1
+    assert packet["summary"]["evidence_score"] > 0
+    levels = {item["source_id"]: item["confidence_level"] for item in packet["facts"]}
+    assert levels["dec-signed"] == "signed_evidence"
+    assert levels["dec-activity-ref"] == "activity_evidence_refs"
+    assert levels["dec-metadata-only"] == "activity_metadata_only"
+    assert levels["session-3"] == "sample_evidence_refs"
+    assert packet["redaction"]["tenant_evidence_store"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -658,6 +728,18 @@ def test_aispm_control_coverage_heatmap_sample_matches_packaged_schema() -> None
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(heatmap_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_evidence_confidence_sample_matches_packaged_schema() -> None:
+    evidence_schema = Path("src/cavra/schemas/aispm-evidence-confidence.schema.json")
+    sample = Path("examples/aispm/community-evidence-confidence-sample.json")
+
+    assert evidence_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(evidence_schema.read_text(encoding="utf-8")),
     )
 
 

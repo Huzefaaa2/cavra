@@ -29,6 +29,7 @@ Activity endpoints:
 - `GET /aispm/intent-action-drift`: return public-safe intent-to-action drift signals by comparing declared intent metadata with observed action, target, control surface, and policy outcome.
 - `GET /aispm/tool-chain-graph`: return a public-safe graph of agent, tool, redacted target, policy, and risky execution edges from local decision metadata.
 - `GET /aispm/agent-blast-radius`: return a public-safe per-agent blast-radius map from observed repositories, targets, tools, policy packs, control surfaces, approval paths, and evidence references.
+- `GET /aispm/evidence-confidence`: return a public-safe evidence confidence drilldown that classifies decision/session evidence as signed, activity-reference, sample, metadata-only, or missing evidence.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -44,7 +45,7 @@ graphs, dependency graphs, identity blast radius, cloud inventory, runtime
 state, and prompt-intent context remain Enterprise-only. Community
 intent-to-action drift uses declared intent metadata only; raw prompts,
 reasoning traces, conversation history, private ticket context, full tool
-payloads, and semantic intent models remain Enterprise-only. Community tool-chain graphs use safe node and edge summaries only; raw tool request bodies, tool results, connector spans, cross-system call graphs, and private network targets remain Enterprise-only. Community agent blast-radius maps use normalized reach summaries only; private asset graphs, identity permission graphs, cloud account inventories, dependency graphs, secret names, and customer topology remain Enterprise-only. Live prompt
+payloads, and semantic intent models remain Enterprise-only. Community tool-chain graphs use safe node and edge summaries only; raw tool request bodies, tool results, connector spans, cross-system call graphs, and private network targets remain Enterprise-only. Community agent blast-radius maps use normalized reach summaries only; private asset graphs, identity permission graphs, cloud account inventories, dependency graphs, secret names, and customer topology remain Enterprise-only. Community evidence confidence drilldowns inspect evidence reference metadata only; raw evidence payloads, private artifact contents, signature trust chains, external ticket payloads, customer data, and tenant evidence stores remain Enterprise-only. Live prompt
 traces, model reasoning, raw tool output, tool-call graphing, private behavior
 baselines, private context enrichment, private identity-provider claims,
 organization-wide coverage, multi-tenant retention, kill switch, policy

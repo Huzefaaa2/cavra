@@ -21,6 +21,7 @@
     "intent_action_drift",
     "tool_chain_graph",
     "agent_blast_radius",
+    "evidence_confidence_drilldown",
     "control_plane"
   ],
   "properties": {
@@ -446,6 +447,14 @@
           "evidence_refs": { "type": "array", "items": { "type": "string" } },
           "last_seen_at": { "type": ["string", "null"] }
         }
+      }
+    },
+    "evidence_confidence_drilldown": {
+      "type": "object",
+      "required": ["summary", "facts"],
+      "properties": {
+        "summary": { "type": "object" },
+        "facts": { "type": "array" }
       }
     },
     "control_plane": { "type": "object" }
