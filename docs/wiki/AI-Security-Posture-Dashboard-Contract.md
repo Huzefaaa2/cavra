@@ -35,6 +35,7 @@ Community Edition provides:
 - `GET /aispm/evidence-freshness`
 - `GET /aispm/executive-risk-narrative`
 - `GET /aispm/replay-to-policy-draft`
+- `GET /aispm/replay-to-policy-tests`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
@@ -62,6 +63,8 @@ summarizes Community-safe posture, top risks, evidence gaps, and recommended
 actions.
 It also includes a replay-to-policy draft panel for candidate controls derived
 from observed replay decisions before reviewed policy changes are committed.
+The same panel also shows replay-to-policy test fixture exports for expected
+policy assertions before reviewed tests are added to CI.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -138,6 +141,12 @@ not write to `policies/`, publish policy packs, inspect raw prompts, inspect
 model reasoning, read raw tool payloads, enrich from tickets or asset graphs,
 simulate tenant history, or automate production write-back.
 
+Community replay-to-policy test fixture export converts the same candidate
+controls into review-only JSON cases. Each case includes public-safe input
+metadata, expected decision metadata, evidence references, and validation
+notes. It does not run private simulation, generate tests from prompts or raw
+tool payloads, open pull requests, or write CI files.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
@@ -149,9 +158,10 @@ replay, private blast-radius enrichment, organization-wide heatmaps,
 immutable evidence validation, object-lock/KMS/archive lifecycle validation,
 AI-assisted executive narratives, replay-to-policy authoring from private
 prompts/reasoning/tool payloads/tickets/assets, private trend history, tenant
-benchmarks, organization controls, kill switch, runtime overrides, centralized
-retention, immutable audit exports, GRC/incident packet export, and compliance
-reporting.
+benchmarks, Enterprise replay-to-policy test generation with tenant-history
+regression and approved CI write-back, organization controls, kill switch,
+runtime overrides, centralized retention, immutable audit exports,
+GRC/incident packet export, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
 The packaged Community trace replay schema is
@@ -199,3 +209,7 @@ The packaged Community replay-to-policy draft schema is
 `src/cavra/schemas/aispm-replay-to-policy-draft.schema.json`, with a
 deterministic sample packet at
 `examples/aispm/community-replay-to-policy-draft-sample.json`.
+The packaged Community replay-to-policy test fixture schema is
+`src/cavra/schemas/aispm-replay-to-policy-tests.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-replay-to-policy-tests-sample.json`.

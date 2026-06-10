@@ -62,6 +62,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "evidence freshness and retention SLO summary from local activity timestamps",
                 "deterministic executive risk narrative from local posture metrics",
                 "read-only replay-to-policy draft suggestions from normalized trace decisions",
+                "read-only replay-to-policy test fixture exports for reviewed policy drafts",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -84,6 +85,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "evidence retention proof, object-lock status, KMS status, and archive lifecycle validation",
                 "AI-assisted executive narratives with private tenant context and trend history",
                 "AI-assisted policy authoring with private prompt, ticket, asset, and approval context",
+                "CI write-back and tenant-history simulation for generated policy tests",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -107,6 +109,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "evidence_freshness_slo",
             "executive_risk_narrative",
             "replay_to_policy_draft",
+            "replay_to_policy_tests",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -129,6 +132,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "evidence_freshness": "/aispm/evidence-freshness",
             "executive_risk_narrative": "/aispm/executive-risk-narrative",
             "replay_to_policy_draft": "/aispm/replay-to-policy-draft",
+            "replay_to_policy_tests": "/aispm/replay-to-policy-tests",
         },
     }
 
@@ -1034,6 +1038,82 @@ def build_aispm_replay_to_policy_draft(
                 "approval-bound policy publish workflow automation",
                 "policy simulation against tenant history before rollout",
                 "organization-wide policy-pack recommendation campaigns",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
+def build_aispm_replay_to_policy_tests(
+    activity_store: Any,
+    *,
+    session_id: str | None = None,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Export public-safe policy test fixtures from replay-derived controls.
+
+    Community exports deterministic assertion fixtures only. It does not run
+    private tenant-history simulation, use raw prompts, or validate private
+    connector payloads.
+    """
+
+    draft_packet = build_aispm_replay_to_policy_draft(
+        activity_store,
+        session_id=session_id,
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )
+    fixture = _replay_to_policy_test_fixture(
+        draft_packet["recommendations"],
+        draft_packet["policy_draft"]["policy_pack"],
+        source_scope=draft_packet["summary"].get("source_scope", "local_activity_window"),
+    )
+    return {
+        "schema_version": "cavra.aispm.replay_to_policy_tests.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": draft_packet["data_provenance"],
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": draft_packet["filters"],
+        "summary": {
+            "source_decisions": draft_packet["summary"]["source_decisions"],
+            "recommended_rules": draft_packet["summary"]["recommended_rules"],
+            "test_cases": len(fixture["cases"]),
+            "fixture_valid": True,
+            "source_scope": draft_packet["summary"].get("source_scope", "local_activity_window"),
+            "policy_id": fixture["policy_id"],
+        },
+        "test_fixture": fixture,
+        "export": {
+            "status": "read_only_preview",
+            "suggested_path": f"tests/fixtures/replay-to-policy/{fixture['policy_id']}.json",
+            "next_step": "Review the fixture, commit it with the policy draft, and validate through repository CI before rollout.",
+            "approval_required": True,
+        },
+        "redaction": {
+            "raw_prompts": LOCKED_ENTERPRISE_STATUS,
+            "model_reasoning": LOCKED_ENTERPRISE_STATUS,
+            "raw_tool_payloads": LOCKED_ENTERPRISE_STATUS,
+            "private_simulation_history": LOCKED_ENTERPRISE_STATUS,
+            "ticket_or_change_context": LOCKED_ENTERPRISE_STATUS,
+            "customer_context": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "policy test generation from prompts, reasoning traces, and raw tool payloads",
+                "tenant-history simulation before policy rollout",
+                "private ticket, asset, identity, and service criticality enrichment",
+                "CI write-back for approved policy tests",
+                "organization-wide regression campaigns for generated policy packs",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -3269,6 +3349,66 @@ def _policy_draft_payload_from_recommendations(
         if proposed_value not in values:
             values.append(proposed_value)
     return payload
+
+
+def _replay_to_policy_test_fixture(
+    recommendations: list[dict[str, Any]],
+    policy_pack: dict[str, Any],
+    *,
+    source_scope: str,
+) -> dict[str, Any]:
+    policy_id = str(policy_pack.get("metadata", {}).get("id") or f"cavra-replay-derived-{_slug(source_scope)}")
+    cases = [_replay_to_policy_test_case(index, item, policy_id) for index, item in enumerate(recommendations, start=1)]
+    return {
+        "schema_version": "cavra.policy_tests.replay_to_policy.v1",
+        "policy_id": policy_id,
+        "source_scope": source_scope,
+        "case_count": len(cases),
+        "cases": cases,
+        "validation": {
+            "community_mode": "review_only",
+            "recommended_commands": [
+                f"cavra policy validate policies/{policy_id}/policy.yaml",
+                "cavra policy test",
+            ],
+            "notes": [
+                "Generated cases are public-safe assertions derived from normalized CAVRA decisions.",
+                "Review generated cases before committing them to repository CI.",
+                "Private prompt, reasoning, ticket, and tenant-history simulation requires CAVRA Enterprise.",
+            ],
+        },
+    }
+
+
+def _replay_to_policy_test_case(index: int, recommendation: dict[str, Any], policy_id: str) -> dict[str, Any]:
+    proposed_value = recommendation.get("proposed_value")
+    target = proposed_value if isinstance(proposed_value, str) else recommendation.get("target_summary", "policy target")
+    return {
+        "case_id": f"replay-policy-test-{index}-{_slug(str(recommendation.get('decision_id') or recommendation.get('recommendation_id') or 'case'))}",
+        "recommendation_id": recommendation.get("recommendation_id"),
+        "decision_id": recommendation.get("decision_id"),
+        "description": f"Assert {recommendation.get('policy_section', 'policy')}.{recommendation.get('rule_key', 'rule')} for {recommendation.get('control_surface', 'general_policy')}.",
+        "input": {
+            "action_type": recommendation.get("action_type", "unknown"),
+            "target": target,
+            "target_summary": recommendation.get("target_summary", "target not recorded"),
+            "target_redacted": recommendation.get("target_redacted", False),
+            "agent_id": recommendation.get("agent_id", "unknown-agent"),
+            "repository": recommendation.get("repository", "local"),
+            "policy_pack": policy_id,
+        },
+        "expected": {
+            "decision": recommendation.get("decision", "review"),
+            "severity": recommendation.get("severity", "low"),
+            "policy_section": recommendation.get("policy_section", "policy"),
+            "rule_key": recommendation.get("rule_key", "rule"),
+            "proposed_value": proposed_value,
+            "risk_classification": recommendation.get("risk_classification", "policy_decision_review"),
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": True,
+        "evidence_refs": recommendation.get("evidence_refs", []),
+    }
 
 
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -927,6 +927,93 @@ const aispmReplayPolicyFallback = {
   }
 };
 
+const aispmReplayPolicyTestsFallback = {
+  schema_version: "cavra.aispm.replay_to_policy_tests.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:03:00+00:00",
+  filters: { session_id: "sample-session-001", repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    source_decisions: 3,
+    recommended_rules: 3,
+    test_cases: 3,
+    fixture_valid: true,
+    source_scope: "sample-session-001",
+    policy_id: "cavra-replay-derived-sample-session-001"
+  },
+  test_fixture: {
+    schema_version: "cavra.policy_tests.replay_to_policy.v1",
+    policy_id: "cavra-replay-derived-sample-session-001",
+    source_scope: "sample-session-001",
+    case_count: 3,
+    cases: aispmFallback.replay_to_policy_draft.recommendations.map((item, index) => ({
+      case_id: `replay-policy-test-${index + 1}-${item.decision_id}`,
+      recommendation_id: item.recommendation_id,
+      decision_id: item.decision_id,
+      description: `Assert ${item.policy_section}.${item.rule_key} for ${item.control_surface}.`,
+      input: {
+        action_type: item.action_type,
+        target: typeof item.proposed_value === "string" ? item.proposed_value : item.target_summary,
+        target_summary: item.target_summary,
+        target_redacted: item.target_redacted,
+        agent_id: item.agent_id,
+        repository: item.repository,
+        policy_pack: "cavra-replay-derived-sample-session-001"
+      },
+      expected: {
+        decision: item.decision,
+        severity: item.severity,
+        policy_section: item.policy_section,
+        rule_key: item.rule_key,
+        proposed_value: item.proposed_value,
+        risk_classification: item.risk_classification
+      },
+      assertion_type: "metadata_derived_policy_expectation",
+      public_safe: true,
+      evidence_refs: item.evidence_refs
+    })),
+    validation: {
+      community_mode: "review_only",
+      recommended_commands: [
+        "cavra policy validate policies/cavra-replay-derived-sample-session-001/policy.yaml",
+        "cavra policy test"
+      ],
+      notes: [
+        "Generated cases are public-safe assertions derived from normalized CAVRA decisions.",
+        "Review generated cases before committing them to repository CI.",
+        "Private prompt, reasoning, ticket, and tenant-history simulation requires CAVRA Enterprise."
+      ]
+    }
+  },
+  export: {
+    status: "read_only_preview",
+    suggested_path: "tests/fixtures/replay-to-policy/cavra-replay-derived-sample-session-001.json",
+    next_step: "Review the fixture, commit it with the policy draft, and validate through repository CI before rollout.",
+    approval_required: true
+  },
+  redaction: {
+    raw_prompts: "requires_cavra_enterprise",
+    model_reasoning: "requires_cavra_enterprise",
+    raw_tool_payloads: "requires_cavra_enterprise",
+    private_simulation_history: "requires_cavra_enterprise",
+    ticket_or_change_context: "requires_cavra_enterprise",
+    customer_context: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "policy test generation from prompts, reasoning traces, and raw tool payloads",
+      "tenant-history simulation before policy rollout",
+      "CI write-back for approved policy tests"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 const aispmApprovalLineageFallback = {
   schema_version: "cavra.aispm.approval_lineage.v1",
   product: "CAVRA",
@@ -1377,6 +1464,7 @@ const routeContent = [
   { type: "AI Posture", label: "Executive Risk Narrative", route: "ai-posture", description: "Summarize Community-safe posture, top risks, evidence gaps, and leadership actions." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Replay-To-Policy Draft", route: "ai-posture", description: "Convert replay decisions into read-only candidate policy controls." },
+  { type: "AI Posture", label: "Replay-To-Policy Tests", route: "ai-posture", description: "Export public-safe policy test fixtures for replay-derived controls." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -1589,6 +1677,10 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     ...(payload.replay_to_policy_draft || aispmReplayPolicyFallback)
   }, "posture sample");
+  renderAispmReplayPolicyTests({
+    ...aispmReplayPolicyTestsFallback,
+    data_provenance: payload.data_provenance || "sample_data"
+  }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
     data_provenance: payload.data_provenance || "sample_data",
@@ -1775,11 +1867,16 @@ async function loadAispmReplayPolicy() {
       const response = await fetch(`${apiBase}/aispm/replay-to-policy-draft?session_id=${encodeURIComponent(sessionId)}`);
       if (!response.ok) throw new Error(`Replay-to-policy HTTP ${response.status}`);
       renderAispmReplayPolicy(await response.json(), "API local activity");
+      await loadAispmReplayPolicyTests(sessionId);
       return;
     } catch (error) {
       renderAispmReplayPolicy({
         ...aispmReplayPolicyFallback,
         filters: { ...aispmReplayPolicyFallback.filters, session_id: sessionId }
+      }, "API unavailable, sample shown");
+      renderAispmReplayPolicyTests({
+        ...aispmReplayPolicyTestsFallback,
+        filters: { ...aispmReplayPolicyTestsFallback.filters, session_id: sessionId }
       }, "API unavailable, sample shown");
       return;
     }
@@ -1788,6 +1885,25 @@ async function loadAispmReplayPolicy() {
     ...aispmReplayPolicyFallback,
     filters: { ...aispmReplayPolicyFallback.filters, session_id: sessionId }
   }, "static sample draft");
+  renderAispmReplayPolicyTests({
+    ...aispmReplayPolicyTestsFallback,
+    filters: { ...aispmReplayPolicyTestsFallback.filters, session_id: sessionId }
+  }, "static sample tests");
+}
+
+async function loadAispmReplayPolicyTests(sessionId) {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (!apiBase) return;
+  try {
+    const response = await fetch(`${apiBase}/aispm/replay-to-policy-tests?session_id=${encodeURIComponent(sessionId)}`);
+    if (!response.ok) throw new Error(`Replay-to-policy tests HTTP ${response.status}`);
+    renderAispmReplayPolicyTests(await response.json(), "API local activity");
+  } catch (error) {
+    renderAispmReplayPolicyTests({
+      ...aispmReplayPolicyTestsFallback,
+      filters: { ...aispmReplayPolicyTestsFallback.filters, session_id: sessionId }
+    }, "API unavailable, sample shown");
+  }
 }
 
 function renderAispmReplayPolicy(packet, note = "sample draft") {
@@ -1824,6 +1940,17 @@ function renderAispmReplayPolicy(packet, note = "sample draft") {
     </article>
   `).join("") || `<p class="empty-state">No authorable replay decisions found for this session.</p>`;
   el("#aispmReplayPolicyDraft").textContent = JSON.stringify(draft, null, 2);
+}
+
+function renderAispmReplayPolicyTests(packet, note = "sample tests") {
+  const fixture = packet.test_fixture || {};
+  el("#aispmReplayPolicyTests").textContent = JSON.stringify({
+    export_status: packet.export?.status || "read_only_preview",
+    suggested_path: packet.export?.suggested_path || "tests/fixtures/replay-to-policy/generated.json",
+    data_provenance: `${packet.data_provenance || "sample_data"} · ${note}`,
+    summary: packet.summary || {},
+    test_fixture: fixture
+  }, null, 2);
 }
 
 function summarizeApprovalLineage(items) {

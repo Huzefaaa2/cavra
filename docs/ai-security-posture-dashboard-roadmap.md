@@ -14,7 +14,8 @@ policy context gap detection, pre-action risk forecasts, intent-to-action
 drift detection, tool-chain risk graphing, agent blast-radius mapping, control
 coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO
 panels, deterministic executive risk narratives, replay-to-policy draft
-previews, and a public-safe sandbox portal.
+previews, replay-to-policy test fixture previews, and a public-safe sandbox
+portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -182,10 +183,11 @@ These features should help position CAVRA as more than another log dashboard:
   normalized local decision metadata while private prompt-derived intent,
   workflow correlation, raw tool payloads, cross-system traces, private asset graphs,
   and semantic models remain Enterprise.
-- Add public-safe replay-to-policy draft previews derived from normalized
-  block, require-approval, warning, high, and critical decisions while private
-  prompt/reasoning/tool-payload authoring, ticket/asset enrichment, policy
-  simulation, and automated write-back remain Enterprise.
+- Add public-safe replay-to-policy draft and test fixture previews derived
+  from normalized block, require-approval, warning, high, and critical
+  decisions while private prompt/reasoning/tool-payload authoring,
+  ticket/asset enrichment, policy simulation, tenant-history regression, CI
+  write-back, and automated policy write-back remain Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.
 
@@ -213,6 +215,20 @@ These features should help position CAVRA as more than another log dashboard:
   controls with approval gates and immutable evidence.
 - Add policy distribution status and runtime connector health.
 - Validate controls through private Enterprise trial and paid-pilot evidence.
+
+### Phase F: Trial User Lab Notebook And Product Textbook
+
+- After all AISPM phases reach production-ready status, create a GitHub Wiki
+  lab notebook for trial users that walks through the complete CAVRA product
+  from signup, installation, policy evaluation, AI-agent enforcement, AISPM
+  dashboard use, evidence review, approval flows, replay-to-policy authoring,
+  and Enterprise trial operation.
+- Include step-by-step labs with screenshots, diagrams, flow charts, expected
+  outputs, troubleshooting notes, and role-specific paths for developers,
+  platform teams, auditors, security engineers, and CSO/CISO users.
+- Keep the lab notebook public-safe: no Enterprise source code, license
+  secrets, private keys, customer data, or private policy-pack implementation
+  details.
 
 ## Acceptance Criteria
 

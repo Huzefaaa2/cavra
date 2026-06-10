@@ -37,7 +37,7 @@ derived from local decisions, approval lineage from local approval records, and
 behavior fingerprints, policy context gaps, pre-action risk forecasts,
 evidence confidence drilldowns, evidence freshness SLO panels, and
 deterministic executive risk narratives, plus read-only replay-to-policy draft
-previews, from normalized local activity
+and test fixture previews, from normalized local activity
 metadata, plus
 intent-to-action drift and tool-chain risk graphing from declared intent, safe
 tool labels, redacted targets, and observed action metadata.
@@ -51,6 +51,14 @@ tenant benchmarks, service criticality, customer-impact enrichment, private
 prompt/reasoning/tool-payload policy authoring, tenant-history policy
 simulation, approval-bound write-back automation, and commercial compliance
 exports.
+
+After all AISPM phases reach production-ready status, the GitHub Wiki must
+include a public-safe trial-user lab notebook and product textbook. It should
+walk users through CAVRA end to end with screenshots, diagrams, flow charts,
+expected outputs, troubleshooting notes, and role-specific labs for developers,
+platform teams, auditors, security engineers, and CSO/CISO users. The notebook
+must not expose Enterprise source code, license secrets, private keys, customer
+data, or private policy-pack implementation details.
 
 The detailed implementation plan is maintained in
 `docs/ai-security-posture-dashboard-roadmap.md`.

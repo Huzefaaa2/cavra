@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Replay To Policy Tests",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "test_fixture",
+    "export",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.replay_to_policy_tests.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["source_decisions", "recommended_rules", "test_cases", "fixture_valid", "policy_id"],
+      "properties": {
+        "source_decisions": { "type": "integer", "minimum": 0 },
+        "recommended_rules": { "type": "integer", "minimum": 0 },
+        "test_cases": { "type": "integer", "minimum": 0 },
+        "fixture_valid": { "type": "boolean" },
+        "source_scope": { "type": "string" },
+        "policy_id": { "type": "string" }
+      }
+    },
+    "test_fixture": {
+      "type": "object",
+      "required": ["schema_version", "policy_id", "source_scope", "case_count", "cases", "validation"],
+      "properties": {
+        "schema_version": { "const": "cavra.policy_tests.replay_to_policy.v1" },
+        "policy_id": { "type": "string" },
+        "source_scope": { "type": "string" },
+        "case_count": { "type": "integer", "minimum": 0 },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["case_id", "description", "input", "expected", "assertion_type", "public_safe"],
+            "properties": {
+              "case_id": { "type": "string" },
+              "recommendation_id": { "type": ["string", "null"] },
+              "decision_id": { "type": ["string", "null"] },
+              "description": { "type": "string" },
+              "input": { "type": "object" },
+              "expected": { "type": "object" },
+              "assertion_type": { "type": "string" },
+              "public_safe": { "const": true },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "validation": { "type": "object" }
+      }
+    },
+    "export": { "type": "object" },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

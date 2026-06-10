@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM replay-to-policy test fixture exports for Community,
+  including `/aispm/replay-to-policy-tests`, packaged schema/sample data,
+  dashboard fixture JSON previews, docs/wiki updates, and Enterprise-locked
+  prompt/reasoning/tool-payload test generation, tenant-history simulation,
+  private ticket/asset enrichment, CI write-back, and organization-wide
+  regression campaign boundaries.
 - Added public-safe AISPM replay-to-policy draft authoring for Community,
   including `/aispm/replay-to-policy-draft`, packaged schema/sample data,
   dashboard candidate-control cards, read-only policy-pack previews,

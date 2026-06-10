@@ -19,6 +19,7 @@ from cavra.aispm import (
     build_aispm_posture,
     build_aispm_pre_action_risk_forecasts,
     build_aispm_replay_to_policy_draft,
+    build_aispm_replay_to_policy_tests,
     build_aispm_trace_replay_packet,
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
@@ -196,6 +197,48 @@ def test_aispm_replay_to_policy_draft_builds_valid_read_only_policy(tmp_path: Pa
     assert packet["write_back"]["status"] == "read_only_preview"
     assert packet["redaction"]["raw_prompts"] == "requires_cavra_enterprise"
     assert packet["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
+def test_aispm_replay_to_policy_tests_exports_public_safe_fixture(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+            action_type="execute_command",
+            target="terraform apply",
+            rule_id="iac.production-change",
+        )
+    )
+
+    packet = build_aispm_replay_to_policy_tests(store, session_id="session-1")
+
+    assert packet["schema_version"] == "cavra.aispm.replay_to_policy_tests.v1"
+    assert packet["edition"] == "community"
+    assert packet["summary"]["test_cases"] == 2
+    assert packet["summary"]["fixture_valid"] is True
+    assert packet["test_fixture"]["schema_version"] == "cavra.policy_tests.replay_to_policy.v1"
+    assert packet["test_fixture"]["case_count"] == 2
+    assert packet["test_fixture"]["cases"][0]["public_safe"] is True
+    assert packet["test_fixture"]["cases"][0]["expected"]["policy_section"] in {"filesystem", "commands"}
+    assert packet["export"]["status"] == "read_only_preview"
+    assert packet["redaction"]["private_simulation_history"] == "requires_cavra_enterprise"
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
@@ -975,6 +1018,21 @@ def test_aispm_replay_to_policy_draft_sample_matches_packaged_schema() -> None:
     )
     assert payload["summary"]["draft_valid"] is True
     assert payload["write_back"]["status"] == "read_only_preview"
+
+
+def test_aispm_replay_to_policy_tests_sample_matches_packaged_schema() -> None:
+    tests_schema = Path("src/cavra/schemas/aispm-replay-to-policy-tests.schema.json")
+    sample = Path("examples/aispm/community-replay-to-policy-tests-sample.json")
+
+    assert tests_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(tests_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["summary"]["fixture_valid"] is True
+    assert payload["test_fixture"]["case_count"] == payload["summary"]["test_cases"]
 
 
 def test_aispm_approval_lineage_redacts_human_actors(tmp_path: Path) -> None:

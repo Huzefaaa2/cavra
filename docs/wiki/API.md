@@ -33,6 +33,7 @@ Activity endpoints:
 - `GET /aispm/evidence-freshness`: return a public-safe evidence freshness and retention SLO packet that flags stale evidence, missing timestamps, and retention-reference gaps.
 - `GET /aispm/executive-risk-narrative`: return a deterministic public-safe CSO/CISO narrative from local posture metrics, top risks, evidence SLO status, and recommended actions.
 - `GET /aispm/replay-to-policy-draft`: return a public-safe read-only draft policy pack generated from normalized replay decisions, with private prompt, reasoning, ticket, asset, simulation, and write-back automation locked to Enterprise.
+- `GET /aispm/replay-to-policy-tests`: return a public-safe read-only policy test fixture export for replay-derived draft controls, with private prompt, reasoning, tool-payload, ticket, tenant-history simulation, and CI write-back locked to Enterprise.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -47,7 +48,9 @@ Community replay-to-policy draft authoring converts normalized local decisions
 into read-only candidate policy controls and does not write to policies.
 Prompt-derived authoring, reasoning analysis, raw tool payloads, ticket and
 asset enrichment, policy simulation against tenant history, and automated
-write-back remain Enterprise-only. Community pre-action forecasts are metadata forecasts only; private asset
+write-back remain Enterprise-only. Community replay-to-policy test exports are
+review-only JSON fixtures and do not run private tenant simulation or write CI
+files. Community pre-action forecasts are metadata forecasts only; private asset
 graphs, dependency graphs, identity blast radius, cloud inventory, runtime
 state, and prompt-intent context remain Enterprise-only. Community
 intent-to-action drift uses declared intent metadata only; raw prompts,

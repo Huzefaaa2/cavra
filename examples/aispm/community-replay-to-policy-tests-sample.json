@@ -1,0 +1,154 @@
+{
+  "schema_version": "cavra.aispm.replay_to_policy_tests.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:03:00+00:00",
+  "filters": {
+    "session_id": "sample-session-001",
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "summary": {
+    "source_decisions": 3,
+    "recommended_rules": 3,
+    "test_cases": 3,
+    "fixture_valid": true,
+    "source_scope": "sample-session-001",
+    "policy_id": "cavra-replay-derived-sample-session-001"
+  },
+  "test_fixture": {
+    "schema_version": "cavra.policy_tests.replay_to_policy.v1",
+    "policy_id": "cavra-replay-derived-sample-session-001",
+    "source_scope": "sample-session-001",
+    "case_count": 3,
+    "cases": [
+      {
+        "case_id": "replay-policy-test-1-sample-dec-001",
+        "recommendation_id": "policy-rec-1-sample-dec-001",
+        "decision_id": "sample-dec-001",
+        "description": "Assert commands.require_approval for infrastructure_iac.",
+        "input": {
+          "action_type": "execute_command",
+          "target": "terraform apply*",
+          "target_summary": "terraform apply",
+          "target_redacted": false,
+          "agent_id": "codex-agent",
+          "repository": "payments/api",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "require_approval",
+          "severity": "high",
+          "policy_section": "commands",
+          "rule_key": "require_approval",
+          "proposed_value": "terraform apply*",
+          "risk_classification": "infrastructure_change_risk"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ]
+      },
+      {
+        "case_id": "replay-policy-test-2-sample-dec-002",
+        "recommendation_id": "policy-rec-2-sample-dec-002",
+        "decision_id": "sample-dec-002",
+        "description": "Assert filesystem.block_read for sensitive_data.",
+        "input": {
+          "action_type": "read_file",
+          "target": ".env*",
+          "target_summary": "sensitive target redacted",
+          "target_redacted": true,
+          "agent_id": "codex-agent",
+          "repository": "payments/api",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "block",
+          "severity": "critical",
+          "policy_section": "filesystem",
+          "rule_key": "block_read",
+          "proposed_value": ".env*",
+          "risk_classification": "credential_or_sensitive_data_exposure"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ]
+      },
+      {
+        "case_id": "replay-policy-test-3-sample-dec-003",
+        "recommendation_id": "policy-rec-3-sample-dec-003",
+        "decision_id": "sample-dec-003",
+        "description": "Assert mcp.allowlist_enabled for mcp_tools.",
+        "input": {
+          "action_type": "mcp_tool_call",
+          "target": "filesystem.write",
+          "target_summary": "filesystem.write",
+          "target_redacted": false,
+          "agent_id": "claude-code-agent",
+          "repository": "platform/infra",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "warn",
+          "severity": "medium",
+          "policy_section": "mcp",
+          "rule_key": "allowlist_enabled",
+          "proposed_value": true,
+          "risk_classification": "tool_or_mcp_governance_risk"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ]
+      }
+    ],
+    "validation": {
+      "community_mode": "review_only",
+      "recommended_commands": [
+        "cavra policy validate policies/cavra-replay-derived-sample-session-001/policy.yaml",
+        "cavra policy test"
+      ],
+      "notes": [
+        "Generated cases are public-safe assertions derived from normalized CAVRA decisions.",
+        "Review generated cases before committing them to repository CI.",
+        "Private prompt, reasoning, ticket, and tenant-history simulation requires CAVRA Enterprise."
+      ]
+    }
+  },
+  "export": {
+    "status": "read_only_preview",
+    "suggested_path": "tests/fixtures/replay-to-policy/cavra-replay-derived-sample-session-001.json",
+    "next_step": "Review the fixture, commit it with the policy draft, and validate through repository CI before rollout.",
+    "approval_required": true
+  },
+  "redaction": {
+    "raw_prompts": "requires_cavra_enterprise",
+    "model_reasoning": "requires_cavra_enterprise",
+    "raw_tool_payloads": "requires_cavra_enterprise",
+    "private_simulation_history": "requires_cavra_enterprise",
+    "ticket_or_change_context": "requires_cavra_enterprise",
+    "customer_context": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "policy test generation from prompts, reasoning traces, and raw tool payloads",
+      "tenant-history simulation before policy rollout",
+      "private ticket, asset, identity, and service criticality enrichment",
+      "CI write-back for approved policy tests",
+      "organization-wide regression campaigns for generated policy packs"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

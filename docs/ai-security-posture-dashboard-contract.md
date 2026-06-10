@@ -62,6 +62,8 @@ Community Edition provides local and sample posture views only:
   status, and recommended actions.
 - `GET /aispm/replay-to-policy-draft` returns a public-safe read-only policy
   draft generated from normalized local replay decisions.
+- `GET /aispm/replay-to-policy-tests` returns public-safe read-only policy test
+  fixtures generated from replay-derived draft controls.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -92,6 +94,8 @@ and recommended actions.
 The route also includes a replay-to-policy draft panel so platform and
 security operators can see candidate controls derived from observed replay
 decisions before committing reviewed policy changes.
+The same panel also shows replay-to-policy test fixture exports so reviewers
+can see the expected policy assertions before adding reviewed tests to CI.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -176,6 +180,12 @@ not write to `policies/`, publish policy packs, inspect raw prompts, inspect
 model reasoning, read raw tool payloads, enrich from tickets or asset graphs,
 simulate tenant history, or automate production write-back.
 
+Community replay-to-policy test fixture export converts the same candidate
+controls into review-only JSON cases. Each case includes public-safe input
+metadata, expected decision metadata, evidence references, and validation
+notes. It does not run private simulation, generate tests from prompts or raw
+tool payloads, open pull requests, or write CI files.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -202,6 +212,8 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
 - AI-assisted replay-to-policy authoring from prompts, reasoning traces, raw
   tool payloads, tickets, asset graphs, approval policy, tenant simulation, and
   approval-bound write-back automation;
+- Enterprise replay-to-policy test generation with tenant-history regression,
+  private context enrichment, and approved CI write-back;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -288,3 +300,8 @@ The packaged Community replay-to-policy draft schema is available at
 `src/cavra/schemas/aispm-replay-to-policy-draft.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-replay-to-policy-draft-sample.json`.
+
+The packaged Community replay-to-policy test fixture schema is available at
+`src/cavra/schemas/aispm-replay-to-policy-tests.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-replay-to-policy-tests-sample.json`.
