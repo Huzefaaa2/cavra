@@ -155,6 +155,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     pre_action_forecasts = client.get("/aispm/pre-action-risk-forecasts")
     intent_action_drift = client.get("/aispm/intent-action-drift")
     tool_chain_graph = client.get("/aispm/tool-chain-graph")
+    agent_blast_radius = client.get("/aispm/agent-blast-radius")
     trace_replay = client.get("/aispm/trace-replay/aispm-session")
     missing_trace_replay = client.get("/aispm/trace-replay/missing-session")
     approval_lineage = client.get("/aispm/approval-lineage", params={"session_id": "aispm-session"})
@@ -171,6 +172,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_pre_action_risk_forecasts"] == "/aispm/pre-action-risk-forecasts"
     assert config["endpoints"]["aispm_intent_action_drift"] == "/aispm/intent-action-drift"
     assert config["endpoints"]["aispm_tool_chain_graph"] == "/aispm/tool-chain-graph"
+    assert config["endpoints"]["aispm_agent_blast_radius"] == "/aispm/agent-blast-radius"
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
     assert posture.status_code == 200
@@ -212,6 +214,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert tool_chain_graph.json()["summary"]["blocked_edges"] == 3
     assert tool_chain_graph.json()["hotspots"][0]["risk_band"] == "critical"
     assert tool_chain_graph.json()["redaction"]["raw_tool_payload"] == "requires_cavra_enterprise"
+    assert agent_blast_radius.status_code == 200
+    assert agent_blast_radius.json()["schema_version"] == "cavra.aispm.agent_blast_radius.v1"
+    assert agent_blast_radius.json()["summary"]["total_agents"] == 1
+    assert agent_blast_radius.json()["summary"]["medium_agents"] == 1
+    assert agent_blast_radius.json()["items"][0]["agent_id"] == "codex-agent"
+    assert "sensitive_data_reach" in agent_blast_radius.json()["items"][0]["top_risks"]
+    assert agent_blast_radius.json()["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

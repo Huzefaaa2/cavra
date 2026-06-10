@@ -1062,6 +1062,104 @@
       }
     ]
   },
+  "agent_blast_radius": [
+    {
+      "agent_id": "codex-agent",
+      "blast_radius_level": "high",
+      "blast_radius_score": 71,
+      "repository_count": 1,
+      "repositories": [
+        "payments/api"
+      ],
+      "control_surfaces": [
+        "infrastructure_iac",
+        "sensitive_data"
+      ],
+      "policy_packs": [
+        "cavra-ai-agent-baseline",
+        "cloud-iam-prod"
+      ],
+      "tool_labels": [
+        "filesystem",
+        "shell"
+      ],
+      "target_classes": [
+        "production_infrastructure",
+        "sensitive_data:redacted"
+      ],
+      "sensitive_target_count": 1,
+      "production_infrastructure_count": 1,
+      "approval_paths": [
+        "approval_required_unassigned"
+      ],
+      "decision_count": 2,
+      "session_count": 1,
+      "blocked_actions": 1,
+      "approval_required_actions": 1,
+      "warned_actions": 0,
+      "top_risks": [
+        "sensitive_data_reach",
+        "production_infrastructure_reach",
+        "blocked_action_history",
+        "approval_gated_actions"
+      ],
+      "recommended_controls": [
+        "capture_signed_evidence",
+        "review_agent_scope",
+        "keep_block_enforcement_enabled",
+        "bind_explicit_approval_route",
+        "redact_sensitive_targets",
+        "require_blast_radius_context"
+      ],
+      "evidence_refs": [
+        "sample://evidence/iac-production-change",
+        "sample://evidence/secret-read-block"
+      ],
+      "last_seen_at": "2026-06-09T00:01:00+00:00"
+    },
+    {
+      "agent_id": "claude-code-agent",
+      "blast_radius_level": "low",
+      "blast_radius_score": 10,
+      "repository_count": 1,
+      "repositories": [
+        "platform/infra"
+      ],
+      "control_surfaces": [
+        "mcp_tools"
+      ],
+      "policy_packs": [
+        "mcp-enterprise"
+      ],
+      "tool_labels": [
+        "filesystem.write"
+      ],
+      "target_classes": [
+        "tooling_surface"
+      ],
+      "sensitive_target_count": 0,
+      "production_infrastructure_count": 0,
+      "approval_paths": [],
+      "decision_count": 1,
+      "session_count": 1,
+      "blocked_actions": 0,
+      "approval_required_actions": 0,
+      "warned_actions": 1,
+      "top_risks": [
+        "tooling_surface_reach"
+      ],
+      "recommended_controls": [
+        "capture_signed_evidence",
+        "review_agent_scope",
+        "bind_explicit_approval_route",
+        "verify_tool_trust_tier"
+      ],
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "last_seen_at": "2026-06-09T00:02:00+00:00"
+    }
+  ],
   "control_plane": {
     "community_status": "local_activity_ready",
     "enterprise_status": "requires_cavra_enterprise",
@@ -1084,7 +1182,8 @@
       "compliance exports and immutable retention",
       "private asset-graph and identity-aware pre-action forecasting",
       "prompt-derived semantic intent extraction and private workflow correlation",
-      "raw tool payload graphing and cross-system execution traces"
+      "raw tool payload graphing and cross-system execution traces",
+      "private asset, identity, cloud dependency, and permission blast-radius enrichment"
     ],
     "private_package": "cavra_enterprise"
   }

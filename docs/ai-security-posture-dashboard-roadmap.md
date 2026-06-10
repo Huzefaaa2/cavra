@@ -11,7 +11,7 @@ CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
 policy context gap detection, pre-action risk forecasts, intent-to-action
-drift detection, tool-chain risk graphing, and a public-safe sandbox portal.
+drift detection, tool-chain risk graphing, agent blast-radius mapping, and a public-safe sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -163,9 +163,9 @@ These features should help position CAVRA as more than another log dashboard:
   operators can inspect state, approver group, decision linkage, timestamps,
   and evidence references while private IdP/RBAC context remains Enterprise.
 - Add public-safe behavior fingerprints, policy context gaps, pre-action risk
-  forecasts, intent-to-action drift, and tool-chain risk graphing derived from
+  forecasts, intent-to-action drift, tool-chain risk graphing, and agent blast-radius mapping derived from
   normalized local decision metadata while private prompt-derived intent,
-  workflow correlation, raw tool payloads, cross-system traces, asset graphs,
+  workflow correlation, raw tool payloads, cross-system traces, private asset graphs,
   and semantic models remain Enterprise.
 - Keep live multi-tenant streaming, centralized retention, and organization
   controls locked to Enterprise.

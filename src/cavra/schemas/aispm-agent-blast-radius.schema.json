@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Agent Blast Radius",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "items",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.agent_blast_radius.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": ["total_agents", "critical_agents", "high_agents", "medium_agents", "low_agents", "affected_repositories"],
+      "properties": {
+        "total_agents": { "type": "integer", "minimum": 0 },
+        "critical_agents": { "type": "integer", "minimum": 0 },
+        "high_agents": { "type": "integer", "minimum": 0 },
+        "medium_agents": { "type": "integer", "minimum": 0 },
+        "low_agents": { "type": "integer", "minimum": 0 },
+        "affected_repositories": { "type": "integer", "minimum": 0 },
+        "approval_paths": { "type": "integer", "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent_id",
+          "blast_radius_level",
+          "blast_radius_score",
+          "repository_count",
+          "repositories",
+          "control_surfaces",
+          "policy_packs",
+          "tool_labels",
+          "target_classes",
+          "decision_count",
+          "recommended_controls"
+        ],
+        "properties": {
+          "agent_id": { "type": "string" },
+          "blast_radius_level": { "enum": ["low", "medium", "high", "critical"] },
+          "blast_radius_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "repository_count": { "type": "integer", "minimum": 0 },
+          "repositories": { "type": "array", "items": { "type": "string" } },
+          "control_surfaces": { "type": "array", "items": { "type": "string" } },
+          "policy_packs": { "type": "array", "items": { "type": "string" } },
+          "tool_labels": { "type": "array", "items": { "type": "string" } },
+          "target_classes": { "type": "array", "items": { "type": "string" } },
+          "sensitive_target_count": { "type": "integer", "minimum": 0 },
+          "production_infrastructure_count": { "type": "integer", "minimum": 0 },
+          "approval_paths": { "type": "array", "items": { "type": "string" } },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "session_count": { "type": "integer", "minimum": 0 },
+          "blocked_actions": { "type": "integer", "minimum": 0 },
+          "approval_required_actions": { "type": "integer", "minimum": 0 },
+          "warned_actions": { "type": "integer", "minimum": 0 },
+          "top_risks": { "type": "array", "items": { "type": "string" } },
+          "recommended_controls": { "type": "array", "items": { "type": "string" } },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "last_seen_at": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

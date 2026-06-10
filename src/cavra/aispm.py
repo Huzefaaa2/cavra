@@ -54,6 +54,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "pre-action risk forecasts from local decision metadata before agent execution",
                 "intent-to-action drift detection from declared intent and local decision metadata",
                 "public-safe tool-chain graph from agent, tool, target, and decision metadata",
+                "agent blast-radius map from repositories, surfaces, tools, policy packs, and approval metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -70,6 +71,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "private asset-graph and identity-aware pre-action forecasting",
                 "prompt-derived semantic intent extraction and private workflow correlation",
                 "raw tool payload graphing and cross-system execution traces",
+                "private asset, identity, cloud dependency, and permission blast-radius enrichment",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -87,6 +89,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "pre_action_risk_forecasts",
             "intent_action_drift",
             "tool_chain_graph",
+            "agent_blast_radius",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -103,6 +106,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
             "intent_action_drift": "/aispm/intent-action-drift",
             "tool_chain_graph": "/aispm/tool-chain-graph",
+            "agent_blast_radius": "/aispm/agent-blast-radius",
         },
     }
 
@@ -139,6 +143,7 @@ def build_aispm_posture(
     pre_action_risk_forecasts = _pre_action_risk_forecasts(decisions)
     intent_action_drift = _intent_action_drift(decisions)
     tool_chain_graph = _tool_chain_graph(decisions)
+    agent_blast_radius = _agent_blast_radius(decisions, sessions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -166,6 +171,7 @@ def build_aispm_posture(
         "pre_action_risk_forecasts": pre_action_risk_forecasts,
         "intent_action_drift": intent_action_drift,
         "tool_chain_graph": tool_chain_graph,
+        "agent_blast_radius": agent_blast_radius,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -534,6 +540,87 @@ def build_aispm_tool_chain_graph(
     }
 
 
+def build_aispm_agent_blast_radius(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe agent blast-radius map from local metadata.
+
+    Community maps an agent's observed reach across repositories, tools,
+    control surfaces, policy packs, approval routes, and redacted target
+    classes. Enterprise owns private asset graphs, identity permissions, cloud
+    dependency context, customer topology, and live connector enrichment.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    items = _agent_blast_radius(decisions, sessions)
+    level_counts = Counter(str(item.get("blast_radius_level", "low")) for item in items)
+    repositories = {repo for item in items for repo in item.get("repositories", [])}
+    approval_paths = {path for item in items for path in item.get("approval_paths", [])}
+    return {
+        "schema_version": "cavra.aispm.agent_blast_radius.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "total_agents": len(items),
+            "critical_agents": level_counts["critical"],
+            "high_agents": level_counts["high"],
+            "medium_agents": level_counts["medium"],
+            "low_agents": level_counts["low"],
+            "affected_repositories": len(repositories),
+            "approval_paths": len(approval_paths),
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items,
+        "redaction": {
+            "private_asset_graph": LOCKED_ENTERPRISE_STATUS,
+            "identity_permission_graph": LOCKED_ENTERPRISE_STATUS,
+            "cloud_account_inventory": LOCKED_ENTERPRISE_STATUS,
+            "dependency_graph": LOCKED_ENTERPRISE_STATUS,
+            "secret_names": LOCKED_ENTERPRISE_STATUS,
+            "customer_topology": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "identity and permission-aware blast-radius analysis",
+                "cloud account, Kubernetes, SaaS, and repository dependency graphing",
+                "private asset criticality and owner enrichment",
+                "secret and data classification mapping without public disclosure",
+                "live blast-radius alerts and executive risk narrative export",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -650,6 +737,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "pre_action_risk_forecasts": _pre_action_risk_forecasts(decisions),
         "intent_action_drift": _intent_action_drift(decisions),
         "tool_chain_graph": _tool_chain_graph(decisions),
+        "agent_blast_radius": _agent_blast_radius(decisions, sessions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -1739,6 +1827,209 @@ def _dominant_surface(counts: Counter[str]) -> str:
         "general_policy",
     ]
     return max(surfaces, key=lambda surface: counts[surface], default="general_policy")
+
+
+def _agent_blast_radius(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped_decisions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    grouped_sessions: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for decision in decisions:
+        grouped_decisions[str(decision.get("agent_id", "unknown-agent"))].append(decision)
+    for session in sessions:
+        grouped_sessions[str(session.get("agent_id", "unknown-agent"))].append(session)
+
+    items: list[dict[str, Any]] = []
+    for agent_id in sorted(set(grouped_decisions) | set(grouped_sessions)):
+        agent_decisions = grouped_decisions.get(agent_id, [])
+        agent_sessions = grouped_sessions.get(agent_id, [])
+        decision_counts = Counter(str(item.get("decision", "unknown")) for item in agent_decisions)
+        repositories = sorted(
+            {
+                str(item.get("repository", "local"))
+                for item in [*agent_decisions, *agent_sessions]
+                if item.get("repository") not in {None, ""}
+            }
+        )
+        control_surfaces = sorted({_control_surface(item) for item in agent_decisions})
+        policy_packs = sorted({str(item.get("policy_pack", "cavra-ai-agent-baseline")) for item in agent_decisions})
+        tool_labels = sorted({_tool_label(item) for item in agent_decisions})
+        target_classes = sorted({_blast_target_class(item) for item in agent_decisions})
+        approval_paths = sorted(
+            {
+                _approval_path(item)
+                for item in agent_decisions
+                if _approval_path(item) not in {None, ""}
+            }
+        )
+        sensitive_count = sum(1 for item in agent_decisions if _control_surface(item) == "sensitive_data")
+        infrastructure_count = sum(1 for item in agent_decisions if _control_surface(item) == "infrastructure_iac")
+        score = _agent_blast_radius_score(
+            repositories=repositories,
+            control_surfaces=control_surfaces,
+            decision_counts=decision_counts,
+            sensitive_count=sensitive_count,
+            infrastructure_count=infrastructure_count,
+            tool_labels=tool_labels,
+            approval_paths=approval_paths,
+        )
+        items.append(
+            {
+                "agent_id": agent_id,
+                "blast_radius_level": _agent_blast_radius_level(score),
+                "blast_radius_score": score,
+                "repository_count": len(repositories),
+                "repositories": repositories,
+                "control_surfaces": control_surfaces,
+                "policy_packs": policy_packs,
+                "tool_labels": tool_labels,
+                "target_classes": target_classes,
+                "sensitive_target_count": sensitive_count,
+                "production_infrastructure_count": infrastructure_count,
+                "approval_paths": approval_paths,
+                "decision_count": len(agent_decisions),
+                "session_count": len(agent_sessions),
+                "blocked_actions": decision_counts["block"],
+                "approval_required_actions": decision_counts["require_approval"],
+                "warned_actions": decision_counts["warn"],
+                "top_risks": _agent_blast_top_risks(
+                    control_surfaces=control_surfaces,
+                    decision_counts=decision_counts,
+                    sensitive_count=sensitive_count,
+                    infrastructure_count=infrastructure_count,
+                    repository_count=len(repositories),
+                ),
+                "recommended_controls": _agent_blast_recommended_controls(
+                    control_surfaces=control_surfaces,
+                    decision_counts=decision_counts,
+                    approval_paths=approval_paths,
+                    repository_count=len(repositories),
+                ),
+                "evidence_refs": list(dict.fromkeys(ref for item in agent_decisions for ref in item.get("evidence_refs", [])))[:8],
+                "last_seen_at": max(
+                    [str(item.get("timestamp", "")) for item in agent_decisions if item.get("timestamp")]
+                    + [str(item.get("updated_at", "")) for item in agent_sessions if item.get("updated_at")],
+                    default=None,
+                ),
+            }
+        )
+    return sorted(
+        items,
+        key=lambda item: (int(item.get("blast_radius_score", 0)), int(item.get("decision_count", 0))),
+        reverse=True,
+    )
+
+
+def _blast_target_class(decision: dict[str, Any]) -> str:
+    surface = _control_surface(decision)
+    target_summary, target_redacted = _safe_target_summary(decision)
+    if target_redacted:
+        return f"{surface}:redacted"
+    if surface == "sensitive_data":
+        return "sensitive_data:nonredacted_metadata"
+    if surface == "infrastructure_iac":
+        return "production_infrastructure"
+    if surface == "mcp_tools":
+        return "tooling_surface"
+    if surface == "source_control":
+        return "source_control_scope"
+    if surface == "runtime_commands":
+        return "runtime_scope"
+    return target_summary if target_summary != "target not recorded" else "local_policy_scope"
+
+
+def _approval_path(decision: dict[str, Any]) -> str | None:
+    context = decision.get("context") if isinstance(decision.get("context"), dict) else {}
+    metadata = decision.get("metadata") if isinstance(decision.get("metadata"), dict) else {}
+    for container in (decision, context, metadata):
+        for key in ("approval_route", "approver_group", "approval_path"):
+            value = container.get(key)
+            if value not in {None, ""}:
+                return str(value)
+    if decision.get("decision") == "require_approval":
+        return "approval_required_unassigned"
+    return None
+
+
+def _agent_blast_radius_score(
+    *,
+    repositories: list[str],
+    control_surfaces: list[str],
+    decision_counts: Counter[str],
+    sensitive_count: int,
+    infrastructure_count: int,
+    tool_labels: list[str],
+    approval_paths: list[str],
+) -> int:
+    score = 5
+    score += min(16, max(0, len(repositories) - 1) * 6)
+    score += min(14, max(0, len(control_surfaces) - 1) * 5)
+    score += min(10, max(0, len(tool_labels) - 1) * 3)
+    score += decision_counts["block"] * 18
+    score += decision_counts["require_approval"] * 12
+    score += decision_counts["warn"] * 5
+    score += min(20, sensitive_count * 16)
+    score += min(18, infrastructure_count * 12)
+    if not approval_paths and (sensitive_count or infrastructure_count or decision_counts["require_approval"]):
+        score += 8
+    return max(0, min(score, 100))
+
+
+def _agent_blast_radius_level(score: int) -> str:
+    if score >= 75:
+        return "critical"
+    if score >= 55:
+        return "high"
+    if score >= 30:
+        return "medium"
+    return "low"
+
+
+def _agent_blast_top_risks(
+    *,
+    control_surfaces: list[str],
+    decision_counts: Counter[str],
+    sensitive_count: int,
+    infrastructure_count: int,
+    repository_count: int,
+) -> list[str]:
+    risks: list[str] = []
+    if sensitive_count:
+        risks.append("sensitive_data_reach")
+    if infrastructure_count:
+        risks.append("production_infrastructure_reach")
+    if decision_counts["block"]:
+        risks.append("blocked_action_history")
+    if decision_counts["require_approval"]:
+        risks.append("approval_gated_actions")
+    if repository_count > 1:
+        risks.append("multi_repository_scope")
+    if "mcp_tools" in control_surfaces:
+        risks.append("tooling_surface_reach")
+    if "source_control" in control_surfaces:
+        risks.append("source_control_scope")
+    return risks or ["local_policy_scope"]
+
+
+def _agent_blast_recommended_controls(
+    *,
+    control_surfaces: list[str],
+    decision_counts: Counter[str],
+    approval_paths: list[str],
+    repository_count: int,
+) -> list[str]:
+    controls = ["capture_signed_evidence", "review_agent_scope"]
+    if decision_counts["block"]:
+        controls.append("keep_block_enforcement_enabled")
+    if decision_counts["require_approval"] or not approval_paths:
+        controls.append("bind_explicit_approval_route")
+    if "sensitive_data" in control_surfaces:
+        controls.append("redact_sensitive_targets")
+    if "infrastructure_iac" in control_surfaces:
+        controls.append("require_blast_radius_context")
+    if "mcp_tools" in control_surfaces:
+        controls.append("verify_tool_trust_tier")
+    if repository_count > 1:
+        controls.append("limit_repository_scope")
+    return list(dict.fromkeys(controls))
 
 
 def _risk_findings(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:

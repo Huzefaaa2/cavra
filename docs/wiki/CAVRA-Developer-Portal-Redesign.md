@@ -28,7 +28,8 @@ Delivered UX:
   drift signals, policy context gaps for policy-invisible risk, and
   pre-action risk forecasts for projected blast radius, and intent-to-action
   drift for declared intent versus observed action, and tool-chain risk graphing
-  for agent/tool/target/policy edge hotspots;
+  for agent/tool/target/policy edge hotspots, and agent blast-radius mapping
+  for repository/target/tool/policy reach;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 

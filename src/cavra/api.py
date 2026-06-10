@@ -9,6 +9,7 @@ from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.aispm import (
     build_aispm_approval_lineage,
+    build_aispm_agent_blast_radius,
     build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
     build_aispm_intent_action_drift,
@@ -636,6 +637,7 @@ def create_app():
                 "aispm_pre_action_risk_forecasts": "/aispm/pre-action-risk-forecasts",
                 "aispm_intent_action_drift": "/aispm/intent-action-drift",
                 "aispm_tool_chain_graph": "/aispm/tool-chain-graph",
+                "aispm_agent_blast_radius": "/aispm/agent-blast-radius",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1120,6 +1122,21 @@ def create_app():
         limit: int = 200,
     ) -> dict:
         return build_aispm_tool_chain_graph(
+            activity_store,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            limit=limit,
+        )
+
+    @app.get("/aispm/agent-blast-radius")
+    def aispm_agent_blast_radius(
+        agent_id: Optional[str] = None,
+        repository: Optional[str] = None,
+        policy_pack: Optional[str] = None,
+        limit: int = 200,
+    ) -> dict:
+        return build_aispm_agent_blast_radius(
             activity_store,
             agent_id=agent_id,
             repository=repository,

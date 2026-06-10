@@ -448,6 +448,54 @@ const aispmFallback = {
       { hotspot_id: "hotspot-claude-code-agent-platform-infra", agent_id: "claude-code-agent", repository: "platform/infra", decision_count: 1, blocked_edges: 0, approval_required_edges: 0, warned_edges: 1, dominant_surface: "mcp_tools", risk_score: 32, risk_band: "medium", evidence_refs: ["sample://evidence/mcp-warning"] }
     ]
   },
+  agent_blast_radius: [
+    {
+      agent_id: "codex-agent",
+      blast_radius_level: "high",
+      blast_radius_score: 71,
+      repository_count: 1,
+      repositories: ["payments/api"],
+      control_surfaces: ["infrastructure_iac", "sensitive_data"],
+      policy_packs: ["cavra-ai-agent-baseline", "cloud-iam-prod"],
+      tool_labels: ["filesystem", "shell"],
+      target_classes: ["production_infrastructure", "sensitive_data:redacted"],
+      sensitive_target_count: 1,
+      production_infrastructure_count: 1,
+      approval_paths: ["approval_required_unassigned"],
+      decision_count: 2,
+      session_count: 1,
+      blocked_actions: 1,
+      approval_required_actions: 1,
+      warned_actions: 0,
+      top_risks: ["sensitive_data_reach", "production_infrastructure_reach", "blocked_action_history", "approval_gated_actions"],
+      recommended_controls: ["capture_signed_evidence", "review_agent_scope", "keep_block_enforcement_enabled", "bind_explicit_approval_route", "redact_sensitive_targets", "require_blast_radius_context"],
+      evidence_refs: ["sample://evidence/iac-production-change", "sample://evidence/secret-read-block"],
+      last_seen_at: "2026-06-09T00:01:30+00:00"
+    },
+    {
+      agent_id: "claude-code-agent",
+      blast_radius_level: "low",
+      blast_radius_score: 10,
+      repository_count: 1,
+      repositories: ["platform/infra"],
+      control_surfaces: ["mcp_tools"],
+      policy_packs: ["mcp-enterprise"],
+      tool_labels: ["filesystem.write"],
+      target_classes: ["local_workspace"],
+      sensitive_target_count: 0,
+      production_infrastructure_count: 0,
+      approval_paths: [],
+      decision_count: 1,
+      session_count: 1,
+      blocked_actions: 0,
+      approval_required_actions: 0,
+      warned_actions: 1,
+      top_risks: ["tooling_surface_reach"],
+      recommended_controls: ["capture_signed_evidence", "review_agent_scope", "verify_tool_trust_tier"],
+      evidence_refs: ["sample://evidence/mcp-warning"],
+      last_seen_at: "2026-06-09T00:02:30+00:00"
+    }
+  ],
   policy_context_gaps: [
     {
       gap_id: "context-gap-sample-dec-001",
@@ -917,6 +965,48 @@ const aispmToolChainGraphFallback = {
   }
 };
 
+const aispmAgentBlastRadiusFallback = {
+  schema_version: "cavra.aispm.agent_blast_radius.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:09:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    total_agents: aispmFallback.agent_blast_radius.length,
+    critical_agents: aispmFallback.agent_blast_radius.filter((item) => item.blast_radius_level === "critical").length,
+    high_agents: aispmFallback.agent_blast_radius.filter((item) => item.blast_radius_level === "high").length,
+    medium_agents: aispmFallback.agent_blast_radius.filter((item) => item.blast_radius_level === "medium").length,
+    low_agents: aispmFallback.agent_blast_radius.filter((item) => item.blast_radius_level === "low").length,
+    affected_repositories: new Set(aispmFallback.agent_blast_radius.flatMap((item) => item.repositories || [])).size,
+    approval_paths: new Set(aispmFallback.agent_blast_radius.flatMap((item) => item.approval_paths || [])).size,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  items: aispmFallback.agent_blast_radius,
+  redaction: {
+    private_asset_graph: "requires_cavra_enterprise",
+    identity_permission_graph: "requires_cavra_enterprise",
+    cloud_account_inventory: "requires_cavra_enterprise",
+    dependency_graph: "requires_cavra_enterprise",
+    secret_names: "requires_cavra_enterprise",
+    customer_topology: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "identity and permission-aware blast-radius analysis",
+      "cloud account, Kubernetes, SaaS, and repository dependency graphing",
+      "private asset criticality and owner enrichment",
+      "secret and data-classification mapping",
+      "live blast-radius alerts and executive narrative export"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -936,7 +1026,8 @@ const routeContent = [
   { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." },
   { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." },
   { type: "AI Posture", label: "Intent-To-Action Drift", route: "ai-posture", description: "Compare declared intent with observed action, target, and policy outcome." },
-  { type: "AI Posture", label: "Tool-Chain Risk Graph", route: "ai-posture", description: "Map agents, tools, redacted targets, policy packs, and risky execution edges." }
+  { type: "AI Posture", label: "Tool-Chain Risk Graph", route: "ai-posture", description: "Map agents, tools, redacted targets, policy packs, and risky execution edges." },
+  { type: "AI Posture", label: "Agent Blast-Radius Map", route: "ai-posture", description: "Show repository, target, tool, policy, approval, and surface reach per AI agent." }
 ];
 
 function el(selector) {
@@ -1141,6 +1232,12 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     nodes: payload.tool_chain_graph?.nodes || aispmToolChainGraphFallback.nodes,
     edges: payload.tool_chain_graph?.edges || aispmToolChainGraphFallback.edges,
     hotspots: payload.tool_chain_graph?.hotspots || aispmToolChainGraphFallback.hotspots
+  }, "posture sample");
+  renderAispmAgentBlastRadius({
+    ...aispmAgentBlastRadiusFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeAgentBlastRadius(payload.agent_blast_radius || aispmAgentBlastRadiusFallback.items),
+    items: payload.agent_blast_radius || aispmAgentBlastRadiusFallback.items
   }, "posture sample");
   el("#aispmTimeline").innerHTML = (payload.timeline || []).slice(0, 8).map((event) => `
     <div class="timeline-item">
@@ -1699,6 +1796,86 @@ function renderAispmToolChainGraph(packet, note = "sample graph") {
   }).join("") || `<p class="empty-state">No tool-chain edges available for this activity window.</p>`;
 }
 
+function summarizeAgentBlastRadius(items) {
+  const rows = items || [];
+  const counts = rows.reduce((acc, item) => {
+    const level = item.blast_radius_level || "low";
+    acc[level] = (acc[level] || 0) + 1;
+    for (const repository of item.repositories || []) acc.repositories.add(repository);
+    for (const path of item.approval_paths || []) acc.approvalPaths.add(path);
+    return acc;
+  }, { repositories: new Set(), approvalPaths: new Set() });
+  return {
+    total_agents: rows.length,
+    critical_agents: counts.critical || 0,
+    high_agents: counts.high || 0,
+    medium_agents: counts.medium || 0,
+    low_agents: counts.low || 0,
+    affected_repositories: counts.repositories.size,
+    approval_paths: counts.approvalPaths.size,
+    evidence_confidence: rows.some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmAgentBlastRadius() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/agent-blast-radius`);
+      if (!response.ok) throw new Error(`Agent blast-radius HTTP ${response.status}`);
+      renderAispmAgentBlastRadius(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmAgentBlastRadius(aispmAgentBlastRadiusFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmAgentBlastRadius(aispmAgentBlastRadiusFallback, "static sample map");
+}
+
+function renderAispmAgentBlastRadius(packet, note = "sample blast radius") {
+  const items = packet.items || [];
+  const summary = packet.summary || summarizeAgentBlastRadius(items);
+  const summaryCards = [
+    ["Agents", summary.total_agents ?? items.length, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Critical/High", (summary.critical_agents ?? 0) + (summary.high_agents ?? 0), `Medium: ${summary.medium_agents ?? 0}`],
+    ["Repositories", summary.affected_repositories ?? 0, `Approval paths: ${summary.approval_paths ?? 0}`],
+    ["Evidence", summary.evidence_confidence || "unknown", "Private topology stays Enterprise"]
+  ];
+  el("#aispmBlastRadiusSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmAgentBlastRadius").innerHTML = items.slice(0, 6).map((item) => {
+    const surfaces = (item.control_surfaces || []).map((surface) => surface.replaceAll("_", " ")).join(", ") || "general policy";
+    const risks = (item.top_risks || []).slice(0, 5).map((risk) => `<span>${escapeHtml(risk.replaceAll("_", " "))}</span>`).join("");
+    const controls = (item.recommended_controls || []).slice(0, 5).map((control) => `<span>${escapeHtml(control.replaceAll("_", " "))}</span>`).join("");
+    return `
+      <article class="blast-radius-card">
+        <header>
+          <div>
+            <span class="severity ${escapeHtml(item.blast_radius_level || "low")}">${escapeHtml(item.blast_radius_level || "low")}</span>
+            <strong>${escapeHtml(item.agent_id || "unknown-agent")}</strong>
+          </div>
+          <b class="blast-radius-score">${escapeHtml(item.blast_radius_score ?? 0)}</b>
+        </header>
+        <p>${escapeHtml((item.repositories || []).join(", ") || "local")} · ${escapeHtml(surfaces)}</p>
+        <dl>
+          <dt>Targets</dt><dd>${escapeHtml((item.target_classes || []).map((target) => target.replaceAll("_", " ")).join(", ") || "not observed")}</dd>
+          <dt>Tools</dt><dd>${escapeHtml((item.tool_labels || []).join(", ") || "not observed")}</dd>
+          <dt>Policy Packs</dt><dd>${escapeHtml((item.policy_packs || []).join(", ") || "not observed")}</dd>
+          <dt>Actions</dt><dd>${escapeHtml(item.decision_count ?? 0)} decisions · ${escapeHtml(item.blocked_actions ?? 0)} blocked · ${escapeHtml(item.approval_required_actions ?? 0)} approval-gated</dd>
+        </dl>
+        <div class="risk-signal-list">${risks || "<span>local policy scope</span>"}</div>
+        <div class="risk-signal-list">${controls || "<span>capture signed evidence</span>"}</div>
+      </article>
+    `;
+  }).join("") || `<p class="empty-state">No agent blast-radius records available for this activity window.</p>`;
+}
+
 function renderAispmTraceReplay(packet, note = "sample replay") {
   const summary = packet.summary || {};
   const session = packet.session || {};
@@ -1912,6 +2089,7 @@ function wireEvents() {
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
   el("#refreshAispmIntentDrift").addEventListener("click", loadAispmIntentActionDrift);
   el("#refreshAispmToolGraph").addEventListener("click", loadAispmToolChainGraph);
+  el("#refreshAispmBlastRadius").addEventListener("click", loadAispmAgentBlastRadius);
   el("#aispmTraceSession").addEventListener("change", (event) => loadAispmTraceReplay(event.target.value));
   el("#refreshCommunityGa").addEventListener("click", renderMetrics);
   el("#savePilotIntake").addEventListener("click", () => {
@@ -1952,6 +2130,7 @@ function init() {
   loadAispmPreActionForecasts();
   loadAispmIntentActionDrift();
   loadAispmToolChainGraph();
+  loadAispmAgentBlastRadius();
   if (localStorage.getItem("cavra.sidebarCollapsed") === "true") el("#sidebar").classList.add("is-collapsed");
   setRoute(location.hash.slice(1) || localStorage.getItem("cavra.activeRoute") || "dashboard");
 }

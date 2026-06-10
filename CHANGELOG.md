@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM agent blast-radius mapping for Community, including
+  `/aispm/agent-blast-radius`, packaged schema/sample data, dashboard summary
+  cards, per-agent repository/target/tool/policy reach cards, ActivityStore
+  session metadata rollups, docs/wiki updates, and Enterprise-locked private
+  asset graph, identity permission graph, cloud account inventory, dependency
+  graph, secret name, and customer topology boundaries.
 - Added public-safe AISPM tool-chain risk graphing for Community, including
   `/aispm/tool-chain-graph`, packaged schema/sample data, dashboard graph
   summary cards, hotspot and edge views, ActivityStore preservation for safe

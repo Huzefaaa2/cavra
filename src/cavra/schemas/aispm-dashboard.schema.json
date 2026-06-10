@@ -19,6 +19,7 @@
     "pre_action_risk_forecasts",
     "intent_action_drift",
     "tool_chain_graph",
+    "agent_blast_radius",
     "control_plane"
   ],
   "properties": {
@@ -347,6 +348,48 @@
               "evidence_refs": { "type": "array", "items": { "type": "string" } }
             }
           }
+        }
+      }
+    },
+    "agent_blast_radius": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent_id",
+          "blast_radius_level",
+          "blast_radius_score",
+          "repository_count",
+          "repositories",
+          "control_surfaces",
+          "policy_packs",
+          "tool_labels",
+          "target_classes",
+          "decision_count",
+          "recommended_controls"
+        ],
+        "properties": {
+          "agent_id": { "type": "string" },
+          "blast_radius_level": { "enum": ["low", "medium", "high", "critical"] },
+          "blast_radius_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "repository_count": { "type": "integer", "minimum": 0 },
+          "repositories": { "type": "array", "items": { "type": "string" } },
+          "control_surfaces": { "type": "array", "items": { "type": "string" } },
+          "policy_packs": { "type": "array", "items": { "type": "string" } },
+          "tool_labels": { "type": "array", "items": { "type": "string" } },
+          "target_classes": { "type": "array", "items": { "type": "string" } },
+          "sensitive_target_count": { "type": "integer", "minimum": 0 },
+          "production_infrastructure_count": { "type": "integer", "minimum": 0 },
+          "approval_paths": { "type": "array", "items": { "type": "string" } },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "session_count": { "type": "integer", "minimum": 0 },
+          "blocked_actions": { "type": "integer", "minimum": 0 },
+          "approval_required_actions": { "type": "integer", "minimum": 0 },
+          "warned_actions": { "type": "integer", "minimum": 0 },
+          "top_risks": { "type": "array", "items": { "type": "string" } },
+          "recommended_controls": { "type": "array", "items": { "type": "string" } },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "last_seen_at": { "type": ["string", "null"] }
         }
       }
     },

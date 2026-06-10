@@ -5,6 +5,7 @@ import jsonschema
 
 from cavra.activity import ActivityStore
 from cavra.aispm import (
+    build_aispm_agent_blast_radius,
     build_aispm_approval_lineage,
     build_aispm_behavior_fingerprints,
     build_aispm_dashboard_contract,
@@ -108,6 +109,9 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert "missing_declared_intent" in posture["intent_action_drift"][0]["drift_signals"]
     assert posture["tool_chain_graph"]["hotspots"][0]["risk_band"] == "critical"
     assert posture["tool_chain_graph"]["edges"][0]["relationship"] == "invoked_tool"
+    assert posture["agent_blast_radius"][0]["agent_id"] == "codex-agent"
+    assert posture["agent_blast_radius"][0]["blast_radius_level"] in {"high", "critical"}
+    assert "sensitive_data_reach" in posture["agent_blast_radius"][0]["top_risks"]
     assert {item["risk_classification"] for item in posture["findings"]} == {
         "credential_or_sensitive_data_exposure",
         "infrastructure_change_risk",
@@ -396,6 +400,73 @@ def test_aispm_tool_chain_graph_maps_public_safe_edges(tmp_path: Path) -> None:
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_agent_blast_radius_maps_public_safe_reach(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-block-secret",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="block",
+                severity="critical",
+                action_type="read_file",
+                target=".env.production",
+                rule_id="secrets.block-sensitive-read",
+            ),
+            "tool": "filesystem",
+            "tool_capability": "file_read",
+        }
+    )
+    store.upsert_decision(
+        {
+            **_decision(
+                decision_id="dec-approval-iac",
+                session_id="session-1",
+                agent_id="codex-agent",
+                decision="require_approval",
+                severity="high",
+                action_type="execute_command",
+                target="terraform apply",
+            ),
+            "tool": "shell",
+            "tool_capability": "runtime_execution",
+        }
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-1",
+            "agent_id": "codex-agent",
+            "repository": "payments/api",
+            "state": "completed",
+            "updated_at": "2026-06-09T00:02:00+00:00",
+        }
+    )
+
+    packet = build_aispm_agent_blast_radius(store)
+
+    assert packet["schema_version"] == "cavra.aispm.agent_blast_radius.v1"
+    assert packet["summary"]["total_agents"] == 1
+    assert packet["summary"]["high_agents"] + packet["summary"]["critical_agents"] == 1
+    assert packet["summary"]["affected_repositories"] == 1
+    assert packet["summary"]["evidence_confidence"] == "signed_evidence"
+    item = packet["items"][0]
+    assert item["agent_id"] == "codex-agent"
+    assert item["blast_radius_score"] >= 55
+    assert item["repositories"] == ["payments/api"]
+    assert "sensitive_data:redacted" in item["target_classes"]
+    assert "production_infrastructure" in item["target_classes"]
+    assert item["sensitive_target_count"] == 1
+    assert item["production_infrastructure_count"] == 1
+    assert item["blocked_actions"] == 1
+    assert item["approval_required_actions"] == 1
+    assert "sensitive_data_reach" in item["top_risks"]
+    assert "require_blast_radius_context" in item["recommended_controls"]
+    assert packet["redaction"]["private_asset_graph"] == "requires_cavra_enterprise"
+    assert packet["redaction"]["identity_permission_graph"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -502,6 +573,18 @@ def test_aispm_tool_chain_graph_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(graph_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_agent_blast_radius_sample_matches_packaged_schema() -> None:
+    blast_schema = Path("src/cavra/schemas/aispm-agent-blast-radius.schema.json")
+    sample = Path("examples/aispm/community-agent-blast-radius-sample.json")
+
+    assert blast_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(blast_schema.read_text(encoding="utf-8")),
     )
 
 

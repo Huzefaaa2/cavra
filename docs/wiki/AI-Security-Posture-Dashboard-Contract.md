@@ -6,7 +6,8 @@ includes Phase A contract fields plus Phase B control coverage, near-miss
 visibility, public-safe trace replay packets, public-safe approval lineage,
 public-safe behavior fingerprints, public-safe policy context gaps, and
 public-safe pre-action risk forecasts, public-safe intent-to-action drift, and
-public-safe tool-chain risk graphing.
+public-safe tool-chain risk graphing, and public-safe agent blast-radius
+mapping.
 
 Community Edition provides:
 
@@ -25,16 +26,20 @@ Community Edition provides:
 - `GET /aispm/pre-action-risk-forecasts`
 - `GET /aispm/intent-action-drift`
 - `GET /aispm/tool-chain-graph`
+- `GET /aispm/agent-blast-radius`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
 `window.CAVRA_API_BASE` is configured. The route shows posture overview, agent
 coverage, risk findings, control coverage, near misses, execution timeline, and
 approval lineage, behavior fingerprinting, pre-action risk forecasts, and the
-intent-to-action drift queue, tool-chain risk graph, and the raw public-safe payload. It also shows
+intent-to-action drift queue, tool-chain risk graph, agent blast-radius map, and
+the raw public-safe payload. It also shows
 policy context gaps for missing
 environment, ownership, data, change-window, criticality, approval-route, or
 trust-tier metadata.
+It also includes an agent blast-radius map for observed repository, target,
+tool, policy, approval, and control-surface reach per agent.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -71,6 +76,13 @@ Enterprise-only.
 
 Community tool-chain graphing maps agents, safe tool labels, redacted targets, policy packs, hotspots, and risk-scored execution edges from local decision metadata. Raw tool requests, tool results, connector spans, cross-system call graphs, private network targets, and Enterprise trace correlation remain Enterprise-only.
 
+Community agent blast-radius mapping rolls normalized local activity into
+per-agent reach cards. It shows repositories, target classes, safe tool labels,
+policy packs, control surfaces, approval paths, top risks, recommended
+controls, and evidence references. Private asset graphs, identity permission
+graphs, cloud inventory, dependency graphs, secret names, and customer topology
+remain Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
@@ -78,7 +90,7 @@ policy logic, customer data, license-server state, or SaaS tenant records.
 Enterprise remains responsible for live authenticated multi-tenant posture,
 prompt/reasoning traces, private asset-graph forecasting, prompt-derived
 intent extraction, private workflow correlation, raw tool-call graphs, cross-system execution traces, full trace
-replay, organization controls, kill switch, runtime overrides, centralized
+replay, private blast-radius enrichment, organization controls, kill switch, runtime overrides, centralized
 retention, immutable audit exports, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
@@ -106,3 +118,6 @@ deterministic sample packet at
 The packaged Community tool-chain graph schema is
 `src/cavra/schemas/aispm-tool-chain-graph.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-tool-chain-graph-sample.json`.
+The packaged Community agent blast-radius schema is
+`src/cavra/schemas/aispm-agent-blast-radius.schema.json`, with a deterministic
+sample packet at `examples/aispm/community-agent-blast-radius-sample.json`.
