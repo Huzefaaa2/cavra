@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Evidence Freshness SLO",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "slo_policy",
+    "summary",
+    "items",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.evidence_freshness.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "slo_policy": {
+      "type": "object",
+      "required": ["fresh_hours", "review_soon_hours", "community_boundary"],
+      "properties": {
+        "fresh_hours": { "type": "integer", "minimum": 1 },
+        "review_soon_hours": { "type": "integer", "minimum": 1 },
+        "retention_reference_patterns": { "type": "array", "items": { "type": "string" } },
+        "community_boundary": { "type": "string" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_items",
+        "fresh_items",
+        "review_soon_items",
+        "stale_items",
+        "missing_timestamp_items",
+        "retention_ready_items",
+        "retention_gap_items",
+        "slo_met_items",
+        "slo_monitor_items",
+        "slo_breached_items",
+        "freshness_score",
+        "retention_score"
+      ],
+      "properties": {
+        "total_items": { "type": "integer", "minimum": 0 },
+        "fresh_items": { "type": "integer", "minimum": 0 },
+        "review_soon_items": { "type": "integer", "minimum": 0 },
+        "stale_items": { "type": "integer", "minimum": 0 },
+        "missing_timestamp_items": { "type": "integer", "minimum": 0 },
+        "retention_ready_items": { "type": "integer", "minimum": 0 },
+        "sample_retention_items": { "type": "integer", "minimum": 0 },
+        "retention_gap_items": { "type": "integer", "minimum": 0 },
+        "slo_met_items": { "type": "integer", "minimum": 0 },
+        "slo_monitor_items": { "type": "integer", "minimum": 0 },
+        "slo_breached_items": { "type": "integer", "minimum": 0 },
+        "freshness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "retention_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "oldest_age_hours": { "type": ["integer", "null"], "minimum": 0 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "item_type",
+          "source_id",
+          "agent_id",
+          "repository",
+          "freshness_status",
+          "retention_status",
+          "slo_status",
+          "evidence_refs",
+          "recommended_action"
+        ],
+        "properties": {
+          "item_id": { "type": "string" },
+          "item_type": { "enum": ["policy_decision", "agent_session"] },
+          "source_id": { "type": "string" },
+          "session_id": { "type": ["string", "null"] },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "policy_pack": { "type": "string" },
+          "control_surface": { "type": "string" },
+          "severity": { "type": "string" },
+          "decision": { "type": "string" },
+          "observed_at": { "type": ["string", "null"] },
+          "age_hours": { "type": ["integer", "null"], "minimum": 0 },
+          "freshness_status": {
+            "enum": ["fresh", "review_soon", "stale", "timestamp_missing"]
+          },
+          "retention_status": {
+            "enum": [
+              "retained_reference",
+              "sample_reference",
+              "evidence_ref_only",
+              "metadata_only",
+              "retention_missing"
+            ]
+          },
+          "slo_status": { "enum": ["met", "monitor", "breached"] },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } },
+          "recommended_action": { "type": "string" }
+        }
+      }
+    },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

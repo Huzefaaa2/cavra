@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 import json
 
 import jsonschema
@@ -11,6 +12,7 @@ from cavra.aispm import (
     build_aispm_control_coverage_heatmap,
     build_aispm_dashboard_contract,
     build_aispm_evidence_confidence_drilldown,
+    build_aispm_evidence_freshness_slo,
     build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
     build_aispm_posture,
@@ -127,6 +129,8 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert any(cell["coverage_status"] == "enforced" for cell in posture["control_coverage_heatmap"]["rows"][0]["cells"])
     assert posture["evidence_confidence_drilldown"]["summary"]["signed_evidence_items"] == 2
     assert posture["evidence_confidence_drilldown"]["facts"][0]["confidence_level"] == "signed_evidence"
+    assert posture["evidence_freshness_slo"]["summary"]["total_items"] == 2
+    assert posture["evidence_freshness_slo"]["summary"]["freshness_score"] >= 0
     assert [item["decision"] for item in posture["near_misses"]] == ["require_approval"]
     assert posture["near_misses"][0]["operator_signal"] == "approval_prevented_unreviewed_execution"
     assert posture["control_plane"]["kill_switch"] == "requires_cavra_enterprise"
@@ -598,6 +602,90 @@ def test_aispm_evidence_confidence_drilldown_ranks_evidence_quality(tmp_path: Pa
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_evidence_freshness_slo_flags_stale_and_retention_gaps() -> None:
+    now = datetime.now(timezone.utc)
+
+    class Store:
+        def list_decisions(self, **_: object) -> dict[str, object]:
+            return {
+                "items": [
+                    {
+                        "decision_id": "dec-fresh-retained",
+                        "session_id": "session-1",
+                        "agent_id": "codex-agent",
+                        "repository": "payments/api",
+                        "policy_pack": "cloud-iam-prod",
+                        "action_type": "execute_command",
+                        "target": "terraform plan",
+                        "decision": "allow_with_attestation",
+                        "severity": "medium",
+                        "timestamp": (now - timedelta(hours=1)).isoformat(),
+                        "evidence_refs": ["archive://evidence/dec-fresh-retained"],
+                    },
+                    {
+                        "decision_id": "dec-stale",
+                        "session_id": "session-2",
+                        "agent_id": "claude-code-agent",
+                        "repository": "platform/infra",
+                        "policy_pack": "mcp-enterprise",
+                        "action_type": "mcp_tool_call",
+                        "target": "filesystem.write",
+                        "decision": "warn",
+                        "severity": "medium",
+                        "timestamp": (now - timedelta(days=10)).isoformat(),
+                        "evidence_refs": ["artifact://evidence/dec-stale"],
+                    },
+                    {
+                        "decision_id": "dec-missing-retention",
+                        "session_id": "session-3",
+                        "agent_id": "docs-agent",
+                        "repository": "platform/docs",
+                        "policy_pack": "cavra-ai-agent-baseline",
+                        "action_type": "read_file",
+                        "target": "README.md",
+                        "decision": "allow",
+                        "severity": "low",
+                        "timestamp": (now - timedelta(days=2)).isoformat(),
+                        "evidence_refs": [],
+                    },
+                    {
+                        "decision_id": "dec-missing-time",
+                        "session_id": "session-4",
+                        "agent_id": "test-agent",
+                        "repository": "quality/tests",
+                        "policy_pack": "cavra-ai-agent-baseline",
+                        "action_type": "execute_command",
+                        "target": "pytest",
+                        "decision": "allow",
+                        "severity": "low",
+                        "evidence_refs": ["sample://evidence/test"],
+                    },
+                ]
+            }
+
+        def list_sessions(self, **_: object) -> dict[str, object]:
+            return {"items": []}
+
+    packet = build_aispm_evidence_freshness_slo(Store())
+
+    assert packet["schema_version"] == "cavra.aispm.evidence_freshness.v1"
+    assert packet["summary"]["total_items"] == 4
+    assert packet["summary"]["fresh_items"] == 1
+    assert packet["summary"]["review_soon_items"] == 1
+    assert packet["summary"]["stale_items"] == 1
+    assert packet["summary"]["missing_timestamp_items"] == 1
+    assert packet["summary"]["retention_ready_items"] == 1
+    assert packet["summary"]["retention_gap_items"] == 2
+    assert packet["summary"]["slo_breached_items"] == 3
+    statuses = {item["source_id"]: item for item in packet["items"]}
+    assert statuses["dec-fresh-retained"]["slo_status"] == "met"
+    assert statuses["dec-stale"]["slo_status"] == "breached"
+    assert statuses["dec-missing-retention"]["retention_status"] == "metadata_only"
+    assert statuses["dec-missing-time"]["freshness_status"] == "timestamp_missing"
+    assert packet["redaction"]["object_lock_status"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -740,6 +828,18 @@ def test_aispm_evidence_confidence_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(evidence_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_evidence_freshness_sample_matches_packaged_schema() -> None:
+    freshness_schema = Path("src/cavra/schemas/aispm-evidence-freshness.schema.json")
+    sample = Path("examples/aispm/community-evidence-freshness-sample.json")
+
+    assert freshness_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(freshness_schema.read_text(encoding="utf-8")),
     )
 
 

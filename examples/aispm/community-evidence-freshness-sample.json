@@ -1,0 +1,130 @@
+{
+  "schema_version": "cavra.aispm.evidence_freshness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "local_activity",
+  "data_provenance": "sample_data",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:03:00+00:00",
+  "filters": {
+    "repository": null,
+    "agent_id": null,
+    "policy_pack": null,
+    "limit": 200
+  },
+  "slo_policy": {
+    "fresh_hours": 24,
+    "review_soon_hours": 168,
+    "retention_reference_patterns": [
+      "archive://",
+      "immutable://",
+      "s3://",
+      "gs://",
+      "azblob://"
+    ],
+    "community_boundary": "metadata_only"
+  },
+  "summary": {
+    "total_items": 3,
+    "fresh_items": 3,
+    "review_soon_items": 0,
+    "stale_items": 0,
+    "missing_timestamp_items": 0,
+    "retention_ready_items": 0,
+    "sample_retention_items": 3,
+    "retention_gap_items": 0,
+    "slo_met_items": 0,
+    "slo_monitor_items": 3,
+    "slo_breached_items": 0,
+    "freshness_score": 100,
+    "retention_score": 45,
+    "oldest_age_hours": 3,
+    "evidence_confidence": "sample_evidence_refs"
+  },
+  "items": [
+    {
+      "item_id": "freshness-sample-dec-001",
+      "item_type": "policy_decision",
+      "source_id": "sample-dec-001",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cloud-iam-prod",
+      "control_surface": "infrastructure_iac",
+      "severity": "high",
+      "decision": "require_approval",
+      "observed_at": "2026-06-09T00:00:00+00:00",
+      "age_hours": 3,
+      "freshness_status": "fresh",
+      "retention_status": "sample_reference",
+      "slo_status": "monitor",
+      "evidence_refs": [
+        "sample://evidence/iac-production-change"
+      ],
+      "recommended_action": "Replace sample evidence with retained local or signed evidence before production reliance."
+    },
+    {
+      "item_id": "freshness-sample-dec-002",
+      "item_type": "policy_decision",
+      "source_id": "sample-dec-002",
+      "session_id": "sample-session-001",
+      "agent_id": "codex-agent",
+      "repository": "payments/api",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "control_surface": "sensitive_data",
+      "severity": "critical",
+      "decision": "block",
+      "observed_at": "2026-06-09T00:01:00+00:00",
+      "age_hours": 2,
+      "freshness_status": "fresh",
+      "retention_status": "sample_reference",
+      "slo_status": "monitor",
+      "evidence_refs": [
+        "sample://evidence/secret-read-block"
+      ],
+      "recommended_action": "Replace sample evidence with retained local or signed evidence before production reliance."
+    },
+    {
+      "item_id": "freshness-sample-dec-003",
+      "item_type": "policy_decision",
+      "source_id": "sample-dec-003",
+      "session_id": "sample-session-002",
+      "agent_id": "claude-code-agent",
+      "repository": "platform/infra",
+      "policy_pack": "mcp-enterprise",
+      "control_surface": "mcp_tools",
+      "severity": "medium",
+      "decision": "warn",
+      "observed_at": "2026-06-09T00:02:00+00:00",
+      "age_hours": 1,
+      "freshness_status": "fresh",
+      "retention_status": "sample_reference",
+      "slo_status": "monitor",
+      "evidence_refs": [
+        "sample://evidence/mcp-warning"
+      ],
+      "recommended_action": "Replace sample evidence with retained local or signed evidence before production reliance."
+    }
+  ],
+  "redaction": {
+    "tenant_evidence_store": "requires_cavra_enterprise",
+    "immutable_archive_probe": "requires_cavra_enterprise",
+    "object_lock_status": "requires_cavra_enterprise",
+    "kms_key_health": "requires_cavra_enterprise",
+    "retention_lifecycle_policy": "requires_cavra_enterprise",
+    "external_archive_metadata": "requires_cavra_enterprise",
+    "auditor_export_manifest": "requires_cavra_enterprise"
+  },
+  "enterprise_unlocks": {
+    "status": "requires_cavra_enterprise",
+    "capabilities": [
+      "immutable evidence archive health validation",
+      "object-lock, KMS, and lifecycle policy readiness checks",
+      "tenant retention SLO alerts and breach escalation",
+      "archive restore drills and auditor export manifests",
+      "cross-system evidence freshness correlation"
+    ],
+    "private_package": "cavra_enterprise"
+  }
+}

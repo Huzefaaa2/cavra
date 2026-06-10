@@ -20,6 +20,8 @@ Enterprise should provide the live CSO/CISO operating surface:
   servers, runtime modes, and enforcement backends;
 - evidence confidence drilldowns for signed, activity-reference, sample,
   metadata-only, and missing evidence;
+- evidence freshness and retention SLO panels for stale evidence, missing
+  timestamps, retention gaps, and archive-readiness boundaries;
 - CSO controls for kill switch, quarantine, policy toggle, runtime override,
   rollback, and post-event review;
 - compliance and audit views for SOC 2, ISO 27001, NIST SSDF, EU AI Act, PCI
@@ -28,8 +30,8 @@ Enterprise should provide the live CSO/CISO operating surface:
 Community should keep a public-safe dashboard demo and local activity view,
 including observed control coverage, near-miss queues, trace replay packets
 derived from local decisions, approval lineage from local approval records, and
-behavior fingerprints, policy context gaps, pre-action risk forecasts, and
-evidence confidence drilldowns from normalized local activity metadata, plus
+behavior fingerprints, policy context gaps, pre-action risk forecasts,
+evidence confidence drilldowns, and evidence freshness SLO panels from normalized local activity metadata, plus
 intent-to-action drift and tool-chain risk graphing from declared intent, safe
 tool labels, redacted targets, and observed action metadata.
 Enterprise should own authenticated multi-tenant ingestion, streaming updates,

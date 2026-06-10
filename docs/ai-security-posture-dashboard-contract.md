@@ -7,7 +7,7 @@ public-safe trace replay packets, public-safe approval lineage, behavior
 fingerprints, policy context gaps, pre-action risk forecasts, and
 intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping,
 control coverage heatmap views, and evidence confidence drilldowns without
-exposing Enterprise live-ingestion logic.
+evidence freshness SLO panels without exposing Enterprise live-ingestion logic.
 
 ## Community Boundary
 
@@ -53,6 +53,9 @@ Community Edition provides local and sample posture views only:
 - `GET /aispm/evidence-confidence` returns public-safe evidence confidence
   drilldowns for decision/session evidence references, including signed,
   activity-reference, sample, metadata-only, and missing evidence classes.
+- `GET /aispm/evidence-freshness` returns public-safe evidence freshness and
+  retention SLO rows for local decision/session timestamps and evidence
+  reference patterns.
 
 The public portal now includes an `AI Posture` route that renders this contract
 as a static-hostable dashboard. When `window.CAVRA_API_BASE` is configured it
@@ -74,6 +77,9 @@ controls.
 The route also includes an evidence confidence drilldown so operators can see
 which policy decisions are backed by signed evidence, activity references,
 sample evidence, metadata only, or missing evidence before relying on a report.
+The route also includes an evidence freshness and retention SLO panel so
+operators can see stale evidence, missing timestamps, retention-reference gaps,
+and Enterprise archive-readiness boundaries.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -136,6 +142,13 @@ evidence payloads, validate private artifact contents, resolve signature trust
 chains, read external ticket payloads, expose customer data, or access tenant
 evidence stores.
 
+Community evidence freshness SLOs classify local decision and session
+timestamps as fresh, review-soon, stale, or missing. They also classify public
+evidence-reference patterns as retained references, sample references,
+evidence-only references, or metadata-only records. They do not probe immutable
+archives, object-lock settings, KMS key health, lifecycle policies, external
+archive metadata, or auditor export manifests.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -154,6 +167,8 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
   permission, and environment enrichment;
 - immutable evidence store validation, signature trust-chain verification, and
   external evidence correlation;
+- object-lock, KMS, retention lifecycle, archive restore, and auditor export
+  validation;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -225,3 +240,8 @@ The packaged Community evidence confidence schema is available at
 `src/cavra/schemas/aispm-evidence-confidence.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-evidence-confidence-sample.json`.
+
+The packaged Community evidence freshness schema is available at
+`src/cavra/schemas/aispm-evidence-freshness.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-evidence-freshness-sample.json`.

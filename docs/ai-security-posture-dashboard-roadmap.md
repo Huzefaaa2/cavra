@@ -11,7 +11,7 @@ CAVRA Community Edition currently provides the public Evidence Console,
 activity persistence for sessions and decisions, policy decision records,
 evidence search, release readiness views, public-safe behavior fingerprints,
 policy context gap detection, pre-action risk forecasts, intent-to-action
-drift detection, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, and a public-safe sandbox portal.
+drift detection, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, evidence freshness SLO panels, and a public-safe sandbox portal.
 That is enough to demonstrate the control model, but it is not yet a
 production-grade real-time AI Security Posture Management dashboard.
 
@@ -128,6 +128,8 @@ These features should help position CAVRA as more than another log dashboard:
 - **Evidence confidence drilldown**: rank decision and session evidence as
   signed, activity-reference, sample, metadata-only, or missing before audit
   reliance.
+- **Evidence freshness and retention SLO**: show stale evidence, missing
+  timestamps, retention gaps, and archive-readiness boundaries.
 - **Control coverage heatmap**: show where CAVRA is enforcing, warning,
   auditing only, or absent across repositories and agent tools.
 - **Near-miss queue**: surface risky actions that were allowed with warnings,
@@ -166,7 +168,7 @@ These features should help position CAVRA as more than another log dashboard:
   operators can inspect state, approver group, decision linkage, timestamps,
   and evidence references while private IdP/RBAC context remains Enterprise.
 - Add public-safe behavior fingerprints, policy context gaps, pre-action risk
-  forecasts, intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, and evidence confidence drilldowns derived from
+  forecasts, intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, evidence confidence drilldowns, and evidence freshness SLO panels derived from
   normalized local decision metadata while private prompt-derived intent,
   workflow correlation, raw tool payloads, cross-system traces, private asset graphs,
   and semantic models remain Enterprise.

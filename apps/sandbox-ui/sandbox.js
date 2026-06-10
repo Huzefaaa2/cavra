@@ -342,6 +342,36 @@ const aispmFallback = {
       { fact_id: "evidence-sample-dec-003", fact_type: "policy_decision", source_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", policy_pack: "mcp-enterprise", control_surface: "mcp_tools", decision: "warn", severity: "medium", confidence_level: "sample_evidence_refs", confidence_score: 45, evidence_count: 1, signed_evidence_count: 0, evidence_refs: ["sample://evidence/mcp-warning"], metadata_fields: ["decision_id", "session_id", "agent_id", "repository", "policy_pack", "rule_id", "action_type", "target", "timestamp"], recommended_action: "Replace sample evidence with local or signed evidence before production evaluation.", timestamp: "2026-06-09T00:02:00+00:00" }
     ]
   },
+  evidence_freshness_slo: {
+    slo_policy: {
+      fresh_hours: 24,
+      review_soon_hours: 168,
+      retention_reference_patterns: ["archive://", "immutable://", "s3://", "gs://", "azblob://"],
+      community_boundary: "metadata_only"
+    },
+    summary: {
+      total_items: 3,
+      fresh_items: 3,
+      review_soon_items: 0,
+      stale_items: 0,
+      missing_timestamp_items: 0,
+      retention_ready_items: 0,
+      sample_retention_items: 3,
+      retention_gap_items: 0,
+      slo_met_items: 0,
+      slo_monitor_items: 3,
+      slo_breached_items: 0,
+      freshness_score: 100,
+      retention_score: 45,
+      oldest_age_hours: 3,
+      evidence_confidence: "sample_evidence_refs"
+    },
+    items: [
+      { item_id: "freshness-sample-dec-001", item_type: "policy_decision", source_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", policy_pack: "cloud-iam-prod", control_surface: "infrastructure_iac", severity: "high", decision: "require_approval", observed_at: "2026-06-09T00:00:00+00:00", age_hours: 3, freshness_status: "fresh", retention_status: "sample_reference", slo_status: "monitor", evidence_refs: ["sample://evidence/iac-production-change"], recommended_action: "Replace sample evidence with retained local or signed evidence before production reliance." },
+      { item_id: "freshness-sample-dec-002", item_type: "policy_decision", source_id: "sample-dec-002", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", policy_pack: "cavra-ai-agent-baseline", control_surface: "sensitive_data", severity: "critical", decision: "block", observed_at: "2026-06-09T00:01:00+00:00", age_hours: 2, freshness_status: "fresh", retention_status: "sample_reference", slo_status: "monitor", evidence_refs: ["sample://evidence/secret-read-block"], recommended_action: "Replace sample evidence with retained local or signed evidence before production reliance." },
+      { item_id: "freshness-sample-dec-003", item_type: "policy_decision", source_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", policy_pack: "mcp-enterprise", control_surface: "mcp_tools", severity: "medium", decision: "warn", observed_at: "2026-06-09T00:02:00+00:00", age_hours: 1, freshness_status: "fresh", retention_status: "sample_reference", slo_status: "monitor", evidence_refs: ["sample://evidence/mcp-warning"], recommended_action: "Replace sample evidence with retained local or signed evidence before production reliance." }
+    ]
+  },
   near_misses: [
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
@@ -1152,6 +1182,41 @@ const aispmEvidenceConfidenceFallback = {
   }
 };
 
+const aispmEvidenceFreshnessFallback = {
+  schema_version: "cavra.aispm.evidence_freshness.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:03:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  slo_policy: aispmFallback.evidence_freshness_slo.slo_policy,
+  summary: aispmFallback.evidence_freshness_slo.summary,
+  items: aispmFallback.evidence_freshness_slo.items,
+  redaction: {
+    tenant_evidence_store: "requires_cavra_enterprise",
+    immutable_archive_probe: "requires_cavra_enterprise",
+    object_lock_status: "requires_cavra_enterprise",
+    kms_key_health: "requires_cavra_enterprise",
+    retention_lifecycle_policy: "requires_cavra_enterprise",
+    external_archive_metadata: "requires_cavra_enterprise",
+    auditor_export_manifest: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "immutable evidence archive health validation",
+      "object-lock, KMS, and lifecycle policy readiness checks",
+      "tenant retention SLO alerts and breach escalation",
+      "archive restore drills and auditor export manifests",
+      "cross-system evidence freshness correlation"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -1166,6 +1231,7 @@ const routeContent = [
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
   { type: "AI Posture", label: "Evidence Confidence Drilldown", route: "ai-posture", description: "Rank policy decisions by signed, activity, sample, metadata-only, or missing evidence." },
+  { type: "AI Posture", label: "Evidence Freshness SLO", route: "ai-posture", description: "Show stale evidence, retention gaps, and Enterprise archive-readiness boundaries." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
@@ -1361,6 +1427,13 @@ function renderAispmDashboard(payload, note = "sample fallback") {
     data_provenance: payload.data_provenance || "sample_data",
     summary: summarizeEvidenceConfidence(payload.evidence_confidence_drilldown?.facts || aispmEvidenceConfidenceFallback.facts),
     facts: payload.evidence_confidence_drilldown?.facts || aispmEvidenceConfidenceFallback.facts
+  }, "posture sample");
+  renderAispmEvidenceFreshness({
+    ...aispmEvidenceFreshnessFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeEvidenceFreshness(payload.evidence_freshness_slo?.items || aispmEvidenceFreshnessFallback.items),
+    items: payload.evidence_freshness_slo?.items || aispmEvidenceFreshnessFallback.items,
+    slo_policy: payload.evidence_freshness_slo?.slo_policy || aispmEvidenceFreshnessFallback.slo_policy
   }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
@@ -1739,6 +1812,100 @@ function renderAispmEvidenceConfidence(packet, note = "sample evidence") {
       <small>${escapeHtml((fact.evidence_refs || []).join(", ") || "metadata only")}</small>
     </article>
   `).join("") || `<p class="empty-state">No evidence confidence facts available.</p>`;
+}
+
+function summarizeEvidenceFreshness(items) {
+  const rows = items || [];
+  const count = (field, value) => rows.filter((item) => item[field] === value).length;
+  const avg = (values) => values.length ? Math.round(values.reduce((sum, value) => sum + Number(value || 0), 0) / values.length) : 0;
+  const freshnessScores = rows.map((item) => ({
+    fresh: 100,
+    review_soon: 68,
+    stale: 18,
+    timestamp_missing: 0
+  }[item.freshness_status] ?? 0));
+  const retentionScores = rows.map((item) => ({
+    retained_reference: 100,
+    sample_reference: 45,
+    evidence_ref_only: 38,
+    metadata_only: 0,
+    retention_missing: 0
+  }[item.retention_status] ?? 0));
+  return {
+    total_items: rows.length,
+    fresh_items: count("freshness_status", "fresh"),
+    review_soon_items: count("freshness_status", "review_soon"),
+    stale_items: count("freshness_status", "stale"),
+    missing_timestamp_items: count("freshness_status", "timestamp_missing"),
+    retention_ready_items: count("retention_status", "retained_reference"),
+    sample_retention_items: count("retention_status", "sample_reference"),
+    retention_gap_items: rows.filter((item) => ["evidence_ref_only", "metadata_only", "retention_missing"].includes(item.retention_status)).length,
+    slo_met_items: count("slo_status", "met"),
+    slo_monitor_items: count("slo_status", "monitor"),
+    slo_breached_items: count("slo_status", "breached"),
+    freshness_score: avg(freshnessScores),
+    retention_score: avg(retentionScores),
+    oldest_age_hours: Math.max(...rows.map((item) => Number(item.age_hours || 0)), 0),
+    evidence_confidence: rows.some((item) => (item.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmEvidenceFreshness() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/evidence-freshness`);
+      if (!response.ok) throw new Error(`Evidence freshness HTTP ${response.status}`);
+      renderAispmEvidenceFreshness(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmEvidenceFreshness(aispmEvidenceFreshnessFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmEvidenceFreshness(aispmEvidenceFreshnessFallback, "static sample SLO");
+}
+
+function renderAispmEvidenceFreshness(packet, note = "sample SLO") {
+  const items = packet.items || [];
+  const summary = packet.summary || summarizeEvidenceFreshness(items);
+  const policy = packet.slo_policy || {};
+  const summaryCards = [
+    ["Freshness Score", summary.freshness_score ?? 0, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Retention Score", summary.retention_score ?? 0, `Ready: ${summary.retention_ready_items ?? 0}`],
+    ["SLO Breaches", summary.slo_breached_items ?? 0, `Monitor: ${summary.slo_monitor_items ?? 0}`],
+    ["Oldest Evidence", summary.oldest_age_hours ?? "n/a", `Fresh <= ${policy.fresh_hours || 24}h`]
+  ];
+  el("#aispmEvidenceFreshnessSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  const ordered = [...items].sort((a, b) => {
+    const statusWeight = { breached: 3, monitor: 2, met: 1 };
+    return (statusWeight[b.slo_status] || 0) - (statusWeight[a.slo_status] || 0)
+      || Number(b.age_hours || 0) - Number(a.age_hours || 0);
+  });
+  el("#aispmEvidenceFreshnessRows").innerHTML = ordered.slice(0, 8).map((item) => `
+    <article class="evidence-freshness-row">
+      <div class="evidence-freshness-meter">
+        <strong>${escapeHtml(item.age_hours ?? "n/a")}h</strong>
+        <span>${escapeHtml(item.slo_status || "review")}</span>
+      </div>
+      <div>
+        <strong>${escapeHtml(item.agent_id || "unknown-agent")} · ${escapeHtml(item.repository || "local")}</strong>
+        <p>${escapeHtml(item.decision || item.item_type || "evidence item")} · ${escapeHtml(item.control_surface || "general_policy")} · ${escapeHtml(item.severity || "low")}</p>
+        <div class="evidence-freshness-badges">
+          <span>${escapeHtml((item.freshness_status || "unknown").replaceAll("_", " "))}</span>
+          <span>${escapeHtml((item.retention_status || "unknown").replaceAll("_", " "))}</span>
+        </div>
+        <p>${escapeHtml(item.recommended_action || "Review evidence freshness and retention before audit reliance.")}</p>
+      </div>
+      <small>${escapeHtml((item.evidence_refs || []).join(", ") || "metadata only")}</small>
+    </article>
+  `).join("") || `<p class="empty-state">No evidence freshness SLO records available.</p>`;
 }
 
 function summarizeBehaviorFingerprints(items) {
@@ -2387,6 +2554,7 @@ function wireEvents() {
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#refreshAispmCoverageHeatmap").addEventListener("click", loadAispmControlCoverageHeatmap);
   el("#refreshAispmEvidenceConfidence").addEventListener("click", loadAispmEvidenceConfidence);
+  el("#refreshAispmEvidenceFreshness").addEventListener("click", loadAispmEvidenceFreshness);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

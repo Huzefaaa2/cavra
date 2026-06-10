@@ -7,8 +7,8 @@ visibility, public-safe trace replay packets, public-safe approval lineage,
 public-safe behavior fingerprints, public-safe policy context gaps, and
 public-safe pre-action risk forecasts, public-safe intent-to-action drift, and
 public-safe tool-chain risk graphing, public-safe agent blast-radius mapping,
-public-safe control coverage heatmap views, and public-safe evidence confidence
-drilldowns.
+public-safe control coverage heatmap views, public-safe evidence confidence
+drilldowns, and public-safe evidence freshness SLO panels.
 
 Community Edition provides:
 
@@ -30,6 +30,7 @@ Community Edition provides:
 - `GET /aispm/tool-chain-graph`
 - `GET /aispm/agent-blast-radius`
 - `GET /aispm/evidence-confidence`
+- `GET /aispm/evidence-freshness`
 
 The public portal now includes an `AI Posture` route that renders the contract
 with sample data by default and reads `/aispm/posture` when
@@ -49,6 +50,9 @@ path.
 It also includes an evidence confidence drilldown for signed evidence,
 activity evidence references, sample evidence, metadata-only facts, and missing
 evidence.
+It also includes an evidence freshness and retention SLO panel for stale
+evidence, missing timestamps, retention gaps, and Enterprise archive-readiness
+boundaries.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -105,6 +109,11 @@ evidence, metadata-only records, or missing evidence. Raw evidence payloads,
 private artifact contents, signature trust chains, external ticket payloads,
 customer data, and tenant evidence stores remain Enterprise-only.
 
+Community evidence freshness SLOs classify local decision/session timestamps
+and public evidence-reference patterns only. Immutable archive probes,
+object-lock status, KMS key health, lifecycle policies, external archive
+metadata, and auditor export manifests remain Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
@@ -113,9 +122,9 @@ Enterprise remains responsible for live authenticated multi-tenant posture,
 prompt/reasoning traces, private asset-graph forecasting, prompt-derived
 intent extraction, private workflow correlation, raw tool-call graphs, cross-system execution traces, full trace
 replay, private blast-radius enrichment, organization-wide heatmaps,
-immutable evidence validation, organization controls, kill switch, runtime
-overrides, centralized retention, immutable audit exports, and compliance
-reporting.
+immutable evidence validation, object-lock/KMS/archive lifecycle validation,
+organization controls, kill switch, runtime overrides, centralized retention,
+immutable audit exports, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
 The packaged Community trace replay schema is
@@ -152,3 +161,6 @@ deterministic sample packet at
 The packaged Community evidence confidence schema is
 `src/cavra/schemas/aispm-evidence-confidence.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-evidence-confidence-sample.json`.
+The packaged Community evidence freshness schema is
+`src/cavra/schemas/aispm-evidence-freshness.schema.json`, with a deterministic
+sample packet at `examples/aispm/community-evidence-freshness-sample.json`.

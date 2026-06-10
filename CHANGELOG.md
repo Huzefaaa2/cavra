@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added public-safe AISPM evidence freshness and retention SLO reporting for
+  Community, including `/aispm/evidence-freshness`, packaged schema/sample
+  data, dashboard stale-evidence and retention-gap rows, docs/wiki updates, and
+  Enterprise-locked immutable archive, object-lock, KMS, lifecycle, external
+  archive, and auditor export boundaries.
 - Added public-safe AISPM evidence confidence drilldown for Community,
   including `/aispm/evidence-confidence`, packaged schema/sample data,
   dashboard confidence rows for signed/activity/sample/metadata-only evidence,

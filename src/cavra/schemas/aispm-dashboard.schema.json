@@ -22,6 +22,7 @@
     "tool_chain_graph",
     "agent_blast_radius",
     "evidence_confidence_drilldown",
+    "evidence_freshness_slo",
     "control_plane"
   ],
   "properties": {
@@ -455,6 +456,15 @@
       "properties": {
         "summary": { "type": "object" },
         "facts": { "type": "array" }
+      }
+    },
+    "evidence_freshness_slo": {
+      "type": "object",
+      "required": ["slo_policy", "summary", "items"],
+      "properties": {
+        "slo_policy": { "type": "object" },
+        "summary": { "type": "object" },
+        "items": { "type": "array" }
       }
     },
     "control_plane": { "type": "object" }

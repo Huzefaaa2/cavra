@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from datetime import datetime, timezone
 from typing import Any
 
 from cavra.activity import utc_now
@@ -57,6 +58,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "agent blast-radius map from repositories, surfaces, tools, policy packs, and approval metadata",
                 "control coverage heatmap by agent, repository, and control surface from local activity metadata",
                 "evidence confidence drilldown for decision and session evidence references",
+                "evidence freshness and retention SLO summary from local activity timestamps",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -76,6 +78,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "private asset, identity, cloud dependency, and permission blast-radius enrichment",
                 "organization-wide control coverage heatmap with private asset, owner, and environment enrichment",
                 "immutable evidence store validation, signature verification, and external evidence correlation",
+                "evidence retention proof, object-lock status, KMS status, and archive lifecycle validation",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -96,6 +99,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "agent_blast_radius",
             "control_coverage_heatmap",
             "evidence_confidence_drilldown",
+            "evidence_freshness_slo",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -115,6 +119,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "agent_blast_radius": "/aispm/agent-blast-radius",
             "control_coverage_heatmap": "/aispm/control-coverage-heatmap",
             "evidence_confidence": "/aispm/evidence-confidence",
+            "evidence_freshness": "/aispm/evidence-freshness",
         },
     }
 
@@ -154,6 +159,8 @@ def build_aispm_posture(
     agent_blast_radius = _agent_blast_radius(decisions, sessions)
     control_coverage_heatmap = _control_coverage_heatmap(decisions, sessions)
     evidence_confidence_drilldown = _evidence_confidence_drilldown(decisions, sessions)
+    generated_at = utc_now()
+    evidence_freshness_slo = _evidence_freshness_slo(decisions, sessions, generated_at=generated_at)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -162,7 +169,7 @@ def build_aispm_posture(
         "data_provenance": "local_activity_store",
         "tracking": "none",
         "telemetry": "disabled",
-        "generated_at": utc_now(),
+        "generated_at": generated_at,
         "filters": {
             "repository": repository,
             "agent_id": agent_id,
@@ -184,6 +191,7 @@ def build_aispm_posture(
         "agent_blast_radius": agent_blast_radius,
         "control_coverage_heatmap": control_coverage_heatmap,
         "evidence_confidence_drilldown": evidence_confidence_drilldown,
+        "evidence_freshness_slo": evidence_freshness_slo,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -785,6 +793,78 @@ def build_aispm_evidence_confidence_drilldown(
     }
 
 
+def build_aispm_evidence_freshness_slo(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe evidence freshness and retention SLO packet.
+
+    Community can compute timestamp freshness and reference-level retention
+    hints from local activity metadata. Private archive validation, object-lock
+    status, KMS status, lifecycle policy checks, and tenant evidence stores are
+    Enterprise-only.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    generated_at = utc_now()
+    slo = _evidence_freshness_slo(decisions, sessions, generated_at=generated_at)
+    return {
+        "schema_version": "cavra.aispm.evidence_freshness.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": generated_at,
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "slo_policy": slo["slo_policy"],
+        "summary": slo["summary"],
+        "items": slo["items"],
+        "redaction": {
+            "tenant_evidence_store": LOCKED_ENTERPRISE_STATUS,
+            "immutable_archive_probe": LOCKED_ENTERPRISE_STATUS,
+            "object_lock_status": LOCKED_ENTERPRISE_STATUS,
+            "kms_key_health": LOCKED_ENTERPRISE_STATUS,
+            "retention_lifecycle_policy": LOCKED_ENTERPRISE_STATUS,
+            "external_archive_metadata": LOCKED_ENTERPRISE_STATUS,
+            "auditor_export_manifest": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "immutable evidence archive health validation",
+                "object-lock, KMS, and lifecycle policy readiness checks",
+                "tenant retention SLO alerts and breach escalation",
+                "archive restore drills and auditor export manifests",
+                "cross-system evidence freshness correlation",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -904,6 +984,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "agent_blast_radius": _agent_blast_radius(decisions, sessions),
         "control_coverage_heatmap": _control_coverage_heatmap(decisions, sessions),
         "evidence_confidence_drilldown": _evidence_confidence_drilldown(decisions, sessions),
+        "evidence_freshness_slo": _evidence_freshness_slo(decisions, sessions, generated_at="2026-06-09T00:03:00+00:00"),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -2520,6 +2601,117 @@ def _evidence_confidence_drilldown(
     }
 
 
+def _evidence_freshness_slo(
+    decisions: list[dict[str, Any]],
+    sessions: list[dict[str, Any]],
+    *,
+    generated_at: str,
+) -> dict[str, Any]:
+    now = _parse_timestamp(generated_at)
+    items: list[dict[str, Any]] = []
+
+    for decision in decisions:
+        refs = _evidence_refs(decision)
+        observed_at = str(decision.get("timestamp") or "")
+        freshness = _freshness_status(observed_at, now)
+        retention = _retention_status(refs)
+        items.append(
+            {
+                "item_id": f"freshness-{decision.get('decision_id', 'unknown')}",
+                "item_type": "policy_decision",
+                "source_id": str(decision.get("decision_id", "unknown")),
+                "session_id": decision.get("session_id"),
+                "agent_id": decision.get("agent_id", "unknown-agent"),
+                "repository": decision.get("repository", "local"),
+                "policy_pack": decision.get("policy_pack", "cavra-ai-agent-baseline"),
+                "control_surface": _control_surface(decision),
+                "severity": decision.get("severity", "low"),
+                "decision": decision.get("decision", "unknown"),
+                "observed_at": observed_at or None,
+                "age_hours": _age_hours(observed_at, now),
+                "freshness_status": freshness,
+                "retention_status": retention,
+                "slo_status": _evidence_slo_status(freshness, retention),
+                "evidence_refs": refs[:8],
+                "recommended_action": _evidence_freshness_recommendation(freshness, retention),
+            }
+        )
+
+    decision_session_ids = {str(item.get("session_id")) for item in decisions if item.get("session_id")}
+    for session in sessions:
+        session_id = str(session.get("session_id", "unknown"))
+        if session_id in decision_session_ids:
+            continue
+        refs = _evidence_refs(session)
+        observed_at = str(session.get("updated_at") or session.get("started_at") or "")
+        freshness = _freshness_status(observed_at, now)
+        retention = _retention_status(refs)
+        items.append(
+            {
+                "item_id": f"freshness-session-{session_id}",
+                "item_type": "agent_session",
+                "source_id": session_id,
+                "session_id": session_id,
+                "agent_id": session.get("agent_id", "unknown-agent"),
+                "repository": session.get("repository", "local"),
+                "policy_pack": session.get("policy_pack", "cavra-ai-agent-baseline"),
+                "control_surface": "agent_session",
+                "severity": "low",
+                "decision": "session_observed",
+                "observed_at": observed_at or None,
+                "age_hours": _age_hours(observed_at, now),
+                "freshness_status": freshness,
+                "retention_status": retention,
+                "slo_status": _evidence_slo_status(freshness, retention),
+                "evidence_refs": refs[:8],
+                "recommended_action": _evidence_freshness_recommendation(freshness, retention),
+            }
+        )
+
+    freshness_counts = Counter(str(item["freshness_status"]) for item in items)
+    retention_counts = Counter(str(item["retention_status"]) for item in items)
+    slo_counts = Counter(str(item["slo_status"]) for item in items)
+    ages = [int(item["age_hours"]) for item in items if item.get("age_hours") is not None]
+    freshness_score = _slo_score([_freshness_score(str(item["freshness_status"])) for item in items])
+    retention_score = _slo_score([_retention_score(str(item["retention_status"])) for item in items])
+    items = sorted(
+        items,
+        key=lambda item: (
+            _slo_sort_order(str(item["slo_status"])),
+            -1 if item.get("age_hours") is None else int(item["age_hours"]),
+        ),
+        reverse=True,
+    )
+    return {
+        "slo_policy": {
+            "fresh_hours": 24,
+            "review_soon_hours": 168,
+            "retention_reference_patterns": ["archive://", "immutable://", "s3://", "gs://", "azblob://"],
+            "community_boundary": "metadata_only",
+        },
+        "summary": {
+            "total_items": len(items),
+            "fresh_items": freshness_counts["fresh"],
+            "review_soon_items": freshness_counts["review_soon"],
+            "stale_items": freshness_counts["stale"],
+            "missing_timestamp_items": freshness_counts["timestamp_missing"],
+            "retention_ready_items": retention_counts["retained_reference"],
+            "sample_retention_items": retention_counts["sample_reference"],
+            "retention_gap_items": retention_counts["evidence_ref_only"]
+            + retention_counts["metadata_only"]
+            + retention_counts["retention_missing"],
+            "slo_met_items": slo_counts["met"],
+            "slo_monitor_items": slo_counts["monitor"],
+            "slo_breached_items": slo_counts["breached"],
+            "freshness_score": freshness_score,
+            "retention_score": retention_score,
+            "oldest_age_hours": max(ages) if ages else None,
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "items": items[:50],
+    }
+
+
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     near_miss_decisions = []
     for decision in decisions:
@@ -2788,3 +2980,94 @@ def _evidence_confidence_recommendation(level: str) -> str:
     if level == "activity_metadata_only":
         return "Attach evidence references for this decision or session before audit reliance."
     return "Capture decision metadata and evidence references before relying on this control."
+
+
+def _parse_timestamp(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _age_hours(observed_at: str, now: datetime | None) -> int | None:
+    observed = _parse_timestamp(observed_at)
+    if observed is None or now is None:
+        return None
+    return max(0, int(round((now - observed).total_seconds() / 3600)))
+
+
+def _freshness_status(observed_at: str, now: datetime | None) -> str:
+    age = _age_hours(observed_at, now)
+    if age is None:
+        return "timestamp_missing"
+    if age <= 24:
+        return "fresh"
+    if age <= 168:
+        return "review_soon"
+    return "stale"
+
+
+def _retention_status(refs: list[str]) -> str:
+    if any(ref.startswith(("archive://", "immutable://", "s3://", "gs://", "azblob://")) for ref in refs):
+        return "retained_reference"
+    if any(ref.startswith("sample://") for ref in refs):
+        return "sample_reference"
+    if refs:
+        return "evidence_ref_only"
+    return "metadata_only"
+
+
+def _evidence_slo_status(freshness: str, retention: str) -> str:
+    if freshness in {"stale", "timestamp_missing"} or retention in {"metadata_only", "retention_missing"}:
+        return "breached"
+    if freshness == "review_soon" or retention in {"sample_reference", "evidence_ref_only"}:
+        return "monitor"
+    return "met"
+
+
+def _freshness_score(status: str) -> int:
+    return {
+        "fresh": 100,
+        "review_soon": 68,
+        "stale": 18,
+        "timestamp_missing": 0,
+    }.get(status, 0)
+
+
+def _retention_score(status: str) -> int:
+    return {
+        "retained_reference": 100,
+        "sample_reference": 45,
+        "evidence_ref_only": 38,
+        "metadata_only": 0,
+        "retention_missing": 0,
+    }.get(status, 0)
+
+
+def _slo_score(scores: list[int]) -> int:
+    return int(round(sum(scores) / len(scores))) if scores else 0
+
+
+def _slo_sort_order(status: str) -> int:
+    return {"met": 0, "monitor": 1, "breached": 2}.get(status, 0)
+
+
+def _evidence_freshness_recommendation(freshness: str, retention: str) -> str:
+    if freshness == "timestamp_missing":
+        return "Record decision/session timestamps before using this evidence for audit review."
+    if freshness == "stale":
+        return "Refresh or revalidate this evidence before relying on it for release or compliance review."
+    if retention == "metadata_only":
+        return "Attach evidence references and route the record to retained evidence storage."
+    if retention == "evidence_ref_only":
+        return "Promote this evidence reference into immutable retained storage for regulated workflows."
+    if retention == "sample_reference":
+        return "Replace sample evidence with retained local or signed evidence before production reliance."
+    if freshness == "review_soon":
+        return "Review freshness before the evidence crosses the seven-day SLO threshold."
+    return "Freshness and retention metadata are acceptable for Community-level review."
