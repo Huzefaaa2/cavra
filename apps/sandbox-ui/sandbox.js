@@ -277,6 +277,53 @@ const aispmFallback = {
     { surface_id: "infrastructure_iac", label: "Infrastructure and IaC", description: "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions.", coverage_status: "approval_gated", decision_count: 1, blocked_actions: 0, approval_required_actions: 1, warned_actions: 0, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/iac-production-change"] },
     { surface_id: "mcp_tools", label: "MCP and tool calls", description: "External tool, MCP server, filesystem, browser, and automation actions.", coverage_status: "warning_only", decision_count: 1, blocked_actions: 0, approval_required_actions: 0, warned_actions: 1, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/mcp-warning"] }
   ],
+  control_coverage_heatmap: {
+    coverage_score: 18,
+    surfaces: [
+      { surface_id: "sensitive_data", label: "Sensitive Data", description: "Secrets, credentials, customer data, and protected files." },
+      { surface_id: "infrastructure_iac", label: "Infrastructure", description: "Cloud, IaC, Kubernetes, and production infrastructure actions." },
+      { surface_id: "mcp_tools", label: "MCP Tools", description: "External tools, MCP servers, filesystem, browser, and automation actions." },
+      { surface_id: "source_control", label: "Source Control", description: "Git, branch, commit, PR, and repository mutation actions." },
+      { surface_id: "runtime_commands", label: "Runtime", description: "Shell commands, scripts, package operations, and local execution." },
+      { surface_id: "general_policy", label: "General", description: "Policy decisions that do not map to a more specific surface." }
+    ],
+    rows: [
+      {
+        row_id: "coverage-codex-agent-payments-api",
+        agent_id: "codex-agent",
+        repository: "payments/api",
+        policy_packs: ["cavra-ai-agent-baseline", "cloud-iam-prod"],
+        decision_count: 2,
+        cells: [
+          { surface_id: "sensitive_data", label: "Sensitive Data", coverage_status: "enforced", coverage_score: 100, decision_count: 1, blocked_actions: 1, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/secret-read-block"], recommended_action: "Keep block enforcement and evidence capture active for sensitive data." },
+          { surface_id: "infrastructure_iac", label: "Infrastructure", coverage_status: "approval_gated", coverage_score: 82, decision_count: 1, blocked_actions: 0, approval_required_actions: 1, warned_actions: 0, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/iac-production-change"], recommended_action: "Validate approval routing and evidence freshness for infrastructure." },
+          { surface_id: "mcp_tools", label: "MCP Tools", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for MCP tools." },
+          { surface_id: "source_control", label: "Source Control", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for source control." },
+          { surface_id: "runtime_commands", label: "Runtime", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for runtime commands." },
+          { surface_id: "general_policy", label: "General", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for general policy." }
+        ]
+      },
+      {
+        row_id: "coverage-claude-code-agent-platform-infra",
+        agent_id: "claude-code-agent",
+        repository: "platform/infra",
+        policy_packs: ["mcp-enterprise"],
+        decision_count: 1,
+        cells: [
+          { surface_id: "sensitive_data", label: "Sensitive Data", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for sensitive data." },
+          { surface_id: "infrastructure_iac", label: "Infrastructure", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for infrastructure." },
+          { surface_id: "mcp_tools", label: "MCP Tools", coverage_status: "warning_only", coverage_score: 38, decision_count: 1, blocked_actions: 0, approval_required_actions: 0, warned_actions: 1, evidence_confidence: "activity_evidence_refs", evidence_refs: ["sample://evidence/mcp-warning"], recommended_action: "Move MCP tools from warning-only visibility to block, approval, or attestation controls where risk justifies it." },
+          { surface_id: "source_control", label: "Source Control", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for source control." },
+          { surface_id: "runtime_commands", label: "Runtime", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for runtime commands." },
+          { surface_id: "general_policy", label: "General", coverage_status: "not_observed_locally", coverage_score: 0, decision_count: 0, blocked_actions: 0, approval_required_actions: 0, warned_actions: 0, evidence_confidence: "no_local_activity", evidence_refs: [], recommended_action: "Add CAVRA policy coverage or test evidence for general policy." }
+        ]
+      }
+    ],
+    top_gaps: [
+      { gap_id: "coverage-gap-codex-agent-payments-api-mcp-tools", agent_id: "codex-agent", repository: "payments/api", surface_id: "mcp_tools", label: "MCP Tools", coverage_status: "not_observed_locally", recommended_action: "Add CAVRA policy coverage or test evidence for MCP tools.", evidence_confidence: "no_local_activity" },
+      { gap_id: "coverage-gap-claude-code-agent-platform-infra-mcp-tools", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", label: "MCP Tools", coverage_status: "warning_only", recommended_action: "Move MCP tools from warning-only visibility to block, approval, or attestation controls where risk justifies it.", evidence_confidence: "activity_evidence_refs" }
+    ]
+  },
   near_misses: [
     { near_miss_id: "near-miss-sample-dec-001", decision_id: "sample-dec-001", session_id: "sample-session-001", agent_id: "codex-agent", repository: "payments/api", surface_id: "infrastructure_iac", severity: "high", decision: "require_approval", risk_classification: "infrastructure_change_risk", reason: "Production-impacting infrastructure action requires approval.", operator_signal: "approval_prevented_unreviewed_execution", evidence_refs: ["sample://evidence/iac-production-change"], timestamp: "2026-06-09T00:00:00+00:00" },
     { near_miss_id: "near-miss-sample-dec-003", decision_id: "sample-dec-003", session_id: "sample-session-002", agent_id: "claude-code-agent", repository: "platform/infra", surface_id: "mcp_tools", severity: "medium", decision: "warn", risk_classification: "tool_or_mcp_governance_risk", reason: "MCP tool requires registration before broad rollout.", operator_signal: "warning_allowed_with_operator_visibility", evidence_refs: ["sample://evidence/mcp-warning"], timestamp: "2026-06-09T00:02:00+00:00" }
@@ -1007,6 +1054,52 @@ const aispmAgentBlastRadiusFallback = {
   }
 };
 
+const aispmControlCoverageHeatmapFallback = {
+  schema_version: "cavra.aispm.control_coverage_heatmap.v1",
+  product: "CAVRA",
+  edition: "community",
+  mode: "local_activity",
+  data_provenance: "sample_data",
+  tracking: "none",
+  telemetry: "disabled",
+  generated_at: "2026-06-09T00:10:00+00:00",
+  filters: { repository: null, agent_id: null, policy_pack: null, limit: 200 },
+  summary: {
+    row_count: aispmFallback.control_coverage_heatmap.rows.length,
+    surface_count: aispmFallback.control_coverage_heatmap.surfaces.length,
+    cell_count: aispmFallback.control_coverage_heatmap.rows.reduce((count, row) => count + (row.cells || []).length, 0),
+    enforced_cells: aispmFallback.control_coverage_heatmap.rows.flatMap((row) => row.cells || []).filter((cell) => cell.coverage_status === "enforced").length,
+    approval_gated_cells: aispmFallback.control_coverage_heatmap.rows.flatMap((row) => row.cells || []).filter((cell) => cell.coverage_status === "approval_gated").length,
+    warning_only_cells: aispmFallback.control_coverage_heatmap.rows.flatMap((row) => row.cells || []).filter((cell) => cell.coverage_status === "warning_only").length,
+    observed_cells: aispmFallback.control_coverage_heatmap.rows.flatMap((row) => row.cells || []).filter((cell) => ["observed", "attested"].includes(cell.coverage_status)).length,
+    not_observed_cells: aispmFallback.control_coverage_heatmap.rows.flatMap((row) => row.cells || []).filter((cell) => cell.coverage_status === "not_observed_locally").length,
+    coverage_score: aispmFallback.control_coverage_heatmap.coverage_score,
+    evidence_confidence: "activity_evidence_refs"
+  },
+  surfaces: aispmFallback.control_coverage_heatmap.surfaces,
+  rows: aispmFallback.control_coverage_heatmap.rows,
+  top_gaps: aispmFallback.control_coverage_heatmap.top_gaps,
+  redaction: {
+    private_repository_owner_graph: "requires_cavra_enterprise",
+    identity_provider_claims: "requires_cavra_enterprise",
+    repository_permission_matrix: "requires_cavra_enterprise",
+    environment_criticality: "requires_cavra_enterprise",
+    cmdb_service_mapping: "requires_cavra_enterprise",
+    live_org_baselines: "requires_cavra_enterprise"
+  },
+  enterprise_unlocks: {
+    status: "requires_cavra_enterprise",
+    capabilities: [
+      "organization-wide live control coverage baselines",
+      "repository owner, service criticality, and environment-tier enrichment",
+      "identity and permission-scoped heatmap filtering",
+      "policy pack rollout coverage by business unit",
+      "coverage SLO alerts and executive compliance exports"
+    ],
+    private_package: "cavra_enterprise"
+  }
+};
+
 let currentAispmPayload = aispmFallback;
 
 const routeContent = [
@@ -1023,6 +1116,7 @@ const routeContent = [
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
+  { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
   { type: "AI Posture", label: "Policy Context Gaps", route: "ai-posture", description: "Policy-invisible risk caused by missing environment, owner, data, change-window, or criticality context." },
   { type: "AI Posture", label: "Pre-Action Risk Forecast", route: "ai-posture", description: "Projected blast radius and likely impacts before an agent action is allowed." },
   { type: "AI Posture", label: "Intent-To-Action Drift", route: "ai-posture", description: "Compare declared intent with observed action, target, and policy outcome." },
@@ -1201,6 +1295,14 @@ function renderAispmDashboard(payload, note = "sample fallback") {
       </div>
     </article>
   `).join("") || `<p class="empty-state">No near misses in the current local activity window.</p>`;
+  renderAispmControlCoverageHeatmap({
+    ...aispmControlCoverageHeatmapFallback,
+    data_provenance: payload.data_provenance || "sample_data",
+    summary: summarizeControlCoverageHeatmap(payload.control_coverage_heatmap || aispmControlCoverageHeatmapFallback),
+    surfaces: payload.control_coverage_heatmap?.surfaces || aispmControlCoverageHeatmapFallback.surfaces,
+    rows: payload.control_coverage_heatmap?.rows || aispmControlCoverageHeatmapFallback.rows,
+    top_gaps: payload.control_coverage_heatmap?.top_gaps || aispmControlCoverageHeatmapFallback.top_gaps
+  }, "posture sample");
   renderAispmBehaviorFingerprints({
     ...aispmBehaviorFingerprintFallback,
     data_provenance: payload.data_provenance || "sample_data",
@@ -1438,6 +1540,80 @@ function renderAispmApprovalLineage(packet, note = "sample lineage") {
       <small>${escapeHtml((item.evidence_refs || []).join(", ") || "no evidence refs")}</small>
     </article>
   `).join("") || `<p class="empty-state">No approval lineage records available.</p>`;
+}
+
+function summarizeControlCoverageHeatmap(packet) {
+  const rows = packet?.rows || [];
+  const cells = rows.flatMap((row) => row.cells || []);
+  return {
+    row_count: rows.length,
+    surface_count: (packet?.surfaces || []).length,
+    cell_count: cells.length,
+    enforced_cells: cells.filter((cell) => cell.coverage_status === "enforced").length,
+    approval_gated_cells: cells.filter((cell) => cell.coverage_status === "approval_gated").length,
+    warning_only_cells: cells.filter((cell) => cell.coverage_status === "warning_only").length,
+    observed_cells: cells.filter((cell) => ["observed", "attested"].includes(cell.coverage_status)).length,
+    not_observed_cells: cells.filter((cell) => cell.coverage_status === "not_observed_locally").length,
+    coverage_score: cells.length ? Math.round(cells.reduce((sum, cell) => sum + Number(cell.coverage_score || 0), 0) / cells.length) : 0,
+    evidence_confidence: cells.some((cell) => (cell.evidence_refs || []).length) ? "activity_evidence_refs" : "activity_metadata_only"
+  };
+}
+
+async function loadAispmControlCoverageHeatmap() {
+  const apiBase = (window.CAVRA_API_BASE || "").replace(/\/$/, "");
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/aispm/control-coverage-heatmap`);
+      if (!response.ok) throw new Error(`Control heatmap HTTP ${response.status}`);
+      renderAispmControlCoverageHeatmap(await response.json(), "API local activity");
+      return;
+    } catch (error) {
+      renderAispmControlCoverageHeatmap(aispmControlCoverageHeatmapFallback, "API unavailable, sample shown");
+      return;
+    }
+  }
+  renderAispmControlCoverageHeatmap(aispmControlCoverageHeatmapFallback, "static sample heatmap");
+}
+
+function renderAispmControlCoverageHeatmap(packet, note = "sample heatmap") {
+  const summary = packet.summary || summarizeControlCoverageHeatmap(packet);
+  const rows = packet.rows || [];
+  const summaryCards = [
+    ["Coverage Score", summary.coverage_score ?? 0, `${packet.data_provenance || "sample_data"} · ${note}`],
+    ["Rows", summary.row_count ?? rows.length, `Surfaces: ${summary.surface_count ?? 0}`],
+    ["Enforced/Approval", (summary.enforced_cells ?? 0) + (summary.approval_gated_cells ?? 0), `Warn-only: ${summary.warning_only_cells ?? 0}`],
+    ["Gaps", summary.not_observed_cells ?? 0, `Evidence: ${summary.evidence_confidence || "unknown"}`]
+  ];
+  el("#aispmCoverageHeatmapSummary").innerHTML = summaryCards.map(([label, value, detail]) => `
+    <article class="trace-summary-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmCoverageHeatmapRows").innerHTML = rows.slice(0, 6).map((row) => `
+    <article class="coverage-heatmap-row">
+      <header>
+        <div>
+          <span>${escapeHtml(row.agent_id || "unknown-agent")}</span>
+          <strong>${escapeHtml(row.repository || "local")}</strong>
+        </div>
+        <span>${escapeHtml(row.decision_count ?? 0)} decisions · ${escapeHtml((row.policy_packs || []).join(", ") || "no policy pack")}</span>
+      </header>
+      <div class="coverage-cell-grid">
+        ${(row.cells || []).map((cell) => {
+          const status = cell.coverage_status || "not_observed_locally";
+          return `
+          <div class="coverage-cell coverage-${escapeHtml(status)}">
+            <span>${escapeHtml(status.replaceAll("_", " "))}</span>
+            <strong>${escapeHtml(cell.label || cell.surface_id || "Control")}</strong>
+            <p>${escapeHtml(cell.decision_count ?? 0)} decisions · ${escapeHtml(cell.blocked_actions ?? 0)} block · ${escapeHtml(cell.approval_required_actions ?? 0)} approval · ${escapeHtml(cell.warned_actions ?? 0)} warn</p>
+            <p>${escapeHtml(cell.recommended_action || "Review coverage status.")}</p>
+          </div>
+        `}).join("")}
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">No control coverage heatmap rows available.</p>`;
 }
 
 function summarizeBehaviorFingerprints(items) {
@@ -2084,6 +2260,7 @@ function wireEvents() {
   el("#runScenario").addEventListener("click", runScenario);
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
+  el("#refreshAispmCoverageHeatmap").addEventListener("click", loadAispmControlCoverageHeatmap);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
@@ -2125,6 +2302,7 @@ function init() {
   wireEvents();
   loadAispmDashboard();
   loadAispmApprovalLineage();
+  loadAispmControlCoverageHeatmap();
   loadAispmBehaviorFingerprints();
   loadAispmPolicyContextGaps();
   loadAispmPreActionForecasts();

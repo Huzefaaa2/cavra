@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Control Coverage Heatmap",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "data_provenance",
+    "summary",
+    "surfaces",
+    "rows",
+    "top_gaps",
+    "redaction",
+    "enterprise_unlocks"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.control_coverage_heatmap.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "local_activity" },
+    "data_provenance": { "enum": ["local_activity_store", "sample_data"] },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "filters": { "type": "object" },
+    "summary": {
+      "type": "object",
+      "required": [
+        "row_count",
+        "surface_count",
+        "cell_count",
+        "enforced_cells",
+        "approval_gated_cells",
+        "warning_only_cells",
+        "not_observed_cells",
+        "coverage_score"
+      ],
+      "properties": {
+        "row_count": { "type": "integer", "minimum": 0 },
+        "surface_count": { "type": "integer", "minimum": 0 },
+        "cell_count": { "type": "integer", "minimum": 0 },
+        "enforced_cells": { "type": "integer", "minimum": 0 },
+        "approval_gated_cells": { "type": "integer", "minimum": 0 },
+        "warning_only_cells": { "type": "integer", "minimum": 0 },
+        "observed_cells": { "type": "integer", "minimum": 0 },
+        "not_observed_cells": { "type": "integer", "minimum": 0 },
+        "coverage_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "evidence_confidence": { "type": "string" }
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["surface_id", "label", "description"],
+        "properties": {
+          "surface_id": { "type": "string" },
+          "label": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["row_id", "agent_id", "repository", "cells"],
+        "properties": {
+          "row_id": { "type": "string" },
+          "agent_id": { "type": "string" },
+          "repository": { "type": "string" },
+          "policy_packs": { "type": "array", "items": { "type": "string" } },
+          "decision_count": { "type": "integer", "minimum": 0 },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["surface_id", "label", "coverage_status", "coverage_score", "decision_count", "recommended_action"],
+              "properties": {
+                "surface_id": { "type": "string" },
+                "label": { "type": "string" },
+                "coverage_status": {
+                  "enum": [
+                    "not_observed_locally",
+                    "enforced",
+                    "approval_gated",
+                    "warning_only",
+                    "attested",
+                    "observed"
+                  ]
+                },
+                "coverage_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+                "decision_count": { "type": "integer", "minimum": 0 },
+                "blocked_actions": { "type": "integer", "minimum": 0 },
+                "approval_required_actions": { "type": "integer", "minimum": 0 },
+                "warned_actions": { "type": "integer", "minimum": 0 },
+                "evidence_confidence": { "type": "string" },
+                "evidence_refs": { "type": "array", "items": { "type": "string" } },
+                "recommended_action": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "top_gaps": { "type": "array" },
+    "redaction": { "type": "object" },
+    "enterprise_unlocks": { "type": "object" }
+  }
+}

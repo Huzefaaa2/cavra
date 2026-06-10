@@ -13,6 +13,7 @@
     "findings",
     "timeline",
     "control_coverage",
+    "control_coverage_heatmap",
     "near_misses",
     "behavior_fingerprints",
     "policy_context_gaps",
@@ -89,6 +90,60 @@
             "items": { "type": "string" }
           }
         }
+      }
+    },
+    "control_coverage_heatmap": {
+      "type": "object",
+      "required": ["surfaces", "rows", "top_gaps", "coverage_score"],
+      "properties": {
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["surface_id", "label", "description"],
+            "properties": {
+              "surface_id": { "type": "string" },
+              "label": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["row_id", "agent_id", "repository", "cells"],
+            "properties": {
+              "row_id": { "type": "string" },
+              "agent_id": { "type": "string" },
+              "repository": { "type": "string" },
+              "policy_packs": { "type": "array", "items": { "type": "string" } },
+              "decision_count": { "type": "integer", "minimum": 0 },
+              "cells": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["surface_id", "label", "coverage_status", "coverage_score", "decision_count", "recommended_action"],
+                  "properties": {
+                    "surface_id": { "type": "string" },
+                    "label": { "type": "string" },
+                    "coverage_status": { "type": "string" },
+                    "coverage_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+                    "decision_count": { "type": "integer", "minimum": 0 },
+                    "blocked_actions": { "type": "integer", "minimum": 0 },
+                    "approval_required_actions": { "type": "integer", "minimum": 0 },
+                    "warned_actions": { "type": "integer", "minimum": 0 },
+                    "evidence_confidence": { "type": "string" },
+                    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+                    "recommended_action": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "top_gaps": { "type": "array" },
+        "coverage_score": { "type": "integer", "minimum": 0, "maximum": 100 }
       }
     },
     "near_misses": {

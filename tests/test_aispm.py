@@ -8,6 +8,7 @@ from cavra.aispm import (
     build_aispm_agent_blast_radius,
     build_aispm_approval_lineage,
     build_aispm_behavior_fingerprints,
+    build_aispm_control_coverage_heatmap,
     build_aispm_dashboard_contract,
     build_aispm_intent_action_drift,
     build_aispm_policy_context_gaps,
@@ -120,6 +121,9 @@ def test_aispm_posture_rolls_up_activity_store_decisions(tmp_path: Path) -> None
     assert coverage["sensitive_data"]["coverage_status"] == "enforced"
     assert coverage["infrastructure_iac"]["coverage_status"] == "approval_gated"
     assert coverage["mcp_tools"]["coverage_status"] == "not_observed_locally"
+    assert posture["control_coverage_heatmap"]["rows"][0]["agent_id"] == "codex-agent"
+    assert posture["control_coverage_heatmap"]["coverage_score"] > 0
+    assert any(cell["coverage_status"] == "enforced" for cell in posture["control_coverage_heatmap"]["rows"][0]["cells"])
     assert [item["decision"] for item in posture["near_misses"]] == ["require_approval"]
     assert posture["near_misses"][0]["operator_signal"] == "approval_prevented_unreviewed_execution"
     assert posture["control_plane"]["kill_switch"] == "requires_cavra_enterprise"
@@ -467,6 +471,63 @@ def test_aispm_agent_blast_radius_maps_public_safe_reach(tmp_path: Path) -> None
     assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
 
 
+def test_aispm_control_coverage_heatmap_maps_agent_repository_surface_cells(tmp_path: Path) -> None:
+    store = ActivityStore(tmp_path / "activity.json")
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-block-secret",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="block",
+            severity="critical",
+            action_type="read_file",
+            target=".env.production",
+            rule_id="secrets.block-sensitive-read",
+        )
+    )
+    store.upsert_decision(
+        _decision(
+            decision_id="dec-approval-iac",
+            session_id="session-1",
+            agent_id="codex-agent",
+            decision="require_approval",
+            severity="high",
+            action_type="execute_command",
+            target="terraform apply",
+        )
+    )
+    store.upsert_session(
+        {
+            "session_id": "session-1",
+            "agent_id": "codex-agent",
+            "repository": "payments/api",
+            "state": "completed",
+            "updated_at": "2026-06-09T00:02:00+00:00",
+        }
+    )
+
+    packet = build_aispm_control_coverage_heatmap(store)
+
+    assert packet["schema_version"] == "cavra.aispm.control_coverage_heatmap.v1"
+    assert packet["summary"]["row_count"] == 1
+    assert packet["summary"]["surface_count"] == 6
+    assert packet["summary"]["enforced_cells"] == 1
+    assert packet["summary"]["approval_gated_cells"] == 1
+    assert packet["summary"]["not_observed_cells"] == 4
+    assert packet["summary"]["coverage_score"] > 0
+    row = packet["rows"][0]
+    assert row["agent_id"] == "codex-agent"
+    assert row["repository"] == "payments/api"
+    cells = {cell["surface_id"]: cell for cell in row["cells"]}
+    assert cells["sensitive_data"]["coverage_status"] == "enforced"
+    assert cells["infrastructure_iac"]["coverage_status"] == "approval_gated"
+    assert cells["source_control"]["coverage_status"] == "not_observed_locally"
+    assert "test evidence" in cells["source_control"]["recommended_action"]
+    assert packet["redaction"]["repository_permission_matrix"] == "requires_cavra_enterprise"
+    assert packet["redaction"]["live_org_baselines"] == "requires_cavra_enterprise"
+    assert packet["enterprise_unlocks"]["private_package"] == "cavra_enterprise"
+
+
 def test_aispm_trace_replay_packet_redacts_sensitive_targets(tmp_path: Path) -> None:
     store = ActivityStore(tmp_path / "activity.json")
     store.upsert_decision(
@@ -585,6 +646,18 @@ def test_aispm_agent_blast_radius_sample_matches_packaged_schema() -> None:
     jsonschema.validate(
         json.loads(sample.read_text(encoding="utf-8")),
         schema=json.loads(blast_schema.read_text(encoding="utf-8")),
+    )
+
+
+def test_aispm_control_coverage_heatmap_sample_matches_packaged_schema() -> None:
+    heatmap_schema = Path("src/cavra/schemas/aispm-control-coverage-heatmap.schema.json")
+    sample = Path("examples/aispm/community-control-coverage-heatmap-sample.json")
+
+    assert heatmap_schema.is_file()
+    assert sample.is_file()
+    jsonschema.validate(
+        json.loads(sample.read_text(encoding="utf-8")),
+        schema=json.loads(heatmap_schema.read_text(encoding="utf-8")),
     )
 
 

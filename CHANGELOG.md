@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added public-safe AISPM control coverage heatmap for Community, including
+  `/aispm/control-coverage-heatmap`, packaged schema/sample data, dashboard
+  matrix cards by agent/repository/control surface, docs/wiki updates, and
+  Enterprise-locked repository owner graph, identity claims, permission matrix,
+  environment criticality, CMDB mapping, and live organization baseline
+  boundaries.
 - Added public-safe AISPM agent blast-radius mapping for Community, including
   `/aispm/agent-blast-radius`, packaged schema/sample data, dashboard summary
   cards, per-agent repository/target/tool/policy reach cards, ActivityStore

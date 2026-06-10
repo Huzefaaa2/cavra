@@ -238,6 +238,20 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .fingerprint-card dd { margin: 0; overflow-wrap: anywhere; }
 .risk-signal-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .risk-signal-list span { display: inline-flex; border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); border-radius: 999px; padding: 4px 8px; color: var(--text); background: color-mix(in srgb, var(--primary) 11%, transparent); font-size: 12px; font-weight: 850; }
+.coverage-heatmap-panel { display: grid; gap: 16px; }
+.coverage-heatmap-grid { display: grid; gap: 12px; }
+.coverage-heatmap-row { border: 1px solid color-mix(in srgb, var(--line) 74%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
+.coverage-heatmap-row header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.coverage-heatmap-row header strong { display: block; font-size: 18px; overflow-wrap: anywhere; }
+.coverage-heatmap-row header span, .coverage-cell span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
+.coverage-cell-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.coverage-cell { min-height: 116px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 10px; background: color-mix(in srgb, var(--surface) 60%, transparent); }
+.coverage-cell strong { display: block; margin: 6px 0; overflow-wrap: anywhere; }
+.coverage-cell p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.coverage-enforced { border-color: color-mix(in srgb, var(--success) 58%, transparent); background: color-mix(in srgb, var(--success) 14%, var(--panel-soft)); }
+.coverage-approval_gated { border-color: color-mix(in srgb, var(--warning) 58%, transparent); background: color-mix(in srgb, var(--warning) 13%, var(--panel-soft)); }
+.coverage-warning_only { border-color: color-mix(in srgb, #60a5fa 55%, transparent); background: color-mix(in srgb, #60a5fa 12%, var(--panel-soft)); }
+.coverage-not_observed_locally { opacity: .72; }
 .context-gap-panel { display: grid; gap: 16px; }
 .context-gap-list { display: grid; gap: 10px; }
 .context-gap-row { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(180px, .42fr); gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
@@ -378,6 +392,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .top-shell { grid-template-columns: 260px minmax(220px, 1fr) auto; }
   .portal-shell { grid-template-columns: 250px minmax(0, 1fr); }
   .toc { display: none; }
+  .coverage-cell-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
@@ -397,6 +412,7 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .node-inspector { position: static; }
   .console-header { flex-direction: column; }
   .approval-lineage-row, .context-gap-row, .intent-drift-row, .tool-edge-row, .tool-chain-layout { grid-template-columns: 1fr; }
+  .coverage-cell-grid { grid-template-columns: 1fr; }
   .mobile-bottom { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; height: 62px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid var(--line); background: var(--header); backdrop-filter: blur(14px); }
   .mobile-bottom a, .mobile-bottom button { display: grid; place-items: center; min-height: 48px; padding: 6px 4px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
 }

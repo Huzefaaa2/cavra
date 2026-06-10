@@ -5,8 +5,9 @@ dashboard contract for Community Edition. Phase A defines the contract, and the
 current Phase B hardening adds Community control coverage, near-miss visibility,
 public-safe trace replay packets, public-safe approval lineage, behavior
 fingerprints, policy context gaps, pre-action risk forecasts, and
-intent-to-action drift, tool-chain risk graphing, and agent blast-radius
-mapping without exposing Enterprise live-ingestion logic.
+intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping,
+and control coverage heatmap views without exposing Enterprise live-ingestion
+logic.
 
 ## Community Boundary
 
@@ -25,6 +26,8 @@ Community Edition provides local and sample posture views only:
 - `GET /aispm/control-coverage` returns observed Community coverage by
   sensitive-data, infrastructure, MCP/tool, source-control, runtime-command, and
   general-policy surfaces.
+- `GET /aispm/control-coverage-heatmap` returns a public-safe heatmap by agent,
+  repository, and control surface from local activity metadata.
 - `GET /aispm/near-misses` returns warned, approval-gated, or attested risky
   actions that should be reviewed before they become incidents.
 - `GET /aispm/trace-replay/{session_id}` returns a public-safe replay packet
@@ -58,6 +61,9 @@ intent-to-action drift, tool-chain risk graph, agent blast-radius map, and the
 raw public-safe payload. The route also shows
 policy context gaps for missing environment, ownership, data, change-window,
 criticality, approval-route, or trust-tier metadata.
+The route includes a control coverage heatmap so operators can compare
+enforced, approval-gated, warning-only, observed, and unobserved control
+surfaces per agent/repository path.
 The route also includes an agent blast-radius map so CSO/CISO users can see
 which agents have observed sensitive-data reach, production-infrastructure
 reach, multi-repository scope, approval gaps, and required compensating
@@ -110,6 +116,13 @@ expose private asset graphs, identity permission graphs, cloud account
 inventories, dependency graphs, secret names, customer topology, or private
 criticality enrichment.
 
+Community control coverage heatmaps pivot normalized local decisions by agent,
+repository, and control surface. They show cell status, coverage score, action
+counts, evidence confidence, and recommended action. They do not expose private
+repository owner graphs, identity-provider claims, repository permission
+matrices, environment criticality, CMDB service mappings, or live organization
+baselines.
+
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,
 customer data, license-server state, or SaaS tenant records.
@@ -124,6 +137,8 @@ Enterprise remains responsible for live, authenticated, multi-tenant AISPM:
 - raw tool-call graph, cross-system execution traces, and full trace replay;
 - private asset, identity, dependency, and customer-topology blast-radius
   enrichment;
+- organization-wide control coverage heatmaps with private owner, identity,
+  permission, and environment enrichment;
 - organization-wide control coverage;
 - live policy distribution status;
 - kill switch, quarantine, policy toggles, and runtime overrides;
@@ -185,3 +200,8 @@ The packaged Community agent blast-radius schema is available at
 `src/cavra/schemas/aispm-agent-blast-radius.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-agent-blast-radius-sample.json`.
+
+The packaged Community control coverage heatmap schema is available at
+`src/cavra/schemas/aispm-control-coverage-heatmap.schema.json`. A deterministic
+sample packet is available at
+`examples/aispm/community-control-coverage-heatmap-sample.json`.

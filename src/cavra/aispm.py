@@ -55,6 +55,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "intent-to-action drift detection from declared intent and local decision metadata",
                 "public-safe tool-chain graph from agent, tool, target, and decision metadata",
                 "agent blast-radius map from repositories, surfaces, tools, policy packs, and approval metadata",
+                "control coverage heatmap by agent, repository, and control surface from local activity metadata",
             ],
             "data_provenance": ["local_activity_store", "sample_data"],
         },
@@ -72,6 +73,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
                 "prompt-derived semantic intent extraction and private workflow correlation",
                 "raw tool payload graphing and cross-system execution traces",
                 "private asset, identity, cloud dependency, and permission blast-radius enrichment",
+                "organization-wide control coverage heatmap with private asset, owner, and environment enrichment",
             ],
             "private_package": "cavra_enterprise",
         },
@@ -90,6 +92,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "intent_action_drift",
             "tool_chain_graph",
             "agent_blast_radius",
+            "control_coverage_heatmap",
             "control_plane_readiness",
         ],
         "endpoints": {
@@ -107,6 +110,7 @@ def build_aispm_dashboard_contract() -> dict[str, Any]:
             "intent_action_drift": "/aispm/intent-action-drift",
             "tool_chain_graph": "/aispm/tool-chain-graph",
             "agent_blast_radius": "/aispm/agent-blast-radius",
+            "control_coverage_heatmap": "/aispm/control-coverage-heatmap",
         },
     }
 
@@ -144,6 +148,7 @@ def build_aispm_posture(
     intent_action_drift = _intent_action_drift(decisions)
     tool_chain_graph = _tool_chain_graph(decisions)
     agent_blast_radius = _agent_blast_radius(decisions, sessions)
+    control_coverage_heatmap = _control_coverage_heatmap(decisions, sessions)
     return {
         "schema_version": AISPM_SCHEMA_VERSION,
         "product": "CAVRA",
@@ -172,6 +177,7 @@ def build_aispm_posture(
         "intent_action_drift": intent_action_drift,
         "tool_chain_graph": tool_chain_graph,
         "agent_blast_radius": agent_blast_radius,
+        "control_coverage_heatmap": control_coverage_heatmap,
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -621,6 +627,89 @@ def build_aispm_agent_blast_radius(
     }
 
 
+def build_aispm_control_coverage_heatmap(
+    activity_store: Any,
+    *,
+    repository: str | None = None,
+    agent_id: str | None = None,
+    policy_pack: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Build a public-safe control coverage heatmap from local metadata.
+
+    Community heatmaps pivot normalized decisions by agent, repository, and
+    control surface. Private repository ownership, user identities, CMDB
+    criticality, environment tier, and organization-wide live baselines remain
+    Enterprise-only enrichment.
+    """
+
+    limit = max(1, min(limit, 500))
+    decisions = activity_store.list_decisions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    sessions = activity_store.list_sessions(
+        repository=repository,
+        agent_id=agent_id,
+        policy_pack=policy_pack,
+        limit=limit,
+    )["items"]
+    heatmap = _control_coverage_heatmap(decisions, sessions)
+    status_counts = Counter(cell["coverage_status"] for row in heatmap["rows"] for cell in row["cells"])
+    return {
+        "schema_version": "cavra.aispm.control_coverage_heatmap.v1",
+        "product": "CAVRA",
+        "edition": "community",
+        "mode": "local_activity",
+        "data_provenance": "local_activity_store",
+        "tracking": "none",
+        "telemetry": "disabled",
+        "generated_at": utc_now(),
+        "filters": {
+            "repository": repository,
+            "agent_id": agent_id,
+            "policy_pack": policy_pack,
+            "limit": limit,
+        },
+        "summary": {
+            "row_count": len(heatmap["rows"]),
+            "surface_count": len(heatmap["surfaces"]),
+            "cell_count": sum(len(row["cells"]) for row in heatmap["rows"]),
+            "enforced_cells": status_counts["enforced"],
+            "approval_gated_cells": status_counts["approval_gated"],
+            "warning_only_cells": status_counts["warning_only"],
+            "observed_cells": status_counts["observed"] + status_counts["attested"],
+            "not_observed_cells": status_counts["not_observed_locally"],
+            "coverage_score": heatmap["coverage_score"],
+            "evidence_confidence": _evidence_confidence(decisions),
+        },
+        "surfaces": heatmap["surfaces"],
+        "rows": heatmap["rows"],
+        "top_gaps": heatmap["top_gaps"],
+        "redaction": {
+            "private_repository_owner_graph": LOCKED_ENTERPRISE_STATUS,
+            "identity_provider_claims": LOCKED_ENTERPRISE_STATUS,
+            "repository_permission_matrix": LOCKED_ENTERPRISE_STATUS,
+            "environment_criticality": LOCKED_ENTERPRISE_STATUS,
+            "cmdb_service_mapping": LOCKED_ENTERPRISE_STATUS,
+            "live_org_baselines": LOCKED_ENTERPRISE_STATUS,
+        },
+        "enterprise_unlocks": {
+            "status": LOCKED_ENTERPRISE_STATUS,
+            "capabilities": [
+                "organization-wide live control coverage baselines",
+                "repository owner, service criticality, and environment-tier enrichment",
+                "identity and permission-scoped heatmap filtering",
+                "policy pack rollout coverage by business unit",
+                "coverage SLO alerts and executive compliance exports",
+            ],
+            "private_package": "cavra_enterprise",
+        },
+    }
+
+
 def build_sample_aispm_dashboard() -> dict[str, Any]:
     """Return deterministic sample data for the public static portal."""
 
@@ -738,6 +827,7 @@ def build_sample_aispm_dashboard() -> dict[str, Any]:
         "intent_action_drift": _intent_action_drift(decisions),
         "tool_chain_graph": _tool_chain_graph(decisions),
         "agent_blast_radius": _agent_blast_radius(decisions, sessions),
+        "control_coverage_heatmap": _control_coverage_heatmap(decisions, sessions),
         "control_plane": _control_plane_readiness(decisions),
         "enterprise_unlocks": build_aispm_dashboard_contract()["enterprise_boundary"],
     }
@@ -2095,6 +2185,34 @@ def _timeline(decisions: list[dict[str, Any]], sessions: list[dict[str, Any]]) -
 
 
 def _control_coverage(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    surfaces = _control_surface_catalog()
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for decision in decisions:
+        grouped[_control_surface(decision)].append(decision)
+
+    coverage: list[dict[str, Any]] = []
+    for surface_id, surface in surfaces.items():
+        surface_decisions = grouped.get(surface_id, [])
+        decision_counts = Counter(str(item.get("decision", "unknown")) for item in surface_decisions)
+        evidence_refs = [ref for item in surface_decisions for ref in item.get("evidence_refs", [])]
+        coverage.append(
+            {
+                "surface_id": surface_id,
+                "label": surface["label"],
+                "description": surface["description"],
+                "coverage_status": _coverage_status(decision_counts, bool(surface_decisions)),
+                "decision_count": len(surface_decisions),
+                "blocked_actions": decision_counts["block"],
+                "approval_required_actions": decision_counts["require_approval"],
+                "warned_actions": decision_counts["warn"],
+                "evidence_confidence": _evidence_confidence(surface_decisions),
+                "evidence_refs": evidence_refs[:8],
+            }
+        )
+    return coverage
+
+
+def _control_surface_catalog() -> dict[str, dict[str, str]]:
     surfaces = {
         "sensitive_data": {
             "label": "Secrets and sensitive data",
@@ -2121,30 +2239,97 @@ def _control_coverage(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "description": "Policy decisions that do not map to a more specific control surface.",
         },
     }
-    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for decision in decisions:
-        grouped[_control_surface(decision)].append(decision)
+    return surfaces
 
-    coverage: list[dict[str, Any]] = []
-    for surface_id, surface in surfaces.items():
-        surface_decisions = grouped.get(surface_id, [])
-        decision_counts = Counter(str(item.get("decision", "unknown")) for item in surface_decisions)
-        evidence_refs = [ref for item in surface_decisions for ref in item.get("evidence_refs", [])]
-        coverage.append(
-            {
+
+def _control_coverage_heatmap(
+    decisions: list[dict[str, Any]],
+    sessions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    surfaces = _control_surface_catalog()
+    row_keys = {
+        (
+            str(item.get("agent_id", "unknown-agent")),
+            str(item.get("repository", "local")),
+        )
+        for item in [*decisions, *sessions]
+        if item.get("agent_id") not in {None, ""}
+    }
+    if not row_keys and decisions:
+        row_keys = {
+            (
+                str(item.get("agent_id", "unknown-agent")),
+                str(item.get("repository", "local")),
+            )
+            for item in decisions
+        }
+
+    rows: list[dict[str, Any]] = []
+    scored_cells: list[dict[str, Any]] = []
+    for agent_id, repository in sorted(row_keys):
+        row_decisions = [
+            item
+            for item in decisions
+            if str(item.get("agent_id", "unknown-agent")) == agent_id
+            and str(item.get("repository", "local")) == repository
+        ]
+        policy_packs = sorted({str(item.get("policy_pack", "cavra-ai-agent-baseline")) for item in row_decisions})
+        cells = []
+        for surface_id, surface in surfaces.items():
+            cell_decisions = [item for item in row_decisions if _control_surface(item) == surface_id]
+            decision_counts = Counter(str(item.get("decision", "unknown")) for item in cell_decisions)
+            status = _coverage_status(decision_counts, bool(cell_decisions))
+            evidence_refs = list(dict.fromkeys(ref for item in cell_decisions for ref in item.get("evidence_refs", [])))[:6]
+            cell = {
                 "surface_id": surface_id,
                 "label": surface["label"],
-                "description": surface["description"],
-                "coverage_status": _coverage_status(decision_counts, bool(surface_decisions)),
-                "decision_count": len(surface_decisions),
+                "coverage_status": status,
+                "coverage_score": _coverage_heat_score(status),
+                "decision_count": len(cell_decisions),
                 "blocked_actions": decision_counts["block"],
                 "approval_required_actions": decision_counts["require_approval"],
                 "warned_actions": decision_counts["warn"],
-                "evidence_confidence": _evidence_confidence(surface_decisions),
-                "evidence_refs": evidence_refs[:8],
+                "evidence_confidence": _evidence_confidence(cell_decisions),
+                "evidence_refs": evidence_refs,
+                "recommended_action": _coverage_heatmap_recommendation(surface_id, status),
+            }
+            cells.append(cell)
+            scored_cells.append({**cell, "agent_id": agent_id, "repository": repository})
+        rows.append(
+            {
+                "row_id": f"coverage-{_slug(agent_id)}-{_slug(repository)}",
+                "agent_id": agent_id,
+                "repository": repository,
+                "policy_packs": policy_packs,
+                "decision_count": len(row_decisions),
+                "cells": cells,
             }
         )
-    return coverage
+
+    coverage_score = int(round(sum(cell["coverage_score"] for cell in scored_cells) / len(scored_cells))) if scored_cells else 0
+    top_gaps = [
+        {
+            "gap_id": f"coverage-gap-{_slug(cell['agent_id'])}-{_slug(cell['repository'])}-{cell['surface_id']}",
+            "agent_id": cell["agent_id"],
+            "repository": cell["repository"],
+            "surface_id": cell["surface_id"],
+            "label": cell["label"],
+            "coverage_status": cell["coverage_status"],
+            "recommended_action": cell["recommended_action"],
+            "evidence_confidence": cell["evidence_confidence"],
+        }
+        for cell in scored_cells
+        if cell["coverage_status"] in {"not_observed_locally", "warning_only"}
+    ][:8]
+    return {
+        "surfaces": [
+            {"surface_id": surface_id, "label": surface["label"], "description": surface["description"]}
+            for surface_id, surface in surfaces.items()
+        ],
+        "rows": rows,
+        "top_gaps": top_gaps,
+        "coverage_score": coverage_score,
+    }
 
 
 def _near_misses(decisions: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2289,6 +2474,39 @@ def _coverage_status(decision_counts: Counter[str], observed: bool) -> str:
     if decision_counts["allow_with_attestation"]:
         return "attested"
     return "observed"
+
+
+def _coverage_heat_score(status: str) -> int:
+    return {
+        "enforced": 100,
+        "approval_gated": 82,
+        "attested": 72,
+        "observed": 58,
+        "warning_only": 38,
+        "not_observed_locally": 0,
+    }.get(status, 0)
+
+
+def _coverage_heatmap_recommendation(surface_id: str, status: str) -> str:
+    surface = surface_id.replace("_", " ")
+    if status == "not_observed_locally":
+        return f"Add CAVRA policy coverage or test evidence for {surface} before relying on this agent/repository path."
+    if status == "warning_only":
+        return f"Move {surface} from warning-only visibility to block, approval, or attestation controls where risk justifies it."
+    if status == "observed":
+        return f"Confirm {surface} has explicit enforcement, approval, or attestation intent for this agent/repository path."
+    if status == "attested":
+        return f"Keep signed evidence for {surface} and review whether higher-risk actions need approval gates."
+    if status == "approval_gated":
+        return f"Validate approval routing and evidence freshness for {surface}."
+    if status == "enforced":
+        return f"Keep block enforcement and evidence capture active for {surface}."
+    return f"Review {surface} coverage."
+
+
+def _slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    return "-".join(part for part in normalized.split("-") if part)[:80] or "local"
 
 
 def _near_miss_signal(outcome: str) -> str:

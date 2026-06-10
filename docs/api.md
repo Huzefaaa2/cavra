@@ -19,6 +19,7 @@ Activity endpoints:
 - `GET /aispm/findings`: list AISPM risk findings derived from stored CAVRA decisions.
 - `GET /aispm/timeline`: list AISPM execution timeline events derived from sessions and decisions.
 - `GET /aispm/control-coverage`: list observed Community control coverage by sensitive data, infrastructure, MCP/tool, source-control, runtime-command, and general policy surfaces.
+- `GET /aispm/control-coverage-heatmap`: return a public-safe heatmap of control coverage by agent, repository, and control surface from local activity metadata.
 - `GET /aispm/near-misses`: list warned, approval-gated, or attested risky actions that should be reviewed before they become incidents.
 - `GET /aispm/trace-replay/{session_id}`: return a public-safe replay packet for one local activity session with sensitive targets summarized and raw prompt, reasoning, tool output, and customer context locked to Enterprise.
 - `GET /aispm/approval-lineage`: return public-safe "who approved what" approval lineage from the local approval store with human actors reduced to role labels and private IdP/RBAC context locked to Enterprise.
@@ -32,7 +33,7 @@ Activity endpoints:
 Default activity path: `.cavra/api/activity.json`.
 
 Set `CAVRA_ACTIVITY_STORE` to override the JSON path. Set `CAVRA_ACTIVITY_DB` to use SQLite-backed activity persistence. `GET /console/config` includes `activity_mode`.
-The AISPM endpoints are Community-safe local/sample surfaces. Community trace
+The AISPM endpoints are Community-safe local/sample surfaces. Community control coverage heatmaps use normalized local decision metadata only; repository owners, identity-provider claims, permission matrices, environment criticality, CMDB service mapping, and live organization baselines remain Enterprise-only. Community trace
 replay reconstructs normalized decision steps only, and Community behavior
 fingerprints use normalized decisions, action types, repositories, control
 surfaces, and evidence references only. Community policy context gaps can flag

@@ -149,6 +149,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     agents = client.get("/aispm/agents")
     timeline = client.get("/aispm/timeline")
     control_coverage = client.get("/aispm/control-coverage")
+    control_coverage_heatmap = client.get("/aispm/control-coverage-heatmap")
     near_misses = client.get("/aispm/near-misses")
     behavior_fingerprints = client.get("/aispm/behavior-fingerprints")
     policy_context_gaps = client.get("/aispm/policy-context-gaps")
@@ -164,6 +165,7 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert config["endpoints"]["aispm_dashboard_contract"] == "/aispm/dashboard/contract"
     assert config["endpoints"]["aispm_posture"] == "/aispm/posture"
     assert config["endpoints"]["aispm_control_coverage"] == "/aispm/control-coverage"
+    assert config["endpoints"]["aispm_control_coverage_heatmap"] == "/aispm/control-coverage-heatmap"
     assert config["endpoints"]["aispm_near_misses"] == "/aispm/near-misses"
     assert config["endpoints"]["aispm_trace_replay"] == "/aispm/trace-replay/{session_id}"
     assert config["endpoints"]["aispm_approval_lineage"] == "/aispm/approval-lineage"
@@ -183,6 +185,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert agents.json()["items"][0]["agent_id"] == "codex-agent"
     assert timeline.json()["total"] >= 1
     assert control_coverage.json()["total"] >= 6
+    assert control_coverage_heatmap.status_code == 200
+    assert control_coverage_heatmap.json()["schema_version"] == "cavra.aispm.control_coverage_heatmap.v1"
+    assert control_coverage_heatmap.json()["summary"]["row_count"] == 1
+    assert control_coverage_heatmap.json()["summary"]["surface_count"] == 6
+    assert control_coverage_heatmap.json()["summary"]["enforced_cells"] == 1
+    assert control_coverage_heatmap.json()["rows"][0]["agent_id"] == "codex-agent"
+    assert control_coverage_heatmap.json()["redaction"]["live_org_baselines"] == "requires_cavra_enterprise"
     assert near_misses.json()["total"] == 0
     assert behavior_fingerprints.status_code == 200
     assert behavior_fingerprints.json()["schema_version"] == "cavra.aispm.behavior_fingerprints.v1"

@@ -1160,6 +1160,310 @@
       "last_seen_at": "2026-06-09T00:02:00+00:00"
     }
   ],
+  "control_coverage_heatmap": {
+    "surfaces": [
+      {
+        "surface_id": "sensitive_data",
+        "label": "Secrets and sensitive data",
+        "description": "Reads or writes that could expose credentials, tokens, customer data, or protected files."
+      },
+      {
+        "surface_id": "infrastructure_iac",
+        "label": "Infrastructure and IaC",
+        "description": "Cloud, Terraform/OpenTofu, Kubernetes, and production infrastructure actions."
+      },
+      {
+        "surface_id": "mcp_tools",
+        "label": "MCP and tool calls",
+        "description": "External tool, MCP server, filesystem, browser, and automation actions."
+      },
+      {
+        "surface_id": "source_control",
+        "label": "Source control",
+        "description": "Git, branch, commit, PR, and repository mutation actions."
+      },
+      {
+        "surface_id": "runtime_commands",
+        "label": "Runtime commands",
+        "description": "Shell commands, scripts, package operations, and local execution."
+      },
+      {
+        "surface_id": "general_policy",
+        "label": "General policy",
+        "description": "Policy decisions that do not map to a more specific control surface."
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "coverage-claude-code-agent-platform-infra",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "policy_packs": [
+          "mcp-enterprise"
+        ],
+        "decision_count": 1,
+        "cells": [
+          {
+            "surface_id": "sensitive_data",
+            "label": "Secrets and sensitive data",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for sensitive data before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "infrastructure_iac",
+            "label": "Infrastructure and IaC",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for infrastructure iac before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "mcp_tools",
+            "label": "MCP and tool calls",
+            "coverage_status": "warning_only",
+            "coverage_score": 38,
+            "decision_count": 1,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 1,
+            "evidence_confidence": "activity_evidence_refs",
+            "evidence_refs": [
+              "sample://evidence/mcp-warning"
+            ],
+            "recommended_action": "Move mcp tools from warning-only visibility to block, approval, or attestation controls where risk justifies it."
+          },
+          {
+            "surface_id": "source_control",
+            "label": "Source control",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for source control before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "runtime_commands",
+            "label": "Runtime commands",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for runtime commands before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "general_policy",
+            "label": "General policy",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for general policy before relying on this agent/repository path."
+          }
+        ]
+      },
+      {
+        "row_id": "coverage-codex-agent-payments-api",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "policy_packs": [
+          "cavra-ai-agent-baseline",
+          "cloud-iam-prod"
+        ],
+        "decision_count": 2,
+        "cells": [
+          {
+            "surface_id": "sensitive_data",
+            "label": "Secrets and sensitive data",
+            "coverage_status": "enforced",
+            "coverage_score": 100,
+            "decision_count": 1,
+            "blocked_actions": 1,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "activity_evidence_refs",
+            "evidence_refs": [
+              "sample://evidence/secret-read-block"
+            ],
+            "recommended_action": "Keep block enforcement and evidence capture active for sensitive data."
+          },
+          {
+            "surface_id": "infrastructure_iac",
+            "label": "Infrastructure and IaC",
+            "coverage_status": "approval_gated",
+            "coverage_score": 82,
+            "decision_count": 1,
+            "blocked_actions": 0,
+            "approval_required_actions": 1,
+            "warned_actions": 0,
+            "evidence_confidence": "activity_evidence_refs",
+            "evidence_refs": [
+              "sample://evidence/iac-production-change"
+            ],
+            "recommended_action": "Validate approval routing and evidence freshness for infrastructure iac."
+          },
+          {
+            "surface_id": "mcp_tools",
+            "label": "MCP and tool calls",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for mcp tools before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "source_control",
+            "label": "Source control",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for source control before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "runtime_commands",
+            "label": "Runtime commands",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for runtime commands before relying on this agent/repository path."
+          },
+          {
+            "surface_id": "general_policy",
+            "label": "General policy",
+            "coverage_status": "not_observed_locally",
+            "coverage_score": 0,
+            "decision_count": 0,
+            "blocked_actions": 0,
+            "approval_required_actions": 0,
+            "warned_actions": 0,
+            "evidence_confidence": "sample_or_empty",
+            "evidence_refs": [],
+            "recommended_action": "Add CAVRA policy coverage or test evidence for general policy before relying on this agent/repository path."
+          }
+        ]
+      }
+    ],
+    "top_gaps": [
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-sensitive_data",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "sensitive_data",
+        "label": "Secrets and sensitive data",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for sensitive data before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-infrastructure_iac",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "infrastructure_iac",
+        "label": "Infrastructure and IaC",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for infrastructure iac before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-mcp_tools",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "mcp_tools",
+        "label": "MCP and tool calls",
+        "coverage_status": "warning_only",
+        "recommended_action": "Move mcp tools from warning-only visibility to block, approval, or attestation controls where risk justifies it.",
+        "evidence_confidence": "activity_evidence_refs"
+      },
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-source_control",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "source_control",
+        "label": "Source control",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for source control before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-runtime_commands",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "runtime_commands",
+        "label": "Runtime commands",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for runtime commands before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-claude-code-agent-platform-infra-general_policy",
+        "agent_id": "claude-code-agent",
+        "repository": "platform/infra",
+        "surface_id": "general_policy",
+        "label": "General policy",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for general policy before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-codex-agent-payments-api-mcp_tools",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "surface_id": "mcp_tools",
+        "label": "MCP and tool calls",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for mcp tools before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      },
+      {
+        "gap_id": "coverage-gap-codex-agent-payments-api-source_control",
+        "agent_id": "codex-agent",
+        "repository": "payments/api",
+        "surface_id": "source_control",
+        "label": "Source control",
+        "coverage_status": "not_observed_locally",
+        "recommended_action": "Add CAVRA policy coverage or test evidence for source control before relying on this agent/repository path.",
+        "evidence_confidence": "sample_or_empty"
+      }
+    ],
+    "coverage_score": 18
+  },
   "control_plane": {
     "community_status": "local_activity_ready",
     "enterprise_status": "requires_cavra_enterprise",
@@ -1183,7 +1487,8 @@
       "private asset-graph and identity-aware pre-action forecasting",
       "prompt-derived semantic intent extraction and private workflow correlation",
       "raw tool payload graphing and cross-system execution traces",
-      "private asset, identity, cloud dependency, and permission blast-radius enrichment"
+      "private asset, identity, cloud dependency, and permission blast-radius enrichment",
+      "organization-wide control coverage heatmap with private asset, owner, and environment enrichment"
     ],
     "private_package": "cavra_enterprise"
   }

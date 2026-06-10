@@ -6,8 +6,8 @@ includes Phase A contract fields plus Phase B control coverage, near-miss
 visibility, public-safe trace replay packets, public-safe approval lineage,
 public-safe behavior fingerprints, public-safe policy context gaps, and
 public-safe pre-action risk forecasts, public-safe intent-to-action drift, and
-public-safe tool-chain risk graphing, and public-safe agent blast-radius
-mapping.
+public-safe tool-chain risk graphing, public-safe agent blast-radius mapping,
+and public-safe control coverage heatmap views.
 
 Community Edition provides:
 
@@ -18,6 +18,7 @@ Community Edition provides:
 - `GET /aispm/findings`
 - `GET /aispm/timeline`
 - `GET /aispm/control-coverage`
+- `GET /aispm/control-coverage-heatmap`
 - `GET /aispm/near-misses`
 - `GET /aispm/trace-replay/{session_id}`
 - `GET /aispm/approval-lineage`
@@ -40,6 +41,9 @@ environment, ownership, data, change-window, criticality, approval-route, or
 trust-tier metadata.
 It also includes an agent blast-radius map for observed repository, target,
 tool, policy, approval, and control-surface reach per agent.
+It includes a control coverage heatmap for enforced, approval-gated,
+warning-only, observed, and unobserved control surfaces per agent/repository
+path.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -83,6 +87,13 @@ controls, and evidence references. Private asset graphs, identity permission
 graphs, cloud inventory, dependency graphs, secret names, and customer topology
 remain Enterprise-only.
 
+Community control coverage heatmaps pivot normalized local decisions by agent,
+repository, and control surface. They show cell status, coverage score, action
+counts, evidence confidence, and recommended action. Private repository owner
+graphs, identity-provider claims, repository permission matrices, environment
+criticality, CMDB service mapping, and live organization baselines remain
+Enterprise-only.
+
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise
 policy logic, customer data, license-server state, or SaaS tenant records.
@@ -90,7 +101,8 @@ policy logic, customer data, license-server state, or SaaS tenant records.
 Enterprise remains responsible for live authenticated multi-tenant posture,
 prompt/reasoning traces, private asset-graph forecasting, prompt-derived
 intent extraction, private workflow correlation, raw tool-call graphs, cross-system execution traces, full trace
-replay, private blast-radius enrichment, organization controls, kill switch, runtime overrides, centralized
+replay, private blast-radius enrichment, organization-wide heatmaps,
+organization controls, kill switch, runtime overrides, centralized
 retention, immutable audit exports, and compliance reporting.
 
 The packaged dashboard schema is `src/cavra/schemas/aispm-dashboard.schema.json`.
@@ -121,3 +133,7 @@ sample packet at `examples/aispm/community-tool-chain-graph-sample.json`.
 The packaged Community agent blast-radius schema is
 `src/cavra/schemas/aispm-agent-blast-radius.schema.json`, with a deterministic
 sample packet at `examples/aispm/community-agent-blast-radius-sample.json`.
+The packaged Community control coverage heatmap schema is
+`src/cavra/schemas/aispm-control-coverage-heatmap.schema.json`, with a
+deterministic sample packet at
+`examples/aispm/community-control-coverage-heatmap-sample.json`.
