@@ -1477,6 +1477,7 @@ const routeContent = [
   { type: "AI Posture", label: "PR Attachment Guidance", route: "ai-posture", description: "Show where to attach replay-to-policy review evidence in a GitHub PR." },
   { type: "AI Posture", label: "Replay-To-Policy CI Gate", route: "ai-posture", description: "Show required check names and GitHub, GitLab, and Azure CI template paths." },
   { type: "AI Posture", label: "CI Gate Readiness Export", route: "ai-posture", description: "Copy or download the branch-protection readiness packet for GitHub, GitLab, and Azure." },
+  { type: "AI Posture", label: "CI Gate Readiness Summary", route: "ai-posture", description: "Show ready or action-required status for GitHub, GitLab, and Azure gate rollout." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2208,6 +2209,41 @@ function renderAispmReplayPolicyCiGate(reviewPacket) {
           <strong>${escapeHtml(gate.check)}</strong>
           <code>${escapeHtml(gate.path)}</code>
           <p>${escapeHtml(gate.setup)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  renderAispmReplayPolicyCiGateSummary(currentAispmReplayPolicyCiGateReadiness);
+}
+
+function renderAispmReplayPolicyCiGateSummary(readiness) {
+  const gates = readiness.gates || [];
+  const reviewReady = readiness.source?.checks_passed === readiness.source?.checks_total;
+  const platformRows = gates.map((gate) => ({
+    platform: gate.platform,
+    status: reviewReady ? "ready" : "action required",
+    required_check: gate.required_check,
+    template_path: gate.template_path,
+    outcome: reviewReady
+      ? "Template and required check metadata are ready for branch protection."
+      : "Complete reviewer checklist before production gate rollout."
+  }));
+  el("#aispmReplayPolicyCiGateSummary").innerHTML = `
+    <div class="ci-gate-summary-header">
+      <div>
+        <h4>CI Gate Readiness Summary</h4>
+        <p>${escapeHtml(readiness.source?.checks_passed ?? 0)}/${escapeHtml(readiness.source?.checks_total ?? 0)} review checks passed · validate with <code>${escapeHtml(readiness.validation?.cli_command || "cavra aispm validate-ci-gate-readiness")}</code></p>
+      </div>
+      <span class="severity ${reviewReady ? "approved" : "pending"}">${reviewReady ? "Ready" : "Action Required"}</span>
+    </div>
+    <div class="ci-gate-summary-grid">
+      ${platformRows.map((row) => `
+        <article class="ci-gate-summary-card">
+          <span>${escapeHtml(row.platform)}</span>
+          <strong>${escapeHtml(row.status)}</strong>
+          <code>${escapeHtml(row.template_path)}</code>
+          <p><b>Required check:</b> ${escapeHtml(row.required_check)}</p>
+          <p>${escapeHtml(row.outcome)}</p>
         </article>
       `).join("")}
     </div>

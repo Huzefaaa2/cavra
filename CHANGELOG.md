@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an AISPM CI gate readiness summary panel that visualizes GitHub
+  Actions, GitLab CI, and Azure Pipelines ready/action-required outcomes from
+  the exported readiness packet.
+
 - Added CLI and API validation for AISPM CI gate readiness packets so teams
   can verify required check names and installed CI templates before marking a
   replay-to-policy gate production-ready.
