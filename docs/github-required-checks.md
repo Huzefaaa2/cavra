@@ -37,6 +37,7 @@ For production evidence signatures, add `CAVRA_EVIDENCE_SIGNING_KEY` as a GitHub
 Copy one of these templates into downstream repositories:
 
 - `examples/github-actions/cavra-required-check.yml`: starter GitHub required check that validates a policy pack, creates evidence if none exists, verifies the bundle, verifies PR attestation, and uploads evidence.
+- `examples/github-actions/cavra-aispm-review-packet-validation.yml`: AISPM replay-to-policy review packet gate that validates `cavra-replay-policy-review-packet.json`, uploads validation reports, and fails closed when replay-derived policy or fixture changes lack a packet.
 - `examples/github-actions/cavra-enterprise-enforcement.yml`: stricter GitHub workflow for signed policy packs, trust-root evidence verification, key IDs, retention minimums, and artifact enforcement.
 - `examples/github-actions/cavra-release-governance-go-runtime.yml`: Go daemon release-governance gate that validates a typed `release_governance` request and uploads daemon evidence.
 - `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`: GitLab CI equivalent for teams that want the same governance control outside GitHub.
@@ -59,6 +60,7 @@ Azure Repos PR validation is enforced through branch policies. The CAVRA pipelin
 
 - As a platform engineer, I can make CAVRA a required merge check so AI-assisted pull requests cannot bypass governance.
 - As a reviewer, I can open the CAVRA evidence artifact and inspect the PR attestation before approving.
+- As a platform engineer, I can require replay-to-policy review packets before generated policy drafts or replay fixtures merge.
 - As an auditor, I can prove that policy validation, evidence verification, and attestation verification ran before merge.
 - As a security engineer, I can require trust-root signatures and retention thresholds for regulated repositories.
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a reusable GitHub Actions AISPM review packet validation template that
+  runs `cavra aispm validate-review-packet`, uploads validation reports, and
+  fails closed when replay-derived policy or fixture changes lack a packet.
+
 - Added CLI and API validation for AISPM replay-to-policy review packets so
   exported PR and auditor attachments can be checked against the packaged
   schema and semantic consistency rules before use.

@@ -172,6 +172,25 @@ def test_github_required_check_templates_parse_and_verify_evidence() -> None:
         assert "cavra evidence verify-attestation" in text
 
 
+def test_github_aispm_review_packet_validation_template_fails_closed() -> None:
+    workflow_path = "examples/github-actions/cavra-aispm-review-packet-validation.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    job = workflow["jobs"]["cavra-aispm-review-packet"]
+    assert job["name"] == "cavra-aispm-review-packet"
+    assert workflow["permissions"]["contents"] == "read"
+    assert workflow["permissions"]["pull-requests"] == "read"
+    assert "actions/checkout@v6" in text
+    assert "actions/setup-python@v6" in text
+    assert "pip install cavra" in text
+    assert "cavra aispm validate-review-packet" in text
+    assert "cavra-replay-policy-review-packet.json" in text
+    assert "tests/fixtures/replay-to-policy/**" in text
+    assert "Replay-derived policy or fixture files changed without a CAVRA review packet." in text
+    assert "cavra-aispm-review-packet-validation" in text
+
+
 def test_github_release_governance_go_runtime_template_uses_typed_daemon_request() -> None:
     workflow_path = "examples/github-actions/cavra-release-governance-go-runtime.yml"
     workflow = _load_yaml(workflow_path)

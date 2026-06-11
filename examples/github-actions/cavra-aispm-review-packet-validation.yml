@@ -1,0 +1,75 @@
+name: CAVRA AISPM Review Packet Validation
+
+on:
+  pull_request:
+    paths:
+      - "policies/**"
+      - "tests/fixtures/replay-to-policy/**"
+      - ".cavra/aispm/review-packets/**"
+      - "cavra-replay-policy-review-packet.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  cavra-aispm-review-packet:
+    name: cavra-aispm-review-packet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CAVRA
+        run: |
+          python -m pip install --upgrade pip
+          pip install cavra
+
+      - name: Validate AISPM replay-to-policy review packets
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          mkdir -p .cavra/aispm/review-packet-validation
+
+          mapfile -t packets < <(
+            find . \
+              \( -path "./.git" -o -path "./.venv" -o -path "./node_modules" \) -prune -o \
+              \( -path "./.cavra/aispm/review-packets/*.json" -o -name "cavra-replay-policy-review-packet.json" \) \
+              -type f -print | sort
+          )
+
+          packet_count="${#packets[@]}"
+          if [ "$packet_count" -eq 0 ]; then
+            if [ -n "${BASE_REF:-}" ]; then
+              changed_replay_files="$(git diff --name-only "origin/${BASE_REF}"...HEAD -- 'policies/**' 'tests/fixtures/replay-to-policy/**' || true)"
+              if [ -n "$changed_replay_files" ]; then
+                echo "Replay-derived policy or fixture files changed without a CAVRA review packet."
+                echo "$changed_replay_files"
+                exit 1
+              fi
+            fi
+            echo "No replay-to-policy review packets found; nothing to validate."
+            exit 0
+          fi
+
+          for packet in "${packets[@]}"; do
+            safe_name="$(echo "$packet" | sed 's#^\./##; s#[^A-Za-z0-9._-]#-#g')"
+            cavra aispm validate-review-packet "$packet" --json \
+              | tee ".cavra/aispm/review-packet-validation/${safe_name}.validation.json"
+          done
+
+      - name: Upload AISPM review packet validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-aispm-review-packet-validation
+          path: .cavra/aispm/review-packet-validation/
+          if-no-files-found: warn
