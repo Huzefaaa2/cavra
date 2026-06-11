@@ -41,6 +41,7 @@ let currentAispmReplayPolicyTestsPacket = null;
 let currentAispmReplayPolicyReviewPacket = null;
 let currentAispmReplayPolicyPrApprovalText = "";
 let currentAispmReplayPolicyCiGateReadiness = null;
+let currentAispmReplayPolicyCiGateRolloutMarkdown = "";
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1478,6 +1479,7 @@ const routeContent = [
   { type: "AI Posture", label: "Replay-To-Policy CI Gate", route: "ai-posture", description: "Show required check names and GitHub, GitLab, and Azure CI template paths." },
   { type: "AI Posture", label: "CI Gate Readiness Export", route: "ai-posture", description: "Copy or download the branch-protection readiness packet for GitHub, GitLab, and Azure." },
   { type: "AI Posture", label: "CI Gate Readiness Summary", route: "ai-posture", description: "Show ready or action-required status for GitHub, GitLab, and Azure gate rollout." },
+  { type: "AI Posture", label: "CI Gate Rollout Checklist", route: "ai-posture", description: "Copy or download reviewer-ready Markdown for production branch-protection rollout." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2248,6 +2250,54 @@ function renderAispmReplayPolicyCiGateSummary(readiness) {
       `).join("")}
     </div>
   `;
+  renderAispmReplayPolicyCiGateRolloutChecklist(readiness, platformRows, reviewReady);
+}
+
+function renderAispmReplayPolicyCiGateRolloutChecklist(readiness, platformRows, reviewReady) {
+  const packetFilename = readiness.required_packet?.filename || "cavra-replay-policy-review-packet.json";
+  const readinessFilename = "cavra-replay-policy-ci-gate-readiness.json";
+  const lines = [
+    "# CAVRA Replay-To-Policy CI Gate Production Rollout Checklist",
+    "",
+    `Status: ${reviewReady ? "Ready" : "Action Required"}`,
+    `Review checks: ${readiness.source?.checks_passed ?? 0}/${readiness.source?.checks_total ?? 0}`,
+    `Required review packet: ${packetFilename}`,
+    `Readiness packet: ${readinessFilename}`,
+    "",
+    "## Validator",
+    "",
+    "```bash",
+    readiness.validation?.cli_command || `cavra aispm validate-ci-gate-readiness ${readinessFilename} --repo-root .`,
+    "```",
+    "",
+    `API endpoint: \`${readiness.validation?.api_endpoint || "/aispm/replay-to-policy-ci-gate-readiness/validate"}\``,
+    "",
+    "## Platform Gates",
+    "",
+    ...platformRows.flatMap((row) => [
+      `### ${row.platform}`,
+      "",
+      `- Status: ${row.status}`,
+      `- Required check: \`${row.required_check}\``,
+      `- Template path: \`${row.template_path}\``,
+      `- Outcome: ${row.outcome}`,
+      ""
+    ]),
+    "## Manual Rollout Steps",
+    "",
+    ...(readiness.readiness_checklist || []).map((item) => `- [ ] ${item}`),
+    "- [ ] Confirm branch protection or merge policy requires `cavra-aispm-review-packet`.",
+    "- [ ] Attach this checklist and the readiness JSON to the rollout ticket or PR.",
+    "",
+    "## Enterprise Boundary",
+    "",
+    "- Community exports this checklist as reviewer guidance only.",
+    "- Automated branch-protection write-back, tenant policy distribution, and private connector configuration require CAVRA Enterprise.",
+    ""
+  ];
+  currentAispmReplayPolicyCiGateRolloutMarkdown = lines.join("\n");
+  el("#aispmReplayPolicyCiGateRollout").textContent = currentAispmReplayPolicyCiGateRolloutMarkdown;
+  el("#aispmReplayPolicyCiGateRolloutStatus").textContent = `${reviewReady ? "ready" : "action_required"} · ${platformRows.length} platforms · cavra-replay-policy-ci-gate-rollout-checklist.md`;
 }
 
 async function copyAispmReplayPolicyCiGateReadiness() {
@@ -2270,6 +2320,26 @@ function downloadAispmReplayPolicyCiGateReadiness() {
   anchor.remove();
   URL.revokeObjectURL(url);
   el("#aispmReplayPolicyCiGateStatus").textContent = "Downloaded public-safe CI gate readiness JSON.";
+}
+
+async function copyAispmReplayPolicyCiGateRollout() {
+  const copied = await copyTextToClipboard(currentAispmReplayPolicyCiGateRolloutMarkdown);
+  el("#aispmReplayPolicyCiGateRolloutStatus").textContent = copied
+    ? "Copied CI gate production rollout checklist Markdown."
+    : "Copy was blocked by the browser. Use Download Checklist or select the Markdown preview.";
+}
+
+function downloadAispmReplayPolicyCiGateRollout() {
+  const blob = new Blob([currentAispmReplayPolicyCiGateRolloutMarkdown], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cavra-replay-policy-ci-gate-rollout-checklist.md";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  el("#aispmReplayPolicyCiGateRolloutStatus").textContent = "Downloaded CI gate production rollout checklist Markdown.";
 }
 
 async function copyAispmReplayPolicyPrApproval() {
@@ -3383,6 +3453,8 @@ function wireEvents() {
   el("#downloadAispmReplayPolicyReviewPacket").addEventListener("click", downloadAispmReplayPolicyReviewPacket);
   el("#copyAispmReplayPolicyCiGateReadiness").addEventListener("click", copyAispmReplayPolicyCiGateReadiness);
   el("#downloadAispmReplayPolicyCiGateReadiness").addEventListener("click", downloadAispmReplayPolicyCiGateReadiness);
+  el("#copyAispmReplayPolicyCiGateRollout").addEventListener("click", copyAispmReplayPolicyCiGateRollout);
+  el("#downloadAispmReplayPolicyCiGateRollout").addEventListener("click", downloadAispmReplayPolicyCiGateRollout);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

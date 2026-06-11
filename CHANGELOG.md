@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an AISPM CI gate production rollout checklist Markdown export for
+  reviewer-ready branch-protection rollout evidence across GitHub Actions,
+  GitLab CI, and Azure Pipelines.
+
 - Added an AISPM CI gate readiness summary panel that visualizes GitHub
   Actions, GitLab CI, and Azure Pipelines ready/action-required outcomes from
   the exported readiness packet.

@@ -70,7 +70,7 @@ the candidate policy draft, review-only test fixture, and reviewer checklist
 into one public-safe JSON packet for PR attachment or auditor review.
 The same view includes PR attachment guidance with exact packet, draft, and
 fixture attachment paths plus copyable reviewer approval language, and a compact
-CI gate panel plus readiness summary and export for GitHub Actions, GitLab CI, and Azure Pipelines setup paths.
+CI gate panel plus readiness summary, rollout checklist export, and readiness export for GitHub Actions, GitLab CI, and Azure Pipelines setup paths.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -174,6 +174,11 @@ Community CI gate readiness validation is available through
 packaged readiness schema, required check names, expected CI template paths,
 review-packet linkage, and optional repository template files without writing
 branch protection, connector configuration, or CI files.
+
+The dashboard also exports a reviewer-ready Markdown rollout checklist that
+summarizes readiness status, validator commands, required checks, template
+paths, and manual branch-protection steps. It is documentation evidence only;
+automated branch-protection write-back remains Enterprise-only.
 
 Community PR attachment guidance tells reviewers where to attach the review
 packet, where to commit the reviewed policy draft and fixture, and what
