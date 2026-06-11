@@ -12,7 +12,10 @@ from rich.json import JSON
 from cavra import __version__
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
-from cavra.aispm_validation import validate_aispm_replay_to_policy_review_packet_file
+from cavra.aispm_validation import (
+    validate_aispm_replay_to_policy_ci_gate_readiness_file,
+    validate_aispm_replay_to_policy_review_packet_file,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -250,6 +253,29 @@ def validate_aispm_review_packet(
 ) -> None:
     """Validate an AISPM replay-to-policy review packet before PR attachment."""
     report = validate_aispm_replay_to_policy_review_packet_file(path)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+    elif report["valid"]:
+        console.print(f"[green]valid[/green] {path}")
+    else:
+        console.print(f"[red]invalid[/red] {path}")
+        for error in report["errors"]:
+            console.print(f"  - {error['path']}: {error['message']}")
+    if not report["valid"]:
+        raise typer.Exit(code=1)
+
+
+@aispm_app.command("validate-ci-gate-readiness")
+def validate_aispm_ci_gate_readiness(
+    path: Annotated[Path, typer.Argument(help="Path to cavra-replay-policy-ci-gate-readiness.json.")],
+    repo_root: Annotated[
+        Optional[Path],
+        typer.Option("--repo-root", help="Optional repository root to verify referenced CI template files."),
+    ] = None,
+    json_output: bool = typer.Option(False, "--json", help="Print the validation report JSON."),
+) -> None:
+    """Validate AISPM replay-to-policy CI gate readiness before production use."""
+    report = validate_aispm_replay_to_policy_ci_gate_readiness_file(path, repo_root=repo_root)
     if json_output:
         typer.echo(json.dumps(report, indent=2))
     elif report["valid"]:

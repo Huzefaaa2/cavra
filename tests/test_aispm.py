@@ -1051,6 +1051,26 @@ def test_aispm_replay_to_policy_review_packet_sample_matches_packaged_schema() -
     assert payload["test_fixture"]["case_count"] == len(payload["test_fixture"]["cases"])
 
 
+def test_aispm_replay_to_policy_ci_gate_readiness_sample_matches_packaged_schema() -> None:
+    readiness_schema = Path("src/cavra/schemas/aispm-replay-to-policy-ci-gate-readiness.schema.json")
+    sample = Path("examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json")
+
+    assert readiness_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(readiness_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["source"]["review_packet"] == "cavra-replay-policy-review-packet.json"
+    assert {gate["platform"] for gate in payload["gates"]} == {
+        "GitHub Actions",
+        "GitLab CI",
+        "Azure Pipelines",
+    }
+    assert {gate["required_check"] for gate in payload["gates"]} == {"cavra-aispm-review-packet"}
+
+
 def test_aispm_approval_lineage_redacts_human_actors(tmp_path: Path) -> None:
     activity = ActivityStore(tmp_path / "activity.json")
     approval_store = ApprovalStore(tmp_path / "approvals.json")

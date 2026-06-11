@@ -1,0 +1,59 @@
+{
+  "schema_version": "cavra.aispm.replay_to_policy_ci_gate_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "ci_gate_readiness_export",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-11T00:00:00Z",
+  "source": {
+    "review_packet": "cavra-replay-policy-review-packet.json",
+    "review_packet_status": "review_only_packet",
+    "review_summary_status": "Reviewer Action Required",
+    "checks_passed": 4,
+    "checks_total": 6
+  },
+  "required_packet": {
+    "filename": "cavra-replay-policy-review-packet.json",
+    "purpose": "Required public-safe evidence packet for replay-derived policy or fixture changes."
+  },
+  "gates": [
+    {
+      "platform": "GitHub Actions",
+      "required_check": "cavra-aispm-review-packet",
+      "template_path": "examples/github-actions/cavra-aispm-review-packet-validation.yml",
+      "setup": "Copy into .github/workflows/ and add the check to branch protection.",
+      "enforcement": "Add cavra-aispm-review-packet as a required status check before merge."
+    },
+    {
+      "platform": "GitLab CI",
+      "required_check": "cavra-aispm-review-packet",
+      "template_path": "examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml",
+      "setup": "Include in merge-request pipelines and require the governance job before merge.",
+      "enforcement": "Require the cavra-aispm-review-packet job in merge-request approval rules."
+    },
+    {
+      "platform": "Azure Pipelines",
+      "required_check": "cavra-aispm-review-packet",
+      "template_path": "examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml",
+      "setup": "Create a Build validation policy with this pipeline as a required gate.",
+      "enforcement": "Configure branch policy Build validation with cavra-aispm-review-packet required."
+    }
+  ],
+  "validation": {
+    "cli_command": "cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .",
+    "api_endpoint": "/aispm/replay-to-policy-ci-gate-readiness/validate"
+  },
+  "readiness_checklist": [
+    "Copy the platform template into the repository CI configuration.",
+    "Require the cavra-aispm-review-packet check before merge.",
+    "Attach or commit cavra-replay-policy-review-packet.json with replay-derived policy and fixture changes.",
+    "Verify the gate fails closed when replay-derived changes do not include a valid packet.",
+    "Keep production enforcement behind normal CAVRA policy publishing and approval gates."
+  ],
+  "enterprise_boundaries": {
+    "automated_ci_write_back": "requires_cavra_enterprise",
+    "tenant_policy_distribution": "requires_cavra_enterprise",
+    "private_connector_configuration": "requires_cavra_enterprise"
+  }
+}

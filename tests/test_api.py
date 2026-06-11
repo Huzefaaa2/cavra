@@ -170,6 +170,22 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
         "/aispm/replay-to-policy-review-packet/validate",
         json=review_packet_sample,
     )
+    ci_gate_readiness_sample = json.loads(
+        Path("examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json").read_text(encoding="utf-8")
+    )
+    ci_gate_readiness_validation = client.post(
+        "/aispm/replay-to-policy-ci-gate-readiness/validate",
+        json=ci_gate_readiness_sample,
+    )
+    invalid_ci_gate_readiness_sample = dict(ci_gate_readiness_sample)
+    invalid_ci_gate_readiness_sample["source"] = {
+        **ci_gate_readiness_sample["source"],
+        "checks_passed": 99,
+    }
+    invalid_ci_gate_readiness_validation = client.post(
+        "/aispm/replay-to-policy-ci-gate-readiness/validate",
+        json=invalid_ci_gate_readiness_sample,
+    )
     invalid_review_packet_sample = dict(review_packet_sample)
     invalid_review_packet_sample["review_summary"] = {
         **review_packet_sample["review_summary"],
@@ -205,6 +221,10 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert (
         config["endpoints"]["aispm_replay_to_policy_review_packet_validate"]
         == "/aispm/replay-to-policy-review-packet/validate"
+    )
+    assert (
+        config["endpoints"]["aispm_replay_to_policy_ci_gate_readiness_validate"]
+        == "/aispm/replay-to-policy-ci-gate-readiness/validate"
     )
     assert contract.status_code == 200
     assert contract.json()["enterprise_boundary"]["status"] == "requires_cavra_enterprise"
@@ -296,6 +316,13 @@ def test_api_exposes_aispm_dashboard_contract_and_local_posture(monkeypatch, tmp
     assert invalid_replay_to_policy_review_validation.status_code == 200
     assert invalid_replay_to_policy_review_validation.json()["valid"] is False
     assert invalid_replay_to_policy_review_validation.json()["errors"]
+    assert ci_gate_readiness_validation.status_code == 200
+    assert ci_gate_readiness_validation.json()["schema_version"] == "cavra.aispm.ci_gate_readiness_validation.v1"
+    assert ci_gate_readiness_validation.json()["valid"] is True
+    assert ci_gate_readiness_validation.json()["packet_schema_version"] == "cavra.aispm.replay_to_policy_ci_gate_readiness.v1"
+    assert invalid_ci_gate_readiness_validation.status_code == 200
+    assert invalid_ci_gate_readiness_validation.json()["valid"] is False
+    assert "checks_passed cannot exceed checks_total" in invalid_ci_gate_readiness_validation.text
     assert trace_replay.status_code == 200
     assert trace_replay.json()["schema_version"] == "cavra.aispm.trace_replay.v1"
     assert trace_replay.json()["summary"]["blocked_actions"] == 1

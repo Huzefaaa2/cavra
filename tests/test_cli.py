@@ -241,6 +241,43 @@ def test_aispm_validate_review_packet_cli_rejects_inconsistent_packet(tmp_path: 
     assert "case_count must match" in result.output
 
 
+def test_aispm_validate_ci_gate_readiness_cli_accepts_packaged_sample() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "aispm",
+            "validate-ci-gate-readiness",
+            "examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json",
+            "--repo-root",
+            ".",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.aispm.ci_gate_readiness_validation.v1"
+    assert payload["valid"] is True
+    assert payload["checks"]["repository_templates"] == "pass"
+    assert payload["packet_schema_version"] == "cavra.aispm.replay_to_policy_ci_gate_readiness.v1"
+
+
+def test_aispm_validate_ci_gate_readiness_cli_rejects_wrong_check(tmp_path: Path) -> None:
+    packet_path = tmp_path / "ci-gate-readiness.json"
+    payload = json.loads(
+        Path("examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json").read_text(encoding="utf-8")
+    )
+    payload["gates"][0]["required_check"] = "wrong-check"
+    packet_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    result = runner.invoke(app, ["aispm", "validate-ci-gate-readiness", str(packet_path)])
+
+    assert result.exit_code == 1
+    assert "invalid" in result.output
+    assert "required_check must be" in result.output
+    assert "cavra-aispm-review-packet" in result.output
+
+
 def test_policy_keygen_sign_and_verify_cli_round_trip(tmp_path: Path) -> None:
     policy_path = tmp_path / "policy.yaml"
     keys_dir = tmp_path / "keys"

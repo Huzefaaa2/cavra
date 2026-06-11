@@ -43,6 +43,18 @@ Copy one of these templates into downstream repositories:
 - `examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml`: Azure Pipelines AISPM replay-to-policy review packet gate for Build validation policies.
 - `examples/azure-pipelines/cavra-release-governance-go-runtime.azure-pipelines.yml`: Azure Pipelines release-governance gate for protected release branches or environment checks.
 
+Before marking a replay-to-policy gate production-ready, export
+`cavra-replay-policy-ci-gate-readiness.json` from the AISPM dashboard and run:
+
+```bash
+cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .
+```
+
+The validator checks the public-safe readiness packet, required check name,
+expected CI template paths, review-packet linkage, and installed repository
+template files. Automated branch-protection write-back remains an Enterprise
+capability.
+
 ## Azure DevOps Setup
 
 1. Copy `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml` into the repository.
@@ -59,6 +71,7 @@ Azure Repos PR validation is enforced through branch policies. The CAVRA pipelin
 - As a platform engineer, I can make CAVRA a required merge check so AI-assisted pull requests cannot bypass governance.
 - As a reviewer, I can open the CAVRA evidence artifact and inspect the PR attestation before approving.
 - As a platform engineer, I can require replay-to-policy review packets before generated policy drafts or replay fixtures merge.
+- As a platform engineer, I can validate replay-to-policy CI gate readiness before marking the required check production-ready.
 - As an auditor, I can prove that policy validation, evidence verification, and attestation verification ran before merge.
 - As a security engineer, I can require trust-root signatures and retention thresholds for regulated repositories.
 

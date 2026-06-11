@@ -35,6 +35,7 @@ Activity endpoints:
 - `GET /aispm/replay-to-policy-draft`: return a public-safe read-only draft policy pack generated from normalized replay decisions, with private prompt, reasoning, ticket, asset, simulation, and write-back automation locked to Enterprise.
 - `GET /aispm/replay-to-policy-tests`: return a public-safe read-only policy test fixture export for replay-derived draft controls, with private prompt, reasoning, tool-payload, ticket, tenant-history simulation, and CI write-back locked to Enterprise.
 - `POST /aispm/replay-to-policy-review-packet/validate`: validate a replay-to-policy review packet against the packaged Community schema and semantic consistency checks before PR or auditor attachment.
+- `POST /aispm/replay-to-policy-ci-gate-readiness/validate`: validate a replay-to-policy CI gate readiness packet against the packaged Community schema and required check/template metadata before production gate rollout.
 
 Default activity path: `.cavra/api/activity.json`.
 
@@ -53,7 +54,10 @@ write-back remain Enterprise-only. Community replay-to-policy test exports are
 review-only JSON fixtures and do not run private tenant simulation or write CI
 files. Community replay-to-policy review packet validation checks public-safe
 JSON only and does not approve, publish, mutate, enrich, or submit policy
-changes. Community pre-action forecasts are metadata forecasts only; private asset
+changes. Community CI gate readiness validation checks public-safe readiness
+JSON and optional repository template files only; private branch-protection
+write-back, tenant policy distribution, and connector configuration remain
+Enterprise-only. Community pre-action forecasts are metadata forecasts only; private asset
 graphs, dependency graphs, identity blast radius, cloud inventory, runtime
 state, and prompt-intent context remain Enterprise-only. Community
 intent-to-action drift uses declared intent metadata only; raw prompts,

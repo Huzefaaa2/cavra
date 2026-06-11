@@ -2174,10 +2174,15 @@ function renderAispmReplayPolicyCiGate(reviewPacket) {
       setup: gate.setup,
       enforcement: gate.enforcement
     })),
+    validation: {
+      cli_command: "cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .",
+      api_endpoint: "/aispm/replay-to-policy-ci-gate-readiness/validate"
+    },
     readiness_checklist: [
       "Copy the platform template into the repository CI configuration.",
       "Require the cavra-aispm-review-packet check before merge.",
       `Attach or commit ${packetFilename} with replay-derived policy and fixture changes.`,
+      "Run cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .",
       "Verify the gate fails closed when replay-derived changes do not include a valid packet.",
       "Keep production enforcement behind normal CAVRA policy publishing and approval gates."
     ],

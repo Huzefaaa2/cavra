@@ -266,6 +266,8 @@ def main() -> int:
         "Replay-To-Policy CI Gate",
         "CI Gate Readiness Export",
         "cavra-replay-policy-ci-gate-readiness.json",
+        "cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .",
+        "/aispm/replay-to-policy-ci-gate-readiness/validate",
         "copyAispmReplayPolicyCiGateReadiness",
         "downloadAispmReplayPolicyCiGateReadiness",
         "cavra.aispm.replay_to_policy_ci_gate_readiness.v1",

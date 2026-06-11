@@ -26,7 +26,10 @@ from cavra.aispm import (
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
 )
-from cavra.aispm_validation import validate_aispm_replay_to_policy_review_packet
+from cavra.aispm_validation import (
+    validate_aispm_replay_to_policy_ci_gate_readiness,
+    validate_aispm_replay_to_policy_review_packet,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -652,6 +655,7 @@ def create_app():
                 "aispm_replay_to_policy_draft": "/aispm/replay-to-policy-draft",
                 "aispm_replay_to_policy_tests": "/aispm/replay-to-policy-tests",
                 "aispm_replay_to_policy_review_packet_validate": "/aispm/replay-to-policy-review-packet/validate",
+                "aispm_replay_to_policy_ci_gate_readiness_validate": "/aispm/replay-to-policy-ci-gate-readiness/validate",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1144,6 +1148,10 @@ def create_app():
     @app.post("/aispm/replay-to-policy-review-packet/validate")
     def aispm_replay_to_policy_review_packet_validate(packet: dict) -> dict:
         return validate_aispm_replay_to_policy_review_packet(packet, source="api")
+
+    @app.post("/aispm/replay-to-policy-ci-gate-readiness/validate")
+    def aispm_replay_to_policy_ci_gate_readiness_validate(packet: dict) -> dict:
+        return validate_aispm_replay_to_policy_ci_gate_readiness(packet, source="api")
 
     @app.get("/aispm/near-misses")
     def aispm_near_misses(

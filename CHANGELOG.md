@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added CLI and API validation for AISPM CI gate readiness packets so teams
+  can verify required check names and installed CI templates before marking a
+  replay-to-policy gate production-ready.
+
 - Added a public-safe AISPM CI gate readiness export with copy/download
   actions for GitHub Actions, GitLab CI, and Azure Pipelines branch-protection
   setup.

@@ -168,6 +168,13 @@ policy files. Reusable GitHub Actions, GitLab CI, and Azure Pipelines gates are
 available under `examples/` for teams that want replay-derived policy and
 fixture changes to require a valid review packet before merge.
 
+Community CI gate readiness validation is available through
+`cavra aispm validate-ci-gate-readiness <readiness.json> --repo-root .` and
+`POST /aispm/replay-to-policy-ci-gate-readiness/validate`. It verifies the
+packaged readiness schema, required check names, expected CI template paths,
+review-packet linkage, and optional repository template files without writing
+branch protection, connector configuration, or CI files.
+
 Community PR attachment guidance tells reviewers where to attach the review
 packet, where to commit the reviewed policy draft and fixture, and what
 approval wording to use. It remains advisory guidance only and does not submit,
@@ -243,3 +250,8 @@ The packaged Community replay-to-policy review packet schema is
 `src/cavra/schemas/aispm-replay-to-policy-review-packet.schema.json`, with a
 deterministic sample packet at
 `examples/aispm/community-replay-to-policy-review-packet-sample.json`.
+
+The packaged Community replay-to-policy CI gate readiness schema is
+`src/cavra/schemas/aispm-replay-to-policy-ci-gate-readiness.schema.json`, with
+a deterministic sample packet at
+`examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json`.

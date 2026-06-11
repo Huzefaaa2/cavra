@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Replay To Policy CI Gate Readiness",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "mode",
+    "source",
+    "required_packet",
+    "gates",
+    "validation",
+    "readiness_checklist",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.replay_to_policy_ci_gate_readiness.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "community" },
+    "mode": { "const": "ci_gate_readiness_export" },
+    "tracking": { "const": "none" },
+    "telemetry": { "const": "disabled" },
+    "generated_at": { "type": "string" },
+    "source": {
+      "type": "object",
+      "required": [
+        "review_packet",
+        "review_packet_status",
+        "review_summary_status",
+        "checks_passed",
+        "checks_total"
+      ],
+      "properties": {
+        "review_packet": { "const": "cavra-replay-policy-review-packet.json" },
+        "review_packet_status": { "const": "review_only_packet" },
+        "review_summary_status": { "type": "string" },
+        "checks_passed": { "type": "integer", "minimum": 0 },
+        "checks_total": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "required_packet": {
+      "type": "object",
+      "required": ["filename", "purpose"],
+      "properties": {
+        "filename": { "const": "cavra-replay-policy-review-packet.json" },
+        "purpose": { "type": "string" }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["platform", "required_check", "template_path", "setup", "enforcement"],
+        "properties": {
+          "platform": { "type": "string" },
+          "required_check": { "const": "cavra-aispm-review-packet" },
+          "template_path": { "type": "string" },
+          "setup": { "type": "string" },
+          "enforcement": { "type": "string" }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["cli_command", "api_endpoint"],
+      "properties": {
+        "cli_command": { "const": "cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root ." },
+        "api_endpoint": { "const": "/aispm/replay-to-policy-ci-gate-readiness/validate" }
+      }
+    },
+    "readiness_checklist": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "additionalProperties": { "const": "requires_cavra_enterprise" }
+    }
+  }
+}
