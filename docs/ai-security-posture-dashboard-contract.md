@@ -99,6 +99,8 @@ can see the expected policy assertions before adding reviewed tests to CI.
 The portal also offers a replay-to-policy review packet export that combines
 the candidate policy draft, review-only test fixture, and reviewer checklist
 into one public-safe JSON packet for PR attachment or auditor review.
+The same view includes PR attachment guidance with exact packet, draft, and
+fixture attachment paths plus copyable reviewer approval language.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -194,6 +196,11 @@ test fixture, checklist status, provenance, and redaction boundaries into a
 single review-only JSON packet. It is intended for PR attachment and auditor
 review only; it is not an automated approval, policy write-back, CI write-back,
 or production rollout action.
+
+Community PR attachment guidance tells reviewers where to attach the review
+packet, where to commit the reviewed policy draft and fixture, and what
+approval wording to use. It remains advisory guidance only and does not submit,
+approve, or mutate pull requests.
 
 The public contract uses existing CAVRA activity metadata. It does not capture
 private prompts, proprietary reasoning traces, Enterprise policy logic,

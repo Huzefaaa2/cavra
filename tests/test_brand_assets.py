@@ -79,6 +79,8 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert "fixture-export-actions" in css
     assert "review-workflow-panel" in css
     assert "review-checklist" in css
+    assert "pr-guidance-panel" in css
+    assert "pr-guidance-grid" in css
     assert "action-buttons" in css
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
@@ -143,6 +145,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         'id="aispmReplayPolicyReviewPacketStatus"',
         'id="copyAispmReplayPolicyReviewPacket"',
         'id="downloadAispmReplayPolicyReviewPacket"',
+        'id="aispmReplayPolicyPrGuidance"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
         'id="aispmReplayPolicyTestStatus"',
@@ -203,6 +206,9 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         "copyAispmReplayPolicyReviewPacket",
         "downloadAispmReplayPolicyReviewPacket",
         "cavra-replay-policy-review-packet.json",
+        "renderAispmReplayPolicyPrGuidance",
+        "copyAispmReplayPolicyPrApproval",
+        "CAVRA replay-to-policy review completed.",
         "copyAispmReplayPolicyTests",
         "downloadAispmReplayPolicyTests",
         "copyTextToClipboard",

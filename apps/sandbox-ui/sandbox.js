@@ -39,6 +39,7 @@ let currentAispmReplayPolicyTestsExport = null;
 let currentAispmReplayPolicyDraftPacket = null;
 let currentAispmReplayPolicyTestsPacket = null;
 let currentAispmReplayPolicyReviewPacket = null;
+let currentAispmReplayPolicyPrApprovalText = "";
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1472,6 +1473,7 @@ const routeContent = [
   { type: "AI Posture", label: "Replay-To-Policy Tests", route: "ai-posture", description: "Export public-safe policy test fixtures for replay-derived controls." },
   { type: "AI Posture", label: "Replay-To-Policy Review", route: "ai-posture", description: "Check reviewer readiness before generated controls are used in CI." },
   { type: "AI Posture", label: "Replay-To-Policy Packet", route: "ai-posture", description: "Export draft, tests, and review checklist as one public-safe PR packet." },
+  { type: "AI Posture", label: "PR Attachment Guidance", route: "ai-posture", description: "Show where to attach replay-to-policy review evidence in a GitHub PR." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2051,6 +2053,7 @@ function renderAispmReplayPolicyReviewWorkflow() {
     }
   };
   el("#aispmReplayPolicyReviewPacketStatus").textContent = `${currentAispmReplayPolicyReviewPacket.export.status} · ${readyCount}/${checklist.length} checks passed · ${currentAispmReplayPolicyReviewPacket.export.filename}`;
+  renderAispmReplayPolicyPrGuidance(currentAispmReplayPolicyReviewPacket, tests);
   el("#aispmReplayPolicyReviewWorkflow").innerHTML = `
     <div class="review-workflow-header">
       <div>
@@ -2069,6 +2072,56 @@ function renderAispmReplayPolicyReviewWorkflow() {
       `).join("")}
     </div>
   `;
+}
+
+function renderAispmReplayPolicyPrGuidance(reviewPacket, testsPacket) {
+  const policyId = reviewPacket.policy_draft?.metadata?.id || reviewPacket.test_fixture?.policy_id || "generated-policy";
+  const fixturePath = testsPacket.export?.suggested_path || `tests/fixtures/replay-to-policy/${policyId}.json`;
+  const draftPath = `policies/${policyId}/policy.yaml`;
+  const packetFilename = reviewPacket.export?.filename || "cavra-replay-policy-review-packet.json";
+  currentAispmReplayPolicyPrApprovalText = [
+    "CAVRA replay-to-policy review completed.",
+    `Review packet: ${packetFilename}`,
+    `Policy draft path: ${draftPath}`,
+    `Test fixture path: ${fixturePath}`,
+    `Checklist: ${reviewPacket.review_summary?.checks_passed ?? 0}/${reviewPacket.review_summary?.checks_total ?? 0} checks passed`,
+    "Approval scope: approve these generated controls for repository CI validation only; production enforcement still requires normal CAVRA policy publishing and approval gates."
+  ].join("\\n");
+  const cards = [
+    ["Attach To PR Conversation", "Review packet", packetFilename],
+    ["Commit As Policy Draft", "Candidate policy", draftPath],
+    ["Commit As Test Fixture", "Policy test fixture", fixturePath]
+  ];
+  el("#aispmReplayPolicyPrGuidance").innerHTML = `
+    <div class="pr-guidance-header">
+      <div>
+        <h4>PR Attachment Guidance</h4>
+        <p>Attach the packet to the PR conversation, commit reviewed files under the suggested paths, and use explicit approval language.</p>
+      </div>
+      <button id="copyAispmReplayPolicyPrApproval" type="button">Copy Approval Text</button>
+    </div>
+    <div class="pr-guidance-grid">
+      ${cards.map(([label, title, value]) => `
+        <article class="pr-guidance-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(title)}</strong>
+          <code>${escapeHtml(value)}</code>
+        </article>
+      `).join("")}
+    </div>
+    <article class="pr-guidance-card">
+      <span>Approval Language</span>
+      <pre class="pr-approval-template">${escapeHtml(currentAispmReplayPolicyPrApprovalText)}</pre>
+    </article>
+  `;
+  el("#copyAispmReplayPolicyPrApproval").addEventListener("click", copyAispmReplayPolicyPrApproval);
+}
+
+async function copyAispmReplayPolicyPrApproval() {
+  const copied = await copyTextToClipboard(currentAispmReplayPolicyPrApprovalText);
+  el("#aispmReplayPolicyReviewPacketStatus").textContent = copied
+    ? "Copied replay-to-policy PR approval text."
+    : "Copy was blocked by the browser. Select the approval text manually.";
 }
 
 async function copyAispmReplayPolicyReviewPacket() {

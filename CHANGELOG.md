@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added compact AISPM replay-to-policy PR attachment guidance with exact
+  review packet, policy draft, test fixture attachment paths, and copyable
+  reviewer approval language.
+
 - Added AISPM replay-to-policy review packet export actions that combine the
   candidate policy draft, test fixture, and review checklist into one
   public-safe JSON packet for PR attachment or auditor review.

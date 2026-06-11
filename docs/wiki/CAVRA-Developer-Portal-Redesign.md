@@ -32,8 +32,8 @@ Delivered UX:
   for repository/target/tool/policy reach, control coverage heatmap views
   by agent, repository, and control surface, evidence confidence drilldowns,
   evidence freshness SLO panels, replay-to-policy draft/test fixture previews,
-  review workflow readiness checks, review packet export actions, and
-  copy/download JSON export actions;
+  review workflow readiness checks, review packet export actions, PR attachment
+  guidance, and copy/download JSON export actions;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
@@ -43,8 +43,8 @@ configured. It includes posture overview, agent coverage, risk findings,
 control coverage, near-miss queue, policy context gaps, pre-action risk
 forecasts, intent-to-action drift, evidence confidence drilldown, evidence
 freshness SLO panel, replay-to-policy draft and copy/download test fixture
-previews, review workflow readiness checks, review packet export actions,
-execution timeline,
+previews, review workflow readiness checks, review packet export actions, PR
+attachment guidance, execution timeline,
 public-safe trace replay packet inspection, approval lineage, behavior
 fingerprinting, and raw
 public-safe payload inspection.

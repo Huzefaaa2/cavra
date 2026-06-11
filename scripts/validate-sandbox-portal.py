@@ -144,6 +144,7 @@ def main() -> int:
         'id="aispmReplayPolicyReviewPacketStatus"',
         'id="copyAispmReplayPolicyReviewPacket"',
         'id="downloadAispmReplayPolicyReviewPacket"',
+        'id="aispmReplayPolicyPrGuidance"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
         'id="aispmReplayPolicyTestStatus"',
@@ -209,6 +210,8 @@ def main() -> int:
         ".fixture-export-actions",
         ".review-workflow-panel",
         ".review-checklist",
+        ".pr-guidance-panel",
+        ".pr-guidance-grid",
         ".action-buttons",
     ]:
         require(css, needle, "mobile portal CSS", failures)
@@ -252,6 +255,9 @@ def main() -> int:
         "copyAispmReplayPolicyReviewPacket",
         "downloadAispmReplayPolicyReviewPacket",
         "cavra-replay-policy-review-packet.json",
+        "renderAispmReplayPolicyPrGuidance",
+        "copyAispmReplayPolicyPrApproval",
+        "CAVRA replay-to-policy review completed.",
         "copyAispmReplayPolicyTests",
         "downloadAispmReplayPolicyTests",
         "copyTextToClipboard",
