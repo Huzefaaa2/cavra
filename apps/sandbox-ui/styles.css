@@ -371,6 +371,15 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .fixture-export-actions strong { display: block; font-size: 15px; }
 .fixture-export-actions p { margin: 4px 0 0; color: var(--muted); line-height: 1.4; }
 .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.review-workflow-panel { display: grid; gap: 10px; margin: 14px 0; padding: 14px; border: 1px solid color-mix(in srgb, var(--primary) 36%, var(--line)); border-radius: 8px; background: color-mix(in srgb, var(--primary) 8%, var(--panel)); }
+.review-workflow-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.review-workflow-header h4 { margin: 0; }
+.review-workflow-header p { margin: 4px 0 0; color: var(--muted); }
+.review-checklist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.review-check { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: color-mix(in srgb, var(--surface) 68%, transparent); }
+.review-check span { display: block; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.review-check strong { display: block; margin-top: 5px; }
+.review-check p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
 
 .architecture-workbench { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
 .architecture-map { min-height: 520px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: center; border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 18px; background: var(--panel); }
@@ -449,11 +458,13 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .hero-product-mark { width: 108px; }
   .hero-copy { padding-right: 0; }
   h1 { font-size: 58px; }
-  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .replay-policy-list, .fingerprint-grid, .forecast-grid, .blast-radius-grid, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
+  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .replay-policy-list, .review-checklist, .fingerprint-grid, .forecast-grid, .blast-radius-grid, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
   .architecture-map { display: flex; overflow-x: auto; min-height: 240px; scroll-snap-type: x mandatory; }
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }
-  .console-header { flex-direction: column; }
+  .console-header, .review-workflow-header, .fixture-export-actions { flex-direction: column; }
+  .review-workflow-header, .fixture-export-actions { align-items: stretch; }
+  .action-buttons { justify-content: flex-start; }
   .approval-lineage-row, .context-gap-row, .evidence-confidence-row, .evidence-freshness-row, .executive-narrative-grid, .intent-drift-row, .tool-edge-row, .tool-chain-layout { grid-template-columns: 1fr; }
   .replay-policy-card header { display: grid; justify-content: stretch; }
   .replay-policy-card header .severity { max-width: none; text-align: left; }

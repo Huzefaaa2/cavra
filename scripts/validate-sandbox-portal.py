@@ -140,6 +140,7 @@ def main() -> int:
         'id="aispmExecutiveNarrative"',
         'id="refreshAispmReplayPolicy"',
         'id="aispmReplayPolicySummary"',
+        'id="aispmReplayPolicyReviewWorkflow"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
         'id="aispmReplayPolicyTestStatus"',
@@ -203,6 +204,8 @@ def main() -> int:
         'body[data-theme="retro"]',
         'body[data-theme="executive"]',
         ".fixture-export-actions",
+        ".review-workflow-panel",
+        ".review-checklist",
         ".action-buttons",
     ]:
         require(css, needle, "mobile portal CSS", failures)
@@ -242,6 +245,7 @@ def main() -> int:
         "loadAispmReplayPolicy",
         "renderAispmReplayPolicyTests",
         "loadAispmReplayPolicyTests",
+        "renderAispmReplayPolicyReviewWorkflow",
         "copyAispmReplayPolicyTests",
         "downloadAispmReplayPolicyTests",
         "copyTextToClipboard",

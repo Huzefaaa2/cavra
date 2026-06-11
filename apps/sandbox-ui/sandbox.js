@@ -36,6 +36,8 @@ const themes = {
 };
 
 let currentAispmReplayPolicyTestsExport = null;
+let currentAispmReplayPolicyDraftPacket = null;
+let currentAispmReplayPolicyTestsPacket = null;
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1467,6 +1469,7 @@ const routeContent = [
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Replay-To-Policy Draft", route: "ai-posture", description: "Convert replay decisions into read-only candidate policy controls." },
   { type: "AI Posture", label: "Replay-To-Policy Tests", route: "ai-posture", description: "Export public-safe policy test fixtures for replay-derived controls." },
+  { type: "AI Posture", label: "Replay-To-Policy Review", route: "ai-posture", description: "Check reviewer readiness before generated controls are used in CI." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -1909,6 +1912,7 @@ async function loadAispmReplayPolicyTests(sessionId) {
 }
 
 function renderAispmReplayPolicy(packet, note = "sample draft") {
+  currentAispmReplayPolicyDraftPacket = packet;
   const summary = packet.summary || {};
   const recommendations = packet.recommendations || [];
   const writeBack = packet.write_back || {};
@@ -1942,9 +1946,11 @@ function renderAispmReplayPolicy(packet, note = "sample draft") {
     </article>
   `).join("") || `<p class="empty-state">No authorable replay decisions found for this session.</p>`;
   el("#aispmReplayPolicyDraft").textContent = JSON.stringify(draft, null, 2);
+  renderAispmReplayPolicyReviewWorkflow();
 }
 
 function renderAispmReplayPolicyTests(packet, note = "sample tests") {
+  currentAispmReplayPolicyTestsPacket = packet;
   const fixture = packet.test_fixture || {};
   const exportPacket = {
     export_status: packet.export?.status || "read_only_preview",
@@ -1956,6 +1962,69 @@ function renderAispmReplayPolicyTests(packet, note = "sample tests") {
   currentAispmReplayPolicyTestsExport = exportPacket;
   el("#aispmReplayPolicyTests").textContent = JSON.stringify(exportPacket, null, 2);
   el("#aispmReplayPolicyTestStatus").textContent = `${exportPacket.export_status} · ${exportPacket.suggested_path} · ${exportPacket.summary?.test_cases ?? fixture.case_count ?? 0} cases`;
+  renderAispmReplayPolicyReviewWorkflow();
+}
+
+function renderAispmReplayPolicyReviewWorkflow() {
+  const draft = currentAispmReplayPolicyDraftPacket || aispmReplayPolicyFallback;
+  const tests = currentAispmReplayPolicyTestsPacket || aispmReplayPolicyTestsFallback;
+  const recommendations = draft.recommendations || [];
+  const fixture = tests.test_fixture || {};
+  const cases = fixture.cases || [];
+  const validationCommands = fixture.validation?.recommended_commands || [];
+  const evidenceBacked = cases.length > 0 && cases.every((item) => (item.evidence_refs || []).length > 0);
+  const checklist = [
+    {
+      label: "Candidate Controls",
+      status: recommendations.length ? "review_required" : "not_ready",
+      detail: recommendations.length ? `${recommendations.length} generated controls need owner review.` : "No generated controls are available."
+    },
+    {
+      label: "Fixture Coverage",
+      status: cases.length >= recommendations.length && recommendations.length ? "pass" : "review_required",
+      detail: `${cases.length} fixture cases for ${recommendations.length} candidate controls.`
+    },
+    {
+      label: "Evidence References",
+      status: evidenceBacked ? "pass" : "review_required",
+      detail: evidenceBacked ? "Each fixture case carries public-safe evidence refs." : "Review evidence refs before CI adoption."
+    },
+    {
+      label: "Validation Commands",
+      status: validationCommands.length ? "pass" : "review_required",
+      detail: validationCommands.length ? validationCommands.join(" · ") : "Add validation commands before CI use."
+    },
+    {
+      label: "Approval Gate",
+      status: draft.write_back?.approval_required || tests.export?.approval_required ? "pass" : "review_required",
+      detail: "Generated outputs remain review-only until approved through change control."
+    },
+    {
+      label: "Enterprise Boundary",
+      status: draft.enterprise_unlocks?.status === "requires_cavra_enterprise" && tests.enterprise_unlocks?.status === "requires_cavra_enterprise" ? "pass" : "review_required",
+      detail: "Prompt, reasoning, raw tool payloads, simulation, and CI write-back remain Enterprise-only."
+    }
+  ];
+  const readyCount = checklist.filter((item) => item.status === "pass").length;
+  const overall = readyCount === checklist.length ? "Ready For Reviewer" : "Reviewer Action Required";
+  el("#aispmReplayPolicyReviewWorkflow").innerHTML = `
+    <div class="review-workflow-header">
+      <div>
+        <h4>Review Workflow</h4>
+        <p>${escapeHtml(overall)} · ${readyCount}/${checklist.length} checks passed · CI adoption still requires human review.</p>
+      </div>
+      <span class="severity ${readyCount === checklist.length ? "approved" : "pending"}">${escapeHtml(overall)}</span>
+    </div>
+    <div class="review-checklist">
+      ${checklist.map((item) => `
+        <article class="review-check">
+          <span>${escapeHtml(item.label)}</span>
+          <strong>${escapeHtml(String(item.status).replaceAll("_", " "))}</strong>
+          <p>${escapeHtml(item.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
 }
 
 async function copyAispmReplayPolicyTests() {

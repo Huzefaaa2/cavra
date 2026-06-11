@@ -77,6 +77,8 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert "saas-automation-grid" in css
     assert "saas-contract-payload" in css
     assert "fixture-export-actions" in css
+    assert "review-workflow-panel" in css
+    assert "review-checklist" in css
     assert "action-buttons" in css
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
@@ -137,6 +139,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         'id="aispmExecutiveNarrative"',
         'id="refreshAispmReplayPolicy"',
         'id="aispmReplayPolicySummary"',
+        'id="aispmReplayPolicyReviewWorkflow"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
         'id="aispmReplayPolicyTestStatus"',
@@ -193,6 +196,7 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         "loadAispmReplayPolicy",
         "renderAispmReplayPolicyTests",
         "loadAispmReplayPolicyTests",
+        "renderAispmReplayPolicyReviewWorkflow",
         "copyAispmReplayPolicyTests",
         "downloadAispmReplayPolicyTests",
         "copyTextToClipboard",

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an AISPM replay-to-policy review workflow panel that summarizes
+  candidate-control, fixture, evidence, validation-command, approval-gate, and
+  Enterprise-boundary readiness before generated outputs are used in CI.
+
 - Added copy and download actions for AISPM replay-to-policy test fixture
   previews in the public GitHub Pages dashboard so reviewers can export
   review-only JSON fixtures without browser developer tools.
