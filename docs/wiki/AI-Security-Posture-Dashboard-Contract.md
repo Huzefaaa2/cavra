@@ -65,6 +65,9 @@ It also includes a replay-to-policy draft panel for candidate controls derived
 from observed replay decisions before reviewed policy changes are committed.
 The same panel also shows replay-to-policy test fixture exports for expected
 policy assertions before reviewed tests are added to CI.
+The portal also offers a replay-to-policy review packet export that combines
+the candidate policy draft, review-only test fixture, and reviewer checklist
+into one public-safe JSON packet for PR attachment or auditor review.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -146,6 +149,12 @@ controls into review-only JSON cases. Each case includes public-safe input
 metadata, expected decision metadata, evidence references, and validation
 notes. It does not run private simulation, generate tests from prompts or raw
 tool payloads, open pull requests, or write CI files.
+
+Community replay-to-policy review packet export combines the policy draft,
+test fixture, checklist status, provenance, and redaction boundaries into a
+single review-only JSON packet. It is intended for PR attachment and auditor
+review only; it is not an automated approval, policy write-back, CI write-back,
+or production rollout action.
 
 These endpoints derive posture from local activity metadata or sample data.
 They do not expose private prompts, proprietary reasoning traces, Enterprise

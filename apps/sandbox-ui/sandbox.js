@@ -38,6 +38,7 @@ const themes = {
 let currentAispmReplayPolicyTestsExport = null;
 let currentAispmReplayPolicyDraftPacket = null;
 let currentAispmReplayPolicyTestsPacket = null;
+let currentAispmReplayPolicyReviewPacket = null;
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1470,6 +1471,7 @@ const routeContent = [
   { type: "AI Posture", label: "Replay-To-Policy Draft", route: "ai-posture", description: "Convert replay decisions into read-only candidate policy controls." },
   { type: "AI Posture", label: "Replay-To-Policy Tests", route: "ai-posture", description: "Export public-safe policy test fixtures for replay-derived controls." },
   { type: "AI Posture", label: "Replay-To-Policy Review", route: "ai-posture", description: "Check reviewer readiness before generated controls are used in CI." },
+  { type: "AI Posture", label: "Replay-To-Policy Packet", route: "ai-posture", description: "Export draft, tests, and review checklist as one public-safe PR packet." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -1968,6 +1970,7 @@ function renderAispmReplayPolicyTests(packet, note = "sample tests") {
 function renderAispmReplayPolicyReviewWorkflow() {
   const draft = currentAispmReplayPolicyDraftPacket || aispmReplayPolicyFallback;
   const tests = currentAispmReplayPolicyTestsPacket || aispmReplayPolicyTestsFallback;
+  const draftPolicy = draft.policy_draft?.policy_pack || draft.policy_draft || {};
   const recommendations = draft.recommendations || [];
   const fixture = tests.test_fixture || {};
   const cases = fixture.cases || [];
@@ -2007,6 +2010,47 @@ function renderAispmReplayPolicyReviewWorkflow() {
   ];
   const readyCount = checklist.filter((item) => item.status === "pass").length;
   const overall = readyCount === checklist.length ? "Ready For Reviewer" : "Reviewer Action Required";
+  currentAispmReplayPolicyReviewPacket = {
+    schema_version: "cavra.aispm.replay_to_policy_review_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "review_packet_export",
+    tracking: "none",
+    telemetry: "disabled",
+    generated_at: new Date().toISOString(),
+    data_provenance: {
+      draft: draft.data_provenance || "sample_data",
+      tests: tests.data_provenance || "sample_data"
+    },
+    source: {
+      session_id: draft.filters?.session_id || tests.filters?.session_id || "current",
+      draft_schema_version: draft.schema_version || "cavra.aispm.replay_to_policy_draft.v1",
+      test_schema_version: tests.schema_version || "cavra.aispm.replay_to_policy_tests.v1"
+    },
+    review_summary: {
+      status: overall,
+      checks_passed: readyCount,
+      checks_total: checklist.length,
+      ci_adoption: "requires_human_review",
+      approval_required: true
+    },
+    review_checklist: checklist,
+    policy_draft: draftPolicy,
+    test_fixture: fixture,
+    export: {
+      status: "review_only_packet",
+      filename: "cavra-replay-policy-review-packet.json",
+      intended_use: "Attach to PRs or auditor review as public-safe evidence of generated policy review readiness."
+    },
+    redaction: {
+      raw_prompts: "requires_cavra_enterprise",
+      model_reasoning: "requires_cavra_enterprise",
+      raw_tool_payloads: "requires_cavra_enterprise",
+      private_simulation_history: "requires_cavra_enterprise",
+      customer_context: "requires_cavra_enterprise"
+    }
+  };
+  el("#aispmReplayPolicyReviewPacketStatus").textContent = `${currentAispmReplayPolicyReviewPacket.export.status} · ${readyCount}/${checklist.length} checks passed · ${currentAispmReplayPolicyReviewPacket.export.filename}`;
   el("#aispmReplayPolicyReviewWorkflow").innerHTML = `
     <div class="review-workflow-header">
       <div>
@@ -2025,6 +2069,28 @@ function renderAispmReplayPolicyReviewWorkflow() {
       `).join("")}
     </div>
   `;
+}
+
+async function copyAispmReplayPolicyReviewPacket() {
+  const payload = JSON.stringify(currentAispmReplayPolicyReviewPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReplayPolicyReviewPacketStatus").textContent = copied
+    ? "Copied public-safe replay-to-policy review packet JSON."
+    : "Copy was blocked by the browser. Use Download Packet or select the JSON from exported artifacts.";
+}
+
+function downloadAispmReplayPolicyReviewPacket() {
+  const payload = JSON.stringify(currentAispmReplayPolicyReviewPacket || {}, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cavra-replay-policy-review-packet.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  el("#aispmReplayPolicyReviewPacketStatus").textContent = "Downloaded public-safe replay-to-policy review packet JSON.";
 }
 
 async function copyAispmReplayPolicyTests() {
@@ -3105,6 +3171,8 @@ function wireEvents() {
   el("#refreshAispmReplayPolicy").addEventListener("click", loadAispmReplayPolicy);
   el("#copyAispmReplayPolicyTests").addEventListener("click", copyAispmReplayPolicyTests);
   el("#downloadAispmReplayPolicyTests").addEventListener("click", downloadAispmReplayPolicyTests);
+  el("#copyAispmReplayPolicyReviewPacket").addEventListener("click", copyAispmReplayPolicyReviewPacket);
+  el("#downloadAispmReplayPolicyReviewPacket").addEventListener("click", downloadAispmReplayPolicyReviewPacket);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

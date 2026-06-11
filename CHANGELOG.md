@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added AISPM replay-to-policy review packet export actions that combine the
+  candidate policy draft, test fixture, and review checklist into one
+  public-safe JSON packet for PR attachment or auditor review.
+
 - Added an AISPM replay-to-policy review workflow panel that summarizes
   candidate-control, fixture, evidence, validation-command, approval-gate, and
   Enterprise-boundary readiness before generated outputs are used in CI.
