@@ -191,6 +191,42 @@ def test_github_aispm_review_packet_validation_template_fails_closed() -> None:
     assert "cavra-aispm-review-packet-validation" in text
 
 
+def test_gitlab_aispm_review_packet_validation_template_fails_closed() -> None:
+    workflow_path = "examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    job = workflow["cavra-aispm-review-packet"]
+    assert job["stage"] == "governance"
+    assert job["image"] == "python:3.11-slim"
+    assert "pip install cavra" in text
+    assert "cavra aispm validate-review-packet" in text
+    assert "cavra-replay-policy-review-packet.json" in text
+    assert "tests/fixtures/replay-to-policy/**" in text
+    assert "CI_MERGE_REQUEST_TARGET_BRANCH_NAME" in text
+    assert "Replay-derived policy or fixture files changed without a CAVRA review packet." in text
+    assert ".cavra/aispm/review-packet-validation/" in job["artifacts"]["paths"]
+
+
+def test_azure_aispm_review_packet_validation_template_fails_closed() -> None:
+    workflow_path = "examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml"
+    workflow = _load_yaml(workflow_path)
+    text = Path(workflow_path).read_text(encoding="utf-8")
+
+    job = workflow["stages"][0]["jobs"][0]
+    assert workflow["trigger"] == "none"
+    assert workflow["pr"] == "none"
+    assert job["displayName"] == "cavra-aispm-review-packet"
+    assert "UsePythonVersion@0" in text
+    assert "pip install cavra" in text
+    assert "cavra aispm validate-review-packet" in text
+    assert "cavra-replay-policy-review-packet.json" in text
+    assert "tests/fixtures/replay-to-policy/**" in text
+    assert "SYSTEM_PULLREQUEST_TARGETBRANCH" in text
+    assert "Replay-derived policy or fixture files changed without a CAVRA review packet." in text
+    assert "cavra-aispm-review-packet-validation" in text
+
+
 def test_github_release_governance_go_runtime_template_uses_typed_daemon_request() -> None:
     workflow_path = "examples/github-actions/cavra-release-governance-go-runtime.yml"
     workflow = _load_yaml(workflow_path)

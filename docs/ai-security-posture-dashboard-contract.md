@@ -202,10 +202,9 @@ Community replay-to-policy review packet validation is available through
 `POST /aispm/replay-to-policy-review-packet/validate`. It verifies the
 packaged schema, fixture case counts, review checklist totals, required human
 approval, and review-only export metadata without approving or mutating any
-policy files. A reusable GitHub Actions gate is available at
-`examples/github-actions/cavra-aispm-review-packet-validation.yml` for teams
-that want replay-derived policy and fixture changes to require a valid review
-packet before merge.
+policy files. Reusable GitHub Actions, GitLab CI, and Azure Pipelines gates are
+available under `examples/` for teams that want replay-derived policy and
+fixture changes to require a valid review packet before merge.
 
 Community PR attachment guidance tells reviewers where to attach the review
 packet, where to commit the reviewed policy draft and fixture, and what

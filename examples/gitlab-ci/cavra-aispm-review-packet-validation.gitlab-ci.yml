@@ -1,0 +1,45 @@
+stages:
+  - governance
+
+cavra-aispm-review-packet:
+  stage: governance
+  image: python:3.11-slim
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+    - python -m pip install --upgrade pip
+    - pip install cavra
+  script:
+    - |
+      set -euo pipefail
+      mkdir -p .cavra/aispm/review-packet-validation
+
+      find . \
+        \( -path "./.git" -o -path "./.venv" -o -path "./node_modules" \) -prune -o \
+        \( -path "./.cavra/aispm/review-packets/*.json" -o -name "cavra-replay-policy-review-packet.json" \) \
+        -type f -print | sort > .cavra/aispm/review-packet-validation/packets.txt
+
+      packet_count="$(wc -l < .cavra/aispm/review-packet-validation/packets.txt | tr -d ' ')"
+      if [ "$packet_count" = "0" ]; then
+        if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-}" ]; then
+          git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --depth=1
+          changed_replay_files="$(git diff --name-only "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"...HEAD -- 'policies/**' 'tests/fixtures/replay-to-policy/**' || true)"
+          if [ -n "$changed_replay_files" ]; then
+            echo "Replay-derived policy or fixture files changed without a CAVRA review packet."
+            echo "$changed_replay_files"
+            exit 1
+          fi
+        fi
+        echo "No replay-to-policy review packets found; nothing to validate."
+        exit 0
+      fi
+
+      while IFS= read -r packet; do
+        safe_name="$(echo "$packet" | sed 's#^\./##; s#[^A-Za-z0-9._-]#-#g')"
+        cavra aispm validate-review-packet "$packet" --json \
+          | tee ".cavra/aispm/review-packet-validation/${safe_name}.validation.json"
+      done < .cavra/aispm/review-packet-validation/packets.txt
+  artifacts:
+    when: always
+    expire_in: 90 days
+    paths:
+      - .cavra/aispm/review-packet-validation/

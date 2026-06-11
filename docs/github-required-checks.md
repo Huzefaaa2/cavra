@@ -41,8 +41,10 @@ Copy one of these templates into downstream repositories:
 - `examples/github-actions/cavra-enterprise-enforcement.yml`: stricter GitHub workflow for signed policy packs, trust-root evidence verification, key IDs, retention minimums, and artifact enforcement.
 - `examples/github-actions/cavra-release-governance-go-runtime.yml`: Go daemon release-governance gate that validates a typed `release_governance` request and uploads daemon evidence.
 - `examples/gitlab-ci/cavra-required-check.gitlab-ci.yml`: GitLab CI equivalent for teams that want the same governance control outside GitHub.
+- `examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml`: GitLab CI AISPM replay-to-policy review packet gate for merge-request pipelines.
 - `examples/gitlab-ci/cavra-release-governance-go-runtime.gitlab-ci.yml`: GitLab CI release-governance gate using the same typed Go daemon request.
 - `examples/azure-pipelines/cavra-required-check.azure-pipelines.yml`: Azure Pipelines equivalent for Azure Repos Build validation branch policies.
+- `examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml`: Azure Pipelines AISPM replay-to-policy review packet gate for Build validation policies.
 - `examples/azure-pipelines/cavra-release-governance-go-runtime.azure-pipelines.yml`: Azure Pipelines release-governance gate for protected release branches or environment checks.
 
 ## Azure DevOps Setup

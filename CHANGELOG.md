@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added GitLab CI and Azure Pipelines AISPM review packet validation templates
+  so replay-to-policy packet gates can be enforced outside GitHub.
+
 - Added a reusable GitHub Actions AISPM review packet validation template that
   runs `cavra aispm validate-review-packet`, uploads validation reports, and
   fails closed when replay-derived policy or fixture changes lack a packet.
