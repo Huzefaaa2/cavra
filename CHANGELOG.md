@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an AISPM CI gate rollout audit packet export that bundles readiness
+  JSON, rollout checklist metadata, platform outcomes, and public-safe
+  evidence attachment names for auditor review.
+
 - Added an AISPM CI gate production rollout checklist Markdown export for
   reviewer-ready branch-protection rollout evidence across GitHub Actions,
   GitLab CI, and Azure Pipelines.

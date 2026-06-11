@@ -70,7 +70,7 @@ the candidate policy draft, review-only test fixture, and reviewer checklist
 into one public-safe JSON packet for PR attachment or auditor review.
 The same view includes PR attachment guidance with exact packet, draft, and
 fixture attachment paths plus copyable reviewer approval language, and a compact
-CI gate panel plus readiness summary, rollout checklist export, and readiness export for GitHub Actions, GitLab CI, and Azure Pipelines setup paths.
+CI gate panel plus readiness summary, rollout checklist export, audit packet export, and readiness export for GitHub Actions, GitLab CI, and Azure Pipelines setup paths.
 
 Community trace replay reconstructs normalized decision steps, evidence
 references, risk classifications, and redaction status. It does not expose raw
@@ -179,6 +179,11 @@ The dashboard also exports a reviewer-ready Markdown rollout checklist that
 summarizes readiness status, validator commands, required checks, template
 paths, and manual branch-protection steps. It is documentation evidence only;
 automated branch-protection write-back remains Enterprise-only.
+
+The same dashboard exports a public-safe rollout audit packet that bundles the
+readiness JSON, rollout checklist metadata, platform outcomes, evidence
+attachment names, and Enterprise boundary flags. It excludes raw prompts,
+model reasoning, customer context, and any live branch-protection mutation.
 
 Community PR attachment guidance tells reviewers where to attach the review
 packet, where to commit the reviewed policy draft and fixture, and what

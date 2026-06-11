@@ -42,6 +42,7 @@ let currentAispmReplayPolicyReviewPacket = null;
 let currentAispmReplayPolicyPrApprovalText = "";
 let currentAispmReplayPolicyCiGateReadiness = null;
 let currentAispmReplayPolicyCiGateRolloutMarkdown = "";
+let currentAispmReplayPolicyCiGateAuditPacket = null;
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1480,6 +1481,7 @@ const routeContent = [
   { type: "AI Posture", label: "CI Gate Readiness Export", route: "ai-posture", description: "Copy or download the branch-protection readiness packet for GitHub, GitLab, and Azure." },
   { type: "AI Posture", label: "CI Gate Readiness Summary", route: "ai-posture", description: "Show ready or action-required status for GitHub, GitLab, and Azure gate rollout." },
   { type: "AI Posture", label: "CI Gate Rollout Checklist", route: "ai-posture", description: "Copy or download reviewer-ready Markdown for production branch-protection rollout." },
+  { type: "AI Posture", label: "CI Gate Rollout Audit Packet", route: "ai-posture", description: "Bundle readiness JSON and rollout checklist metadata for auditor attachment." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2298,6 +2300,57 @@ function renderAispmReplayPolicyCiGateRolloutChecklist(readiness, platformRows, 
   currentAispmReplayPolicyCiGateRolloutMarkdown = lines.join("\n");
   el("#aispmReplayPolicyCiGateRollout").textContent = currentAispmReplayPolicyCiGateRolloutMarkdown;
   el("#aispmReplayPolicyCiGateRolloutStatus").textContent = `${reviewReady ? "ready" : "action_required"} · ${platformRows.length} platforms · cavra-replay-policy-ci-gate-rollout-checklist.md`;
+  renderAispmReplayPolicyCiGateAuditPacket(readiness, platformRows, reviewReady);
+}
+
+function renderAispmReplayPolicyCiGateAuditPacket(readiness, platformRows, reviewReady) {
+  currentAispmReplayPolicyCiGateAuditPacket = {
+    schema_version: "cavra.aispm.replay_to_policy_ci_gate_rollout_audit_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "ci_gate_rollout_audit_packet",
+    tracking: "none",
+    telemetry: "disabled",
+    generated_at: new Date().toISOString(),
+    status: reviewReady ? "ready" : "action_required",
+    readiness_packet: {
+      filename: "cavra-replay-policy-ci-gate-readiness.json",
+      schema_version: readiness.schema_version,
+      source: readiness.source,
+      required_packet: readiness.required_packet,
+      validation: readiness.validation,
+      gates: readiness.gates
+    },
+    rollout_checklist: {
+      filename: "cavra-replay-policy-ci-gate-rollout-checklist.md",
+      format: "markdown",
+      status: reviewReady ? "ready" : "action_required",
+      manual_steps: readiness.readiness_checklist || [],
+      required_check: "cavra-aispm-review-packet",
+      platform_count: platformRows.length
+    },
+    platform_outcomes: platformRows.map((row) => ({
+      platform: row.platform,
+      status: row.status,
+      required_check: row.required_check,
+      template_path: row.template_path,
+      outcome: row.outcome
+    })),
+    evidence_attachments: [
+      "cavra-replay-policy-review-packet.json",
+      "cavra-replay-policy-ci-gate-readiness.json",
+      "cavra-replay-policy-ci-gate-rollout-checklist.md"
+    ],
+    enterprise_boundaries: readiness.enterprise_boundaries || {},
+    public_safety: {
+      raw_prompts: "not_included",
+      model_reasoning: "not_included",
+      customer_context: "not_included",
+      branch_protection_write_back: "requires_cavra_enterprise"
+    }
+  };
+  el("#aispmReplayPolicyCiGateAuditPacket").textContent = JSON.stringify(currentAispmReplayPolicyCiGateAuditPacket, null, 2);
+  el("#aispmReplayPolicyCiGateAuditStatus").textContent = `${currentAispmReplayPolicyCiGateAuditPacket.status} · ${platformRows.length} platforms · cavra-replay-policy-ci-gate-rollout-audit-packet.json`;
 }
 
 async function copyAispmReplayPolicyCiGateReadiness() {
@@ -2340,6 +2393,28 @@ function downloadAispmReplayPolicyCiGateRollout() {
   anchor.remove();
   URL.revokeObjectURL(url);
   el("#aispmReplayPolicyCiGateRolloutStatus").textContent = "Downloaded CI gate production rollout checklist Markdown.";
+}
+
+async function copyAispmReplayPolicyCiGateAuditPacket() {
+  const payload = JSON.stringify(currentAispmReplayPolicyCiGateAuditPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReplayPolicyCiGateAuditStatus").textContent = copied
+    ? "Copied public-safe CI gate rollout audit packet JSON."
+    : "Copy was blocked by the browser. Use Download Audit Packet or select the JSON preview.";
+}
+
+function downloadAispmReplayPolicyCiGateAuditPacket() {
+  const payload = JSON.stringify(currentAispmReplayPolicyCiGateAuditPacket || {}, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cavra-replay-policy-ci-gate-rollout-audit-packet.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  el("#aispmReplayPolicyCiGateAuditStatus").textContent = "Downloaded public-safe CI gate rollout audit packet JSON.";
 }
 
 async function copyAispmReplayPolicyPrApproval() {
@@ -3455,6 +3530,8 @@ function wireEvents() {
   el("#downloadAispmReplayPolicyCiGateReadiness").addEventListener("click", downloadAispmReplayPolicyCiGateReadiness);
   el("#copyAispmReplayPolicyCiGateRollout").addEventListener("click", copyAispmReplayPolicyCiGateRollout);
   el("#downloadAispmReplayPolicyCiGateRollout").addEventListener("click", downloadAispmReplayPolicyCiGateRollout);
+  el("#copyAispmReplayPolicyCiGateAuditPacket").addEventListener("click", copyAispmReplayPolicyCiGateAuditPacket);
+  el("#downloadAispmReplayPolicyCiGateAuditPacket").addEventListener("click", downloadAispmReplayPolicyCiGateAuditPacket);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
