@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a public-safe AISPM CI gate readiness export with copy/download
+  actions for GitHub Actions, GitLab CI, and Azure Pipelines branch-protection
+  setup.
+
 - Added a compact Replay-to-Policy CI Gate panel in the AISPM dashboard with
   GitHub Actions, GitLab CI, and Azure Pipelines setup paths and required
   check names.

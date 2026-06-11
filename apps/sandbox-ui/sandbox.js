@@ -40,6 +40,7 @@ let currentAispmReplayPolicyDraftPacket = null;
 let currentAispmReplayPolicyTestsPacket = null;
 let currentAispmReplayPolicyReviewPacket = null;
 let currentAispmReplayPolicyPrApprovalText = "";
+let currentAispmReplayPolicyCiGateReadiness = null;
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -1475,6 +1476,7 @@ const routeContent = [
   { type: "AI Posture", label: "Replay-To-Policy Packet", route: "ai-posture", description: "Export draft, tests, and review checklist as one public-safe PR packet." },
   { type: "AI Posture", label: "PR Attachment Guidance", route: "ai-posture", description: "Show where to attach replay-to-policy review evidence in a GitHub PR." },
   { type: "AI Posture", label: "Replay-To-Policy CI Gate", route: "ai-posture", description: "Show required check names and GitHub, GitLab, and Azure CI template paths." },
+  { type: "AI Posture", label: "CI Gate Readiness Export", route: "ai-posture", description: "Copy or download the branch-protection readiness packet for GitHub, GitLab, and Azure." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2121,26 +2123,71 @@ function renderAispmReplayPolicyPrGuidance(reviewPacket, testsPacket) {
 
 function renderAispmReplayPolicyCiGate(reviewPacket) {
   const packetFilename = reviewPacket.export?.filename || "cavra-replay-policy-review-packet.json";
+  const checksPassed = reviewPacket.review_summary?.checks_passed ?? 0;
+  const checksTotal = reviewPacket.review_summary?.checks_total ?? 0;
   const gates = [
     {
       platform: "GitHub Actions",
       check: "cavra-aispm-review-packet",
       path: "examples/github-actions/cavra-aispm-review-packet-validation.yml",
-      setup: "Copy into .github/workflows/ and add the check to branch protection."
+      setup: "Copy into .github/workflows/ and add the check to branch protection.",
+      enforcement: "Add cavra-aispm-review-packet as a required status check before merge."
     },
     {
       platform: "GitLab CI",
       check: "cavra-aispm-review-packet",
       path: "examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml",
-      setup: "Include in merge-request pipelines and require the governance job before merge."
+      setup: "Include in merge-request pipelines and require the governance job before merge.",
+      enforcement: "Require the cavra-aispm-review-packet job in merge-request approval rules."
     },
     {
       platform: "Azure Pipelines",
       check: "cavra-aispm-review-packet",
       path: "examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml",
-      setup: "Create a Build validation policy with this pipeline as a required gate."
+      setup: "Create a Build validation policy with this pipeline as a required gate.",
+      enforcement: "Configure branch policy Build validation with cavra-aispm-review-packet required."
     }
   ];
+  currentAispmReplayPolicyCiGateReadiness = {
+    schema_version: "cavra.aispm.replay_to_policy_ci_gate_readiness.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "ci_gate_readiness_export",
+    tracking: "none",
+    telemetry: "disabled",
+    generated_at: new Date().toISOString(),
+    source: {
+      review_packet: packetFilename,
+      review_packet_status: reviewPacket.export?.status || "review_only_packet",
+      review_summary_status: reviewPacket.review_summary?.status || "Reviewer Action Required",
+      checks_passed: checksPassed,
+      checks_total: checksTotal
+    },
+    required_packet: {
+      filename: packetFilename,
+      purpose: "Required public-safe evidence packet for replay-derived policy or fixture changes."
+    },
+    gates: gates.map((gate) => ({
+      platform: gate.platform,
+      required_check: gate.check,
+      template_path: gate.path,
+      setup: gate.setup,
+      enforcement: gate.enforcement
+    })),
+    readiness_checklist: [
+      "Copy the platform template into the repository CI configuration.",
+      "Require the cavra-aispm-review-packet check before merge.",
+      `Attach or commit ${packetFilename} with replay-derived policy and fixture changes.`,
+      "Verify the gate fails closed when replay-derived changes do not include a valid packet.",
+      "Keep production enforcement behind normal CAVRA policy publishing and approval gates."
+    ],
+    enterprise_boundaries: {
+      automated_ci_write_back: "requires_cavra_enterprise",
+      tenant_policy_distribution: "requires_cavra_enterprise",
+      private_connector_configuration: "requires_cavra_enterprise"
+    }
+  };
+  el("#aispmReplayPolicyCiGateStatus").textContent = `ready_export · ${gates.length} platforms · ${checksPassed}/${checksTotal} review checks · cavra-replay-policy-ci-gate-readiness.json`;
   el("#aispmReplayPolicyCiGate").innerHTML = `
     <div class="ci-gate-header">
       <div>
@@ -2160,6 +2207,28 @@ function renderAispmReplayPolicyCiGate(reviewPacket) {
       `).join("")}
     </div>
   `;
+}
+
+async function copyAispmReplayPolicyCiGateReadiness() {
+  const payload = JSON.stringify(currentAispmReplayPolicyCiGateReadiness || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReplayPolicyCiGateStatus").textContent = copied
+    ? "Copied public-safe CI gate readiness JSON."
+    : "Copy was blocked by the browser. Use Download Readiness or select the JSON from exported artifacts.";
+}
+
+function downloadAispmReplayPolicyCiGateReadiness() {
+  const payload = JSON.stringify(currentAispmReplayPolicyCiGateReadiness || {}, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cavra-replay-policy-ci-gate-readiness.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  el("#aispmReplayPolicyCiGateStatus").textContent = "Downloaded public-safe CI gate readiness JSON.";
 }
 
 async function copyAispmReplayPolicyPrApproval() {
@@ -3271,6 +3340,8 @@ function wireEvents() {
   el("#downloadAispmReplayPolicyTests").addEventListener("click", downloadAispmReplayPolicyTests);
   el("#copyAispmReplayPolicyReviewPacket").addEventListener("click", copyAispmReplayPolicyReviewPacket);
   el("#downloadAispmReplayPolicyReviewPacket").addEventListener("click", downloadAispmReplayPolicyReviewPacket);
+  el("#copyAispmReplayPolicyCiGateReadiness").addEventListener("click", copyAispmReplayPolicyCiGateReadiness);
+  el("#downloadAispmReplayPolicyCiGateReadiness").addEventListener("click", downloadAispmReplayPolicyCiGateReadiness);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);
