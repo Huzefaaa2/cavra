@@ -1474,6 +1474,7 @@ const routeContent = [
   { type: "AI Posture", label: "Replay-To-Policy Review", route: "ai-posture", description: "Check reviewer readiness before generated controls are used in CI." },
   { type: "AI Posture", label: "Replay-To-Policy Packet", route: "ai-posture", description: "Export draft, tests, and review checklist as one public-safe PR packet." },
   { type: "AI Posture", label: "PR Attachment Guidance", route: "ai-posture", description: "Show where to attach replay-to-policy review evidence in a GitHub PR." },
+  { type: "AI Posture", label: "Replay-To-Policy CI Gate", route: "ai-posture", description: "Show required check names and GitHub, GitLab, and Azure CI template paths." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -2054,6 +2055,7 @@ function renderAispmReplayPolicyReviewWorkflow() {
   };
   el("#aispmReplayPolicyReviewPacketStatus").textContent = `${currentAispmReplayPolicyReviewPacket.export.status} · ${readyCount}/${checklist.length} checks passed · ${currentAispmReplayPolicyReviewPacket.export.filename}`;
   renderAispmReplayPolicyPrGuidance(currentAispmReplayPolicyReviewPacket, tests);
+  renderAispmReplayPolicyCiGate(currentAispmReplayPolicyReviewPacket);
   el("#aispmReplayPolicyReviewWorkflow").innerHTML = `
     <div class="review-workflow-header">
       <div>
@@ -2115,6 +2117,49 @@ function renderAispmReplayPolicyPrGuidance(reviewPacket, testsPacket) {
     </article>
   `;
   el("#copyAispmReplayPolicyPrApproval").addEventListener("click", copyAispmReplayPolicyPrApproval);
+}
+
+function renderAispmReplayPolicyCiGate(reviewPacket) {
+  const packetFilename = reviewPacket.export?.filename || "cavra-replay-policy-review-packet.json";
+  const gates = [
+    {
+      platform: "GitHub Actions",
+      check: "cavra-aispm-review-packet",
+      path: "examples/github-actions/cavra-aispm-review-packet-validation.yml",
+      setup: "Copy into .github/workflows/ and add the check to branch protection."
+    },
+    {
+      platform: "GitLab CI",
+      check: "cavra-aispm-review-packet",
+      path: "examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml",
+      setup: "Include in merge-request pipelines and require the governance job before merge."
+    },
+    {
+      platform: "Azure Pipelines",
+      check: "cavra-aispm-review-packet",
+      path: "examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml",
+      setup: "Create a Build validation policy with this pipeline as a required gate."
+    }
+  ];
+  el("#aispmReplayPolicyCiGate").innerHTML = `
+    <div class="ci-gate-header">
+      <div>
+        <h4>Replay-To-Policy CI Gate</h4>
+        <p>Require a valid <code>${escapeHtml(packetFilename)}</code> before replay-derived policy drafts or fixtures merge.</p>
+      </div>
+      <span class="severity approved">Cross-platform</span>
+    </div>
+    <div class="ci-gate-grid">
+      ${gates.map((gate) => `
+        <article class="ci-gate-card">
+          <span>${escapeHtml(gate.platform)}</span>
+          <strong>${escapeHtml(gate.check)}</strong>
+          <code>${escapeHtml(gate.path)}</code>
+          <p>${escapeHtml(gate.setup)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
 }
 
 async function copyAispmReplayPolicyPrApproval() {

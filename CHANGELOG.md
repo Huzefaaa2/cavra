@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a compact Replay-to-Policy CI Gate panel in the AISPM dashboard with
+  GitHub Actions, GitLab CI, and Azure Pipelines setup paths and required
+  check names.
+
 - Added GitLab CI and Azure Pipelines AISPM review packet validation templates
   so replay-to-policy packet gates can be enforced outside GitHub.
 
