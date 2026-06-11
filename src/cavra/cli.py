@@ -12,6 +12,7 @@ from rich.json import JSON
 from cavra import __version__
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
+from cavra.aispm_validation import validate_aispm_replay_to_policy_review_packet_file
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -221,6 +222,7 @@ ops_app = typer.Typer(help="Persistent API operations commands.")
 release_app = typer.Typer(help="Release package verification commands.")
 runtime_app = typer.Typer(help="Runtime backend pilot commands.")
 saas_app = typer.Typer(help="Public-safe SaaS Control Plane contract commands.")
+aispm_app = typer.Typer(help="AI Security Posture Management commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -233,11 +235,31 @@ app.add_typer(ops_app, name="ops")
 app.add_typer(release_app, name="release")
 app.add_typer(runtime_app, name="runtime")
 app.add_typer(saas_app, name="saas")
+app.add_typer(aispm_app, name="aispm")
 
 
 @app.command()
 def version() -> None:
     typer.echo(f"cavra {__version__}")
+
+
+@aispm_app.command("validate-review-packet")
+def validate_aispm_review_packet(
+    path: Annotated[Path, typer.Argument(help="Path to cavra-replay-policy-review-packet.json.")],
+    json_output: bool = typer.Option(False, "--json", help="Print the validation report JSON."),
+) -> None:
+    """Validate an AISPM replay-to-policy review packet before PR attachment."""
+    report = validate_aispm_replay_to_policy_review_packet_file(path)
+    if json_output:
+        typer.echo(json.dumps(report, indent=2))
+    elif report["valid"]:
+        console.print(f"[green]valid[/green] {path}")
+    else:
+        console.print(f"[red]invalid[/red] {path}")
+        for error in report["errors"]:
+            console.print(f"  - {error['path']}: {error['message']}")
+    if not report["valid"]:
+        raise typer.Exit(code=1)
 
 
 @app.command()

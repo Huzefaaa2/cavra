@@ -197,6 +197,13 @@ single review-only JSON packet. It is intended for PR attachment and auditor
 review only; it is not an automated approval, policy write-back, CI write-back,
 or production rollout action.
 
+Community replay-to-policy review packet validation is available through
+`cavra aispm validate-review-packet <packet.json>` and
+`POST /aispm/replay-to-policy-review-packet/validate`. It verifies the
+packaged schema, fixture case counts, review checklist totals, required human
+approval, and review-only export metadata without approving or mutating any
+policy files.
+
 Community PR attachment guidance tells reviewers where to attach the review
 packet, where to commit the reviewed policy draft and fixture, and what
 approval wording to use. It remains advisory guidance only and does not submit,

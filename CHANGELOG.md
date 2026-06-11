@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added CLI and API validation for AISPM replay-to-policy review packets so
+  exported PR and auditor attachments can be checked against the packaged
+  schema and semantic consistency rules before use.
+
 - Added a packaged AISPM replay-to-policy review packet schema and
   deterministic Community sample for PR and auditor attachment validation.
 

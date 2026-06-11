@@ -208,6 +208,39 @@ def test_saas_worker_handoff_cli_rejects_sensitive_values() -> None:
     assert "sensitive value" in result.output
 
 
+def test_aispm_validate_review_packet_cli_accepts_packaged_sample() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "aispm",
+            "validate-review-packet",
+            "examples/aispm/community-replay-to-policy-review-packet-sample.json",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["schema_version"] == "cavra.aispm.review_packet_validation.v1"
+    assert payload["valid"] is True
+    assert payload["packet_schema_version"] == "cavra.aispm.replay_to_policy_review_packet.v1"
+
+
+def test_aispm_validate_review_packet_cli_rejects_inconsistent_packet(tmp_path: Path) -> None:
+    packet_path = tmp_path / "packet.json"
+    payload = json.loads(
+        Path("examples/aispm/community-replay-to-policy-review-packet-sample.json").read_text(encoding="utf-8")
+    )
+    payload["test_fixture"]["case_count"] = 999
+    packet_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    result = runner.invoke(app, ["aispm", "validate-review-packet", str(packet_path)])
+
+    assert result.exit_code == 1
+    assert "invalid" in result.output
+    assert "case_count must match" in result.output
+
+
 def test_policy_keygen_sign_and_verify_cli_round_trip(tmp_path: Path) -> None:
     policy_path = tmp_path / "policy.yaml"
     keys_dir = tmp_path / "keys"

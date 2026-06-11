@@ -26,6 +26,7 @@ from cavra.aispm import (
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
 )
+from cavra.aispm_validation import validate_aispm_replay_to_policy_review_packet
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -650,6 +651,7 @@ def create_app():
                 "aispm_executive_risk_narrative": "/aispm/executive-risk-narrative",
                 "aispm_replay_to_policy_draft": "/aispm/replay-to-policy-draft",
                 "aispm_replay_to_policy_tests": "/aispm/replay-to-policy-tests",
+                "aispm_replay_to_policy_review_packet_validate": "/aispm/replay-to-policy-review-packet/validate",
                 "repositories": "/repositories",
                 "policy_rollouts": "/policy-rollouts",
                 "policy_rollout_change_plan": "/policy-rollouts/change-plan",
@@ -1138,6 +1140,10 @@ def create_app():
             policy_pack=policy_pack,
             limit=limit,
         )
+
+    @app.post("/aispm/replay-to-policy-review-packet/validate")
+    def aispm_replay_to_policy_review_packet_validate(packet: dict) -> dict:
+        return validate_aispm_replay_to_policy_review_packet(packet, source="api")
 
     @app.get("/aispm/near-misses")
     def aispm_near_misses(
