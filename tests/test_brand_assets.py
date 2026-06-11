@@ -76,6 +76,8 @@ def test_readme_and_sandbox_reference_brand_assets() -> None:
     assert "release-note-links" in css
     assert "saas-automation-grid" in css
     assert "saas-contract-payload" in css
+    assert "fixture-export-actions" in css
+    assert "action-buttons" in css
     assert 'class="hero-product-mark"' in html
     assert 'width="220" height="220"' in html
     assert ".hero-side { position: absolute;" in css
@@ -137,6 +139,9 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         'id="aispmReplayPolicySummary"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
+        'id="aispmReplayPolicyTestStatus"',
+        'id="copyAispmReplayPolicyTests"',
+        'id="downloadAispmReplayPolicyTests"',
         'id="aispmReplayPolicyTests"',
         'id="refreshAispmFingerprints"',
         'id="aispmFingerprintSummary"',
@@ -188,6 +193,10 @@ def test_sandbox_is_portal_style_developer_experience() -> None:
         "loadAispmReplayPolicy",
         "renderAispmReplayPolicyTests",
         "loadAispmReplayPolicyTests",
+        "copyAispmReplayPolicyTests",
+        "downloadAispmReplayPolicyTests",
+        "copyTextToClipboard",
+        "cavra-replay-policy-tests.json",
         "/aispm/replay-to-policy-draft",
         "/aispm/replay-to-policy-tests",
         "renderAispmTraceReplay",

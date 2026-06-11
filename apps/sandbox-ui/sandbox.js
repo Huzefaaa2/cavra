@@ -35,6 +35,8 @@ const themes = {
   executive: "Executive"
 };
 
+let currentAispmReplayPolicyTestsExport = null;
+
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
   ["Evidence Types", "28", "Bundles, attestations, approvals, release packets"],
@@ -1944,13 +1946,65 @@ function renderAispmReplayPolicy(packet, note = "sample draft") {
 
 function renderAispmReplayPolicyTests(packet, note = "sample tests") {
   const fixture = packet.test_fixture || {};
-  el("#aispmReplayPolicyTests").textContent = JSON.stringify({
+  const exportPacket = {
     export_status: packet.export?.status || "read_only_preview",
     suggested_path: packet.export?.suggested_path || "tests/fixtures/replay-to-policy/generated.json",
     data_provenance: `${packet.data_provenance || "sample_data"} · ${note}`,
     summary: packet.summary || {},
     test_fixture: fixture
-  }, null, 2);
+  };
+  currentAispmReplayPolicyTestsExport = exportPacket;
+  el("#aispmReplayPolicyTests").textContent = JSON.stringify(exportPacket, null, 2);
+  el("#aispmReplayPolicyTestStatus").textContent = `${exportPacket.export_status} · ${exportPacket.suggested_path} · ${exportPacket.summary?.test_cases ?? fixture.case_count ?? 0} cases`;
+}
+
+async function copyAispmReplayPolicyTests() {
+  const payload = JSON.stringify(currentAispmReplayPolicyTestsExport || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReplayPolicyTestStatus").textContent = copied
+    ? "Copied review-only replay-to-policy test fixture JSON."
+    : "Copy was blocked by the browser. Select the JSON preview or use Download JSON.";
+}
+
+function downloadAispmReplayPolicyTests() {
+  const payload = JSON.stringify(currentAispmReplayPolicyTestsExport || {}, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cavra-replay-policy-tests.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  el("#aispmReplayPolicyTestStatus").textContent = "Downloaded review-only replay-to-policy test fixture JSON.";
+}
+
+async function copyTextToClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (error) {
+    // Fall through to the selection-based copy path for restricted browsers.
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch (error) {
+    copied = false;
+  }
+  textarea.remove();
+  return copied;
 }
 
 function summarizeApprovalLineage(items) {
@@ -2980,6 +3034,8 @@ function wireEvents() {
   el("#refreshAispmEvidenceFreshness").addEventListener("click", loadAispmEvidenceFreshness);
   el("#refreshAispmExecutiveNarrative").addEventListener("click", loadAispmExecutiveNarrative);
   el("#refreshAispmReplayPolicy").addEventListener("click", loadAispmReplayPolicy);
+  el("#copyAispmReplayPolicyTests").addEventListener("click", copyAispmReplayPolicyTests);
+  el("#downloadAispmReplayPolicyTests").addEventListener("click", downloadAispmReplayPolicyTests);
   el("#refreshAispmFingerprints").addEventListener("click", loadAispmBehaviorFingerprints);
   el("#refreshAispmContextGaps").addEventListener("click", loadAispmPolicyContextGaps);
   el("#refreshAispmForecasts").addEventListener("click", loadAispmPreActionForecasts);

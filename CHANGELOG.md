@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added copy and download actions for AISPM replay-to-policy test fixture
+  previews in the public GitHub Pages dashboard so reviewers can export
+  review-only JSON fixtures without browser developer tools.
+
 - Added public-safe AISPM replay-to-policy test fixture exports for Community,
   including `/aispm/replay-to-policy-tests`, packaged schema/sample data,
   dashboard fixture JSON previews, docs/wiki updates, and Enterprise-locked

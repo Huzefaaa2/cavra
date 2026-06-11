@@ -32,8 +32,8 @@ Delivered UX:
   for agent/tool/target/policy edge hotspots, and agent blast-radius mapping
   for repository/target/tool/policy reach, control coverage heatmap views,
   evidence confidence drilldowns, evidence freshness SLO panels, executive
-  risk narratives, and replay-to-policy draft and test fixture previews
-  by agent, repository, and control surface;
+  risk narratives, and replay-to-policy draft and test fixture previews with
+  copy/download JSON export actions by agent, repository, and control surface;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 
@@ -42,7 +42,7 @@ Delivered UX:
 | Route | Purpose |
 | --- | --- |
 | `#dashboard` | Hero, mission, feature cards, risk score, governance metrics, Community GA controls, and production pilot readiness. |
-| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, policy context gaps, pre-action risk forecasts, intent-to-action drift, tool-chain risk graph, agent blast-radius map, control coverage heatmap, evidence confidence drilldown, evidence freshness and retention SLO panel, executive risk narrative, replay-to-policy draft and test fixture previews, timeline, approval lineage, behavior fingerprinting, trace replay packet drill-down, and Enterprise locked controls. |
+| `#ai-posture` | Public-safe AISPM view with sample/local activity provenance, posture score, agent coverage, risk findings, control coverage, near-miss queue, policy context gaps, pre-action risk forecasts, intent-to-action drift, tool-chain risk graph, agent blast-radius map, control coverage heatmap, evidence confidence drilldown, evidence freshness and retention SLO panel, executive risk narrative, replay-to-policy draft and copy/download test fixture previews, timeline, approval lineage, behavior fingerprinting, trace replay packet drill-down, and Enterprise locked controls. |
 | `#architecture` | Interactive node explorer for source platforms, IaC/cloud, CAVRA, Policy Engine, Evidence Engine, and audit trail. |
 | `#policy-engine` | Policy packs, risk levels, violation examples, and remediation guidance. |
 | `#evidence` | Evidence workflow, attestations, chain of custody, and sample evidence payload. |

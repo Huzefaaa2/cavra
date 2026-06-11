@@ -142,6 +142,9 @@ def main() -> int:
         'id="aispmReplayPolicySummary"',
         'id="aispmReplayPolicyRecommendations"',
         'id="aispmReplayPolicyDraft"',
+        'id="aispmReplayPolicyTestStatus"',
+        'id="copyAispmReplayPolicyTests"',
+        'id="downloadAispmReplayPolicyTests"',
         'id="aispmReplayPolicyTests"',
         'id="refreshAispmFingerprints"',
         'id="aispmFingerprintSummary"',
@@ -199,6 +202,8 @@ def main() -> int:
         'body[data-theme="classic"]',
         'body[data-theme="retro"]',
         'body[data-theme="executive"]',
+        ".fixture-export-actions",
+        ".action-buttons",
     ]:
         require(css, needle, "mobile portal CSS", failures)
 
@@ -237,6 +242,10 @@ def main() -> int:
         "loadAispmReplayPolicy",
         "renderAispmReplayPolicyTests",
         "loadAispmReplayPolicyTests",
+        "copyAispmReplayPolicyTests",
+        "downloadAispmReplayPolicyTests",
+        "copyTextToClipboard",
+        "cavra-replay-policy-tests.json",
         "renderAispmTraceReplay",
         "loadAispmTraceReplay",
         "loadAispmDashboard",

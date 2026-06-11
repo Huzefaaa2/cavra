@@ -28,7 +28,7 @@ CAVRA sandbox portal smoke validation passed.
 - The command palette includes page, policy, integration, control, and use-case
   search content, plus AI Posture entries for agent observability, kill switch,
   evidence confidence, trace replay, approval lineage, behavior
-  fingerprinting, policy context gaps, pre-action risk forecasts, intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, and replay-to-policy draft and test fixture previews.
+  fingerprinting, policy context gaps, pre-action risk forecasts, intent-to-action drift, tool-chain risk graphing, agent blast-radius mapping, control coverage heatmap views, and replay-to-policy draft and copy/download test fixture previews.
 - Theme selectors remain available on desktop and mobile for Sentinel, Classic,
   Retro, and Executive dashboard themes.
 - Mobile drawer and bottom navigation anchors remain available.
@@ -37,7 +37,7 @@ CAVRA sandbox portal smoke validation passed.
 - AI Posture DOM anchors remain available for provenance, overview cards,
   agent coverage, findings, control coverage, near misses, timeline, trace
   replay drill-down, approval lineage, behavior fingerprinting, pre-action
-  risk forecasts, intent-to-action drift, tool-chain risk graph, agent blast-radius map, control coverage heatmap, replay-to-policy draft, replay-to-policy test fixtures, payload,
+  risk forecasts, intent-to-action drift, tool-chain risk graph, agent blast-radius map, control coverage heatmap, replay-to-policy draft, replay-to-policy test fixture copy/download actions, payload,
   `/aispm/posture`, `/aispm/trace-replay`, `/aispm/replay-to-policy-draft`, `/aispm/replay-to-policy-tests`, `/aispm/approval-lineage`, and
   `/aispm/behavior-fingerprints` plus `/aispm/policy-context-gaps` and
   `/aispm/pre-action-risk-forecasts`, `/aispm/intent-action-drift`, `/aispm/tool-chain-graph`, and
