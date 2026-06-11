@@ -1,0 +1,242 @@
+{
+  "schema_version": "cavra.aispm.replay_to_policy_review_packet.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "review_packet_export",
+  "tracking": "none",
+  "telemetry": "disabled",
+  "generated_at": "2026-06-09T00:04:00+00:00",
+  "data_provenance": {
+    "draft": "sample_data",
+    "tests": "sample_data"
+  },
+  "source": {
+    "session_id": "sample-session-001",
+    "draft_schema_version": "cavra.aispm.replay_to_policy_draft.v1",
+    "test_schema_version": "cavra.aispm.replay_to_policy_tests.v1"
+  },
+  "review_summary": {
+    "status": "ready_for_review",
+    "checks_passed": 6,
+    "checks_total": 6,
+    "ci_adoption": "requires_human_review",
+    "approval_required": true
+  },
+  "review_checklist": [
+    {
+      "label": "Policy draft generated",
+      "status": "pass",
+      "detail": "Three candidate controls were generated from normalized CAVRA decisions."
+    },
+    {
+      "label": "Fixture coverage",
+      "status": "pass",
+      "detail": "Three public-safe replay-to-policy test cases are included."
+    },
+    {
+      "label": "Evidence references",
+      "status": "pass",
+      "detail": "Every test case references sample evidence metadata."
+    },
+    {
+      "label": "Review-only export",
+      "status": "pass",
+      "detail": "Community export is read-only and does not modify policy files."
+    },
+    {
+      "label": "Enterprise boundaries",
+      "status": "pass",
+      "detail": "Private prompts, model reasoning, raw tool payloads, tenant history, and CI write-back are locked to Enterprise."
+    },
+    {
+      "label": "Human approval",
+      "status": "pass",
+      "detail": "Policy adoption requires human review before commit and CI enforcement."
+    }
+  ],
+  "policy_draft": {
+    "schema_version": "cavra.policy_pack.draft.v1",
+    "product": "CAVRA",
+    "valid": true,
+    "errors": [],
+    "policy_pack": {
+      "metadata": {
+        "id": "cavra-replay-derived-sample-session-001",
+        "title": "Replay-Derived AI Agent Controls",
+        "description": "Read-only Community draft generated from normalized AISPM replay decisions.",
+        "version": "2026.06.10",
+        "inherits": "cavra-ai-agent-baseline",
+        "mode": "enforce"
+      },
+      "filesystem": {
+        "block_read": [
+          ".env*"
+        ]
+      },
+      "commands": {
+        "require_approval": [
+          "terraform apply*"
+        ]
+      },
+      "mcp": {
+        "allowlist_enabled": true
+      },
+      "approvals": {
+        "replay_to_policy_authoring": {
+          "approvers": [
+            "Platform Security"
+          ],
+          "source": "aispm_replay_to_policy"
+        }
+      },
+      "evidence": {
+        "require_pr_attestation": true,
+        "require_replay_evidence": true,
+        "source": "aispm_replay_to_policy"
+      },
+      "compliance": {
+        "maps_to": [
+          "SOC 2 Change Management",
+          "NIST SSDF RV.1.3",
+          "Internal AI Governance"
+        ]
+      }
+    },
+    "summary": {
+      "policy_id": "cavra-replay-derived-sample-session-001",
+      "title": "Replay-Derived AI Agent Controls",
+      "version": "2026.06.10",
+      "inherits": "cavra-ai-agent-baseline",
+      "mode": "enforce",
+      "rule_counts": {
+        "filesystem": 1,
+        "commands": 1,
+        "git": 0,
+        "mcp": 1,
+        "approvals": 2,
+        "evidence": 3,
+        "compliance": 3
+      }
+    },
+    "operator_notes": [
+      "Draft generation is read-only and does not write to the policy directory.",
+      "Commit reviewed policy YAML through repository change control before rollout."
+    ]
+  },
+  "test_fixture": {
+    "schema_version": "cavra.policy_tests.replay_to_policy.v1",
+    "policy_id": "cavra-replay-derived-sample-session-001",
+    "source_scope": "sample-session-001",
+    "case_count": 3,
+    "cases": [
+      {
+        "case_id": "replay-policy-test-1-sample-dec-001",
+        "recommendation_id": "policy-rec-1-sample-dec-001",
+        "decision_id": "sample-dec-001",
+        "description": "Assert commands.require_approval for infrastructure_iac.",
+        "input": {
+          "action_type": "execute_command",
+          "target": "terraform apply*",
+          "target_summary": "terraform apply",
+          "target_redacted": false,
+          "agent_id": "codex-agent",
+          "repository": "payments/api",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "require_approval",
+          "severity": "high",
+          "policy_section": "commands",
+          "rule_key": "require_approval",
+          "proposed_value": "terraform apply*",
+          "risk_classification": "infrastructure_change_risk"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/iac-production-change"
+        ]
+      },
+      {
+        "case_id": "replay-policy-test-2-sample-dec-002",
+        "recommendation_id": "policy-rec-2-sample-dec-002",
+        "decision_id": "sample-dec-002",
+        "description": "Assert filesystem.block_read for sensitive_data.",
+        "input": {
+          "action_type": "read_file",
+          "target": ".env*",
+          "target_summary": "sensitive target redacted",
+          "target_redacted": true,
+          "agent_id": "codex-agent",
+          "repository": "payments/api",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "block",
+          "severity": "critical",
+          "policy_section": "filesystem",
+          "rule_key": "block_read",
+          "proposed_value": ".env*",
+          "risk_classification": "credential_or_sensitive_data_exposure"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/secret-read-block"
+        ]
+      },
+      {
+        "case_id": "replay-policy-test-3-sample-dec-003",
+        "recommendation_id": "policy-rec-3-sample-dec-003",
+        "decision_id": "sample-dec-003",
+        "description": "Assert mcp.allowlist_enabled for mcp_tools.",
+        "input": {
+          "action_type": "mcp_tool_call",
+          "target": "filesystem.write",
+          "target_summary": "filesystem.write",
+          "target_redacted": false,
+          "agent_id": "claude-code-agent",
+          "repository": "platform/infra",
+          "policy_pack": "cavra-replay-derived-sample-session-001"
+        },
+        "expected": {
+          "decision": "warn",
+          "severity": "medium",
+          "policy_section": "mcp",
+          "rule_key": "allowlist_enabled",
+          "proposed_value": true,
+          "risk_classification": "tool_or_mcp_governance_risk"
+        },
+        "assertion_type": "metadata_derived_policy_expectation",
+        "public_safe": true,
+        "evidence_refs": [
+          "sample://evidence/mcp-warning"
+        ]
+      }
+    ],
+    "validation": {
+      "community_mode": "review_only",
+      "recommended_commands": [
+        "cavra policy validate policies/cavra-replay-derived-sample-session-001/policy.yaml",
+        "cavra policy test"
+      ],
+      "notes": [
+        "Generated cases are public-safe assertions derived from normalized CAVRA decisions.",
+        "Review generated cases before committing them to repository CI.",
+        "Private prompt, reasoning, ticket, and tenant-history simulation requires CAVRA Enterprise."
+      ]
+    }
+  },
+  "export": {
+    "status": "review_only_packet",
+    "filename": "cavra-replay-policy-review-packet.json",
+    "intended_use": "Attach to PRs or auditor review as public-safe evidence of generated policy review readiness."
+  },
+  "redaction": {
+    "raw_prompts": "requires_cavra_enterprise",
+    "model_reasoning": "requires_cavra_enterprise",
+    "raw_tool_payloads": "requires_cavra_enterprise",
+    "private_simulation_history": "requires_cavra_enterprise",
+    "customer_context": "requires_cavra_enterprise"
+  }
+}

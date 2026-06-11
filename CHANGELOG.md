@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added a packaged AISPM replay-to-policy review packet schema and
+  deterministic Community sample for PR and auditor attachment validation.
+
 - Added compact AISPM replay-to-policy PR attachment guidance with exact
   review packet, policy draft, test fixture attachment paths, and copyable
   reviewer approval language.

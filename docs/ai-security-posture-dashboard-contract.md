@@ -321,3 +321,8 @@ The packaged Community replay-to-policy test fixture schema is available at
 `src/cavra/schemas/aispm-replay-to-policy-tests.schema.json`. A deterministic
 sample packet is available at
 `examples/aispm/community-replay-to-policy-tests-sample.json`.
+
+The packaged Community replay-to-policy review packet schema is available at
+`src/cavra/schemas/aispm-replay-to-policy-review-packet.schema.json`. A
+deterministic sample packet is available at
+`examples/aispm/community-replay-to-policy-review-packet-sample.json`.
