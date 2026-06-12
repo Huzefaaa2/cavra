@@ -127,8 +127,9 @@ textarea { width: 100%; resize: vertical; line-height: 1.45; }
 
 .top-shell { position: sticky; top: 0; z-index: 80; height: 72px; display: grid; grid-template-columns: 300px minmax(280px, 1fr) auto; gap: 16px; align-items: center; padding: 0 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); background: var(--header); backdrop-filter: blur(18px); }
 .brand-zone, .hero-title-block { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.brand-zone > div, .hero-title-block > div { min-width: 0; max-width: 100%; overflow: hidden; }
 .brand-zone img, .hero-title-block img { filter: var(--brand-filter); }
-.hero-wordmark { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: .08em; }
+.hero-wordmark { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand-zone span, .hero-title-block span { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .search-trigger { height: 44px; display: flex; justify-content: space-between; align-items: center; border-color: var(--line); background: var(--panel); color: var(--muted); text-align: left; }
 .search-trigger kbd { color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; background: var(--panel-soft); }
