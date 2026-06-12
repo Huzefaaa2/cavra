@@ -190,6 +190,7 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .feature-card p, .integration-card p, .usecase-card p, .policy-card p, .posture-card p, .operator-path-card dd { color: var(--muted); line-height: 1.5; }
 .posture-card span, .posture-toolbar span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
 .posture-card strong, .posture-toolbar strong { display: block; margin-top: 6px; font-size: 26px; }
+.posture-card *, .board-pack-card *, .board-pack-manifest-card *, .report-card * { max-width: 100%; overflow-wrap: anywhere; }
 .posture-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 14px; background: var(--panel); }
 .posture-overview-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .posture-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 18px; }
