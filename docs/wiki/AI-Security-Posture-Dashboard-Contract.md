@@ -11,6 +11,9 @@ public-safe control coverage heatmap views, public-safe evidence confidence
 drilldowns, public-safe evidence freshness SLO panels, and deterministic
 public-safe executive risk narratives, and public-safe replay-to-policy draft
 authoring.
+It also includes a Community CSO Report Center and a public-safe Enterprise
+report delivery contract without exposing Enterprise rendering, scheduling,
+email delivery, tenant persistence, or license enforcement implementation.
 
 Community Edition provides:
 
@@ -34,6 +37,8 @@ Community Edition provides:
 - `GET /aispm/evidence-confidence`
 - `GET /aispm/evidence-freshness`
 - `GET /aispm/executive-risk-narrative`
+- Browser-generated Community report downloads in the static `AI Posture`
+  route
 - `GET /aispm/replay-to-policy-draft`
 - `GET /aispm/replay-to-policy-tests`
 
@@ -265,3 +270,140 @@ The packaged Community replay-to-policy CI gate readiness schema is
 `src/cavra/schemas/aispm-replay-to-policy-ci-gate-readiness.schema.json`, with
 a deterministic sample packet at
 `examples/aispm/community-replay-to-policy-ci-gate-readiness-sample.json`.
+
+The packaged public Enterprise live ingestion envelope contract is
+`src/cavra/schemas/aispm-enterprise-live-ingestion-envelope.schema.json`, with
+a redacted public contract example at
+`examples/aispm/enterprise-live-ingestion-envelope-public-contract.example.json`.
+Collectors, tenant persistence, streaming transport, raw payload storage, and
+license enforcement remain private Enterprise responsibilities.
+
+The packaged AISPM report delivery contract is
+`src/cavra/schemas/aispm-report-delivery-contract.schema.json`, with a
+public-safe sample contract at
+`examples/aispm/enterprise-report-delivery-contract-public.example.json`.
+The packaged AISPM report setup wizard contract is
+`src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json`, with a
+public-safe sample wizard contract at
+`examples/aispm/enterprise-report-setup-wizard-contract-public.example.json`.
+The packaged AISPM report delivery audit event contract is
+`src/cavra/schemas/aispm-report-delivery-audit-event.schema.json`, with a
+public-safe sample audit event at
+`examples/aispm/enterprise-report-delivery-audit-event-public.example.json`.
+The packaged AISPM report operations dashboard contract is
+`src/cavra/schemas/aispm-report-operations-dashboard.schema.json`, with a
+public-safe sample dashboard at
+`examples/aispm/enterprise-report-operations-dashboard-public.example.json`.
+The packaged AISPM report retention lifecycle contract is
+`src/cavra/schemas/aispm-report-retention-lifecycle.schema.json`, with a
+public-safe sample lifecycle packet at
+`examples/aispm/enterprise-report-retention-lifecycle-public.example.json`.
+The packaged AISPM report search and evidence retrieval contract is
+`src/cavra/schemas/aispm-report-search-retrieval.schema.json`, with a
+public-safe sample retrieval packet at
+`examples/aispm/enterprise-report-search-retrieval-public.example.json`.
+The packaged AISPM report export package manifest contract is
+`src/cavra/schemas/aispm-report-export-package-manifest.schema.json`, with a
+public-safe sample export package manifest at
+`examples/aispm/enterprise-report-export-package-manifest-public.example.json`.
+The packaged AISPM report schedule policy contract is
+`src/cavra/schemas/aispm-report-schedule-policy.schema.json`, with a
+public-safe sample schedule policy at
+`examples/aispm/enterprise-report-schedule-policy-public.example.json`.
+The packaged AISPM report recipient policy contract is
+`src/cavra/schemas/aispm-report-recipient-policy.schema.json`, with a
+public-safe sample recipient policy at
+`examples/aispm/enterprise-report-recipient-policy-public.example.json`.
+The packaged AISPM report approval decision contract is
+`src/cavra/schemas/aispm-report-approval-decision.schema.json`, with a
+public-safe sample approval decision at
+`examples/aispm/enterprise-report-approval-decision-public.example.json`.
+The packaged AISPM report exception lifecycle contract is
+`src/cavra/schemas/aispm-report-exception-lifecycle.schema.json`, with a
+public-safe sample exception lifecycle packet at
+`examples/aispm/enterprise-report-exception-lifecycle-public.example.json`.
+The packaged AISPM report evidence room contract is
+`src/cavra/schemas/aispm-report-evidence-room.schema.json`, with a
+public-safe sample evidence room packet at
+`examples/aispm/enterprise-report-evidence-room-public.example.json`.
+The packaged AISPM report evidence room access event contract is
+`src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json`, with a
+public-safe sample access event at
+`examples/aispm/enterprise-report-evidence-room-access-event-public.example.json`.
+The packaged AISPM report incident packet contract is
+`src/cavra/schemas/aispm-report-incident-packet.schema.json`, with a
+public-safe sample incident packet at
+`examples/aispm/enterprise-report-incident-packet-public.example.json`.
+The packaged AISPM report incident closure contract is
+`src/cavra/schemas/aispm-report-incident-closure.schema.json`, with a
+public-safe sample incident closure at
+`examples/aispm/enterprise-report-incident-closure-public.example.json`.
+The packaged AISPM report KPI metrics contract is
+`src/cavra/schemas/aispm-report-kpi-metrics.schema.json`, with a public-safe
+aggregate KPI metrics sample at
+`examples/aispm/enterprise-report-kpi-metrics-public.example.json`.
+The packaged AISPM report alert escalation contract is
+`src/cavra/schemas/aispm-report-alert-escalation.schema.json`, with a
+public-safe alert escalation sample at
+`examples/aispm/enterprise-report-alert-escalation-public.example.json`.
+The packaged AISPM report alert operations dashboard contract is
+`src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json`, with a
+public-safe alert operations dashboard sample at
+`examples/aispm/enterprise-report-alert-operations-dashboard-public.example.json`.
+The packaged AISPM report alert drilldown contract is
+`src/cavra/schemas/aispm-report-alert-drilldown.schema.json`, with a
+public-safe alert drilldown sample at
+`examples/aispm/enterprise-report-alert-drilldown-public.example.json`.
+The packaged AISPM report alert remediation plan contract is
+`src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json`, with a
+public-safe alert remediation plan sample at
+`examples/aispm/enterprise-report-alert-remediation-plan-public.example.json`.
+The packaged AISPM report alert remediation closure contract is
+`src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json`, with a
+public-safe alert remediation closure sample at
+`examples/aispm/enterprise-report-alert-remediation-closure-public.example.json`.
+The packaged AISPM report remediation closure operations dashboard contract is
+`src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json`,
+with a public-safe remediation closure operations dashboard sample at
+`examples/aispm/enterprise-report-remediation-closure-operations-dashboard-public.example.json`.
+The packaged AISPM report remediation closure executive digest contract is
+`src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json`,
+with a public-safe remediation closure executive digest sample at
+`examples/aispm/enterprise-report-remediation-closure-executive-digest-public.example.json`.
+The packaged AISPM report remediation closure digest distribution contract is
+`src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json`,
+with a public-safe remediation closure digest distribution sample at
+`examples/aispm/enterprise-report-remediation-closure-digest-distribution-public.example.json`.
+The packaged AISPM Report Center Enterprise Trial validation packet contract is
+`src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json`,
+with a public-safe trial validation packet sample at
+`examples/aispm/enterprise-report-center-trial-validation-packet-public.example.json`.
+The packaged AISPM Report Center trial operator dashboard readiness contract is
+`src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json`,
+with a public-safe trial operator dashboard readiness sample at
+`examples/aispm/enterprise-report-center-trial-operator-dashboard-readiness-public.example.json`.
+The packaged AISPM Report Center trial operator dashboard API/view-model
+contract is
+`src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json`,
+with a public-safe trial operator dashboard API/view-model sample at
+`examples/aispm/enterprise-report-center-trial-operator-api-view-model-public.example.json`.
+The packaged AISPM Report Center trial evaluator handoff packet contract is
+`src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json`,
+with a public-safe trial evaluator handoff packet sample at
+`examples/aispm/enterprise-report-center-trial-evaluator-handoff-packet-public.example.json`.
+The packaged AISPM Report Center trial revocation and expiry evidence contract
+is
+`src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json`,
+with a public-safe trial revocation and expiry evidence sample at
+`examples/aispm/enterprise-report-center-trial-revocation-expiry-evidence-public.example.json`.
+The packaged AISPM Report Center trial lab notebook outline contract is
+`src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json`,
+with a public-safe trial lab notebook outline sample at
+`examples/aispm/enterprise-report-center-trial-lab-notebook-outline-public.example.json`.
+The packaged AISPM Report Center trial lab notebook publication readiness
+contract is
+`src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json`,
+with a public-safe trial lab notebook publication readiness sample at
+`examples/aispm/enterprise-report-center-trial-lab-notebook-publication-readiness-public.example.json`.
+Renderer, scheduler, email delivery, tenant persistence, delivery audit
+storage, and license enforcement remain private Enterprise responsibilities.

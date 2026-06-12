@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Incident Packet Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "incident",
+    "scope",
+    "related_records",
+    "evidence",
+    "review",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_incident_packet.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "incident": {
+      "type": "object",
+      "required": ["incident_ref", "title", "incident_type", "severity", "status", "opened_at", "detected_by"],
+      "properties": {
+        "incident_ref": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "incident_type": {
+          "enum": [
+            "evidence_room_access_review",
+            "unauthorized_report_access",
+            "failed_delivery_review",
+            "policy_exception_review",
+            "retention_violation_review",
+            "watermark_failure_review"
+          ]
+        },
+        "severity": { "enum": ["low", "medium", "high", "critical"] },
+        "status": { "enum": ["open", "under_review", "contained", "closed", "false_positive"] },
+        "opened_at": { "type": "string", "format": "date-time" },
+        "detected_by": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": ["room_refs", "report_ids", "artifact_refs", "policy_refs"],
+      "properties": {
+        "room_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "report_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "policy_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "related_records": {
+      "type": "object",
+      "required": [
+        "exception_refs",
+        "approval_decision_refs",
+        "access_event_refs",
+        "delivery_audit_refs",
+        "export_package_refs"
+      ],
+      "properties": {
+        "exception_refs": { "$ref": "#/$defs/refs" },
+        "approval_decision_refs": { "$ref": "#/$defs/refs" },
+        "access_event_refs": { "$ref": "#/$defs/refs" },
+        "delivery_audit_refs": { "$ref": "#/$defs/refs" },
+        "export_package_refs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["packet_digest_ref", "manifest_ref", "timeline_ref", "immutable_store_ref", "evidence_refs"],
+      "properties": {
+        "packet_digest_ref": { "type": "string", "minLength": 1 },
+        "manifest_ref": { "type": "string", "minLength": 1 },
+        "timeline_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 },
+        "evidence_refs": { "$ref": "#/$defs/refs" }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "owner_ref",
+        "due_at",
+        "approval_required",
+        "closure_requires_evidence",
+        "recommended_actions"
+      ],
+      "properties": {
+        "owner_ref": { "type": "string", "minLength": 1 },
+        "due_at": { "type": "string", "format": "date-time" },
+        "approval_required": { "type": "boolean" },
+        "closure_requires_evidence": { "type": "boolean" },
+        "recommended_actions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "signed_packet_required",
+        "immutable_audit_required",
+        "chain_of_custody_required",
+        "redaction_review_required",
+        "post_incident_review_required"
+      ],
+      "properties": {
+        "signed_packet_required": { "type": "boolean" },
+        "immutable_audit_required": { "type": "boolean" },
+        "chain_of_custody_required": { "type": "boolean" },
+        "redaction_review_required": { "type": "boolean" },
+        "post_incident_review_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "private_justification_included",
+        "customer_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "private_justification_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "const": "metadata_only" }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "incident_packet_builder",
+        "timeline_correlation",
+        "identity_resolution",
+        "signed_packet_generation",
+        "immutable_incident_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "incident_packet_builder": { "const": "requires_cavra_enterprise" },
+        "timeline_correlation": { "const": "requires_cavra_enterprise" },
+        "identity_resolution": { "const": "requires_cavra_enterprise" },
+        "signed_packet_generation": { "const": "requires_cavra_enterprise" },
+        "immutable_incident_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

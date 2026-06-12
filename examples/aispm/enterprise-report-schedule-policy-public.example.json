@@ -1,0 +1,77 @@
+{
+  "schema_version": "cavra.aispm.report_schedule_policy.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:25:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "schedule": {
+    "schedule_ref": "schedule:opaque-ciso-weekly-board-pack",
+    "name": "Weekly CISO Board And Audit Pack",
+    "status": "active",
+    "report_ids": ["pdf_board_pack", "xlsx_evidence_workbook"],
+    "formats": ["pdf", "xlsx"],
+    "cadence": "weekly",
+    "timezone": "UTC",
+    "next_run_at": "2026-06-15T09:00:00Z",
+    "created_by": "role:ciso"
+  },
+  "recipient_governance": {
+    "recipient_scope": "approved_internal_domain",
+    "allowed_domains": ["example.com"],
+    "rbac_scope": "reports:schedule",
+    "external_delivery_allowed": false,
+    "recipient_addresses_redacted": true
+  },
+  "delivery": {
+    "delivery_mode": "smtp",
+    "target_ref": "delivery-target:opaque-internal-leadership-list",
+    "package_manifest_required": true,
+    "watermark_required": true,
+    "encrypted_attachment_required": true
+  },
+  "approval_policy": {
+    "approval_required": true,
+    "approver_group": "security-leadership",
+    "approval_ref": "approval-policy:opaque-weekly-board-pack",
+    "change_requires_approval": true,
+    "external_recipient_requires_approval": true
+  },
+  "blackout_windows": [
+    {
+      "window_ref": "blackout:opaque-quarter-close",
+      "starts_at": "2026-06-30T00:00:00Z",
+      "ends_at": "2026-07-02T23:59:59Z",
+      "behavior": "defer"
+    }
+  ],
+  "retry_policy": {
+    "max_attempts": 3,
+    "backoff": "exponential",
+    "retry_window_minutes": 120,
+    "dead_letter_required": true
+  },
+  "run_evidence": {
+    "last_run_ref": "report-run:opaque-weekly-board-pack",
+    "last_run_status": "sent",
+    "last_run_at": "2026-06-08T09:00:00Z",
+    "evidence_refs": ["cavra://evidence/redacted/report-schedule-run-sample"],
+    "audit_event_ref": "audit:opaque-report-schedule-run"
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "scheduler_worker": "requires_cavra_enterprise",
+    "calendar_blackout_engine": "requires_cavra_enterprise",
+    "recipient_resolution": "requires_cavra_enterprise",
+    "provider_delivery": "requires_cavra_enterprise",
+    "schedule_persistence": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "cavra.aispm.visual_smoke_validation.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_visual_validation",
+  "validated_at": "2026-06-12T00:00:00Z",
+  "command": "npm run validate:sandbox:visual",
+  "validator": "scripts/validate-sandbox-visual.mjs",
+  "status": "pass",
+  "coverage": [
+    "dashboard_desktop_classic",
+    "aispm_desktop_sentinel",
+    "aispm_mobile_sentinel",
+    "aispm_board_pack_panel",
+    "aispm_report_center_panel",
+    "command_palette_board_pack_packet",
+    "theme_readability_sentinel_classic_retro_executive"
+  ],
+  "local_screenshots": [
+    ".cavra/visual-smoke/dashboard-desktop-classic.png",
+    ".cavra/visual-smoke/aispm-desktop-sentinel.png",
+    ".cavra/visual-smoke/aispm-board-pack-panel.png",
+    ".cavra/visual-smoke/aispm-report-center-panel.png",
+    ".cavra/visual-smoke/aispm-mobile-sentinel.png"
+  ],
+  "public_safety_boundary": "Screenshots are local validation artifacts and must use public-safe sample or local metadata only. They are not committed because .cavra/ is ignored.",
+  "enterprise_boundary": {
+    "private_customer_screenshots": "requires_cavra_enterprise",
+    "tenant_visual_baselines": "requires_cavra_enterprise",
+    "signed_visual_regression_approval": "requires_cavra_enterprise_or_saas"
+  }
+}

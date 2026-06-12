@@ -1,0 +1,96 @@
+{
+  "schema_version": "cavra.aispm.report_recipient_policy.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:30:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "policy": {
+    "policy_ref": "recipient-policy:opaque-report-delivery-standard",
+    "name": "Report Delivery Recipient Policy",
+    "status": "active",
+    "owner_ref": "role:security-admin",
+    "default_action": "deny",
+    "external_delivery_default": "require_approval"
+  },
+  "domain_rules": [
+    {
+      "domain": "example.com",
+      "classification": "internal",
+      "allowed": true,
+      "approval_required": false,
+      "encryption_required": true
+    },
+    {
+      "domain": "auditor.example",
+      "classification": "external_auditor",
+      "allowed": true,
+      "approval_required": true,
+      "encryption_required": true
+    }
+  ],
+  "recipient_groups": [
+    {
+      "group_ref": "recipient-group:opaque-security-leadership",
+      "display_name": "Security Leadership",
+      "role_scope": "ciso",
+      "member_count": 3,
+      "source": "idp_group",
+      "addresses_redacted": true
+    }
+  ],
+  "delivery_channel_eligibility": [
+    {
+      "channel": "smtp",
+      "allowed": true,
+      "requires_verified_sender": true,
+      "requires_encryption": true
+    },
+    {
+      "channel": "webhook",
+      "allowed": true,
+      "requires_verified_sender": false,
+      "requires_encryption": true
+    },
+    {
+      "channel": "download",
+      "allowed": true,
+      "requires_verified_sender": false,
+      "requires_encryption": false
+    }
+  ],
+  "approval_policy": {
+    "external_recipient_approval_required": true,
+    "new_domain_approval_required": true,
+    "recipient_group_change_approval_required": true,
+    "approver_group": "security-leadership",
+    "approval_evidence_required": true
+  },
+  "encryption_policy": {
+    "attachment_encryption_required": true,
+    "minimum_transport": "tls_1_2",
+    "kms_key_ref_required": true,
+    "customer_managed_key_supported": true
+  },
+  "audit": {
+    "policy_change_audit_ref": "audit:opaque-recipient-policy-change",
+    "last_reviewed_at": "2026-06-10T12:00:00Z",
+    "review_evidence_refs": ["cavra://evidence/redacted/recipient-policy-review-sample"]
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "idp_group_members_included": false,
+    "provider_tokens_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "recipient_directory_sync": "requires_cavra_enterprise",
+    "idp_group_resolution": "requires_cavra_enterprise",
+    "domain_verification": "requires_cavra_enterprise",
+    "encryption_key_resolution": "requires_cavra_enterprise",
+    "approval_workflow": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

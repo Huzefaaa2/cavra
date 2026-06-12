@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Setup Wizard Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "wizard",
+    "steps",
+    "delivery_modes",
+    "validation_rules",
+    "admin_settings",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_setup_wizard_contract.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "wizard": {
+      "type": "object",
+      "required": ["wizard_id", "title", "purpose", "implementation"],
+      "properties": {
+        "wizard_id": { "const": "aispm_report_delivery_setup" },
+        "title": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "implementation": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "title", "description", "fields", "availability"],
+        "properties": {
+          "step_id": {
+            "enum": [
+              "organization_profile",
+              "delivery_provider",
+              "recipient_governance",
+              "schedule_and_audit"
+            ]
+          },
+          "title": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "fields": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^CAVRA_REPORT_" },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "availability": { "const": "requires_cavra_enterprise" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "delivery_modes": {
+      "type": "array",
+      "items": {
+        "enum": ["disabled", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "validation_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "field", "requirement", "enforcement"],
+        "properties": {
+          "rule_id": { "type": "string", "minLength": 1 },
+          "field": { "type": "string", "minLength": 1 },
+          "requirement": { "type": "string", "minLength": 1 },
+          "enforcement": { "const": "requires_cavra_enterprise" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "admin_settings": {
+      "type": "object",
+      "required": [
+        "required_public_settings",
+        "optional_public_settings",
+        "secret_reference_settings",
+        "secret_values_allowed"
+      ],
+      "properties": {
+        "required_public_settings": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CAVRA_REPORT_" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "optional_public_settings": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CAVRA_REPORT_" },
+          "uniqueItems": true
+        },
+        "secret_reference_settings": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CAVRA_REPORT_.*_REF$" },
+          "uniqueItems": true
+        },
+        "secret_values_allowed": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "wizard_ui",
+        "settings_persistence",
+        "secret_resolution",
+        "provider_validation",
+        "test_delivery",
+        "license_enforcement"
+      ],
+      "properties": {
+        "wizard_ui": { "const": "requires_cavra_enterprise" },
+        "settings_persistence": { "const": "requires_cavra_enterprise" },
+        "secret_resolution": { "const": "requires_cavra_enterprise" },
+        "provider_validation": { "const": "requires_cavra_enterprise" },
+        "test_delivery": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

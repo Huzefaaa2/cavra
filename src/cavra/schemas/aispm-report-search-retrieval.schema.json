@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Search And Retrieval Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "query",
+    "results",
+    "retrieval",
+    "access_controls",
+    "audit",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_search_retrieval.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "query": {
+      "type": "object",
+      "required": ["query_id", "actor_ref", "filters", "rbac_scope", "retention_mode"],
+      "properties": {
+        "query_id": { "type": "string", "minLength": 1 },
+        "actor_ref": { "type": "string", "minLength": 1 },
+        "filters": {
+          "type": "object",
+          "required": ["report_ids", "formats", "lifecycle_states", "from", "to"],
+          "properties": {
+            "report_ids": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "uniqueItems": true
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "enum": ["markdown", "json", "csv", "pdf", "xlsx", "docx", "html", "jsonl", "zip"]
+              },
+              "uniqueItems": true
+            },
+            "lifecycle_states": {
+              "type": "array",
+              "items": {
+                "enum": ["retained", "archived", "expired", "legal_hold", "pending_approval", "deleted"]
+              },
+              "uniqueItems": true
+            },
+            "from": { "type": "string", "format": "date-time" },
+            "to": { "type": "string", "format": "date-time" }
+          },
+          "additionalProperties": false
+        },
+        "rbac_scope": { "type": "string", "minLength": 1 },
+        "retention_mode": { "enum": ["retention_aware", "include_expired_metadata", "legal_hold_only"] }
+      },
+      "additionalProperties": false
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "report_ref",
+          "report_id",
+          "format",
+          "created_at",
+          "lifecycle_state",
+          "download_allowed",
+          "evidence_ref",
+          "immutable_store_ref"
+        ],
+        "properties": {
+          "report_ref": { "type": "string", "minLength": 1 },
+          "report_id": { "type": "string", "minLength": 1 },
+          "format": {
+            "enum": ["markdown", "json", "csv", "pdf", "xlsx", "docx", "html", "jsonl", "zip"]
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "lifecycle_state": {
+            "enum": ["retained", "archived", "expired", "legal_hold", "pending_approval", "deleted"]
+          },
+          "download_allowed": { "type": "boolean" },
+          "evidence_ref": { "type": "string", "minLength": 1 },
+          "immutable_store_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "required": [
+        "retrieval_ref",
+        "requested_report_ref",
+        "access_decision",
+        "download_url_ref",
+        "expires_at",
+        "watermark_required"
+      ],
+      "properties": {
+        "retrieval_ref": { "type": "string", "minLength": 1 },
+        "requested_report_ref": { "type": "string", "minLength": 1 },
+        "access_decision": { "enum": ["allow", "deny", "require_approval", "not_found", "expired"] },
+        "download_url_ref": { "type": ["string", "null"] },
+        "expires_at": { "type": ["string", "null"], "format": "date-time" },
+        "watermark_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "access_controls": {
+      "type": "object",
+      "required": [
+        "rbac_enforced",
+        "retention_checked",
+        "legal_hold_checked",
+        "download_audit_required",
+        "approval_required"
+      ],
+      "properties": {
+        "rbac_enforced": { "type": "boolean" },
+        "retention_checked": { "type": "boolean" },
+        "legal_hold_checked": { "type": "boolean" },
+        "download_audit_required": { "type": "boolean" },
+        "approval_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": ["audit_event_ref", "logged_at", "evidence_refs"],
+      "properties": {
+        "audit_event_ref": { "type": "string", "minLength": 1 },
+        "logged_at": { "type": "string", "format": "date-time" },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "raw_report_content_included",
+        "download_url_included",
+        "recipient_addresses_included",
+        "customer_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "raw_report_content_included": { "const": false },
+        "download_url_included": { "const": false },
+        "recipient_addresses_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "enum": ["metadata_only", "redacted_summary", "private_payload_ref"] }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "search_index",
+        "rbac_authorization",
+        "immutable_ref_resolution",
+        "signed_download_urls",
+        "retrieval_audit_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "search_index": { "const": "requires_cavra_enterprise" },
+        "rbac_authorization": { "const": "requires_cavra_enterprise" },
+        "immutable_ref_resolution": { "const": "requires_cavra_enterprise" },
+        "signed_download_urls": { "const": "requires_cavra_enterprise" },
+        "retrieval_audit_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

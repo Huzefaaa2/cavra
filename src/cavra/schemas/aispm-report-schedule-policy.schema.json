@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Schedule Policy Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "schedule",
+    "recipient_governance",
+    "delivery",
+    "approval_policy",
+    "blackout_windows",
+    "retry_policy",
+    "run_evidence",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_schedule_policy.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "schedule": {
+      "type": "object",
+      "required": [
+        "schedule_ref",
+        "name",
+        "status",
+        "report_ids",
+        "formats",
+        "cadence",
+        "timezone",
+        "next_run_at",
+        "created_by"
+      ],
+      "properties": {
+        "schedule_ref": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["draft", "active", "paused", "disabled", "requires_approval"] },
+        "report_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "enum": ["markdown", "json", "csv", "pdf", "xlsx", "docx", "html", "jsonl", "zip"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "cadence": { "enum": ["daily", "weekly", "monthly", "quarterly", "cron"] },
+        "timezone": { "type": "string", "minLength": 1 },
+        "next_run_at": { "type": ["string", "null"], "format": "date-time" },
+        "created_by": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "recipient_governance": {
+      "type": "object",
+      "required": [
+        "recipient_scope",
+        "allowed_domains",
+        "rbac_scope",
+        "external_delivery_allowed",
+        "recipient_addresses_redacted"
+      ],
+      "properties": {
+        "recipient_scope": {
+          "enum": ["approved_internal_domain", "approved_external_domain", "system_connector"]
+        },
+        "allowed_domains": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "rbac_scope": { "type": "string", "minLength": 1 },
+        "external_delivery_allowed": { "type": "boolean" },
+        "recipient_addresses_redacted": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "required": [
+        "delivery_mode",
+        "target_ref",
+        "package_manifest_required",
+        "watermark_required",
+        "encrypted_attachment_required"
+      ],
+      "properties": {
+        "delivery_mode": {
+          "enum": ["download", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+        },
+        "target_ref": { "type": "string", "minLength": 1 },
+        "package_manifest_required": { "type": "boolean" },
+        "watermark_required": { "type": "boolean" },
+        "encrypted_attachment_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "approval_policy": {
+      "type": "object",
+      "required": [
+        "approval_required",
+        "approver_group",
+        "approval_ref",
+        "change_requires_approval",
+        "external_recipient_requires_approval"
+      ],
+      "properties": {
+        "approval_required": { "type": "boolean" },
+        "approver_group": { "type": "string", "minLength": 1 },
+        "approval_ref": { "type": "string", "minLength": 1 },
+        "change_requires_approval": { "type": "boolean" },
+        "external_recipient_requires_approval": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "blackout_windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["window_ref", "starts_at", "ends_at", "behavior"],
+        "properties": {
+          "window_ref": { "type": "string", "minLength": 1 },
+          "starts_at": { "type": "string", "format": "date-time" },
+          "ends_at": { "type": "string", "format": "date-time" },
+          "behavior": { "enum": ["defer", "skip", "require_manual_approval"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "retry_policy": {
+      "type": "object",
+      "required": ["max_attempts", "backoff", "retry_window_minutes", "dead_letter_required"],
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 0 },
+        "backoff": { "enum": ["none", "linear", "exponential"] },
+        "retry_window_minutes": { "type": "integer", "minimum": 0 },
+        "dead_letter_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "run_evidence": {
+      "type": "object",
+      "required": ["last_run_ref", "last_run_status", "last_run_at", "evidence_refs", "audit_event_ref"],
+      "properties": {
+        "last_run_ref": { "type": ["string", "null"] },
+        "last_run_status": { "enum": ["never_run", "sent", "failed", "deferred", "skipped", "pending_approval"] },
+        "last_run_at": { "type": ["string", "null"], "format": "date-time" },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "audit_event_ref": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "enum": ["metadata_only", "redacted_summary", "private_payload_ref"] }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "scheduler_worker",
+        "calendar_blackout_engine",
+        "recipient_resolution",
+        "provider_delivery",
+        "schedule_persistence",
+        "license_enforcement"
+      ],
+      "properties": {
+        "scheduler_worker": { "const": "requires_cavra_enterprise" },
+        "calendar_blackout_engine": { "const": "requires_cavra_enterprise" },
+        "recipient_resolution": { "const": "requires_cavra_enterprise" },
+        "provider_delivery": { "const": "requires_cavra_enterprise" },
+        "schedule_persistence": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

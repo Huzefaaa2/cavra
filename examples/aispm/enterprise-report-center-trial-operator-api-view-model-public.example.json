@@ -1,0 +1,277 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_operator_api_view_model.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T10:45:00Z",
+  "source_contract_ref": "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json",
+  "api_surface": {
+    "base_path": "/enterprise/trial/operator/report-center",
+    "auth_required": true,
+    "auth_modes": [
+      "github_operator_session",
+      "enterprise_operator_sso"
+    ],
+    "content_type": "application/json",
+    "endpoints": [
+      {
+        "endpoint_id": "get-dashboard",
+        "method": "GET",
+        "path": "/dashboard",
+        "purpose": "Return redacted readiness rollup and handoff state.",
+        "response_model": "trial_operator_dashboard_view",
+        "audit_event_required": true
+      },
+      {
+        "endpoint_id": "get-validation-packet",
+        "method": "GET",
+        "path": "/validation-packet/{packet_ref}",
+        "purpose": "Return redacted validation packet metadata for operator review.",
+        "response_model": "trial_validation_packet_summary",
+        "audit_event_required": true
+      },
+      {
+        "endpoint_id": "approve-handoff",
+        "method": "POST",
+        "path": "/handoffs/{handoff_ref}/approve",
+        "purpose": "Approve evaluator handoff after validation review.",
+        "response_model": "trial_operator_action_result",
+        "audit_event_required": true
+      },
+      {
+        "endpoint_id": "request-rerun",
+        "method": "POST",
+        "path": "/validation-runs/{run_ref}/rerun",
+        "purpose": "Request a new validation run before evaluator handoff.",
+        "response_model": "trial_operator_action_result",
+        "audit_event_required": true
+      }
+    ]
+  },
+  "view_model": {
+    "view_id": "trial_operator_dashboard_view",
+    "route": "/operator/report-center/trial",
+    "title": "Enterprise Trial Operator Review",
+    "refresh_interval_seconds": 60,
+    "sections": [
+      {
+        "section_id": "validation_rollup",
+        "title": "Validation Rollup",
+        "data_source": "GET /dashboard",
+        "fields": [
+          "total_paths",
+          "passed_paths",
+          "warning_paths",
+          "blocked_paths",
+          "failed_paths",
+          "critical_blockers",
+          "handoff_ready"
+        ]
+      },
+      {
+        "section_id": "path_status",
+        "title": "Evaluator Path Status",
+        "data_source": "GET /dashboard",
+        "fields": [
+          "path_id",
+          "status",
+          "operator_state",
+          "evidence_ref"
+        ]
+      },
+      {
+        "section_id": "approval_blockers",
+        "title": "Approval Blockers",
+        "data_source": "GET /dashboard",
+        "fields": [
+          "blocker_ref",
+          "severity",
+          "reason_code",
+          "evidence_ref"
+        ]
+      },
+      {
+        "section_id": "evidence_links",
+        "title": "Evidence Links",
+        "data_source": "GET /dashboard",
+        "fields": [
+          "label",
+          "evidence_ref",
+          "artifact_ref",
+          "status"
+        ]
+      },
+      {
+        "section_id": "evaluator_handoff",
+        "title": "Evaluator Handoff",
+        "data_source": "GET /dashboard",
+        "fields": [
+          "handoff_state",
+          "package_access_state",
+          "license_state",
+          "support_state",
+          "expires_at"
+        ]
+      }
+    ],
+    "primary_actions": [
+      {
+        "action_id": "review-trial-validation",
+        "label": "Review validation packet",
+        "method": "GET",
+        "endpoint_id": "get-validation-packet",
+        "enabled_when": "validation_packet_available"
+      },
+      {
+        "action_id": "approve-evaluator-handoff",
+        "label": "Approve evaluator handoff",
+        "method": "POST",
+        "endpoint_id": "approve-handoff",
+        "enabled_when": "handoff_ready_and_no_blockers"
+      },
+      {
+        "action_id": "request-rerun",
+        "label": "Request validation rerun",
+        "method": "POST",
+        "endpoint_id": "request-rerun",
+        "enabled_when": "operator_review_required"
+      }
+    ],
+    "filters": [
+      {
+        "filter_id": "path_status",
+        "values": [
+          "passed",
+          "warning",
+          "blocked",
+          "failed"
+        ]
+      },
+      {
+        "filter_id": "operator_state",
+        "values": [
+          "no_action_required",
+          "review_recommended",
+          "action_required"
+        ]
+      }
+    ],
+    "empty_states": [
+      {
+        "state_id": "no_validation_packet",
+        "message": "No trial validation packet is available yet."
+      },
+      {
+        "state_id": "no_blockers",
+        "message": "No approval blockers are currently open."
+      }
+    ]
+  },
+  "action_state_machine": {
+    "states": [
+      "pending_validation",
+      "ready_for_operator_review",
+      "handoff_approved",
+      "rerun_requested",
+      "blocked"
+    ],
+    "transitions": [
+      {
+        "from": "pending_validation",
+        "to": "ready_for_operator_review",
+        "trigger": "validation_packet_passed"
+      },
+      {
+        "from": "ready_for_operator_review",
+        "to": "handoff_approved",
+        "trigger": "approve_evaluator_handoff"
+      },
+      {
+        "from": "ready_for_operator_review",
+        "to": "rerun_requested",
+        "trigger": "request_validation_rerun"
+      },
+      {
+        "from": "ready_for_operator_review",
+        "to": "blocked",
+        "trigger": "critical_blocker_opened"
+      }
+    ]
+  },
+  "audit_events": [
+    {
+      "event_type": "operator_dashboard_viewed",
+      "required_fields": [
+        "operator_ref",
+        "tenant_ref",
+        "trial_ref",
+        "viewed_at"
+      ]
+    },
+    {
+      "event_type": "validation_packet_reviewed",
+      "required_fields": [
+        "operator_ref",
+        "packet_ref",
+        "reviewed_at"
+      ]
+    },
+    {
+      "event_type": "evaluator_handoff_approved",
+      "required_fields": [
+        "operator_ref",
+        "handoff_ref",
+        "approved_at"
+      ]
+    },
+    {
+      "event_type": "validation_rerun_requested",
+      "required_fields": [
+        "operator_ref",
+        "run_ref",
+        "requested_at"
+      ]
+    }
+  ],
+  "controls": {
+    "operator_auth_required": true,
+    "rbac_required": true,
+    "csrf_protection_required": true,
+    "immutable_audit_required": true,
+    "approval_before_handoff_required": true,
+    "rate_limit_required": true,
+    "evidence_refs_only": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "evaluator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_operator_api_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "operator_dashboard_api": "requires_cavra_enterprise",
+    "operator_session_store": "requires_cavra_enterprise",
+    "trial_validation_store": "requires_cavra_enterprise",
+    "handoff_workflow": "requires_cavra_enterprise",
+    "package_access_service": "requires_cavra_enterprise",
+    "license_service": "requires_cavra_enterprise",
+    "support_queue": "requires_cavra_enterprise",
+    "audit_store": "requires_cavra_enterprise"
+  }
+}

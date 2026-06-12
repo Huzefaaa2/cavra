@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cavra.dev/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json",
+  "title": "CAVRA AISPM Report Center Trial Revocation And Expiry Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "trial_ref",
+    "tenant_ref",
+    "evidence_packet_ref",
+    "source_contract_refs",
+    "revocation_expiry",
+    "blocked_access_checks",
+    "access_state",
+    "audit_chain",
+    "operator_summary",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.report_center_trial_revocation_expiry_evidence.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise_trial" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "trial_ref": { "type": "string", "pattern": "^trial:" },
+    "tenant_ref": { "type": "string", "pattern": "^tenant:" },
+    "evidence_packet_ref": { "type": "string", "pattern": "^evidence-packet:" },
+    "source_contract_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "revocation_expiry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trigger",
+        "state",
+        "revoked_at",
+        "expired_at",
+        "reason_code",
+        "operator_approval_ref",
+        "audit_ref"
+      ],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "enum": ["operator_revocation", "automatic_expiry"]
+        },
+        "state": {
+          "type": "string",
+          "enum": ["revoked", "expired"]
+        },
+        "revoked_at": { "type": "string", "format": "date-time" },
+        "expired_at": { "type": "string", "format": "date-time" },
+        "reason_code": {
+          "type": "string",
+          "enum": ["trial_completed", "abuse_control", "expired", "operator_request"]
+        },
+        "operator_approval_ref": { "type": "string", "pattern": "^approval:" },
+        "audit_ref": { "type": "string", "pattern": "^audit:" }
+      }
+    },
+    "blocked_access_checks": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "surface",
+          "attempted_action",
+          "expected_result",
+          "actual_result",
+          "status",
+          "evidence_ref"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "enum": [
+              "license_validation",
+              "package_pull",
+              "trial_portal_access",
+              "report_render",
+              "support_handoff"
+            ]
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "license_service",
+              "package_registry",
+              "trial_portal",
+              "report_center",
+              "support_queue"
+            ]
+          },
+          "attempted_action": { "type": "string", "minLength": 1 },
+          "expected_result": { "const": "blocked" },
+          "actual_result": { "type": "string", "enum": ["blocked", "allowed"] },
+          "status": { "type": "string", "enum": ["passed", "failed"] },
+          "evidence_ref": {
+            "type": "string",
+            "pattern": "^cavra://evidence/redacted/"
+          }
+        }
+      }
+    },
+    "access_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "license_state",
+        "package_access_state",
+        "portal_access_state",
+        "support_state",
+        "handoff_state",
+        "revocation_enforced",
+        "expiry_enforced"
+      ],
+      "properties": {
+        "license_state": { "type": "string", "enum": ["revoked", "expired"] },
+        "package_access_state": { "type": "string", "enum": ["revoked", "expired"] },
+        "portal_access_state": { "type": "string", "enum": ["revoked", "expired"] },
+        "support_state": { "type": "string", "enum": ["closed"] },
+        "handoff_state": { "type": "string", "enum": ["closed"] },
+        "revocation_enforced": { "const": true },
+        "expiry_enforced": { "const": true }
+      }
+    },
+    "audit_chain": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["event_type", "event_ref", "occurred_at", "immutable"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "trial_revocation_requested",
+              "trial_access_revoked",
+              "blocked_access_verified"
+            ]
+          },
+          "event_ref": { "type": "string", "pattern": "^audit:" },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "immutable": { "const": true }
+        }
+      }
+    },
+    "operator_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary_state",
+        "blocked_checks",
+        "failed_checks",
+        "follow_up_required",
+        "evidence_ready"
+      ],
+      "properties": {
+        "summary_state": {
+          "type": "string",
+          "enum": ["revocation_verified", "expiry_verified", "follow_up_required"]
+        },
+        "blocked_checks": { "type": "integer", "minimum": 0 },
+        "failed_checks": { "type": "integer", "minimum": 0 },
+        "follow_up_required": { "type": "boolean" },
+        "evidence_ready": { "type": "boolean" }
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operator_approval_required",
+        "revocation_enforced",
+        "expiry_enforced",
+        "license_block_verified",
+        "package_block_verified",
+        "portal_block_verified",
+        "support_block_verified",
+        "immutable_audit_required",
+        "evidence_refs_only",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "operator_approval_required": { "const": true },
+        "revocation_enforced": { "const": true },
+        "expiry_enforced": { "const": true },
+        "license_block_verified": { "const": true },
+        "package_block_verified": { "const": true },
+        "portal_block_verified": { "const": true },
+        "support_block_verified": { "const": true },
+        "immutable_audit_required": { "const": true },
+        "evidence_refs_only": { "const": true },
+        "raw_payloads_excluded": { "const": true }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "evaluator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "board_member_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "package_tokens_included",
+        "license_key_included",
+        "raw_prompt_included",
+        "model_reasoning_included",
+        "raw_tool_output_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "private_remediation_details_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "source_code_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "evaluator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "board_member_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "package_tokens_included": { "const": false },
+        "license_key_included": { "const": false },
+        "raw_prompt_included": { "const": false },
+        "model_reasoning_included": { "const": false },
+        "raw_tool_output_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "private_remediation_details_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "source_code_included": { "const": false },
+        "payload_handling": {
+          "const": "report_center_trial_revocation_expiry_metadata_only"
+        }
+      }
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trial_portal",
+        "package_access_service",
+        "license_service",
+        "revocation_service",
+        "support_queue",
+        "audit_store"
+      ],
+      "properties": {
+        "trial_portal": { "const": "requires_cavra_enterprise" },
+        "package_access_service": { "const": "requires_cavra_enterprise" },
+        "license_service": { "const": "requires_cavra_enterprise" },
+        "revocation_service": { "const": "requires_cavra_enterprise" },
+        "support_queue": { "const": "requires_cavra_enterprise" },
+        "audit_store": { "const": "requires_cavra_enterprise" }
+      }
+    }
+  }
+}

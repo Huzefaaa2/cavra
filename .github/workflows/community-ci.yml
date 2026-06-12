@@ -19,7 +19,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
       - run: python -m pip install -e ".[dev]"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - run: python -m ruff check src tests
       - run: python -m pytest -q
       - run: python scripts/validate-python-package-metadata.py
@@ -29,6 +34,24 @@ jobs:
       - run: python scripts/validate-community-release-index.py
       - run: python scripts/validate-community-release-readiness-dashboard.py
       - run: python scripts/validate-sandbox-portal.py
+      - run: python scripts/validate-aispm-launch-artifacts.py
+      - run: npm run validate:sandbox:visual
+      - run: python scripts/validate-aispm-visual-freshness.py
+      - run: python scripts/validate-aispm-launch-readiness.py
+      - run: python scripts/validate-aispm-release-evidence-index.py
+      - run: python scripts/validate-aispm-report-catalog-readiness.py
+      - run: python scripts/validate-aispm-report-delivery-setup-readiness.py
+      - run: python scripts/validate-aispm-report-operations-readiness.py
+      - run: python scripts/validate-aispm-report-governance-readiness.py
+      - run: python scripts/validate-aispm-report-assurance-readiness.py
+      - run: python scripts/validate-aispm-report-response-readiness.py
+      - run: python scripts/validate-aispm-report-trial-operations-readiness.py
+      - run: python scripts/validate-aispm-pilot-control-readiness.py
+      - run: python scripts/validate-aispm-v100-public-release.py
+      - run: python scripts/validate-hosted-sandbox-deployment-freshness.py
+      - run: python scripts/validate-hosted-sandbox-operator-status.py
+      - run: python scripts/validate-hosted-sandbox-deploy-evidence.py
+      - run: python scripts/validate-aispm-trial-lab-notebook.py --check-summary
       - run: python scripts/validate-console-closeout.py
       - run: python scripts/validate-community-ga-path.py
       - run: python scripts/validate-production-deployment-guide.py

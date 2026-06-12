@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Alert Operations Dashboard Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "dashboard",
+    "queues",
+    "active_alerts",
+    "escalation_health",
+    "acknowledgement_slos",
+    "suppression_summary",
+    "incident_linkage_health",
+    "routing_health",
+    "evidence",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_alert_operations_dashboard.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "dashboard": {
+      "type": "object",
+      "required": [
+        "dashboard_ref",
+        "status",
+        "open_alerts",
+        "critical_open",
+        "high_open",
+        "overdue_acknowledgements",
+        "suppressed_alerts",
+        "linked_incidents",
+        "unlinked_incidents",
+        "mean_time_to_ack_minutes"
+      ],
+      "properties": {
+        "dashboard_ref": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["healthy", "degraded", "breached"] },
+        "open_alerts": { "type": "integer", "minimum": 0 },
+        "critical_open": { "type": "integer", "minimum": 0 },
+        "high_open": { "type": "integer", "minimum": 0 },
+        "overdue_acknowledgements": { "type": "integer", "minimum": 0 },
+        "suppressed_alerts": { "type": "integer", "minimum": 0 },
+        "linked_incidents": { "type": "integer", "minimum": 0 },
+        "unlinked_incidents": { "type": "integer", "minimum": 0 },
+        "mean_time_to_ack_minutes": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "queues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["queue", "depth", "oldest_age_minutes", "status"],
+        "properties": {
+          "queue": { "type": "string", "minLength": 1 },
+          "depth": { "type": "integer", "minimum": 0 },
+          "oldest_age_minutes": { "type": "number", "minimum": 0 },
+          "status": { "enum": ["healthy", "degraded", "breached"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "active_alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alert_ref",
+          "rule_id",
+          "severity",
+          "status",
+          "owner_role",
+          "route_ref",
+          "opened_at",
+          "age_minutes",
+          "ack_due_at",
+          "incident_ref"
+        ],
+        "properties": {
+          "alert_ref": { "type": "string", "minLength": 1 },
+          "rule_id": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "status": { "enum": ["triggered", "routed", "ack_pending", "ack_overdue", "escalated", "suppressed"] },
+          "owner_role": { "type": "string", "minLength": 1 },
+          "route_ref": { "type": "string", "minLength": 1 },
+          "opened_at": { "type": "string", "format": "date-time" },
+          "age_minutes": { "type": "number", "minimum": 0 },
+          "ack_due_at": { "type": "string", "format": "date-time" },
+          "incident_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "escalation_health": {
+      "type": "object",
+      "required": [
+        "level_1_active",
+        "level_2_active",
+        "level_3_active",
+        "next_escalation_due_at",
+        "breached_escalations"
+      ],
+      "properties": {
+        "level_1_active": { "type": "integer", "minimum": 0 },
+        "level_2_active": { "type": "integer", "minimum": 0 },
+        "level_3_active": { "type": "integer", "minimum": 0 },
+        "next_escalation_due_at": { "type": "string", "format": "date-time" },
+        "breached_escalations": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "acknowledgement_slos": {
+      "type": "object",
+      "required": [
+        "required_count",
+        "pending_count",
+        "overdue_count",
+        "acknowledged_count",
+        "median_ack_minutes",
+        "p95_ack_minutes"
+      ],
+      "properties": {
+        "required_count": { "type": "integer", "minimum": 0 },
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "overdue_count": { "type": "integer", "minimum": 0 },
+        "acknowledged_count": { "type": "integer", "minimum": 0 },
+        "median_ack_minutes": { "type": "number", "minimum": 0 },
+        "p95_ack_minutes": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "suppression_summary": {
+      "type": "object",
+      "required": [
+        "active_suppressions",
+        "expired_suppressions",
+        "requires_review",
+        "suppression_audit_coverage"
+      ],
+      "properties": {
+        "active_suppressions": { "type": "integer", "minimum": 0 },
+        "expired_suppressions": { "type": "integer", "minimum": 0 },
+        "requires_review": { "type": "integer", "minimum": 0 },
+        "suppression_audit_coverage": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "incident_linkage_health": {
+      "type": "object",
+      "required": [
+        "linked_alerts",
+        "unlinked_alerts",
+        "open_incidents",
+        "closure_required",
+        "stale_incident_count"
+      ],
+      "properties": {
+        "linked_alerts": { "type": "integer", "minimum": 0 },
+        "unlinked_alerts": { "type": "integer", "minimum": 0 },
+        "open_incidents": { "type": "integer", "minimum": 0 },
+        "closure_required": { "type": "integer", "minimum": 0 },
+        "stale_incident_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "routing_health": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["channel", "status", "pending_routes", "failed_routes"],
+        "properties": {
+          "channel": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["healthy", "degraded", "breached"] },
+          "pending_routes": { "type": "integer", "minimum": 0 },
+          "failed_routes": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "dashboard_digest_ref",
+        "latest_alert_ref",
+        "latest_routing_audit_ref",
+        "immutable_store_ref",
+        "evidence_refs"
+      ],
+      "properties": {
+        "dashboard_digest_ref": { "type": "string", "minLength": 1 },
+        "latest_alert_ref": { "type": "string", "minLength": 1 },
+        "latest_routing_audit_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "derived_from_alert_events",
+        "rbac_scoped",
+        "retention_aware",
+        "immutable_dashboard_required",
+        "recipient_policy_enforced",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "derived_from_alert_events": { "type": "boolean" },
+        "rbac_scoped": { "type": "boolean" },
+        "retention_aware": { "type": "boolean" },
+        "immutable_dashboard_required": { "type": "boolean" },
+        "recipient_policy_enforced": { "type": "boolean" },
+        "raw_payloads_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "const": "alert_operations_metadata_only" }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "dashboard_projection",
+        "queue_persistence",
+        "alert_event_store",
+        "routing_health_checks",
+        "acknowledgement_store",
+        "incident_linkage_store",
+        "suppression_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "dashboard_projection": { "const": "requires_cavra_enterprise" },
+        "queue_persistence": { "const": "requires_cavra_enterprise" },
+        "alert_event_store": { "const": "requires_cavra_enterprise" },
+        "routing_health_checks": { "const": "requires_cavra_enterprise" },
+        "acknowledgement_store": { "const": "requires_cavra_enterprise" },
+        "incident_linkage_store": { "const": "requires_cavra_enterprise" },
+        "suppression_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

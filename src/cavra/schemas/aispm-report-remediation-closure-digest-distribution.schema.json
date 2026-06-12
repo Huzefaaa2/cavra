@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Remediation Closure Digest Distribution Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "distribution",
+    "approval",
+    "recipient_governance",
+    "delivery_plan",
+    "delivery_status",
+    "send_evidence",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.report_remediation_closure_digest_distribution.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "distribution": {
+      "type": "object",
+      "required": [
+        "distribution_ref",
+        "digest_ref",
+        "status",
+        "delivery_window",
+        "prepared_at",
+        "send_after",
+        "expires_at"
+      ],
+      "properties": {
+        "distribution_ref": { "type": "string", "minLength": 1 },
+        "digest_ref": { "type": "string", "minLength": 1 },
+        "status": {
+          "enum": [
+            "approval_pending",
+            "approved",
+            "sending",
+            "sent",
+            "failed",
+            "expired",
+            "cancelled"
+          ]
+        },
+        "delivery_window": { "type": "string", "minLength": 1 },
+        "prepared_at": { "type": "string", "format": "date-time" },
+        "send_after": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "required": [
+        "approval_ref",
+        "approval_type",
+        "approver_role",
+        "status",
+        "required_before_send",
+        "due_at",
+        "evidence_ref"
+      ],
+      "properties": {
+        "approval_ref": { "type": "string", "minLength": 1 },
+        "approval_type": { "const": "executive_digest_distribution" },
+        "approver_role": { "enum": ["cso", "ciso", "board", "audit", "grc"] },
+        "status": {
+          "enum": ["not_required", "pending", "approved", "denied", "expired"]
+        },
+        "required_before_send": { "type": "boolean" },
+        "due_at": { "type": "string", "format": "date-time" },
+        "evidence_ref": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "recipient_governance": {
+      "type": "object",
+      "required": [
+        "recipient_policy_ref",
+        "allowed_audiences",
+        "external_recipients_allowed",
+        "domain_allowlist_required",
+        "rbac_scope_required",
+        "recipient_addresses_redacted"
+      ],
+      "properties": {
+        "recipient_policy_ref": { "type": "string", "minLength": 1 },
+        "allowed_audiences": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["cso", "ciso", "board", "audit", "grc"] }
+        },
+        "external_recipients_allowed": { "type": "boolean" },
+        "domain_allowlist_required": { "type": "boolean" },
+        "rbac_scope_required": { "type": "boolean" },
+        "recipient_addresses_redacted": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "delivery_plan": {
+      "type": "object",
+      "required": [
+        "formats",
+        "delivery_modes",
+        "provider_refs",
+        "retry_policy_ref",
+        "watermark_required",
+        "signed_manifest_required"
+      ],
+      "properties": {
+        "formats": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["pdf", "docx", "html", "signed_json"] }
+        },
+        "delivery_modes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["portal", "email", "grc_upload"] }
+        },
+        "provider_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "retry_policy_ref": { "type": "string", "minLength": 1 },
+        "watermark_required": { "type": "boolean" },
+        "signed_manifest_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "delivery_status": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "channel",
+          "status",
+          "attempt_count",
+          "last_attempt_at",
+          "delivery_evidence_ref"
+        ],
+        "properties": {
+          "channel": { "enum": ["portal", "email", "grc_upload"] },
+          "status": {
+            "enum": [
+              "ready",
+              "blocked_pending_approval",
+              "sending",
+              "sent",
+              "failed",
+              "retry_scheduled",
+              "cancelled"
+            ]
+          },
+          "attempt_count": { "type": "integer", "minimum": 0 },
+          "last_attempt_at": { "type": "string", "format": "date-time" },
+          "delivery_evidence_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "send_evidence": {
+      "type": "object",
+      "required": [
+        "distribution_digest_ref",
+        "executive_digest_ref",
+        "manifest_ref",
+        "immutable_store_ref",
+        "evidence_refs"
+      ],
+      "properties": {
+        "distribution_digest_ref": { "type": "string", "minLength": 1 },
+        "executive_digest_ref": { "type": "string", "minLength": 1 },
+        "manifest_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "approval_before_send_required",
+        "recipient_policy_enforced",
+        "domain_allowlist_enforced",
+        "rbac_scoped",
+        "immutable_send_evidence_required",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "approval_before_send_required": { "type": "boolean" },
+        "recipient_policy_enforced": { "type": "boolean" },
+        "domain_allowlist_enforced": { "type": "boolean" },
+        "rbac_scoped": { "type": "boolean" },
+        "immutable_send_evidence_required": { "type": "boolean" },
+        "raw_payloads_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "board_member_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "private_remediation_details_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "board_member_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "private_remediation_details_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": {
+          "const": "remediation_closure_digest_distribution_metadata_only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "approval_workflow",
+        "recipient_directory",
+        "delivery_provider",
+        "signed_package_builder",
+        "send_worker",
+        "delivery_audit_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "approval_workflow": { "const": "requires_cavra_enterprise" },
+        "recipient_directory": { "const": "requires_cavra_enterprise" },
+        "delivery_provider": { "const": "requires_cavra_enterprise" },
+        "signed_package_builder": { "const": "requires_cavra_enterprise" },
+        "send_worker": { "const": "requires_cavra_enterprise" },
+        "delivery_audit_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

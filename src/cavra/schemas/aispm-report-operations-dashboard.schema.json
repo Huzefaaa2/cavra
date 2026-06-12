@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Operations Dashboard Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "summary",
+    "queues",
+    "scheduled_reports",
+    "approval_bottlenecks",
+    "failed_deliveries",
+    "audit_coverage",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_operations_dashboard.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "summary": {
+      "type": "object",
+      "required": [
+        "delivery_health",
+        "scheduled_reports",
+        "pending_approvals",
+        "retry_queue_depth",
+        "failed_deliveries",
+        "immutable_audit_coverage_percent"
+      ],
+      "properties": {
+        "delivery_health": { "enum": ["healthy", "degraded", "action_required", "unknown"] },
+        "scheduled_reports": { "type": "integer", "minimum": 0 },
+        "pending_approvals": { "type": "integer", "minimum": 0 },
+        "retry_queue_depth": { "type": "integer", "minimum": 0 },
+        "failed_deliveries": { "type": "integer", "minimum": 0 },
+        "immutable_audit_coverage_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    },
+    "queues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["queue", "depth", "oldest_age_minutes", "status"],
+        "properties": {
+          "queue": { "enum": ["render", "delivery", "retry", "audit_export", "schedule"] },
+          "depth": { "type": "integer", "minimum": 0 },
+          "oldest_age_minutes": { "type": "integer", "minimum": 0 },
+          "status": { "enum": ["healthy", "degraded", "action_required", "unknown"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scheduled_reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["schedule_id", "report_id", "cadence", "next_run_at", "status"],
+        "properties": {
+          "schedule_id": { "type": "string", "minLength": 1 },
+          "report_id": { "type": "string", "minLength": 1 },
+          "cadence": { "enum": ["hourly", "daily", "weekly", "monthly", "quarterly", "custom"] },
+          "next_run_at": { "type": "string", "format": "date-time" },
+          "status": { "enum": ["active", "paused", "failed", "requires_review"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "approval_bottlenecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["approval_ref", "report_id", "pending_minutes", "approver_group", "status"],
+        "properties": {
+          "approval_ref": { "type": "string", "minLength": 1 },
+          "report_id": { "type": "string", "minLength": 1 },
+          "pending_minutes": { "type": "integer", "minimum": 0 },
+          "approver_group": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["pending", "approved", "denied", "expired"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "failed_deliveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "delivery_ref",
+          "report_id",
+          "delivery_mode",
+          "failure_class",
+          "retry_status",
+          "last_attempt_at"
+        ],
+        "properties": {
+          "delivery_ref": { "type": "string", "minLength": 1 },
+          "report_id": { "type": "string", "minLength": 1 },
+          "delivery_mode": {
+            "enum": ["disabled", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+          },
+          "failure_class": {
+            "enum": [
+              "provider_auth",
+              "recipient_policy",
+              "provider_rate_limit",
+              "render_error",
+              "audit_store_error",
+              "unknown"
+            ]
+          },
+          "retry_status": { "enum": ["queued", "retrying", "exhausted", "blocked"] },
+          "last_attempt_at": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "audit_coverage": {
+      "type": "object",
+      "required": ["events_expected", "events_persisted", "immutable_refs_missing", "coverage_status"],
+      "properties": {
+        "events_expected": { "type": "integer", "minimum": 0 },
+        "events_persisted": { "type": "integer", "minimum": 0 },
+        "immutable_refs_missing": { "type": "integer", "minimum": 0 },
+        "coverage_status": { "enum": ["complete", "partial", "action_required", "unknown"] }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "provider_responses_included",
+        "raw_report_content_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "provider_responses_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "enum": ["metadata_only", "redacted_summary", "private_payload_ref"] }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "dashboard_persistence",
+        "live_queue_inspection",
+        "provider_health_probe",
+        "retry_control",
+        "audit_search",
+        "license_enforcement"
+      ],
+      "properties": {
+        "dashboard_persistence": { "const": "requires_cavra_enterprise" },
+        "live_queue_inspection": { "const": "requires_cavra_enterprise" },
+        "provider_health_probe": { "const": "requires_cavra_enterprise" },
+        "retry_control": { "const": "requires_cavra_enterprise" },
+        "audit_search": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

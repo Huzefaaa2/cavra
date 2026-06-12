@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.report_trial_operations_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_report_trial_operations_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-trial-operations-readiness-packet.json",
+  "validator": "scripts/validate-aispm-report-trial-operations-readiness.py",
+  "trial_operations_areas": [
+    {
+      "area_id": "remediation_closure_executive_digest",
+      "title": "Remediation Closure Executive Digest",
+      "schema": "src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json",
+      "example": "examples/aispm/enterprise-report-remediation-closure-executive-digest-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "remediation_closure_digest_distribution",
+      "title": "Remediation Closure Digest Distribution",
+      "schema": "src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json",
+      "example": "examples/aispm/enterprise-report-remediation-closure-digest-distribution-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "enterprise_trial_validation_packet",
+      "title": "Enterprise Trial Validation Packet",
+      "schema": "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json",
+      "example": "examples/aispm/enterprise-report-center-trial-validation-packet-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "trial_operator_dashboard_readiness",
+      "title": "Trial Operator Dashboard Readiness",
+      "schema": "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json",
+      "example": "examples/aispm/enterprise-report-center-trial-operator-dashboard-readiness-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "trial_operator_api_view_model",
+      "title": "Trial Operator API View Model",
+      "schema": "src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json",
+      "example": "examples/aispm/enterprise-report-center-trial-operator-api-view-model-public.example.json",
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "enterprise_boundaries": {
+    "executive_digest_rendering": "requires_cavra_enterprise",
+    "digest_distribution_workflow": "requires_cavra_enterprise",
+    "trial_validation_runtime": "requires_cavra_enterprise",
+    "operator_dashboard_api": "requires_cavra_enterprise",
+    "operator_session_and_audit_store": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes public-safe schema names, example paths, and trial operations readiness expectations only. It excludes evaluator identities, operator identities, recipient addresses, package tokens, license keys, raw prompts, model reasoning, raw report content, provider responses, customer records, Enterprise source code, private policy packs, and license secrets."
+}

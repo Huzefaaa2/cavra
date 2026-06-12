@@ -1,0 +1,129 @@
+{
+  "schema_version": "cavra.aispm.report_setup_wizard_contract.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "wizard": {
+    "wizard_id": "aispm_report_delivery_setup",
+    "title": "AISPM Report Delivery Setup",
+    "purpose": "Collect tenant-specific report delivery settings without storing secret values in public files.",
+    "implementation": "requires_cavra_enterprise"
+  },
+  "steps": [
+    {
+      "step_id": "organization_profile",
+      "title": "Organization Profile",
+      "description": "Collect public report identity, timezone, retention, and branding references.",
+      "fields": [
+        "CAVRA_REPORT_FROM_ADDRESS",
+        "CAVRA_REPORT_REPLY_TO",
+        "CAVRA_REPORT_DEFAULT_TIMEZONE",
+        "CAVRA_REPORT_RETENTION_DAYS",
+        "CAVRA_REPORT_BRAND_PROFILE"
+      ],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "step_id": "delivery_provider",
+      "title": "Delivery Provider",
+      "description": "Select SMTP, Microsoft 365, Google Workspace, AWS SES, SendGrid, webhook, or disabled mode.",
+      "fields": [
+        "CAVRA_REPORT_DELIVERY_MODE",
+        "CAVRA_REPORT_SMTP_HOST",
+        "CAVRA_REPORT_SMTP_PORT",
+        "CAVRA_REPORT_SMTP_USERNAME_REF",
+        "CAVRA_REPORT_SMTP_PASSWORD_REF",
+        "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+      ],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "step_id": "recipient_governance",
+      "title": "Recipient Governance",
+      "description": "Define recipient domain allowlists, approval requirements, and RBAC scopes.",
+      "fields": [
+        "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+        "CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED",
+        "CAVRA_REPORT_ALLOWED_RBAC_ROLES"
+      ],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "step_id": "schedule_and_audit",
+      "title": "Schedule And Audit",
+      "description": "Configure schedule presets, delivery retry policy, evidence retention, and audit export references.",
+      "fields": [
+        "CAVRA_REPORT_DEFAULT_SCHEDULE",
+        "CAVRA_REPORT_RETRY_POLICY",
+        "CAVRA_REPORT_DELIVERY_AUDIT_RETENTION_DAYS",
+        "CAVRA_REPORT_AUDIT_EXPORT_REF"
+      ],
+      "availability": "requires_cavra_enterprise"
+    }
+  ],
+  "delivery_modes": [
+    "disabled",
+    "smtp",
+    "microsoft365",
+    "google_workspace",
+    "ses",
+    "sendgrid",
+    "webhook"
+  ],
+  "validation_rules": [
+    {
+      "rule_id": "sender-address-required",
+      "field": "CAVRA_REPORT_FROM_ADDRESS",
+      "requirement": "must be a verified sender address for enabled delivery modes",
+      "enforcement": "requires_cavra_enterprise"
+    },
+    {
+      "rule_id": "recipient-domain-allowlist-required",
+      "field": "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+      "requirement": "must contain at least one approved domain before external delivery is enabled",
+      "enforcement": "requires_cavra_enterprise"
+    },
+    {
+      "rule_id": "secret-values-not-accepted",
+      "field": "*_REF",
+      "requirement": "wizard accepts secret-manager references only, never raw credential values",
+      "enforcement": "requires_cavra_enterprise"
+    },
+    {
+      "rule_id": "external-delivery-approval",
+      "field": "CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED",
+      "requirement": "high-risk or external-domain report delivery may require an approval gate",
+      "enforcement": "requires_cavra_enterprise"
+    }
+  ],
+  "admin_settings": {
+    "required_public_settings": [
+      "CAVRA_REPORT_DELIVERY_MODE",
+      "CAVRA_REPORT_FROM_ADDRESS",
+      "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+      "CAVRA_REPORT_DEFAULT_TIMEZONE",
+      "CAVRA_REPORT_RETENTION_DAYS"
+    ],
+    "optional_public_settings": [
+      "CAVRA_REPORT_REPLY_TO",
+      "CAVRA_REPORT_BRAND_PROFILE",
+      "CAVRA_REPORT_DEFAULT_SCHEDULE",
+      "CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED",
+      "CAVRA_REPORT_ALLOWED_RBAC_ROLES"
+    ],
+    "secret_reference_settings": [
+      "CAVRA_REPORT_SMTP_USERNAME_REF",
+      "CAVRA_REPORT_SMTP_PASSWORD_REF",
+      "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+    ],
+    "secret_values_allowed": false
+  },
+  "enterprise_boundaries": {
+    "wizard_ui": "requires_cavra_enterprise",
+    "settings_persistence": "requires_cavra_enterprise",
+    "secret_resolution": "requires_cavra_enterprise",
+    "provider_validation": "requires_cavra_enterprise",
+    "test_delivery": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

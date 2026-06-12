@@ -1,0 +1,168 @@
+{
+  "schema_version": "cavra.aispm.report_alert_operations_dashboard.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T10:26:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "dashboard": {
+    "dashboard_ref": "report-alert-dashboard:opaque-cso-operations",
+    "status": "degraded",
+    "open_alerts": 5,
+    "critical_open": 1,
+    "high_open": 2,
+    "overdue_acknowledgements": 2,
+    "suppressed_alerts": 3,
+    "linked_incidents": 2,
+    "unlinked_incidents": 1,
+    "mean_time_to_ack_minutes": 22
+  },
+  "queues": [
+    {
+      "queue": "alert_evaluation",
+      "depth": 7,
+      "oldest_age_minutes": 4,
+      "status": "healthy"
+    },
+    {
+      "queue": "routing",
+      "depth": 3,
+      "oldest_age_minutes": 9,
+      "status": "degraded"
+    },
+    {
+      "queue": "escalation",
+      "depth": 2,
+      "oldest_age_minutes": 18,
+      "status": "degraded"
+    },
+    {
+      "queue": "acknowledgement",
+      "depth": 5,
+      "oldest_age_minutes": 42,
+      "status": "breached"
+    },
+    {
+      "queue": "incident_creation",
+      "depth": 1,
+      "oldest_age_minutes": 11,
+      "status": "healthy"
+    }
+  ],
+  "active_alerts": [
+    {
+      "alert_ref": "alert:opaque-evidence-room-access",
+      "rule_id": "evidence-room-suspicious-access",
+      "severity": "critical",
+      "status": "escalated",
+      "owner_role": "security_operations",
+      "route_ref": "route:opaque-soc",
+      "opened_at": "2026-06-11T09:48:00Z",
+      "age_minutes": 38,
+      "ack_due_at": "2026-06-11T10:20:00Z",
+      "incident_ref": "incident:opaque-report-delivery-and-access-review"
+    },
+    {
+      "alert_ref": "alert:opaque-failed-delivery-spike",
+      "rule_id": "failed-delivery-spike",
+      "severity": "high",
+      "status": "ack_overdue",
+      "owner_role": "platform_security",
+      "route_ref": "route:opaque-platform-security",
+      "opened_at": "2026-06-11T09:45:00Z",
+      "age_minutes": 41,
+      "ack_due_at": "2026-06-11T10:15:00Z",
+      "incident_ref": "incident:opaque-report-delivery-and-access-review"
+    }
+  ],
+  "escalation_health": {
+    "level_1_active": 2,
+    "level_2_active": 2,
+    "level_3_active": 1,
+    "next_escalation_due_at": "2026-06-11T10:30:00Z",
+    "breached_escalations": 1
+  },
+  "acknowledgement_slos": {
+    "required_count": 5,
+    "pending_count": 3,
+    "overdue_count": 2,
+    "acknowledged_count": 2,
+    "median_ack_minutes": 22,
+    "p95_ack_minutes": 64
+  },
+  "suppression_summary": {
+    "active_suppressions": 3,
+    "expired_suppressions": 1,
+    "requires_review": 1,
+    "suppression_audit_coverage": 1.0
+  },
+  "incident_linkage_health": {
+    "linked_alerts": 4,
+    "unlinked_alerts": 1,
+    "open_incidents": 2,
+    "closure_required": 2,
+    "stale_incident_count": 0
+  },
+  "routing_health": [
+    {
+      "channel": "security_operations_queue",
+      "status": "healthy",
+      "pending_routes": 1,
+      "failed_routes": 0
+    },
+    {
+      "channel": "email_digest",
+      "status": "degraded",
+      "pending_routes": 2,
+      "failed_routes": 1
+    },
+    {
+      "channel": "itsm",
+      "status": "healthy",
+      "pending_routes": 0,
+      "failed_routes": 0
+    }
+  ],
+  "evidence": {
+    "dashboard_digest_ref": "digest:opaque-report-alert-dashboard",
+    "latest_alert_ref": "alert:opaque-evidence-room-access",
+    "latest_routing_audit_ref": "audit:opaque-report-alert-routing",
+    "immutable_store_ref": "immutable:opaque-report-alert-dashboard",
+    "evidence_refs": [
+      "cavra://evidence/redacted/report-alert-dashboard-rendered",
+      "cavra://evidence/redacted/report-alert-queue-health"
+    ]
+  },
+  "controls": {
+    "derived_from_alert_events": true,
+    "rbac_scoped": true,
+    "retention_aware": true,
+    "immutable_dashboard_required": true,
+    "recipient_policy_enforced": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "alert_operations_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "dashboard_projection": "requires_cavra_enterprise",
+    "queue_persistence": "requires_cavra_enterprise",
+    "alert_event_store": "requires_cavra_enterprise",
+    "routing_health_checks": "requires_cavra_enterprise",
+    "acknowledgement_store": "requires_cavra_enterprise",
+    "incident_linkage_store": "requires_cavra_enterprise",
+    "suppression_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

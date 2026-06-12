@@ -1,0 +1,81 @@
+{
+  "schema_version": "cavra.aispm.report_incident_packet.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T09:03:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "incident": {
+    "incident_ref": "report-incident:opaque-external-access-review",
+    "title": "External Report Access Review Packet",
+    "incident_type": "evidence_room_access_review",
+    "severity": "medium",
+    "status": "under_review",
+    "opened_at": "2026-06-11T09:00:00Z",
+    "detected_by": "evidence_room_monitor"
+  },
+  "scope": {
+    "room_refs": ["evidence-room:opaque-auditor-review"],
+    "report_ids": ["pdf_board_pack", "xlsx_evidence_workbook"],
+    "artifact_refs": ["artifact:opaque-board-pdf"],
+    "policy_refs": [
+      "recipient-policy:opaque-approved-auditor-domain",
+      "retention-policy:opaque-report-retention"
+    ]
+  },
+  "related_records": {
+    "exception_refs": ["report-exception:opaque-external-auditor-domain"],
+    "approval_decision_refs": ["approval-decision:opaque-external-send"],
+    "access_event_refs": ["evidence-room-event:opaque-download-approved"],
+    "delivery_audit_refs": ["delivery-audit:opaque-report-send"],
+    "export_package_refs": ["export-package:opaque-board-and-audit-pack"]
+  },
+  "evidence": {
+    "packet_digest_ref": "sha256:redacted-public-contract-incident-packet",
+    "manifest_ref": "incident-packet:opaque-manifest",
+    "timeline_ref": "incident-timeline:opaque-access-review",
+    "immutable_store_ref": "enterprise-private://immutable-store/report-incidents/opaque-ref",
+    "evidence_refs": [
+      "cavra://evidence/redacted/report-incident-opened",
+      "cavra://evidence/redacted/evidence-room-download-approved"
+    ]
+  },
+  "review": {
+    "owner_ref": "role:security-leadership",
+    "due_at": "2026-06-13T09:00:00Z",
+    "approval_required": true,
+    "closure_requires_evidence": true,
+    "recommended_actions": [
+      "verify_auditor_access_scope",
+      "confirm_watermarked_artifact_download",
+      "review_exception_expiry"
+    ]
+  },
+  "controls": {
+    "signed_packet_required": true,
+    "immutable_audit_required": true,
+    "chain_of_custody_required": true,
+    "redaction_review_required": true,
+    "post_incident_review_required": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "private_justification_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "incident_packet_builder": "requires_cavra_enterprise",
+    "timeline_correlation": "requires_cavra_enterprise",
+    "identity_resolution": "requires_cavra_enterprise",
+    "signed_packet_generation": "requires_cavra_enterprise",
+    "immutable_incident_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

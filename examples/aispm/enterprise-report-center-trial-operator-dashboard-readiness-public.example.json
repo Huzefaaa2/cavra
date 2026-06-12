@@ -1,0 +1,180 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_operator_dashboard_readiness.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T10:15:00Z",
+  "trial_ref": "trial:opaque-report-center-evaluator",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "dashboard": {
+    "dashboard_ref": "dashboard:opaque-report-center-trial-operator",
+    "status": "ready_for_operator_review",
+    "operator_review_required": true,
+    "last_validation_packet_ref": "evidence-packet:opaque-report-center-trial",
+    "last_refresh_at": "2026-06-12T10:15:00Z",
+    "next_review_due_at": "2026-06-12T12:00:00Z"
+  },
+  "validation_rollup": {
+    "total_paths": 10,
+    "passed_paths": 10,
+    "warning_paths": 0,
+    "blocked_paths": 0,
+    "failed_paths": 0,
+    "critical_blockers": 0,
+    "handoff_ready": true,
+    "trial_validation_packet_ref": "packet:opaque-report-center-validation"
+  },
+  "path_status": [
+    {
+      "path_id": "setup_wizard",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-setup-settings-saved"
+    },
+    {
+      "path_id": "render_report",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-render-metadata-produced"
+    },
+    {
+      "path_id": "send_blocked_by_policy",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-send-blocked-by-policy"
+    },
+    {
+      "path_id": "send_after_approval",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-send-approved"
+    },
+    {
+      "path_id": "schedule_run",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-schedule-run-evaluated"
+    },
+    {
+      "path_id": "evidence_room",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/evidence-room-access-validated"
+    },
+    {
+      "path_id": "alert_escalation",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-escalation-validated"
+    },
+    {
+      "path_id": "remediation_closure",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-remediation-closure-validated"
+    },
+    {
+      "path_id": "executive_digest_distribution",
+      "status": "passed",
+      "operator_state": "review_recommended",
+      "evidence_ref": "cavra://evidence/redacted/executive-digest-distribution-validated"
+    },
+    {
+      "path_id": "revocation_and_retention",
+      "status": "passed",
+      "operator_state": "no_action_required",
+      "evidence_ref": "cavra://evidence/redacted/report-revocation-retention-validated"
+    }
+  ],
+  "approval_blockers": [],
+  "evidence_links": [
+    {
+      "label": "Trial validation packet",
+      "evidence_ref": "cavra://evidence/redacted/report-center-trial-validation-packet",
+      "artifact_ref": "packet:opaque-report-center-validation",
+      "status": "available"
+    },
+    {
+      "label": "Digest distribution evidence",
+      "evidence_ref": "cavra://evidence/redacted/executive-digest-distribution-validated",
+      "artifact_ref": "distribution:opaque-remediation-closure-executive",
+      "status": "available"
+    },
+    {
+      "label": "Retention verification evidence",
+      "evidence_ref": "cavra://evidence/redacted/report-revocation-retention-validated",
+      "artifact_ref": "retention:opaque-report-center-trial",
+      "status": "available"
+    }
+  ],
+  "operator_actions": [
+    {
+      "action_id": "review-trial-validation",
+      "label": "Review trial validation packet",
+      "state": "recommended",
+      "requires_approval": false,
+      "evidence_ref": "cavra://evidence/redacted/operator-review-requested"
+    },
+    {
+      "action_id": "approve-evaluator-handoff",
+      "label": "Approve evaluator handoff",
+      "state": "available",
+      "requires_approval": true,
+      "evidence_ref": "cavra://evidence/redacted/evaluator-handoff-ready"
+    },
+    {
+      "action_id": "request-rerun",
+      "label": "Request validation rerun",
+      "state": "available",
+      "requires_approval": false,
+      "evidence_ref": "cavra://evidence/redacted/validation-rerun-available"
+    }
+  ],
+  "evaluator_handoff": {
+    "handoff_state": "ready",
+    "handoff_packet_ref": "handoff:opaque-report-center-evaluator",
+    "instructions_ref": "docs:enterprise-trial-report-center",
+    "package_access_state": "ready",
+    "license_state": "trial_active",
+    "support_state": "operator_review_pending",
+    "expires_at": "2026-06-19T10:15:00Z"
+  },
+  "controls": {
+    "operator_review_required": true,
+    "approval_before_handoff_required": true,
+    "license_status_visible": true,
+    "package_access_status_visible": true,
+    "evidence_refs_only": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "evaluator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_operator_dashboard_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "operator_dashboard_api": "requires_cavra_enterprise",
+    "trial_validation_store": "requires_cavra_enterprise",
+    "handoff_workflow": "requires_cavra_enterprise",
+    "package_access_service": "requires_cavra_enterprise",
+    "license_service": "requires_cavra_enterprise",
+    "support_queue": "requires_cavra_enterprise",
+    "audit_store": "requires_cavra_enterprise"
+  }
+}

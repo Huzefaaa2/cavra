@@ -9,6 +9,11 @@ on:
       - "assets/brand/**"
       - "docs/**"
       - "examples/demos/final-closeout-trial/**"
+      - "scripts/validate-*.py"
+      - "scripts/validate-*.mjs"
+      - "scripts/generate-hosted-sandbox-deploy-evidence.py"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/deploy-sandbox.yml"
 
 permissions:
@@ -29,11 +34,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
       - name: Validate sandbox JavaScript
         run: |
+          npm ci
+          npx playwright install --with-deps chromium
           node --check apps/sandbox-ui/config.js
           node --check apps/sandbox-ui/sandbox.js
           python scripts/validate-sandbox-portal.py
+          python scripts/validate-aispm-launch-artifacts.py
+          npm run validate:sandbox:visual
+          python scripts/validate-aispm-visual-freshness.py
+          python scripts/validate-aispm-launch-readiness.py
+          python scripts/validate-aispm-release-evidence-index.py
+          python scripts/validate-aispm-report-catalog-readiness.py
+          python scripts/validate-aispm-report-delivery-setup-readiness.py
+          python scripts/validate-aispm-report-operations-readiness.py
+          python scripts/validate-aispm-report-governance-readiness.py
+          python scripts/validate-aispm-report-assurance-readiness.py
+          python scripts/validate-aispm-report-response-readiness.py
+          python scripts/validate-aispm-report-trial-operations-readiness.py
+          python scripts/validate-aispm-pilot-control-readiness.py
+          python scripts/validate-aispm-v100-public-release.py
+          python scripts/validate-hosted-sandbox-deployment-freshness.py
+          python scripts/validate-hosted-sandbox-operator-status.py
+          python scripts/validate-hosted-sandbox-deploy-evidence.py
           python scripts/validate-console-closeout.py
           python scripts/validate-production-deployment-guide.py
       - name: Build static sandbox artifact
@@ -85,17 +112,48 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
       - name: Verify deployed sandbox
         env:
           CAVRA_SANDBOX_URL: ${{ needs.deploy.outputs.page_url }}
+          CAVRA_HOSTED_SMOKE_STATUS: pass
         run: |
           set -euo pipefail
+          npm ci
+          npx playwright install --with-deps chromium
           test -n "$CAVRA_SANDBOX_URL"
           curl --fail --silent --show-error --location "$CAVRA_SANDBOX_URL" | tee index.html
           grep -q "Evidence Console" index.html
           grep -q "Community GA Control Hardening" index.html
           grep -q "Production Pilot Readiness" index.html
           grep -q "Enterprise Trial Access Portal" index.html
+          grep -q "AISPM Trial Lab Notebook Readiness" index.html
+          grep -q "Release Evidence Index" index.html
+          grep -q "Hosted Release Operator Status" index.html
+          grep -q "CSO Report Center" index.html
+          grep -q "cavra-aispm-report-catalog-packet.json" index.html
+          grep -q "Report Delivery Setup Readiness" index.html
+          grep -q "cavra-aispm-report-delivery-setup-packet.json" index.html
+          grep -q "Report Operations Readiness" index.html
+          grep -q "cavra-aispm-report-operations-readiness-packet.json" index.html
+          grep -q "Report Governance Readiness" index.html
+          grep -q "cavra-aispm-report-governance-readiness-packet.json" index.html
+          grep -q "Report Assurance Readiness" index.html
+          grep -q "cavra-aispm-report-assurance-readiness-packet.json" index.html
+          grep -q "Report Response Readiness" index.html
+          grep -q "cavra-aispm-report-response-readiness-packet.json" index.html
+          grep -q "Report Trial Operations Readiness" index.html
+          grep -q "cavra-aispm-report-trial-operations-readiness-packet.json" index.html
+          grep -q "Pilot Control Readiness" index.html
+          grep -q "cavra-aispm-pilot-control-readiness-packet.json" index.html
+          grep -q "AISPM Trial Lab Notebook Readiness" index.html
+          grep -q "cavra-aispm-release-evidence-index-packet.json" index.html
+          grep -q "cavra-hosted-sandbox-operator-status-packet.json" index.html
+          grep -q "community-v1.0.0-aispm-release-evidence-index" index.html
+          grep -q "aispm-trial-lab-notebook-publication-readiness-summary.md" index.html
           grep -q "https://cavra-trial.mind-ops.cloud/" index.html
           grep -q "sandbox.js" index.html
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
@@ -107,3 +165,23 @@ jobs:
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/before-the-agent-acts/evidence.json" | grep -q "cavra"
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/final-closeout-trial/sample-evidence-package.json" | grep -q "synthetic-final-closeout-trial"
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}evidence/final-closeout-trial/pilot-intake-template.json" | grep -q "cavra.final_closeout_pilot_intake.v1"
+          test -f scripts/validate-hosted-sandbox-pages.mjs
+          CAVRA_CHECK_LIVE_SANDBOX=true python scripts/validate-hosted-sandbox-deployment-freshness.py
+          python scripts/validate-hosted-sandbox-operator-status.py
+          python scripts/validate-aispm-report-catalog-readiness.py
+          python scripts/validate-aispm-report-delivery-setup-readiness.py
+          python scripts/validate-aispm-report-operations-readiness.py
+          python scripts/validate-aispm-report-governance-readiness.py
+          python scripts/validate-aispm-report-assurance-readiness.py
+          python scripts/validate-aispm-report-response-readiness.py
+          python scripts/validate-aispm-report-trial-operations-readiness.py
+          python scripts/validate-aispm-pilot-control-readiness.py
+          python scripts/validate-aispm-v100-public-release.py
+          npm run validate:sandbox:hosted
+          python scripts/generate-hosted-sandbox-deploy-evidence.py
+      - name: Upload hosted sandbox post-deploy evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-hosted-sandbox-post-deploy-evidence
+          path: .cavra/deploy-evidence/*
+          if-no-files-found: error

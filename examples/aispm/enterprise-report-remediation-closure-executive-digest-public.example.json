@@ -1,0 +1,136 @@
+{
+  "schema_version": "cavra.aispm.report_remediation_closure_executive_digest.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T12:26:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "digest": {
+    "digest_ref": "digest:opaque-remediation-closure-executive",
+    "title": "Remediation Closure Executive Digest",
+    "period": "last_30_days",
+    "audiences": [
+      "cso",
+      "ciso",
+      "board",
+      "audit"
+    ],
+    "status": "attention_required",
+    "prepared_at": "2026-06-11T12:26:00Z",
+    "visibility": "public_safe_metadata"
+  },
+  "executive_summary": {
+    "headline": "Most remediation plans closed within SLO; residual-risk review needs attention.",
+    "closure_readiness": "attention_required",
+    "key_message": "Closure throughput is healthy, but overdue closure approvals and one residual-risk review require CSO follow-up.",
+    "material_risk": "Residual-risk review aging could weaken audit readiness if not cleared before the next board pack.",
+    "recommended_action": "Clear CISO closure approvals and complete overdue residual-risk review within the next governance window."
+  },
+  "metrics": {
+    "closed_plans": 42,
+    "open_plans": 9,
+    "overdue_closures": 2,
+    "overdue_tasks": 3,
+    "closure_rate": 0.82,
+    "sla_breached_count": 5,
+    "residual_risk_acceptances": 11,
+    "overdue_residual_risk_reviews": 1,
+    "post_incident_review_completion_rate": 0.83
+  },
+  "risk_summary": {
+    "residual_risk_level": "medium",
+    "high_or_critical_residual_risk_count": 1,
+    "top_risk_themes": [
+      "closure approval latency",
+      "residual-risk review aging",
+      "post-incident follow-up backlog"
+    ],
+    "accepted_risk_review_due_at": "2026-06-18T09:00:00Z"
+  },
+  "remediation_status": {
+    "closure_approval_queue": "degraded",
+    "residual_risk_review_queue": "healthy",
+    "post_incident_review_queue": "degraded",
+    "evidence_finalization_queue": "healthy",
+    "closure_slo_status": "degraded"
+  },
+  "board_talking_points": [
+    "CAVRA closed 42 remediation plans in the reporting period.",
+    "Five closure SLO breaches require governance review.",
+    "One accepted residual-risk item is overdue for review.",
+    "Post-incident review completion is 83 percent for the reporting period."
+  ],
+  "audit_readiness": {
+    "auditor_ready": false,
+    "immutable_evidence_available": true,
+    "exceptions_count": 2,
+    "report_package_refs": [
+      "report-package:opaque-board-pack",
+      "report-package:opaque-audit-summary"
+    ],
+    "evidence_refs": [
+      "cavra://evidence/redacted/remediation-closure-dashboard-generated",
+      "cavra://evidence/redacted/remediation-closure-slo-evaluated",
+      "cavra://evidence/redacted/residual-risk-review-aging-evaluated"
+    ]
+  },
+  "distribution": {
+    "formats": [
+      "pdf",
+      "docx",
+      "html",
+      "signed_json"
+    ],
+    "delivery_modes": [
+      "portal",
+      "email",
+      "grc_upload"
+    ],
+    "approval_required": true,
+    "recipient_policy_ref": "recipient-policy:opaque-executive-digest"
+  },
+  "evidence": {
+    "digest_ref": "digest:opaque-remediation-closure-executive",
+    "operations_dashboard_ref": "dashboard:opaque-remediation-closure-ops",
+    "latest_closure_ref": "remediation-closure:opaque-report-alert",
+    "immutable_store_ref": "immutable:opaque-remediation-closure-executive",
+    "evidence_refs": [
+      "cavra://evidence/redacted/remediation-closure-executive-digest-generated",
+      "cavra://evidence/redacted/remediation-closure-dashboard-generated",
+      "cavra://evidence/redacted/board-digest-approval-required"
+    ]
+  },
+  "controls": {
+    "derived_from_closure_operations": true,
+    "rbac_scoped": true,
+    "executive_approval_required": true,
+    "immutable_digest_required": true,
+    "recipient_policy_enforced": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "board_member_identity_included": false,
+    "secrets_included": false,
+    "payload_handling": "remediation_closure_executive_digest_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "digest_renderer": "requires_cavra_enterprise",
+    "board_pack_renderer": "requires_cavra_enterprise",
+    "tenant_metrics_store": "requires_cavra_enterprise",
+    "report_delivery": "requires_cavra_enterprise",
+    "approval_workflow": "requires_cavra_enterprise",
+    "evidence_package_builder": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

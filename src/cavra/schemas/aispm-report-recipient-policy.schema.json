@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Recipient Policy Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "policy",
+    "domain_rules",
+    "recipient_groups",
+    "delivery_channel_eligibility",
+    "approval_policy",
+    "encryption_policy",
+    "audit",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_recipient_policy.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "policy": {
+      "type": "object",
+      "required": [
+        "policy_ref",
+        "name",
+        "status",
+        "owner_ref",
+        "default_action",
+        "external_delivery_default"
+      ],
+      "properties": {
+        "policy_ref": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["draft", "active", "disabled", "requires_review"] },
+        "owner_ref": { "type": "string", "minLength": 1 },
+        "default_action": { "enum": ["allow", "deny", "require_approval"] },
+        "external_delivery_default": { "enum": ["deny", "require_approval", "allow_with_audit"] }
+      },
+      "additionalProperties": false
+    },
+    "domain_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "domain",
+          "classification",
+          "allowed",
+          "approval_required",
+          "encryption_required"
+        ],
+        "properties": {
+          "domain": { "type": "string", "minLength": 1 },
+          "classification": {
+            "enum": ["internal", "external_auditor", "external_partner", "blocked", "unknown"]
+          },
+          "allowed": { "type": "boolean" },
+          "approval_required": { "type": "boolean" },
+          "encryption_required": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recipient_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "group_ref",
+          "display_name",
+          "role_scope",
+          "member_count",
+          "source",
+          "addresses_redacted"
+        ],
+        "properties": {
+          "group_ref": { "type": "string", "minLength": 1 },
+          "display_name": { "type": "string", "minLength": 1 },
+          "role_scope": { "type": "string", "minLength": 1 },
+          "member_count": { "type": "integer", "minimum": 0 },
+          "source": { "enum": ["idp_group", "manual_group", "grc_system", "static_ref"] },
+          "addresses_redacted": { "const": true }
+        },
+        "additionalProperties": false
+      }
+    },
+    "delivery_channel_eligibility": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["channel", "allowed", "requires_verified_sender", "requires_encryption"],
+        "properties": {
+          "channel": {
+            "enum": ["download", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+          },
+          "allowed": { "type": "boolean" },
+          "requires_verified_sender": { "type": "boolean" },
+          "requires_encryption": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "approval_policy": {
+      "type": "object",
+      "required": [
+        "external_recipient_approval_required",
+        "new_domain_approval_required",
+        "recipient_group_change_approval_required",
+        "approver_group",
+        "approval_evidence_required"
+      ],
+      "properties": {
+        "external_recipient_approval_required": { "type": "boolean" },
+        "new_domain_approval_required": { "type": "boolean" },
+        "recipient_group_change_approval_required": { "type": "boolean" },
+        "approver_group": { "type": "string", "minLength": 1 },
+        "approval_evidence_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "encryption_policy": {
+      "type": "object",
+      "required": [
+        "attachment_encryption_required",
+        "minimum_transport",
+        "kms_key_ref_required",
+        "customer_managed_key_supported"
+      ],
+      "properties": {
+        "attachment_encryption_required": { "type": "boolean" },
+        "minimum_transport": { "enum": ["tls_1_2", "tls_1_3", "private_network"] },
+        "kms_key_ref_required": { "type": "boolean" },
+        "customer_managed_key_supported": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": ["policy_change_audit_ref", "last_reviewed_at", "review_evidence_refs"],
+      "properties": {
+        "policy_change_audit_ref": { "type": "string", "minLength": 1 },
+        "last_reviewed_at": { "type": "string", "format": "date-time" },
+        "review_evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "idp_group_members_included",
+        "provider_tokens_included",
+        "customer_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "idp_group_members_included": { "const": false },
+        "provider_tokens_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "enum": ["metadata_only", "redacted_summary", "private_payload_ref"] }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "recipient_directory_sync",
+        "idp_group_resolution",
+        "domain_verification",
+        "encryption_key_resolution",
+        "approval_workflow",
+        "license_enforcement"
+      ],
+      "properties": {
+        "recipient_directory_sync": { "const": "requires_cavra_enterprise" },
+        "idp_group_resolution": { "const": "requires_cavra_enterprise" },
+        "domain_verification": { "const": "requires_cavra_enterprise" },
+        "encryption_key_resolution": { "const": "requires_cavra_enterprise" },
+        "approval_workflow": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

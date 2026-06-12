@@ -1,0 +1,168 @@
+{
+  "schema_version": "cavra.aispm.report_alert_drilldown.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T10:52:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "alert": {
+    "alert_ref": "alert:opaque-evidence-room-access",
+    "rule_id": "evidence-room-suspicious-access",
+    "title": "Suspicious Evidence Room Access",
+    "severity": "critical",
+    "status": "escalated",
+    "opened_at": "2026-06-11T09:48:00Z",
+    "age_minutes": 64,
+    "owner_role": "security_operations",
+    "source_metric": "evidence_room_access.failed_access_attempts",
+    "observed_value": 1,
+    "threshold": 1
+  },
+  "timeline": [
+    {
+      "event_ref": "alert-event:opaque-detected",
+      "event_type": "detected",
+      "occurred_at": "2026-06-11T09:48:00Z",
+      "actor_role": "system",
+      "status": "completed",
+      "summary": "Alert rule evaluated from aggregate evidence-room access metrics.",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-triggered"
+    },
+    {
+      "event_ref": "alert-event:opaque-routed",
+      "event_type": "routed",
+      "occurred_at": "2026-06-11T09:49:00Z",
+      "actor_role": "routing_engine",
+      "status": "completed",
+      "summary": "Alert routed to security operations and incident queue.",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-routed"
+    },
+    {
+      "event_ref": "alert-event:opaque-escalated",
+      "event_type": "escalated",
+      "occurred_at": "2026-06-11T10:18:00Z",
+      "actor_role": "escalation_worker",
+      "status": "completed",
+      "summary": "Acknowledgement SLO breached and alert moved to level 2.",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-escalated"
+    }
+  ],
+  "routing": [
+    {
+      "route_ref": "route:opaque-soc",
+      "channel": "security_operations_queue",
+      "owner_role": "security_operations",
+      "status": "delivered",
+      "delivered_at": "2026-06-11T09:49:00Z"
+    },
+    {
+      "route_ref": "route:opaque-itsm",
+      "channel": "itsm",
+      "owner_role": "platform_security",
+      "status": "created",
+      "delivered_at": "2026-06-11T09:50:00Z"
+    }
+  ],
+  "acknowledgement_history": [
+    {
+      "ack_ref": "ack:opaque-alert-required",
+      "status": "pending",
+      "owner_role": "security_operations",
+      "due_at": "2026-06-11T10:20:00Z",
+      "decision_ref": "decision:opaque-ack-pending",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-ack-required"
+    },
+    {
+      "ack_ref": "ack:opaque-alert-overdue",
+      "status": "overdue",
+      "owner_role": "security_operations",
+      "due_at": "2026-06-11T10:20:00Z",
+      "decision_ref": "decision:opaque-ack-overdue",
+      "evidence_ref": "cavra://evidence/redacted/report-alert-ack-overdue"
+    }
+  ],
+  "suppression_history": [
+    {
+      "suppression_ref": "suppression:opaque-related-aging-exception",
+      "status": "active",
+      "reason_code": "duplicate_signal",
+      "owner_role": "grc",
+      "expires_at": "2026-06-11T12:00:00Z",
+      "audit_ref": "audit:opaque-alert-suppression"
+    }
+  ],
+  "escalation_path": {
+    "current_level": 2,
+    "next_level": 3,
+    "next_escalation_at": "2026-06-11T11:18:00Z",
+    "levels": [
+      {
+        "level": 1,
+        "owner_role": "platform_security",
+        "status": "completed"
+      },
+      {
+        "level": 2,
+        "owner_role": "security_operations",
+        "status": "active"
+      },
+      {
+        "level": 3,
+        "owner_role": "ciso",
+        "status": "pending"
+      }
+    ]
+  },
+  "linked_incident": {
+    "incident_required": true,
+    "incident_ref": "incident:opaque-report-delivery-and-access-review",
+    "incident_packet_ref": "incident-packet:opaque-report-alert",
+    "closure_ref": "incident-closure:opaque-pending",
+    "closure_required": true,
+    "status": "under_review"
+  },
+  "evidence_chain": {
+    "metrics_ref": "metrics:opaque-weekly-board-pack",
+    "alert_digest_ref": "digest:opaque-report-alert",
+    "routing_audit_ref": "audit:opaque-report-alert-routing",
+    "timeline_digest_ref": "digest:opaque-alert-timeline",
+    "immutable_store_ref": "immutable:opaque-report-alert-drilldown",
+    "evidence_refs": [
+      "cavra://evidence/redacted/report-alert-triggered",
+      "cavra://evidence/redacted/report-alert-routed",
+      "cavra://evidence/redacted/report-alert-escalated"
+    ]
+  },
+  "controls": {
+    "derived_from_alert_events": true,
+    "timeline_ordered": true,
+    "rbac_scoped": true,
+    "retention_aware": true,
+    "immutable_drilldown_required": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "single_alert_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "drilldown_projection": "requires_cavra_enterprise",
+    "timeline_event_store": "requires_cavra_enterprise",
+    "routing_detail_store": "requires_cavra_enterprise",
+    "acknowledgement_store": "requires_cavra_enterprise",
+    "suppression_store": "requires_cavra_enterprise",
+    "incident_linkage_store": "requires_cavra_enterprise",
+    "evidence_chain_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

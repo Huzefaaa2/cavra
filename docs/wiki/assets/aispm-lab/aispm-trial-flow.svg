@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA AISPM trial evaluation flow</title>
+  <desc id="desc">Public-safe flow from trial access request through operator approval, governed agent scenario, AISPM review, report export, pilot controls, and trial closeout.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071217"/>
+      <stop offset="1" stop-color="#10282f"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12343b"/>
+      <stop offset="1" stop-color="#0c1d24"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#71e1c1"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="620" rx="28" fill="url(#bg)"/>
+  <text x="64" y="74" fill="#f4fbff" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">CAVRA AISPM Trial Evaluation Flow</text>
+  <text x="64" y="112" fill="#9fb7c2" font-family="Inter, Arial, sans-serif" font-size="18">Public-safe evaluator path. License secrets, package tokens, private policy packs, and customer telemetry stay outside this artifact.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <g transform="translate(64 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">1. Request</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Evaluator submits</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">approved trial access</text>
+    </g>
+    <g transform="translate(254 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">2. Approve</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Operator reviews</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">and issues access</text>
+    </g>
+    <g transform="translate(444 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">3. Scenario</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Run governed</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">agent workflow</text>
+    </g>
+    <g transform="translate(634 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">4. Review</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Inspect AISPM</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">posture evidence</text>
+    </g>
+    <g transform="translate(824 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">5. Reports</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Export CSO and</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">audit summaries</text>
+    </g>
+    <g transform="translate(1014 174)">
+      <rect width="170" height="130" rx="14" fill="url(#card)" stroke="#71e1c1" stroke-width="2"/>
+      <text x="20" y="38" fill="#f4fbff" font-size="19" font-weight="800">6. Closeout</text>
+      <text x="20" y="72" fill="#c7d7df" font-size="14">Revoke, expire,</text>
+      <text x="20" y="94" fill="#c7d7df" font-size="14">or pilot approve</text>
+    </g>
+    <path d="M234 239 H254" stroke="#71e1c1" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M424 239 H444" stroke="#71e1c1" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M614 239 H634" stroke="#71e1c1" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M804 239 H824" stroke="#71e1c1" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M994 239 H1014" stroke="#71e1c1" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(120 390)">
+      <rect width="1040" height="112" rx="16" fill="#08161c" stroke="#2f5964" stroke-width="2"/>
+      <text x="28" y="38" fill="#f4fbff" font-size="20" font-weight="800">Enterprise-only execution boundary</text>
+      <text x="28" y="70" fill="#b8cbd3" font-size="15">Live tenant ingestion, signed approvals, license validation, package access, report delivery, revocation enforcement, and workflow write-back are implemented in private Enterprise services.</text>
+    </g>
+  </g>
+</svg>

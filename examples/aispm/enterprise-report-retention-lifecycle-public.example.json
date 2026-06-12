@@ -1,0 +1,70 @@
+{
+  "schema_version": "cavra.aispm.report_retention_lifecycle.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:10:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "policy": {
+    "policy_id": "report-retention-standard",
+    "default_retention_days": 365,
+    "audit_event_retention_days": 2555,
+    "immutable_storage_required": true,
+    "legal_hold_supported": true,
+    "deletion_requires_approval": true
+  },
+  "report_lifecycle": [
+    {
+      "report_ref": "report:opaque-board-pack",
+      "report_id": "pdf_board_pack",
+      "created_at": "2026-06-11T08:00:00Z",
+      "expires_at": "2027-06-11T08:00:00Z",
+      "lifecycle_state": "retained",
+      "immutable_store_ref": "enterprise-private://immutable-store/report/opaque-ref",
+      "legal_hold_ref": null
+    },
+    {
+      "report_ref": "report:opaque-audit-workbook",
+      "report_id": "xlsx_evidence_workbook",
+      "created_at": "2026-06-11T08:00:00Z",
+      "expires_at": "2033-06-09T08:00:00Z",
+      "lifecycle_state": "legal_hold",
+      "immutable_store_ref": "enterprise-private://immutable-store/report/opaque-audit-ref",
+      "legal_hold_ref": "legal-hold:opaque-public-contract-sample"
+    }
+  ],
+  "audit_export_lifecycle": {
+    "export_ref": "audit-export:opaque-report-delivery",
+    "created_at": "2026-06-11T08:05:00Z",
+    "expires_at": "2033-06-09T08:05:00Z",
+    "archive_state": "archived",
+    "object_lock": "enabled",
+    "kms_key_ref": "enterprise-private://kms/opaque-key-ref"
+  },
+  "deletion_policy": {
+    "allowed_states": ["expired", "archived"],
+    "blocked_states": ["retained", "legal_hold", "pending_approval"],
+    "approval_required": true,
+    "tombstone_required": true
+  },
+  "evidence": {
+    "retention_evidence_refs": ["cavra://evidence/redacted/report-retention-sample"],
+    "archive_manifest_ref": "enterprise-private://archive-manifest/opaque-ref",
+    "chain_ref": "enterprise-private://evidence-chain/opaque-ref"
+  },
+  "redaction": {
+    "raw_report_content_included": false,
+    "recipient_addresses_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "retention_worker": "requires_cavra_enterprise",
+    "legal_hold_store": "requires_cavra_enterprise",
+    "immutable_archive": "requires_cavra_enterprise",
+    "kms_integration": "requires_cavra_enterprise",
+    "deletion_approval_workflow": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

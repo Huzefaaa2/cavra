@@ -1,0 +1,77 @@
+{
+  "schema_version": "cavra.aispm.report_evidence_room_access_event.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:51:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "event": {
+    "event_ref": "evidence-room-event:opaque-download-approved",
+    "room_ref": "evidence-room:opaque-auditor-review",
+    "event_type": "download",
+    "outcome": "allowed",
+    "occurred_at": "2026-06-11T08:50:00Z",
+    "source": "evidence_room_portal",
+    "correlation_ref": "correlation:opaque-evidence-room-session"
+  },
+  "actor": {
+    "actor_ref": "principal:opaque-external-auditor",
+    "actor_type": "external_auditor",
+    "identity_redacted": true,
+    "organization_ref": "organization:opaque-audit-firm",
+    "mfa_verified": true,
+    "ip_address_redacted": true
+  },
+  "access_decision": {
+    "decision": "allow",
+    "reason": "approved_domain_mfa_and_active_room",
+    "policy_refs": [
+      "recipient-policy:opaque-approved-auditor-domain",
+      "retention-policy:opaque-report-retention"
+    ],
+    "expires_at": "2026-06-11T09:05:00Z",
+    "revocation_ref": null
+  },
+  "artifacts": [
+    {
+      "artifact_ref": "artifact:opaque-board-pdf",
+      "report_id": "pdf_board_pack",
+      "format": "pdf",
+      "digest_ref": "sha256:redacted-public-contract-board-pdf",
+      "watermark_applied": true
+    }
+  ],
+  "controls": {
+    "signed_link_used": true,
+    "watermark_required": true,
+    "access_logged": true,
+    "immutable_audit_required": true,
+    "retention_checked": true,
+    "license_checked": true
+  },
+  "integrity": {
+    "event_digest_ref": "sha256:redacted-public-contract-access-event",
+    "previous_event_digest_ref": "sha256:redacted-public-contract-room-created",
+    "manifest_ref": "export-package:opaque-board-and-audit-pack",
+    "audit_store_ref": "enterprise-private://immutable-store/evidence-room-events/opaque-ref",
+    "evidence_refs": ["cavra://evidence/redacted/evidence-room-download-approved"]
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "auditor_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "identity_resolution": "requires_cavra_enterprise",
+    "signed_download_links": "requires_cavra_enterprise",
+    "watermarking_service": "requires_cavra_enterprise",
+    "immutable_access_event_store": "requires_cavra_enterprise",
+    "revocation_workflow": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

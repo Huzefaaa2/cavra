@@ -1,0 +1,151 @@
+{
+  "schema_version": "cavra.aispm.release_evidence_index.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_reviewer_index",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-release-evidence-index-packet.json",
+  "validator": "scripts/validate-aispm-release-evidence-index.py",
+  "evidence_items": [
+    {
+      "title": "AISPM Launch Readiness Rollup",
+      "markdown": "docs/release-verifications/aispm-launch-readiness-rollup.md",
+      "machine_readable": "docs/release-verifications/aispm-launch-readiness-rollup.json",
+      "validator": "scripts/validate-aispm-launch-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "Launch Board Pack Artifact Index",
+      "markdown": "docs/release-verifications/aispm-launch-board-pack-artifact-index.md",
+      "machine_readable": "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+      "validator": "scripts/validate-aispm-launch-artifacts.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Catalog Readiness",
+      "markdown": "docs/release-verifications/aispm-report-catalog-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-catalog-readiness.json",
+      "validator": "scripts/validate-aispm-report-catalog-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Delivery Setup Readiness",
+      "markdown": "docs/release-verifications/aispm-report-delivery-setup-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-delivery-setup-readiness.json",
+      "validator": "scripts/validate-aispm-report-delivery-setup-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Operations Readiness",
+      "markdown": "docs/release-verifications/aispm-report-operations-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-operations-readiness.json",
+      "validator": "scripts/validate-aispm-report-operations-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Governance Readiness",
+      "markdown": "docs/release-verifications/aispm-report-governance-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-governance-readiness.json",
+      "validator": "scripts/validate-aispm-report-governance-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Assurance Readiness",
+      "markdown": "docs/release-verifications/aispm-report-assurance-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-assurance-readiness.json",
+      "validator": "scripts/validate-aispm-report-assurance-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Response Readiness",
+      "markdown": "docs/release-verifications/aispm-report-response-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-response-readiness.json",
+      "validator": "scripts/validate-aispm-report-response-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Report Trial Operations Readiness",
+      "markdown": "docs/release-verifications/aispm-report-trial-operations-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-report-trial-operations-readiness.json",
+      "validator": "scripts/validate-aispm-report-trial-operations-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Pilot Control Readiness",
+      "markdown": "docs/release-verifications/aispm-pilot-control-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-pilot-control-readiness.json",
+      "validator": "scripts/validate-aispm-pilot-control-readiness.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM v1.0 Public Release Readiness",
+      "markdown": "docs/release-verifications/aispm-v1.0-public-release-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-v1.0-public-release-readiness.json",
+      "validator": "scripts/validate-aispm-v100-public-release.py",
+      "status": "ready"
+    },
+    {
+      "title": "AISPM Visual Smoke Validation",
+      "markdown": "docs/release-verifications/aispm-visual-smoke-validation.md",
+      "machine_readable": "docs/release-verifications/aispm-visual-smoke-validation.json",
+      "validator": "npm run validate:sandbox:visual",
+      "status": "pass"
+    },
+    {
+      "title": "Hosted Sandbox Pages Smoke",
+      "markdown": "docs/release-verifications/hosted-sandbox-pages-smoke-validation.md",
+      "machine_readable": "docs/release-verifications/hosted-sandbox-pages-smoke-validation.json",
+      "validator": "npm run validate:sandbox:hosted",
+      "status": "workflow_enforced"
+    },
+    {
+      "title": "Hosted Sandbox Deployment Freshness",
+      "markdown": "docs/release-verifications/hosted-sandbox-deployment-freshness.md",
+      "machine_readable": "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
+      "validator": "scripts/validate-hosted-sandbox-deployment-freshness.py",
+      "status": "ready"
+    },
+    {
+      "title": "Hosted Sandbox Operator Release Status",
+      "markdown": "docs/release-verifications/hosted-sandbox-operator-release-status.md",
+      "machine_readable": "docs/release-verifications/hosted-sandbox-operator-release-status.json",
+      "validator": "scripts/validate-hosted-sandbox-operator-status.py",
+      "status": "ready"
+    },
+    {
+      "title": "Hosted Sandbox Post-Deploy Evidence",
+      "markdown": "docs/release-verifications/hosted-sandbox-post-deploy-evidence.md",
+      "machine_readable": "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json",
+      "validator": "scripts/validate-hosted-sandbox-deploy-evidence.py",
+      "status": "workflow_enforced"
+    },
+    {
+      "title": "Trial Lab Notebook Readiness",
+      "markdown": "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md",
+      "machine_readable": "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json",
+      "validator": "scripts/validate-aispm-trial-lab-notebook.py --check-summary",
+      "status": "ready"
+    },
+    {
+      "title": "Phase B Closeout Verification",
+      "markdown": "docs/aispm-phase-b-closeout-verification.md",
+      "machine_readable": "docs/aispm-phase-b-closeout-verification.md",
+      "validator": "scripts/validate-sandbox-portal.py",
+      "status": "pass"
+    }
+  ],
+  "public_safety_boundary": "This index includes public release verification and portal readiness references only. It excludes customer records, raw prompts, private trial package tokens, license signing keys, private registry credentials, Enterprise source code, and tenant telemetry.",
+  "enterprise_boundary": {
+    "signed_release_approval": "requires_cavra_enterprise_or_saas",
+    "tenant_evidence_room": "requires_enterprise_evidence_store",
+    "private_trial_package_validation": "requires_private_enterprise_pipeline",
+    "licensed_report_delivery": "requires_cavra_enterprise",
+    "report_operations_governance": "requires_cavra_enterprise",
+    "report_delivery_governance": "requires_cavra_enterprise",
+    "report_assurance_governance": "requires_cavra_enterprise",
+    "report_response_governance": "requires_cavra_enterprise",
+    "report_trial_operations_governance": "requires_cavra_enterprise",
+    "pilot_control_governance": "requires_cavra_enterprise_or_saas"
+  }
+}

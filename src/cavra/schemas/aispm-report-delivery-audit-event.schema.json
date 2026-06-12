@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Delivery Audit Event Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "audit_event",
+    "recipient_summary",
+    "approval",
+    "retry",
+    "evidence",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_delivery_audit_event.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "audit_event": {
+      "type": "object",
+      "required": [
+        "audit_event_id",
+        "action",
+        "occurred_at",
+        "tenant_ref",
+        "actor_ref",
+        "report_id",
+        "requested_format",
+        "delivery_mode",
+        "status"
+      ],
+      "properties": {
+        "audit_event_id": { "type": "string", "minLength": 1 },
+        "action": { "enum": ["catalog", "render", "send", "schedule", "test_delivery"] },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "tenant_ref": { "type": "string", "minLength": 1 },
+        "actor_ref": { "type": "string", "minLength": 1 },
+        "report_id": { "type": "string", "minLength": 1 },
+        "requested_format": {
+          "enum": ["markdown", "json", "csv", "pdf", "xlsx", "docx", "html", "jsonl", "zip"]
+        },
+        "delivery_mode": {
+          "enum": ["disabled", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+        },
+        "status": {
+          "enum": [
+            "accepted",
+            "rendered",
+            "sent",
+            "scheduled",
+            "test_passed",
+            "failed",
+            "retry_scheduled",
+            "blocked_requires_approval",
+            "blocked_policy"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "recipient_summary": {
+      "type": "object",
+      "required": [
+        "recipient_count",
+        "allowed_domains",
+        "external_domain_count",
+        "recipient_addresses_redacted"
+      ],
+      "properties": {
+        "recipient_count": { "type": "integer", "minimum": 0 },
+        "allowed_domains": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "external_domain_count": { "type": "integer", "minimum": 0 },
+        "recipient_addresses_redacted": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "required": ["approval_required", "approval_ref", "decision"],
+      "properties": {
+        "approval_required": { "type": "boolean" },
+        "approval_ref": { "type": ["string", "null"] },
+        "decision": { "enum": ["not_required", "pending", "approved", "denied", "expired"] }
+      },
+      "additionalProperties": false
+    },
+    "retry": {
+      "type": "object",
+      "required": ["attempt", "max_attempts", "next_retry_at", "terminal"],
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 0 },
+        "max_attempts": { "type": "integer", "minimum": 0 },
+        "next_retry_at": { "type": ["string", "null"], "format": "date-time" },
+        "terminal": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "evidence_refs",
+        "report_digest_ref",
+        "delivery_audit_ref",
+        "immutable_store_ref"
+      ],
+      "properties": {
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "report_digest_ref": { "type": "string", "minLength": 1 },
+        "delivery_audit_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "raw_report_content_included",
+        "provider_response_included",
+        "recipient_addresses_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "recipient_addresses_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "enum": ["metadata_only", "redacted_summary", "private_payload_ref"] }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "audit_store",
+        "provider_response_storage",
+        "retry_worker",
+        "immutable_evidence_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "audit_store": { "const": "requires_cavra_enterprise" },
+        "provider_response_storage": { "const": "requires_cavra_enterprise" },
+        "retry_worker": { "const": "requires_cavra_enterprise" },
+        "immutable_evidence_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

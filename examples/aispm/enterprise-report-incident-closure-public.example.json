@@ -1,0 +1,94 @@
+{
+  "schema_version": "cavra.aispm.report_incident_closure.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T09:18:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "incident": {
+    "incident_ref": "report-incident:opaque-external-access-review",
+    "incident_type": "evidence_room_access_review",
+    "severity": "medium",
+    "final_status": "closed",
+    "opened_at": "2026-06-11T09:00:00Z",
+    "closed_at": "2026-06-11T09:18:00Z"
+  },
+  "remediation": {
+    "summary": "Verified auditor access scope, watermarking, exception expiry, and packet integrity.",
+    "actions": [
+      {
+        "action_ref": "remediation:opaque-access-scope-review",
+        "action_type": "access_scope_review",
+        "status": "completed",
+        "evidence_ref": "cavra://evidence/redacted/access-scope-reviewed"
+      },
+      {
+        "action_ref": "remediation:opaque-exception-expiry-confirmed",
+        "action_type": "exception_expiry_confirmed",
+        "status": "completed",
+        "evidence_ref": "cavra://evidence/redacted/exception-expiry-confirmed"
+      }
+    ]
+  },
+  "closure_approval": {
+    "approval_ref": "closure-approval:opaque-security-leadership",
+    "decision": "approved",
+    "approver_role": "security-leadership",
+    "decided_at": "2026-06-11T09:16:00Z",
+    "conditions": ["retain_packet_for_audit_window", "review_recipient_policy_next_cycle"]
+  },
+  "lessons_learned": {
+    "summary": "External auditor access should stay time-boxed and tied to explicit recipient policy refs.",
+    "control_updates": [
+      "tighten_external_auditor_room_expiry",
+      "require_post_download_exception_review"
+    ],
+    "runbook_refs": ["runbook:opaque-evidence-room-access-review"]
+  },
+  "follow_up_tasks": [
+    {
+      "task_ref": "followup:opaque-recipient-policy-review",
+      "owner_ref": "role:grc-admin",
+      "due_at": "2026-06-18T09:18:00Z",
+      "status": "open",
+      "evidence_required": true
+    }
+  ],
+  "evidence": {
+    "closure_digest_ref": "sha256:redacted-public-contract-incident-closure",
+    "incident_packet_ref": "incident-packet:opaque-manifest",
+    "closure_manifest_ref": "incident-closure:opaque-manifest",
+    "immutable_store_ref": "enterprise-private://immutable-store/report-incident-closures/opaque-ref",
+    "evidence_refs": [
+      "cavra://evidence/redacted/report-incident-closure-approved",
+      "cavra://evidence/redacted/access-scope-reviewed"
+    ]
+  },
+  "controls": {
+    "closure_approval_required": true,
+    "remediation_evidence_required": true,
+    "lessons_learned_required": true,
+    "follow_up_tracking_required": true,
+    "immutable_closure_required": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "private_justification_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "closure_workflow": "requires_cavra_enterprise",
+    "remediation_tracking": "requires_cavra_enterprise",
+    "approval_identity_resolution": "requires_cavra_enterprise",
+    "lessons_learned_workflow": "requires_cavra_enterprise",
+    "immutable_closure_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

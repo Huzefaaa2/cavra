@@ -43,6 +43,28 @@ let currentAispmReplayPolicyPrApprovalText = "";
 let currentAispmReplayPolicyCiGateReadiness = null;
 let currentAispmReplayPolicyCiGateRolloutMarkdown = "";
 let currentAispmReplayPolicyCiGateAuditPacket = null;
+let currentAispmReports = {};
+let currentAispmReportCatalogPacket = null;
+let currentAispmReportSetupPacket = null;
+let currentAispmReportOperationsPacket = null;
+let currentAispmReportGovernancePacket = null;
+let currentAispmReportAssurancePacket = null;
+let currentAispmReportResponsePacket = null;
+let currentAispmReportTrialOpsPacket = null;
+let currentAispmTrialReadinessPacket = null;
+let currentAispmTrialReadinessMarkdown = "";
+let currentAispmTrialReviewPacket = null;
+let currentAispmTrialPilotScopePacket = null;
+let currentAispmPilotApprovalPacket = null;
+let currentAispmPilotLaunchDecisionPacket = null;
+let currentAispmPilotEvidenceRoomPacket = null;
+let currentAispmEvidenceReviewerChecklistPacket = null;
+let currentAispmPilotExceptionRegisterPacket = null;
+let currentAispmPilotRiskAcceptancePacket = null;
+let currentAispmPilotLaunchBoardPackPacket = null;
+let currentAispmPilotControlReadinessPacket = null;
+let currentAispmReleaseEvidenceIndexPacket = null;
+let currentAispmHostedReleaseStatusPacket = null;
 
 const metrics = [
   ["Policy Packs", "14", "Community and enterprise-ready policy domains"],
@@ -223,6 +245,968 @@ const trialAccessCards = [
   ["Controls", "Enforced", "Signed license, revocation, expiry, registry pull, and runtime checks."]
 ];
 
+const aispmTrialReadinessItems = [
+  [
+    "Lab Notebook",
+    "Ready",
+    "Step-by-step Enterprise Trial walkthrough is published in the GitHub Wiki.",
+    "https://github.com/Huzefaaa2/cavra/wiki/AISPM-Enterprise-Trial-Lab-Notebook"
+  ],
+  [
+    "Access Portal",
+    "Live",
+    "Evaluator signup, approval intake, and trial request storage run on the trial domain.",
+    "https://cavra-trial.mind-ops.cloud/"
+  ],
+  [
+    "Operator Approval",
+    "Controlled",
+    "GitHub-owner operator review flow issues public-safe approval output after request review.",
+    "https://github.com/Huzefaaa2/cavra/wiki/AISPM-Trial-Access-And-Operator-Approval"
+  ],
+  [
+    "Revocation And Expiry",
+    "Documented",
+    "Trial closeout covers license expiry, package access removal, and blocked runtime validation.",
+    "https://github.com/Huzefaaa2/cavra/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout"
+  ],
+  [
+    "Release Evidence",
+    "Verified",
+    "Publication readiness summary links the lab notebook to verification evidence.",
+    "https://github.com/Huzefaaa2/cavra/blob/main/docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
+  ],
+  [
+    "Enterprise Automation",
+    "Locked",
+    "Live package access grants, license issuance, email delivery, and hosted telemetry remain Enterprise/private.",
+    "https://github.com/Huzefaaa2/cavra/blob/main/docs/architecture/private-enterprise-repo-plan.md"
+  ]
+];
+
+const aispmEvaluatorHandoffItems = [
+  [
+    "Trial Portal",
+    "https://cavra-trial.mind-ops.cloud/",
+    "Evaluator starts with the branded request and approval portal."
+  ],
+  [
+    "Package Reference",
+    "ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.05",
+    "Private GHCR image reference is provided only after approved package access."
+  ],
+  [
+    "License Boundary",
+    "CAVRA_LICENSE_KEY required",
+    "Runtime validates a time-limited license; keys and signing material are never public."
+  ],
+  [
+    "Lab Notebook",
+    "AISPM Enterprise Trial Lab Notebook",
+    "Step-by-step evaluation guide covers install, scenario run, evidence review, and closeout."
+  ],
+  [
+    "Support Path",
+    "hello@mind-ops.cloud",
+    "Evaluator support and approval follow-up use the operator-controlled support channel."
+  ],
+  [
+    "Closeout",
+    "Expiry and revocation validation",
+    "Trial end verifies blocked runtime access and private package access removal."
+  ]
+];
+
+const aispmTrialJourneySteps = [
+  [
+    "01",
+    "Request Submitted",
+    "Evaluator submits the trial form on the CAVRA trial portal and receives a pending approval request ID.",
+    "portal_request"
+  ],
+  [
+    "02",
+    "Operator Approved",
+    "CAVRA owner reviews the request, approves access, and sends public-safe package and license instructions.",
+    "operator_approval"
+  ],
+  [
+    "03",
+    "Package Pulled",
+    "Evaluator authenticates to the private package registry and pulls the gated Enterprise Trial image.",
+    "package_access"
+  ],
+  [
+    "04",
+    "License Validated",
+    "Runtime validates CAVRA_LICENSE_KEY without exposing signing keys, license-server secrets, or customer material.",
+    "license_boundary"
+  ],
+  [
+    "05",
+    "Scenario Executed",
+    "Evaluator runs the lab notebook scenario and observes agent decision, policy, and evidence behavior.",
+    "scenario_run"
+  ],
+  [
+    "06",
+    "Evidence Reviewed",
+    "CSO/CISO or security reviewer inspects reports, readiness packet, and lab notebook evidence outputs.",
+    "evidence_review"
+  ],
+  [
+    "07",
+    "Closeout Verified",
+    "Trial expiry or revocation is validated, package access is removed, and blocked runtime behavior is confirmed.",
+    "revocation_closeout"
+  ]
+];
+
+const aispmTrialCloseoutEvidenceItems = [
+  [
+    "License Expiry",
+    "Evidence Required",
+    "Confirm the time-limited trial license reaches expiry and cannot authorize new runtime sessions.",
+    "license_expiry"
+  ],
+  [
+    "Revocation Check",
+    "Evidence Required",
+    "Validate that operator-triggered revocation blocks license validation before the original expiry date.",
+    "license_revocation"
+  ],
+  [
+    "Package Access Removal",
+    "Evidence Required",
+    "Confirm private registry/package access is removed for the evaluator identity at trial closeout.",
+    "package_access_removed"
+  ],
+  [
+    "Blocked Runtime Validation",
+    "Evidence Required",
+    "Run the trial container after expiry or revocation and record the expected blocked-access result.",
+    "blocked_runtime_validation"
+  ],
+  [
+    "Evidence Packet Archived",
+    "Evidence Required",
+    "Attach readiness packet, lab notebook outputs, report downloads, and closeout notes to the evaluation record.",
+    "closeout_packet_archived"
+  ],
+  [
+    "Evaluator Feedback",
+    "Evidence Required",
+    "Collect evaluator feedback, missing controls, procurement questions, and next-step disposition.",
+    "evaluator_feedback"
+  ]
+];
+
+const aispmTrialFeedbackCategories = [
+  [
+    "Setup Friction",
+    "Install, registry login, environment variables, first run, and platform prerequisites.",
+    "setup_friction"
+  ],
+  [
+    "Policy Clarity",
+    "Whether allow, warn, block, approval, and attestation decisions were understandable.",
+    "policy_clarity"
+  ],
+  [
+    "Dashboard Usefulness",
+    "How well CSO/CISO, security, platform, and auditor views explain AI-agent posture.",
+    "dashboard_usefulness"
+  ],
+  [
+    "Report Usefulness",
+    "Value of executive, audit, control, evidence, readiness, and closeout exports.",
+    "report_usefulness"
+  ],
+  [
+    "Integration Gaps",
+    "Missing GitHub, GitLab, Azure DevOps, cloud, MCP, SIEM, ITSM, or identity workflow needs.",
+    "integration_gaps"
+  ],
+  [
+    "Procurement Concerns",
+    "Questions about licensing, support, legal review, data handling, deployment, and renewal path.",
+    "procurement_concerns"
+  ],
+  [
+    "Go/No-Go Decision",
+    "Final evaluator disposition, blockers, required proof, pilot scope, and buyer next step.",
+    "go_no_go_decision"
+  ]
+];
+
+const aispmTrialProcurementAreas = [
+  [
+    "Legal Review",
+    "Terms, BUSL/open-core boundary, Enterprise source separation, trial terms, and data processing addendum questions.",
+    "legal_review"
+  ],
+  [
+    "Security Review",
+    "Public boundary validation, excluded secret fields, license validation boundary, package access controls, and vulnerability response path.",
+    "security_review"
+  ],
+  [
+    "Deployment Review",
+    "Trial install path, private package pull, runtime configuration, network assumptions, and future self-hosted or SaaS deployment model.",
+    "deployment_review"
+  ],
+  [
+    "Support Review",
+    "Evaluator support channel, operator escalation, onboarding help, incident handling, and enterprise support expectations.",
+    "support_review"
+  ],
+  [
+    "Licensing Review",
+    "Trial expiry, revocation, Business/Enterprise/SaaS license types, renewal path, and procurement approval gates.",
+    "licensing_review"
+  ],
+  [
+    "Data Handling",
+    "No public customer records, no private keys, public-safe sample data only, and Enterprise tenant evidence storage boundary.",
+    "data_handling"
+  ],
+  [
+    "Pilot Scope",
+    "Target repositories, AI agents, control surfaces, required checks, evidence owners, success criteria, and go/no-go date.",
+    "pilot_scope"
+  ]
+];
+
+const aispmTrialPilotScopeItems = [
+  [
+    "Target Repositories",
+    "Select 2-3 protected repositories with active AI-assisted development and clear ownership.",
+    "payments/api, platform/iac, security/policies"
+  ],
+  [
+    "AI Agents",
+    "Declare transparent automation identities and require CAVRA checks for their pull requests and sensitive actions.",
+    "codex-agent, claude-code-agent, github-copilot-workspace"
+  ],
+  [
+    "Required Checks",
+    "Enable CAVRA policy decision, replay-to-policy review packet, boundary validation, and release evidence freshness checks.",
+    "cavra-policy, cavra-review-packet, cavra-boundary, cavra-release-evidence"
+  ],
+  [
+    "Policies",
+    "Start with secrets, protected branch, production infrastructure, MCP trust, and release-governance policy packs.",
+    "secrets, git, iac, mcp, release"
+  ],
+  [
+    "Evidence Owners",
+    "Assign security, platform, repo owner, GRC, and procurement reviewers for pilot evidence review.",
+    "security lead, platform owner, repo owner, GRC, procurement"
+  ],
+  [
+    "Success Criteria",
+    "Measure blocked risky actions, approval latency, evidence completeness, evaluator feedback, and procurement readiness.",
+    "blocked risk, approvals, reports, closeout, go/no-go"
+  ],
+  [
+    "Go/No-Go Date",
+    "Set a dated decision checkpoint after evidence review, feedback intake, and closeout validation.",
+    "T+14 days from pilot start"
+  ]
+];
+
+const aispmPilotApprovalChecklistItems = [
+  [
+    "Owner Assigned",
+    "Named business, security, and platform owners approve the pilot scope and operating model.",
+    "owner_assigned"
+  ],
+  [
+    "Repos Selected",
+    "Pilot repositories are protected, owned, active, and listed in the pilot scope packet.",
+    "repos_selected"
+  ],
+  [
+    "Agents Registered",
+    "Transparent AI-agent identities are declared and mapped to repositories, tools, and control surfaces.",
+    "agents_registered"
+  ],
+  [
+    "Checks Enforced",
+    "Required CAVRA checks are configured before agent-generated changes can merge or proceed.",
+    "checks_enforced"
+  ],
+  [
+    "Policies Selected",
+    "Secrets, protected branch, infrastructure, MCP trust, and release-governance policies are in scope.",
+    "policies_selected"
+  ],
+  [
+    "Evidence Owners Assigned",
+    "Security, platform, repo owner, GRC, and procurement evidence reviewers are assigned.",
+    "evidence_owners_assigned"
+  ],
+  [
+    "Support Path Confirmed",
+    "Evaluator support, operator escalation, and incident-response contact paths are documented.",
+    "support_path_confirmed"
+  ],
+  [
+    "Go/No-Go Date Accepted",
+    "A dated decision checkpoint is accepted by business, security, and platform owners.",
+    "go_no_go_date_accepted"
+  ]
+];
+
+const aispmPilotLaunchReadinessItems = [
+  [
+    "Scope Defined",
+    "Ready",
+    "Pilot scope packet identifies repositories, agents, required checks, policies, evidence owners, success criteria, and go/no-go date.",
+    "cavra-aispm-trial-pilot-scope-packet.json"
+  ],
+  [
+    "Approvals Prepared",
+    "Ready",
+    "Pilot approval packet lists final gates for owners, repositories, agents, checks, policies, evidence reviewers, support path, and decision date.",
+    "cavra-aispm-pilot-approval-packet.json"
+  ],
+  [
+    "Reports Available",
+    "Ready",
+    "CSO report center exposes executive, audit, control, evidence, and agent-risk downloads from public-safe posture data.",
+    "CSO Report Center"
+  ],
+  [
+    "Evidence Reviewed",
+    "Ready",
+    "Trial review packet, integrity panel, closeout evidence, and procurement readiness provide reviewer-ready evidence context.",
+    "cavra-aispm-trial-review-packet.json"
+  ],
+  [
+    "Support Confirmed",
+    "Action Required",
+    "Evaluator support and operator escalation path are documented; Enterprise support ownership must be confirmed before live pilot operations.",
+    "hello@mind-ops.cloud"
+  ],
+  [
+    "Go/No-Go Ready",
+    "Candidate",
+    "Community can show the launch decision model; signed approval, workflow write-back, and identity-bound decision evidence require Enterprise or SaaS.",
+    "requires_cavra_enterprise_or_saas"
+  ]
+];
+
+const aispmPilotEvidenceRoomItems = [
+  [
+    "CSO/CISO",
+    "Launch decision packet, executive risk brief, board KPI pack, and go/no-go summary.",
+    "cavra-aispm-pilot-launch-decision-packet.json",
+    "signed executive approval and decision history require Enterprise"
+  ],
+  [
+    "Security",
+    "Trial review packet, policy decisions, blocked actions, near misses, control coverage, and evidence confidence.",
+    "cavra-aispm-trial-review-packet.json",
+    "tenant policy context and raw telemetry require Enterprise"
+  ],
+  [
+    "Platform",
+    "Pilot scope packet, required checks, CI gate readiness, rollout checklist, and integration readiness.",
+    "cavra-aispm-trial-pilot-scope-packet.json",
+    "workflow write-back and connector health state require Enterprise"
+  ],
+  [
+    "Procurement",
+    "Procurement readiness, licensing boundary, support path, deployment model, and commercial trial evidence.",
+    "AISPM Trial Procurement Readiness",
+    "commercial contract and customer records stay outside Community"
+  ],
+  [
+    "Auditor",
+    "Review packet integrity, audit summaries, control coverage export, evidence freshness export, and release packets.",
+    "cavra-aispm-soc2-audit-summary.md",
+    "signed evidence retention and chain-of-custody store require Enterprise"
+  ],
+  [
+    "Operator",
+    "Approval checklist, support path, launch readiness status, closeout evidence, and escalation model.",
+    "cavra-aispm-pilot-approval-packet.json",
+    "operator activity log and access grants require Enterprise or SaaS"
+  ]
+];
+
+const aispmEvidenceReviewerChecklistItems = [
+  [
+    "CSO/CISO",
+    "Confirm launch decision packet, executive risk brief, residual risk owner, and go/no-go recommendation are review-ready.",
+    "Go/no-go owner named",
+    "requires_enterprise_signed_decision"
+  ],
+  [
+    "Security",
+    "Confirm blocked-action evidence, policy coverage, near misses, control coverage, and evidence confidence are sufficient for pilot risk.",
+    "Risk exceptions documented",
+    "requires_enterprise_policy_context"
+  ],
+  [
+    "Platform",
+    "Confirm required checks, branch protection, CI gate rollout, agent identities, connector health, and rollback path are ready.",
+    "Pilot guardrails enforceable",
+    "requires_enterprise_workflow_write_back"
+  ],
+  [
+    "Procurement",
+    "Confirm license boundary, support path, deployment assumptions, data handling, and commercial evaluation terms are clear.",
+    "Commercial trial path understood",
+    "requires_customer_contract_record"
+  ],
+  [
+    "Auditor",
+    "Confirm review packet integrity, evidence retention expectation, control mappings, release packets, and chain-of-custody assumptions.",
+    "Audit trail reviewable",
+    "requires_enterprise_evidence_store"
+  ],
+  [
+    "Operator",
+    "Confirm support escalation, closeout evidence, revocation path, package access removal, and launch communication plan.",
+    "Operator runbook ready",
+    "requires_enterprise_operator_activity_log"
+  ]
+];
+
+const aispmPilotExceptionRegisterItems = [
+  [
+    "EX-001",
+    "Support ownership",
+    "Open",
+    "Operator",
+    "Enterprise support owner must be confirmed before live pilot operations.",
+    "Before pilot start",
+    "requires_enterprise_support_assignment"
+  ],
+  [
+    "EX-002",
+    "Signed launch decision",
+    "Accepted pending Enterprise",
+    "CSO/CISO",
+    "Community shows the model only; signed go/no-go decision evidence requires Enterprise workflow.",
+    "Pilot launch gate",
+    "requires_enterprise_signed_decision"
+  ],
+  [
+    "EX-003",
+    "Workflow write-back",
+    "Open",
+    "Platform",
+    "Production pilot workflow write-back to GitHub, GitLab, or Azure DevOps remains Enterprise-only.",
+    "Before enforced rollout",
+    "requires_enterprise_workflow_write_back"
+  ],
+  [
+    "EX-004",
+    "Tenant evidence retention",
+    "Accepted for Community demo",
+    "Auditor",
+    "Community exports public-safe packets; tenant retention policy enforcement requires Enterprise evidence store.",
+    "Before audit reliance",
+    "requires_enterprise_evidence_store"
+  ],
+  [
+    "EX-005",
+    "Policy context depth",
+    "Monitor",
+    "Security",
+    "Private policy context and raw telemetry are excluded from Community and must be validated in Enterprise.",
+    "During pilot week one",
+    "requires_enterprise_policy_context"
+  ],
+  [
+    "EX-006",
+    "Commercial trial record",
+    "Open",
+    "Procurement",
+    "Customer-specific commercial evaluation terms are tracked outside the public Community portal.",
+    "Before procurement review",
+    "requires_customer_contract_record"
+  ]
+];
+
+const aispmPilotLaunchBoardPackItems = [
+  [
+    "Launch Decision",
+    "cavra-aispm-pilot-launch-decision-packet.json",
+    "CSO/CISO launch candidate status, readiness rows, and source artifact references.",
+    "signed_launch_approval_requires_enterprise"
+  ],
+  [
+    "Evidence Room",
+    "cavra-aispm-pilot-evidence-room-packet.json",
+    "Role-based evidence catalog for CSO/CISO, security, platform, procurement, auditor, and operator review.",
+    "authenticated_evidence_room_requires_enterprise"
+  ],
+  [
+    "Risk Acceptance",
+    "cavra-aispm-pilot-risk-acceptance-packet.json",
+    "Open exceptions, accepted risks, monitored risks, accountable owners, and launch blockers.",
+    "signed_risk_acceptance_requires_enterprise"
+  ],
+  [
+    "Exception Register",
+    "cavra-aispm-pilot-exception-register-packet.json",
+    "Unresolved risks, accepted exceptions, owners, status, expiry expectation, and exception lifecycle boundary.",
+    "exception_lifecycle_requires_enterprise"
+  ],
+  [
+    "Reviewer Checklist",
+    "cavra-aispm-evidence-reviewer-checklist-packet.json",
+    "Role-specific pre-pilot acceptance criteria for launch review records.",
+    "identity_bound_reviewer_records_require_enterprise"
+  ],
+  [
+    "Executive Reports",
+    "CSO Report Center",
+    "Executive risk brief, board KPI pack, audit summary, control coverage, evidence freshness, and agent risk exports.",
+    "pdf_board_pack_and_delivery_require_enterprise"
+  ]
+];
+
+const aispmPilotControlReadinessItems = [
+  [
+    "Exception Register",
+    "Owner Review",
+    "cavra-aispm-pilot-exception-register-packet.json",
+    "Open, accepted, and monitored pilot exceptions have owner, expiry, and Enterprise workflow boundaries."
+  ],
+  [
+    "Risk Acceptance",
+    "CSO/CISO Decision",
+    "cavra-aispm-pilot-risk-acceptance-packet.json",
+    "Residual risk, launch blockers, accountable owners, and signed acceptance boundary are ready for approval review."
+  ],
+  [
+    "Board Pack",
+    "Board Ready",
+    "cavra-aispm-pilot-launch-board-pack-packet.json",
+    "Launch decision, evidence room, exception, risk, reviewer, and executive report artifacts are grouped for board review."
+  ],
+  [
+    "Artifact Freshness",
+    "Validated",
+    "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+    "The artifact index and validator prevent launch packet drift before external pilot communication."
+  ],
+  [
+    "Launch Rollup",
+    "Release Gate",
+    "docs/release-verifications/aispm-launch-readiness-rollup.json",
+    "The overall launch rollup includes portal, visual, hosted, report, trial, and pilot control readiness gates."
+  ]
+];
+
+const aispmReleaseEvidenceIndexItems = [
+  [
+    "AISPM Launch Readiness Rollup",
+    "docs/release-verifications/aispm-launch-readiness-rollup.md",
+    "docs/release-verifications/aispm-launch-readiness-rollup.json",
+    "scripts/validate-aispm-launch-readiness.py",
+    "Release candidate launch readiness, source gates, and public-safety boundaries.",
+    "ready"
+  ],
+  [
+    "Launch Board Pack Artifact Index",
+    "docs/release-verifications/aispm-launch-board-pack-artifact-index.md",
+    "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+    "scripts/validate-aispm-launch-artifacts.py",
+    "Board/CISO launch artifacts, freshness gate, and source packet references.",
+    "ready"
+  ],
+  [
+    "AISPM Report Catalog Readiness",
+    "docs/release-verifications/aispm-report-catalog-readiness.md",
+    "docs/release-verifications/aispm-report-catalog-readiness.json",
+    "scripts/validate-aispm-report-catalog-readiness.py",
+    "Community report downloads and Enterprise report rendering, scheduling, email, and signed package boundaries.",
+    "ready"
+  ],
+  [
+    "AISPM Report Delivery Setup Readiness",
+    "docs/release-verifications/aispm-report-delivery-setup-readiness.md",
+    "docs/release-verifications/aispm-report-delivery-setup-readiness.json",
+    "scripts/validate-aispm-report-delivery-setup-readiness.py",
+    "Enterprise setup checklist for sender identity, provider mode, recipient governance, schedule, retention, and audit evidence.",
+    "ready"
+  ],
+  [
+    "AISPM Report Operations Readiness",
+    "docs/release-verifications/aispm-report-operations-readiness.md",
+    "docs/release-verifications/aispm-report-operations-readiness.json",
+    "scripts/validate-aispm-report-operations-readiness.py",
+    "Enterprise operations checklist for delivery audit events, delivery health, retention lifecycle, search/retrieval, and signed export package manifests.",
+    "ready"
+  ],
+  [
+    "AISPM Report Governance Readiness",
+    "docs/release-verifications/aispm-report-governance-readiness.md",
+    "docs/release-verifications/aispm-report-governance-readiness.json",
+    "scripts/validate-aispm-report-governance-readiness.py",
+    "Enterprise governance checklist for schedules, recipients, approvals, exceptions, and scoped evidence rooms.",
+    "ready"
+  ],
+  [
+    "AISPM Report Assurance Readiness",
+    "docs/release-verifications/aispm-report-assurance-readiness.md",
+    "docs/release-verifications/aispm-report-assurance-readiness.json",
+    "scripts/validate-aispm-report-assurance-readiness.py",
+    "Enterprise assurance checklist for evidence-room access events, incident packets, incident closure, KPI metrics, and alert escalation.",
+    "ready"
+  ],
+  [
+    "AISPM Report Response Readiness",
+    "docs/release-verifications/aispm-report-response-readiness.md",
+    "docs/release-verifications/aispm-report-response-readiness.json",
+    "scripts/validate-aispm-report-response-readiness.py",
+    "Enterprise response checklist for alert operations, drilldowns, remediation plans, remediation closure, and closure operations.",
+    "ready"
+  ],
+  [
+    "AISPM Report Trial Operations Readiness",
+    "docs/release-verifications/aispm-report-trial-operations-readiness.md",
+    "docs/release-verifications/aispm-report-trial-operations-readiness.json",
+    "scripts/validate-aispm-report-trial-operations-readiness.py",
+    "Enterprise trial operations checklist for executive digests, digest distribution, trial validation, and operator dashboard/API readiness.",
+    "ready"
+  ],
+  [
+    "AISPM Pilot Control Readiness",
+    "docs/release-verifications/aispm-pilot-control-readiness.md",
+    "docs/release-verifications/aispm-pilot-control-readiness.json",
+    "scripts/validate-aispm-pilot-control-readiness.py",
+    "Production-pilot controls for exceptions, risk acceptance, board pack, artifact freshness, and launch rollup.",
+    "ready"
+  ],
+  [
+    "AISPM v1.0 Public Release Readiness",
+    "docs/release-verifications/aispm-v1.0-public-release-readiness.md",
+    "docs/release-verifications/aispm-v1.0-public-release-readiness.json",
+    "scripts/validate-aispm-v100-public-release.py",
+    "AISPM-specific release notes, public walkthrough, lab notebook assets, final validation, and announcement readiness.",
+    "ready"
+  ],
+  [
+    "AISPM Visual Smoke Validation",
+    "docs/release-verifications/aispm-visual-smoke-validation.md",
+    "docs/release-verifications/aispm-visual-smoke-validation.json",
+    "npm run validate:sandbox:visual",
+    "Local browser validation for themes, AISPM board pack, report center, and command palette.",
+    "pass"
+  ],
+  [
+    "Hosted Sandbox Pages Smoke",
+    "docs/release-verifications/hosted-sandbox-pages-smoke-validation.md",
+    "docs/release-verifications/hosted-sandbox-pages-smoke-validation.json",
+    "npm run validate:sandbox:hosted",
+    "Post-deploy browser validation for the live GitHub Pages dashboard and AISPM routes.",
+    "workflow_enforced"
+  ],
+  [
+    "Hosted Sandbox Deployment Freshness",
+    "docs/release-verifications/hosted-sandbox-deployment-freshness.md",
+    "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
+    "scripts/validate-hosted-sandbox-deployment-freshness.py",
+    "Build sentinel that separates local readiness from stale GitHub Pages deployment state.",
+    "ready"
+  ],
+  [
+    "Hosted Sandbox Operator Release Status",
+    "docs/release-verifications/hosted-sandbox-operator-release-status.md",
+    "docs/release-verifications/hosted-sandbox-operator-release-status.json",
+    "scripts/validate-hosted-sandbox-operator-status.py",
+    "Operator go/no-go view for local readiness, live Pages freshness, hosted smoke, and announcement state.",
+    "ready"
+  ],
+  [
+    "Hosted Sandbox Post-Deploy Evidence",
+    "docs/release-verifications/hosted-sandbox-post-deploy-evidence.md",
+    "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json",
+    "scripts/validate-hosted-sandbox-deploy-evidence.py",
+    "Runtime workflow artifact contract for Pages URL, commit SHA, run URL, and hosted smoke status.",
+    "workflow_enforced"
+  ],
+  [
+    "Trial Lab Notebook Readiness",
+    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md",
+    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json",
+    "scripts/validate-aispm-trial-lab-notebook.py --check-summary",
+    "Wiki lab notebook navigation, screenshots, public-safety, acceptance criteria, and blockers.",
+    "ready"
+  ],
+  [
+    "Phase B Closeout Verification",
+    "docs/aispm-phase-b-closeout-verification.md",
+    "docs/aispm-phase-b-closeout-verification.md",
+    "scripts/validate-sandbox-portal.py",
+    "Community AISPM Phase B closeout evidence for the public-safe dashboard baseline.",
+    "pass"
+  ]
+];
+
+const aispmReportSetupReadinessItems = [
+  [
+    "Organization Profile",
+    "Required",
+    "CAVRA_REPORT_FROM_ADDRESS, CAVRA_REPORT_DEFAULT_TIMEZONE, CAVRA_REPORT_RETENTION_DAYS, CAVRA_REPORT_BRAND_PROFILE",
+    "Verified sender identity, timezone, retention, and branding references for CSO reports."
+  ],
+  [
+    "Delivery Provider",
+    "Enterprise",
+    "CAVRA_REPORT_DELIVERY_MODE, CAVRA_REPORT_SMTP_HOST, CAVRA_REPORT_SMTP_PORT, CAVRA_REPORT_SMTP_USERNAME_REF, CAVRA_REPORT_SMTP_PASSWORD_REF, CAVRA_REPORT_PROVIDER_TOKEN_REF",
+    "SMTP, Microsoft 365, Google Workspace, SES, SendGrid, or webhook mode with secret-manager references only."
+  ],
+  [
+    "Recipient Governance",
+    "Required",
+    "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS, CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED, CAVRA_REPORT_ALLOWED_RBAC_ROLES",
+    "Domain allowlists, RBAC roles, and optional approval gates before external report delivery."
+  ],
+  [
+    "Schedule And Audit",
+    "Required",
+    "CAVRA_REPORT_DEFAULT_SCHEDULE, CAVRA_REPORT_RETRY_POLICY, CAVRA_REPORT_DELIVERY_AUDIT_RETENTION_DAYS, CAVRA_REPORT_AUDIT_EXPORT_REF",
+    "Report cadence, retry policy, delivery audit retention, and immutable audit export references."
+  ],
+  [
+    "Validation And Test Delivery",
+    "Enterprise",
+    "provider_validation, test_delivery, delivery_audit, retry_evidence",
+    "Private Enterprise validates provider auth, sender alignment, recipient policy, test send, retry, and audit evidence."
+  ]
+];
+
+const aispmReportOperationsReadinessItems = [
+  [
+    "Delivery Audit Events",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-delivery-audit-event.schema.json",
+    "examples/aispm/enterprise-report-delivery-audit-event-public.example.json",
+    "Immutable render, send, schedule, test-delivery, retry, approval, and failure evidence for every report operation."
+  ],
+  [
+    "Operations Dashboard",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-operations-dashboard.schema.json",
+    "examples/aispm/enterprise-report-operations-dashboard-public.example.json",
+    "CSO and platform views for delivery health, queue depth, retries, approval latency, audit coverage, and operational blockers."
+  ],
+  [
+    "Retention Lifecycle",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-retention-lifecycle.schema.json",
+    "examples/aispm/enterprise-report-retention-lifecycle-public.example.json",
+    "Retention policy, legal hold, immutable archive, deletion approval, purge evidence, and exception tracking for report artifacts."
+  ],
+  [
+    "Search And Retrieval",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-search-retrieval.schema.json",
+    "examples/aispm/enterprise-report-search-retrieval-public.example.json",
+    "RBAC-scoped report lookup, retention-aware retrieval, auditor access windows, download approvals, and access audit events."
+  ],
+  [
+    "Export Package Manifest",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-export-package-manifest.schema.json",
+    "examples/aispm/enterprise-report-export-package-manifest-public.example.json",
+    "Signed package manifests with hashes, evidence references, rendering provenance, and GRC/SIEM delivery package metadata."
+  ]
+];
+
+const aispmReportGovernanceReadinessItems = [
+  [
+    "Schedule Policy",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-schedule-policy.schema.json",
+    "examples/aispm/enterprise-report-schedule-policy-public.example.json",
+    "Recurring report schedules, blackout windows, approval requirements, retry policy, and tenant timezone controls."
+  ],
+  [
+    "Recipient Policy",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-recipient-policy.schema.json",
+    "examples/aispm/enterprise-report-recipient-policy-public.example.json",
+    "Domain allowlists, RBAC roles, external-send approval, channel restrictions, and delivery policy evidence."
+  ],
+  [
+    "Approval Decisions",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-approval-decision.schema.json",
+    "examples/aispm/enterprise-report-approval-decision-public.example.json",
+    "Immutable approval, denial, expiry, escalation, and break-glass decisions for report sends and schedule changes."
+  ],
+  [
+    "Exception Lifecycle",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-exception-lifecycle.schema.json",
+    "examples/aispm/enterprise-report-exception-lifecycle-public.example.json",
+    "Time-boxed exceptions with owner, expiry, renewal, revocation, closeout, and evidence-backed review state."
+  ],
+  [
+    "Evidence Rooms",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-evidence-room.schema.json",
+    "examples/aispm/enterprise-report-evidence-room-public.example.json",
+    "Scoped, expiring, watermarked evidence rooms for auditors and executives with access audit and revocation boundaries."
+  ]
+];
+
+const aispmReportAssuranceReadinessItems = [
+  [
+    "Evidence Room Access Events",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json",
+    "examples/aispm/enterprise-report-evidence-room-access-event-public.example.json",
+    "Immutable view, download, expiry, revocation, failed access, and watermark audit events for shared report evidence."
+  ],
+  [
+    "Incident Packet",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-incident-packet.schema.json",
+    "examples/aispm/enterprise-report-incident-packet-public.example.json",
+    "Curated incident review packets that connect exceptions, approvals, evidence rooms, timelines, and impacted report refs."
+  ],
+  [
+    "Incident Closure",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-incident-closure.schema.json",
+    "examples/aispm/enterprise-report-incident-closure-public.example.json",
+    "Evidence-backed closure decisions with remediation status, owner confirmation, reopen criteria, and audit signoff boundary."
+  ],
+  [
+    "KPI Metrics",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-kpi-metrics.schema.json",
+    "examples/aispm/enterprise-report-kpi-metrics-public.example.json",
+    "Aggregate CSO metrics for report volume, delivery reliability, approval latency, exception age, and audit readiness."
+  ],
+  [
+    "Alert Escalation",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-alert-escalation.schema.json",
+    "examples/aispm/enterprise-report-alert-escalation-public.example.json",
+    "Escalation routing for KPI breaches, risky report sharing, stale evidence, failed delivery, and suspicious access patterns."
+  ]
+];
+
+const aispmReportResponseReadinessItems = [
+  [
+    "Alert Operations Dashboard",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json",
+    "examples/aispm/enterprise-report-alert-operations-dashboard-public.example.json",
+    "CSO/SOC/GRC alert operations view for escalation health, queue pressure, assignment state, and evidence-backed triage."
+  ],
+  [
+    "Alert Drilldown",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-alert-drilldown.schema.json",
+    "examples/aispm/enterprise-report-alert-drilldown-public.example.json",
+    "Authorized drilldown contract for alert context, related evidence, impacted report refs, and public-safe redaction guarantees."
+  ],
+  [
+    "Alert Remediation Plan",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json",
+    "examples/aispm/enterprise-report-alert-remediation-plan-public.example.json",
+    "Remediation plan structure for alert findings, tasks, owners by role, due dates, approval gates, and evidence requirements."
+  ],
+  [
+    "Alert Remediation Closure",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json",
+    "examples/aispm/enterprise-report-alert-remediation-closure-public.example.json",
+    "Closure proof for remediated alert findings with verification state, residual risk, reopen criteria, and audit-ready evidence refs."
+  ],
+  [
+    "Remediation Closure Operations",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json",
+    "examples/aispm/enterprise-report-remediation-closure-operations-dashboard-public.example.json",
+    "Operations dashboard contract for closure readiness, overdue remediation, due-soon work, and close-time statistics."
+  ]
+];
+
+const aispmReportTrialOpsReadinessItems = [
+  [
+    "Remediation Closure Executive Digest",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json",
+    "examples/aispm/enterprise-report-remediation-closure-executive-digest-public.example.json",
+    "Executive digest contract for closure metrics, residual-risk summary, board talking points, audit readiness, and evidence refs."
+  ],
+  [
+    "Remediation Closure Digest Distribution",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json",
+    "examples/aispm/enterprise-report-remediation-closure-digest-distribution-public.example.json",
+    "Distribution readiness for approval-before-send, recipient governance, delivery modes, signed manifests, and immutable send evidence."
+  ],
+  [
+    "Enterprise Trial Validation Packet",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json",
+    "examples/aispm/enterprise-report-center-trial-validation-packet-public.example.json",
+    "Trial validation packet covering setup, report rendering, blocked sends, approved sends, evidence rooms, revocation, and retention."
+  ],
+  [
+    "Trial Operator Dashboard Readiness",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json",
+    "examples/aispm/enterprise-report-center-trial-operator-dashboard-readiness-public.example.json",
+    "Operator dashboard readiness for validation status, blockers, evidence refs, package/license state, and evaluator handoff."
+  ],
+  [
+    "Trial Operator API View Model",
+    "Enterprise",
+    "src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json",
+    "examples/aispm/enterprise-report-center-trial-operator-api-view-model-public.example.json",
+    "Public-safe API/view-model contract for private operator routes, state transitions, actions, and required audit events."
+  ]
+];
+
+const aispmHostedReleaseStatusItems = [
+  [
+    "Local portal freshness",
+    "ready",
+    "python scripts/validate-hosted-sandbox-deployment-freshness.py",
+    "Local static portal contains AISPM trial lab notebook, release evidence index, packet filename, and build sentinel markers."
+  ],
+  [
+    "Live Pages freshness",
+    "requires_deploy",
+    "CAVRA_CHECK_LIVE_SANDBOX=true python scripts/validate-hosted-sandbox-deployment-freshness.py",
+    "Live GitHub Pages must match the build sentinel before external announcement or evaluator handoff."
+  ],
+  [
+    "Hosted browser smoke",
+    "workflow_enforced",
+    "npm run validate:sandbox:hosted",
+    "Post-deploy browser validation checks dashboard and AISPM routes, command palette, report center, and board pack visibility."
+  ],
+  [
+    "Post-deploy artifact",
+    "workflow_enforced",
+    "cavra-hosted-sandbox-post-deploy-evidence",
+    "Deploy workflow uploads public-safe Pages URL, commit SHA, run URL, ref, and hosted smoke status evidence."
+  ],
+  [
+    "Announcement gate",
+    "blocked_until_live_fresh",
+    "Hosted Release Operator Status",
+    "Announce only after local validation, live freshness, hosted smoke, and post-deploy evidence all pass for the same deployment."
+  ]
+];
+
 const timeline = [
   ["Intent captured", "Agent action is normalized with actor, target, repository, tool, and context."],
   ["Policy evaluated", "Policy Engine returns allow, block, approval, or attestation decision."],
@@ -240,7 +1224,11 @@ const docsLinks = [
   ["Deployment", "docs/deployment.md"],
   ["Open-Core Model", "docs/architecture/open-core-model.md"],
   ["Enterprise Trial", "docs/enterprise/trial.md"],
-  ["Self-Service Trial Access", "docs/enterprise/trial-self-service-access.md"]
+  ["Self-Service Trial Access", "docs/enterprise/trial-self-service-access.md"],
+  [
+    "AISPM Trial Lab Notebook Readiness",
+    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
+  ]
 ];
 
 const roadmap = [
@@ -1465,12 +2453,63 @@ const routeContent = [
   ...useCases.map((item) => ({ type: "Use Case", label: item[0], route: "use-cases", description: item[1] })),
   ...operatorPaths.map((item) => ({ type: "Operator Path", label: item[0], route: "operator-experience", description: item[1] })),
   ...trialAccessCards.map((item) => ({ type: "Enterprise Trial", label: item[0], route: "enterprise-trial", description: item[2] })),
+  { type: "Enterprise Trial", label: "AISPM Trial Lab Notebook Readiness", route: "enterprise-trial", description: "Open reviewer-facing publication readiness links for the Enterprise Trial lab notebook." },
+  { type: "Enterprise Trial", label: "Trial Lab Notebook Readiness Summary", route: "enterprise-trial", description: "Review the Markdown readiness summary for pages, navigation, public-safety status, and blockers." },
+  { type: "Enterprise Trial", label: "Trial Lab Notebook Readiness JSON", route: "enterprise-trial", description: "Review the machine-readable AISPM trial lab notebook readiness summary packet." },
+  { type: "Enterprise Trial", label: "Enterprise Trial Lab Notebook Wiki", route: "enterprise-trial", description: "Open the GitHub Wiki trial lab notebook for approved evaluator walkthroughs." },
   { type: "AI Posture", label: "Agent Observability", route: "ai-posture", description: "Live-ready agent coverage, risk findings, and execution timeline." },
   { type: "AI Posture", label: "Kill Switch", route: "ai-posture", description: "Enterprise runtime control plane capability marked as locked in Community." },
   { type: "AI Posture", label: "Evidence Confidence", route: "ai-posture", description: "Dashboard tiles identify sample, local, or Enterprise data provenance." },
   { type: "AI Posture", label: "Evidence Confidence Drilldown", route: "ai-posture", description: "Rank policy decisions by signed, activity, sample, metadata-only, or missing evidence." },
   { type: "AI Posture", label: "Evidence Freshness SLO", route: "ai-posture", description: "Show stale evidence, retention gaps, and Enterprise archive-readiness boundaries." },
   { type: "AI Posture", label: "Executive Risk Narrative", route: "ai-posture", description: "Summarize Community-safe posture, top risks, evidence gaps, and leadership actions." },
+  { type: "AI Posture", label: "AISPM Enterprise Trial Readiness Checklist", route: "ai-posture", description: "Review lab notebook, access portal, operator approval, revocation, and release evidence status in one CSO view." },
+  { type: "AI Posture", label: "Release Evidence Index", route: "ai-posture", description: "Open reviewer-friendly links to AISPM launch, visual, hosted Pages, post-deploy, and lab notebook evidence." },
+  { type: "AI Posture", label: "Release Evidence Index Packet", route: "ai-posture", description: "Copy or download the public-safe release evidence index packet for reviewers and auditors." },
+  { type: "AI Posture", label: "Hosted Release Operator Status", route: "ai-posture", description: "Review local freshness, live Pages freshness, hosted smoke, post-deploy evidence, and announcement go/no-go status." },
+  { type: "AI Posture", label: "Hosted Release Operator Status Packet", route: "ai-posture", description: "Copy or download the public-safe hosted release operator packet for release reviewers." },
+  { type: "AI Posture", label: "CSO Report Catalog Readiness", route: "ai-posture", description: "Review Community report downloads and Enterprise-only report rendering, scheduling, email, and signed package boundaries." },
+  { type: "AI Posture", label: "Report Catalog Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe AISPM report catalog packet for CSO, audit, procurement, and release reviewers." },
+  { type: "AI Posture", label: "Report Delivery Setup Readiness", route: "ai-posture", description: "Review Enterprise setup requirements for sender identity, provider mode, recipients, schedule, retention, and audit evidence." },
+  { type: "AI Posture", label: "Report Delivery Setup Packet", route: "ai-posture", description: "Copy or download the public-safe report delivery setup packet for tenant onboarding and trial operator handoff." },
+  { type: "AI Posture", label: "Report Operations Readiness", route: "ai-posture", description: "Review Enterprise report delivery audit, operations dashboard, retention, search, retrieval, and signed package manifest readiness." },
+  { type: "AI Posture", label: "Report Operations Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe report operations readiness packet for Enterprise delivery operations review." },
+  { type: "AI Posture", label: "Report Governance Readiness", route: "ai-posture", description: "Review Enterprise report schedule, recipient, approval, exception, and evidence-room governance readiness." },
+  { type: "AI Posture", label: "Report Governance Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe report governance readiness packet for Enterprise governance review." },
+  { type: "AI Posture", label: "Report Assurance Readiness", route: "ai-posture", description: "Review Enterprise evidence-room access, incident, closure, KPI, and alert escalation assurance readiness." },
+  { type: "AI Posture", label: "Report Assurance Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe report assurance readiness packet for audit and CSO review." },
+  { type: "AI Posture", label: "Report Response Readiness", route: "ai-posture", description: "Review Enterprise alert operations, drilldowns, remediation plans, remediation closure, and closure operations readiness." },
+  { type: "AI Posture", label: "Report Response Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe report response readiness packet for SOC, CSO, and audit review." },
+  { type: "AI Posture", label: "Report Trial Operations Readiness", route: "ai-posture", description: "Review Enterprise executive digest, distribution, trial validation, and operator dashboard/API readiness." },
+  { type: "AI Posture", label: "Report Trial Operations Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe report trial operations readiness packet for trial operator review." },
+  { type: "AI Posture", label: "Trial readiness export", route: "ai-posture", description: "Copy a Markdown readiness summary or download a public-safe Enterprise Trial readiness packet." },
+  { type: "AI Posture", label: "Enterprise Trial Evaluator Handoff", route: "ai-posture", description: "Show what approved evaluators receive after operator approval: portal, package, license boundary, lab notebook, and support path." },
+  { type: "AI Posture", label: "Enterprise Trial Evaluation Journey", route: "ai-posture", description: "Follow the trial flow from request submission to approval, package pull, license validation, scenario execution, evidence review, and closeout." },
+  { type: "AI Posture", label: "AISPM Trial Closeout Evidence", route: "ai-posture", description: "Verify expiry, revocation, package access removal, blocked runtime validation, archived evidence, and evaluator feedback." },
+  { type: "AI Posture", label: "AISPM Trial Feedback Intake", route: "ai-posture", description: "Show evaluator feedback categories for setup friction, policy clarity, dashboard usefulness, reports, integrations, procurement, and go/no-go decision." },
+  { type: "AI Posture", label: "AISPM Trial Outcome Summary", route: "ai-posture", description: "Roll up readiness, handoff, journey, closeout evidence, and feedback coverage into a CSO/CISO go/no-go view." },
+  { type: "AI Posture", label: "AISPM Trial Review Packet Export", route: "ai-posture", description: "Copy or download the public-safe trial review packet for CSO/CISO or procurement review." },
+  { type: "AI Posture", label: "AISPM Trial Review Packet Integrity", route: "ai-posture", description: "Show review packet schema, generated timestamp, expected filename, public-safety boundary, and excluded private fields." },
+  { type: "AI Posture", label: "AISPM Trial Procurement Readiness", route: "ai-posture", description: "Map trial outcomes to buyer review areas: legal, security, deployment, support, licensing, data handling, and pilot scope." },
+  { type: "AI Posture", label: "AISPM Trial Pilot Scope Builder", route: "ai-posture", description: "Draft target repositories, AI agents, required checks, policies, evidence owners, success criteria, and go/no-go date for a controlled pilot." },
+  { type: "AI Posture", label: "AISPM Trial Pilot Scope Packet", route: "ai-posture", description: "Copy or download the public-safe pilot scope packet for an internal pilot approval ticket." },
+  { type: "AI Posture", label: "AISPM Pilot Approval Checklist", route: "ai-posture", description: "Show final approval gates before a production pilot starts." },
+  { type: "AI Posture", label: "AISPM Pilot Approval Packet", route: "ai-posture", description: "Copy or download a public-safe packet that bundles pilot scope and approval gates." },
+  { type: "AI Posture", label: "AISPM Pilot Launch Readiness Summary", route: "ai-posture", description: "Roll up scope, approvals, reports, evidence, support, and go/no-go readiness for production pilot launch." },
+  { type: "AI Posture", label: "AISPM Pilot Launch Decision Packet", route: "ai-posture", description: "Copy or download a public-safe launch decision packet for CSO/CISO approval records." },
+  { type: "AI Posture", label: "Production Pilot Evidence Room", route: "ai-posture", description: "Group pilot artifacts by CSO/CISO, security, platform, procurement, auditor, and operator review needs." },
+  { type: "AI Posture", label: "Production Pilot Evidence Room Packet", route: "ai-posture", description: "Copy or download the public-safe role-based evidence catalog for reviewer handoff." },
+  { type: "AI Posture", label: "Evidence Room Reviewer Checklist", route: "ai-posture", description: "Show pre-pilot acceptance criteria by CSO/CISO, security, platform, procurement, auditor, and operator role." },
+  { type: "AI Posture", label: "Evidence Room Reviewer Checklist Packet", route: "ai-posture", description: "Copy or download public-safe reviewer acceptance criteria for launch review records." },
+  { type: "AI Posture", label: "Pilot Exception Register", route: "ai-posture", description: "Show unresolved risks and accepted exceptions before production pilot launch." },
+  { type: "AI Posture", label: "Pilot Exception Register Packet", route: "ai-posture", description: "Copy or download public-safe unresolved risks and accepted exceptions for launch approval records." },
+  { type: "AI Posture", label: "Pilot Risk Acceptance Summary", route: "ai-posture", description: "Roll up open exceptions, accepted risks, accountable owners, and launch blockers for CSO/CISO review." },
+  { type: "AI Posture", label: "Pilot Risk Acceptance Packet", route: "ai-posture", description: "Copy or download the public-safe CSO/CISO risk acceptance roll-up for launch approval records." },
+  { type: "AI Posture", label: "Pilot Launch Board Pack", route: "ai-posture", description: "Group launch decision, evidence room, risk acceptance, and exception register artifacts into one board-ready view." },
+  { type: "AI Posture", label: "Pilot Launch Board Pack Packet", route: "ai-posture", description: "Copy or download the public-safe board/CISO artifact index with freshness and integrity metadata." },
+  { type: "AI Posture", label: "Pilot Control Readiness", route: "ai-posture", description: "Review production-pilot exception, risk, board, artifact freshness, and launch-rollup controls." },
+  { type: "AI Posture", label: "Pilot Control Readiness Packet", route: "ai-posture", description: "Copy or download the public-safe production-pilot control readiness packet." },
+  { type: "AI Posture", label: "CSO Report Center", route: "ai-posture", description: "Download executive, audit, control, evidence, and agent-risk reports from public-safe posture data." },
   { type: "AI Posture", label: "Trace Replay", route: "ai-posture", description: "Community-safe replay packet with normalized steps and Enterprise redaction boundaries." },
   { type: "AI Posture", label: "Replay-To-Policy Draft", route: "ai-posture", description: "Convert replay decisions into read-only candidate policy controls." },
   { type: "AI Posture", label: "Replay-To-Policy Tests", route: "ai-posture", description: "Export public-safe policy test fixtures for replay-derived controls." },
@@ -1482,6 +2521,7 @@ const routeContent = [
   { type: "AI Posture", label: "CI Gate Readiness Summary", route: "ai-posture", description: "Show ready or action-required status for GitHub, GitLab, and Azure gate rollout." },
   { type: "AI Posture", label: "CI Gate Rollout Checklist", route: "ai-posture", description: "Copy or download reviewer-ready Markdown for production branch-protection rollout." },
   { type: "AI Posture", label: "CI Gate Rollout Audit Packet", route: "ai-posture", description: "Bundle readiness JSON and rollout checklist metadata for auditor attachment." },
+  { type: "AI Posture", label: "CI Gate Rollout Auditor View", route: "ai-posture", description: "Summarize audit packet status, evidence attachments, and public-safe rollout findings." },
   { type: "AI Posture", label: "Approval Lineage", route: "ai-posture", description: "Public-safe who-approved-what metadata with role labels and evidence references." },
   { type: "AI Posture", label: "Behavior Fingerprinting", route: "ai-posture", description: "Baseline-vs-unusual agent behavior signals from public-safe activity metadata." },
   { type: "AI Posture", label: "Control Coverage Heatmap", route: "ai-posture", description: "Compare agent and repository coverage across CAVRA control surfaces." },
@@ -1607,6 +2647,1578 @@ function renderEvidence() {
   `).join("");
 }
 
+function csvCell(value) {
+  const text = String(value ?? "");
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function toCsv(headers, rows) {
+  return [
+    headers.map(csvCell).join(","),
+    ...rows.map((row) => headers.map((header) => csvCell(row[header])).join(","))
+  ].join("\n");
+}
+
+function downloadTextFile(filename, content, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildAispmReportCatalog(payload) {
+  const generatedAt = new Date().toISOString();
+  const overview = payload.overview || {};
+  const agents = payload.agents || [];
+  const findings = payload.findings || [];
+  const controlCoverage = payload.control_coverage || [];
+  const evidenceFreshness = payload.evidence_freshness_slo?.items || aispmEvidenceFreshnessFallback.items || [];
+  const narrative = payload.executive_risk_narrative || aispmExecutiveNarrativeFallback.narrative || {};
+  const source = payload.data_provenance || "sample_data";
+  const topFindings = findings.slice(0, 8).map((finding) => `- ${finding.severity || "unknown"}: ${finding.risk_classification || "policy finding"} (${finding.agent_id || "unknown-agent"} / ${finding.repository || "local"})`).join("\n") || "- No current findings.";
+  const executiveMarkdown = [
+    "# CAVRA AISPM Executive Risk Brief",
+    "",
+    `Generated: ${generatedAt}`,
+    `Data provenance: ${source}`,
+    "",
+    "## Summary",
+    "",
+    `Posture score: ${overview.posture_score ?? "n/a"}`,
+    `Risk level: ${overview.risk_level || "unknown"}`,
+    `Total sessions: ${overview.total_sessions ?? 0}`,
+    `Total decisions: ${overview.total_decisions ?? 0}`,
+    `Blocked actions: ${overview.blocked_actions ?? 0}`,
+    `Approval-gated actions: ${overview.approval_required_actions ?? 0}`,
+    `Risk findings: ${overview.risk_findings ?? findings.length}`,
+    "",
+    "## Executive Narrative",
+    "",
+    narrative.headline || narrative.summary || "CAVRA generated this public-safe summary from local or sample posture metadata.",
+    "",
+    "## Top Findings",
+    "",
+    topFindings,
+    "",
+    "## Community Boundary",
+    "",
+    "This Community report excludes raw prompts, model reasoning, raw tool output, tenant secrets, private connector payloads, and customer data. Enterprise adds authenticated live ingestion, scheduled delivery, PDF/XLSX packs, and delivery evidence.",
+    ""
+  ].join("\n");
+  const boardJson = JSON.stringify({
+    schema_version: "cavra.aispm.board_kpi_pack.v1",
+    product: "CAVRA",
+    edition: "community",
+    generated_at: generatedAt,
+    data_provenance: source,
+    tracking: "none",
+    telemetry: "disabled",
+    overview: {
+      posture_score: overview.posture_score ?? 0,
+      risk_level: overview.risk_level || "unknown",
+      total_sessions: overview.total_sessions ?? 0,
+      total_decisions: overview.total_decisions ?? 0,
+      blocked_actions: overview.blocked_actions ?? 0,
+      approval_required_actions: overview.approval_required_actions ?? 0,
+      risk_findings: overview.risk_findings ?? findings.length,
+      evidence_confidence: overview.evidence_confidence || "unknown"
+    },
+    agent_count: agents.length,
+    control_surface_count: controlCoverage.length,
+    top_risks: findings.slice(0, 5).map((finding) => ({
+      severity: finding.severity || "unknown",
+      risk_classification: finding.risk_classification || "policy_finding",
+      decision: finding.decision || "review",
+      agent_id: finding.agent_id || "unknown-agent",
+      repository: finding.repository || "local"
+    })),
+    enterprise_expansion: {
+      pdf_pack: "requires_cavra_enterprise",
+      xlsx_pack: "requires_cavra_enterprise",
+      scheduled_email_delivery: "requires_cavra_enterprise",
+      recipient_allowlists: "requires_cavra_enterprise"
+    }
+  }, null, 2);
+  const soc2Markdown = [
+    "# CAVRA AISPM SOC 2-Style Audit Summary",
+    "",
+    `Generated: ${generatedAt}`,
+    `Data provenance: ${source}`,
+    "",
+    "| Control Area | Public-Safe Evidence | Current Signal |",
+    "| --- | --- | --- |",
+    `| Change management | Policy decisions, approval gates, PR/replay packets | ${overview.approval_required_actions ?? 0} approval-gated actions |`,
+    `| Logical access | Agent identity and control coverage metadata | ${agents.length} observed agents |`,
+    `| Monitoring | Findings, near misses, timeline, evidence freshness | ${overview.risk_findings ?? findings.length} findings |`,
+    `| Evidence integrity | Evidence refs and confidence labels | ${overview.evidence_confidence || "unknown"} |`,
+    `| Incident response | Blocked and high-risk action queue | ${overview.blocked_actions ?? 0} blocked actions |`,
+    "",
+    "## Auditor Notes",
+    "",
+    "- This Community artifact is suitable for demo, design review, and public-safe audit walkthroughs.",
+    "- Enterprise should attach immutable evidence, tenant-scoped trace replay, approver identity context, and scheduled delivery logs.",
+    ""
+  ].join("\n");
+  const controlCsv = toCsv(
+    ["surface", "coverage_status", "decision_count", "blocked_actions", "approval_required_actions", "warned_actions", "evidence_confidence"],
+    controlCoverage.map((control) => ({
+      surface: control.label || control.surface_id || "unknown",
+      coverage_status: control.coverage_status || "unknown",
+      decision_count: control.decision_count ?? 0,
+      blocked_actions: control.blocked_actions ?? 0,
+      approval_required_actions: control.approval_required_actions ?? 0,
+      warned_actions: control.warned_actions ?? 0,
+      evidence_confidence: control.evidence_confidence || "unknown"
+    }))
+  );
+  const freshnessCsv = toCsv(
+    ["item_id", "item_type", "freshness_status", "age_hours", "retention_status", "recommended_action"],
+    evidenceFreshness.map((item) => ({
+      item_id: item.item_id || item.decision_id || item.session_id || "unknown",
+      item_type: item.item_type || "evidence",
+      freshness_status: item.freshness_status || item.status || "unknown",
+      age_hours: item.age_hours ?? "",
+      retention_status: item.retention_status || "unknown",
+      recommended_action: item.recommended_action || item.action || "review"
+    }))
+  );
+  const agentCsv = toCsv(
+    ["agent_id", "coverage_status", "drift_status", "session_count", "decision_count", "blocked_actions", "approval_required_actions", "warned_actions"],
+    agents.map((agent) => ({
+      agent_id: agent.agent_id || "unknown-agent",
+      coverage_status: agent.coverage_status || "unknown",
+      drift_status: agent.drift_status || "unknown",
+      session_count: agent.session_count ?? 0,
+      decision_count: agent.decision_count ?? 0,
+      blocked_actions: agent.blocked_actions ?? 0,
+      approval_required_actions: agent.approval_required_actions ?? 0,
+      warned_actions: agent.warned_actions ?? 0
+    }))
+  );
+  return {
+    executive_brief_md: {
+      title: "Executive Risk Brief",
+      format: "Markdown",
+      audience: "CSO/CISO",
+      filename: "cavra-aispm-executive-risk-brief.md",
+      type: "text/markdown",
+      content: executiveMarkdown
+    },
+    board_kpi_json: {
+      title: "Board KPI Pack",
+      format: "JSON",
+      audience: "Leadership",
+      filename: "cavra-aispm-board-kpi-pack.json",
+      type: "application/json",
+      content: boardJson
+    },
+    soc2_audit_md: {
+      title: "SOC 2-Style Audit Summary",
+      format: "Markdown",
+      audience: "Audit",
+      filename: "cavra-aispm-soc2-audit-summary.md",
+      type: "text/markdown",
+      content: soc2Markdown
+    },
+    control_coverage_csv: {
+      title: "Control Coverage Export",
+      format: "CSV",
+      audience: "Security Engineering",
+      filename: "cavra-aispm-control-coverage.csv",
+      type: "text/csv",
+      content: controlCsv
+    },
+    evidence_freshness_csv: {
+      title: "Evidence Freshness Export",
+      format: "CSV",
+      audience: "GRC / Audit",
+      filename: "cavra-aispm-evidence-freshness.csv",
+      type: "text/csv",
+      content: freshnessCsv
+    },
+    agent_risk_csv: {
+      title: "Agent Risk Register",
+      format: "CSV",
+      audience: "Platform Security",
+      filename: "cavra-aispm-agent-risk-register.csv",
+      type: "text/csv",
+      content: agentCsv
+    }
+  };
+}
+
+function renderAispmReportCenter(payload) {
+  currentAispmReports = buildAispmReportCatalog(payload);
+  const enterpriseReports = [
+    {
+      report_id: "pdf_board_pack",
+      title: "PDF Board Pack",
+      formats: ["pdf"],
+      detail: "Board-ready PDF with charts, trend lines, and sign-off"
+    },
+    {
+      report_id: "xlsx_evidence_workbook",
+      title: "XLSX Evidence Workbook",
+      formats: ["xlsx"],
+      detail: "Multi-sheet control, evidence, owner, and exception workbook"
+    },
+    {
+      report_id: "scheduled_email_delivery",
+      title: "Scheduled Email Delivery",
+      formats: ["email"],
+      detail: "SMTP, Microsoft 365, Google Workspace, SES, or SendGrid delivery"
+    },
+    {
+      report_id: "recipient_governance",
+      title: "Recipient Governance",
+      formats: ["policy"],
+      detail: "Allowlisted domains, RBAC, approval gates, delivery evidence"
+    }
+  ];
+  currentAispmReportCatalogPacket = {
+    schema_version: "cavra.aispm.report_catalog_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_report_catalog",
+    generated_at: new Date().toISOString(),
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-catalog-packet.json",
+    community_reports: Object.entries(currentAispmReports).map(([reportId, report]) => ({
+      report_id: reportId,
+      title: report.title,
+      format: report.format,
+      audience: report.audience,
+      filename: report.filename,
+      source: "sample_or_local_activity_metadata",
+      availability: "community"
+    })),
+    enterprise_reports: enterpriseReports.map((report) => ({
+      ...report,
+      availability: "requires_cavra_enterprise"
+    })),
+    enterprise_delivery_boundary: {
+      pdf_xlsx_docx_rendering: "requires_cavra_enterprise",
+      signed_json_and_grc_packages: "requires_cavra_enterprise",
+      scheduled_email_delivery: "requires_cavra_enterprise",
+      recipient_allowlists_rbac_and_approval_gates: "requires_cavra_enterprise",
+      delivery_audit_and_retry_evidence: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      excludes_raw_prompts: true,
+      excludes_model_reasoning: true,
+      excludes_recipient_addresses: true,
+      excludes_smtp_credentials: true,
+      excludes_customer_records: true,
+      excludes_enterprise_source_code: true
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-catalog-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-catalog-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-catalog-readiness.json"
+    }
+  };
+  const cards = Object.entries(currentAispmReports).map(([reportId, report]) => `
+    <article class="report-card">
+      <span>${escapeHtml(report.format)}</span>
+      <strong>${escapeHtml(report.title)}</strong>
+      <p>${escapeHtml(report.audience)} · ${escapeHtml(report.filename)}</p>
+      <button type="button" data-report-download="${escapeHtml(reportId)}">Download</button>
+    </article>
+  `).join("");
+  const enterpriseCards = enterpriseReports.map(({ title, detail }) => `
+    <article class="report-card is-locked">
+      <span>Enterprise</span>
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <button type="button" disabled>Requires Enterprise</button>
+    </article>
+  `).join("");
+  el("#aispmReportCenter").innerHTML = cards + enterpriseCards;
+  el("#aispmReportStatus").textContent = `${Object.keys(currentAispmReports).length} Community reports ready · ${enterpriseReports.length} Enterprise report capabilities locked · catalog packet ready.`;
+}
+
+function renderAispmReportSetupReadiness() {
+  const generatedAt = new Date().toISOString();
+  const setupItems = aispmReportSetupReadinessItems.map(([step, status, fields, detail]) => ({
+    step,
+    status,
+    fields: fields.split(", "),
+    detail,
+    public_safe: true
+  }));
+  currentAispmReportSetupPacket = {
+    schema_version: "cavra.aispm.report_delivery_setup_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_setup_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-delivery-setup-packet.json",
+    setup_items: setupItems,
+    required_public_settings: [
+      "CAVRA_REPORT_DELIVERY_MODE",
+      "CAVRA_REPORT_FROM_ADDRESS",
+      "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+      "CAVRA_REPORT_DEFAULT_TIMEZONE",
+      "CAVRA_REPORT_RETENTION_DAYS"
+    ],
+    optional_public_settings: [
+      "CAVRA_REPORT_REPLY_TO",
+      "CAVRA_REPORT_BRAND_PROFILE",
+      "CAVRA_REPORT_DEFAULT_SCHEDULE",
+      "CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED",
+      "CAVRA_REPORT_ALLOWED_RBAC_ROLES"
+    ],
+    secret_reference_settings: [
+      "CAVRA_REPORT_SMTP_USERNAME_REF",
+      "CAVRA_REPORT_SMTP_PASSWORD_REF",
+      "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+    ],
+    validation_rules: [
+      "sender-address-required",
+      "recipient-domain-allowlist-required",
+      "secret-values-not-accepted",
+      "external-delivery-approval",
+      "test-delivery-audit-required"
+    ],
+    enterprise_boundaries: {
+      wizard_ui: "requires_cavra_enterprise",
+      settings_persistence: "requires_cavra_enterprise",
+      secret_resolution: "requires_cavra_enterprise",
+      provider_validation: "requires_cavra_enterprise",
+      test_delivery: "requires_cavra_enterprise",
+      delivery_audit_and_retry_evidence: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      secret_values_allowed: false,
+      recipient_addresses_included: false,
+      provider_tokens_included: false,
+      smtp_passwords_included: false,
+      raw_report_content_included: false,
+      customer_records_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-delivery-setup-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-delivery-setup-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-delivery-setup-readiness.json"
+    }
+  };
+  el("#aispmReportSetupReadiness").innerHTML = setupItems.map((item) => `
+    <article class="report-setup-card">
+      <span class="severity ${item.status === "Required" ? "approved" : "controlled"}">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.step)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.fields.join(" · "))}</code>
+    </article>
+  `).join("");
+  el("#aispmReportSetupStatus").textContent = `${setupItems.length} setup areas mapped · raw credentials and recipient addresses remain Enterprise-only.`;
+}
+
+function renderAispmReportOperationsReadiness() {
+  const generatedAt = new Date().toISOString();
+  const operationsItems = aispmReportOperationsReadinessItems.map(([area, status, schema, example, detail]) => ({
+    area,
+    status,
+    schema,
+    example,
+    detail,
+    availability: "requires_cavra_enterprise",
+    public_safe: true
+  }));
+  currentAispmReportOperationsPacket = {
+    schema_version: "cavra.aispm.report_operations_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_report_operations_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-operations-readiness-packet.json",
+    operations_items: operationsItems,
+    source_contracts: operationsItems.map((item) => ({
+      area: item.area,
+      schema: item.schema,
+      example: item.example
+    })),
+    enterprise_boundaries: {
+      immutable_delivery_audit_store: "requires_cavra_enterprise",
+      operations_dashboard_persistence: "requires_cavra_enterprise",
+      retention_lifecycle_enforcement: "requires_cavra_enterprise",
+      rbac_scoped_search_and_retrieval: "requires_cavra_enterprise",
+      signed_export_package_manifest_service: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      raw_reports_included: false,
+      provider_responses_included: false,
+      recipient_addresses_included: false,
+      customer_identities_included: false,
+      signed_download_urls_included: false,
+      tenant_telemetry_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-operations-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-operations-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-operations-readiness.json"
+    }
+  };
+  el("#aispmReportOperationsReadiness").innerHTML = operationsItems.map((item) => `
+    <article class="report-operations-card">
+      <span class="severity controlled">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.area)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.schema)} · ${escapeHtml(item.example)}</code>
+    </article>
+  `).join("");
+  el("#aispmReportOperationsStatus").textContent = `${operationsItems.length} operations areas mapped · report payloads, recipients, provider responses, and signed URLs remain Enterprise-only.`;
+}
+
+function renderAispmReportGovernanceReadiness() {
+  const generatedAt = new Date().toISOString();
+  const governanceItems = aispmReportGovernanceReadinessItems.map(([area, status, schema, example, detail]) => ({
+    area,
+    status,
+    schema,
+    example,
+    detail,
+    availability: "requires_cavra_enterprise",
+    public_safe: true
+  }));
+  currentAispmReportGovernancePacket = {
+    schema_version: "cavra.aispm.report_governance_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_report_governance_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-governance-readiness-packet.json",
+    governance_items: governanceItems,
+    source_contracts: governanceItems.map((item) => ({
+      area: item.area,
+      schema: item.schema,
+      example: item.example
+    })),
+    enterprise_boundaries: {
+      governed_schedule_workers: "requires_cavra_enterprise",
+      recipient_directory_and_policy_enforcement: "requires_cavra_enterprise",
+      approval_workflow_execution: "requires_cavra_enterprise",
+      exception_lifecycle_workflow: "requires_cavra_enterprise",
+      authenticated_evidence_room_portal: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      recipient_addresses_included: false,
+      approver_identities_included: false,
+      auditor_identities_included: false,
+      private_justifications_included: false,
+      raw_reports_included: false,
+      signed_download_urls_included: false,
+      customer_records_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-governance-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-governance-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-governance-readiness.json"
+    }
+  };
+  el("#aispmReportGovernanceReadiness").innerHTML = governanceItems.map((item) => `
+    <article class="report-governance-card">
+      <span class="severity controlled">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.area)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.schema)} · ${escapeHtml(item.example)}</code>
+    </article>
+  `).join("");
+  el("#aispmReportGovernanceStatus").textContent = `${governanceItems.length} governance areas mapped · identities, recipient addresses, private justifications, raw reports, and signed URLs remain Enterprise-only.`;
+}
+
+function renderAispmReportAssuranceReadiness() {
+  const generatedAt = new Date().toISOString();
+  const assuranceItems = aispmReportAssuranceReadinessItems.map(([area, status, schema, example, detail]) => ({
+    area,
+    status,
+    schema,
+    example,
+    detail,
+    availability: "requires_cavra_enterprise",
+    public_safe: true
+  }));
+  currentAispmReportAssurancePacket = {
+    schema_version: "cavra.aispm.report_assurance_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_report_assurance_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-assurance-readiness-packet.json",
+    assurance_items: assuranceItems,
+    source_contracts: assuranceItems.map((item) => ({
+      area: item.area,
+      schema: item.schema,
+      example: item.example
+    })),
+    enterprise_boundaries: {
+      evidence_room_access_audit_store: "requires_cavra_enterprise",
+      incident_packet_builder: "requires_cavra_enterprise",
+      incident_closure_workflow: "requires_cavra_enterprise",
+      tenant_kpi_metrics_store: "requires_cavra_enterprise",
+      alert_escalation_workflow: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      auditor_identities_included: false,
+      approver_identities_included: false,
+      ip_addresses_included: false,
+      raw_reports_included: false,
+      private_remediation_details_included: false,
+      tenant_drilldown_records_included: false,
+      signed_download_urls_included: false,
+      customer_records_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-assurance-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-assurance-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-assurance-readiness.json"
+    }
+  };
+  el("#aispmReportAssuranceReadiness").innerHTML = assuranceItems.map((item) => `
+    <article class="report-assurance-card">
+      <span class="severity controlled">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.area)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.schema)} · ${escapeHtml(item.example)}</code>
+    </article>
+  `).join("");
+  el("#aispmReportAssuranceStatus").textContent = `${assuranceItems.length} assurance areas mapped · identities, IP addresses, raw reports, private remediation, drilldowns, and signed URLs remain Enterprise-only.`;
+}
+
+function renderAispmReportResponseReadiness() {
+  const generatedAt = new Date().toISOString();
+  const responseItems = aispmReportResponseReadinessItems.map(([area, status, schema, example, detail]) => ({
+    area,
+    status,
+    schema,
+    example,
+    detail,
+    availability: "requires_cavra_enterprise",
+    public_safe: true
+  }));
+  currentAispmReportResponsePacket = {
+    schema_version: "cavra.aispm.report_response_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_report_response_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-response-readiness-packet.json",
+    response_items: responseItems,
+    source_contracts: responseItems.map((item) => ({
+      area: item.area,
+      schema: item.schema,
+      example: item.example
+    })),
+    enterprise_boundaries: {
+      alert_operations_dashboard_persistence: "requires_cavra_enterprise",
+      alert_drilldown_authorization: "requires_cavra_enterprise",
+      remediation_plan_workflow: "requires_cavra_enterprise",
+      remediation_closure_workflow: "requires_cavra_enterprise",
+      closure_operations_dashboard: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      assignee_identities_included: false,
+      tenant_alert_records_included: false,
+      raw_report_content_included: false,
+      private_remediation_tasks_included: false,
+      customer_records_included: false,
+      signed_download_urls_included: false,
+      provider_responses_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-response-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-response-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-response-readiness.json"
+    }
+  };
+  el("#aispmReportResponseReadiness").innerHTML = responseItems.map((item) => `
+    <article class="report-response-card">
+      <span class="severity controlled">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.area)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.schema)} · ${escapeHtml(item.example)}</code>
+    </article>
+  `).join("");
+  el("#aispmReportResponseStatus").textContent = `${responseItems.length} response areas mapped · identities, tenant alert records, raw reports, private remediation, and provider responses remain Enterprise-only.`;
+}
+
+function renderAispmReportTrialOpsReadiness() {
+  const generatedAt = new Date().toISOString();
+  const trialOpsItems = aispmReportTrialOpsReadinessItems.map(([area, status, schema, example, detail]) => ({
+    area,
+    status,
+    schema,
+    example,
+    detail,
+    availability: "requires_cavra_enterprise",
+    public_safe: true
+  }));
+  currentAispmReportTrialOpsPacket = {
+    schema_version: "cavra.aispm.report_trial_operations_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_enterprise_report_trial_operations_checklist",
+    generated_at: generatedAt,
+    portal_panel: "apps/sandbox-ui/index.html#ai-posture",
+    expected_filename: "cavra-aispm-report-trial-operations-readiness-packet.json",
+    trial_operations_items: trialOpsItems,
+    source_contracts: trialOpsItems.map((item) => ({
+      area: item.area,
+      schema: item.schema,
+      example: item.example
+    })),
+    enterprise_boundaries: {
+      executive_digest_rendering: "requires_cavra_enterprise",
+      digest_distribution_workflow: "requires_cavra_enterprise",
+      trial_validation_runtime: "requires_cavra_enterprise",
+      operator_dashboard_api: "requires_cavra_enterprise",
+      operator_session_and_audit_store: "requires_cavra_enterprise"
+    },
+    public_safety_boundary: {
+      evaluator_identities_included: false,
+      operator_identities_included: false,
+      recipient_addresses_included: false,
+      package_tokens_included: false,
+      license_keys_included: false,
+      raw_prompt_or_reasoning_included: false,
+      raw_report_content_included: false,
+      customer_records_included: false,
+      enterprise_source_code_included: false
+    },
+    verification: {
+      validator: "scripts/validate-aispm-report-trial-operations-readiness.py",
+      release_verification_markdown: "docs/release-verifications/aispm-report-trial-operations-readiness.md",
+      release_verification_json: "docs/release-verifications/aispm-report-trial-operations-readiness.json"
+    }
+  };
+  el("#aispmReportTrialOpsReadiness").innerHTML = trialOpsItems.map((item) => `
+    <article class="report-trialops-card">
+      <span class="severity controlled">${escapeHtml(item.status)}</span>
+      <strong>${escapeHtml(item.area)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+      <code>${escapeHtml(item.schema)} · ${escapeHtml(item.example)}</code>
+    </article>
+  `).join("");
+  el("#aispmReportTrialOpsStatus").textContent = `${trialOpsItems.length} trial operations areas mapped · evaluator identities, package tokens, license keys, raw content, and Enterprise source remain private.`;
+}
+
+function renderAispmTrialReadinessChecklist() {
+  const generatedAt = new Date().toISOString();
+  const checklist = aispmTrialReadinessItems.map(([label, status, detail, href]) => ({
+    label,
+    status,
+    detail,
+    href,
+    public_safe: true
+  }));
+  currentAispmTrialReadinessPacket = {
+    schema_version: "cavra.aispm.enterprise_trial_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Procurement", "Trial Evaluator"],
+    summary: {
+      checklist_items: checklist.length,
+      ready_items: checklist.filter((item) => ["Ready", "Live", "Controlled", "Documented", "Verified"].includes(item.status)).length,
+      locked_items: checklist.filter((item) => item.status === "Locked").length,
+      external_trial_domain: "https://cavra-trial.mind-ops.cloud/",
+      public_safety_boundary: "No Enterprise source code, secrets, customer data, license signing keys, or private package credentials are included."
+    },
+    checklist,
+    enterprise_boundary: {
+      private_package_access_grants: "requires_cavra_enterprise_private_service",
+      license_issuance: "requires_cavra_enterprise_private_service",
+      evaluator_email_delivery: "requires_cavra_enterprise_private_service",
+      hosted_telemetry: "requires_cavra_enterprise_or_saas"
+    }
+  };
+  currentAispmTrialReadinessMarkdown = [
+    "# CAVRA AISPM Enterprise Trial Readiness Summary",
+    "",
+    `Generated: ${generatedAt}`,
+    "",
+    "## Summary",
+    "",
+    `- Checklist items: ${currentAispmTrialReadinessPacket.summary.checklist_items}`,
+    `- Ready or controlled items: ${currentAispmTrialReadinessPacket.summary.ready_items}`,
+    `- Enterprise-locked automation items: ${currentAispmTrialReadinessPacket.summary.locked_items}`,
+    `- Trial domain: ${currentAispmTrialReadinessPacket.summary.external_trial_domain}`,
+    "",
+    "## Checklist",
+    "",
+    ...checklist.map((item) => `- **${item.label}**: ${item.status} - ${item.detail} (${item.href})`),
+    "",
+    "## Public Safety Boundary",
+    "",
+    currentAispmTrialReadinessPacket.summary.public_safety_boundary
+  ].join("\n");
+  el("#aispmTrialReadinessChecklist").innerHTML = aispmTrialReadinessItems.map(([label, status, detail, href]) => {
+    const statusClass = status.toLowerCase().replaceAll(" ", "-");
+    return `
+      <article class="trial-readiness-item">
+        <div>
+          <span class="severity ${escapeHtml(statusClass)}">${escapeHtml(status)}</span>
+          <strong>${escapeHtml(label)}</strong>
+          <p>${escapeHtml(detail)}</p>
+        </div>
+        <a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">Open</a>
+      </article>
+    `;
+  }).join("");
+  el("#aispmTrialReadinessStatus").textContent = `${checklist.length} readiness items prepared for public-safe CSO/CISO export.`;
+}
+
+function renderAispmEvaluatorHandoff() {
+  el("#aispmEvaluatorHandoff").innerHTML = aispmEvaluatorHandoffItems.map(([label, value, detail]) => `
+    <article class="evaluator-handoff-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+}
+
+function renderAispmTrialJourney() {
+  el("#aispmTrialJourney").innerHTML = aispmTrialJourneySteps.map(([step, title, detail, evidenceType]) => `
+    <article class="trial-journey-step">
+      <span>${escapeHtml(step)}</span>
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(detail)}</p>
+        <small>Evidence signal: ${escapeHtml(evidenceType)}</small>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderAispmTrialCloseoutEvidence() {
+  el("#aispmTrialCloseoutEvidence").innerHTML = aispmTrialCloseoutEvidenceItems.map(([label, status, detail, evidenceType]) => `
+    <article class="trial-closeout-card">
+      <span class="severity controlled">${escapeHtml(status)}</span>
+      <strong>${escapeHtml(label)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <small>Evidence signal: ${escapeHtml(evidenceType)}</small>
+    </article>
+  `).join("");
+}
+
+function renderAispmTrialFeedbackIntake() {
+  el("#aispmTrialFeedbackIntake").innerHTML = aispmTrialFeedbackCategories.map(([label, detail, fieldId]) => `
+    <article class="trial-feedback-card">
+      <span>${escapeHtml(fieldId)}</span>
+      <strong>${escapeHtml(label)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <small>Enterprise capture: governed tenant feedback record</small>
+    </article>
+  `).join("");
+}
+
+function buildAispmTrialReviewPacket(outcomeCards, generatedAt) {
+  return {
+    schema_version: "cavra.aispm.trial_review_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Procurement", "Trial Evaluator"],
+    public_safety_boundary: "No Enterprise source code, secrets, customer data, private license keys, package credentials, or tenant records are included.",
+    readiness: currentAispmTrialReadinessPacket || null,
+    evaluator_handoff: aispmEvaluatorHandoffItems.map(([label, value, detail]) => ({ label, value, detail })),
+    evaluation_journey: aispmTrialJourneySteps.map(([step, title, detail, evidence_signal]) => ({ step, title, detail, evidence_signal })),
+    closeout_evidence: aispmTrialCloseoutEvidenceItems.map(([label, status, detail, evidence_signal]) => ({ label, status, detail, evidence_signal })),
+    feedback_intake: aispmTrialFeedbackCategories.map(([label, detail, field_id]) => ({ label, detail, field_id, enterprise_capture: "governed_tenant_feedback_record" })),
+    outcome_summary: outcomeCards.map(([label, value, detail]) => ({ label, value, detail })),
+    enterprise_boundary: {
+      private_package_access_grants: "requires_cavra_enterprise_private_service",
+      license_issuance: "requires_cavra_enterprise_private_service",
+      evaluator_email_delivery: "requires_cavra_enterprise_private_service",
+      tenant_feedback_storage: "requires_cavra_enterprise_or_saas",
+      hosted_telemetry: "requires_cavra_enterprise_or_saas"
+    }
+  };
+}
+
+function renderAispmTrialOutcomeSummary() {
+  const generatedAt = new Date().toISOString();
+  const readinessReady = aispmTrialReadinessItems.filter((item) => item[1] !== "Locked").length;
+  const outcomeCards = [
+    [
+      "Readiness",
+      `${readinessReady}/${aispmTrialReadinessItems.length}`,
+      "Lab notebook, portal, approval, revocation, release evidence, and Enterprise boundary are visible."
+    ],
+    [
+      "Evaluator Handoff",
+      `${aispmEvaluatorHandoffItems.length} signals`,
+      "Approved evaluator receives portal, package reference, license boundary, notebook, support, and closeout path."
+    ],
+    [
+      "Journey Coverage",
+      `${aispmTrialJourneySteps.length} milestones`,
+      "Request, approval, pull, license validation, scenario execution, evidence review, and closeout are traceable."
+    ],
+    [
+      "Closeout Evidence",
+      `${aispmTrialCloseoutEvidenceItems.length} controls`,
+      "Expiry, revocation, package removal, blocked runtime, evidence archive, and feedback collection are required."
+    ],
+    [
+      "Feedback Intake",
+      `${aispmTrialFeedbackCategories.length} categories`,
+      "Setup, policy, dashboard, reports, integrations, procurement, and go/no-go feedback are modeled."
+    ],
+    [
+      "CSO/CISO Outcome",
+      "Go candidate",
+      "Public-safe evidence is ready for a controlled evaluator trial; Enterprise automation remains private."
+    ]
+  ];
+  el("#aispmTrialOutcomeSummary").innerHTML = outcomeCards.map(([label, value, detail]) => `
+    <article class="trial-outcome-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  currentAispmTrialReviewPacket = buildAispmTrialReviewPacket(outcomeCards, generatedAt);
+  el("#aispmTrialReviewPacketStatus").textContent = `Trial review packet ready with ${outcomeCards.length} outcome sections.`;
+}
+
+function renderAispmTrialReviewPacketIntegrity() {
+  const packet = currentAispmTrialReviewPacket || {};
+  const excludedFields = [
+    "license_signing_key",
+    "private_registry_credentials",
+    "customer_records",
+    "tenant_feedback_records",
+    "enterprise_source_code",
+    "hosted_telemetry_events"
+  ];
+  const integrityCards = [
+    ["Schema", packet.schema_version || "not_generated", "Expected public-safe review packet contract."],
+    ["Generated", packet.generated_at || "not_generated", "Timestamp is generated locally when the dashboard renders."],
+    ["Filename", "cavra-aispm-trial-review-packet.json", "Expected downloadable review artifact name."],
+    ["Boundary", "Public safe", packet.public_safety_boundary || "No private fields are included."],
+    ["Excluded Fields", `${excludedFields.length}`, excludedFields.join(", ")],
+    ["Enterprise Boundary", "Private", "Access grants, license issuance, email delivery, tenant feedback, and telemetry require Enterprise or SaaS."]
+  ];
+  el("#aispmTrialReviewPacketIntegrity").innerHTML = integrityCards.map(([label, value, detail]) => `
+    <article class="trial-integrity-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+}
+
+function renderAispmTrialProcurementReadiness() {
+  el("#aispmTrialProcurementReadiness").innerHTML = aispmTrialProcurementAreas.map(([label, detail, reviewArea]) => `
+    <article class="procurement-readiness-card">
+      <span>${escapeHtml(reviewArea)}</span>
+      <strong>${escapeHtml(label)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <small>Review source: AISPM Trial review packet</small>
+    </article>
+  `).join("");
+}
+
+function renderAispmTrialPilotScope() {
+  const generatedAt = new Date().toISOString();
+  const scope = aispmTrialPilotScopeItems.map(([label, detail, example]) => ({
+    label,
+    detail,
+    example,
+    public_safe: true
+  }));
+  currentAispmTrialPilotScopePacket = {
+    schema_version: "cavra.aispm.trial_pilot_scope_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement"],
+    source: "AISPM Trial Pilot Scope Builder",
+    scope,
+    approval_ticket_use: "Attach this packet to an internal pilot approval ticket after replacing sample values with organization-approved scope.",
+    public_safety_boundary: "No customer records, private registry credentials, license keys, Enterprise source code, or tenant telemetry are included.",
+    enterprise_boundary: {
+      pilot_workflow_write_back: "requires_cavra_enterprise_or_saas",
+      tenant_owner_assignment: "requires_cavra_enterprise_or_saas",
+      private_connector_configuration: "requires_cavra_enterprise_private_service"
+    }
+  };
+  el("#aispmTrialPilotScope").innerHTML = scope.map(({ label, detail, example }) => `
+    <article class="pilot-scope-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(example)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmTrialPilotScopeStatus").textContent = `${scope.length} pilot scope fields prepared for public-safe export.`;
+}
+
+function renderAispmPilotApprovalChecklist() {
+  const generatedAt = new Date().toISOString();
+  const approvalGates = aispmPilotApprovalChecklistItems.map(([label, detail, gateId]) => ({
+    gate_id: gateId,
+    label,
+    detail,
+    required_before_pilot_start: true,
+    public_safe: true
+  }));
+  currentAispmPilotApprovalPacket = {
+    schema_version: "cavra.aispm.pilot_approval_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement"],
+    source: "AISPM Pilot Approval Checklist",
+    linked_scope_packet_schema: currentAispmTrialPilotScopePacket?.schema_version || "cavra.aispm.trial_pilot_scope_packet.v1",
+    linked_scope_packet_filename: "cavra-aispm-trial-pilot-scope-packet.json",
+    approval_gates: approvalGates,
+    approval_record_use: "Attach this packet with the pilot scope packet to the internal production-pilot approval record.",
+    public_safety_boundary: "No customer records, private registry credentials, license keys, Enterprise source code, tenant telemetry, or signed approvals are included.",
+    enterprise_boundary: {
+      signed_approval_workflow: "requires_cavra_enterprise_or_saas",
+      workflow_write_back: "requires_cavra_enterprise_or_saas",
+      identity_bound_approvals: "requires_enterprise_identity_integration"
+    }
+  };
+  el("#aispmPilotApprovalChecklist").innerHTML = approvalGates.map(({ label, detail, gate_id }) => `
+    <article class="pilot-approval-card">
+      <span class="severity controlled">Gate</span>
+      <strong>${escapeHtml(label)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <small>${escapeHtml(gate_id)}</small>
+    </article>
+  `).join("");
+  el("#aispmPilotApprovalStatus").textContent = `${approvalGates.length} approval gates prepared for public-safe export.`;
+}
+
+function renderAispmPilotLaunchReadiness() {
+  const generatedAt = new Date().toISOString();
+  const readyCount = aispmPilotLaunchReadinessItems.filter(([, status]) => status === "Ready").length;
+  const readiness = aispmPilotLaunchReadinessItems.map(([label, status, detail, source]) => ({
+    label,
+    status,
+    detail,
+    source,
+    public_safe: true
+  }));
+  currentAispmPilotLaunchDecisionPacket = {
+    schema_version: "cavra.aispm.pilot_launch_decision_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement"],
+    source: "AISPM Pilot Launch Readiness Summary",
+    launch_decision_status: "launch_candidate_pending_enterprise_signed_approval",
+    readiness,
+    source_artifacts: [
+      "cavra-aispm-trial-pilot-scope-packet.json",
+      "cavra-aispm-pilot-approval-packet.json",
+      "cavra-aispm-trial-review-packet.json",
+      "CSO Report Center"
+    ],
+    decision_record_use: "Attach this packet to the CSO/CISO production-pilot launch approval record after confirming Enterprise signed approval workflow.",
+    public_safety_boundary: "No signed approvals, customer records, private registry credentials, license keys, Enterprise source code, tenant telemetry, or workflow write-back state are included.",
+    enterprise_boundary: {
+      signed_launch_approval: "requires_cavra_enterprise_or_saas",
+      identity_bound_decision_evidence: "requires_enterprise_identity_integration",
+      approval_workflow_write_back: "requires_cavra_enterprise_or_saas",
+      tenant_live_readiness_state: "requires_enterprise_tenant_store"
+    }
+  };
+  el("#aispmPilotLaunchReadiness").innerHTML = readiness.map(({ label, status, detail, source }) => {
+    const severity = status === "Ready" ? "approved" : status === "Candidate" ? "controlled" : "medium";
+    return `
+      <article class="pilot-launch-card">
+        <span class="severity ${severity}">${escapeHtml(status)}</span>
+        <strong>${escapeHtml(label)}</strong>
+        <p>${escapeHtml(detail)}</p>
+        <small>${escapeHtml(source)}</small>
+      </article>
+    `;
+  }).join("");
+  el("#aispmPilotLaunchStatus").textContent = `${readyCount} of ${readiness.length} launch readiness areas are ready in the public-safe model; decision packet is ready for CSO/CISO approval records.`;
+}
+
+function renderAispmPilotEvidenceRoom() {
+  const generatedAt = new Date().toISOString();
+  const reviewerCatalog = aispmPilotEvidenceRoomItems.map(([role, artifacts, publicReference, enterpriseBoundary]) => ({
+    role,
+    artifacts,
+    public_reference: publicReference,
+    enterprise_boundary: enterpriseBoundary,
+    public_safe: true
+  }));
+  currentAispmPilotEvidenceRoomPacket = {
+    schema_version: "cavra.aispm.pilot_evidence_room_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement", "Auditor", "Operator"],
+    source: "Production Pilot Evidence Room",
+    reviewer_catalog: reviewerCatalog,
+    source_artifacts: [
+      "cavra-aispm-pilot-launch-decision-packet.json",
+      "cavra-aispm-pilot-approval-packet.json",
+      "cavra-aispm-trial-pilot-scope-packet.json",
+      "cavra-aispm-trial-review-packet.json",
+      "CSO Report Center"
+    ],
+    evidence_room_use: "Attach this packet to reviewer handoff records as a public-safe index of pilot evidence artifacts.",
+    public_safety_boundary: "No customer records, private registry credentials, license keys, Enterprise source code, tenant telemetry, signed evidence, access grants, or reviewer activity logs are included.",
+    enterprise_boundary: {
+      authenticated_evidence_room_access: "requires_cavra_enterprise_or_saas",
+      signed_reviewer_activity_logs: "requires_cavra_enterprise_or_saas",
+      evidence_retention_policy_enforcement: "requires_enterprise_evidence_store",
+      tenant_artifact_permissions: "requires_enterprise_identity_integration"
+    },
+    enterprise_boundary_summary: "Enterprise is required for authenticated evidence-room access, retention, signed activity logs, and tenant artifact permissions."
+  };
+  el("#aispmPilotEvidenceRoom").innerHTML = reviewerCatalog.map(({ role, artifacts, public_reference, enterprise_boundary }) => `
+    <article class="pilot-evidence-room-card">
+      <span class="severity controlled">${escapeHtml(role)}</span>
+      <strong>${escapeHtml(public_reference)}</strong>
+      <p>${escapeHtml(artifacts)}</p>
+      <small>${escapeHtml(enterprise_boundary)}</small>
+    </article>
+  `).join("");
+  el("#aispmPilotEvidenceRoomStatus").textContent = `${reviewerCatalog.length} reviewer evidence catalogs prepared for public-safe export.`;
+}
+
+function renderAispmEvidenceReviewerChecklist() {
+  const generatedAt = new Date().toISOString();
+  const acceptanceCriteria = aispmEvidenceReviewerChecklistItems.map(([role, criterion, acceptanceSignal, enterpriseBoundary]) => ({
+    role,
+    criterion,
+    acceptance_signal: acceptanceSignal,
+    enterprise_boundary: enterpriseBoundary,
+    public_safe: true
+  }));
+  currentAispmEvidenceReviewerChecklistPacket = {
+    schema_version: "cavra.aispm.evidence_reviewer_checklist_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement", "Auditor", "Operator"],
+    source: "Evidence Room Reviewer Checklist",
+    acceptance_criteria: acceptanceCriteria,
+    source_artifacts: [
+      "cavra-aispm-pilot-evidence-room-packet.json",
+      "cavra-aispm-pilot-launch-decision-packet.json",
+      "cavra-aispm-pilot-approval-packet.json",
+      "cavra-aispm-trial-review-packet.json"
+    ],
+    checklist_use: "Attach this packet to launch review records as a public-safe checklist of reviewer acceptance criteria.",
+    public_safety_boundary: "No signed decisions, reviewer identity records, customer records, private policy context, Enterprise source code, tenant telemetry, or workflow write-back state are included.",
+    enterprise_boundary: {
+      signed_reviewer_acceptance: "requires_cavra_enterprise_or_saas",
+      identity_bound_reviewer_records: "requires_enterprise_identity_integration",
+      checklist_workflow_write_back: "requires_cavra_enterprise_or_saas",
+      tenant_exception_records: "requires_enterprise_tenant_store"
+    },
+    enterprise_boundary_summary: "Enterprise is required for signed reviewer acceptance, identity-bound reviewer records, workflow write-back, and tenant exception records."
+  };
+  el("#aispmEvidenceReviewerChecklist").innerHTML = acceptanceCriteria.map(({ role, criterion, acceptance_signal, enterprise_boundary }) => `
+    <article class="evidence-reviewer-checklist-card">
+      <span class="severity approved">${escapeHtml(role)}</span>
+      <strong>${escapeHtml(acceptance_signal)}</strong>
+      <p>${escapeHtml(criterion)}</p>
+      <small>${escapeHtml(enterprise_boundary)}</small>
+    </article>
+  `).join("");
+  el("#aispmEvidenceReviewerChecklistStatus").textContent = `${acceptanceCriteria.length} reviewer roles have public-safe pre-pilot acceptance criteria prepared for export.`;
+}
+
+function renderAispmPilotExceptionRegister() {
+  const generatedAt = new Date().toISOString();
+  const exceptions = aispmPilotExceptionRegisterItems.map(([exceptionId, riskArea, status, owner, summary, expiry, enterpriseBoundary]) => ({
+    exception_id: exceptionId,
+    risk_area: riskArea,
+    status,
+    owner,
+    summary,
+    expiry_expectation: expiry,
+    enterprise_boundary: enterpriseBoundary,
+    public_safe: true
+  }));
+  const openCount = exceptions.filter(({ status }) => status === "Open").length;
+  currentAispmPilotExceptionRegisterPacket = {
+    schema_version: "cavra.aispm.pilot_exception_register_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement", "Auditor", "Operator"],
+    source: "Pilot Exception Register",
+    exceptions,
+    source_artifacts: [
+      "cavra-aispm-evidence-reviewer-checklist-packet.json",
+      "cavra-aispm-pilot-evidence-room-packet.json",
+      "cavra-aispm-pilot-launch-decision-packet.json",
+      "cavra-aispm-trial-review-packet.json"
+    ],
+    register_use: "Attach this packet to launch approval records as a public-safe register of unresolved risks and accepted exceptions.",
+    public_safety_boundary: "No signed exception acceptance, customer records, reviewer identity records, private policy context, Enterprise source code, tenant telemetry, or exception workflow state are included.",
+    enterprise_boundary: {
+      signed_exception_acceptance: "requires_cavra_enterprise_or_saas",
+      exception_owner_assignment: "requires_enterprise_identity_integration",
+      exception_expiry_enforcement: "requires_cavra_enterprise_or_saas",
+      exception_closure_workflow: "requires_cavra_enterprise_or_saas",
+      tenant_exception_history: "requires_enterprise_tenant_store"
+    },
+    enterprise_boundary_summary: "Enterprise is required for signed exception acceptance, owner assignment, expiry enforcement, closure workflow, and tenant exception history."
+  };
+  el("#aispmPilotExceptionRegister").innerHTML = exceptions.map(({ exception_id, risk_area, status, owner, summary, expiry_expectation, enterprise_boundary }) => {
+    const severity = status === "Open" ? "high" : status === "Monitor" ? "medium" : "controlled";
+    return `
+      <article class="pilot-exception-card">
+        <div class="exception-card-heading">
+          <span class="severity ${severity}">${escapeHtml(status)}</span>
+          <code>${escapeHtml(exception_id)}</code>
+        </div>
+        <strong>${escapeHtml(risk_area)}</strong>
+        <p>${escapeHtml(summary)}</p>
+        <small>${escapeHtml(owner)} · ${escapeHtml(expiry_expectation)} · ${escapeHtml(enterprise_boundary)}</small>
+      </article>
+    `;
+  }).join("");
+  el("#aispmPilotExceptionStatus").textContent = `${openCount} open exception areas require owner review before production pilot launch; exception register packet is ready for public-safe export.`;
+}
+
+function renderAispmPilotRiskAcceptanceSummary() {
+  const generatedAt = new Date().toISOString();
+  const exceptions = aispmPilotExceptionRegisterItems.map(([exceptionId, riskArea, status, owner, summary, expiry, enterpriseBoundary]) => ({
+    exception_id: exceptionId,
+    risk_area: riskArea,
+    status,
+    owner,
+    summary,
+    expiry_expectation: expiry,
+    enterprise_boundary: enterpriseBoundary
+  }));
+  const openExceptions = exceptions.filter(({ status }) => status === "Open");
+  const acceptedRisks = exceptions.filter(({ status }) => status.startsWith("Accepted"));
+  const monitoredRisks = exceptions.filter(({ status }) => status === "Monitor");
+  const ownerSet = [...new Set(exceptions.map(({ owner }) => owner))];
+  const launchBlockers = openExceptions.map(({ risk_area, owner }) => `${risk_area} (${owner})`);
+  currentAispmPilotRiskAcceptancePacket = {
+    schema_version: "cavra.aispm.pilot_risk_acceptance_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement", "Auditor", "Operator"],
+    source: "Pilot Risk Acceptance Summary",
+    summary: {
+      open_exceptions: openExceptions.length,
+      accepted_risks: acceptedRisks.length,
+      monitored_risks: monitoredRisks.length,
+      accountable_owners: ownerSet,
+      launch_blocking_items: launchBlockers,
+      launch_disposition: openExceptions.length ? "action_required_before_pilot_launch" : "public_safe_model_clear"
+    },
+    source_artifacts: [
+      "cavra-aispm-pilot-exception-register-packet.json",
+      "cavra-aispm-evidence-reviewer-checklist-packet.json",
+      "cavra-aispm-pilot-launch-decision-packet.json",
+      "cavra-aispm-pilot-evidence-room-packet.json"
+    ],
+    risk_acceptance_use: "Attach this packet to CSO/CISO launch approval records as a public-safe risk acceptance summary.",
+    public_safety_boundary: "No signed risk acceptance, reviewer identity records, customer records, private policy context, Enterprise source code, tenant telemetry, or workflow write-back state are included.",
+    enterprise_boundary: {
+      signed_risk_acceptance: "requires_cavra_enterprise_or_saas",
+      identity_bound_risk_owner_records: "requires_enterprise_identity_integration",
+      exception_expiry_enforcement: "requires_cavra_enterprise_or_saas",
+      risk_acceptance_workflow_write_back: "requires_cavra_enterprise_or_saas",
+      tenant_risk_acceptance_history: "requires_enterprise_tenant_store"
+    },
+    enterprise_boundary_summary: "Enterprise is required for signed risk acceptance, identity-bound risk owner records, exception expiry enforcement, workflow write-back, and tenant risk acceptance history."
+  };
+  const summaryCards = [
+    ["Open Exceptions", String(openExceptions.length), launchBlockers.join(", ") || "None"],
+    ["Accepted Risks", String(acceptedRisks.length), acceptedRisks.map(({ risk_area }) => risk_area).join(", ") || "None"],
+    ["Monitored Risks", String(monitoredRisks.length), monitoredRisks.map(({ risk_area }) => risk_area).join(", ") || "None"],
+    ["Accountable Owners", String(ownerSet.length), ownerSet.join(", ")],
+    ["Launch Blocking", openExceptions.length ? "Action Required" : "Clear", openExceptions.length ? "Resolve or accept open exceptions before pilot launch." : "No open exception blockers in public-safe model."],
+    ["Enterprise Boundary", "Required", "Signed risk acceptance, exception expiry enforcement, and tenant exception history require CAVRA Enterprise or SaaS."]
+  ];
+  el("#aispmPilotRiskAcceptanceSummary").innerHTML = summaryCards.map(([label, value, detail]) => {
+    const severity = label === "Launch Blocking" && value === "Action Required" ? "high" : label === "Enterprise Boundary" ? "controlled" : "approved";
+    return `
+      <article class="risk-acceptance-card">
+        <span class="severity ${severity}">${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <p>${escapeHtml(detail)}</p>
+      </article>
+    `;
+  }).join("");
+  el("#aispmPilotRiskAcceptanceStatus").textContent = `${openExceptions.length} launch-blocking exception areas need CSO/CISO disposition; signed risk acceptance remains Enterprise-only.`;
+}
+
+function renderAispmPilotLaunchBoardPack() {
+  const generatedAt = new Date().toISOString();
+  const boardPackItems = aispmPilotLaunchBoardPackItems.map(([label, artifact, detail, enterpriseBoundary]) => ({
+    label,
+    artifact,
+    detail,
+    enterprise_boundary: enterpriseBoundary,
+    public_safe: true
+  }));
+  const artifactManifest = [
+    {
+      artifact_id: "launch_decision",
+      filename: "cavra-aispm-pilot-launch-decision-packet.json",
+      schema_version: currentAispmPilotLaunchDecisionPacket?.schema_version || "cavra.aispm.pilot_launch_decision_packet.v1",
+      source_panel: "AISPM Pilot Launch Readiness Summary",
+      freshness_status: currentAispmPilotLaunchDecisionPacket ? "current_session" : "expected",
+      required_for: "CSO/CISO launch decision review"
+    },
+    {
+      artifact_id: "evidence_room",
+      filename: "cavra-aispm-pilot-evidence-room-packet.json",
+      schema_version: currentAispmPilotEvidenceRoomPacket?.schema_version || "cavra.aispm.pilot_evidence_room_packet.v1",
+      source_panel: "Production Pilot Evidence Room",
+      freshness_status: currentAispmPilotEvidenceRoomPacket ? "current_session" : "expected",
+      required_for: "Role-based reviewer evidence catalog"
+    },
+    {
+      artifact_id: "risk_acceptance",
+      filename: "cavra-aispm-pilot-risk-acceptance-packet.json",
+      schema_version: currentAispmPilotRiskAcceptancePacket?.schema_version || "cavra.aispm.pilot_risk_acceptance_packet.v1",
+      source_panel: "Pilot Risk Acceptance Summary",
+      freshness_status: currentAispmPilotRiskAcceptancePacket ? "current_session" : "expected",
+      required_for: "Residual risk and launch-blocker disposition"
+    },
+    {
+      artifact_id: "exception_register",
+      filename: "cavra-aispm-pilot-exception-register-packet.json",
+      schema_version: currentAispmPilotExceptionRegisterPacket?.schema_version || "cavra.aispm.pilot_exception_register_packet.v1",
+      source_panel: "Pilot Exception Register",
+      freshness_status: currentAispmPilotExceptionRegisterPacket ? "current_session" : "expected",
+      required_for: "Exception owner and expiry review"
+    },
+    {
+      artifact_id: "reviewer_checklist",
+      filename: "cavra-aispm-evidence-reviewer-checklist-packet.json",
+      schema_version: currentAispmEvidenceReviewerChecklistPacket?.schema_version || "cavra.aispm.evidence_reviewer_checklist_packet.v1",
+      source_panel: "Evidence Room Reviewer Checklist",
+      freshness_status: currentAispmEvidenceReviewerChecklistPacket ? "current_session" : "expected",
+      required_for: "Role-specific acceptance criteria"
+    },
+    {
+      artifact_id: "executive_reports",
+      filename: "CSO Report Center",
+      schema_version: "cavra.aispm.community_report_center.v1",
+      source_panel: "CSO Report Center",
+      freshness_status: Object.keys(currentAispmReports || {}).length ? "current_session" : "expected",
+      required_for: "Executive risk brief, board KPI pack, audit summary, control, evidence, and agent-risk exports"
+    }
+  ];
+  const generatedArtifacts = artifactManifest.filter(({ freshness_status }) => freshness_status === "current_session").length;
+  const missingPublicArtifacts = artifactManifest
+    .filter(({ freshness_status }) => freshness_status !== "current_session")
+    .map(({ artifact_id, filename }) => ({ artifact_id, filename }));
+  currentAispmPilotLaunchBoardPackPacket = {
+    schema_version: "cavra.aispm.pilot_launch_board_pack_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    audience: ["Board", "CSO", "CISO", "Security Engineering", "Platform Engineering", "Procurement", "Auditor"],
+    source: "Pilot Launch Board Pack",
+    packet_label: "Pilot Launch Board Pack Packet",
+    launch_disposition: "board_ready_public_safe_packet_pending_enterprise_signed_approval",
+    board_pack_items: boardPackItems,
+    artifact_manifest: artifactManifest,
+    freshness_gate: {
+      status: missingPublicArtifacts.length ? "action_required" : "pass",
+      generated_artifacts: generatedArtifacts,
+      expected_artifacts: artifactManifest.length,
+      validator: "scripts/validate-aispm-launch-artifacts.py",
+      required_docs: [
+        "docs/ai-security-posture-dashboard-roadmap.md",
+        "docs/sandbox-portal-redesign.md",
+        "docs/sandbox-portal-smoke-validation.md",
+        "docs/wiki/AISPM-Dashboard-Roadmap.md",
+        "docs/wiki/CAVRA-Developer-Portal-Redesign.md",
+        "docs/wiki/CAVRA-Developer-Portal-Smoke-Validation.md"
+      ],
+      missing_public_artifacts: missingPublicArtifacts
+    },
+    integrity: {
+      public_safety_status: "pass",
+      manifest_artifacts: artifactManifest.length,
+      source_packet_count: 5,
+      report_artifact_count: Object.keys(currentAispmReports || {}).length,
+      excluded_private_fields: [
+        "signed_board_approval",
+        "board_minutes",
+        "recipient_email_addresses",
+        "private_telemetry_events",
+        "customer_identity_records",
+        "license_keys",
+        "enterprise_source_code"
+      ],
+      package_use: "Attach this packet to board, CSO/CISO, procurement, or pilot launch records as a public-safe artifact index and freshness gate."
+    },
+    public_safety_boundary: "No signed approvals, board minutes, email recipients, private telemetry, customer identity records, license keys, Enterprise source code, or delivery workflow state are included.",
+    enterprise_boundary: {
+      signed_board_approval: "requires_cavra_enterprise_or_saas",
+      board_minutes_and_attestation: "requires_cavra_enterprise_or_saas",
+      pdf_generation_and_delivery: "requires_cavra_enterprise_report_service",
+      recipient_allowlists_and_email_audit: "requires_cavra_enterprise_report_service",
+      tenant_artifact_retention: "requires_enterprise_evidence_store"
+    },
+    enterprise_boundary_summary: "Enterprise is required for signed board approval, minutes, PDF generation, scheduled delivery, recipient controls, and tenant artifact retention."
+  };
+  el("#aispmPilotLaunchBoardPack").innerHTML = aispmPilotLaunchBoardPackItems.map(([label, artifact, detail, enterpriseBoundary]) => `
+    <article class="board-pack-card">
+      <span class="severity approved">${escapeHtml(label)}</span>
+      <strong>${escapeHtml(artifact)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <small>${escapeHtml(enterpriseBoundary)}</small>
+    </article>
+  `).join("");
+  const manifestCards = [
+    ["Freshness Gate", currentAispmPilotLaunchBoardPackPacket.freshness_gate.status, `${generatedArtifacts}/${artifactManifest.length} artifacts generated in this session`],
+    ["Manifest", String(artifactManifest.length), "Launch decision, evidence room, risk, exceptions, checklist, and reports"],
+    ["Integrity", "Public safe", "Private approvals, minutes, recipients, telemetry, license data, and source code excluded"],
+    ["Enterprise Boundary", "Required", "Signed board approval, PDF board pack, email delivery, and retention remain Enterprise-only"]
+  ];
+  el("#aispmPilotLaunchBoardPackManifest").innerHTML = manifestCards.map(([label, value, detail]) => {
+    const severity = value === "action_required" ? "medium" : "approved";
+    return `
+      <article class="board-pack-manifest-card">
+        <span class="severity ${severity}">${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <p>${escapeHtml(detail)}</p>
+      </article>
+    `;
+  }).join("");
+  el("#aispmPilotLaunchBoardPackStatus").textContent = `${aispmPilotLaunchBoardPackItems.length} board pack artifacts prepared; ${generatedArtifacts}/${artifactManifest.length} manifest entries are current-session artifacts; signed board approval, minutes, PDF generation, and delivery workflow require Enterprise.`;
+}
+
+function renderAispmPilotControlReadiness() {
+  const generatedAt = new Date().toISOString();
+  const readinessItems = aispmPilotControlReadinessItems.map(([control, status, artifact, detail]) => ({
+    control,
+    status,
+    artifact,
+    detail,
+    public_safe: true
+  }));
+  currentAispmPilotControlReadinessPacket = {
+    schema_version: "cavra.aispm.pilot_control_readiness_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    packet_label: "AISPM Pilot Control Readiness Packet",
+    source: "Pilot Control Readiness",
+    audience: ["CSO", "CISO", "Platform Engineering", "Security Engineering", "Procurement", "Auditor"],
+    readiness_items: readinessItems,
+    source_packets: [
+      currentAispmPilotExceptionRegisterPacket?.schema_version || "cavra.aispm.pilot_exception_register_packet.v1",
+      currentAispmPilotRiskAcceptancePacket?.schema_version || "cavra.aispm.pilot_risk_acceptance_packet.v1",
+      currentAispmPilotLaunchBoardPackPacket?.schema_version || "cavra.aispm.pilot_launch_board_pack_packet.v1"
+    ],
+    release_verification_sources: [
+      "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+      "docs/release-verifications/aispm-launch-readiness-rollup.json",
+      "docs/release-verifications/aispm-release-evidence-index.json"
+    ],
+    verification: {
+      validator: "scripts/validate-aispm-pilot-control-readiness.py",
+      portal_packet: "cavra-aispm-pilot-control-readiness-packet.json",
+      release_index: "docs/release-verifications/aispm-release-evidence-index.json",
+      launch_rollup: "docs/release-verifications/aispm-launch-readiness-rollup.json",
+      expected_control_count: readinessItems.length
+    },
+    public_safety_boundary: "No signed risk acceptance, named approvers, board minutes, private telemetry, customer records, license keys, private package tokens, Enterprise source code, or tenant workflow state are included.",
+    enterprise_boundary: {
+      signed_exception_acceptance: "requires_cavra_enterprise_or_saas",
+      signed_risk_acceptance: "requires_cavra_enterprise_or_saas",
+      board_minutes_and_pdf_delivery: "requires_cavra_enterprise_report_service",
+      tenant_artifact_retention: "requires_enterprise_evidence_store",
+      workflow_write_back: "requires_cavra_enterprise_or_saas"
+    },
+    enterprise_boundary_summary: "Enterprise is required for signed exception and risk acceptance, board minutes, PDF delivery, tenant retention, and workflow write-back."
+  };
+  el("#aispmPilotControlReadiness").innerHTML = readinessItems.map(({ control, status, artifact, detail }) => `
+    <article class="pilot-control-card">
+      <span class="severity approved">${escapeHtml(status)}</span>
+      <strong>${escapeHtml(control)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <code>${escapeHtml(artifact)}</code>
+    </article>
+  `).join("");
+  el("#aispmPilotControlStatus").textContent = `${readinessItems.length} production-pilot control areas are ready for public-safe export; signed approvals, board minutes, and workflow write-back remain Enterprise-only.`;
+}
+
+function renderAispmReleaseEvidenceIndex() {
+  const generatedAt = new Date().toISOString();
+  const evidenceItems = aispmReleaseEvidenceIndexItems.map(([title, markdown, jsonPath, validator, detail, status]) => ({
+    title,
+    markdown,
+    machine_readable: jsonPath,
+    validator,
+    detail,
+    status,
+    public_safe: true
+  }));
+  currentAispmReleaseEvidenceIndexPacket = {
+    schema_version: "cavra.aispm.release_evidence_index_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_export",
+    generated_at: generatedAt,
+    packet_label: "AISPM Release Evidence Index Packet",
+    source: "Release Evidence Index",
+    audience: ["Release Reviewer", "CSO", "CISO", "Auditor", "Platform Engineering", "Security Engineering"],
+    evidence_items: evidenceItems,
+    freshness_gate: {
+      status: "ready",
+      evidence_count: evidenceItems.length,
+      validator: "scripts/validate-aispm-release-evidence-index.py",
+      workflow_artifact: "cavra-hosted-sandbox-post-deploy-evidence",
+      hosted_pages_smoke: "npm run validate:sandbox:hosted",
+      local_visual_smoke: "npm run validate:sandbox:visual"
+    },
+    public_safety_boundary: "No customer records, raw prompts, private trial package tokens, license signing keys, private registry credentials, Enterprise source code, or tenant telemetry are included.",
+    enterprise_boundary: {
+      signed_release_approval: "requires_cavra_enterprise_or_saas",
+      tenant_evidence_room: "requires_enterprise_evidence_store",
+      private_trial_package_validation: "requires_private_enterprise_pipeline",
+      licensed_report_delivery: "requires_cavra_enterprise"
+    }
+  };
+  el("#aispmReleaseEvidenceIndex").innerHTML = evidenceItems.map(({ title, markdown, machine_readable, validator, detail, status }) => `
+    <article class="release-evidence-card">
+      <span class="severity ${status === "workflow_enforced" ? "controlled" : "approved"}">${escapeHtml(status)}</span>
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(detail)}</p>
+      <div class="release-evidence-links">
+        <a href="https://github.com/Huzefaaa2/cavra/blob/main/${escapeHtml(markdown)}" target="_blank" rel="noreferrer">Markdown</a>
+        <a href="https://github.com/Huzefaaa2/cavra/blob/main/${escapeHtml(machine_readable)}" target="_blank" rel="noreferrer">Packet</a>
+      </div>
+      <small>${escapeHtml(validator)}</small>
+    </article>
+  `).join("");
+  const manifestCards = [
+    ["Evidence Packets", String(evidenceItems.length), "Launch, visual, hosted, post-deploy, lab notebook, and closeout evidence"],
+    ["Freshness Gate", "Ready", "Index is validator-backed and wired into Community CI, release, and Pages workflows"],
+    ["Workflow Artifact", "Uploaded", "cavra-hosted-sandbox-post-deploy-evidence records live Pages run metadata"],
+    ["Public Boundary", "Clean", "Secrets, customer data, private registries, telemetry, and Enterprise source are excluded"]
+  ];
+  el("#aispmReleaseEvidenceManifest").innerHTML = manifestCards.map(([label, value, detail]) => `
+    <article class="release-evidence-manifest-card">
+      <span class="severity approved">${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmReleaseEvidenceStatus").textContent = `${evidenceItems.length} release evidence records indexed for reviewers; signed release approval and tenant evidence room remain Enterprise-only.`;
+}
+
+function renderAispmHostedReleaseStatus() {
+  const generatedAt = new Date().toISOString();
+  const checks = aispmHostedReleaseStatusItems.map(([label, status, validator, detail]) => ({
+    label,
+    status,
+    validator,
+    detail,
+    public_safe: true
+  }));
+  const readyCount = checks.filter((item) => ["ready", "workflow_enforced"].includes(item.status)).length;
+  const actionCount = checks.length - readyCount;
+  currentAispmHostedReleaseStatusPacket = {
+    schema_version: "cavra.hosted_sandbox.operator_release_status_packet.v1",
+    product: "CAVRA",
+    edition: "community",
+    mode: "public_safe_operator_export",
+    generated_at: generatedAt,
+    packet_label: "Hosted Release Operator Status Packet",
+    source: "Hosted Release Operator Status",
+    hosted_target: "https://huzefaaa2.github.io/cavra/",
+    build_sentinel: "community-v1.0.0-aispm-release-evidence-index",
+    checks,
+    status_summary: {
+      local_repository_status: "ready",
+      hosted_pages_status: "requires_deploy_validation",
+      ready_or_enforced_checks: readyCount,
+      operator_action_checks: actionCount,
+      announcement_state: "blocked_until_live_freshness_passes"
+    },
+    release_evidence_refs: [
+      "docs/release-verifications/hosted-sandbox-deployment-freshness.md",
+      "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
+      "scripts/validate-hosted-sandbox-operator-status.py",
+      "docs/release-verifications/hosted-sandbox-post-deploy-evidence.md",
+      "docs/release-verifications/aispm-release-evidence-index.md"
+    ],
+    public_safety_boundary: "Includes public static deployment readiness markers only. Excludes customer data, raw prompts, private package credentials, license secrets, Enterprise source code, and tenant telemetry.",
+    enterprise_boundary: {
+      signed_announcement_approval: "requires_cavra_enterprise_or_saas",
+      tenant_release_room: "requires_enterprise_evidence_store",
+      evaluator_access_grants: "requires_private_trial_operator_flow"
+    }
+  };
+  el("#aispmHostedReleaseStatus").innerHTML = [
+    ["Local Repository", "Ready", "Local validators and static portal markers pass before deployment."],
+    ["Hosted Pages", "Needs deploy", "Live freshness remains blocked until GitHub Pages publishes this build."],
+    ["Announcement", "Hold", "Share externally after live freshness, browser smoke, and post-deploy artifact pass."],
+    ["Sentinel", "v1.0.0 AISPM", "community-v1.0.0-aispm-release-evidence-index"]
+  ].map(([label, value, detail]) => `
+    <article class="hosted-release-status-card">
+      <span class="severity ${value === "Ready" ? "approved" : "controlled"}">${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+  el("#aispmHostedReleaseChecklist").innerHTML = checks.map(({ label, status, validator, detail }) => `
+    <article class="hosted-release-check-card">
+      <div>
+        <span class="severity ${status === "blocked_until_live_fresh" ? "high" : status === "requires_deploy" ? "medium" : "approved"}">${escapeHtml(status)}</span>
+        <strong>${escapeHtml(label)}</strong>
+      </div>
+      <p>${escapeHtml(detail)}</p>
+      <code>${escapeHtml(validator)}</code>
+    </article>
+  `).join("");
+  el("#aispmHostedReleaseStatusLine").textContent = `${checks.length} hosted release checks indexed; external announcement remains blocked until live freshness passes after GitHub Pages deployment.`;
+}
+
+function handleAispmReportDownload(event) {
+  const button = event.target.closest("[data-report-download]");
+  if (!button) return;
+  const report = currentAispmReports[button.dataset.reportDownload];
+  if (!report) return;
+  downloadTextFile(report.filename, report.content, report.type);
+  el("#aispmReportStatus").textContent = `Downloaded ${report.filename}.`;
+}
+
 function renderAispmDashboard(payload, note = "sample fallback") {
   currentAispmPayload = payload;
   const overview = payload.overview || {};
@@ -1626,6 +4238,32 @@ function renderAispmDashboard(payload, note = "sample fallback") {
       <p>${escapeHtml(detail)}</p>
     </article>
   `).join("");
+  renderAispmReportCenter(payload);
+  renderAispmReportSetupReadiness();
+  renderAispmReportOperationsReadiness();
+  renderAispmReportGovernanceReadiness();
+  renderAispmReportAssuranceReadiness();
+  renderAispmReportResponseReadiness();
+  renderAispmReportTrialOpsReadiness();
+  renderAispmTrialReadinessChecklist();
+  renderAispmEvaluatorHandoff();
+  renderAispmTrialJourney();
+  renderAispmTrialCloseoutEvidence();
+  renderAispmTrialFeedbackIntake();
+  renderAispmTrialOutcomeSummary();
+  renderAispmTrialReviewPacketIntegrity();
+  renderAispmTrialProcurementReadiness();
+  renderAispmTrialPilotScope();
+  renderAispmPilotApprovalChecklist();
+  renderAispmPilotLaunchReadiness();
+  renderAispmPilotEvidenceRoom();
+  renderAispmEvidenceReviewerChecklist();
+  renderAispmPilotExceptionRegister();
+  renderAispmPilotRiskAcceptanceSummary();
+  renderAispmPilotLaunchBoardPack();
+  renderAispmPilotControlReadiness();
+  renderAispmReleaseEvidenceIndex();
+  renderAispmHostedReleaseStatus();
   el("#aispmAgentCards").innerHTML = (payload.agents || []).map((agent) => `
     <article class="posture-card">
       <span>${escapeHtml(agent.coverage_status || "unknown")}</span>
@@ -2351,6 +4989,100 @@ function renderAispmReplayPolicyCiGateAuditPacket(readiness, platformRows, revie
   };
   el("#aispmReplayPolicyCiGateAuditPacket").textContent = JSON.stringify(currentAispmReplayPolicyCiGateAuditPacket, null, 2);
   el("#aispmReplayPolicyCiGateAuditStatus").textContent = `${currentAispmReplayPolicyCiGateAuditPacket.status} · ${platformRows.length} platforms · cavra-replay-policy-ci-gate-rollout-audit-packet.json`;
+  renderAispmReplayPolicyCiGateAuditorView(currentAispmReplayPolicyCiGateAuditPacket);
+}
+
+function renderAispmReplayPolicyCiGateAuditorView(packet) {
+  const attachments = packet.evidence_attachments || [];
+  const platformOutcomes = packet.platform_outcomes || [];
+  const requiredCheck = packet.rollout_checklist?.required_check || "cavra-aispm-review-packet";
+  const status = packet.status === "ready" ? "ready" : "action_required";
+  const findingRows = [
+    {
+      control: "Review packet attached",
+      status: attachments.includes("cavra-replay-policy-review-packet.json") ? "pass" : "action required",
+      evidence: "cavra-replay-policy-review-packet.json",
+      auditor_note: "Replay-derived policy changes have a public-safe review packet."
+    },
+    {
+      control: "Readiness packet attached",
+      status: attachments.includes("cavra-replay-policy-ci-gate-readiness.json") ? "pass" : "action required",
+      evidence: "cavra-replay-policy-ci-gate-readiness.json",
+      auditor_note: "Branch-protection readiness metadata is available for validation."
+    },
+    {
+      control: "Rollout checklist attached",
+      status: attachments.includes("cavra-replay-policy-ci-gate-rollout-checklist.md") ? "pass" : "action required",
+      evidence: "cavra-replay-policy-ci-gate-rollout-checklist.md",
+      auditor_note: "Manual rollout steps are documented for reviewer sign-off."
+    },
+    {
+      control: "Required check named",
+      status: requiredCheck === "cavra-aispm-review-packet" ? "pass" : "action required",
+      evidence: requiredCheck,
+      auditor_note: "The same required check name is used across supported CI platforms."
+    },
+    {
+      control: "Public safety boundary",
+      status: packet.public_safety?.raw_prompts === "not_included" && packet.public_safety?.model_reasoning === "not_included" ? "pass" : "action required",
+      evidence: "raw_prompts/model_reasoning/customer_context not included",
+      auditor_note: "Community audit packets do not expose prompts, reasoning, or customer context."
+    },
+    {
+      control: "Enterprise automation boundary",
+      status: packet.public_safety?.branch_protection_write_back === "requires_cavra_enterprise" ? "pass" : "action required",
+      evidence: "branch protection write-back requires CAVRA Enterprise",
+      auditor_note: "Community provides evidence guidance; automated write-back remains an Enterprise control."
+    }
+  ];
+  const passedFindings = findingRows.filter((row) => row.status === "pass").length;
+  const auditorConclusion = status === "ready" && passedFindings === findingRows.length
+    ? "Auditor conclusion: ready for controlled production rollout after branch protection is configured and evidence attachments are preserved with the rollout ticket or PR."
+    : "Auditor conclusion: action required before production rollout. Resolve missing attachments or inconsistent gate metadata first.";
+  el("#aispmReplayPolicyCiGateAuditorView").innerHTML = `
+    <div class="ci-gate-auditor-header">
+      <div>
+        <h4>CI Gate Rollout Auditor View</h4>
+        <p>Human-readable rollup of rollout evidence, required checks, platform outcomes, and public-safe boundaries.</p>
+      </div>
+      <span class="severity ${status === "ready" ? "approved" : "pending"}">${status === "ready" ? "Ready" : "Action Required"}</span>
+    </div>
+    <div class="ci-gate-auditor-grid">
+      <article>
+        <span>Audit status</span>
+        <strong>${escapeHtml(status)}</strong>
+        <p>${escapeHtml(passedFindings)}/${escapeHtml(findingRows.length)} auditor findings pass.</p>
+      </article>
+      <article>
+        <span>Platforms</span>
+        <strong>${escapeHtml(platformOutcomes.length)}</strong>
+        <p>${escapeHtml(platformOutcomes.map((row) => row.platform).join(", "))}</p>
+      </article>
+      <article>
+        <span>Required check</span>
+        <strong>${escapeHtml(requiredCheck)}</strong>
+        <p>Must be required before replay-derived policy or fixture changes merge.</p>
+      </article>
+      <article>
+        <span>Evidence attachments</span>
+        <strong>${escapeHtml(attachments.length)}</strong>
+        <p>${escapeHtml(attachments.join(", "))}</p>
+      </article>
+    </div>
+    <div class="ci-gate-auditor-findings">
+      ${findingRows.map((row) => `
+        <article class="ci-gate-auditor-finding">
+          <div>
+            <span>${escapeHtml(row.control)}</span>
+            <strong>${escapeHtml(row.status)}</strong>
+          </div>
+          <code>${escapeHtml(row.evidence)}</code>
+          <p>${escapeHtml(row.auditor_note)}</p>
+        </article>
+      `).join("")}
+    </div>
+    <div class="ci-gate-auditor-conclusion">${escapeHtml(auditorConclusion)}</div>
+  `;
 }
 
 async function copyAispmReplayPolicyCiGateReadiness() {
@@ -2359,6 +5091,365 @@ async function copyAispmReplayPolicyCiGateReadiness() {
   el("#aispmReplayPolicyCiGateStatus").textContent = copied
     ? "Copied public-safe CI gate readiness JSON."
     : "Copy was blocked by the browser. Use Download Readiness or select the JSON from exported artifacts.";
+}
+
+async function copyAispmTrialReadinessSummary() {
+  const copied = await copyTextToClipboard(currentAispmTrialReadinessMarkdown);
+  el("#aispmTrialReadinessStatus").textContent = copied
+    ? "Copied public-safe AISPM Enterprise Trial readiness summary Markdown."
+    : "Copy was blocked by the browser. Use Download Packet or select the readiness links manually.";
+}
+
+function downloadAispmTrialReadinessPacket() {
+  const payload = JSON.stringify(currentAispmTrialReadinessPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-enterprise-trial-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmTrialReadinessStatus").textContent = "Downloaded public-safe AISPM Enterprise Trial readiness packet JSON.";
+}
+
+async function copyAispmTrialReviewPacket() {
+  const payload = JSON.stringify(currentAispmTrialReviewPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmTrialReviewPacketStatus").textContent = copied
+    ? "Copied public-safe AISPM Trial review packet JSON."
+    : "Copy was blocked by the browser. Use Download Review Packet or select the visible section details.";
+}
+
+function downloadAispmTrialReviewPacket() {
+  const payload = JSON.stringify(currentAispmTrialReviewPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-trial-review-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmTrialReviewPacketStatus").textContent = "Downloaded public-safe AISPM Trial review packet JSON.";
+}
+
+async function copyAispmTrialPilotScopePacket() {
+  const payload = JSON.stringify(currentAispmTrialPilotScopePacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmTrialPilotScopeStatus").textContent = copied
+    ? "Copied public-safe AISPM Trial pilot scope packet JSON."
+    : "Copy was blocked by the browser. Use Download Pilot Packet or select the visible scope details.";
+}
+
+function downloadAispmTrialPilotScopePacket() {
+  const payload = JSON.stringify(currentAispmTrialPilotScopePacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-trial-pilot-scope-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmTrialPilotScopeStatus").textContent = "Downloaded public-safe AISPM Trial pilot scope packet JSON.";
+}
+
+async function copyAispmPilotApprovalPacket() {
+  const payload = JSON.stringify(currentAispmPilotApprovalPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotApprovalStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot approval packet JSON."
+    : "Copy was blocked by the browser. Use Download Approval Packet or select the visible gate details.";
+}
+
+function downloadAispmPilotApprovalPacket() {
+  const payload = JSON.stringify(currentAispmPilotApprovalPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-approval-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotApprovalStatus").textContent = "Downloaded public-safe AISPM Pilot approval packet JSON.";
+}
+
+async function copyAispmPilotLaunchDecisionPacket() {
+  const payload = JSON.stringify(currentAispmPilotLaunchDecisionPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotLaunchStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot launch decision packet JSON."
+    : "Copy was blocked by the browser. Use Download Decision Packet or select the visible readiness details.";
+}
+
+function downloadAispmPilotLaunchDecisionPacket() {
+  const payload = JSON.stringify(currentAispmPilotLaunchDecisionPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-launch-decision-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotLaunchStatus").textContent = "Downloaded public-safe AISPM Pilot launch decision packet JSON.";
+}
+
+async function copyAispmPilotEvidenceRoomPacket() {
+  const payload = JSON.stringify(currentAispmPilotEvidenceRoomPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotEvidenceRoomStatus").textContent = copied
+    ? "Copied public-safe AISPM Production Pilot evidence room packet JSON."
+    : "Copy was blocked by the browser. Use Download Evidence Packet or select the visible role catalog.";
+}
+
+function downloadAispmPilotEvidenceRoomPacket() {
+  const payload = JSON.stringify(currentAispmPilotEvidenceRoomPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-evidence-room-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotEvidenceRoomStatus").textContent = "Downloaded public-safe AISPM Production Pilot evidence room packet JSON.";
+}
+
+async function copyAispmEvidenceReviewerChecklistPacket() {
+  const payload = JSON.stringify(currentAispmEvidenceReviewerChecklistPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmEvidenceReviewerChecklistStatus").textContent = copied
+    ? "Copied public-safe AISPM Evidence Room reviewer checklist packet JSON."
+    : "Copy was blocked by the browser. Use Download Checklist Packet or select the visible criteria.";
+}
+
+function downloadAispmEvidenceReviewerChecklistPacket() {
+  const payload = JSON.stringify(currentAispmEvidenceReviewerChecklistPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-evidence-reviewer-checklist-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmEvidenceReviewerChecklistStatus").textContent = "Downloaded public-safe AISPM Evidence Room reviewer checklist packet JSON.";
+}
+
+async function copyAispmPilotExceptionRegisterPacket() {
+  const payload = JSON.stringify(currentAispmPilotExceptionRegisterPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotExceptionStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot exception register packet JSON."
+    : "Copy was blocked by the browser. Use Download Exception Packet or select the visible register.";
+}
+
+function downloadAispmPilotExceptionRegisterPacket() {
+  const payload = JSON.stringify(currentAispmPilotExceptionRegisterPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-exception-register-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotExceptionStatus").textContent = "Downloaded public-safe AISPM Pilot exception register packet JSON.";
+}
+
+async function copyAispmPilotRiskAcceptancePacket() {
+  const payload = JSON.stringify(currentAispmPilotRiskAcceptancePacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotRiskAcceptanceStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot risk acceptance packet JSON."
+    : "Copy was blocked by the browser. Use Download Risk Packet or select the visible summary.";
+}
+
+function downloadAispmPilotRiskAcceptancePacket() {
+  const payload = JSON.stringify(currentAispmPilotRiskAcceptancePacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-risk-acceptance-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotRiskAcceptanceStatus").textContent = "Downloaded public-safe AISPM Pilot risk acceptance packet JSON.";
+}
+
+async function copyAispmPilotLaunchBoardPackPacket() {
+  const payload = JSON.stringify(currentAispmPilotLaunchBoardPackPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotLaunchBoardPackStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot launch board pack packet JSON."
+    : "Copy was blocked by the browser. Use Download Board Packet or select the visible board pack details.";
+}
+
+function downloadAispmPilotLaunchBoardPackPacket() {
+  const payload = JSON.stringify(currentAispmPilotLaunchBoardPackPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-launch-board-pack-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotLaunchBoardPackStatus").textContent = "Downloaded public-safe AISPM Pilot launch board pack packet JSON.";
+}
+
+async function copyAispmPilotControlReadinessPacket() {
+  const payload = JSON.stringify(currentAispmPilotControlReadinessPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmPilotControlStatus").textContent = copied
+    ? "Copied public-safe AISPM Pilot control readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Control Packet or select the visible control readiness details.";
+}
+
+function downloadAispmPilotControlReadinessPacket() {
+  const payload = JSON.stringify(currentAispmPilotControlReadinessPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-pilot-control-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmPilotControlStatus").textContent = "Downloaded public-safe AISPM Pilot control readiness packet JSON.";
+}
+
+async function copyAispmReleaseEvidenceIndexPacket() {
+  const payload = JSON.stringify(currentAispmReleaseEvidenceIndexPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReleaseEvidenceStatus").textContent = copied
+    ? "Copied public-safe AISPM release evidence index packet JSON."
+    : "Copy was blocked by the browser. Use Download Evidence Index or select the visible release evidence details.";
+}
+
+function downloadAispmReleaseEvidenceIndexPacket() {
+  const payload = JSON.stringify(currentAispmReleaseEvidenceIndexPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-release-evidence-index-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReleaseEvidenceStatus").textContent = "Downloaded public-safe AISPM release evidence index packet JSON.";
+}
+
+async function copyAispmHostedReleaseStatusPacket() {
+  const payload = JSON.stringify(currentAispmHostedReleaseStatusPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmHostedReleaseStatusLine").textContent = copied
+    ? "Copied public-safe hosted release operator status packet JSON."
+    : "Copy was blocked by the browser. Use Download Status Packet or select the visible status details.";
+}
+
+function downloadAispmHostedReleaseStatusPacket() {
+  const payload = JSON.stringify(currentAispmHostedReleaseStatusPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-hosted-sandbox-operator-status-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmHostedReleaseStatusLine").textContent = "Downloaded public-safe hosted release operator status packet JSON.";
+}
+
+async function copyAispmReportCatalogPacket() {
+  const payload = JSON.stringify(currentAispmReportCatalogPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportStatus").textContent = copied
+    ? "Copied public-safe AISPM report catalog readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Catalog Packet or select the visible report details.";
+}
+
+function downloadAispmReportCatalogPacket() {
+  const payload = JSON.stringify(currentAispmReportCatalogPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-catalog-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportStatus").textContent = "Downloaded public-safe AISPM report catalog readiness packet JSON.";
+}
+
+async function copyAispmReportSetupPacket() {
+  const payload = JSON.stringify(currentAispmReportSetupPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportSetupStatus").textContent = copied
+    ? "Copied public-safe AISPM report delivery setup readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Setup Packet or select the visible setup details.";
+}
+
+function downloadAispmReportSetupPacket() {
+  const payload = JSON.stringify(currentAispmReportSetupPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-delivery-setup-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportSetupStatus").textContent = "Downloaded public-safe AISPM report delivery setup readiness packet JSON.";
+}
+
+async function copyAispmReportOperationsPacket() {
+  const payload = JSON.stringify(currentAispmReportOperationsPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportOperationsStatus").textContent = copied
+    ? "Copied public-safe AISPM report operations readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Operations Packet or select the visible operations details.";
+}
+
+function downloadAispmReportOperationsPacket() {
+  const payload = JSON.stringify(currentAispmReportOperationsPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-operations-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportOperationsStatus").textContent = "Downloaded public-safe AISPM report operations readiness packet JSON.";
+}
+
+async function copyAispmReportGovernancePacket() {
+  const payload = JSON.stringify(currentAispmReportGovernancePacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportGovernanceStatus").textContent = copied
+    ? "Copied public-safe AISPM report governance readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Governance Packet or select the visible governance details.";
+}
+
+function downloadAispmReportGovernancePacket() {
+  const payload = JSON.stringify(currentAispmReportGovernancePacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-governance-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportGovernanceStatus").textContent = "Downloaded public-safe AISPM report governance readiness packet JSON.";
+}
+
+async function copyAispmReportAssurancePacket() {
+  const payload = JSON.stringify(currentAispmReportAssurancePacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportAssuranceStatus").textContent = copied
+    ? "Copied public-safe AISPM report assurance readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Assurance Packet or select the visible assurance details.";
+}
+
+function downloadAispmReportAssurancePacket() {
+  const payload = JSON.stringify(currentAispmReportAssurancePacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-assurance-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportAssuranceStatus").textContent = "Downloaded public-safe AISPM report assurance readiness packet JSON.";
+}
+
+async function copyAispmReportResponsePacket() {
+  const payload = JSON.stringify(currentAispmReportResponsePacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportResponseStatus").textContent = copied
+    ? "Copied public-safe AISPM report response readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Response Packet or select the visible response details.";
+}
+
+function downloadAispmReportResponsePacket() {
+  const payload = JSON.stringify(currentAispmReportResponsePacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-response-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportResponseStatus").textContent = "Downloaded public-safe AISPM report response readiness packet JSON.";
+}
+
+async function copyAispmReportTrialOpsPacket() {
+  const payload = JSON.stringify(currentAispmReportTrialOpsPacket || {}, null, 2);
+  const copied = await copyTextToClipboard(payload);
+  el("#aispmReportTrialOpsStatus").textContent = copied
+    ? "Copied public-safe AISPM report trial operations readiness packet JSON."
+    : "Copy was blocked by the browser. Use Download Trial Ops Packet or select the visible trial operations details.";
+}
+
+function downloadAispmReportTrialOpsPacket() {
+  const payload = JSON.stringify(currentAispmReportTrialOpsPacket || {}, null, 2);
+  downloadTextFile(
+    "cavra-aispm-report-trial-operations-readiness-packet.json",
+    payload,
+    "application/json"
+  );
+  el("#aispmReportTrialOpsStatus").textContent = "Downloaded public-safe AISPM report trial operations readiness packet JSON.";
 }
 
 function downloadAispmReplayPolicyCiGateReadiness() {
@@ -3516,6 +6607,47 @@ function wireEvents() {
   });
   el("#runScenario").addEventListener("click", runScenario);
   el("#refreshAispm").addEventListener("click", loadAispmDashboard);
+  el("#aispmReportCenter").addEventListener("click", handleAispmReportDownload);
+  el("#copyAispmTrialReadinessSummary").addEventListener("click", copyAispmTrialReadinessSummary);
+  el("#downloadAispmTrialReadinessPacket").addEventListener("click", downloadAispmTrialReadinessPacket);
+  el("#copyAispmTrialReviewPacket").addEventListener("click", copyAispmTrialReviewPacket);
+  el("#downloadAispmTrialReviewPacket").addEventListener("click", downloadAispmTrialReviewPacket);
+  el("#copyAispmTrialPilotScopePacket").addEventListener("click", copyAispmTrialPilotScopePacket);
+  el("#downloadAispmTrialPilotScopePacket").addEventListener("click", downloadAispmTrialPilotScopePacket);
+  el("#copyAispmPilotApprovalPacket").addEventListener("click", copyAispmPilotApprovalPacket);
+  el("#downloadAispmPilotApprovalPacket").addEventListener("click", downloadAispmPilotApprovalPacket);
+  el("#copyAispmPilotLaunchDecisionPacket").addEventListener("click", copyAispmPilotLaunchDecisionPacket);
+  el("#downloadAispmPilotLaunchDecisionPacket").addEventListener("click", downloadAispmPilotLaunchDecisionPacket);
+  el("#copyAispmPilotEvidenceRoomPacket").addEventListener("click", copyAispmPilotEvidenceRoomPacket);
+  el("#downloadAispmPilotEvidenceRoomPacket").addEventListener("click", downloadAispmPilotEvidenceRoomPacket);
+  el("#copyAispmEvidenceReviewerChecklistPacket").addEventListener("click", copyAispmEvidenceReviewerChecklistPacket);
+  el("#downloadAispmEvidenceReviewerChecklistPacket").addEventListener("click", downloadAispmEvidenceReviewerChecklistPacket);
+  el("#copyAispmPilotExceptionRegisterPacket").addEventListener("click", copyAispmPilotExceptionRegisterPacket);
+  el("#downloadAispmPilotExceptionRegisterPacket").addEventListener("click", downloadAispmPilotExceptionRegisterPacket);
+  el("#copyAispmPilotRiskAcceptancePacket").addEventListener("click", copyAispmPilotRiskAcceptancePacket);
+  el("#downloadAispmPilotRiskAcceptancePacket").addEventListener("click", downloadAispmPilotRiskAcceptancePacket);
+  el("#copyAispmPilotLaunchBoardPackPacket").addEventListener("click", copyAispmPilotLaunchBoardPackPacket);
+  el("#downloadAispmPilotLaunchBoardPackPacket").addEventListener("click", downloadAispmPilotLaunchBoardPackPacket);
+  el("#copyAispmPilotControlReadinessPacket").addEventListener("click", copyAispmPilotControlReadinessPacket);
+  el("#downloadAispmPilotControlReadinessPacket").addEventListener("click", downloadAispmPilotControlReadinessPacket);
+  el("#copyAispmReleaseEvidenceIndexPacket").addEventListener("click", copyAispmReleaseEvidenceIndexPacket);
+  el("#downloadAispmReleaseEvidenceIndexPacket").addEventListener("click", downloadAispmReleaseEvidenceIndexPacket);
+  el("#copyAispmHostedReleaseStatusPacket").addEventListener("click", copyAispmHostedReleaseStatusPacket);
+  el("#downloadAispmHostedReleaseStatusPacket").addEventListener("click", downloadAispmHostedReleaseStatusPacket);
+  el("#copyAispmReportCatalogPacket").addEventListener("click", copyAispmReportCatalogPacket);
+  el("#downloadAispmReportCatalogPacket").addEventListener("click", downloadAispmReportCatalogPacket);
+  el("#copyAispmReportSetupPacket").addEventListener("click", copyAispmReportSetupPacket);
+  el("#downloadAispmReportSetupPacket").addEventListener("click", downloadAispmReportSetupPacket);
+  el("#copyAispmReportOperationsPacket").addEventListener("click", copyAispmReportOperationsPacket);
+  el("#downloadAispmReportOperationsPacket").addEventListener("click", downloadAispmReportOperationsPacket);
+  el("#copyAispmReportGovernancePacket").addEventListener("click", copyAispmReportGovernancePacket);
+  el("#downloadAispmReportGovernancePacket").addEventListener("click", downloadAispmReportGovernancePacket);
+  el("#copyAispmReportAssurancePacket").addEventListener("click", copyAispmReportAssurancePacket);
+  el("#downloadAispmReportAssurancePacket").addEventListener("click", downloadAispmReportAssurancePacket);
+  el("#copyAispmReportResponsePacket").addEventListener("click", copyAispmReportResponsePacket);
+  el("#downloadAispmReportResponsePacket").addEventListener("click", downloadAispmReportResponsePacket);
+  el("#copyAispmReportTrialOpsPacket").addEventListener("click", copyAispmReportTrialOpsPacket);
+  el("#downloadAispmReportTrialOpsPacket").addEventListener("click", downloadAispmReportTrialOpsPacket);
   el("#refreshAispmApprovals").addEventListener("click", loadAispmApprovalLineage);
   el("#refreshAispmCoverageHeatmap").addEventListener("click", loadAispmControlCoverageHeatmap);
   el("#refreshAispmEvidenceConfidence").addEventListener("click", loadAispmEvidenceConfidence);

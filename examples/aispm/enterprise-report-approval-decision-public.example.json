@@ -1,0 +1,70 @@
+{
+  "schema_version": "cavra.aispm.report_approval_decision.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:35:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "approval_request": {
+    "approval_ref": "approval:opaque-external-report-delivery",
+    "request_type": "external_delivery_exception",
+    "requested_by": "role:ciso",
+    "requested_at": "2026-06-11T08:32:00Z",
+    "resource_ref": "schedule:opaque-ciso-weekly-board-pack",
+    "risk_level": "high",
+    "reason_code": "external_auditor_delivery"
+  },
+  "decision": {
+    "decision_ref": "approval-decision:opaque-external-report-delivery",
+    "decision": "approved",
+    "decided_by": "role:security-leadership",
+    "decided_at": "2026-06-11T08:34:00Z",
+    "expires_at": "2026-06-18T08:34:00Z",
+    "conditions": [
+      "recipient_domain_must_match_auditor_allowlist",
+      "encrypted_attachment_required",
+      "signed_export_manifest_required"
+    ]
+  },
+  "subject": {
+    "report_ids": ["pdf_board_pack", "xlsx_evidence_workbook"],
+    "formats": ["pdf", "xlsx"],
+    "delivery_mode": "smtp",
+    "recipient_scope": "approved_external_domain",
+    "recipient_addresses_redacted": true
+  },
+  "policy_context": {
+    "recipient_policy_ref": "recipient-policy:opaque-report-delivery-standard",
+    "schedule_ref": "schedule:opaque-ciso-weekly-board-pack",
+    "domain_rule_ref": "domain-rule:opaque-auditor-domain",
+    "approval_policy_ref": "approval-policy:opaque-weekly-board-pack"
+  },
+  "evidence": {
+    "approval_evidence_refs": ["cavra://evidence/redacted/report-approval-decision-sample"],
+    "request_digest_ref": "sha256:redacted-public-contract-approval-request",
+    "decision_digest_ref": "sha256:redacted-public-contract-approval-decision",
+    "immutable_store_ref": "enterprise-private://immutable-store/report-approval/opaque-ref"
+  },
+  "audit": {
+    "audit_event_ref": "audit:opaque-report-approval-decision",
+    "logged_at": "2026-06-11T08:35:01Z",
+    "review_required_by": "2026-06-18T08:34:00Z"
+  },
+  "redaction": {
+    "approver_identity_included": false,
+    "recipient_addresses_included": false,
+    "raw_report_content_included": false,
+    "private_justification_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "approval_workflow": "requires_cavra_enterprise",
+    "approver_identity_resolution": "requires_cavra_enterprise",
+    "policy_exception_store": "requires_cavra_enterprise",
+    "immutable_decision_audit": "requires_cavra_enterprise",
+    "notification_delivery": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

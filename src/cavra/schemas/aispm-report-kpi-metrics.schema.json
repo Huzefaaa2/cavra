@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report KPI Metrics Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "window",
+    "summary",
+    "report_volume",
+    "delivery_health",
+    "approval_latency",
+    "exception_aging",
+    "evidence_room_access",
+    "incident_closure_slo",
+    "audit_readiness_trend",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_kpi_metrics.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "window": {
+      "type": "object",
+      "required": ["window_ref", "starts_at", "ends_at", "timezone", "grain"],
+      "properties": {
+        "window_ref": { "type": "string", "minLength": 1 },
+        "starts_at": { "type": "string", "format": "date-time" },
+        "ends_at": { "type": "string", "format": "date-time" },
+        "timezone": { "type": "string", "minLength": 1 },
+        "grain": { "enum": ["hourly", "daily", "weekly", "monthly", "quarterly"] }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "reports_generated",
+        "reports_delivered",
+        "delivery_success_rate",
+        "open_exceptions",
+        "open_incidents",
+        "audit_readiness_score"
+      ],
+      "properties": {
+        "reports_generated": { "type": "integer", "minimum": 0 },
+        "reports_delivered": { "type": "integer", "minimum": 0 },
+        "delivery_success_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "open_exceptions": { "type": "integer", "minimum": 0 },
+        "open_incidents": { "type": "integer", "minimum": 0 },
+        "audit_readiness_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "report_volume": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["report_id", "generated", "delivered"],
+        "properties": {
+          "report_id": { "type": "string", "minLength": 1 },
+          "generated": { "type": "integer", "minimum": 0 },
+          "delivered": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "delivery_health": {
+      "type": "object",
+      "required": [
+        "successful_deliveries",
+        "failed_deliveries",
+        "retryable_failures",
+        "dead_lettered",
+        "median_delivery_seconds",
+        "p95_delivery_seconds"
+      ],
+      "properties": {
+        "successful_deliveries": { "type": "integer", "minimum": 0 },
+        "failed_deliveries": { "type": "integer", "minimum": 0 },
+        "retryable_failures": { "type": "integer", "minimum": 0 },
+        "dead_lettered": { "type": "integer", "minimum": 0 },
+        "median_delivery_seconds": { "type": "number", "minimum": 0 },
+        "p95_delivery_seconds": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "approval_latency": {
+      "type": "object",
+      "required": [
+        "approval_required_count",
+        "approved_count",
+        "pending_count",
+        "median_minutes",
+        "p95_minutes",
+        "breached_slo_count"
+      ],
+      "properties": {
+        "approval_required_count": { "type": "integer", "minimum": 0 },
+        "approved_count": { "type": "integer", "minimum": 0 },
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "median_minutes": { "type": "number", "minimum": 0 },
+        "p95_minutes": { "type": "number", "minimum": 0 },
+        "breached_slo_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "exception_aging": {
+      "type": "object",
+      "required": ["active_exceptions", "expiring_soon", "expired", "median_age_hours", "oldest_age_hours"],
+      "properties": {
+        "active_exceptions": { "type": "integer", "minimum": 0 },
+        "expiring_soon": { "type": "integer", "minimum": 0 },
+        "expired": { "type": "integer", "minimum": 0 },
+        "median_age_hours": { "type": "number", "minimum": 0 },
+        "oldest_age_hours": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "evidence_room_access": {
+      "type": "object",
+      "required": [
+        "active_rooms",
+        "access_events",
+        "downloads",
+        "failed_access_attempts",
+        "revocations",
+        "watermarked_downloads"
+      ],
+      "properties": {
+        "active_rooms": { "type": "integer", "minimum": 0 },
+        "access_events": { "type": "integer", "minimum": 0 },
+        "downloads": { "type": "integer", "minimum": 0 },
+        "failed_access_attempts": { "type": "integer", "minimum": 0 },
+        "revocations": { "type": "integer", "minimum": 0 },
+        "watermarked_downloads": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "incident_closure_slo": {
+      "type": "object",
+      "required": ["opened", "closed", "within_slo", "breached_slo", "median_closure_hours"],
+      "properties": {
+        "opened": { "type": "integer", "minimum": 0 },
+        "closed": { "type": "integer", "minimum": 0 },
+        "within_slo": { "type": "integer", "minimum": 0 },
+        "breached_slo": { "type": "integer", "minimum": 0 },
+        "median_closure_hours": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "audit_readiness_trend": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["period", "score", "evidence_gap_count"],
+        "properties": {
+          "period": { "type": "string", "minLength": 1 },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "evidence_gap_count": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "derived_from_immutable_events",
+        "retention_aware",
+        "rbac_scoped",
+        "tenant_aggregated",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "derived_from_immutable_events": { "type": "boolean" },
+        "retention_aware": { "type": "boolean" },
+        "rbac_scoped": { "type": "boolean" },
+        "tenant_aggregated": { "type": "boolean" },
+        "raw_payloads_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "customer_records_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "const": "aggregate_metrics_only" }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "metrics_aggregation_worker",
+        "tenant_metrics_store",
+        "dashboard_projection",
+        "private_trend_history",
+        "rbac_filtering",
+        "license_enforcement"
+      ],
+      "properties": {
+        "metrics_aggregation_worker": { "const": "requires_cavra_enterprise" },
+        "tenant_metrics_store": { "const": "requires_cavra_enterprise" },
+        "dashboard_projection": { "const": "requires_cavra_enterprise" },
+        "private_trend_history": { "const": "requires_cavra_enterprise" },
+        "rbac_filtering": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

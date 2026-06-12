@@ -1,0 +1,89 @@
+{
+  "schema_version": "cavra.aispm.report_delivery_setup_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_setup_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-delivery-setup-packet.json",
+  "validator": "scripts/validate-aispm-report-delivery-setup-readiness.py",
+  "setup_areas": [
+    {
+      "step_id": "organization_profile",
+      "title": "Organization Profile",
+      "required_fields": [
+        "CAVRA_REPORT_FROM_ADDRESS",
+        "CAVRA_REPORT_DEFAULT_TIMEZONE",
+        "CAVRA_REPORT_RETENTION_DAYS",
+        "CAVRA_REPORT_BRAND_PROFILE"
+      ],
+      "status": "required"
+    },
+    {
+      "step_id": "delivery_provider",
+      "title": "Delivery Provider",
+      "required_fields": [
+        "CAVRA_REPORT_DELIVERY_MODE",
+        "CAVRA_REPORT_SMTP_HOST",
+        "CAVRA_REPORT_SMTP_PORT",
+        "CAVRA_REPORT_SMTP_USERNAME_REF",
+        "CAVRA_REPORT_SMTP_PASSWORD_REF",
+        "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+      ],
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "step_id": "recipient_governance",
+      "title": "Recipient Governance",
+      "required_fields": [
+        "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+        "CAVRA_REPORT_EXTERNAL_APPROVAL_REQUIRED",
+        "CAVRA_REPORT_ALLOWED_RBAC_ROLES"
+      ],
+      "status": "required"
+    },
+    {
+      "step_id": "schedule_and_audit",
+      "title": "Schedule And Audit",
+      "required_fields": [
+        "CAVRA_REPORT_DEFAULT_SCHEDULE",
+        "CAVRA_REPORT_RETRY_POLICY",
+        "CAVRA_REPORT_DELIVERY_AUDIT_RETENTION_DAYS",
+        "CAVRA_REPORT_AUDIT_EXPORT_REF"
+      ],
+      "status": "required"
+    },
+    {
+      "step_id": "validation_and_test_delivery",
+      "title": "Validation And Test Delivery",
+      "required_fields": [
+        "provider_validation",
+        "test_delivery",
+        "delivery_audit",
+        "retry_evidence"
+      ],
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "required_public_settings": [
+    "CAVRA_REPORT_DELIVERY_MODE",
+    "CAVRA_REPORT_FROM_ADDRESS",
+    "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+    "CAVRA_REPORT_DEFAULT_TIMEZONE",
+    "CAVRA_REPORT_RETENTION_DAYS"
+  ],
+  "secret_reference_settings": [
+    "CAVRA_REPORT_SMTP_USERNAME_REF",
+    "CAVRA_REPORT_SMTP_PASSWORD_REF",
+    "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+  ],
+  "enterprise_boundaries": {
+    "wizard_ui": "requires_cavra_enterprise",
+    "settings_persistence": "requires_cavra_enterprise",
+    "secret_resolution": "requires_cavra_enterprise",
+    "provider_validation": "requires_cavra_enterprise",
+    "test_delivery": "requires_cavra_enterprise",
+    "delivery_audit_and_retry_evidence": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes setup field names and secret-manager reference names only. It excludes raw SMTP passwords, provider tokens, recipient email addresses, report contents, customer records, Enterprise source code, private policy packs, provider responses, signed download URLs, and tenant telemetry."
+}

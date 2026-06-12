@@ -24,6 +24,39 @@ from cavra.aispm import (
     build_aispm_tool_chain_graph,
     build_sample_aispm_dashboard,
 )
+from cavra.aispm_reports import (
+    build_aispm_report_center_trial_evaluator_handoff_packet_contract,
+    build_aispm_report_center_trial_lab_notebook_outline_contract,
+    build_aispm_report_center_trial_lab_notebook_publication_readiness_contract,
+    build_aispm_report_center_trial_operator_api_view_model_contract,
+    build_aispm_report_center_trial_operator_dashboard_readiness_contract,
+    build_aispm_report_center_trial_revocation_expiry_evidence_contract,
+    build_aispm_report_center_trial_validation_packet_contract,
+    build_aispm_report_approval_decision_contract,
+    build_aispm_report_alert_drilldown_contract,
+    build_aispm_report_alert_escalation_contract,
+    build_aispm_report_alert_operations_dashboard_contract,
+    build_aispm_report_alert_remediation_closure_contract,
+    build_aispm_report_alert_remediation_plan_contract,
+    build_aispm_report_delivery_audit_event_contract,
+    build_aispm_report_delivery_contract,
+    build_aispm_report_evidence_room_access_event_contract,
+    build_aispm_report_evidence_room_contract,
+    build_aispm_report_exception_lifecycle_contract,
+    build_aispm_report_export_package_manifest_contract,
+    build_aispm_report_incident_closure_contract,
+    build_aispm_report_incident_packet_contract,
+    build_aispm_report_kpi_metrics_contract,
+    build_aispm_report_operations_dashboard_contract,
+    build_aispm_report_recipient_policy_contract,
+    build_aispm_report_remediation_closure_digest_distribution_contract,
+    build_aispm_report_remediation_closure_executive_digest_contract,
+    build_aispm_report_remediation_closure_operations_dashboard_contract,
+    build_aispm_report_retention_lifecycle_contract,
+    build_aispm_report_schedule_policy_contract,
+    build_aispm_report_search_retrieval_contract,
+    build_aispm_report_setup_wizard_contract,
+)
 from cavra.approvals import ApprovalStore
 
 
@@ -1069,6 +1102,1246 @@ def test_aispm_replay_to_policy_ci_gate_readiness_sample_matches_packaged_schema
         "Azure Pipelines",
     }
     assert {gate["required_check"] for gate in payload["gates"]} == {"cavra-aispm-review-packet"}
+
+
+def test_aispm_enterprise_live_ingestion_public_contract_sample_matches_packaged_schema() -> None:
+    envelope_schema = Path("src/cavra/schemas/aispm-enterprise-live-ingestion-envelope.schema.json")
+    sample = Path("examples/aispm/enterprise-live-ingestion-envelope-public-contract.example.json")
+
+    assert envelope_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(envelope_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["contract_visibility"] == "public_contract"
+    assert payload["redaction"]["raw_prompt_included"] is False
+    assert payload["redaction"]["reasoning_included"] is False
+    assert payload["redaction"]["tool_output_included"] is False
+    assert payload["enterprise_boundaries"]["collector_implementation"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_delivery_contract_matches_packaged_schema() -> None:
+    report_schema = Path("src/cavra/schemas/aispm-report-delivery-contract.schema.json")
+    contract = build_aispm_report_delivery_contract()
+
+    assert report_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(report_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["setup"]["secret_values_allowed_in_public_repo"] is False
+    assert contract["api"]["send_endpoint"] == "POST /enterprise/aispm/reports/send"
+    assert contract["enterprise_boundaries"]["email_delivery"] == "requires_cavra_enterprise"
+    assert {report["availability"] for report in contract["community_reports"]} == {"community"}
+    assert {report["availability"] for report in contract["enterprise_reports"]} == {
+        "requires_cavra_enterprise"
+    }
+
+
+def test_aispm_report_delivery_public_contract_sample_matches_packaged_schema() -> None:
+    report_schema = Path("src/cavra/schemas/aispm-report-delivery-contract.schema.json")
+    sample = Path("examples/aispm/enterprise-report-delivery-contract-public.example.json")
+
+    assert report_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(report_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["delivery"]["implementation"] == "requires_cavra_enterprise"
+    assert "CAVRA_REPORT_SMTP_PASSWORD_REF" in payload["setup"]["secret_reference_settings"]
+    assert "CAVRA_REPORT_SMTP_PASSWORD" not in payload["setup"]["secret_reference_settings"]
+
+
+def test_aispm_report_setup_wizard_contract_matches_packaged_schema() -> None:
+    setup_schema = Path("src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json")
+    contract = build_aispm_report_setup_wizard_contract()
+
+    assert setup_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(setup_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["wizard"]["implementation"] == "requires_cavra_enterprise"
+    assert contract["admin_settings"]["secret_values_allowed"] is False
+    assert "CAVRA_REPORT_DELIVERY_MODE" in contract["admin_settings"]["required_public_settings"]
+    assert "CAVRA_REPORT_SMTP_PASSWORD_REF" in contract["admin_settings"]["secret_reference_settings"]
+    assert contract["enterprise_boundaries"]["provider_validation"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_setup_wizard_public_contract_sample_matches_packaged_schema() -> None:
+    setup_schema = Path("src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json")
+    sample = Path("examples/aispm/enterprise-report-setup-wizard-contract-public.example.json")
+
+    assert setup_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(setup_schema.read_text(encoding="utf-8")),
+    )
+    assert {step["step_id"] for step in payload["steps"]} == {
+        "organization_profile",
+        "delivery_provider",
+        "recipient_governance",
+        "schedule_and_audit",
+    }
+    assert payload["admin_settings"]["secret_values_allowed"] is False
+    assert "CAVRA_REPORT_PROVIDER_TOKEN_REF" in payload["admin_settings"]["secret_reference_settings"]
+    assert payload["enterprise_boundaries"]["test_delivery"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_delivery_audit_event_contract_matches_packaged_schema() -> None:
+    audit_schema = Path("src/cavra/schemas/aispm-report-delivery-audit-event.schema.json")
+    contract = build_aispm_report_delivery_audit_event_contract()
+
+    assert audit_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(audit_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["audit_event"]["action"] == "send"
+    assert contract["recipient_summary"]["recipient_addresses_redacted"] is True
+    assert contract["redaction"]["raw_report_content_included"] is False
+    assert contract["redaction"]["provider_response_included"] is False
+    assert contract["redaction"]["secrets_included"] is False
+    assert contract["enterprise_boundaries"]["retry_worker"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_delivery_audit_event_public_sample_matches_packaged_schema() -> None:
+    audit_schema = Path("src/cavra/schemas/aispm-report-delivery-audit-event.schema.json")
+    sample = Path("examples/aispm/enterprise-report-delivery-audit-event-public.example.json")
+
+    assert audit_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(audit_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["audit_event"]["status"] == "sent"
+    assert payload["approval"]["decision"] == "approved"
+    assert payload["retry"]["terminal"] is True
+    assert payload["evidence"]["evidence_refs"]
+    assert payload["redaction"]["recipient_addresses_included"] is False
+    assert payload["enterprise_boundaries"]["audit_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_operations_dashboard_contract_matches_packaged_schema() -> None:
+    dashboard_schema = Path("src/cavra/schemas/aispm-report-operations-dashboard.schema.json")
+    contract = build_aispm_report_operations_dashboard_contract()
+
+    assert dashboard_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["summary"]["delivery_health"] == "degraded"
+    assert contract["summary"]["failed_deliveries"] == 1
+    assert contract["queues"][0]["queue"] == "delivery"
+    assert contract["approval_bottlenecks"][0]["status"] == "pending"
+    assert contract["redaction"]["secrets_included"] is False
+    assert contract["enterprise_boundaries"]["retry_control"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_operations_dashboard_public_sample_matches_packaged_schema() -> None:
+    dashboard_schema = Path("src/cavra/schemas/aispm-report-operations-dashboard.schema.json")
+    sample = Path("examples/aispm/enterprise-report-operations-dashboard-public.example.json")
+
+    assert dashboard_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["summary"]["retry_queue_depth"] == 3
+    assert payload["failed_deliveries"][0]["failure_class"] == "provider_auth"
+    assert payload["audit_coverage"]["coverage_status"] == "partial"
+    assert payload["redaction"]["recipient_addresses_included"] is False
+    assert payload["enterprise_boundaries"]["provider_health_probe"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_retention_lifecycle_contract_matches_packaged_schema() -> None:
+    lifecycle_schema = Path("src/cavra/schemas/aispm-report-retention-lifecycle.schema.json")
+    contract = build_aispm_report_retention_lifecycle_contract()
+
+    assert lifecycle_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(lifecycle_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["policy"]["immutable_storage_required"] is True
+    assert contract["policy"]["legal_hold_supported"] is True
+    assert "legal_hold" in contract["deletion_policy"]["blocked_states"]
+    assert contract["redaction"]["customer_records_included"] is False
+    assert contract["enterprise_boundaries"]["kms_integration"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_retention_lifecycle_public_sample_matches_packaged_schema() -> None:
+    lifecycle_schema = Path("src/cavra/schemas/aispm-report-retention-lifecycle.schema.json")
+    sample = Path("examples/aispm/enterprise-report-retention-lifecycle-public.example.json")
+
+    assert lifecycle_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(lifecycle_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["audit_export_lifecycle"]["object_lock"] == "enabled"
+    assert payload["deletion_policy"]["approval_required"] is True
+    assert any(item["lifecycle_state"] == "legal_hold" for item in payload["report_lifecycle"])
+    assert payload["evidence"]["retention_evidence_refs"]
+    assert payload["redaction"]["raw_report_content_included"] is False
+    assert payload["enterprise_boundaries"]["immutable_archive"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_search_retrieval_contract_matches_packaged_schema() -> None:
+    search_schema = Path("src/cavra/schemas/aispm-report-search-retrieval.schema.json")
+    contract = build_aispm_report_search_retrieval_contract()
+
+    assert search_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(search_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["query"]["retention_mode"] == "retention_aware"
+    assert contract["retrieval"]["access_decision"] == "allow"
+    assert contract["access_controls"]["rbac_enforced"] is True
+    assert contract["access_controls"]["download_audit_required"] is True
+    assert contract["redaction"]["download_url_included"] is False
+    assert contract["enterprise_boundaries"]["signed_download_urls"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_search_retrieval_public_sample_matches_packaged_schema() -> None:
+    search_schema = Path("src/cavra/schemas/aispm-report-search-retrieval.schema.json")
+    sample = Path("examples/aispm/enterprise-report-search-retrieval-public.example.json")
+
+    assert search_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(search_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["results"][0]["download_allowed"] is True
+    assert payload["retrieval"]["watermark_required"] is True
+    assert payload["access_controls"]["retention_checked"] is True
+    assert payload["audit"]["evidence_refs"]
+    assert payload["redaction"]["raw_report_content_included"] is False
+    assert payload["enterprise_boundaries"]["rbac_authorization"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_export_package_manifest_contract_matches_packaged_schema() -> None:
+    manifest_schema = Path("src/cavra/schemas/aispm-report-export-package-manifest.schema.json")
+    contract = build_aispm_report_export_package_manifest_contract()
+
+    assert manifest_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(manifest_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["package"]["package_type"] == "board_and_audit_bundle"
+    assert contract["integrity"]["checksums_required"] is True
+    assert contract["delivery_targets"][0]["approval_required"] is True
+    assert contract["redaction"]["raw_report_content_included"] is False
+    assert contract["enterprise_boundaries"]["manifest_signing"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_export_package_manifest_public_sample_matches_packaged_schema() -> None:
+    manifest_schema = Path("src/cavra/schemas/aispm-report-export-package-manifest.schema.json")
+    sample = Path("examples/aispm/enterprise-report-export-package-manifest-public.example.json")
+
+    assert manifest_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(manifest_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["package"]["signed_manifest_required"] is True
+    assert len(payload["artifacts"]) == 2
+    assert payload["evidence"]["source_evidence_refs"]
+    assert payload["redaction"]["download_urls_included"] is False
+    assert payload["enterprise_boundaries"]["artifact_storage"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_schedule_policy_contract_matches_packaged_schema() -> None:
+    schedule_schema = Path("src/cavra/schemas/aispm-report-schedule-policy.schema.json")
+    contract = build_aispm_report_schedule_policy_contract()
+
+    assert schedule_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(schedule_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["schedule"]["cadence"] == "weekly"
+    assert contract["recipient_governance"]["recipient_addresses_redacted"] is True
+    assert contract["approval_policy"]["change_requires_approval"] is True
+    assert contract["retry_policy"]["dead_letter_required"] is True
+    assert contract["redaction"]["secrets_included"] is False
+    assert contract["enterprise_boundaries"]["scheduler_worker"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_schedule_policy_public_sample_matches_packaged_schema() -> None:
+    schedule_schema = Path("src/cavra/schemas/aispm-report-schedule-policy.schema.json")
+    sample = Path("examples/aispm/enterprise-report-schedule-policy-public.example.json")
+
+    assert schedule_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(schedule_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["delivery"]["package_manifest_required"] is True
+    assert payload["blackout_windows"][0]["behavior"] == "defer"
+    assert payload["run_evidence"]["evidence_refs"]
+    assert payload["redaction"]["provider_response_included"] is False
+    assert payload["enterprise_boundaries"]["provider_delivery"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_recipient_policy_contract_matches_packaged_schema() -> None:
+    recipient_schema = Path("src/cavra/schemas/aispm-report-recipient-policy.schema.json")
+    contract = build_aispm_report_recipient_policy_contract()
+
+    assert recipient_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(recipient_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["policy"]["default_action"] == "deny"
+    assert contract["domain_rules"][1]["approval_required"] is True
+    assert contract["recipient_groups"][0]["addresses_redacted"] is True
+    assert contract["approval_policy"]["approval_evidence_required"] is True
+    assert contract["redaction"]["recipient_addresses_included"] is False
+    assert contract["enterprise_boundaries"]["idp_group_resolution"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_recipient_policy_public_sample_matches_packaged_schema() -> None:
+    recipient_schema = Path("src/cavra/schemas/aispm-report-recipient-policy.schema.json")
+    sample = Path("examples/aispm/enterprise-report-recipient-policy-public.example.json")
+
+    assert recipient_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(recipient_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["encryption_policy"]["kms_key_ref_required"] is True
+    assert payload["delivery_channel_eligibility"][0]["requires_verified_sender"] is True
+    assert payload["audit"]["review_evidence_refs"]
+    assert payload["redaction"]["provider_tokens_included"] is False
+    assert payload["enterprise_boundaries"]["domain_verification"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_approval_decision_contract_matches_packaged_schema() -> None:
+    approval_schema = Path("src/cavra/schemas/aispm-report-approval-decision.schema.json")
+    contract = build_aispm_report_approval_decision_contract()
+
+    assert approval_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(approval_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["approval_request"]["request_type"] == "external_delivery_exception"
+    assert contract["decision"]["decision"] == "approved"
+    assert contract["subject"]["recipient_addresses_redacted"] is True
+    assert contract["evidence"]["approval_evidence_refs"]
+    assert contract["redaction"]["approver_identity_included"] is False
+    assert contract["enterprise_boundaries"]["policy_exception_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_approval_decision_public_sample_matches_packaged_schema() -> None:
+    approval_schema = Path("src/cavra/schemas/aispm-report-approval-decision.schema.json")
+    sample = Path("examples/aispm/enterprise-report-approval-decision-public.example.json")
+
+    assert approval_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(approval_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["decision"]["conditions"]
+    assert payload["policy_context"]["recipient_policy_ref"]
+    assert payload["audit"]["audit_event_ref"]
+    assert payload["redaction"]["private_justification_included"] is False
+    assert payload["enterprise_boundaries"]["immutable_decision_audit"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_exception_lifecycle_contract_matches_packaged_schema() -> None:
+    lifecycle_schema = Path("src/cavra/schemas/aispm-report-exception-lifecycle.schema.json")
+    contract = build_aispm_report_exception_lifecycle_contract()
+
+    assert lifecycle_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(lifecycle_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["exception"]["status"] == "active"
+    assert contract["review_policy"]["renewal_requires_approval"] is True
+    assert contract["renewal"]["max_renewals"] == 1
+    assert contract["closure"]["closure_state"] == "not_closed"
+    assert contract["redaction"]["private_justification_included"] is False
+    assert contract["enterprise_boundaries"]["exception_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_exception_lifecycle_public_sample_matches_packaged_schema() -> None:
+    lifecycle_schema = Path("src/cavra/schemas/aispm-report-exception-lifecycle.schema.json")
+    sample = Path("examples/aispm/enterprise-report-exception-lifecycle-public.example.json")
+
+    assert lifecycle_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(lifecycle_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["lifecycle_events"][1]["event_type"] == "review_scheduled"
+    assert payload["review_policy"]["closure_requires_evidence"] is True
+    assert payload["evidence"]["evidence_refs"]
+    assert payload["redaction"]["recipient_addresses_included"] is False
+    assert payload["enterprise_boundaries"]["renewal_workflow"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_evidence_room_contract_matches_packaged_schema() -> None:
+    room_schema = Path("src/cavra/schemas/aispm-report-evidence-room.schema.json")
+    contract = build_aispm_report_evidence_room_contract()
+
+    assert room_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(room_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["room"]["status"] == "active"
+    assert contract["access_scope"]["mfa_required"] is True
+    assert contract["controls"]["access_log_required"] is True
+    assert contract["redaction"]["download_urls_included"] is False
+    assert contract["enterprise_boundaries"]["evidence_room_portal"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_evidence_room_public_sample_matches_packaged_schema() -> None:
+    room_schema = Path("src/cavra/schemas/aispm-report-evidence-room.schema.json")
+    sample = Path("examples/aispm/enterprise-report-evidence-room-public.example.json")
+
+    assert room_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(room_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["artifacts"][0]["watermark_required"] is True
+    assert payload["controls"]["time_limited_links"] is True
+    assert payload["access_log"]["evidence_refs"]
+    assert payload["redaction"]["auditor_identity_included"] is False
+    assert payload["enterprise_boundaries"]["immutable_access_log"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_evidence_room_access_event_contract_matches_packaged_schema() -> None:
+    event_schema = Path("src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json")
+    contract = build_aispm_report_evidence_room_access_event_contract()
+
+    assert event_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(event_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["event"]["event_type"] == "download"
+    assert contract["access_decision"]["decision"] == "allow"
+    assert contract["controls"]["immutable_audit_required"] is True
+    assert contract["redaction"]["download_urls_included"] is False
+    assert contract["enterprise_boundaries"]["immutable_access_event_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_evidence_room_access_event_public_sample_matches_packaged_schema() -> None:
+    event_schema = Path("src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json")
+    sample = Path("examples/aispm/enterprise-report-evidence-room-access-event-public.example.json")
+
+    assert event_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(event_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["actor"]["identity_redacted"] is True
+    assert payload["actor"]["ip_address_redacted"] is True
+    assert payload["artifacts"][0]["watermark_applied"] is True
+    assert payload["integrity"]["evidence_refs"]
+    assert payload["redaction"]["auditor_identity_included"] is False
+    assert payload["enterprise_boundaries"]["signed_download_links"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_incident_packet_contract_matches_packaged_schema() -> None:
+    packet_schema = Path("src/cavra/schemas/aispm-report-incident-packet.schema.json")
+    contract = build_aispm_report_incident_packet_contract()
+
+    assert packet_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(packet_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["incident"]["incident_type"] == "evidence_room_access_review"
+    assert contract["related_records"]["access_event_refs"]
+    assert contract["controls"]["chain_of_custody_required"] is True
+    assert contract["redaction"]["raw_report_content_included"] is False
+    assert contract["enterprise_boundaries"]["incident_packet_builder"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_incident_packet_public_sample_matches_packaged_schema() -> None:
+    packet_schema = Path("src/cavra/schemas/aispm-report-incident-packet.schema.json")
+    sample = Path("examples/aispm/enterprise-report-incident-packet-public.example.json")
+
+    assert packet_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(packet_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["incident"]["status"] == "under_review"
+    assert payload["review"]["approval_required"] is True
+    assert payload["evidence"]["evidence_refs"]
+    assert payload["redaction"]["auditor_identity_included"] is False
+    assert payload["redaction"]["download_urls_included"] is False
+    assert payload["enterprise_boundaries"]["immutable_incident_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_incident_closure_contract_matches_packaged_schema() -> None:
+    closure_schema = Path("src/cavra/schemas/aispm-report-incident-closure.schema.json")
+    contract = build_aispm_report_incident_closure_contract()
+
+    assert closure_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(closure_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["incident"]["final_status"] == "closed"
+    assert contract["closure_approval"]["decision"] == "approved"
+    assert contract["controls"]["immutable_closure_required"] is True
+    assert contract["redaction"]["approver_identity_included"] is False
+    assert contract["enterprise_boundaries"]["closure_workflow"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_incident_closure_public_sample_matches_packaged_schema() -> None:
+    closure_schema = Path("src/cavra/schemas/aispm-report-incident-closure.schema.json")
+    sample = Path("examples/aispm/enterprise-report-incident-closure-public.example.json")
+
+    assert closure_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(closure_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["remediation"]["actions"][0]["status"] == "completed"
+    assert payload["lessons_learned"]["control_updates"]
+    assert payload["follow_up_tasks"][0]["evidence_required"] is True
+    assert payload["redaction"]["raw_report_content_included"] is False
+    assert payload["enterprise_boundaries"]["immutable_closure_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_kpi_metrics_contract_matches_packaged_schema() -> None:
+    metrics_schema = Path("src/cavra/schemas/aispm-report-kpi-metrics.schema.json")
+    contract = build_aispm_report_kpi_metrics_contract()
+
+    assert metrics_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(metrics_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["summary"]["audit_readiness_score"] == 0.91
+    assert contract["delivery_health"]["failed_deliveries"] == 3
+    assert contract["controls"]["tenant_aggregated"] is True
+    assert contract["redaction"]["tenant_drilldown_records_included"] is False
+    assert contract["enterprise_boundaries"]["metrics_aggregation_worker"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_kpi_metrics_public_sample_matches_packaged_schema() -> None:
+    metrics_schema = Path("src/cavra/schemas/aispm-report-kpi-metrics.schema.json")
+    sample = Path("examples/aispm/enterprise-report-kpi-metrics-public.example.json")
+
+    assert metrics_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(metrics_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["window"]["grain"] == "weekly"
+    assert payload["approval_latency"]["breached_slo_count"] == 1
+    assert payload["evidence_room_access"]["watermarked_downloads"] == 6
+    assert payload["redaction"]["payload_handling"] == "aggregate_metrics_only"
+    assert payload["enterprise_boundaries"]["dashboard_projection"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_escalation_contract_matches_packaged_schema() -> None:
+    alert_schema = Path("src/cavra/schemas/aispm-report-alert-escalation.schema.json")
+    contract = build_aispm_report_alert_escalation_contract()
+
+    assert alert_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(alert_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["alert_policy"]["requires_acknowledgement"] is True
+    assert contract["evaluations"][1]["severity"] == "critical"
+    assert contract["routing"]["recipient_addresses_redacted"] is True
+    assert contract["controls"]["derived_from_kpi_metrics"] is True
+    assert contract["redaction"]["tenant_drilldown_records_included"] is False
+    assert contract["enterprise_boundaries"]["alert_evaluator"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_escalation_public_sample_matches_packaged_schema() -> None:
+    alert_schema = Path("src/cavra/schemas/aispm-report-alert-escalation.schema.json")
+    sample = Path("examples/aispm/enterprise-report-alert-escalation-public.example.json")
+
+    assert alert_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(alert_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["trigger_rules"][0]["rule_id"] == "failed-delivery-spike"
+    assert payload["evaluations"][2]["status"] == "suppressed"
+    assert payload["escalation"]["current_level"] == 2
+    assert payload["acknowledgement"]["ack_status"] == "pending"
+    assert payload["incident_linkage"]["closure_required"] is True
+    assert payload["redaction"]["payload_handling"] == "metadata_and_aggregate_metrics_only"
+    assert payload["enterprise_boundaries"]["notification_delivery"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_operations_dashboard_contract_matches_packaged_schema() -> None:
+    dashboard_schema = Path("src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json")
+    contract = build_aispm_report_alert_operations_dashboard_contract()
+
+    assert dashboard_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["dashboard"]["status"] == "degraded"
+    assert contract["dashboard"]["overdue_acknowledgements"] == 2
+    assert contract["queues"][3]["status"] == "breached"
+    assert contract["active_alerts"][0]["severity"] == "critical"
+    assert contract["controls"]["derived_from_alert_events"] is True
+    assert contract["redaction"]["operator_identity_included"] is False
+    assert contract["enterprise_boundaries"]["dashboard_projection"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_operations_dashboard_public_sample_matches_packaged_schema() -> None:
+    dashboard_schema = Path("src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json")
+    sample = Path("examples/aispm/enterprise-report-alert-operations-dashboard-public.example.json")
+
+    assert dashboard_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["dashboard"]["critical_open"] == 1
+    assert payload["acknowledgement_slos"]["overdue_count"] == 2
+    assert payload["suppression_summary"]["suppression_audit_coverage"] == 1.0
+    assert payload["incident_linkage_health"]["unlinked_alerts"] == 1
+    assert payload["routing_health"][1]["status"] == "degraded"
+    assert payload["redaction"]["payload_handling"] == "alert_operations_metadata_only"
+    assert payload["enterprise_boundaries"]["routing_health_checks"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_drilldown_contract_matches_packaged_schema() -> None:
+    drilldown_schema = Path("src/cavra/schemas/aispm-report-alert-drilldown.schema.json")
+    contract = build_aispm_report_alert_drilldown_contract()
+
+    assert drilldown_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(drilldown_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["alert"]["severity"] == "critical"
+    assert contract["timeline"][2]["event_type"] == "escalated"
+    assert contract["acknowledgement_history"][1]["status"] == "overdue"
+    assert contract["linked_incident"]["closure_required"] is True
+    assert contract["controls"]["timeline_ordered"] is True
+    assert contract["redaction"]["operator_identity_included"] is False
+    assert contract["enterprise_boundaries"]["drilldown_projection"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_drilldown_public_sample_matches_packaged_schema() -> None:
+    drilldown_schema = Path("src/cavra/schemas/aispm-report-alert-drilldown.schema.json")
+    sample = Path("examples/aispm/enterprise-report-alert-drilldown-public.example.json")
+
+    assert drilldown_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(drilldown_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["alert"]["rule_id"] == "evidence-room-suspicious-access"
+    assert payload["routing"][1]["channel"] == "itsm"
+    assert payload["suppression_history"][0]["reason_code"] == "duplicate_signal"
+    assert payload["escalation_path"]["next_level"] == 3
+    assert payload["evidence_chain"]["timeline_digest_ref"]
+    assert payload["redaction"]["payload_handling"] == "single_alert_metadata_only"
+    assert payload["enterprise_boundaries"]["timeline_event_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_remediation_plan_contract_matches_packaged_schema() -> None:
+    plan_schema = Path("src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json")
+    contract = build_aispm_report_alert_remediation_plan_contract()
+
+    assert plan_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(plan_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["contract_visibility"] == "public_contract"
+    assert contract["plan"]["priority"] == "critical"
+    assert contract["tasks"][0]["status"] == "completed"
+    assert contract["approval_requirements"][1]["approval_type"] == "plan_closure"
+    assert contract["closure_criteria"]["post_incident_review_required"] is True
+    assert contract["controls"]["approval_gates_enforced"] is True
+    assert contract["redaction"]["private_remediation_details_included"] is False
+    assert contract["enterprise_boundaries"]["remediation_workflow"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_remediation_plan_public_sample_matches_packaged_schema() -> None:
+    plan_schema = Path("src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json")
+    sample = Path("examples/aispm/enterprise-report-alert-remediation-plan-public.example.json")
+
+    assert plan_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(plan_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["scope"]["customer_records_redacted"] is True
+    assert payload["tasks"][1]["approval_required"] is True
+    assert payload["control_updates"][0]["update_type"] == "policy_threshold"
+    assert payload["communications"]["executive_update_required"] is True
+    assert payload["evidence"]["alert_drilldown_ref"]
+    assert payload["redaction"]["payload_handling"] == "remediation_metadata_only"
+    assert payload["enterprise_boundaries"]["immutable_plan_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_remediation_closure_contract_matches_packaged_schema() -> None:
+    closure_schema = Path("src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json")
+    contract = build_aispm_report_alert_remediation_closure_contract()
+
+    assert closure_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(closure_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["closure"]["final_status"] == "closed"
+    assert contract["residual_risk"]["accepted"] is True
+    assert contract["post_incident_review"]["completed"] is True
+    assert contract["controls"]["immutable_closure_required"] is True
+    assert contract["redaction"]["private_remediation_details_included"] is False
+    assert contract["enterprise_boundaries"]["closure_workflow"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_alert_remediation_closure_public_sample_matches_packaged_schema() -> None:
+    closure_schema = Path("src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json")
+    sample = Path("examples/aispm/enterprise-report-alert-remediation-closure-public.example.json")
+
+    assert closure_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(closure_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["completed_tasks"][0]["task_ref"] == "task:opaque-revoke-access"
+    assert payload["final_approvals"][0]["decision"] == "approved"
+    assert payload["control_updates"][0]["final_status"] == "completed"
+    assert payload["communications"]["executive_update_sent"] is True
+    assert payload["evidence"]["closure_digest_ref"]
+    assert payload["redaction"]["payload_handling"] == "remediation_closure_metadata_only"
+    assert payload["enterprise_boundaries"]["immutable_closure_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_remediation_closure_operations_dashboard_contract_matches_schema() -> None:
+    dashboard_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json"
+    )
+    contract = build_aispm_report_remediation_closure_operations_dashboard_contract()
+
+    assert dashboard_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["dashboard"]["status"] == "degraded"
+    assert contract["throughput"]["closure_rate"] == 0.82
+    assert contract["residual_risk_aging"]["overdue_reviews"] == 1
+    assert contract["closure_slo"]["at_risk_count"] == 4
+    assert contract["controls"]["slo_policy_enforced"] is True
+    assert contract["redaction"]["private_remediation_details_included"] is False
+    assert (
+        contract["enterprise_boundaries"]["closure_operations_projection"]
+        == "requires_cavra_enterprise"
+    )
+
+
+def test_aispm_report_remediation_closure_operations_dashboard_sample_matches_schema() -> None:
+    dashboard_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-remediation-closure-operations-dashboard-public.example.json"
+    )
+
+    assert dashboard_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["queues"][0]["queue"] == "closure_approval"
+    assert payload["approval_bottlenecks"][0]["approver_role"] == "ciso"
+    assert payload["post_incident_review_health"]["completion_rate"] == 0.83
+    assert payload["recent_closures"][0]["final_status"] == "closed"
+    assert payload["evidence"]["dashboard_digest_ref"]
+    assert payload["redaction"]["payload_handling"] == "remediation_closure_operations_metadata_only"
+    assert payload["enterprise_boundaries"]["slo_evaluator"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_remediation_closure_executive_digest_contract_matches_schema() -> None:
+    digest_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json"
+    )
+    contract = build_aispm_report_remediation_closure_executive_digest_contract()
+
+    assert digest_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(digest_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["digest"]["status"] == "attention_required"
+    assert contract["executive_summary"]["closure_readiness"] == "attention_required"
+    assert contract["metrics"]["closure_rate"] == 0.82
+    assert contract["audit_readiness"]["auditor_ready"] is False
+    assert contract["distribution"]["approval_required"] is True
+    assert contract["controls"]["executive_approval_required"] is True
+    assert contract["redaction"]["board_member_identity_included"] is False
+    assert contract["enterprise_boundaries"]["digest_renderer"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_remediation_closure_executive_digest_sample_matches_schema() -> None:
+    digest_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-remediation-closure-executive-digest-public.example.json"
+    )
+
+    assert digest_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(digest_schema.read_text(encoding="utf-8")),
+    )
+    assert "board" in payload["digest"]["audiences"]
+    assert payload["risk_summary"]["residual_risk_level"] == "medium"
+    assert payload["remediation_status"]["closure_slo_status"] == "degraded"
+    assert payload["board_talking_points"]
+    assert "signed_json" in payload["distribution"]["formats"]
+    assert payload["evidence"]["operations_dashboard_ref"]
+    assert payload["redaction"]["payload_handling"] == "remediation_closure_executive_digest_metadata_only"
+    assert payload["enterprise_boundaries"]["board_pack_renderer"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_remediation_closure_digest_distribution_contract_matches_schema() -> None:
+    distribution_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json"
+    )
+    contract = build_aispm_report_remediation_closure_digest_distribution_contract()
+
+    assert distribution_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(distribution_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["distribution"]["status"] == "approval_pending"
+    assert contract["approval"]["required_before_send"] is True
+    assert contract["recipient_governance"]["recipient_addresses_redacted"] is True
+    assert contract["delivery_status"][1]["status"] == "blocked_pending_approval"
+    assert contract["controls"]["immutable_send_evidence_required"] is True
+    assert contract["redaction"]["recipient_addresses_included"] is False
+    assert contract["enterprise_boundaries"]["send_worker"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_remediation_closure_digest_distribution_sample_matches_schema() -> None:
+    distribution_schema = Path(
+        "src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-remediation-closure-digest-distribution-public.example.json"
+    )
+
+    assert distribution_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(distribution_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["approval"]["status"] == "pending"
+    assert "email" in payload["delivery_plan"]["delivery_modes"]
+    assert payload["send_evidence"]["distribution_digest_ref"]
+    assert (
+        payload["redaction"]["payload_handling"]
+        == "remediation_closure_digest_distribution_metadata_only"
+    )
+    assert payload["enterprise_boundaries"]["delivery_audit_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_validation_packet_contract_matches_schema() -> None:
+    packet_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json"
+    )
+    contract = build_aispm_report_center_trial_validation_packet_contract()
+
+    assert packet_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(packet_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["validation_summary"]["status"] == "ready_for_evaluator_review"
+    assert contract["validation_summary"]["passed_paths"] == 10
+    assert contract["package_under_test"]["source_included"] is False
+    assert contract["controls"]["approval_before_send_verified"] is True
+    assert contract["redaction"]["source_code_included"] is False
+    assert contract["enterprise_boundaries"]["trial_license_service"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_validation_packet_sample_matches_schema() -> None:
+    packet_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-validation-packet-public.example.json"
+    )
+
+    assert packet_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(packet_schema.read_text(encoding="utf-8")),
+    )
+    path_ids = {item["path_id"] for item in payload["validation_paths"]}
+    assert "setup_wizard" in path_ids
+    assert "executive_digest_distribution" in path_ids
+    assert "revocation_and_retention" in path_ids
+    assert payload["controls"]["license_validated"] is True
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_validation_metadata_only"
+    assert payload["enterprise_boundaries"]["digest_distribution_worker"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_operator_dashboard_contract_matches_schema() -> None:
+    dashboard_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json"
+    )
+    contract = build_aispm_report_center_trial_operator_dashboard_readiness_contract()
+
+    assert dashboard_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["dashboard"]["status"] == "ready_for_operator_review"
+    assert contract["validation_rollup"]["handoff_ready"] is True
+    assert contract["approval_blockers"] == []
+    assert contract["operator_actions"][1]["requires_approval"] is True
+    assert contract["evaluator_handoff"]["package_access_state"] == "ready"
+    assert contract["redaction"]["evaluator_identity_included"] is False
+    assert contract["enterprise_boundaries"]["operator_dashboard_api"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_operator_dashboard_sample_matches_schema() -> None:
+    dashboard_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-operator-dashboard-readiness-public.example.json"
+    )
+
+    assert dashboard_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(dashboard_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["validation_rollup"]["passed_paths"] == 10
+    assert payload["path_status"][8]["operator_state"] == "review_recommended"
+    assert payload["evidence_links"][0]["status"] == "available"
+    assert payload["evaluator_handoff"]["support_state"] == "operator_review_pending"
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_operator_dashboard_metadata_only"
+    assert payload["enterprise_boundaries"]["support_queue"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_operator_api_view_model_contract_matches_schema() -> None:
+    api_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json"
+    )
+    contract = build_aispm_report_center_trial_operator_api_view_model_contract()
+
+    assert api_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(api_schema.read_text(encoding="utf-8")),
+    )
+    endpoint_ids = {endpoint["endpoint_id"] for endpoint in contract["api_surface"]["endpoints"]}
+    assert "get-dashboard" in endpoint_ids
+    assert "approve-handoff" in endpoint_ids
+    assert contract["view_model"]["route"] == "/operator/report-center/trial"
+    assert contract["controls"]["csrf_protection_required"] is True
+    assert contract["redaction"]["operator_identity_included"] is False
+    assert contract["enterprise_boundaries"]["operator_session_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_operator_api_view_model_sample_matches_schema() -> None:
+    api_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-operator-api-view-model-public.example.json"
+    )
+
+    assert api_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(api_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["api_surface"]["auth_required"] is True
+    assert payload["view_model"]["sections"][0]["section_id"] == "validation_rollup"
+    assert payload["view_model"]["primary_actions"][1]["endpoint_id"] == "approve-handoff"
+    assert payload["action_state_machine"]["transitions"][1]["trigger"] == "approve_evaluator_handoff"
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_operator_api_metadata_only"
+    assert payload["enterprise_boundaries"]["audit_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_evaluator_handoff_packet_contract_matches_schema() -> None:
+    handoff_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json"
+    )
+    contract = build_aispm_report_center_trial_evaluator_handoff_packet_contract()
+
+    assert handoff_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(handoff_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["evaluator_experience"]["state"] == "ready_for_evaluator"
+    assert contract["package_access"]["access_status"] == "ready"
+    assert contract["package_access"]["download_urls_included"] is False
+    assert contract["license_status"]["status"] == "active"
+    assert contract["revocation"]["blocked_after_revocation"] is True
+    assert contract["redaction"]["license_key_included"] is False
+    assert contract["enterprise_boundaries"]["trial_portal"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_evaluator_handoff_packet_sample_matches_schema() -> None:
+    handoff_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-evaluator-handoff-packet-public.example.json"
+    )
+
+    assert handoff_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(handoff_schema.read_text(encoding="utf-8")),
+    )
+    step_ids = {step["step_id"] for step in payload["evaluator_experience"]["steps"]}
+    assert "pull-trial-package" in step_ids
+    assert payload["package_access"]["image_ref_redacted"] is True
+    assert payload["license_status"]["license_key_included"] is False
+    assert payload["support"]["channels"][0]["contact_detail_included"] is False
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_evaluator_handoff_metadata_only"
+    assert payload["enterprise_boundaries"]["revocation_service"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_revocation_expiry_evidence_contract_matches_schema() -> None:
+    revocation_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json"
+    )
+    contract = build_aispm_report_center_trial_revocation_expiry_evidence_contract()
+
+    assert revocation_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(revocation_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["revocation_expiry"]["state"] == "revoked"
+    assert contract["access_state"]["license_state"] == "revoked"
+    assert contract["operator_summary"]["blocked_checks"] == 5
+    assert contract["controls"]["license_block_verified"] is True
+    assert contract["redaction"]["download_urls_included"] is False
+    assert contract["enterprise_boundaries"]["revocation_service"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_revocation_expiry_evidence_sample_matches_schema() -> None:
+    revocation_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-revocation-expiry-evidence-public.example.json"
+    )
+
+    assert revocation_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(revocation_schema.read_text(encoding="utf-8")),
+    )
+    check_ids = {check["check_id"] for check in payload["blocked_access_checks"]}
+    assert "license_validation" in check_ids
+    assert "package_pull" in check_ids
+    assert "support_handoff" in check_ids
+    assert payload["operator_summary"]["evidence_ready"] is True
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_revocation_expiry_metadata_only"
+    assert payload["enterprise_boundaries"]["audit_store"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_lab_notebook_outline_contract_matches_schema() -> None:
+    notebook_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json"
+    )
+    contract = build_aispm_report_center_trial_lab_notebook_outline_contract()
+
+    assert notebook_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(notebook_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["notebook"]["publication_target"] == "github_wiki"
+    assert contract["notebook"]["public_safe"] is True
+    assert contract["publishing"]["requires_screenshots"] is True
+    assert contract["controls"]["enterprise_source_excluded"] is True
+    assert contract["redaction"]["source_code_included"] is False
+    assert contract["enterprise_boundaries"]["wiki_publication_workflow"] == "public_docs_only"
+
+
+def test_aispm_report_center_trial_lab_notebook_outline_sample_matches_schema() -> None:
+    notebook_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-lab-notebook-outline-public.example.json"
+    )
+
+    assert notebook_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(notebook_schema.read_text(encoding="utf-8")),
+    )
+    chapter_ids = {chapter["chapter_id"] for chapter in payload["chapters"]}
+    assert "trial-access" in chapter_ids
+    assert "closeout" in chapter_ids
+    lab_ids = {lab["lab_id"] for lab in payload["labs"]}
+    assert "lab-revocation-expiry" in lab_ids
+    assert payload["visual_assets"][0]["public_safe"] is True
+    assert payload["redaction"]["payload_handling"] == "report_center_trial_lab_notebook_outline_metadata_only"
+    assert payload["enterprise_boundaries"]["private_lab_fixtures"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_lab_notebook_publication_readiness_contract_matches_schema() -> None:
+    readiness_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json"
+    )
+    contract = build_aispm_report_center_trial_lab_notebook_publication_readiness_contract()
+
+    assert readiness_schema.is_file()
+    jsonschema.validate(
+        contract,
+        schema=json.loads(readiness_schema.read_text(encoding="utf-8")),
+    )
+    assert contract["publication_readiness"]["target"] == "github_wiki"
+    assert contract["publication_readiness"]["requires_no_private_artifacts"] is True
+    assert contract["controls"]["wiki_nav_required"] is True
+    assert contract["controls"]["link_health_required"] is True
+    assert contract["redaction"]["download_urls_included"] is False
+    assert contract["enterprise_boundaries"]["private_screenshot_capture"] == "requires_cavra_enterprise"
+
+
+def test_aispm_report_center_trial_lab_notebook_publication_readiness_sample_matches_schema() -> None:
+    readiness_schema = Path(
+        "src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json"
+    )
+    sample = Path(
+        "examples/aispm/enterprise-report-center-trial-lab-notebook-publication-readiness-public.example.json"
+    )
+
+    assert readiness_schema.is_file()
+    assert sample.is_file()
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    jsonschema.validate(
+        payload,
+        schema=json.loads(readiness_schema.read_text(encoding="utf-8")),
+    )
+    assert payload["outline_contract_ref"].endswith("trial-lab-notebook-outline.schema.json")
+    assert {page["page_id"] for page in payload["wiki_pages"]} == {
+        "trial-lab-overview",
+        "trial-access-flow",
+        "trial-closeout",
+    }
+    wiki_home = Path("docs/wiki/Home.md").read_text(encoding="utf-8")
+    for page in payload["wiki_pages"]:
+        source_ref = Path(page["source_ref"])
+        assert source_ref.is_file()
+        assert source_ref.name in wiki_home
+    assert {asset["asset_type"] for asset in payload["visual_assets"]} >= {
+        "screenshot",
+        "diagram",
+        "flow_chart",
+    }
+    assert payload["redaction"]["payload_handling"] == (
+        "report_center_trial_lab_notebook_publication_readiness_metadata_only"
+    )
+    assert payload["enterprise_boundaries"]["wiki_publication_workflow"] == "public_docs_only"
 
 
 def test_aispm_approval_lineage_redacts_human_actors(tmp_path: Path) -> None:

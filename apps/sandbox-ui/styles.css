@@ -174,10 +174,12 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 .status-line { color: var(--muted); min-height: 22px; }
 .hero .status-line { color: #dbeafe; }
-.hero-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 24px; max-width: 900px; }
-.metric-card, .metric-source { border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 14px; background: var(--panel); backdrop-filter: blur(12px); min-height: 94px; }
+.hero-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 12px; margin-top: 24px; max-width: min(100%, 940px); }
+.metric-card, .metric-source { min-width: 0; border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 14px; background: var(--panel); backdrop-filter: blur(12px); min-height: 118px; overflow: hidden; }
 .metric-card span, .metric-source span, .feature-card span, .stat-grid span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 900; letter-spacing: .06em; }
 .metric-card strong, .metric-source strong { display: block; margin-top: 8px; font-size: 24px; }
+.metric-card span, .metric-card small { overflow-wrap: anywhere; line-height: 1.25; }
+.metric-card small { display: block; margin-top: 6px; color: var(--text); font-size: 14px; }
 
 .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
 .operator-path-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
@@ -192,6 +194,194 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .posture-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 18px; }
 .posture-panel { border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 18px; background: var(--panel); margin-top: 18px; scroll-margin-top: 96px; }
 .posture-layout .posture-panel { margin-top: 0; }
+.aispm-trial-readiness-panel { display: grid; gap: 14px; }
+.trial-readiness-checklist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.trial-readiness-item { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; min-height: 146px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: var(--panel-soft); }
+.trial-readiness-item strong { display: block; margin-top: 8px; font-size: 18px; overflow-wrap: anywhere; }
+.trial-readiness-item p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; }
+.trial-readiness-item a { flex: 0 0 auto; padding: 8px 10px; font-size: 13px; }
+.aispm-evaluator-handoff-panel { display: grid; gap: 14px; }
+.evaluator-handoff-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.evaluator-handoff-card { min-height: 138px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--surface) 64%, transparent); }
+.evaluator-handoff-card span { display: block; color: var(--accent); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; }
+.evaluator-handoff-card strong { display: block; margin-top: 8px; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.evaluator-handoff-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; }
+.aispm-trial-journey-panel { display: grid; gap: 14px; }
+.trial-journey-timeline { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+.trial-journey-step { position: relative; min-height: 176px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: var(--panel-soft); overflow: hidden; }
+.trial-journey-step::after { content: ""; position: absolute; top: 28px; right: -10px; width: 20px; height: 2px; background: color-mix(in srgb, var(--primary) 55%, transparent); }
+.trial-journey-step:last-child::after { display: none; }
+.trial-journey-step > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--text); font-weight: 950; }
+.trial-journey-step strong { display: block; margin-top: 12px; font-size: 17px; line-height: 1.2; overflow-wrap: anywhere; }
+.trial-journey-step p { margin: 8px 0; color: var(--muted); line-height: 1.4; }
+.trial-journey-step small { color: var(--accent); font-weight: 850; overflow-wrap: anywhere; }
+.aispm-trial-closeout-panel { display: grid; gap: 14px; }
+.trial-closeout-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.trial-closeout-card { min-height: 158px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--panel-soft) 88%, transparent); }
+.trial-closeout-card strong { display: block; margin-top: 10px; font-size: 18px; overflow-wrap: anywhere; }
+.trial-closeout-card p { margin: 8px 0; color: var(--muted); line-height: 1.45; }
+.trial-closeout-card small { color: var(--accent); font-weight: 850; overflow-wrap: anywhere; }
+.aispm-trial-feedback-panel { display: grid; gap: 14px; }
+.trial-feedback-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.trial-feedback-card { min-height: 164px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--surface) 62%, transparent); }
+.trial-feedback-card span { display: block; color: var(--accent); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; overflow-wrap: anywhere; }
+.trial-feedback-card strong { display: block; margin-top: 9px; font-size: 18px; overflow-wrap: anywhere; }
+.trial-feedback-card p { margin: 8px 0; color: var(--muted); line-height: 1.45; }
+.trial-feedback-card small { color: var(--muted); font-weight: 850; overflow-wrap: anywhere; }
+.aispm-trial-outcome-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--success) 35%, var(--line)); }
+.trial-outcome-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.trial-outcome-card { min-height: 148px; border: 1px solid color-mix(in srgb, var(--success) 32%, var(--line)); border-radius: 8px; padding: 14px; background: linear-gradient(145deg, color-mix(in srgb, var(--success) 9%, var(--panel-soft)), color-mix(in srgb, var(--surface) 62%, transparent)); }
+.trial-outcome-card span { display: block; color: var(--accent); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; }
+.trial-outcome-card strong { display: block; margin-top: 8px; font-size: 24px; overflow-wrap: anywhere; }
+.trial-outcome-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; }
+.aispm-trial-integrity-panel { display: grid; gap: 14px; }
+.trial-integrity-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.trial-integrity-card { min-height: 146px; border: 1px dashed color-mix(in srgb, var(--primary) 36%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--primary) 6%, var(--panel-soft)); }
+.trial-integrity-card span { display: block; color: var(--accent); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; }
+.trial-integrity-card strong { display: block; margin-top: 8px; font-size: 20px; overflow-wrap: anywhere; }
+.trial-integrity-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.aispm-procurement-readiness-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--warning) 32%, var(--line)); }
+.procurement-readiness-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.procurement-readiness-card { min-height: 168px; border: 1px solid color-mix(in srgb, var(--warning) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 6%, var(--panel-soft)); }
+.procurement-readiness-card span { display: block; color: var(--accent); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; overflow-wrap: anywhere; }
+.procurement-readiness-card strong { display: block; margin-top: 9px; font-size: 18px; overflow-wrap: anywhere; }
+.procurement-readiness-card p { margin: 8px 0; color: var(--muted); line-height: 1.45; }
+.procurement-readiness-card small { color: var(--muted); font-weight: 850; overflow-wrap: anywhere; }
+.aispm-pilot-scope-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--success) 30%, var(--line)); }
+.pilot-scope-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pilot-scope-card { min-height: 168px; border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--success) 6%, var(--panel-soft)); }
+.pilot-scope-card span { display: block; color: var(--accent); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; overflow-wrap: anywhere; }
+.pilot-scope-card strong { display: block; margin-top: 9px; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-scope-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.45; }
+.aispm-pilot-approval-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--primary) 32%, var(--line)); }
+.pilot-approval-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pilot-approval-card { display: grid; gap: 8px; align-content: start; min-height: 162px; border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--primary) 7%, var(--panel-soft)); }
+.pilot-approval-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-approval-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.pilot-approval-card small { color: var(--accent); font-weight: 900; overflow-wrap: anywhere; }
+.aispm-pilot-launch-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--success) 34%, var(--line)); }
+.pilot-launch-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pilot-launch-card { display: grid; gap: 8px; align-content: start; min-height: 172px; border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--success) 6%, var(--panel-soft)); }
+.pilot-launch-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-launch-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.pilot-launch-card small { color: var(--accent); font-weight: 900; overflow-wrap: anywhere; }
+.aispm-pilot-evidence-room-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--primary) 32%, var(--line)); }
+.pilot-evidence-room-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pilot-evidence-room-card { display: grid; gap: 8px; align-content: start; min-height: 182px; border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--primary) 6%, var(--panel-soft)); }
+.pilot-evidence-room-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-evidence-room-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.pilot-evidence-room-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.aispm-evidence-reviewer-checklist-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--success) 34%, var(--line)); }
+.evidence-reviewer-checklist-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.evidence-reviewer-checklist-card { display: grid; gap: 8px; align-content: start; min-height: 176px; border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--success) 6%, var(--panel-soft)); }
+.evidence-reviewer-checklist-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.evidence-reviewer-checklist-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.evidence-reviewer-checklist-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.aispm-pilot-exception-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--warning) 36%, var(--line)); }
+.pilot-exception-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pilot-exception-card { display: grid; gap: 8px; align-content: start; min-height: 188px; border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 7%, var(--panel-soft)); }
+.exception-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.exception-card-heading code { color: var(--accent); font-weight: 900; overflow-wrap: anywhere; }
+.pilot-exception-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-exception-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.pilot-exception-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.aispm-risk-acceptance-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--danger) 34%, var(--line)); }
+.risk-acceptance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.risk-acceptance-card { display: grid; gap: 8px; align-content: start; min-height: 158px; border: 1px solid color-mix(in srgb, var(--danger) 26%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--danger) 6%, var(--panel-soft)); }
+.risk-acceptance-card strong { display: block; font-size: 22px; line-height: 1.2; overflow-wrap: anywhere; }
+.risk-acceptance-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.aispm-board-pack-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--success) 34%, var(--line)); }
+.board-pack-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.board-pack-manifest-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.board-pack-card { display: grid; gap: 8px; align-content: start; min-height: 178px; border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--success) 6%, var(--panel-soft)); }
+.board-pack-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.board-pack-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.board-pack-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.board-pack-manifest-card { display: grid; gap: 8px; align-content: start; min-height: 128px; border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--accent) 7%, var(--panel-soft)); }
+.board-pack-manifest-card strong { display: block; font-size: 20px; line-height: 1.2; overflow-wrap: anywhere; }
+.board-pack-manifest-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.board-pack-manifest-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.aispm-pilot-control-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--accent) 36%, var(--line)); }
+.pilot-control-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.pilot-control-card { display: grid; gap: 8px; align-content: start; min-height: 172px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--accent) 7%, var(--panel-soft)); }
+.pilot-control-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.pilot-control-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.pilot-control-card code { white-space: normal; overflow-wrap: anywhere; color: var(--accent); font-weight: 900; }
+.aispm-release-evidence-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--primary) 32%, var(--line)); }
+.release-evidence-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.release-evidence-manifest-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.release-evidence-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--primary) 7%, var(--panel-soft)); }
+.release-evidence-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.release-evidence-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.release-evidence-card small { color: var(--accent); font-weight: 900; line-height: 1.35; overflow-wrap: anywhere; }
+.release-evidence-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.release-evidence-links a { padding: 7px 10px; font-size: 13px; }
+.release-evidence-manifest-card { display: grid; gap: 8px; align-content: start; min-height: 132px; border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--accent) 7%, var(--panel-soft)); }
+.release-evidence-manifest-card strong { display: block; font-size: 20px; line-height: 1.2; overflow-wrap: anywhere; }
+.release-evidence-manifest-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.aispm-hosted-release-panel { display: grid; gap: 14px; border-color: color-mix(in srgb, var(--warning) 34%, var(--line)); }
+.hosted-release-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.hosted-release-checklist-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.hosted-release-status-card,
+.hosted-release-check-card { display: grid; gap: 8px; align-content: start; border: 1px solid color-mix(in srgb, var(--warning) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 7%, var(--panel-soft)); }
+.hosted-release-status-card { min-height: 132px; }
+.hosted-release-check-card { min-height: 188px; }
+.hosted-release-status-card strong,
+.hosted-release-check-card strong { display: block; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.hosted-release-status-card p,
+.hosted-release-check-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.hosted-release-check-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 80%, black); white-space: normal; overflow-wrap: anywhere; }
+.aispm-report-center-panel { display: grid; gap: 14px; }
+.report-center-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.report-card { display: grid; gap: 8px; align-content: start; min-height: 168px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--surface) 66%, transparent); }
+.report-card span { display: block; color: var(--accent); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; }
+.report-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-card button { align-self: end; width: fit-content; margin-top: 4px; }
+.report-card.is-locked { border-style: dashed; opacity: .86; background: color-mix(in srgb, var(--panel-soft) 80%, transparent); }
+.report-delivery-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .42fr) auto; gap: 12px; align-items: end; border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 6%, var(--panel)); }
+.report-delivery-panel h4 { margin: 0; }
+.report-delivery-panel p { margin: 5px 0 0; color: var(--muted); line-height: 1.45; }
+.report-delivery-panel label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.aispm-report-setup-panel { display: grid; gap: 14px; }
+.report-setup-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-setup-card { display: grid; gap: 8px; align-content: start; min-height: 196px; border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--primary) 6%, var(--panel-soft)); }
+.report-setup-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-setup-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-setup-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.report-setup-boundary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid color-mix(in srgb, var(--warning) 32%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 6%, var(--panel)); }
+.report-setup-boundary h4 { margin: 0; }
+.report-setup-boundary p { margin: 5px 0 0; color: var(--muted); line-height: 1.45; }
+.aispm-report-operations-panel { display: grid; gap: 14px; }
+.report-operations-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-operations-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--accent) 6%, var(--panel-soft)); }
+.report-operations-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-operations-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-operations-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.aispm-report-governance-panel { display: grid; gap: 14px; }
+.report-governance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-governance-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--success) 6%, var(--panel-soft)); }
+.report-governance-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-governance-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-governance-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.aispm-report-assurance-panel { display: grid; gap: 14px; }
+.report-assurance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-assurance-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--warning) 28%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--warning) 6%, var(--panel-soft)); }
+.report-assurance-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-assurance-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-assurance-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.aispm-report-response-panel { display: grid; gap: 14px; }
+.report-response-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-response-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--danger) 24%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--danger) 5%, var(--panel-soft)); }
+.report-response-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-response-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-response-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.aispm-report-trialops-panel { display: grid; gap: 14px; }
+.report-trialops-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.report-trialops-card { display: grid; gap: 8px; align-content: start; min-height: 214px; border: 1px solid color-mix(in srgb, var(--accent-2) 26%, var(--line)); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--accent-2) 6%, var(--panel-soft)); }
+.report-trialops-card strong { display: block; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.report-trialops-card p { margin: 0; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.report-trialops-card code { display: block; padding: 8px; border-radius: 6px; color: var(--text); background: color-mix(in srgb, var(--panel) 78%, black); white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
 .posture-card-grid { display: grid; gap: 12px; }
 .posture-list { display: grid; gap: 10px; }
 .finding-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 8px; padding: 12px; background: var(--panel-soft); }
@@ -410,6 +600,20 @@ h1 { margin: 0; font-size: clamp(58px, 8vw, 118px); line-height: .88; letter-spa
 .ci-gate-summary-card strong { display: block; margin-top: 5px; text-transform: capitalize; }
 .ci-gate-summary-card code { display: block; margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
 .ci-gate-summary-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.4; }
+.ci-gate-auditor-panel { display: grid; gap: 12px; margin: 14px 0; padding: 14px; border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--line)); border-radius: 8px; background: color-mix(in srgb, var(--primary) 5%, var(--panel)); }
+.ci-gate-auditor-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ci-gate-auditor-header h4 { margin: 0; }
+.ci-gate-auditor-header p { margin: 4px 0 0; color: var(--muted); line-height: 1.45; }
+.ci-gate-auditor-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ci-gate-auditor-grid article, .ci-gate-auditor-finding { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: color-mix(in srgb, var(--surface) 68%, transparent); }
+.ci-gate-auditor-grid span, .ci-gate-auditor-finding span { display: block; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.ci-gate-auditor-grid strong, .ci-gate-auditor-finding strong { display: block; margin-top: 5px; overflow-wrap: anywhere; }
+.ci-gate-auditor-finding strong { text-transform: capitalize; }
+.ci-gate-auditor-grid p, .ci-gate-auditor-finding p { margin: 8px 0 0; color: var(--muted); line-height: 1.4; }
+.ci-gate-auditor-findings { display: grid; gap: 10px; }
+.ci-gate-auditor-finding { display: grid; grid-template-columns: minmax(190px, .35fr) minmax(180px, .3fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.ci-gate-auditor-finding code { white-space: pre-wrap; word-break: break-word; }
+.ci-gate-auditor-conclusion { border-left: 4px solid var(--success); padding: 12px 14px; background: color-mix(in srgb, var(--success) 7%, var(--panel)); color: var(--text); font-weight: 850; line-height: 1.45; }
 
 .architecture-workbench { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
 .architecture-map { min-height: 520px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: center; border: 1px solid color-mix(in srgb, var(--line) 80%, transparent); border-radius: 8px; padding: 18px; background: var(--panel); }
@@ -488,14 +692,15 @@ th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spa
   .hero-product-mark { width: 108px; }
   .hero-copy { padding-right: 0; }
   h1 { font-size: 58px; }
-  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .replay-policy-list, .review-checklist, .pr-guidance-grid, .ci-gate-grid, .ci-gate-summary-grid, .fingerprint-grid, .forecast-grid, .blast-radius-grid, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
+  .hero-metrics, .dashboard-grid, .integration-grid, .usecase-grid, .policy-grid, .posture-overview-grid, .posture-layout, .trace-summary-grid, .trace-replay-layout, .replay-policy-list, .review-checklist, .pr-guidance-grid, .ci-gate-grid, .ci-gate-summary-grid, .ci-gate-auditor-grid, .trial-readiness-checklist, .evaluator-handoff-grid, .trial-journey-timeline, .trial-closeout-grid, .trial-feedback-grid, .trial-outcome-grid, .trial-integrity-grid, .procurement-readiness-grid, .pilot-scope-grid, .pilot-approval-grid, .pilot-launch-grid, .pilot-evidence-room-grid, .evidence-reviewer-checklist-grid, .pilot-exception-grid, .risk-acceptance-grid, .board-pack-grid, .board-pack-manifest-grid, .pilot-control-grid, .release-evidence-grid, .release-evidence-manifest-grid, .hosted-release-status-grid, .hosted-release-checklist-grid, .report-center-grid, .report-delivery-panel, .report-setup-grid, .report-setup-boundary, .report-operations-grid, .report-governance-grid, .report-assurance-grid, .report-response-grid, .report-trialops-grid, .fingerprint-grid, .forecast-grid, .blast-radius-grid, .operator-path-grid, .trial-layout, .trial-form, .trial-card-grid, .stat-grid, .community-ga-grid, .pilot-readiness-grid, .architecture-workbench, .docs-layout, .roadmap-board { grid-template-columns: 1fr; }
+  .trial-journey-step::after { display: none; }
   .architecture-map { display: flex; overflow-x: auto; min-height: 240px; scroll-snap-type: x mandatory; }
   .arch-node { min-width: 230px; scroll-snap-align: start; }
   .node-inspector { position: static; }
-  .console-header, .review-workflow-header, .fixture-export-actions, .pr-guidance-header, .ci-gate-header, .ci-gate-summary-header { flex-direction: column; }
-  .review-workflow-header, .fixture-export-actions, .pr-guidance-header, .ci-gate-header, .ci-gate-summary-header { align-items: stretch; }
+  .console-header, .review-workflow-header, .fixture-export-actions, .pr-guidance-header, .ci-gate-header, .ci-gate-summary-header, .ci-gate-auditor-header { flex-direction: column; }
+  .review-workflow-header, .fixture-export-actions, .pr-guidance-header, .ci-gate-header, .ci-gate-summary-header, .ci-gate-auditor-header { align-items: stretch; }
   .action-buttons { justify-content: flex-start; }
-  .approval-lineage-row, .context-gap-row, .evidence-confidence-row, .evidence-freshness-row, .executive-narrative-grid, .intent-drift-row, .tool-edge-row, .tool-chain-layout { grid-template-columns: 1fr; }
+  .approval-lineage-row, .context-gap-row, .evidence-confidence-row, .evidence-freshness-row, .executive-narrative-grid, .intent-drift-row, .tool-edge-row, .tool-chain-layout, .ci-gate-auditor-finding { grid-template-columns: 1fr; }
   .replay-policy-card header { display: grid; justify-content: stretch; }
   .replay-policy-card header .severity { max-width: none; text-align: left; }
   .coverage-cell-grid { grid-template-columns: 1fr; }

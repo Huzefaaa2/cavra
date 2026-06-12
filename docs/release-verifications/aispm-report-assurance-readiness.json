@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.report_assurance_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_report_assurance_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-assurance-readiness-packet.json",
+  "validator": "scripts/validate-aispm-report-assurance-readiness.py",
+  "assurance_areas": [
+    {
+      "area_id": "evidence_room_access_events",
+      "title": "Evidence Room Access Events",
+      "schema": "src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json",
+      "example": "examples/aispm/enterprise-report-evidence-room-access-event-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "incident_packet",
+      "title": "Incident Packet",
+      "schema": "src/cavra/schemas/aispm-report-incident-packet.schema.json",
+      "example": "examples/aispm/enterprise-report-incident-packet-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "incident_closure",
+      "title": "Incident Closure",
+      "schema": "src/cavra/schemas/aispm-report-incident-closure.schema.json",
+      "example": "examples/aispm/enterprise-report-incident-closure-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "kpi_metrics",
+      "title": "KPI Metrics",
+      "schema": "src/cavra/schemas/aispm-report-kpi-metrics.schema.json",
+      "example": "examples/aispm/enterprise-report-kpi-metrics-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "alert_escalation",
+      "title": "Alert Escalation",
+      "schema": "src/cavra/schemas/aispm-report-alert-escalation.schema.json",
+      "example": "examples/aispm/enterprise-report-alert-escalation-public.example.json",
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "enterprise_boundaries": {
+    "evidence_room_access_audit_store": "requires_cavra_enterprise",
+    "incident_packet_builder": "requires_cavra_enterprise",
+    "incident_closure_workflow": "requires_cavra_enterprise",
+    "tenant_kpi_metrics_store": "requires_cavra_enterprise",
+    "alert_escalation_workflow": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes public-safe schema names, example paths, and assurance readiness expectations only. It excludes auditor identities, approver identities, IP addresses, raw report content, private remediation details, tenant drilldown records, signed download URLs, customer records, Enterprise source code, private policy packs, and license secrets."
+}

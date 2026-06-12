@@ -1,0 +1,67 @@
+{
+  "schema_version": "cavra.aispm_v100_public_release_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "release": "CAVRA Community AISPM v1.0",
+  "status": "ready_for_pr_and_pages_deploy",
+  "portal_route": "https://huzefaaa2.github.io/cavra/#ai-posture",
+  "branch": "codex/aispm-v100-public-release",
+  "validator": "scripts/validate-aispm-v100-public-release.py",
+  "readiness_items": [
+    {
+      "item_id": "package_current_work",
+      "title": "Package current AISPM implementation work",
+      "status": "ready_for_pr",
+      "evidence": "git branch codex/aispm-v100-public-release"
+    },
+    {
+      "item_id": "github_pages_deploy",
+      "title": "Deploy GitHub Pages and capture post-deploy evidence",
+      "status": "workflow_enforced_after_merge",
+      "evidence": ".github/workflows/deploy-sandbox.yml"
+    },
+    {
+      "item_id": "release_notes_walkthrough",
+      "title": "Finalize release notes, README/wiki sync, and public walkthrough",
+      "status": "ready",
+      "evidence": "docs/releases/community-v1.0.0-aispm.md"
+    },
+    {
+      "item_id": "lab_notebook_assets",
+      "title": "Add final screenshots and diagrams for trial lab notebook",
+      "status": "ready",
+      "evidence": "docs/wiki/assets/aispm-lab/aispm-trial-flow.svg"
+    },
+    {
+      "item_id": "final_release_verification",
+      "title": "Run final release verification and announcement readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-release-evidence-index.json"
+    }
+  ],
+  "required_artifacts": [
+    "docs/releases/community-v1.0.0-aispm.md",
+    "docs/aispm-v1.0-public-walkthrough.md",
+    "docs/release-verifications/aispm-release-evidence-index.json",
+    "docs/release-verifications/aispm-launch-readiness-rollup.json",
+    "docs/release-verifications/aispm-pilot-control-readiness.json",
+    "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
+    "docs/wiki/assets/aispm-lab/dashboard-desktop-classic.png",
+    "docs/wiki/assets/aispm-lab/aispm-desktop-sentinel.png",
+    "docs/wiki/assets/aispm-lab/aispm-report-center-panel.png",
+    "docs/wiki/assets/aispm-lab/aispm-board-pack-panel.png",
+    "docs/wiki/assets/aispm-lab/aispm-trial-flow.svg"
+  ],
+  "validation_commands": [
+    "python scripts/validate-aispm-v100-public-release.py",
+    "python scripts/validate-sandbox-portal.py",
+    "python scripts/validate-aispm-release-evidence-index.py",
+    "python scripts/validate-aispm-launch-readiness.py",
+    "python scripts/validate-aispm-pilot-control-readiness.py",
+    "npm run validate:sandbox:visual",
+    "PYTHONPATH=src pytest -q tests"
+  ],
+  "announcement_state": "ready_after_pr_merge_and_pages_post_deploy_smoke",
+  "enterprise_boundary": "Full production Enterprise AISPM must be implemented in the private Huzefaaa2/cavra-enterprise repository. This public release includes Community functionality and public-safe Enterprise contracts only.",
+  "public_safety_boundary": "This release readiness packet excludes Enterprise source code, paid policy packs, private license-service internals, private signing keys, private registry credentials, package tokens, customer records, raw prompts, model reasoning, raw tool output, and tenant telemetry."
+}

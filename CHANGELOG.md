@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added Community AISPM v1.0 public release readiness with AISPM-specific
+  release notes, public walkthrough, lab notebook screenshots, trial flow
+  diagram, release readiness packet, validator, README/wiki links, and CI
+  enforcement through `scripts/validate-aispm-v100-public-release.py`.
+
 - Added an AISPM CI gate rollout audit packet export that bundles readiness
   JSON, rollout checklist metadata, platform outcomes, and public-safe
   evidence attachment names for auditor review.

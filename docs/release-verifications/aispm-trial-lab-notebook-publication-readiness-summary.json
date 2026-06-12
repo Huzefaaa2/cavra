@@ -1,0 +1,176 @@
+{
+  "acceptance_criteria": [
+    {
+      "blockers": [],
+      "criterion_id": "wiki_nav_complete",
+      "description": "Wiki navigation includes every required lab notebook page.",
+      "required": true,
+      "status": "ready"
+    },
+    {
+      "blockers": [],
+      "criterion_id": "assets_redacted",
+      "description": "Screenshots, diagrams, and flow charts contain only public-safe data.",
+      "required": true,
+      "status": "ready"
+    },
+    {
+      "blockers": [],
+      "criterion_id": "links_verified",
+      "description": "Public links and portal links are checked before publication.",
+      "required": true,
+      "status": "ready"
+    },
+    {
+      "blockers": [],
+      "criterion_id": "checkpoint_evidence_ready",
+      "description": "Each lab checkpoint has a public-safe evidence reference.",
+      "required": true,
+      "status": "ready"
+    }
+  ],
+  "blockers": [],
+  "counts": {
+    "acceptance_criteria": 4,
+    "acceptance_criteria_ready": 4,
+    "blockers": 0,
+    "pages_ready": 3,
+    "visual_assets": 4,
+    "visual_assets_ready": 4,
+    "wiki_pages": 3
+  },
+  "edition": "enterprise_trial",
+  "generated_at": "2026-06-12T13:00:00Z",
+  "navigation_checks": [
+    {
+      "location": "docs/wiki/Home.md",
+      "nav_id": "wiki-home-trial-lab-entry",
+      "required_page_ids": [
+        "trial-lab-overview",
+        "trial-access-flow",
+        "trial-closeout"
+      ],
+      "status": "ready"
+    }
+  ],
+  "overall_status": "ready",
+  "pages": [
+    {
+      "blockers": [],
+      "checkpoint_refs": [
+        "checkpoint-product-surfaces"
+      ],
+      "exists": true,
+      "listed_in_home": true,
+      "page_id": "trial-lab-overview",
+      "public_safety_sections_present": [
+        "## Public Safety Rules",
+        "## Related Pages"
+      ],
+      "source_ref": "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
+      "status": "ready",
+      "title": "CAVRA Enterprise Trial Lab Notebook",
+      "title_present": true
+    },
+    {
+      "blockers": [],
+      "checkpoint_refs": [
+        "checkpoint-trial-request",
+        "checkpoint-operator-approval"
+      ],
+      "exists": true,
+      "listed_in_home": true,
+      "page_id": "trial-access-flow",
+      "public_safety_sections_present": [
+        "## Public Safety Rules",
+        "## Related Pages"
+      ],
+      "source_ref": "docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md",
+      "status": "ready",
+      "title": "Trial Access And Operator Approval",
+      "title_present": true
+    },
+    {
+      "blockers": [],
+      "checkpoint_refs": [
+        "checkpoint-revocation-expiry"
+      ],
+      "exists": true,
+      "listed_in_home": true,
+      "page_id": "trial-closeout",
+      "public_safety_sections_present": [
+        "## Public Safety Rules",
+        "## Related Pages"
+      ],
+      "source_ref": "docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md",
+      "status": "ready",
+      "title": "Trial Revocation, Expiry, And Closeout",
+      "title_present": true
+    }
+  ],
+  "product": "CAVRA",
+  "public_safety": {
+    "forbidden_markers_checked": [
+      "CAVRA_TRIAL_LICENSE_PRIVATE_KEY",
+      "CAVRA_TRIAL_OPERATOR_SESSION_SECRET",
+      "CAVRA_TRIAL_PORTAL_OPERATOR_TOKEN",
+      "CAVRA_TRIAL_LICENSE_PRIVATE_KEY_PEM_B64",
+      "CAVRA_TRIAL_LICENSE_PUBLIC_KEY_PEM_B64",
+      "LICENSE_SIGNING_KEY",
+      "STRIPE_SECRET",
+      "CUSTOMER_SECRET",
+      "PRIVATE_POLICY_PACK",
+      "INTERNAL_ONLY"
+    ],
+    "required_sections": [
+      "## Public Safety Rules",
+      "## Related Pages"
+    ]
+  },
+  "schema_version": "cavra.aispm.trial_lab_notebook_publication_summary.v1",
+  "source_packet": "examples/aispm/enterprise-report-center-trial-lab-notebook-publication-readiness-public.example.json",
+  "source_schema": "src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json",
+  "visual_assets": [
+    {
+      "alt_text_required": true,
+      "asset_id": "screenshot-dashboard-home",
+      "asset_type": "screenshot",
+      "blockers": [],
+      "redaction_status": "public_safe",
+      "required": true,
+      "source_route": "https://huzefaaa2.github.io/cavra/#dashboard",
+      "status": "ready"
+    },
+    {
+      "alt_text_required": true,
+      "asset_id": "screenshot-trial-portal",
+      "asset_type": "screenshot",
+      "blockers": [],
+      "redaction_status": "public_safe",
+      "required": true,
+      "source_route": "https://cavra-trial.mind-ops.cloud/",
+      "status": "ready"
+    },
+    {
+      "alt_text_required": true,
+      "asset_id": "diagram-open-core-model",
+      "asset_type": "diagram",
+      "blockers": [],
+      "redaction_status": "public_safe",
+      "required": true,
+      "source_route": "docs/architecture/open-core-model.md",
+      "status": "ready"
+    },
+    {
+      "alt_text_required": true,
+      "asset_id": "flow-revocation-expiry",
+      "asset_type": "flow_chart",
+      "blockers": [],
+      "redaction_status": "public_safe",
+      "required": true,
+      "source_route": "docs/architecture/aispm-report-center.md",
+      "status": "ready"
+    }
+  ],
+  "wiki_home": "docs/wiki/Home.md"
+}
