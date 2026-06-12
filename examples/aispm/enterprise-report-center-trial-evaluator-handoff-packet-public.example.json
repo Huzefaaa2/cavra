@@ -1,0 +1,172 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_evaluator_handoff_packet.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T11:15:00Z",
+  "handoff_ref": "handoff:opaque-report-center-evaluator",
+  "trial_ref": "trial:opaque-report-center-evaluator",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "source_contract_refs": [
+    "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json",
+    "src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json",
+    "src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json"
+  ],
+  "evaluator_experience": {
+    "state": "ready_for_evaluator",
+    "welcome_title": "CAVRA Enterprise Trial",
+    "audience": [
+      "security_leader",
+      "platform_engineer",
+      "ai_governance_reviewer"
+    ],
+    "estimated_setup_minutes": 20,
+    "instructions_ref": "docs:enterprise-trial-report-center",
+    "steps": [
+      {
+        "step_id": "confirm-approval",
+        "title": "Confirm approved trial access",
+        "status": "ready",
+        "requires_operator": false,
+        "evidence_ref": "cavra://evidence/redacted/trial-access-approved"
+      },
+      {
+        "step_id": "authenticate-package-registry",
+        "title": "Authenticate to the package registry",
+        "status": "ready",
+        "requires_operator": false,
+        "evidence_ref": "cavra://evidence/redacted/package-registry-access-ready"
+      },
+      {
+        "step_id": "pull-trial-package",
+        "title": "Pull the Enterprise Trial package",
+        "status": "ready",
+        "requires_operator": false,
+        "evidence_ref": "cavra://evidence/redacted/trial-package-access-ready"
+      },
+      {
+        "step_id": "configure-license",
+        "title": "Configure trial license",
+        "status": "ready",
+        "requires_operator": false,
+        "evidence_ref": "cavra://evidence/redacted/trial-license-active"
+      },
+      {
+        "step_id": "run-first-validation",
+        "title": "Run the first validation scenario",
+        "status": "ready",
+        "requires_operator": false,
+        "evidence_ref": "cavra://evidence/redacted/report-center-validation-ready"
+      }
+    ]
+  },
+  "package_access": {
+    "provider": "ghcr",
+    "package_ref": "package:opaque-cavra-enterprise-trial",
+    "access_status": "ready",
+    "permissions_required": [
+      "read:packages"
+    ],
+    "image_ref_redacted": true,
+    "download_urls_included": false,
+    "package_token_included": false,
+    "access_expires_at": "2026-06-19T10:15:00Z"
+  },
+  "license_status": {
+    "license_ref": "license:opaque-enterprise-trial",
+    "status": "active",
+    "license_type": "trial",
+    "issued_at": "2026-06-12T10:15:00Z",
+    "expires_at": "2026-06-19T10:15:00Z",
+    "revocation_state": "not_revoked",
+    "license_key_included": false
+  },
+  "support": {
+    "support_state": "operator_review_pending",
+    "channels": [
+      {
+        "channel_id": "trial-portal",
+        "label": "Trial portal",
+        "status": "available",
+        "contact_detail_included": false
+      },
+      {
+        "channel_id": "email",
+        "label": "Email support",
+        "status": "available",
+        "contact_detail_included": false
+      }
+    ],
+    "response_slo": "next_business_day",
+    "support_ticket_ref": "support:opaque-trial-handoff"
+  },
+  "revocation": {
+    "revocation_supported": true,
+    "current_state": "not_revoked",
+    "revocation_ref": "revocation:opaque-report-center-trial",
+    "blocked_after_revocation": true,
+    "audit_event_required": true
+  },
+  "onboarding_checks": [
+    {
+      "check_id": "operator_approved",
+      "status": "passed",
+      "evidence_ref": "cavra://evidence/redacted/operator-handoff-approved"
+    },
+    {
+      "check_id": "package_access_ready",
+      "status": "passed",
+      "evidence_ref": "cavra://evidence/redacted/package-access-ready"
+    },
+    {
+      "check_id": "license_active",
+      "status": "passed",
+      "evidence_ref": "cavra://evidence/redacted/license-active"
+    },
+    {
+      "check_id": "validation_packet_available",
+      "status": "passed",
+      "evidence_ref": "cavra://evidence/redacted/validation-packet-available"
+    }
+  ],
+  "controls": {
+    "operator_approval_required": true,
+    "trial_license_required": true,
+    "package_access_gated": true,
+    "revocation_enforced": true,
+    "support_handoff_audited": true,
+    "evidence_refs_only": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "evaluator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "package_tokens_included": false,
+    "license_key_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_evaluator_handoff_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "trial_portal": "requires_cavra_enterprise",
+    "package_access_service": "requires_cavra_enterprise",
+    "license_service": "requires_cavra_enterprise",
+    "revocation_service": "requires_cavra_enterprise",
+    "support_queue": "requires_cavra_enterprise",
+    "audit_store": "requires_cavra_enterprise"
+  }
+}

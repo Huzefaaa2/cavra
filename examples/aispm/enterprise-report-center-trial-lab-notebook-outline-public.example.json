@@ -1,0 +1,287 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_lab_notebook_outline.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T12:15:00Z",
+  "notebook_ref": "wiki:aispm-enterprise-trial-lab-notebook",
+  "source_contract_refs": [
+    "src/cavra/schemas/aispm-dashboard.schema.json",
+    "src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json",
+    "src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json",
+    "src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json"
+  ],
+  "notebook": {
+    "title": "CAVRA Enterprise Trial Lab Notebook",
+    "audiences": [
+      "developer",
+      "platform_engineer",
+      "security_engineer",
+      "auditor",
+      "cso_ciso"
+    ],
+    "publication_target": "github_wiki",
+    "status": "outline_ready",
+    "estimated_duration_minutes": 180,
+    "requires_enterprise_trial": true,
+    "public_safe": true
+  },
+  "chapters": [
+    {
+      "chapter_id": "orientation",
+      "title": "Product Orientation",
+      "objective": "Understand CAVRA editions, AI-agent governance, and evidence boundaries.",
+      "labs": [
+        "lab-product-tour",
+        "lab-community-vs-enterprise"
+      ],
+      "required_assets": [
+        "diagram-open-core-model",
+        "screenshot-dashboard-home"
+      ]
+    },
+    {
+      "chapter_id": "trial-access",
+      "title": "Trial Access And Setup",
+      "objective": "Request, approve, and prepare a governed Enterprise Trial evaluation.",
+      "labs": [
+        "lab-request-trial",
+        "lab-operator-approval",
+        "lab-evaluator-handoff"
+      ],
+      "required_assets": [
+        "flow-trial-access",
+        "screenshot-trial-portal"
+      ]
+    },
+    {
+      "chapter_id": "agent-enforcement",
+      "title": "AI-Agent Enforcement",
+      "objective": "Run controlled agent actions and inspect allow, warn, block, and approval decisions.",
+      "labs": [
+        "lab-run-agent-scenario",
+        "lab-review-policy-decisions"
+      ],
+      "required_assets": [
+        "diagram-enforcement-flow",
+        "screenshot-policy-decision"
+      ]
+    },
+    {
+      "chapter_id": "aispm-dashboard",
+      "title": "AISPM Dashboard",
+      "objective": "Review posture, live activity, risk, timelines, and evidence confidence.",
+      "labs": [
+        "lab-cso-dashboard",
+        "lab-risk-drilldown",
+        "lab-evidence-freshness"
+      ],
+      "required_assets": [
+        "screenshot-aispm-dashboard",
+        "diagram-posture-data-flow"
+      ]
+    },
+    {
+      "chapter_id": "report-center",
+      "title": "CSO Report Center",
+      "objective": "Download Community reports and review Enterprise report-delivery governance.",
+      "labs": [
+        "lab-download-community-reports",
+        "lab-enterprise-report-governance"
+      ],
+      "required_assets": [
+        "screenshot-report-center",
+        "flow-report-approval"
+      ]
+    },
+    {
+      "chapter_id": "closeout",
+      "title": "Trial Closeout",
+      "objective": "Verify revocation, expiry, and public-safe closeout evidence.",
+      "labs": [
+        "lab-revocation-expiry",
+        "lab-closeout-evidence"
+      ],
+      "required_assets": [
+        "flow-revocation-expiry",
+        "screenshot-closeout-summary"
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "lab_id": "lab-product-tour",
+      "title": "Navigate the CAVRA product surfaces",
+      "role": "developer",
+      "phase": "orientation",
+      "expected_minutes": 15,
+      "verification_checkpoint": "checkpoint-product-surfaces",
+      "evidence_ref": "cavra://evidence/redacted/lab-product-tour"
+    },
+    {
+      "lab_id": "lab-request-trial",
+      "title": "Request Enterprise Trial access",
+      "role": "platform_engineer",
+      "phase": "trial-access",
+      "expected_minutes": 20,
+      "verification_checkpoint": "checkpoint-trial-request",
+      "evidence_ref": "cavra://evidence/redacted/lab-request-trial"
+    },
+    {
+      "lab_id": "lab-operator-approval",
+      "title": "Review and approve a trial request",
+      "role": "security_engineer",
+      "phase": "trial-access",
+      "expected_minutes": 20,
+      "verification_checkpoint": "checkpoint-operator-approval",
+      "evidence_ref": "cavra://evidence/redacted/lab-operator-approval"
+    },
+    {
+      "lab_id": "lab-run-agent-scenario",
+      "title": "Run a governed AI-agent scenario",
+      "role": "developer",
+      "phase": "agent-enforcement",
+      "expected_minutes": 25,
+      "verification_checkpoint": "checkpoint-agent-decision",
+      "evidence_ref": "cavra://evidence/redacted/lab-agent-scenario"
+    },
+    {
+      "lab_id": "lab-cso-dashboard",
+      "title": "Review the CSO/CISO posture view",
+      "role": "cso_ciso",
+      "phase": "aispm-dashboard",
+      "expected_minutes": 25,
+      "verification_checkpoint": "checkpoint-cso-dashboard",
+      "evidence_ref": "cavra://evidence/redacted/lab-cso-dashboard"
+    },
+    {
+      "lab_id": "lab-download-community-reports",
+      "title": "Download public-safe Community reports",
+      "role": "auditor",
+      "phase": "report-center",
+      "expected_minutes": 20,
+      "verification_checkpoint": "checkpoint-community-reports",
+      "evidence_ref": "cavra://evidence/redacted/lab-community-reports"
+    },
+    {
+      "lab_id": "lab-revocation-expiry",
+      "title": "Verify trial revocation and expiry enforcement",
+      "role": "security_engineer",
+      "phase": "closeout",
+      "expected_minutes": 25,
+      "verification_checkpoint": "checkpoint-revocation-expiry",
+      "evidence_ref": "cavra://evidence/redacted/lab-revocation-expiry"
+    }
+  ],
+  "visual_assets": [
+    {
+      "asset_id": "diagram-open-core-model",
+      "asset_type": "diagram",
+      "format": "png",
+      "status": "required",
+      "public_safe": true
+    },
+    {
+      "asset_id": "screenshot-aispm-dashboard",
+      "asset_type": "screenshot",
+      "format": "png",
+      "status": "required",
+      "public_safe": true
+    },
+    {
+      "asset_id": "flow-revocation-expiry",
+      "asset_type": "flow_chart",
+      "format": "png",
+      "status": "required",
+      "public_safe": true
+    }
+  ],
+  "verification_checkpoints": [
+    {
+      "checkpoint_id": "checkpoint-trial-request",
+      "expected_result": "trial_request_pending_or_approved",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-trial-request"
+    },
+    {
+      "checkpoint_id": "checkpoint-agent-decision",
+      "expected_result": "policy_decision_recorded",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-agent-decision"
+    },
+    {
+      "checkpoint_id": "checkpoint-revocation-expiry",
+      "expected_result": "trial_access_blocked_after_revocation",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-revocation-expiry"
+    }
+  ],
+  "role_paths": [
+    {
+      "role": "developer",
+      "recommended_labs": [
+        "lab-product-tour",
+        "lab-run-agent-scenario"
+      ]
+    },
+    {
+      "role": "auditor",
+      "recommended_labs": [
+        "lab-download-community-reports",
+        "lab-revocation-expiry"
+      ]
+    },
+    {
+      "role": "cso_ciso",
+      "recommended_labs": [
+        "lab-cso-dashboard",
+        "lab-download-community-reports"
+      ]
+    }
+  ],
+  "publishing": {
+    "target": "github_wiki",
+    "page_title": "CAVRA Enterprise Trial Lab Notebook",
+    "requires_screenshots": true,
+    "requires_diagrams": true,
+    "requires_flow_charts": true,
+    "requires_checkpoint_evidence": true,
+    "update_after_phase_completion": true
+  },
+  "controls": {
+    "public_safe_required": true,
+    "screenshots_redacted": true,
+    "diagram_sources_public_safe": true,
+    "checkpoint_evidence_required": true,
+    "enterprise_source_excluded": true,
+    "license_secret_excluded": true,
+    "customer_data_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "evaluator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "package_tokens_included": false,
+    "license_key_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_lab_notebook_outline_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "wiki_publication_workflow": "public_docs_only",
+    "trial_portal": "requires_cavra_enterprise",
+    "license_service": "requires_cavra_enterprise",
+    "package_access_service": "requires_cavra_enterprise",
+    "private_lab_fixtures": "requires_cavra_enterprise"
+  }
+}

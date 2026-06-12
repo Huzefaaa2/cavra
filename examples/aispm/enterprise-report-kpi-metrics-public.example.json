@@ -1,0 +1,97 @@
+{
+  "schema_version": "cavra.aispm.report_kpi_metrics.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T09:31:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "window": {
+    "window_ref": "metrics-window:opaque-weekly-board-pack",
+    "starts_at": "2026-06-04T00:00:00Z",
+    "ends_at": "2026-06-11T00:00:00Z",
+    "timezone": "UTC",
+    "grain": "weekly"
+  },
+  "summary": {
+    "reports_generated": 42,
+    "reports_delivered": 39,
+    "delivery_success_rate": 0.9286,
+    "open_exceptions": 3,
+    "open_incidents": 1,
+    "audit_readiness_score": 0.91
+  },
+  "report_volume": [
+    { "report_id": "pdf_board_pack", "generated": 4, "delivered": 4 },
+    { "report_id": "xlsx_evidence_workbook", "generated": 8, "delivered": 7 },
+    { "report_id": "signed_json_evidence_packet", "generated": 30, "delivered": 28 }
+  ],
+  "delivery_health": {
+    "successful_deliveries": 39,
+    "failed_deliveries": 3,
+    "retryable_failures": 2,
+    "dead_lettered": 1,
+    "median_delivery_seconds": 18,
+    "p95_delivery_seconds": 94
+  },
+  "approval_latency": {
+    "approval_required_count": 9,
+    "approved_count": 8,
+    "pending_count": 1,
+    "median_minutes": 34,
+    "p95_minutes": 210,
+    "breached_slo_count": 1
+  },
+  "exception_aging": {
+    "active_exceptions": 3,
+    "expiring_soon": 1,
+    "expired": 0,
+    "median_age_hours": 26,
+    "oldest_age_hours": 94
+  },
+  "evidence_room_access": {
+    "active_rooms": 2,
+    "access_events": 17,
+    "downloads": 6,
+    "failed_access_attempts": 1,
+    "revocations": 1,
+    "watermarked_downloads": 6
+  },
+  "incident_closure_slo": {
+    "opened": 2,
+    "closed": 1,
+    "within_slo": 1,
+    "breached_slo": 0,
+    "median_closure_hours": 4
+  },
+  "audit_readiness_trend": [
+    { "period": "2026-W22", "score": 0.86, "evidence_gap_count": 7 },
+    { "period": "2026-W23", "score": 0.91, "evidence_gap_count": 4 }
+  ],
+  "controls": {
+    "derived_from_immutable_events": true,
+    "retention_aware": true,
+    "rbac_scoped": true,
+    "tenant_aggregated": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "customer_records_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "aggregate_metrics_only"
+  },
+  "enterprise_boundaries": {
+    "metrics_aggregation_worker": "requires_cavra_enterprise",
+    "tenant_metrics_store": "requires_cavra_enterprise",
+    "dashboard_projection": "requires_cavra_enterprise",
+    "private_trend_history": "requires_cavra_enterprise",
+    "rbac_filtering": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

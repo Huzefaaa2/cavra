@@ -1,0 +1,49 @@
+{
+  "schema_version": "cavra.hosted_sandbox.operator_release_status.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_operator_release_status",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-hosted-sandbox-operator-status-packet.json",
+  "validator": "scripts/validate-hosted-sandbox-operator-status.py",
+  "depends_on": [
+    "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
+    "docs/release-verifications/hosted-sandbox-pages-smoke-validation.json",
+    "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json",
+    "docs/release-verifications/aispm-release-evidence-index.json"
+  ],
+  "operator_checks": [
+    {
+      "check_id": "local_portal_freshness",
+      "status": "ready",
+      "validator": "python scripts/validate-hosted-sandbox-deployment-freshness.py"
+    },
+    {
+      "check_id": "live_pages_freshness",
+      "status": "requires_deploy_validation",
+      "validator": "CAVRA_CHECK_LIVE_SANDBOX=true python scripts/validate-hosted-sandbox-deployment-freshness.py"
+    },
+    {
+      "check_id": "hosted_browser_smoke",
+      "status": "workflow_enforced",
+      "validator": "npm run validate:sandbox:hosted"
+    },
+    {
+      "check_id": "post_deploy_evidence",
+      "status": "workflow_enforced",
+      "validator": "python scripts/validate-hosted-sandbox-deploy-evidence.py"
+    },
+    {
+      "check_id": "announcement_gate",
+      "status": "blocked_until_live_freshness_passes",
+      "validator": "Hosted Release Operator Status"
+    }
+  ],
+  "public_safety_boundary": "This status packet includes public deployment markers, validator names, and operator go/no-go status only. It excludes customer data, raw prompts, private package credentials, license secrets, Enterprise source code, and tenant telemetry.",
+  "enterprise_boundary": {
+    "signed_announcement_approval": "requires_cavra_enterprise_or_saas",
+    "tenant_release_room": "requires_enterprise_evidence_store",
+    "evaluator_access_grants": "requires_private_trial_operator_flow"
+  }
+}

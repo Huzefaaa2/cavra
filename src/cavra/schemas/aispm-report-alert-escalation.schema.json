@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Alert Escalation Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "window",
+    "alert_policy",
+    "trigger_rules",
+    "evaluations",
+    "routing",
+    "escalation",
+    "acknowledgement",
+    "incident_linkage",
+    "evidence",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_alert_escalation.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "window": {
+      "type": "object",
+      "required": ["window_ref", "starts_at", "ends_at", "timezone"],
+      "properties": {
+        "window_ref": { "type": "string", "minLength": 1 },
+        "starts_at": { "type": "string", "format": "date-time" },
+        "ends_at": { "type": "string", "format": "date-time" },
+        "timezone": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "alert_policy": {
+      "type": "object",
+      "required": [
+        "policy_ref",
+        "status",
+        "owner_role",
+        "evaluation_cadence",
+        "suppression_window_minutes",
+        "requires_acknowledgement"
+      ],
+      "properties": {
+        "policy_ref": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["draft", "active", "disabled"] },
+        "owner_role": { "type": "string", "minLength": 1 },
+        "evaluation_cadence": { "type": "string", "minLength": 1 },
+        "suppression_window_minutes": { "type": "integer", "minimum": 0 },
+        "requires_acknowledgement": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "trigger_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "metric",
+          "operator",
+          "threshold",
+          "severity",
+          "owner_role",
+          "route_ref"
+        ],
+        "properties": {
+          "rule_id": { "type": "string", "minLength": 1 },
+          "metric": { "type": "string", "minLength": 1 },
+          "operator": { "enum": [">", ">=", "<", "<=", "==", "!="] },
+          "threshold": { "type": "number" },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "owner_role": { "type": "string", "minLength": 1 },
+          "route_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evaluations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "evaluation_ref",
+          "rule_id",
+          "status",
+          "observed_value",
+          "severity",
+          "triggered_at",
+          "correlation_ref"
+        ],
+        "properties": {
+          "evaluation_ref": { "type": "string", "minLength": 1 },
+          "rule_id": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["not_triggered", "triggered", "suppressed", "acknowledged", "escalated"] },
+          "observed_value": { "type": "number" },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "triggered_at": { "type": "string", "format": "date-time" },
+          "correlation_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "routing": {
+      "type": "object",
+      "required": [
+        "primary_channel",
+        "secondary_channel",
+        "integration_refs",
+        "recipient_addresses_redacted",
+        "external_delivery_requires_approval"
+      ],
+      "properties": {
+        "primary_channel": { "type": "string", "minLength": 1 },
+        "secondary_channel": { "type": "string", "minLength": 1 },
+        "integration_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "recipient_addresses_redacted": { "const": true },
+        "external_delivery_requires_approval": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "escalation": {
+      "type": "object",
+      "required": ["current_level", "max_level", "next_escalation_at", "levels"],
+      "properties": {
+        "current_level": { "type": "integer", "minimum": 0 },
+        "max_level": { "type": "integer", "minimum": 1 },
+        "next_escalation_at": { "type": "string", "format": "date-time" },
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["level", "owner_role", "timeout_minutes", "action"],
+            "properties": {
+              "level": { "type": "integer", "minimum": 1 },
+              "owner_role": { "type": "string", "minLength": 1 },
+              "timeout_minutes": { "type": "integer", "minimum": 0 },
+              "action": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "acknowledgement": {
+      "type": "object",
+      "required": ["ack_required", "ack_status", "ack_due_at", "ack_owner_role", "ack_evidence_ref"],
+      "properties": {
+        "ack_required": { "type": "boolean" },
+        "ack_status": { "enum": ["not_required", "pending", "acknowledged", "overdue"] },
+        "ack_due_at": { "type": "string", "format": "date-time" },
+        "ack_owner_role": { "type": "string", "minLength": 1 },
+        "ack_evidence_ref": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "incident_linkage": {
+      "type": "object",
+      "required": ["incident_required", "incident_ref", "incident_packet_ref", "closure_required"],
+      "properties": {
+        "incident_required": { "type": "boolean" },
+        "incident_ref": { "type": "string", "minLength": 1 },
+        "incident_packet_ref": { "type": "string", "minLength": 1 },
+        "closure_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "metrics_ref",
+        "alert_digest_ref",
+        "routing_audit_ref",
+        "immutable_store_ref",
+        "evidence_refs"
+      ],
+      "properties": {
+        "metrics_ref": { "type": "string", "minLength": 1 },
+        "alert_digest_ref": { "type": "string", "minLength": 1 },
+        "routing_audit_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "derived_from_kpi_metrics",
+        "immutable_alert_required",
+        "acknowledgement_required",
+        "escalation_policy_required",
+        "suppression_audited",
+        "recipient_policy_enforced"
+      ],
+      "properties": {
+        "derived_from_kpi_metrics": { "type": "boolean" },
+        "immutable_alert_required": { "type": "boolean" },
+        "acknowledgement_required": { "type": "boolean" },
+        "escalation_policy_required": { "type": "boolean" },
+        "suppression_audited": { "type": "boolean" },
+        "recipient_policy_enforced": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": { "const": "metadata_and_aggregate_metrics_only" }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "alert_evaluator",
+        "routing_engine",
+        "escalation_worker",
+        "notification_delivery",
+        "incident_creation",
+        "acknowledgement_store",
+        "suppression_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "alert_evaluator": { "const": "requires_cavra_enterprise" },
+        "routing_engine": { "const": "requires_cavra_enterprise" },
+        "escalation_worker": { "const": "requires_cavra_enterprise" },
+        "notification_delivery": { "const": "requires_cavra_enterprise" },
+        "incident_creation": { "const": "requires_cavra_enterprise" },
+        "acknowledgement_store": { "const": "requires_cavra_enterprise" },
+        "suppression_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

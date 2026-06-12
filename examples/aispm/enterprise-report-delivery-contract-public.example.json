@@ -1,0 +1,151 @@
+{
+  "schema_version": "cavra.aispm.report_delivery_contract.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "community_reports": [
+    {
+      "report_id": "executive_risk_brief",
+      "title": "Executive Risk Brief",
+      "formats": ["markdown"],
+      "audiences": ["cso", "ciso"],
+      "availability": "community"
+    },
+    {
+      "report_id": "board_kpi_pack",
+      "title": "Board KPI Pack",
+      "formats": ["json"],
+      "audiences": ["board", "leadership"],
+      "availability": "community"
+    },
+    {
+      "report_id": "soc2_audit_summary",
+      "title": "SOC 2-Style Audit Summary",
+      "formats": ["markdown"],
+      "audiences": ["audit", "grc"],
+      "availability": "community"
+    },
+    {
+      "report_id": "control_coverage_export",
+      "title": "Control Coverage Export",
+      "formats": ["csv"],
+      "audiences": ["security_engineering"],
+      "availability": "community"
+    },
+    {
+      "report_id": "evidence_freshness_export",
+      "title": "Evidence Freshness Export",
+      "formats": ["csv"],
+      "audiences": ["audit", "grc"],
+      "availability": "community"
+    },
+    {
+      "report_id": "agent_risk_register",
+      "title": "Agent Risk Register",
+      "formats": ["csv"],
+      "audiences": ["platform_security"],
+      "availability": "community"
+    }
+  ],
+  "enterprise_reports": [
+    {
+      "report_id": "pdf_board_pack",
+      "title": "PDF Board Pack",
+      "formats": ["pdf"],
+      "audiences": ["board", "cso", "ciso"],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "report_id": "xlsx_evidence_workbook",
+      "title": "XLSX Evidence Workbook",
+      "formats": ["xlsx"],
+      "audiences": ["audit", "grc", "security_engineering"],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "report_id": "docx_audit_narrative",
+      "title": "DOCX Audit Narrative",
+      "formats": ["docx"],
+      "audiences": ["audit", "risk_committee"],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "report_id": "signed_json_evidence_packet",
+      "title": "Signed JSON Evidence Packet",
+      "formats": ["json"],
+      "audiences": ["audit", "security_engineering"],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "report_id": "siem_jsonl_export",
+      "title": "SIEM JSONL Export",
+      "formats": ["jsonl"],
+      "audiences": ["soc", "security_operations"],
+      "availability": "requires_cavra_enterprise"
+    },
+    {
+      "report_id": "grc_upload_package",
+      "title": "GRC Upload Package",
+      "formats": ["zip"],
+      "audiences": ["grc", "audit"],
+      "availability": "requires_cavra_enterprise"
+    }
+  ],
+  "api": {
+    "catalog_endpoint": "GET /enterprise/aispm/reports/catalog",
+    "render_endpoint": "POST /enterprise/aispm/reports/render",
+    "send_endpoint": "POST /enterprise/aispm/reports/send",
+    "deliveries_endpoint": "GET /enterprise/aispm/reports/deliveries",
+    "schedules_endpoint": "POST /enterprise/aispm/reports/schedules",
+    "implementation": "requires_cavra_enterprise"
+  },
+  "delivery": {
+    "supported_modes": [
+      "disabled",
+      "smtp",
+      "microsoft365",
+      "google_workspace",
+      "ses",
+      "sendgrid",
+      "webhook"
+    ],
+    "recipient_controls": [
+      "domain_allowlist",
+      "rbac",
+      "approval_gate",
+      "delivery_audit"
+    ],
+    "implementation": "requires_cavra_enterprise"
+  },
+  "setup": {
+    "required_settings": [
+      "CAVRA_REPORT_DELIVERY_MODE",
+      "CAVRA_REPORT_FROM_ADDRESS",
+      "CAVRA_REPORT_ALLOWED_RECIPIENT_DOMAINS",
+      "CAVRA_REPORT_DEFAULT_TIMEZONE",
+      "CAVRA_REPORT_RETENTION_DAYS"
+    ],
+    "secret_reference_settings": [
+      "CAVRA_REPORT_SMTP_USERNAME_REF",
+      "CAVRA_REPORT_SMTP_PASSWORD_REF",
+      "CAVRA_REPORT_PROVIDER_TOKEN_REF"
+    ],
+    "secret_values_allowed_in_public_repo": false
+  },
+  "security_controls": [
+    "tenant_scoped_rendering",
+    "recipient_domain_allowlist",
+    "rbac_authorization",
+    "optional_external_delivery_approval",
+    "immutable_delivery_audit",
+    "secret_manager_references_only",
+    "raw_prompt_and_reasoning_redaction"
+  ],
+  "enterprise_boundaries": {
+    "renderer": "requires_cavra_enterprise",
+    "scheduler": "requires_cavra_enterprise",
+    "email_delivery": "requires_cavra_enterprise",
+    "tenant_persistence": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

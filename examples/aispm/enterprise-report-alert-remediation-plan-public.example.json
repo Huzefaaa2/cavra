@@ -1,0 +1,153 @@
+{
+  "schema_version": "cavra.aispm.report_alert_remediation_plan.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T11:18:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "plan": {
+    "plan_ref": "remediation-plan:opaque-report-alert",
+    "status": "in_progress",
+    "priority": "critical",
+    "owner_role": "security_operations",
+    "opened_at": "2026-06-11T10:22:00Z",
+    "due_at": "2026-06-12T10:22:00Z",
+    "source_alert_ref": "alert:opaque-evidence-room-access",
+    "source_incident_ref": "incident:opaque-report-delivery-and-access-review"
+  },
+  "scope": {
+    "finding_type": "evidence_room_access_review",
+    "affected_report_refs": [
+      "report:opaque-board-pack"
+    ],
+    "affected_evidence_room_refs": [
+      "evidence-room:opaque-auditor-room"
+    ],
+    "affected_integration_refs": [
+      "integration:opaque-itsm"
+    ],
+    "customer_records_redacted": true
+  },
+  "tasks": [
+    {
+      "task_ref": "task:opaque-revoke-access",
+      "title": "Revoke stale evidence-room access",
+      "owner_role": "security_operations",
+      "status": "completed",
+      "due_at": "2026-06-11T12:00:00Z",
+      "approval_required": false,
+      "evidence_required": true,
+      "evidence_ref": "cavra://evidence/redacted/evidence-room-access-revoked"
+    },
+    {
+      "task_ref": "task:opaque-review-recipient-policy",
+      "title": "Review recipient and evidence-room policy",
+      "owner_role": "grc",
+      "status": "in_progress",
+      "due_at": "2026-06-12T09:00:00Z",
+      "approval_required": true,
+      "evidence_required": true,
+      "evidence_ref": "cavra://evidence/redacted/recipient-policy-review"
+    },
+    {
+      "task_ref": "task:opaque-update-alert-threshold",
+      "title": "Tune suspicious access alert threshold",
+      "owner_role": "platform_security",
+      "status": "pending",
+      "due_at": "2026-06-12T10:00:00Z",
+      "approval_required": true,
+      "evidence_required": true,
+      "evidence_ref": "cavra://evidence/redacted/alert-threshold-update"
+    }
+  ],
+  "approval_requirements": [
+    {
+      "approval_ref": "approval:opaque-recipient-policy-review",
+      "approval_type": "policy_change",
+      "approver_role": "security_leadership",
+      "status": "pending",
+      "due_at": "2026-06-12T08:00:00Z"
+    },
+    {
+      "approval_ref": "approval:opaque-closure",
+      "approval_type": "plan_closure",
+      "approver_role": "ciso",
+      "status": "not_requested",
+      "due_at": "2026-06-12T10:22:00Z"
+    }
+  ],
+  "closure_criteria": {
+    "all_tasks_complete": true,
+    "required_approvals_complete": true,
+    "evidence_chain_complete": true,
+    "incident_closure_required": true,
+    "post_incident_review_required": true
+  },
+  "control_updates": [
+    {
+      "control_ref": "control:opaque-evidence-room-access",
+      "update_type": "policy_threshold",
+      "owner_role": "platform_security",
+      "status": "planned",
+      "evidence_ref": "cavra://evidence/redacted/control-threshold-update"
+    },
+    {
+      "control_ref": "control:opaque-recipient-governance",
+      "update_type": "recipient_policy",
+      "owner_role": "grc",
+      "status": "in_progress",
+      "evidence_ref": "cavra://evidence/redacted/recipient-policy-control-update"
+    }
+  ],
+  "communications": {
+    "internal_update_required": true,
+    "executive_update_required": true,
+    "customer_notification_required": false,
+    "external_message_ref": "message-template:opaque-not-required"
+  },
+  "evidence": {
+    "plan_digest_ref": "digest:opaque-remediation-plan",
+    "alert_drilldown_ref": "alert-drilldown:opaque-evidence-room-access",
+    "incident_packet_ref": "incident-packet:opaque-report-alert",
+    "closure_manifest_ref": "closure-manifest:opaque-pending",
+    "immutable_store_ref": "immutable:opaque-remediation-plan",
+    "evidence_refs": [
+      "cavra://evidence/redacted/remediation-plan-created",
+      "cavra://evidence/redacted/evidence-room-access-revoked",
+      "cavra://evidence/redacted/recipient-policy-review"
+    ]
+  },
+  "controls": {
+    "task_owners_required": true,
+    "approval_gates_enforced": true,
+    "closure_criteria_required": true,
+    "post_incident_control_updates_required": true,
+    "immutable_plan_required": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "remediation_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "remediation_workflow": "requires_cavra_enterprise",
+    "task_store": "requires_cavra_enterprise",
+    "approval_workflow": "requires_cavra_enterprise",
+    "owner_resolution": "requires_cavra_enterprise",
+    "control_update_workflow": "requires_cavra_enterprise",
+    "notification_workflow": "requires_cavra_enterprise",
+    "immutable_plan_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

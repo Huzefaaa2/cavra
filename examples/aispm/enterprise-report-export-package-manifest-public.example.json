@@ -1,0 +1,74 @@
+{
+  "schema_version": "cavra.aispm.report_export_package_manifest.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:20:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "package": {
+    "package_ref": "export-package:opaque-board-and-audit-pack",
+    "package_type": "board_and_audit_bundle",
+    "requested_by": "role:ciso",
+    "created_at": "2026-06-11T08:20:00Z",
+    "retention_class": "governance_record",
+    "watermark_required": true,
+    "signed_manifest_required": true
+  },
+  "artifacts": [
+    {
+      "artifact_ref": "artifact:opaque-board-pdf",
+      "report_id": "pdf_board_pack",
+      "format": "pdf",
+      "content_ref": "enterprise-private://report-artifact/opaque-board-pdf",
+      "digest_ref": "sha256:redacted-public-contract-board-pdf",
+      "size_bytes": 245760
+    },
+    {
+      "artifact_ref": "artifact:opaque-evidence-workbook",
+      "report_id": "xlsx_evidence_workbook",
+      "format": "xlsx",
+      "content_ref": "enterprise-private://report-artifact/opaque-evidence-workbook",
+      "digest_ref": "sha256:redacted-public-contract-evidence-workbook",
+      "size_bytes": 196608
+    }
+  ],
+  "delivery_targets": [
+    {
+      "target_ref": "target:opaque-grc-upload",
+      "target_type": "grc_upload",
+      "recipient_scope": "approved_internal_domain",
+      "delivery_mode": "webhook",
+      "approval_required": true
+    }
+  ],
+  "integrity": {
+    "manifest_digest_ref": "sha256:redacted-public-contract-manifest",
+    "signature_ref": "enterprise-private://signature/opaque-manifest-signature",
+    "chain_ref": "enterprise-private://evidence-chain/opaque-export-package",
+    "checksums_required": true
+  },
+  "evidence": {
+    "source_evidence_refs": [
+      "cavra://evidence/redacted/report-delivery-sample",
+      "cavra://evidence/redacted/report-retrieval-sample"
+    ],
+    "export_audit_ref": "audit:opaque-export-package",
+    "immutable_store_ref": "enterprise-private://immutable-store/export-package/opaque-ref"
+  },
+  "redaction": {
+    "raw_report_content_included": false,
+    "recipient_addresses_included": false,
+    "download_urls_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "package_renderer": "requires_cavra_enterprise",
+    "artifact_storage": "requires_cavra_enterprise",
+    "manifest_signing": "requires_cavra_enterprise",
+    "grc_connector": "requires_cavra_enterprise",
+    "siem_exporter": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

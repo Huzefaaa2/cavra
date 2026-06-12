@@ -1,0 +1,126 @@
+{
+  "schema_version": "cavra.aispm.report_remediation_closure_digest_distribution.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T12:44:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "distribution": {
+    "distribution_ref": "distribution:opaque-remediation-closure-executive",
+    "digest_ref": "digest:opaque-remediation-closure-executive",
+    "status": "approval_pending",
+    "delivery_window": "board_pack_cycle",
+    "prepared_at": "2026-06-11T12:44:00Z",
+    "send_after": "2026-06-11T14:00:00Z",
+    "expires_at": "2026-06-18T14:00:00Z"
+  },
+  "approval": {
+    "approval_ref": "approval:opaque-board-digest-send",
+    "approval_type": "executive_digest_distribution",
+    "approver_role": "ciso",
+    "status": "pending",
+    "required_before_send": true,
+    "due_at": "2026-06-11T13:30:00Z",
+    "evidence_ref": "cavra://evidence/redacted/board-digest-approval-requested"
+  },
+  "recipient_governance": {
+    "recipient_policy_ref": "recipient-policy:opaque-executive-digest",
+    "allowed_audiences": [
+      "cso",
+      "ciso",
+      "board",
+      "audit"
+    ],
+    "external_recipients_allowed": false,
+    "domain_allowlist_required": true,
+    "rbac_scope_required": true,
+    "recipient_addresses_redacted": true
+  },
+  "delivery_plan": {
+    "formats": [
+      "pdf",
+      "docx",
+      "html",
+      "signed_json"
+    ],
+    "delivery_modes": [
+      "portal",
+      "email",
+      "grc_upload"
+    ],
+    "provider_refs": [
+      "provider:opaque-email",
+      "provider:opaque-grc"
+    ],
+    "retry_policy_ref": "retry-policy:opaque-executive-digest",
+    "watermark_required": true,
+    "signed_manifest_required": true
+  },
+  "delivery_status": [
+    {
+      "channel": "portal",
+      "status": "ready",
+      "attempt_count": 0,
+      "last_attempt_at": "2026-06-11T12:44:00Z",
+      "delivery_evidence_ref": "cavra://evidence/redacted/portal-package-prepared"
+    },
+    {
+      "channel": "email",
+      "status": "blocked_pending_approval",
+      "attempt_count": 0,
+      "last_attempt_at": "2026-06-11T12:44:00Z",
+      "delivery_evidence_ref": "cavra://evidence/redacted/email-send-blocked-pending-approval"
+    },
+    {
+      "channel": "grc_upload",
+      "status": "ready",
+      "attempt_count": 0,
+      "last_attempt_at": "2026-06-11T12:44:00Z",
+      "delivery_evidence_ref": "cavra://evidence/redacted/grc-package-prepared"
+    }
+  ],
+  "send_evidence": {
+    "distribution_digest_ref": "digest:opaque-remediation-closure-distribution",
+    "executive_digest_ref": "digest:opaque-remediation-closure-executive",
+    "manifest_ref": "manifest:opaque-executive-digest-distribution",
+    "immutable_store_ref": "immutable:opaque-remediation-closure-distribution",
+    "evidence_refs": [
+      "cavra://evidence/redacted/board-digest-approval-requested",
+      "cavra://evidence/redacted/portal-package-prepared",
+      "cavra://evidence/redacted/email-send-blocked-pending-approval"
+    ]
+  },
+  "controls": {
+    "approval_before_send_required": true,
+    "recipient_policy_enforced": true,
+    "domain_allowlist_enforced": true,
+    "rbac_scoped": true,
+    "immutable_send_evidence_required": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "remediation_closure_digest_distribution_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "approval_workflow": "requires_cavra_enterprise",
+    "recipient_directory": "requires_cavra_enterprise",
+    "delivery_provider": "requires_cavra_enterprise",
+    "signed_package_builder": "requires_cavra_enterprise",
+    "send_worker": "requires_cavra_enterprise",
+    "delivery_audit_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

@@ -80,6 +80,23 @@ Repository hardening status:
 cavra-enterprise/
   src/
     cavra_enterprise/
+      aispm_ingestion/
+        collectors/
+        normalizer.py
+        redaction.py
+        integrity.py
+        tenant_store.py
+        stream.py
+        replay_index.py
+        dashboard_projection.py
+      aispm_reports/
+        api.py
+        catalog.py
+        renderer.py
+        delivery.py
+        scheduler.py
+        audit.py
+        setup.py
       identity/
       pilot_intake/
       sso/
@@ -116,6 +133,112 @@ Enterprise can plug into Community through:
 - private Docker image layers;
 - private license validation client;
 - hosted SaaS Control Plane APIs.
+- public AISPM live ingestion envelopes documented in
+  `docs/architecture/aispm-enterprise-live-ingestion.md`.
+- public AISPM report delivery contracts documented in
+  `docs/architecture/aispm-report-center.md`,
+  `src/cavra/schemas/aispm-report-delivery-contract.schema.json`, and
+  `examples/aispm/enterprise-report-delivery-contract-public.example.json`.
+- public AISPM report setup wizard contracts documented in
+  `src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json` and
+  `examples/aispm/enterprise-report-setup-wizard-contract-public.example.json`.
+- public AISPM report delivery audit event contracts documented in
+  `src/cavra/schemas/aispm-report-delivery-audit-event.schema.json` and
+  `examples/aispm/enterprise-report-delivery-audit-event-public.example.json`.
+- public AISPM report operations dashboard contracts documented in
+  `src/cavra/schemas/aispm-report-operations-dashboard.schema.json` and
+  `examples/aispm/enterprise-report-operations-dashboard-public.example.json`.
+- public AISPM report retention lifecycle contracts documented in
+  `src/cavra/schemas/aispm-report-retention-lifecycle.schema.json` and
+  `examples/aispm/enterprise-report-retention-lifecycle-public.example.json`.
+- public AISPM report search and evidence retrieval contracts documented in
+  `src/cavra/schemas/aispm-report-search-retrieval.schema.json` and
+  `examples/aispm/enterprise-report-search-retrieval-public.example.json`.
+- public AISPM report export package manifest contracts documented in
+  `src/cavra/schemas/aispm-report-export-package-manifest.schema.json` and
+  `examples/aispm/enterprise-report-export-package-manifest-public.example.json`.
+- public AISPM report schedule policy contracts documented in
+  `src/cavra/schemas/aispm-report-schedule-policy.schema.json` and
+  `examples/aispm/enterprise-report-schedule-policy-public.example.json`.
+- public AISPM report recipient policy contracts documented in
+  `src/cavra/schemas/aispm-report-recipient-policy.schema.json` and
+  `examples/aispm/enterprise-report-recipient-policy-public.example.json`.
+- public AISPM report approval decision contracts documented in
+  `src/cavra/schemas/aispm-report-approval-decision.schema.json` and
+  `examples/aispm/enterprise-report-approval-decision-public.example.json`.
+- public AISPM report exception lifecycle contracts documented in
+  `src/cavra/schemas/aispm-report-exception-lifecycle.schema.json` and
+  `examples/aispm/enterprise-report-exception-lifecycle-public.example.json`.
+- public AISPM report evidence room contracts documented in
+  `src/cavra/schemas/aispm-report-evidence-room.schema.json` and
+  `examples/aispm/enterprise-report-evidence-room-public.example.json`.
+- public AISPM report evidence room access event contracts documented in
+  `src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json` and
+  `examples/aispm/enterprise-report-evidence-room-access-event-public.example.json`.
+- public AISPM report incident packet contracts documented in
+  `src/cavra/schemas/aispm-report-incident-packet.schema.json` and
+  `examples/aispm/enterprise-report-incident-packet-public.example.json`.
+- public AISPM report incident closure contracts documented in
+  `src/cavra/schemas/aispm-report-incident-closure.schema.json` and
+  `examples/aispm/enterprise-report-incident-closure-public.example.json`.
+- public AISPM report KPI metrics contracts documented in
+  `src/cavra/schemas/aispm-report-kpi-metrics.schema.json` and
+  `examples/aispm/enterprise-report-kpi-metrics-public.example.json`.
+- public AISPM report alert escalation contracts documented in
+  `src/cavra/schemas/aispm-report-alert-escalation.schema.json` and
+  `examples/aispm/enterprise-report-alert-escalation-public.example.json`.
+- public AISPM report alert operations dashboard contracts documented in
+  `src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json` and
+  `examples/aispm/enterprise-report-alert-operations-dashboard-public.example.json`.
+- public AISPM report alert drilldown contracts documented in
+  `src/cavra/schemas/aispm-report-alert-drilldown.schema.json` and
+  `examples/aispm/enterprise-report-alert-drilldown-public.example.json`.
+- public AISPM report alert remediation plan contracts documented in
+  `src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json` and
+  `examples/aispm/enterprise-report-alert-remediation-plan-public.example.json`.
+- public AISPM report alert remediation closure contracts documented in
+  `src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json` and
+  `examples/aispm/enterprise-report-alert-remediation-closure-public.example.json`.
+- public AISPM report remediation closure operations dashboard contracts
+  documented in
+  `src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json` and
+  `examples/aispm/enterprise-report-remediation-closure-operations-dashboard-public.example.json`.
+- public AISPM report remediation closure executive digest contracts
+  documented in
+  `src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json` and
+  `examples/aispm/enterprise-report-remediation-closure-executive-digest-public.example.json`.
+- public AISPM report remediation closure digest distribution contracts
+  documented in
+  `src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json` and
+  `examples/aispm/enterprise-report-remediation-closure-digest-distribution-public.example.json`.
+- public AISPM Report Center Enterprise readiness checklist documented in
+  `docs/architecture/aispm-report-center-enterprise-readiness.md` and
+  `docs/wiki/AISPM-Report-Center-Enterprise-Readiness.md`.
+- public AISPM Report Center Enterprise Trial validation packet documented in
+  `src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-validation-packet-public.example.json`.
+- public AISPM Report Center trial operator dashboard readiness contract
+  documented in
+  `src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-operator-dashboard-readiness-public.example.json`.
+- public AISPM Report Center trial operator dashboard API/view-model contract
+  documented in
+  `src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-operator-api-view-model-public.example.json`.
+- public AISPM Report Center trial evaluator handoff packet documented in
+  `src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-evaluator-handoff-packet-public.example.json`.
+- public AISPM Report Center trial revocation and expiry evidence contract
+  documented in
+  `src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-revocation-expiry-evidence-public.example.json`.
+- public AISPM Report Center trial lab notebook outline contract documented in
+  `src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-lab-notebook-outline-public.example.json`.
+- public AISPM Report Center trial lab notebook publication readiness contract
+  documented in
+  `src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json` and
+  `examples/aispm/enterprise-report-center-trial-lab-notebook-publication-readiness-public.example.json`.
 
 The public package should never import Enterprise modules directly except
 through dynamic hooks such as `cavra.edition.enterprise_hooks`.

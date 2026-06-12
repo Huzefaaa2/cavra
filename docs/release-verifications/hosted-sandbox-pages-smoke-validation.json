@@ -1,0 +1,42 @@
+{
+  "schema_version": "cavra.hosted_sandbox.pages_smoke_validation.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "post_deploy_browser_validation",
+  "validated_target": "https://huzefaaa2.github.io/cavra/",
+  "command": "npm run validate:sandbox:hosted",
+  "validator": "scripts/validate-hosted-sandbox-pages.mjs",
+  "workflow": ".github/workflows/deploy-sandbox.yml",
+  "status": "workflow_enforced",
+  "coverage": [
+    "hosted_index_http",
+    "hosted_javascript_css_config",
+    "hosted_brand_assets",
+    "hosted_c4_container_diagram",
+    "hosted_evidence_samples",
+    "hosted_deployment_freshness_marker",
+    "hosted_operator_release_status_marker",
+    "aispm_report_catalog_packet_marker",
+    "aispm_report_delivery_setup_packet_marker",
+    "aispm_report_operations_readiness_packet_marker",
+    "aispm_report_governance_readiness_packet_marker",
+    "aispm_report_assurance_readiness_packet_marker",
+    "aispm_report_response_readiness_packet_marker",
+    "aispm_report_trial_operations_readiness_packet_marker",
+    "dashboard_route_browser_render",
+    "ai_posture_route_browser_render",
+    "command_palette_board_pack_packet",
+    "aispm_report_center_render",
+    "aispm_board_pack_render"
+  ],
+  "local_screenshots": [
+    ".cavra/hosted-smoke/hosted-dashboard-classic.png",
+    ".cavra/hosted-smoke/hosted-aispm-sentinel.png"
+  ],
+  "public_safety_boundary": "Hosted Pages validation checks only public Community Edition static assets, sample evidence, and public-safe AISPM demo surfaces after GitHub Pages deployment.",
+  "enterprise_boundary": {
+    "authenticated_tenant_dashboards": "requires_cavra_enterprise_or_saas",
+    "private_trial_package_validation": "requires_private_enterprise_pipeline",
+    "licensed_report_delivery": "requires_cavra_enterprise"
+  }
+}

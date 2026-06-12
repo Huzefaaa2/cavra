@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.report_governance_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_report_governance_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-governance-readiness-packet.json",
+  "validator": "scripts/validate-aispm-report-governance-readiness.py",
+  "governance_areas": [
+    {
+      "area_id": "schedule_policy",
+      "title": "Schedule Policy",
+      "schema": "src/cavra/schemas/aispm-report-schedule-policy.schema.json",
+      "example": "examples/aispm/enterprise-report-schedule-policy-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "recipient_policy",
+      "title": "Recipient Policy",
+      "schema": "src/cavra/schemas/aispm-report-recipient-policy.schema.json",
+      "example": "examples/aispm/enterprise-report-recipient-policy-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "approval_decisions",
+      "title": "Approval Decisions",
+      "schema": "src/cavra/schemas/aispm-report-approval-decision.schema.json",
+      "example": "examples/aispm/enterprise-report-approval-decision-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "exception_lifecycle",
+      "title": "Exception Lifecycle",
+      "schema": "src/cavra/schemas/aispm-report-exception-lifecycle.schema.json",
+      "example": "examples/aispm/enterprise-report-exception-lifecycle-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "evidence_rooms",
+      "title": "Evidence Rooms",
+      "schema": "src/cavra/schemas/aispm-report-evidence-room.schema.json",
+      "example": "examples/aispm/enterprise-report-evidence-room-public.example.json",
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "enterprise_boundaries": {
+    "governed_schedule_workers": "requires_cavra_enterprise",
+    "recipient_directory_and_policy_enforcement": "requires_cavra_enterprise",
+    "approval_workflow_execution": "requires_cavra_enterprise",
+    "exception_lifecycle_workflow": "requires_cavra_enterprise",
+    "authenticated_evidence_room_portal": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes public-safe schema names, example paths, and governance readiness expectations only. It excludes recipient addresses, approver identities, auditor identities, private justifications, raw report content, signed download URLs, customer records, Enterprise source code, private policy packs, and license secrets."
+}

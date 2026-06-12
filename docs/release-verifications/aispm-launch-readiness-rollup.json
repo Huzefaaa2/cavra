@@ -1,0 +1,238 @@
+{
+  "schema_version": "cavra.aispm.launch_readiness_rollup.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_release_candidate_rollup",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "release_candidate": "community-v1.0.0-aispm",
+  "overall_status": "ready",
+  "source_route": "apps/sandbox-ui/index.html#ai-posture",
+  "required_sources": [
+    {
+      "source_id": "phase_b_closeout",
+      "path": "docs/aispm-phase-b-closeout-verification.md",
+      "status": "pass",
+      "validator": "python scripts/validate-sandbox-portal.py"
+    },
+    {
+      "source_id": "board_pack_artifact_index",
+      "path": "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+      "status": "pass",
+      "validator": "python scripts/validate-aispm-launch-artifacts.py"
+    },
+    {
+      "source_id": "visual_smoke",
+      "path": "docs/release-verifications/aispm-visual-smoke-validation.json",
+      "status": "pass",
+      "validator": "npm run validate:sandbox:visual"
+    },
+    {
+      "source_id": "visual_freshness",
+      "path": "scripts/validate-aispm-visual-freshness.py",
+      "status": "pass",
+      "validator": "python scripts/validate-aispm-visual-freshness.py"
+    },
+    {
+      "source_id": "trial_lab_notebook",
+      "path": "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-trial-lab-notebook.py --check-summary"
+    },
+    {
+      "source_id": "github_pages_workflow",
+      "path": ".github/workflows/deploy-sandbox.yml",
+      "status": "pass",
+      "validator": "python scripts/validate-sandbox-portal.py"
+    },
+    {
+      "source_id": "hosted_pages_smoke",
+      "path": "docs/release-verifications/hosted-sandbox-pages-smoke-validation.json",
+      "status": "workflow_enforced",
+      "validator": "npm run validate:sandbox:hosted"
+    },
+    {
+      "source_id": "hosted_deployment_freshness",
+      "path": "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-hosted-sandbox-deployment-freshness.py"
+    },
+    {
+      "source_id": "hosted_operator_status",
+      "path": "docs/release-verifications/hosted-sandbox-operator-release-status.json",
+      "status": "ready",
+      "validator": "python scripts/validate-hosted-sandbox-operator-status.py"
+    },
+    {
+      "source_id": "post_deploy_evidence",
+      "path": "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json",
+      "status": "workflow_enforced",
+      "validator": "python scripts/validate-hosted-sandbox-deploy-evidence.py"
+    },
+    {
+      "source_id": "release_evidence_index",
+      "path": "docs/release-verifications/aispm-release-evidence-index.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-release-evidence-index.py"
+    },
+    {
+      "source_id": "report_catalog_readiness",
+      "path": "docs/release-verifications/aispm-report-catalog-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-catalog-readiness.py"
+    },
+    {
+      "source_id": "report_delivery_setup_readiness",
+      "path": "docs/release-verifications/aispm-report-delivery-setup-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-delivery-setup-readiness.py"
+    },
+    {
+      "source_id": "report_operations_readiness",
+      "path": "docs/release-verifications/aispm-report-operations-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-operations-readiness.py"
+    },
+    {
+      "source_id": "report_governance_readiness",
+      "path": "docs/release-verifications/aispm-report-governance-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-governance-readiness.py"
+    },
+    {
+      "source_id": "report_assurance_readiness",
+      "path": "docs/release-verifications/aispm-report-assurance-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-assurance-readiness.py"
+    },
+    {
+      "source_id": "report_response_readiness",
+      "path": "docs/release-verifications/aispm-report-response-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-response-readiness.py"
+    },
+    {
+      "source_id": "report_trial_operations_readiness",
+      "path": "docs/release-verifications/aispm-report-trial-operations-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-report-trial-operations-readiness.py"
+    },
+    {
+      "source_id": "pilot_control_readiness",
+      "path": "docs/release-verifications/aispm-pilot-control-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-pilot-control-readiness.py"
+    }
+  ],
+  "readiness_gates": [
+    {
+      "gate_id": "public_portal_contract",
+      "status": "pass",
+      "evidence": "scripts/validate-sandbox-portal.py"
+    },
+    {
+      "gate_id": "board_pack_freshness",
+      "status": "pass",
+      "evidence": "docs/release-verifications/aispm-launch-board-pack-artifact-index.json"
+    },
+    {
+      "gate_id": "visual_smoke_and_theme_readability",
+      "status": "pass",
+      "evidence": "docs/release-verifications/aispm-visual-smoke-validation.json"
+    },
+    {
+      "gate_id": "trial_lab_notebook_publication",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json"
+    },
+    {
+      "gate_id": "github_pages_release_path",
+      "status": "pass",
+      "evidence": ".github/workflows/deploy-sandbox.yml"
+    },
+    {
+      "gate_id": "hosted_pages_browser_smoke",
+      "status": "workflow_enforced",
+      "evidence": "docs/release-verifications/hosted-sandbox-pages-smoke-validation.json"
+    },
+    {
+      "gate_id": "hosted_deployment_freshness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/hosted-sandbox-deployment-freshness.json"
+    },
+    {
+      "gate_id": "hosted_operator_status",
+      "status": "ready",
+      "evidence": "docs/release-verifications/hosted-sandbox-operator-release-status.json"
+    },
+    {
+      "gate_id": "post_deploy_evidence_artifact",
+      "status": "workflow_enforced",
+      "evidence": "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json"
+    },
+    {
+      "gate_id": "release_evidence_index",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-release-evidence-index.json"
+    },
+    {
+      "gate_id": "report_catalog_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-catalog-readiness.json"
+    },
+    {
+      "gate_id": "report_delivery_setup_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-delivery-setup-readiness.json"
+    },
+    {
+      "gate_id": "report_operations_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-operations-readiness.json"
+    },
+    {
+      "gate_id": "report_governance_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-governance-readiness.json"
+    },
+    {
+      "gate_id": "report_assurance_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-assurance-readiness.json"
+    },
+    {
+      "gate_id": "report_response_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-response-readiness.json"
+    },
+    {
+      "gate_id": "report_trial_operations_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-report-trial-operations-readiness.json"
+    },
+    {
+      "gate_id": "pilot_control_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-pilot-control-readiness.json"
+    }
+  ],
+  "public_safety_boundary": "This rollup references public Community Edition AISPM portal readiness only. It must not include Enterprise source code, customer records, raw prompts, license signing secrets, private registry credentials, hosted telemetry payloads, or private policy pack logic.",
+  "enterprise_boundaries": [
+    "Live multi-tenant ingestion",
+    "Authenticated customer dashboards",
+    "Signed approval workflow write-back",
+    "Tenant visual baselines",
+    "Private policy packs",
+    "Licensed report email delivery",
+    "Report operations governance",
+    "Report delivery governance",
+    "Report assurance governance",
+    "Report response governance",
+    "Report trial operations governance",
+    "Pilot control governance"
+  ],
+  "next_private_validation": [
+    "Validate Enterprise Trial package pull with an approved evaluator account.",
+    "Validate hosted license expiry and revocation against the private license service.",
+    "Validate signed report delivery and tenant evidence retention in the private Enterprise control plane."
+  ]
+}

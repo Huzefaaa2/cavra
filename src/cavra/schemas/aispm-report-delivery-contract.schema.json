@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Delivery Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "community_reports",
+    "enterprise_reports",
+    "api",
+    "delivery",
+    "setup",
+    "security_controls",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "cavra.aispm.report_delivery_contract.v1" },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "community_reports": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/report" }
+    },
+    "enterprise_reports": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/report" }
+    },
+    "api": {
+      "type": "object",
+      "required": [
+        "catalog_endpoint",
+        "render_endpoint",
+        "send_endpoint",
+        "deliveries_endpoint",
+        "schedules_endpoint",
+        "implementation"
+      ],
+      "properties": {
+        "catalog_endpoint": { "const": "GET /enterprise/aispm/reports/catalog" },
+        "render_endpoint": { "const": "POST /enterprise/aispm/reports/render" },
+        "send_endpoint": { "const": "POST /enterprise/aispm/reports/send" },
+        "deliveries_endpoint": { "const": "GET /enterprise/aispm/reports/deliveries" },
+        "schedules_endpoint": { "const": "POST /enterprise/aispm/reports/schedules" },
+        "implementation": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "required": ["supported_modes", "recipient_controls", "implementation"],
+      "properties": {
+        "supported_modes": {
+          "type": "array",
+          "items": {
+            "enum": ["disabled", "smtp", "microsoft365", "google_workspace", "ses", "sendgrid", "webhook"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "recipient_controls": {
+          "type": "array",
+          "items": {
+            "enum": ["domain_allowlist", "rbac", "approval_gate", "delivery_audit"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "implementation": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    },
+    "setup": {
+      "type": "object",
+      "required": [
+        "required_settings",
+        "secret_reference_settings",
+        "secret_values_allowed_in_public_repo"
+      ],
+      "properties": {
+        "required_settings": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CAVRA_REPORT_" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "secret_reference_settings": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^CAVRA_REPORT_.*_REF$" },
+          "uniqueItems": true
+        },
+        "secret_values_allowed_in_public_repo": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "security_controls": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "renderer",
+        "scheduler",
+        "email_delivery",
+        "tenant_persistence",
+        "license_enforcement"
+      ],
+      "properties": {
+        "renderer": { "const": "requires_cavra_enterprise" },
+        "scheduler": { "const": "requires_cavra_enterprise" },
+        "email_delivery": { "const": "requires_cavra_enterprise" },
+        "tenant_persistence": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "report": {
+      "type": "object",
+      "required": ["report_id", "title", "formats", "audiences", "availability"],
+      "properties": {
+        "report_id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "formats": {
+          "type": "array",
+          "items": {
+            "enum": ["markdown", "json", "csv", "pdf", "xlsx", "docx", "html", "jsonl", "zip"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "audiences": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "availability": {
+          "enum": ["community", "requires_cavra_enterprise"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

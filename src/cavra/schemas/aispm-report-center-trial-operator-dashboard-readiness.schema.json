@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Center Trial Operator Dashboard Readiness Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "trial_ref",
+    "tenant_ref",
+    "dashboard",
+    "validation_rollup",
+    "path_status",
+    "approval_blockers",
+    "evidence_links",
+    "operator_actions",
+    "evaluator_handoff",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.report_center_trial_operator_dashboard_readiness.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise_trial" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "trial_ref": { "type": "string", "minLength": 1 },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "dashboard": {
+      "type": "object",
+      "required": [
+        "dashboard_ref",
+        "status",
+        "operator_review_required",
+        "last_validation_packet_ref",
+        "last_refresh_at",
+        "next_review_due_at"
+      ],
+      "properties": {
+        "dashboard_ref": { "type": "string", "minLength": 1 },
+        "status": {
+          "enum": [
+            "ready_for_operator_review",
+            "blocked",
+            "needs_rerun",
+            "handoff_approved"
+          ]
+        },
+        "operator_review_required": { "type": "boolean" },
+        "last_validation_packet_ref": { "type": "string", "minLength": 1 },
+        "last_refresh_at": { "type": "string", "format": "date-time" },
+        "next_review_due_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "validation_rollup": {
+      "type": "object",
+      "required": [
+        "total_paths",
+        "passed_paths",
+        "warning_paths",
+        "blocked_paths",
+        "failed_paths",
+        "critical_blockers",
+        "handoff_ready",
+        "trial_validation_packet_ref"
+      ],
+      "properties": {
+        "total_paths": { "type": "integer", "minimum": 0 },
+        "passed_paths": { "type": "integer", "minimum": 0 },
+        "warning_paths": { "type": "integer", "minimum": 0 },
+        "blocked_paths": { "type": "integer", "minimum": 0 },
+        "failed_paths": { "type": "integer", "minimum": 0 },
+        "critical_blockers": { "type": "integer", "minimum": 0 },
+        "handoff_ready": { "type": "boolean" },
+        "trial_validation_packet_ref": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "path_status": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path_id", "status", "operator_state", "evidence_ref"],
+        "properties": {
+          "path_id": {
+            "enum": [
+              "setup_wizard",
+              "render_report",
+              "send_blocked_by_policy",
+              "send_after_approval",
+              "schedule_run",
+              "evidence_room",
+              "alert_escalation",
+              "remediation_closure",
+              "executive_digest_distribution",
+              "revocation_and_retention"
+            ]
+          },
+          "status": { "enum": ["passed", "warning", "blocked", "failed", "not_run"] },
+          "operator_state": {
+            "enum": [
+              "no_action_required",
+              "review_recommended",
+              "approval_required",
+              "rerun_required",
+              "blocked"
+            ]
+          },
+          "evidence_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "approval_blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["blocker_id", "severity", "status", "summary", "evidence_ref"],
+        "properties": {
+          "blocker_id": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "status": { "enum": ["open", "acknowledged", "resolved", "waived"] },
+          "summary": { "type": "string", "minLength": 1 },
+          "evidence_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_links": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "evidence_ref", "artifact_ref", "status"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1 },
+          "evidence_ref": { "type": "string", "minLength": 1 },
+          "artifact_ref": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["available", "pending", "blocked", "expired"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "operator_actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["action_id", "label", "state", "requires_approval", "evidence_ref"],
+        "properties": {
+          "action_id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "state": {
+            "enum": ["available", "recommended", "blocked", "completed", "not_available"]
+          },
+          "requires_approval": { "type": "boolean" },
+          "evidence_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evaluator_handoff": {
+      "type": "object",
+      "required": [
+        "handoff_state",
+        "handoff_packet_ref",
+        "instructions_ref",
+        "package_access_state",
+        "license_state",
+        "support_state",
+        "expires_at"
+      ],
+      "properties": {
+        "handoff_state": { "enum": ["not_ready", "ready", "approved", "blocked", "expired"] },
+        "handoff_packet_ref": { "type": "string", "minLength": 1 },
+        "instructions_ref": { "type": "string", "minLength": 1 },
+        "package_access_state": { "enum": ["ready", "pending", "blocked", "expired"] },
+        "license_state": {
+          "enum": ["trial_active", "trial_pending", "trial_expired", "trial_revoked"]
+        },
+        "support_state": {
+          "enum": [
+            "operator_review_pending",
+            "handoff_approved",
+            "support_required",
+            "no_action_required"
+          ]
+        },
+        "expires_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "operator_review_required",
+        "approval_before_handoff_required",
+        "license_status_visible",
+        "package_access_status_visible",
+        "evidence_refs_only",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "operator_review_required": { "type": "boolean" },
+        "approval_before_handoff_required": { "type": "boolean" },
+        "license_status_visible": { "type": "boolean" },
+        "package_access_status_visible": { "type": "boolean" },
+        "evidence_refs_only": { "type": "boolean" },
+        "raw_payloads_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "evaluator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "board_member_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_prompt_included",
+        "model_reasoning_included",
+        "raw_tool_output_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "private_remediation_details_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "source_code_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "evaluator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "board_member_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_prompt_included": { "const": false },
+        "model_reasoning_included": { "const": false },
+        "raw_tool_output_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "private_remediation_details_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "source_code_included": { "const": false },
+        "payload_handling": {
+          "const": "report_center_trial_operator_dashboard_metadata_only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "operator_dashboard_api",
+        "trial_validation_store",
+        "handoff_workflow",
+        "package_access_service",
+        "license_service",
+        "support_queue",
+        "audit_store"
+      ],
+      "properties": {
+        "operator_dashboard_api": { "const": "requires_cavra_enterprise" },
+        "trial_validation_store": { "const": "requires_cavra_enterprise" },
+        "handoff_workflow": { "const": "requires_cavra_enterprise" },
+        "package_access_service": { "const": "requires_cavra_enterprise" },
+        "license_service": { "const": "requires_cavra_enterprise" },
+        "support_queue": { "const": "requires_cavra_enterprise" },
+        "audit_store": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

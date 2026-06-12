@@ -1,0 +1,150 @@
+{
+  "schema_version": "cavra.aispm.report_remediation_closure_operations_dashboard.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T12:04:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "dashboard": {
+    "dashboard_ref": "dashboard:opaque-remediation-closure-ops",
+    "status": "degraded",
+    "closure_readiness": "attention_required",
+    "closed_plans": 42,
+    "open_plans": 9,
+    "overdue_tasks": 3,
+    "overdue_closures": 2,
+    "closures_due_soon": 4,
+    "mean_time_to_close_hours": 18.4,
+    "p95_time_to_close_hours": 46.2
+  },
+  "throughput": {
+    "period": "last_30_days",
+    "opened": 51,
+    "closed": 42,
+    "reopened": 2,
+    "closure_rate": 0.82,
+    "sla_met_count": 37,
+    "sla_breached_count": 5
+  },
+  "queues": [
+    {
+      "queue": "closure_approval",
+      "depth": 4,
+      "oldest_age_hours": 18.5,
+      "status": "degraded"
+    },
+    {
+      "queue": "residual_risk_review",
+      "depth": 2,
+      "oldest_age_hours": 12.0,
+      "status": "healthy"
+    },
+    {
+      "queue": "post_incident_review",
+      "depth": 3,
+      "oldest_age_hours": 30.0,
+      "status": "degraded"
+    },
+    {
+      "queue": "evidence_finalization",
+      "depth": 1,
+      "oldest_age_hours": 8.0,
+      "status": "healthy"
+    }
+  ],
+  "residual_risk_aging": {
+    "total_acceptances": 11,
+    "low": 7,
+    "medium": 3,
+    "high": 1,
+    "critical": 0,
+    "overdue_reviews": 1,
+    "next_review_due_at": "2026-06-18T09:00:00Z"
+  },
+  "approval_bottlenecks": [
+    {
+      "approver_role": "ciso",
+      "pending_count": 2,
+      "oldest_age_hours": 18.5,
+      "p95_age_hours": 20.0,
+      "status": "degraded"
+    },
+    {
+      "approver_role": "security_leadership",
+      "pending_count": 2,
+      "oldest_age_hours": 9.0,
+      "p95_age_hours": 11.5,
+      "status": "healthy"
+    }
+  ],
+  "post_incident_review_health": {
+    "required": 18,
+    "completed": 15,
+    "overdue": 2,
+    "completion_rate": 0.83,
+    "follow_up_required": 6
+  },
+  "closure_slo": {
+    "target_hours": 24,
+    "met_count": 37,
+    "breached_count": 5,
+    "at_risk_count": 4,
+    "status": "degraded"
+  },
+  "recent_closures": [
+    {
+      "closure_ref": "remediation-closure:opaque-report-alert",
+      "plan_ref": "remediation-plan:opaque-report-alert",
+      "source_alert_ref": "alert:opaque-evidence-room-access",
+      "final_status": "closed",
+      "owner_role": "security_operations",
+      "residual_risk_level": "low",
+      "closed_at": "2026-06-12T10:12:00Z",
+      "evidence_ref": "cavra://evidence/redacted/remediation-closure-approved"
+    }
+  ],
+  "evidence": {
+    "dashboard_digest_ref": "digest:opaque-remediation-closure-ops",
+    "latest_closure_ref": "remediation-closure:opaque-report-alert",
+    "latest_plan_ref": "remediation-plan:opaque-report-alert",
+    "immutable_store_ref": "immutable:opaque-remediation-closure-ops",
+    "evidence_refs": [
+      "cavra://evidence/redacted/remediation-closure-dashboard-generated",
+      "cavra://evidence/redacted/remediation-closure-slo-evaluated",
+      "cavra://evidence/redacted/residual-risk-review-aging-evaluated"
+    ]
+  },
+  "controls": {
+    "derived_from_closure_events": true,
+    "rbac_scoped": true,
+    "retention_aware": true,
+    "immutable_dashboard_required": true,
+    "slo_policy_enforced": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "remediation_closure_operations_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "closure_operations_projection": "requires_cavra_enterprise",
+    "closure_event_store": "requires_cavra_enterprise",
+    "slo_evaluator": "requires_cavra_enterprise",
+    "residual_risk_review_store": "requires_cavra_enterprise",
+    "approval_queue_store": "requires_cavra_enterprise",
+    "post_incident_review_store": "requires_cavra_enterprise",
+    "immutable_dashboard_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "cavra.aispm.enterprise_live_ingestion_envelope.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "event": {
+    "event_id": "evt_01jz_public_contract_sample",
+    "event_type": "tool_call",
+    "occurred_at": "2026-06-11T08:00:00Z",
+    "received_at": "2026-06-11T08:00:02Z",
+    "session_id": "sess_public_contract_sample",
+    "agent_id": "codex-agent",
+    "repository": "example/repository",
+    "actor_ref": "role:developer",
+    "tool_name": "filesystem.write",
+    "action_type": "modify_file",
+    "target_summary": "redacted:ci-workflow",
+    "decision": "require_approval",
+    "severity": "high",
+    "risk_classification": "source_control_governance_risk",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "evidence_refs": [
+      "cavra://evidence/redacted/public-contract-sample"
+    ],
+    "payload_ref": "enterprise-private://tenant/opaque-event-ref"
+  },
+  "source": {
+    "connector_type": "codex",
+    "connector_id": "connector-public-contract-sample",
+    "runtime_version": "public-contract",
+    "collector_version": "public-contract"
+  },
+  "tenant": {
+    "tenant_ref": "tenant:opaque-public-contract-sample",
+    "environment": "production",
+    "region": "us",
+    "data_residency_ref": "policy:tenant-data-residency"
+  },
+  "redaction": {
+    "payload_handling": "private_payload_ref",
+    "raw_prompt_included": false,
+    "reasoning_included": false,
+    "tool_output_included": false,
+    "redaction_profile": "public-contract-metadata-only",
+    "private_payload_required": true
+  },
+  "integrity": {
+    "signature_required": true,
+    "signature_ref": "enterprise-private://signatures/opaque-ref",
+    "hash_algorithm": "sha256",
+    "payload_hash": "redacted-public-contract-hash-placeholder",
+    "chain_ref": "enterprise-private://chains/opaque-ref"
+  },
+  "transport": {
+    "ingress_mode": "https",
+    "delivery_semantics": "at_least_once",
+    "idempotency_key": "evt_01jz_public_contract_sample",
+    "retry_count": 0
+  },
+  "enterprise_boundaries": {
+    "collector_implementation": "requires_cavra_enterprise",
+    "tenant_persistence": "requires_cavra_enterprise",
+    "streaming_transport": "requires_cavra_enterprise",
+    "raw_payload_storage": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

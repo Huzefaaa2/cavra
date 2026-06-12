@@ -1,0 +1,79 @@
+{
+  "schema_version": "cavra.aispm.report_operations_dashboard.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:05:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "summary": {
+    "delivery_health": "degraded",
+    "scheduled_reports": 8,
+    "pending_approvals": 2,
+    "retry_queue_depth": 3,
+    "failed_deliveries": 1,
+    "immutable_audit_coverage_percent": 96.5
+  },
+  "queues": [
+    {
+      "queue": "delivery",
+      "depth": 3,
+      "oldest_age_minutes": 12,
+      "status": "action_required"
+    },
+    {
+      "queue": "audit_export",
+      "depth": 0,
+      "oldest_age_minutes": 0,
+      "status": "healthy"
+    }
+  ],
+  "scheduled_reports": [
+    {
+      "schedule_id": "schedule:opaque-board-pack",
+      "report_id": "pdf_board_pack",
+      "cadence": "weekly",
+      "next_run_at": "2026-06-15T09:00:00Z",
+      "status": "active"
+    }
+  ],
+  "approval_bottlenecks": [
+    {
+      "approval_ref": "approval:opaque-pending-external-delivery",
+      "report_id": "pdf_board_pack",
+      "pending_minutes": 42,
+      "approver_group": "security-leadership",
+      "status": "pending"
+    }
+  ],
+  "failed_deliveries": [
+    {
+      "delivery_ref": "delivery:opaque-failed-send",
+      "report_id": "xlsx_evidence_workbook",
+      "delivery_mode": "smtp",
+      "failure_class": "provider_auth",
+      "retry_status": "queued",
+      "last_attempt_at": "2026-06-11T07:58:00Z"
+    }
+  ],
+  "audit_coverage": {
+    "events_expected": 124,
+    "events_persisted": 120,
+    "immutable_refs_missing": 4,
+    "coverage_status": "partial"
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "provider_responses_included": false,
+    "raw_report_content_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "dashboard_persistence": "requires_cavra_enterprise",
+    "live_queue_inspection": "requires_cavra_enterprise",
+    "provider_health_probe": "requires_cavra_enterprise",
+    "retry_control": "requires_cavra_enterprise",
+    "audit_search": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

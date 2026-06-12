@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Enterprise Live Ingestion Envelope Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "event",
+    "source",
+    "tenant",
+    "redaction",
+    "integrity",
+    "transport",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.enterprise_live_ingestion_envelope.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "event": {
+      "type": "object",
+      "required": ["event_id", "event_type", "occurred_at", "session_id", "agent_id"],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "event_type": {
+          "enum": [
+            "prompt",
+            "model_response",
+            "reasoning_trace",
+            "tool_call",
+            "file_action",
+            "shell_command",
+            "git_operation",
+            "mcp_activity",
+            "ci_runner_event",
+            "cloud_iac_event",
+            "policy_decision",
+            "approval_event",
+            "evidence_event"
+          ]
+        },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "received_at": { "type": "string", "format": "date-time" },
+        "session_id": { "type": "string", "minLength": 1 },
+        "agent_id": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string" },
+        "actor_ref": { "type": "string" },
+        "tool_name": { "type": "string" },
+        "action_type": { "type": "string" },
+        "target_summary": { "type": "string" },
+        "decision": {
+          "enum": ["allow", "warn", "block", "require_approval", "allow_with_attestation", "audit_only", "not_applicable"]
+        },
+        "severity": {
+          "enum": ["none", "low", "medium", "high", "critical"]
+        },
+        "risk_classification": { "type": "string" },
+        "policy_pack": { "type": "string" },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "payload_ref": {
+          "type": "string",
+          "description": "Opaque private Enterprise storage reference. Raw payloads are not embedded in the public contract."
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["connector_type", "connector_id"],
+      "properties": {
+        "connector_type": {
+          "enum": [
+            "codex",
+            "claude_code",
+            "github_copilot",
+            "cursor",
+            "gemini_cli",
+            "mcp_server",
+            "github_actions",
+            "gitlab_ci",
+            "azure_pipelines",
+            "cloud_provider",
+            "custom"
+          ]
+        },
+        "connector_id": { "type": "string", "minLength": 1 },
+        "runtime_version": { "type": "string" },
+        "collector_version": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "tenant": {
+      "type": "object",
+      "required": ["tenant_ref", "environment"],
+      "properties": {
+        "tenant_ref": {
+          "type": "string",
+          "description": "Opaque tenant reference. Customer legal names and secrets must not be embedded."
+        },
+        "environment": { "enum": ["dev", "test", "staging", "production", "sandbox"] },
+        "region": { "type": "string" },
+        "data_residency_ref": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["payload_handling", "raw_prompt_included", "reasoning_included", "tool_output_included"],
+      "properties": {
+        "payload_handling": {
+          "enum": ["metadata_only", "redacted_summary", "private_payload_ref"]
+        },
+        "raw_prompt_included": { "const": false },
+        "reasoning_included": { "const": false },
+        "tool_output_included": { "const": false },
+        "redaction_profile": { "type": "string" },
+        "private_payload_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["signature_required", "hash_algorithm"],
+      "properties": {
+        "signature_required": { "type": "boolean" },
+        "signature_ref": { "type": "string" },
+        "hash_algorithm": { "enum": ["sha256", "sha384", "sha512"] },
+        "payload_hash": { "type": "string" },
+        "chain_ref": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "transport": {
+      "type": "object",
+      "required": ["ingress_mode", "delivery_semantics"],
+      "properties": {
+        "ingress_mode": { "enum": ["https", "sse", "websocket", "queue", "batch"] },
+        "delivery_semantics": { "enum": ["at_least_once", "exactly_once_private", "best_effort"] },
+        "idempotency_key": { "type": "string" },
+        "retry_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "collector_implementation",
+        "tenant_persistence",
+        "streaming_transport",
+        "raw_payload_storage",
+        "license_enforcement"
+      ],
+      "properties": {
+        "collector_implementation": { "const": "requires_cavra_enterprise" },
+        "tenant_persistence": { "const": "requires_cavra_enterprise" },
+        "streaming_transport": { "const": "requires_cavra_enterprise" },
+        "raw_payload_storage": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,265 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_validation_packet.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T09:30:00Z",
+  "trial_ref": "trial:opaque-report-center-evaluator",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "validation_summary": {
+    "status": "ready_for_evaluator_review",
+    "passed_paths": 10,
+    "warning_paths": 0,
+    "blocked_paths": 0,
+    "failed_paths": 0,
+    "evidence_packet_ref": "evidence-packet:opaque-report-center-trial",
+    "validated_at": "2026-06-12T09:30:00Z"
+  },
+  "package_under_test": {
+    "package_ref": "package:opaque-cavra-enterprise-trial",
+    "version": "2026.06.12",
+    "image_ref": "ghcr.io/huzefaaa2/cavra-enterprise-trial:2026.06.12",
+    "license_status": "trial_active",
+    "license_validation_mode": "hosted_validation",
+    "source_included": false
+  },
+  "validation_paths": [
+    {
+      "path_id": "setup_wizard",
+      "title": "Setup wizard saves tenant report settings",
+      "status": "passed",
+      "assertions": [
+        "provider references saved",
+        "raw credential values excluded",
+        "tenant report settings persisted"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-setup-settings-saved"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-setup-wizard-contract"
+      ]
+    },
+    {
+      "path_id": "render_report",
+      "title": "Report rendering produces artifact metadata",
+      "status": "passed",
+      "assertions": [
+        "pdf metadata produced",
+        "docx metadata produced",
+        "html metadata produced",
+        "signed json metadata produced",
+        "artifact digests available"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-render-metadata-produced"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-export-package-manifest"
+      ]
+    },
+    {
+      "path_id": "send_blocked_by_policy",
+      "title": "Send blocks when approval or recipient policy is missing",
+      "status": "passed",
+      "assertions": [
+        "external recipient blocked",
+        "missing approval blocked",
+        "delivery audit event written"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-send-blocked-by-policy"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-recipient-policy",
+        "schema:aispm-report-delivery-audit-event"
+      ]
+    },
+    {
+      "path_id": "send_after_approval",
+      "title": "Approved send creates immutable delivery evidence",
+      "status": "passed",
+      "assertions": [
+        "approval decision accepted",
+        "recipient policy passed",
+        "immutable send evidence recorded"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-send-approved"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-approval-decision",
+        "schema:aispm-report-delivery-contract"
+      ]
+    },
+    {
+      "path_id": "schedule_run",
+      "title": "Scheduled report run respects governance policy",
+      "status": "passed",
+      "assertions": [
+        "schedule policy evaluated",
+        "blackout window checked",
+        "retry policy available"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-schedule-run-evaluated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-schedule-policy"
+      ]
+    },
+    {
+      "path_id": "evidence_room",
+      "title": "Evidence room grants scoped and expiring access",
+      "status": "passed",
+      "assertions": [
+        "room access scoped",
+        "watermark evidence available",
+        "view and download events logged",
+        "revocation path verified"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/evidence-room-access-validated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-evidence-room",
+        "schema:aispm-report-evidence-room-access-event"
+      ]
+    },
+    {
+      "path_id": "alert_escalation",
+      "title": "Delivery or approval SLO breach routes an alert",
+      "status": "passed",
+      "assertions": [
+        "alert rule evaluated",
+        "routing policy applied",
+        "acknowledgement due time recorded"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-alert-escalation-validated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-alert-escalation",
+        "schema:aispm-report-alert-operations-dashboard"
+      ]
+    },
+    {
+      "path_id": "remediation_closure",
+      "title": "Alert remediation closes only after required evidence",
+      "status": "passed",
+      "assertions": [
+        "tasks completed",
+        "final approval recorded",
+        "residual risk state captured",
+        "closure evidence recorded"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-remediation-closure-validated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-alert-remediation-plan",
+        "schema:aispm-report-alert-remediation-closure"
+      ]
+    },
+    {
+      "path_id": "executive_digest_distribution",
+      "title": "Executive digest distribution waits for approval",
+      "status": "passed",
+      "assertions": [
+        "email delivery blocked before approval",
+        "portal package ready",
+        "grc package ready",
+        "signed manifest required",
+        "immutable send evidence available"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/executive-digest-distribution-validated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-remediation-closure-executive-digest",
+        "schema:aispm-report-remediation-closure-digest-distribution"
+      ]
+    },
+    {
+      "path_id": "revocation_and_retention",
+      "title": "Revoked or expired artifacts cannot be retrieved",
+      "status": "passed",
+      "assertions": [
+        "revoked artifact blocked",
+        "expired artifact blocked",
+        "retention policy evaluated",
+        "retrieval audit event written"
+      ],
+      "evidence_refs": [
+        "cavra://evidence/redacted/report-revocation-retention-validated"
+      ],
+      "public_artifact_refs": [
+        "schema:aispm-report-retention-lifecycle",
+        "schema:aispm-report-search-retrieval"
+      ]
+    }
+  ],
+  "artifacts": {
+    "schemas_validated": [
+      "aispm-report-delivery-contract.schema.json",
+      "aispm-report-setup-wizard-contract.schema.json",
+      "aispm-report-delivery-audit-event.schema.json",
+      "aispm-report-operations-dashboard.schema.json",
+      "aispm-report-retention-lifecycle.schema.json",
+      "aispm-report-search-retrieval.schema.json",
+      "aispm-report-export-package-manifest.schema.json",
+      "aispm-report-schedule-policy.schema.json",
+      "aispm-report-recipient-policy.schema.json",
+      "aispm-report-approval-decision.schema.json",
+      "aispm-report-evidence-room.schema.json",
+      "aispm-report-evidence-room-access-event.schema.json",
+      "aispm-report-alert-escalation.schema.json",
+      "aispm-report-alert-remediation-closure.schema.json",
+      "aispm-report-remediation-closure-digest-distribution.schema.json"
+    ],
+    "packet_digest_ref": "digest:opaque-report-center-trial-validation",
+    "immutable_store_ref": "immutable:opaque-report-center-trial-validation",
+    "operator_dashboard_ref": "dashboard:opaque-report-center-trial"
+  },
+  "controls": {
+    "license_validated": true,
+    "tenant_scoped": true,
+    "approval_before_send_verified": true,
+    "recipient_policy_verified": true,
+    "retention_policy_verified": true,
+    "revocation_verified": true,
+    "immutable_evidence_required": true,
+    "raw_payloads_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_validation_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "trial_license_service": "requires_cavra_enterprise",
+    "report_renderer": "requires_cavra_enterprise",
+    "delivery_worker": "requires_cavra_enterprise",
+    "scheduler": "requires_cavra_enterprise",
+    "evidence_room_worker": "requires_cavra_enterprise",
+    "alert_evaluator": "requires_cavra_enterprise",
+    "remediation_workflow": "requires_cavra_enterprise",
+    "digest_distribution_worker": "requires_cavra_enterprise",
+    "tenant_store": "requires_cavra_enterprise"
+  }
+}

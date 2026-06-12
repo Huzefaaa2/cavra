@@ -1,0 +1,68 @@
+{
+  "schema_version": "cavra.aispm.report_catalog_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_report_catalog_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-catalog-packet.json",
+  "validator": "scripts/validate-aispm-report-catalog-readiness.py",
+  "community_reports": [
+    {
+      "report_id": "executive_brief_md",
+      "title": "Executive Risk Brief",
+      "format": "Markdown",
+      "filename": "cavra-aispm-executive-risk-brief.md",
+      "audience": "CSO/CISO"
+    },
+    {
+      "report_id": "board_kpi_json",
+      "title": "Board KPI Pack",
+      "format": "JSON",
+      "filename": "cavra-aispm-board-kpi-pack.json",
+      "audience": "Leadership"
+    },
+    {
+      "report_id": "soc2_audit_md",
+      "title": "SOC 2-Style Audit Summary",
+      "format": "Markdown",
+      "filename": "cavra-aispm-soc2-audit-summary.md",
+      "audience": "Audit"
+    },
+    {
+      "report_id": "control_coverage_csv",
+      "title": "Control Coverage Export",
+      "format": "CSV",
+      "filename": "cavra-aispm-control-coverage.csv",
+      "audience": "Security Engineering"
+    },
+    {
+      "report_id": "evidence_freshness_csv",
+      "title": "Evidence Freshness Export",
+      "format": "CSV",
+      "filename": "cavra-aispm-evidence-freshness.csv",
+      "audience": "GRC / Audit"
+    },
+    {
+      "report_id": "agent_risk_csv",
+      "title": "Agent Risk Register",
+      "format": "CSV",
+      "filename": "cavra-aispm-agent-risk-register.csv",
+      "audience": "Platform Security"
+    }
+  ],
+  "enterprise_locked_reports": [
+    "PDF Board Pack",
+    "XLSX Evidence Workbook",
+    "Scheduled Email Delivery",
+    "Recipient Governance"
+  ],
+  "enterprise_boundaries": {
+    "pdf_xlsx_docx_rendering": "requires_cavra_enterprise",
+    "signed_json_and_grc_packages": "requires_cavra_enterprise",
+    "scheduled_email_delivery": "requires_cavra_enterprise",
+    "recipient_allowlists_rbac_and_approval_gates": "requires_cavra_enterprise",
+    "delivery_audit_and_retry_evidence": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "Community report downloads use sample or local activity metadata only. The public catalog excludes raw prompts, model reasoning, recipient addresses, SMTP credentials, private report content, signed download URLs, customer records, Enterprise source code, private policy packs, and tenant telemetry."
+}

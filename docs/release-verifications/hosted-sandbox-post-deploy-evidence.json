@@ -1,0 +1,25 @@
+{
+  "schema_version": "cavra.hosted_sandbox.post_deploy_evidence_contract.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "post_deploy_evidence_artifact_contract",
+  "status": "workflow_enforced",
+  "workflow": ".github/workflows/deploy-sandbox.yml",
+  "generator": "scripts/generate-hosted-sandbox-deploy-evidence.py",
+  "validator": "scripts/validate-hosted-sandbox-deploy-evidence.py",
+  "artifact_name": "cavra-hosted-sandbox-post-deploy-evidence",
+  "generated_artifacts": [
+    ".cavra/deploy-evidence/hosted-sandbox-post-deploy-evidence.json",
+    ".cavra/deploy-evidence/hosted-sandbox-post-deploy-evidence.md"
+  ],
+  "required_runtime_fields": [
+    "page_url",
+    "workflow_run_url",
+    "workflow_run_id",
+    "workflow_run_attempt",
+    "commit_sha",
+    "ref_name",
+    "hosted_smoke.status"
+  ],
+  "public_safety_boundary": "The generated artifact records public GitHub Pages deployment metadata and hosted smoke status only. It must not include customer data, license secrets, private registry credentials, or Enterprise source code."
+}

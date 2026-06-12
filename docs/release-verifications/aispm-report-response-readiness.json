@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.report_response_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_report_response_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-response-readiness-packet.json",
+  "validator": "scripts/validate-aispm-report-response-readiness.py",
+  "response_areas": [
+    {
+      "area_id": "alert_operations_dashboard",
+      "title": "Alert Operations Dashboard",
+      "schema": "src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json",
+      "example": "examples/aispm/enterprise-report-alert-operations-dashboard-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "alert_drilldown",
+      "title": "Alert Drilldown",
+      "schema": "src/cavra/schemas/aispm-report-alert-drilldown.schema.json",
+      "example": "examples/aispm/enterprise-report-alert-drilldown-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "alert_remediation_plan",
+      "title": "Alert Remediation Plan",
+      "schema": "src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json",
+      "example": "examples/aispm/enterprise-report-alert-remediation-plan-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "alert_remediation_closure",
+      "title": "Alert Remediation Closure",
+      "schema": "src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json",
+      "example": "examples/aispm/enterprise-report-alert-remediation-closure-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "remediation_closure_operations",
+      "title": "Remediation Closure Operations",
+      "schema": "src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json",
+      "example": "examples/aispm/enterprise-report-remediation-closure-operations-dashboard-public.example.json",
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "enterprise_boundaries": {
+    "alert_operations_dashboard_persistence": "requires_cavra_enterprise",
+    "alert_drilldown_authorization": "requires_cavra_enterprise",
+    "remediation_plan_workflow": "requires_cavra_enterprise",
+    "remediation_closure_workflow": "requires_cavra_enterprise",
+    "closure_operations_dashboard": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes public-safe schema names, example paths, and response readiness expectations only. It excludes assignee identities, tenant alert records, raw report payloads, private remediation tasks, customer records, signed download URLs, provider responses, Enterprise source code, private policy packs, and license secrets."
+}

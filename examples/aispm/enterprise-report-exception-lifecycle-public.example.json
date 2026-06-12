@@ -1,0 +1,82 @@
+{
+  "schema_version": "cavra.aispm.report_exception_lifecycle.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-11T08:40:00Z",
+  "tenant_ref": "tenant:opaque-public-contract-sample",
+  "exception": {
+    "exception_ref": "exception:opaque-external-auditor-delivery",
+    "exception_type": "external_delivery_exception",
+    "status": "active",
+    "opened_at": "2026-06-11T08:34:00Z",
+    "expires_at": "2026-06-18T08:34:00Z",
+    "owner_ref": "role:security-leadership",
+    "linked_approval_ref": "approval-decision:opaque-external-report-delivery"
+  },
+  "scope": {
+    "report_ids": ["pdf_board_pack", "xlsx_evidence_workbook"],
+    "recipient_scope": "approved_external_domain",
+    "domain_rule_ref": "domain-rule:opaque-auditor-domain",
+    "schedule_ref": "schedule:opaque-ciso-weekly-board-pack",
+    "delivery_modes": ["smtp"]
+  },
+  "lifecycle_events": [
+    {
+      "event_ref": "exception-event:opaque-opened",
+      "event_type": "opened",
+      "occurred_at": "2026-06-11T08:34:00Z",
+      "actor_ref": "role:security-leadership",
+      "evidence_ref": "cavra://evidence/redacted/report-exception-opened"
+    },
+    {
+      "event_ref": "exception-event:opaque-review-scheduled",
+      "event_type": "review_scheduled",
+      "occurred_at": "2026-06-11T08:36:00Z",
+      "actor_ref": "system:cavra",
+      "evidence_ref": "cavra://evidence/redacted/report-exception-review-scheduled"
+    }
+  ],
+  "review_policy": {
+    "review_required": true,
+    "review_due_at": "2026-06-17T08:34:00Z",
+    "renewal_requires_approval": true,
+    "revocation_requires_reason": true,
+    "closure_requires_evidence": true
+  },
+  "renewal": {
+    "renewal_allowed": true,
+    "max_renewals": 1,
+    "renewal_window_starts_at": "2026-06-16T08:34:00Z",
+    "renewal_approval_ref": "approval-policy:opaque-exception-renewal"
+  },
+  "closure": {
+    "closure_state": "not_closed",
+    "closed_at": null,
+    "closure_reason": null,
+    "closure_evidence_refs": []
+  },
+  "evidence": {
+    "exception_digest_ref": "sha256:redacted-public-contract-exception",
+    "lifecycle_audit_ref": "audit:opaque-report-exception-lifecycle",
+    "immutable_store_ref": "enterprise-private://immutable-store/report-exception/opaque-ref",
+    "evidence_refs": ["cavra://evidence/redacted/report-exception-lifecycle-sample"]
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "approver_identity_included": false,
+    "private_justification_included": false,
+    "raw_report_content_included": false,
+    "customer_records_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "exception_store": "requires_cavra_enterprise",
+    "renewal_workflow": "requires_cavra_enterprise",
+    "revocation_workflow": "requires_cavra_enterprise",
+    "review_notification_delivery": "requires_cavra_enterprise",
+    "immutable_lifecycle_audit": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

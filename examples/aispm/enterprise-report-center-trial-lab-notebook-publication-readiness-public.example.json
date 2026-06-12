@@ -1,0 +1,201 @@
+{
+  "schema_version": "cavra.aispm.report_center_trial_lab_notebook_publication_readiness.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "contract_visibility": "public_contract",
+  "generated_at": "2026-06-12T13:00:00Z",
+  "notebook_ref": "wiki:aispm-enterprise-trial-lab-notebook",
+  "outline_contract_ref": "src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json",
+  "publication_readiness": {
+    "status": "ready_for_publication_review",
+    "target": "github_wiki",
+    "release_gate": "enterprise_trial_public_docs_ready",
+    "required_reviews": ["docs_owner", "security_owner", "product_owner"],
+    "requires_no_private_artifacts": true
+  },
+  "wiki_pages": [
+    {
+      "page_id": "trial-lab-overview",
+      "title": "CAVRA Enterprise Trial Lab Notebook",
+      "source_ref": "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
+      "nav_entry_required": true,
+      "link_health_required": true,
+      "screenshot_refs": ["screenshot-dashboard-home"],
+      "diagram_refs": ["diagram-open-core-model"],
+      "checkpoint_refs": ["checkpoint-product-surfaces"]
+    },
+    {
+      "page_id": "trial-access-flow",
+      "title": "Trial Access And Operator Approval",
+      "source_ref": "docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md",
+      "nav_entry_required": true,
+      "link_health_required": true,
+      "screenshot_refs": ["screenshot-trial-portal"],
+      "diagram_refs": ["flow-trial-access"],
+      "checkpoint_refs": ["checkpoint-trial-request", "checkpoint-operator-approval"]
+    },
+    {
+      "page_id": "trial-closeout",
+      "title": "Trial Revocation, Expiry, And Closeout",
+      "source_ref": "docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md",
+      "nav_entry_required": true,
+      "link_health_required": true,
+      "screenshot_refs": ["screenshot-closeout-summary"],
+      "diagram_refs": ["flow-revocation-expiry"],
+      "checkpoint_refs": ["checkpoint-revocation-expiry"]
+    }
+  ],
+  "visual_assets": [
+    {
+      "asset_id": "screenshot-dashboard-home",
+      "asset_type": "screenshot",
+      "source_route": "https://huzefaaa2.github.io/cavra/#dashboard",
+      "format": "png",
+      "redaction_status": "public_safe",
+      "alt_text_required": true,
+      "required": true
+    },
+    {
+      "asset_id": "screenshot-trial-portal",
+      "asset_type": "screenshot",
+      "source_route": "https://cavra-trial.mind-ops.cloud/",
+      "format": "png",
+      "redaction_status": "public_safe",
+      "alt_text_required": true,
+      "required": true
+    },
+    {
+      "asset_id": "diagram-open-core-model",
+      "asset_type": "diagram",
+      "source_route": "docs/architecture/open-core-model.md",
+      "format": "png",
+      "redaction_status": "public_safe",
+      "alt_text_required": true,
+      "required": true
+    },
+    {
+      "asset_id": "flow-revocation-expiry",
+      "asset_type": "flow_chart",
+      "source_route": "docs/architecture/aispm-report-center.md",
+      "format": "png",
+      "redaction_status": "public_safe",
+      "alt_text_required": true,
+      "required": true
+    }
+  ],
+  "link_checks": [
+    {
+      "target_label": "Community dashboard",
+      "url_kind": "public_docs_or_portal",
+      "expected_status": "reachable",
+      "owner": "docs_owner"
+    },
+    {
+      "target_label": "Enterprise Trial portal",
+      "url_kind": "trial_portal",
+      "expected_status": "reachable",
+      "owner": "trial_operator"
+    },
+    {
+      "target_label": "Public README",
+      "url_kind": "repository_page",
+      "expected_status": "reachable",
+      "owner": "docs_owner"
+    }
+  ],
+  "navigation_checks": [
+    {
+      "nav_id": "wiki-home-trial-lab-entry",
+      "location": "docs/wiki/Home.md",
+      "required_page_ids": [
+        "trial-lab-overview",
+        "trial-access-flow",
+        "trial-closeout"
+      ]
+    }
+  ],
+  "checkpoint_evidence": [
+    {
+      "checkpoint_id": "checkpoint-product-surfaces",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-product-surfaces",
+      "source_packet_ref": "trial_lab_notebook_outline",
+      "public_safe": true
+    },
+    {
+      "checkpoint_id": "checkpoint-trial-request",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-trial-request",
+      "source_packet_ref": "trial_validation_packet",
+      "public_safe": true
+    },
+    {
+      "checkpoint_id": "checkpoint-revocation-expiry",
+      "evidence_ref": "cavra://evidence/redacted/checkpoint-revocation-expiry",
+      "source_packet_ref": "trial_revocation_expiry_evidence",
+      "public_safe": true
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion_id": "wiki_nav_complete",
+      "description": "Wiki navigation includes every required lab notebook page.",
+      "required": true
+    },
+    {
+      "criterion_id": "assets_redacted",
+      "description": "Screenshots, diagrams, and flow charts contain only public-safe data.",
+      "required": true
+    },
+    {
+      "criterion_id": "links_verified",
+      "description": "Public links and portal links are checked before publication.",
+      "required": true
+    },
+    {
+      "criterion_id": "checkpoint_evidence_ready",
+      "description": "Each lab checkpoint has a public-safe evidence reference.",
+      "required": true
+    }
+  ],
+  "controls": {
+    "public_safe_required": true,
+    "screenshots_redacted": true,
+    "diagrams_redacted": true,
+    "wiki_nav_required": true,
+    "link_health_required": true,
+    "checkpoint_evidence_required": true,
+    "enterprise_source_excluded": true,
+    "license_secret_excluded": true,
+    "customer_data_excluded": true
+  },
+  "redaction": {
+    "recipient_addresses_included": false,
+    "operator_identity_included": false,
+    "evaluator_identity_included": false,
+    "auditor_identity_included": false,
+    "approver_identity_included": false,
+    "board_member_identity_included": false,
+    "ip_address_included": false,
+    "download_urls_included": false,
+    "package_tokens_included": false,
+    "license_key_included": false,
+    "raw_prompt_included": false,
+    "model_reasoning_included": false,
+    "raw_tool_output_included": false,
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "customer_records_included": false,
+    "private_remediation_details_included": false,
+    "tenant_drilldown_records_included": false,
+    "secrets_included": false,
+    "source_code_included": false,
+    "payload_handling": "report_center_trial_lab_notebook_publication_readiness_metadata_only"
+  },
+  "enterprise_boundaries": {
+    "wiki_publication_workflow": "public_docs_only",
+    "trial_portal": "requires_cavra_enterprise",
+    "license_service": "requires_cavra_enterprise",
+    "package_access_service": "requires_cavra_enterprise",
+    "private_screenshot_capture": "requires_cavra_enterprise",
+    "private_lab_fixtures": "requires_cavra_enterprise"
+  }
+}

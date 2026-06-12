@@ -1,0 +1,78 @@
+{
+  "schema_version": "cavra.aispm.launch_board_pack_artifact_index.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_release_verification",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "source_route": "apps/sandbox-ui/index.html#ai-posture",
+  "board_pack_packet": "cavra-aispm-pilot-launch-board-pack-packet.json",
+  "freshness_validator": "scripts/validate-aispm-launch-artifacts.py",
+  "visual_freshness_validator": "scripts/validate-aispm-visual-freshness.py",
+  "visual_smoke_record": "docs/release-verifications/aispm-visual-smoke-validation.json",
+  "public_safety_boundary": "No signed approvals, board minutes, email recipients, private telemetry, customer identity records, license keys, Enterprise source code, or delivery workflow state are included.",
+  "artifacts": [
+    {
+      "artifact_id": "launch_decision",
+      "filename": "cavra-aispm-pilot-launch-decision-packet.json",
+      "source_panel": "AISPM Pilot Launch Readiness Summary",
+      "required": true
+    },
+    {
+      "artifact_id": "evidence_room",
+      "filename": "cavra-aispm-pilot-evidence-room-packet.json",
+      "source_panel": "Production Pilot Evidence Room",
+      "required": true
+    },
+    {
+      "artifact_id": "risk_acceptance",
+      "filename": "cavra-aispm-pilot-risk-acceptance-packet.json",
+      "source_panel": "Pilot Risk Acceptance Summary",
+      "required": true
+    },
+    {
+      "artifact_id": "exception_register",
+      "filename": "cavra-aispm-pilot-exception-register-packet.json",
+      "source_panel": "Pilot Exception Register",
+      "required": true
+    },
+    {
+      "artifact_id": "reviewer_checklist",
+      "filename": "cavra-aispm-evidence-reviewer-checklist-packet.json",
+      "source_panel": "Evidence Room Reviewer Checklist",
+      "required": true
+    },
+    {
+      "artifact_id": "executive_risk_brief",
+      "filename": "cavra-aispm-executive-risk-brief.md",
+      "source_panel": "CSO Report Center",
+      "required": true
+    },
+    {
+      "artifact_id": "board_kpi_pack",
+      "filename": "cavra-aispm-board-kpi-pack.json",
+      "source_panel": "CSO Report Center",
+      "required": true
+    },
+    {
+      "artifact_id": "soc2_audit_summary",
+      "filename": "cavra-aispm-soc2-audit-summary.md",
+      "source_panel": "CSO Report Center",
+      "required": true
+    }
+  ],
+  "required_docs": [
+    "docs/ai-security-posture-dashboard-roadmap.md",
+    "docs/sandbox-portal-redesign.md",
+    "docs/sandbox-portal-smoke-validation.md",
+    "docs/wiki/AISPM-Dashboard-Roadmap.md",
+    "docs/wiki/CAVRA-Developer-Portal-Redesign.md",
+    "docs/wiki/CAVRA-Developer-Portal-Smoke-Validation.md"
+  ],
+  "enterprise_only_boundaries": [
+    "signed_board_approval",
+    "board_minutes_and_attestation",
+    "pdf_generation_and_delivery",
+    "recipient_allowlists_and_email_audit",
+    "tenant_artifact_retention"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.report_operations_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_enterprise_report_operations_release_gate",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-report-operations-readiness-packet.json",
+  "validator": "scripts/validate-aispm-report-operations-readiness.py",
+  "operation_areas": [
+    {
+      "area_id": "delivery_audit_events",
+      "title": "Delivery Audit Events",
+      "schema": "src/cavra/schemas/aispm-report-delivery-audit-event.schema.json",
+      "example": "examples/aispm/enterprise-report-delivery-audit-event-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "operations_dashboard",
+      "title": "Operations Dashboard",
+      "schema": "src/cavra/schemas/aispm-report-operations-dashboard.schema.json",
+      "example": "examples/aispm/enterprise-report-operations-dashboard-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "retention_lifecycle",
+      "title": "Retention Lifecycle",
+      "schema": "src/cavra/schemas/aispm-report-retention-lifecycle.schema.json",
+      "example": "examples/aispm/enterprise-report-retention-lifecycle-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "search_and_retrieval",
+      "title": "Search And Retrieval",
+      "schema": "src/cavra/schemas/aispm-report-search-retrieval.schema.json",
+      "example": "examples/aispm/enterprise-report-search-retrieval-public.example.json",
+      "status": "requires_cavra_enterprise"
+    },
+    {
+      "area_id": "export_package_manifest",
+      "title": "Export Package Manifest",
+      "schema": "src/cavra/schemas/aispm-report-export-package-manifest.schema.json",
+      "example": "examples/aispm/enterprise-report-export-package-manifest-public.example.json",
+      "status": "requires_cavra_enterprise"
+    }
+  ],
+  "enterprise_boundaries": {
+    "immutable_delivery_audit_store": "requires_cavra_enterprise",
+    "operations_dashboard_persistence": "requires_cavra_enterprise",
+    "retention_lifecycle_enforcement": "requires_cavra_enterprise",
+    "rbac_scoped_search_and_retrieval": "requires_cavra_enterprise",
+    "signed_export_package_manifest_service": "requires_cavra_enterprise"
+  },
+  "public_safety_boundary": "This release gate includes public-safe schema names, example paths, and operations readiness expectations only. It excludes raw report payloads, provider response payloads, recipient addresses, customer identity payloads, signed download URLs, tenant telemetry, Enterprise source code, private policy packs, and license secrets."
+}

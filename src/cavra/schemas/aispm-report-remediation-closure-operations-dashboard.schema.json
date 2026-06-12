@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CAVRA AISPM Report Remediation Closure Operations Dashboard Public Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "tenant_ref",
+    "dashboard",
+    "throughput",
+    "queues",
+    "residual_risk_aging",
+    "approval_bottlenecks",
+    "post_incident_review_health",
+    "closure_slo",
+    "recent_closures",
+    "evidence",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.report_remediation_closure_operations_dashboard.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "dashboard": {
+      "type": "object",
+      "required": [
+        "dashboard_ref",
+        "status",
+        "closure_readiness",
+        "closed_plans",
+        "open_plans",
+        "overdue_tasks",
+        "overdue_closures",
+        "closures_due_soon",
+        "mean_time_to_close_hours",
+        "p95_time_to_close_hours"
+      ],
+      "properties": {
+        "dashboard_ref": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["healthy", "degraded", "breached"] },
+        "closure_readiness": {
+          "enum": ["ready", "attention_required", "blocked"]
+        },
+        "closed_plans": { "type": "integer", "minimum": 0 },
+        "open_plans": { "type": "integer", "minimum": 0 },
+        "overdue_tasks": { "type": "integer", "minimum": 0 },
+        "overdue_closures": { "type": "integer", "minimum": 0 },
+        "closures_due_soon": { "type": "integer", "minimum": 0 },
+        "mean_time_to_close_hours": { "type": "number", "minimum": 0 },
+        "p95_time_to_close_hours": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "throughput": {
+      "type": "object",
+      "required": [
+        "period",
+        "opened",
+        "closed",
+        "reopened",
+        "closure_rate",
+        "sla_met_count",
+        "sla_breached_count"
+      ],
+      "properties": {
+        "period": { "type": "string", "minLength": 1 },
+        "opened": { "type": "integer", "minimum": 0 },
+        "closed": { "type": "integer", "minimum": 0 },
+        "reopened": { "type": "integer", "minimum": 0 },
+        "closure_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sla_met_count": { "type": "integer", "minimum": 0 },
+        "sla_breached_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "queues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["queue", "depth", "oldest_age_hours", "status"],
+        "properties": {
+          "queue": { "type": "string", "minLength": 1 },
+          "depth": { "type": "integer", "minimum": 0 },
+          "oldest_age_hours": { "type": "number", "minimum": 0 },
+          "status": { "enum": ["healthy", "degraded", "breached"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "residual_risk_aging": {
+      "type": "object",
+      "required": [
+        "total_acceptances",
+        "low",
+        "medium",
+        "high",
+        "critical",
+        "overdue_reviews",
+        "next_review_due_at"
+      ],
+      "properties": {
+        "total_acceptances": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "critical": { "type": "integer", "minimum": 0 },
+        "overdue_reviews": { "type": "integer", "minimum": 0 },
+        "next_review_due_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "approval_bottlenecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "approver_role",
+          "pending_count",
+          "oldest_age_hours",
+          "p95_age_hours",
+          "status"
+        ],
+        "properties": {
+          "approver_role": { "type": "string", "minLength": 1 },
+          "pending_count": { "type": "integer", "minimum": 0 },
+          "oldest_age_hours": { "type": "number", "minimum": 0 },
+          "p95_age_hours": { "type": "number", "minimum": 0 },
+          "status": { "enum": ["healthy", "degraded", "breached"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "post_incident_review_health": {
+      "type": "object",
+      "required": [
+        "required",
+        "completed",
+        "overdue",
+        "completion_rate",
+        "follow_up_required"
+      ],
+      "properties": {
+        "required": { "type": "integer", "minimum": 0 },
+        "completed": { "type": "integer", "minimum": 0 },
+        "overdue": { "type": "integer", "minimum": 0 },
+        "completion_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "follow_up_required": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "closure_slo": {
+      "type": "object",
+      "required": [
+        "target_hours",
+        "met_count",
+        "breached_count",
+        "at_risk_count",
+        "status"
+      ],
+      "properties": {
+        "target_hours": { "type": "integer", "minimum": 1 },
+        "met_count": { "type": "integer", "minimum": 0 },
+        "breached_count": { "type": "integer", "minimum": 0 },
+        "at_risk_count": { "type": "integer", "minimum": 0 },
+        "status": { "enum": ["healthy", "degraded", "breached"] }
+      },
+      "additionalProperties": false
+    },
+    "recent_closures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "closure_ref",
+          "plan_ref",
+          "source_alert_ref",
+          "final_status",
+          "owner_role",
+          "residual_risk_level",
+          "closed_at",
+          "evidence_ref"
+        ],
+        "properties": {
+          "closure_ref": { "type": "string", "minLength": 1 },
+          "plan_ref": { "type": "string", "minLength": 1 },
+          "source_alert_ref": { "type": "string", "minLength": 1 },
+          "final_status": {
+            "enum": ["closed", "closed_with_residual_risk", "reopened"]
+          },
+          "owner_role": { "type": "string", "minLength": 1 },
+          "residual_risk_level": {
+            "enum": ["none", "low", "medium", "high", "critical"]
+          },
+          "closed_at": { "type": "string", "format": "date-time" },
+          "evidence_ref": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "dashboard_digest_ref",
+        "latest_closure_ref",
+        "latest_plan_ref",
+        "immutable_store_ref",
+        "evidence_refs"
+      ],
+      "properties": {
+        "dashboard_digest_ref": { "type": "string", "minLength": 1 },
+        "latest_closure_ref": { "type": "string", "minLength": 1 },
+        "latest_plan_ref": { "type": "string", "minLength": 1 },
+        "immutable_store_ref": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": [
+        "derived_from_closure_events",
+        "rbac_scoped",
+        "retention_aware",
+        "immutable_dashboard_required",
+        "slo_policy_enforced",
+        "raw_payloads_excluded"
+      ],
+      "properties": {
+        "derived_from_closure_events": { "type": "boolean" },
+        "rbac_scoped": { "type": "boolean" },
+        "retention_aware": { "type": "boolean" },
+        "immutable_dashboard_required": { "type": "boolean" },
+        "slo_policy_enforced": { "type": "boolean" },
+        "raw_payloads_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "private_remediation_details_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "private_remediation_details_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "payload_handling": {
+          "const": "remediation_closure_operations_metadata_only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "required": [
+        "closure_operations_projection",
+        "closure_event_store",
+        "slo_evaluator",
+        "residual_risk_review_store",
+        "approval_queue_store",
+        "post_incident_review_store",
+        "immutable_dashboard_store",
+        "license_enforcement"
+      ],
+      "properties": {
+        "closure_operations_projection": { "const": "requires_cavra_enterprise" },
+        "closure_event_store": { "const": "requires_cavra_enterprise" },
+        "slo_evaluator": { "const": "requires_cavra_enterprise" },
+        "residual_risk_review_store": { "const": "requires_cavra_enterprise" },
+        "approval_queue_store": { "const": "requires_cavra_enterprise" },
+        "post_incident_review_store": { "const": "requires_cavra_enterprise" },
+        "immutable_dashboard_store": { "const": "requires_cavra_enterprise" },
+        "license_enforcement": { "const": "requires_cavra_enterprise" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

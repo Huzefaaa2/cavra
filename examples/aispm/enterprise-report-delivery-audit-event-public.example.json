@@ -1,0 +1,54 @@
+{
+  "schema_version": "cavra.aispm.report_delivery_audit_event.v1",
+  "product": "CAVRA",
+  "edition": "enterprise",
+  "contract_visibility": "public_contract",
+  "audit_event": {
+    "audit_event_id": "audit_report_delivery_public_contract_sample",
+    "action": "send",
+    "occurred_at": "2026-06-11T08:00:00Z",
+    "tenant_ref": "tenant:opaque-public-contract-sample",
+    "actor_ref": "role:ciso",
+    "report_id": "pdf_board_pack",
+    "requested_format": "pdf",
+    "delivery_mode": "smtp",
+    "status": "sent"
+  },
+  "recipient_summary": {
+    "recipient_count": 2,
+    "allowed_domains": ["example.com"],
+    "external_domain_count": 0,
+    "recipient_addresses_redacted": true
+  },
+  "approval": {
+    "approval_required": true,
+    "approval_ref": "approval:opaque-public-contract-sample",
+    "decision": "approved"
+  },
+  "retry": {
+    "attempt": 1,
+    "max_attempts": 3,
+    "next_retry_at": null,
+    "terminal": true
+  },
+  "evidence": {
+    "evidence_refs": ["cavra://evidence/redacted/report-delivery-sample"],
+    "report_digest_ref": "sha256:redacted-public-contract-digest",
+    "delivery_audit_ref": "enterprise-private://delivery-audit/opaque-ref",
+    "immutable_store_ref": "enterprise-private://immutable-store/opaque-ref"
+  },
+  "redaction": {
+    "raw_report_content_included": false,
+    "provider_response_included": false,
+    "recipient_addresses_included": false,
+    "secrets_included": false,
+    "payload_handling": "metadata_only"
+  },
+  "enterprise_boundaries": {
+    "audit_store": "requires_cavra_enterprise",
+    "provider_response_storage": "requires_cavra_enterprise",
+    "retry_worker": "requires_cavra_enterprise",
+    "immutable_evidence_store": "requires_cavra_enterprise",
+    "license_enforcement": "requires_cavra_enterprise"
+  }
+}

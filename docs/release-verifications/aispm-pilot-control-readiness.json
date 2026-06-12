@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.aispm.pilot_control_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_production_pilot_control_checklist",
+  "status": "ready",
+  "portal_panel": "apps/sandbox-ui/index.html#ai-posture",
+  "portal_packet": "cavra-aispm-pilot-control-readiness-packet.json",
+  "validator": "scripts/validate-aispm-pilot-control-readiness.py",
+  "control_areas": [
+    {
+      "area_id": "pilot_exception_register",
+      "title": "Pilot Exception Register",
+      "source_packet": "cavra-aispm-pilot-exception-register-packet.json",
+      "status": "ready"
+    },
+    {
+      "area_id": "pilot_risk_acceptance",
+      "title": "Pilot Risk Acceptance Summary",
+      "source_packet": "cavra-aispm-pilot-risk-acceptance-packet.json",
+      "status": "ready"
+    },
+    {
+      "area_id": "pilot_launch_board_pack",
+      "title": "Pilot Launch Board Pack",
+      "source_packet": "cavra-aispm-pilot-launch-board-pack-packet.json",
+      "status": "ready"
+    },
+    {
+      "area_id": "board_pack_artifact_freshness",
+      "title": "Launch Board Pack Artifact Index",
+      "source_packet": "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+      "status": "ready"
+    },
+    {
+      "area_id": "launch_readiness_rollup",
+      "title": "AISPM Launch Readiness Rollup",
+      "source_packet": "docs/release-verifications/aispm-launch-readiness-rollup.json",
+      "status": "ready"
+    }
+  ],
+  "verification_sources": [
+    "docs/release-verifications/aispm-launch-board-pack-artifact-index.json",
+    "docs/release-verifications/aispm-launch-readiness-rollup.json",
+    "docs/release-verifications/aispm-release-evidence-index.json"
+  ],
+  "enterprise_boundaries": {
+    "signed_exception_acceptance": "requires_cavra_enterprise_or_saas",
+    "signed_risk_acceptance": "requires_cavra_enterprise_or_saas",
+    "board_minutes_and_pdf_delivery": "requires_cavra_enterprise_report_service",
+    "tenant_artifact_retention": "requires_enterprise_evidence_store",
+    "workflow_write_back": "requires_cavra_enterprise_or_saas"
+  },
+  "public_safety_boundary": "This readiness packet includes public-safe production pilot control references only. It excludes signed approvals, named approvers, board minutes, private telemetry, customer records, license keys, private package tokens, Enterprise source code, and tenant workflow state."
+}

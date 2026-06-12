@@ -1,0 +1,41 @@
+{
+  "schema_version": "cavra.hosted_sandbox.deployment_freshness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "mode": "public_safe_hosted_deployment_freshness",
+  "status": "ready",
+  "validated_target": "https://huzefaaa2.github.io/cavra/",
+  "validator": "scripts/validate-hosted-sandbox-deployment-freshness.py",
+  "workflow": ".github/workflows/deploy-sandbox.yml",
+  "build_sentinel": "community-v1.0.0-aispm-release-evidence-index",
+  "required_markers": [
+    "AISPM Trial Lab Notebook Readiness",
+    "Release Evidence Index",
+    "Hosted Release Operator Status",
+    "CSO Report Center",
+    "cavra-aispm-report-catalog-packet.json",
+    "Report Delivery Setup Readiness",
+    "cavra-aispm-report-delivery-setup-packet.json",
+    "Report Operations Readiness",
+    "cavra-aispm-report-operations-readiness-packet.json",
+    "Report Governance Readiness",
+    "cavra-aispm-report-governance-readiness-packet.json",
+    "Report Assurance Readiness",
+    "cavra-aispm-report-assurance-readiness-packet.json",
+    "Report Response Readiness",
+    "cavra-aispm-report-response-readiness-packet.json",
+    "Report Trial Operations Readiness",
+    "cavra-aispm-report-trial-operations-readiness-packet.json",
+    "cavra-aispm-release-evidence-index-packet.json",
+    "cavra-hosted-sandbox-operator-status-packet.json",
+    "community-v1.0.0-aispm-release-evidence-index"
+  ],
+  "local_validation": "always_enforced",
+  "live_validation": "opt_in_with_CAVRA_CHECK_LIVE_SANDBOX",
+  "failure_interpretation": {
+    "local_marker_missing": "The repository portal build is stale or incomplete.",
+    "live_marker_missing": "The deployed GitHub Pages site has not yet caught up with the current repository build.",
+    "live_fetch_failure": "GitHub Pages, DNS, network, or deployment availability should be checked before announcing the hosted portal."
+  },
+  "public_safety_boundary": "This freshness packet checks public static portal markers and release evidence links only. It does not include customer data, private package credentials, license secrets, raw prompts, Enterprise source code, or tenant telemetry."
+}

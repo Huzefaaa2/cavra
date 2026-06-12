@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cavra.dev/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json",
+  "title": "CAVRA AISPM Report Center Trial Lab Notebook Publication Readiness",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "product",
+    "edition",
+    "contract_visibility",
+    "generated_at",
+    "notebook_ref",
+    "outline_contract_ref",
+    "publication_readiness",
+    "wiki_pages",
+    "visual_assets",
+    "link_checks",
+    "navigation_checks",
+    "checkpoint_evidence",
+    "acceptance_criteria",
+    "controls",
+    "redaction",
+    "enterprise_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "cavra.aispm.report_center_trial_lab_notebook_publication_readiness.v1"
+    },
+    "product": { "const": "CAVRA" },
+    "edition": { "const": "enterprise_trial" },
+    "contract_visibility": { "const": "public_contract" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "notebook_ref": { "type": "string", "minLength": 1 },
+    "outline_contract_ref": {
+      "const": "src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json"
+    },
+    "publication_readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "target",
+        "release_gate",
+        "required_reviews",
+        "requires_no_private_artifacts"
+      ],
+      "properties": {
+        "status": { "const": "ready_for_publication_review" },
+        "target": { "const": "github_wiki" },
+        "release_gate": { "const": "enterprise_trial_public_docs_ready" },
+        "required_reviews": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["docs_owner", "security_owner", "product_owner"]
+          }
+        },
+        "requires_no_private_artifacts": { "const": true }
+      }
+    },
+    "wiki_pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "page_id",
+          "title",
+          "source_ref",
+          "nav_entry_required",
+          "link_health_required",
+          "screenshot_refs",
+          "diagram_refs",
+          "checkpoint_refs"
+        ],
+        "properties": {
+          "page_id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "source_ref": { "type": "string", "minLength": 1 },
+          "nav_entry_required": { "const": true },
+          "link_health_required": { "const": true },
+          "screenshot_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "diagram_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "checkpoint_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "visual_assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "asset_id",
+          "asset_type",
+          "source_route",
+          "format",
+          "redaction_status",
+          "alt_text_required",
+          "required"
+        ],
+        "properties": {
+          "asset_id": { "type": "string", "minLength": 1 },
+          "asset_type": {
+            "enum": ["screenshot", "diagram", "flow_chart"]
+          },
+          "source_route": { "type": "string", "minLength": 1 },
+          "format": { "enum": ["png", "svg", "jpg", "webp"] },
+          "redaction_status": { "const": "public_safe" },
+          "alt_text_required": { "const": true },
+          "required": { "const": true }
+        }
+      }
+    },
+    "link_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target_label", "url_kind", "expected_status", "owner"],
+        "properties": {
+          "target_label": { "type": "string", "minLength": 1 },
+          "url_kind": {
+            "enum": ["public_docs_or_portal", "trial_portal", "repository_page"]
+          },
+          "expected_status": { "const": "reachable" },
+          "owner": { "enum": ["docs_owner", "trial_operator"] }
+        }
+      }
+    },
+    "navigation_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["nav_id", "location", "required_page_ids"],
+        "properties": {
+          "nav_id": { "type": "string", "minLength": 1 },
+          "location": { "type": "string", "minLength": 1 },
+          "required_page_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "checkpoint_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checkpoint_id",
+          "evidence_ref",
+          "source_packet_ref",
+          "public_safe"
+        ],
+        "properties": {
+          "checkpoint_id": { "type": "string", "minLength": 1 },
+          "evidence_ref": { "type": "string", "minLength": 1 },
+          "source_packet_ref": {
+            "enum": [
+              "trial_lab_notebook_outline",
+              "trial_validation_packet",
+              "trial_revocation_expiry_evidence"
+            ]
+          },
+          "public_safe": { "const": true }
+        }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion_id", "description", "required"],
+        "properties": {
+          "criterion_id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "required": { "const": true }
+        }
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_safe_required",
+        "screenshots_redacted",
+        "diagrams_redacted",
+        "wiki_nav_required",
+        "link_health_required",
+        "checkpoint_evidence_required",
+        "enterprise_source_excluded",
+        "license_secret_excluded",
+        "customer_data_excluded"
+      ],
+      "properties": {
+        "public_safe_required": { "const": true },
+        "screenshots_redacted": { "const": true },
+        "diagrams_redacted": { "const": true },
+        "wiki_nav_required": { "const": true },
+        "link_health_required": { "const": true },
+        "checkpoint_evidence_required": { "const": true },
+        "enterprise_source_excluded": { "const": true },
+        "license_secret_excluded": { "const": true },
+        "customer_data_excluded": { "const": true }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipient_addresses_included",
+        "operator_identity_included",
+        "evaluator_identity_included",
+        "auditor_identity_included",
+        "approver_identity_included",
+        "board_member_identity_included",
+        "ip_address_included",
+        "download_urls_included",
+        "package_tokens_included",
+        "license_key_included",
+        "raw_prompt_included",
+        "model_reasoning_included",
+        "raw_tool_output_included",
+        "raw_report_content_included",
+        "provider_response_included",
+        "customer_records_included",
+        "private_remediation_details_included",
+        "tenant_drilldown_records_included",
+        "secrets_included",
+        "source_code_included",
+        "payload_handling"
+      ],
+      "properties": {
+        "recipient_addresses_included": { "const": false },
+        "operator_identity_included": { "const": false },
+        "evaluator_identity_included": { "const": false },
+        "auditor_identity_included": { "const": false },
+        "approver_identity_included": { "const": false },
+        "board_member_identity_included": { "const": false },
+        "ip_address_included": { "const": false },
+        "download_urls_included": { "const": false },
+        "package_tokens_included": { "const": false },
+        "license_key_included": { "const": false },
+        "raw_prompt_included": { "const": false },
+        "model_reasoning_included": { "const": false },
+        "raw_tool_output_included": { "const": false },
+        "raw_report_content_included": { "const": false },
+        "provider_response_included": { "const": false },
+        "customer_records_included": { "const": false },
+        "private_remediation_details_included": { "const": false },
+        "tenant_drilldown_records_included": { "const": false },
+        "secrets_included": { "const": false },
+        "source_code_included": { "const": false },
+        "payload_handling": {
+          "const": "report_center_trial_lab_notebook_publication_readiness_metadata_only"
+        }
+      }
+    },
+    "enterprise_boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wiki_publication_workflow",
+        "trial_portal",
+        "license_service",
+        "package_access_service",
+        "private_screenshot_capture",
+        "private_lab_fixtures"
+      ],
+      "properties": {
+        "wiki_publication_workflow": { "const": "public_docs_only" },
+        "trial_portal": { "const": "requires_cavra_enterprise" },
+        "license_service": { "const": "requires_cavra_enterprise" },
+        "package_access_service": { "const": "requires_cavra_enterprise" },
+        "private_screenshot_capture": { "const": "requires_cavra_enterprise" },
+        "private_lab_fixtures": { "const": "requires_cavra_enterprise" }
+      }
+    }
+  }
+}
