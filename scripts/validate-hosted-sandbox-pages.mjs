@@ -116,6 +116,7 @@ async function validateHttpAssets() {
 
 async function validateDashboard(page) {
   await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto("about:blank");
   await page.goto(`${baseUrl}#dashboard`, { waitUntil: "networkidle" });
   await page.locator("#dashboard.is-active").waitFor({ state: "visible", timeout: 15_000 });
   await page.selectOption("#themeSelect", "classic");
@@ -131,6 +132,7 @@ async function validateDashboard(page) {
 
 async function validateAispm(page) {
   await page.setViewportSize({ width: 1440, height: 1200 });
+  await page.goto("about:blank");
   await page.goto(`${baseUrl}#ai-posture`, { waitUntil: "networkidle" });
   await page.locator("#ai-posture.is-active").waitFor({ state: "visible", timeout: 15_000 });
   await assertVisible(page, [
