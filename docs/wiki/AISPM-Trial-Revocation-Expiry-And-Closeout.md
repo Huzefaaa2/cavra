@@ -34,6 +34,8 @@ immutable audit storage.
 | Package block | Include blocked state, not package token or private URL. |
 | Portal block | Include status only, not evaluator identity or IP address. |
 | Support closeout | Include closeout state, not private support transcript. |
+| Audit archive | Include immutable archive status and evidence ref only. |
+| Release validator | Include blocked/ready status, not private workflow logs or package credentials. |
 
 ## Operator Closeout Checklist
 
@@ -42,7 +44,10 @@ immutable audit storage.
 3. Confirm package access is removed.
 4. Confirm trial portal access is blocked or downgraded.
 5. Confirm support handoff is closed or assigned for follow-up.
-6. Export a redacted closeout evidence packet.
+6. Confirm operator audit archive retention evidence remains available.
+7. Confirm release validators would block any stale or incomplete readiness
+   packet before a new trial package is announced.
+8. Export a redacted closeout evidence packet.
 
 ## Verification Checkpoints
 

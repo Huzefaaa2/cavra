@@ -198,6 +198,7 @@ Open-core architecture and boundaries:
 - [AISPM Report Center trial lab notebook publication readiness public contract](src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json)
 - [AISPM trial lab notebook publication readiness summary](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md)
 - [AISPM trial lab notebook publication readiness summary JSON](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json)
+- [AISPM Enterprise Trial readiness public summary](docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json)
 - AISPM trial lab notebook publication validator: `scripts/validate-aispm-trial-lab-notebook.py`
 - [AISPM report catalog readiness](docs/release-verifications/aispm-report-catalog-readiness.md)
 - [AISPM report catalog readiness JSON](docs/release-verifications/aispm-report-catalog-readiness.json)

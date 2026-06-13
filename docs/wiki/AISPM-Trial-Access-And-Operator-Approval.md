@@ -30,6 +30,24 @@ Enterprise responsibilities.
 | Handoff | Trigger evaluator setup instructions and package access. | Handoff packet ref. |
 | Closeout | Track expiry, revocation, and follow-up state. | Closeout evidence ref. |
 
+## Operator Readiness Gates
+
+Before announcing or promoting an Enterprise Trial package, the private
+operator dashboard should show these release gates as ready:
+
+| Gate | Operator Expectation |
+| --- | --- |
+| Runtime Binding | Deployment references are present for providers, scheduler, evidence sink, alerts, screenshots, and audit storage. |
+| Alert Transport | Synthetic readiness alerts have evidence for email, ChatOps, SIEM, and ITSM destinations. |
+| Release Dashboard Publication | Staging release evidence is published to the configured dashboard reference. |
+| Trial Lab Notebook | Screenshots, diagrams, flow charts, and walkthrough references are ready for evaluator onboarding. |
+| Operator Audit Archive | Mutation audit export and immutable archive retention validation are ready. |
+| Trial Package Readiness Validator | Private package workflow blocks image build or publication when current AISPM readiness evidence is missing. |
+
+The public repository stores only this summary and the related public-safe
+readiness packet. The live dashboard output, operator session, approval
+records, and archive records remain private.
+
 ## Required Controls
 
 - Operator login must be authenticated.
