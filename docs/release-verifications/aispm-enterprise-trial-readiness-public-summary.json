@@ -1,0 +1,70 @@
+{
+  "schema_version": "cavra.aispm.enterprise_trial_readiness_public_summary.v1",
+  "product": "CAVRA",
+  "edition": "enterprise_trial",
+  "mode": "public_safe_summary",
+  "generated_at": "2026-06-13T08:50:00Z",
+  "trial_domain": "https://cavra-trial.mind-ops.cloud/",
+  "source_private_milestones": [
+    "cavra-enterprise#146",
+    "cavra-enterprise#147"
+  ],
+  "readiness_gates": [
+    {
+      "gate_id": "runtime-binding",
+      "label": "Runtime Binding",
+      "status": "ready",
+      "public_summary": "Enterprise Trial operator workflow records provider, scheduler, evidence sink, alert, Playwright session, and audit-storage references without exposing secrets.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "alert-transport",
+      "label": "Alert Transport",
+      "status": "ready",
+      "public_summary": "Enterprise Trial release gate requires retained email, ChatOps, SIEM, and ITSM alert smoke evidence before release approval.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "release-dashboard-publication",
+      "label": "Release Dashboard Publication",
+      "status": "ready",
+      "public_summary": "Enterprise Trial operator workflow publishes scheduler-produced release evidence to a release-dashboard reference.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "trial-lab-notebook",
+      "label": "Trial Lab Notebook",
+      "status": "ready",
+      "public_summary": "Enterprise Trial lab notebook links public-safe screenshots, diagrams, flow charts, walkthroughs, and release evidence references.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "operator-audit-archive",
+      "label": "Operator Audit Archive",
+      "status": "ready",
+      "public_summary": "Enterprise Trial workflow validates immutable operator audit archive references and retention evidence before release.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "trial-package-readiness-validator",
+      "label": "Trial Package Readiness Validator",
+      "status": "ready",
+      "public_summary": "Private trial packaging now fails closed unless a current AISPM staging rehearsal packet proves all required release gates passed.",
+      "public_safe": true
+    }
+  ],
+  "public_docs": [
+    "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
+    "docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md",
+    "docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md",
+    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
+  ],
+  "enterprise_boundary": {
+    "private_package_access_grants": "requires_cavra_enterprise_private_service",
+    "license_issuance": "requires_cavra_enterprise_private_service",
+    "evaluator_email_delivery": "requires_cavra_enterprise_private_service",
+    "hosted_telemetry": "requires_cavra_enterprise_or_saas",
+    "private_operator_audit_archive": "requires_cavra_enterprise_private_service"
+  },
+  "public_safety_boundary": "No Enterprise source code, secrets, customer data, evaluator records, license signing keys, private image credentials, raw prompts, model reasoning, private telemetry payloads, provider responses, or paid policy-pack implementations are included."
+}

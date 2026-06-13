@@ -60,6 +60,9 @@ def test_aispm_trial_lab_notebook_publication_summary_artifacts_are_reviewer_rea
     assert payload["overall_status"] == "ready"
     assert payload["counts"]["wiki_pages"] == 3
     assert payload["counts"]["blockers"] == 0
+    assert payload["counts"]["enterprise_readiness_gates"] == 6
+    assert payload["counts"]["enterprise_readiness_gates_ready"] == 6
+    assert payload["enterprise_readiness_sync"]["status"] == "ready"
     assert {page["page_id"] for page in payload["pages"]} == {
         "trial-lab-overview",
         "trial-access-flow",
@@ -67,4 +70,6 @@ def test_aispm_trial_lab_notebook_publication_summary_artifacts_are_reviewer_rea
     }
     assert "## Public Safety" in markdown
     assert "| Wiki pages | 3 | 3 |" in markdown
+    assert "| Enterprise readiness gates | 6 | 6 |" in markdown
+    assert "## Enterprise Trial Readiness Sync" in markdown
     assert "- None." in markdown

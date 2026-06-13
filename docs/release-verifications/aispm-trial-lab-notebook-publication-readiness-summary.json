@@ -34,12 +34,67 @@
     "acceptance_criteria": 4,
     "acceptance_criteria_ready": 4,
     "blockers": 0,
+    "enterprise_readiness_gates": 6,
+    "enterprise_readiness_gates_ready": 6,
     "pages_ready": 3,
     "visual_assets": 4,
     "visual_assets_ready": 4,
     "wiki_pages": 3
   },
   "edition": "enterprise_trial",
+  "enterprise_readiness_sync": {
+    "blockers": [],
+    "gates": [
+      {
+        "blockers": [],
+        "gate_id": "runtime-binding",
+        "label": "Runtime Binding",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "alert-transport",
+        "label": "Alert Transport",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "release-dashboard-publication",
+        "label": "Release Dashboard Publication",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "trial-lab-notebook",
+        "label": "Trial Lab Notebook",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "operator-audit-archive",
+        "label": "Operator Audit Archive",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "trial-package-readiness-validator",
+        "label": "Trial Package Readiness Validator",
+        "status": "ready"
+      }
+    ],
+    "generated_at": "2026-06-13T08:50:00Z",
+    "ready_gates": 6,
+    "required_gates": [
+      "runtime-binding",
+      "alert-transport",
+      "release-dashboard-publication",
+      "trial-lab-notebook",
+      "operator-audit-archive",
+      "trial-package-readiness-validator"
+    ],
+    "source_ref": "docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json",
+    "status": "ready"
+  },
   "generated_at": "2026-06-12T13:00:00Z",
   "navigation_checks": [
     {

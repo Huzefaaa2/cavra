@@ -24,6 +24,9 @@ DEFAULT_SUMMARY_JSON = Path(
 DEFAULT_SUMMARY_MARKDOWN = Path(
     "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
 )
+DEFAULT_ENTERPRISE_READINESS_JSON = Path(
+    "docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json"
+)
 WIKI_HOME = Path("docs/wiki/Home.md")
 
 REQUIRED_PUBLIC_SAFE_SECTIONS = (
@@ -41,6 +44,14 @@ FORBIDDEN_PUBLIC_NOTEBOOK_MARKERS = (
     "CUSTOMER_SECRET",
     "PRIVATE_POLICY_PACK",
     "INTERNAL_ONLY",
+)
+REQUIRED_ENTERPRISE_READINESS_GATES = (
+    "runtime-binding",
+    "alert-transport",
+    "release-dashboard-publication",
+    "trial-lab-notebook",
+    "operator-audit-archive",
+    "trial-package-readiness-validator",
 )
 
 
@@ -104,6 +115,14 @@ def build_summary(
         "visual_assets": [],
         "navigation_checks": [],
         "acceptance_criteria": [],
+        "enterprise_readiness_sync": {
+            "source_ref": str(DEFAULT_ENTERPRISE_READINESS_JSON),
+            "status": "blocked",
+            "ready_gates": 0,
+            "required_gates": list(REQUIRED_ENTERPRISE_READINESS_GATES),
+            "gates": [],
+            "blockers": [],
+        },
         "public_safety": {
             "required_sections": list(REQUIRED_PUBLIC_SAFE_SECTIONS),
             "forbidden_markers_checked": list(FORBIDDEN_PUBLIC_NOTEBOOK_MARKERS),
@@ -247,6 +266,10 @@ def build_summary(
             }
         )
 
+    enterprise_sync = _enterprise_readiness_sync(root)
+    summary["enterprise_readiness_sync"] = enterprise_sync
+    blockers.extend(enterprise_sync["blockers"])
+
     summary["blockers"] = blockers
     summary["counts"] = {
         "wiki_pages": len(summary["pages"]),
@@ -261,10 +284,73 @@ def build_summary(
             for criterion in summary["acceptance_criteria"]
             if criterion["status"] == "ready"
         ),
+        "enterprise_readiness_gates": len(summary["enterprise_readiness_sync"]["gates"]),
+        "enterprise_readiness_gates_ready": summary["enterprise_readiness_sync"]["ready_gates"],
         "blockers": len(blockers),
     }
     summary["overall_status"] = "ready" if not blockers else "blocked"
     return summary
+
+
+def _enterprise_readiness_sync(root: Path) -> dict[str, Any]:
+    blockers: list[str] = []
+    path = root / DEFAULT_ENTERPRISE_READINESS_JSON
+    sync: dict[str, Any] = {
+        "source_ref": str(DEFAULT_ENTERPRISE_READINESS_JSON),
+        "status": "blocked",
+        "generated_at": None,
+        "ready_gates": 0,
+        "required_gates": list(REQUIRED_ENTERPRISE_READINESS_GATES),
+        "gates": [],
+        "blockers": blockers,
+    }
+    if not path.is_file():
+        blockers.append(f"missing Enterprise readiness public summary: {DEFAULT_ENTERPRISE_READINESS_JSON}")
+        return sync
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    sync["generated_at"] = payload.get("generated_at")
+    if payload.get("mode") != "public_safe_summary":
+        blockers.append("Enterprise readiness summary mode must be public_safe_summary")
+    if payload.get("edition") != "enterprise_trial":
+        blockers.append("Enterprise readiness summary edition must be enterprise_trial")
+    boundary = str(payload.get("public_safety_boundary") or "")
+    if not boundary:
+        blockers.append("Enterprise readiness summary must include public_safety_boundary")
+    for marker in FORBIDDEN_PUBLIC_NOTEBOOK_MARKERS:
+        if marker in json.dumps(payload):
+            blockers.append(f"forbidden public notebook marker found in Enterprise readiness summary: {marker}")
+
+    gates = payload.get("readiness_gates")
+    if not isinstance(gates, list):
+        blockers.append("Enterprise readiness summary readiness_gates must be a list")
+        gates = []
+    gate_ids = {str(gate.get("gate_id")) for gate in gates if isinstance(gate, dict)}
+    for gate_id in REQUIRED_ENTERPRISE_READINESS_GATES:
+        if gate_id not in gate_ids:
+            blockers.append(f"Enterprise readiness gate missing from public summary: {gate_id}")
+    for gate in gates:
+        if not isinstance(gate, dict):
+            blockers.append("Enterprise readiness gate entry must be an object")
+            continue
+        gate_blockers: list[str] = []
+        if gate.get("status") != "ready":
+            gate_blockers.append("status must be ready")
+        if gate.get("public_safe") is not True:
+            gate_blockers.append("public_safe must be true")
+        if not gate.get("public_summary"):
+            gate_blockers.append("public_summary is required")
+        sync["gates"].append(
+            {
+                "gate_id": gate.get("gate_id"),
+                "label": gate.get("label"),
+                "status": "ready" if not gate_blockers else "blocked",
+                "blockers": gate_blockers,
+            }
+        )
+        blockers.extend(f"{gate.get('gate_id')}: {blocker}" for blocker in gate_blockers)
+    sync["ready_gates"] = sum(1 for gate in sync["gates"] if gate["status"] == "ready")
+    sync["status"] = "ready" if not blockers else "blocked"
+    return sync
 
 
 def validate(root: Path, packet_path: Path = DEFAULT_PACKET, schema_path: Path = DEFAULT_SCHEMA) -> list[str]:
@@ -293,6 +379,10 @@ def render_markdown(summary: dict[str, Any]) -> str:
         (
             f"| Acceptance criteria | {summary['counts']['acceptance_criteria_ready']} | "
             f"{summary['counts']['acceptance_criteria']} |"
+        ),
+        (
+            f"| Enterprise readiness gates | {summary['counts']['enterprise_readiness_gates_ready']} | "
+            f"{summary['counts']['enterprise_readiness_gates']} |"
         ),
         f"| Blockers | 0 | {summary['counts']['blockers']} |",
         "",
@@ -324,6 +414,20 @@ def render_markdown(summary: dict[str, Any]) -> str:
             f"{asset['redaction_status']} | {'yes' if asset['alt_text_required'] else 'no'} | "
             f"`{asset['status']}` |"
         )
+
+    lines.extend(
+        [
+            "",
+            "## Enterprise Trial Readiness Sync",
+            "",
+            f"Source: `{summary['enterprise_readiness_sync']['source_ref']}`",
+            "",
+            "| Gate | Label | Status |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for gate in summary["enterprise_readiness_sync"]["gates"]:
+        lines.append(f"| {gate['gate_id']} | {gate['label']} | `{gate['status']}` |")
 
     lines.extend(["", "## Blockers", ""])
     if summary["blockers"]:

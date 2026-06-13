@@ -12,6 +12,7 @@ Source Schema: `src/cavra/schemas/aispm-report-center-trial-lab-notebook-publica
 | Wiki pages | 3 | 3 |
 | Visual assets | 4 | 4 |
 | Acceptance criteria | 4 | 4 |
+| Enterprise readiness gates | 6 | 6 |
 | Blockers | 0 | 0 |
 
 ## Wiki Pages
@@ -30,6 +31,19 @@ Source Schema: `src/cavra/schemas/aispm-report-center-trial-lab-notebook-publica
 | screenshot-trial-portal | screenshot | public_safe | yes | `ready` |
 | diagram-open-core-model | diagram | public_safe | yes | `ready` |
 | flow-revocation-expiry | flow_chart | public_safe | yes | `ready` |
+
+## Enterprise Trial Readiness Sync
+
+Source: `docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json`
+
+| Gate | Label | Status |
+| --- | --- | --- |
+| runtime-binding | Runtime Binding | `ready` |
+| alert-transport | Alert Transport | `ready` |
+| release-dashboard-publication | Release Dashboard Publication | `ready` |
+| trial-lab-notebook | Trial Lab Notebook | `ready` |
+| operator-audit-archive | Operator Audit Archive | `ready` |
+| trial-package-readiness-validator | Trial Package Readiness Validator | `ready` |
 
 ## Blockers
 

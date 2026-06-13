@@ -38,6 +38,13 @@ AISPM launch readiness is rolled up in
 `docs/release-verifications/aispm-launch-readiness-rollup.md` and
 `docs/release-verifications/aispm-launch-readiness-rollup.json`, with release
 freshness enforced by `scripts/validate-aispm-launch-readiness.py`.
+Enterprise Trial AISPM readiness is now mirrored through a public-safe gate
+summary at
+`docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json`.
+The trial lab notebook validator checks runtime binding, alert transport,
+release dashboard publication, trial lab notebook, operator audit archive, and
+trial package readiness validator gate summaries without exposing Enterprise
+source, license material, customer data, or private package credentials.
 Hosted Pages smoke validation is recorded in
 `docs/release-verifications/hosted-sandbox-pages-smoke-validation.md` and
 `docs/release-verifications/hosted-sandbox-pages-smoke-validation.json`, and is
