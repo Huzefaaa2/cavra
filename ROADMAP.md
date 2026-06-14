@@ -24,6 +24,13 @@ Current open-core priority:
    `cavra-enterprise` PRs #63-#66.
 10. Public-safe batch sync is documented in
    [docs/tenant-entitlement-commercialization-batch-sync.md](docs/tenant-entitlement-commercialization-batch-sync.md).
+
+Latest AISPM Enterprise Trial announcement-closeout sync: private external
+evaluator announcement closeout evidence and hosted operator export readiness
+are delivered in `cavra-enterprise` PRs #217-#222, with public-safe sync
+documented in
+[docs/aispm-enterprise-trial-announcement-closeout-sync.md](docs/aispm-enterprise-trial-announcement-closeout-sync.md).
+
 11. Post-onboarding SaaS operating readiness is defined in
    [docs/post-onboarding-saas-operating-readiness.md](docs/post-onboarding-saas-operating-readiness.md).
 12. Public hosted policy registry readiness contract is delivered.

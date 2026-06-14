@@ -7,7 +7,13 @@
   "trial_domain": "https://cavra-trial.mind-ops.cloud/",
   "source_private_milestones": [
     "cavra-enterprise#146",
-    "cavra-enterprise#147"
+    "cavra-enterprise#147",
+    "cavra-enterprise#217",
+    "cavra-enterprise#218",
+    "cavra-enterprise#219",
+    "cavra-enterprise#220",
+    "cavra-enterprise#221",
+    "cavra-enterprise#222"
   ],
   "readiness_gates": [
     {
@@ -51,13 +57,36 @@
       "status": "ready",
       "public_summary": "Private trial packaging now fails closed unless a current AISPM staging rehearsal packet proves all required release gates passed.",
       "public_safe": true
+    },
+    {
+      "gate_id": "runtime-control-closeout",
+      "label": "Runtime Control Closeout",
+      "status": "ready",
+      "public_summary": "External evaluator announcement readiness now requires runtime-control closeout evidence before the private release can proceed.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "systems-of-record-attachment",
+      "label": "Systems Of Record Attachment",
+      "status": "ready",
+      "public_summary": "Private release evidence ties support, customer-success, and release-management references into the Enterprise Trial approval chain without exposing ticket contents or customer records.",
+      "public_safe": true
+    },
+    {
+      "gate_id": "announcement-closeout",
+      "label": "Announcement Closeout",
+      "status": "ready",
+      "public_summary": "Private release workflow generates a final external announcement closeout packet and the hosted operator dashboard can export it for private approval records.",
+      "public_safe": true
     }
   ],
   "public_docs": [
     "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
     "docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md",
     "docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md",
-    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
+    "docs/wiki/AISPM-Enterprise-Trial-Announcement-Closeout-Sync.md",
+    "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md",
+    "docs/aispm-enterprise-trial-announcement-closeout-sync.md"
   ],
   "enterprise_boundary": {
     "private_package_access_grants": "requires_cavra_enterprise_private_service",
