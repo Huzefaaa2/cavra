@@ -12,7 +12,7 @@ Source Schema: `src/cavra/schemas/aispm-report-center-trial-lab-notebook-publica
 | Wiki pages | 3 | 3 |
 | Visual assets | 4 | 4 |
 | Acceptance criteria | 4 | 4 |
-| Enterprise readiness gates | 6 | 6 |
+| Enterprise readiness gates | 9 | 9 |
 | Blockers | 0 | 0 |
 
 ## Wiki Pages
@@ -44,6 +44,9 @@ Source: `docs/release-verifications/aispm-enterprise-trial-readiness-public-summ
 | trial-lab-notebook | Trial Lab Notebook | `ready` |
 | operator-audit-archive | Operator Audit Archive | `ready` |
 | trial-package-readiness-validator | Trial Package Readiness Validator | `ready` |
+| runtime-control-closeout | Runtime Control Closeout | `ready` |
+| systems-of-record-attachment | Systems Of Record Attachment | `ready` |
+| announcement-closeout | Announcement Closeout | `ready` |
 
 ## Blockers
 

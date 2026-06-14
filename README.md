@@ -87,6 +87,7 @@ Open-core architecture and boundaries:
 - [Trial post-launch operating handoff sync](docs/trial-post-launch-operating-handoff-sync.md)
 - [Trial release retrospective and roadmap intake sync](docs/trial-release-retrospective-roadmap-intake-sync.md)
 - [Trial final launch retrospective closeout sync](docs/trial-final-launch-retrospective-closeout-sync.md)
+- [AISPM Enterprise Trial announcement closeout sync](docs/aispm-enterprise-trial-announcement-closeout-sync.md)
 - [Roadmap status audit and next batch](docs/roadmap-status-audit-next-batch.md)
 - [Roadmap status and next slice](docs/roadmap-status-next-slice.md)
 - [Community GA control hardening sync](docs/community-ga-control-hardening-sync.md)

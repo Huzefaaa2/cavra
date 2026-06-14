@@ -34,8 +34,8 @@
     "acceptance_criteria": 4,
     "acceptance_criteria_ready": 4,
     "blockers": 0,
-    "enterprise_readiness_gates": 6,
-    "enterprise_readiness_gates_ready": 6,
+    "enterprise_readiness_gates": 9,
+    "enterprise_readiness_gates_ready": 9,
     "pages_ready": 3,
     "visual_assets": 4,
     "visual_assets_ready": 4,
@@ -80,10 +80,28 @@
         "gate_id": "trial-package-readiness-validator",
         "label": "Trial Package Readiness Validator",
         "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "runtime-control-closeout",
+        "label": "Runtime Control Closeout",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "systems-of-record-attachment",
+        "label": "Systems Of Record Attachment",
+        "status": "ready"
+      },
+      {
+        "blockers": [],
+        "gate_id": "announcement-closeout",
+        "label": "Announcement Closeout",
+        "status": "ready"
       }
     ],
     "generated_at": "2026-06-13T08:50:00Z",
-    "ready_gates": 6,
+    "ready_gates": 9,
     "required_gates": [
       "runtime-binding",
       "alert-transport",
