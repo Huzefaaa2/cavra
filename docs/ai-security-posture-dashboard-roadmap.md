@@ -583,32 +583,33 @@ These features should help position CAVRA as more than another log dashboard:
   encrypted credential references, default report schedule, timezone, branding,
   legal footer, and report retention policy.
 
-### Phase G: Trial User Lab Notebook And Product Textbook
+### Phase G: CAVRA Trial Field Guide
 
 - After all AISPM phases reach production-ready status, create a GitHub Wiki
-  lab notebook for trial users that walks through the complete CAVRA product
-  from signup, installation, policy evaluation, AI-agent enforcement, AISPM
-  dashboard use, evidence review, approval flows, replay-to-policy authoring,
-  and Enterprise trial operation.
-- Include step-by-step labs with screenshots, diagrams, flow charts, expected
-  outputs, troubleshooting notes, and role-specific paths for developers,
-  platform teams, auditors, security engineers, and CSO/CISO users.
-- Keep the lab notebook public-safe: no Enterprise source code, license
+  handbook named **CAVRA Trial Field Guide** for trial users and enterprise
+  evaluators. It should walk through the complete CAVRA product from signup,
+  installation, policy evaluation, AI-agent enforcement, AISPM dashboard use,
+  evidence review, approval flows, replay-to-policy authoring, and Enterprise
+  trial operation.
+- Include step-by-step guided labs with screenshots, diagrams, flow charts,
+  expected outputs, troubleshooting notes, and role-specific paths for
+  developers, platform teams, auditors, security engineers, and CSO/CISO users.
+- Keep the Field Guide public-safe: no Enterprise source code, license
   secrets, private keys, customer data, or private policy-pack implementation
   details.
-- Generate the lab notebook from the validated public-safe outline contract so
+- Generate the Field Guide from the validated public-safe outline contract so
   chapters, screenshots, diagrams, flow charts, role paths, and verification
   checkpoints remain aligned with release evidence.
 - Gate Wiki publication through the validated public-safe publication readiness
   contract so navigation, link health, redacted assets, checkpoint evidence,
   and required reviews are complete before external evaluators use the labs.
-- Validate the Wiki notebook publication gate with
+- Validate the Wiki Field Guide publication gate with
   `scripts/validate-aispm-trial-lab-notebook.py` so referenced lab pages exist,
   appear in `docs/wiki/Home.md`, include public-safety sections, and remain
   aligned with the readiness packet.
-- Run the lab notebook publication validator in `.github/workflows/community-ci.yml`
+- Run the Field Guide publication validator in `.github/workflows/community-ci.yml`
   and `.github/workflows/release-community.yml` so future Community changes and
-  release tags cannot publish stale or unsafe trial notebook references.
+  release tags cannot publish stale or unsafe trial handbook references.
 - Publish reviewer-facing readiness summaries in
   `docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md`
   and
