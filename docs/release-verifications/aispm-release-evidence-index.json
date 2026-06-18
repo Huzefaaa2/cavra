@@ -86,6 +86,13 @@
       "status": "ready"
     },
     {
+      "title": "AISPM Final Announcement Readiness",
+      "markdown": "docs/release-verifications/aispm-final-announcement-readiness.md",
+      "machine_readable": "docs/release-verifications/aispm-final-announcement-readiness.json",
+      "validator": "scripts/validate-aispm-final-announcement-readiness.py",
+      "status": "ready"
+    },
+    {
       "title": "AISPM Visual Smoke Validation",
       "markdown": "docs/release-verifications/aispm-visual-smoke-validation.md",
       "machine_readable": "docs/release-verifications/aispm-visual-smoke-validation.json",

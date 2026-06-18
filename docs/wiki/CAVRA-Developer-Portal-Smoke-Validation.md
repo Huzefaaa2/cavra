@@ -223,6 +223,12 @@ CAVRA sandbox portal smoke validation passed.
   validated by `scripts/validate-aispm-v100-public-release.py`, and supported
   by `docs/releases/community-v1.0.0-aispm.md` and
   `docs/aispm-v1.0-public-walkthrough.md`.
+- AISPM final announcement readiness is defined at
+  `docs/release-verifications/aispm-final-announcement-readiness.md` and
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  validated by `scripts/validate-aispm-final-announcement-readiness.py`, and
+  exported from the portal as
+  `cavra-aispm-final-announcement-readiness-packet.json`.
 - The board pack freshness gate covers
   `cavra-aispm-pilot-launch-decision-packet.json`,
   `cavra-aispm-pilot-evidence-room-packet.json`,

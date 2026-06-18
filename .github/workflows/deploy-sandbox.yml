@@ -58,6 +58,7 @@ jobs:
           python scripts/validate-aispm-report-trial-operations-readiness.py
           python scripts/validate-aispm-pilot-control-readiness.py
           python scripts/validate-aispm-v100-public-release.py
+          python scripts/validate-aispm-final-announcement-readiness.py
           python scripts/validate-hosted-sandbox-deployment-freshness.py
           python scripts/validate-hosted-sandbox-operator-status.py
           python scripts/validate-hosted-sandbox-deploy-evidence.py

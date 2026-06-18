@@ -142,6 +142,11 @@ Delivered UX:
   `scripts/validate-aispm-v100-public-release.py`,
   `docs/releases/community-v1.0.0-aispm.md`, and
   `docs/aispm-v1.0-public-walkthrough.md`;
+- AISPM final announcement readiness through
+  `docs/release-verifications/aispm-final-announcement-readiness.md`,
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  `scripts/validate-aispm-final-announcement-readiness.py`, and
+  `cavra-aispm-final-announcement-readiness-packet.json`;
 - CAVRA-branded enterprise security visual design with accessible focus states,
   reduced scrolling, and a fixed Classic light theme for high-contrast reading.
 

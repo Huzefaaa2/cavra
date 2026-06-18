@@ -75,6 +75,11 @@ Enterprise should provide the live CSO/CISO operating surface:
   `scripts/validate-aispm-v100-public-release.py`,
   `docs/releases/community-v1.0.0-aispm.md`, and
   `docs/aispm-v1.0-public-walkthrough.md`;
+- AISPM final public announcement readiness with
+  `docs/release-verifications/aispm-final-announcement-readiness.md`,
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  `scripts/validate-aispm-final-announcement-readiness.py`, and
+  `cavra-aispm-final-announcement-readiness-packet.json`;
 - Enterprise report delivery through PDF, XLSX, DOCX, HTML, signed JSON, JSONL,
   GRC upload packages, signed export package manifests, artifact digests,
   evidence refs, governed report schedules, blackout windows, retry policies,

@@ -578,6 +578,12 @@ These features should help position CAVRA as more than another log dashboard:
   AISPM-specific release notes in `docs/releases/community-v1.0.0-aispm.md`,
   and maintain the evaluator walkthrough in
   `docs/aispm-v1.0-public-walkthrough.md`.
+- Track final public announcement readiness in
+  `docs/release-verifications/aispm-final-announcement-readiness.md` and
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  validate it with `scripts/validate-aispm-final-announcement-readiness.py`,
+  and export the portal packet as
+  `cavra-aispm-final-announcement-readiness-packet.json`.
 - During CAVRA setup, collect organization-specific report delivery settings:
   report sender address, allowed recipient domains, SMTP/provider mode,
   encrypted credential references, default report schedule, timezone, branding,
