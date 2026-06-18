@@ -181,7 +181,7 @@ jobs:
           npm run validate:sandbox:hosted
           python scripts/generate-hosted-sandbox-deploy-evidence.py
       - name: Upload hosted sandbox post-deploy evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cavra-hosted-sandbox-post-deploy-evidence
           path: .cavra/deploy-evidence/*
