@@ -40,7 +40,7 @@ operator dashboard should show these release gates as ready:
 | Runtime Binding | Deployment references are present for providers, scheduler, evidence sink, alerts, screenshots, and audit storage. |
 | Alert Transport | Synthetic readiness alerts have evidence for email, ChatOps, SIEM, and ITSM destinations. |
 | Release Dashboard Publication | Staging release evidence is published to the configured dashboard reference. |
-| Trial Lab Notebook | Screenshots, diagrams, flow charts, and walkthrough references are ready for evaluator onboarding. |
+| Trial Field Guide | Screenshots, diagrams, flow charts, and walkthrough references are ready for evaluator onboarding. |
 | Operator Audit Archive | Mutation audit export and immutable archive retention validation are ready. |
 | Trial Package Readiness Validator | Private package workflow blocks image build or publication when current AISPM readiness evidence is missing. |
 
@@ -90,6 +90,6 @@ Use only redacted screenshots for:
 
 ## Related Pages
 
-- [CAVRA Enterprise Trial Lab Notebook](AISPM-Enterprise-Trial-Lab-Notebook)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
 - [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
 - [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
