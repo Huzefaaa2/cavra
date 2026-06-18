@@ -66,6 +66,8 @@ def main() -> int:
         "docs/release-verifications/aispm-report-trial-operations-readiness.md",
         "docs/release-verifications/aispm-pilot-control-readiness.json",
         "docs/release-verifications/aispm-pilot-control-readiness.md",
+        "docs/release-verifications/aispm-final-announcement-readiness.json",
+        "docs/release-verifications/aispm-final-announcement-readiness.md",
         "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json",
         "scripts/validate-aispm-launch-readiness.py",
         "scripts/validate-aispm-launch-artifacts.py",
@@ -85,6 +87,7 @@ def main() -> int:
         "scripts/validate-aispm-report-response-readiness.py",
         "scripts/validate-aispm-report-trial-operations-readiness.py",
         "scripts/validate-aispm-pilot-control-readiness.py",
+        "scripts/validate-aispm-final-announcement-readiness.py",
         ".github/workflows/community-ci.yml",
         ".github/workflows/release-community.yml",
         ".github/workflows/deploy-sandbox.yml",
@@ -127,6 +130,9 @@ def main() -> int:
     report_response = load_json("docs/release-verifications/aispm-report-response-readiness.json")
     report_trial_ops = load_json("docs/release-verifications/aispm-report-trial-operations-readiness.json")
     pilot_control = load_json("docs/release-verifications/aispm-pilot-control-readiness.json")
+    final_announcement = load_json(
+        "docs/release-verifications/aispm-final-announcement-readiness.json"
+    )
     trial_lab = load_json(
         "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json"
     )
@@ -171,6 +177,9 @@ def main() -> int:
         "report_response_readiness": "docs/release-verifications/aispm-report-response-readiness.json",
         "report_trial_operations_readiness": "docs/release-verifications/aispm-report-trial-operations-readiness.json",
         "pilot_control_readiness": "docs/release-verifications/aispm-pilot-control-readiness.json",
+        "final_announcement_readiness": (
+            "docs/release-verifications/aispm-final-announcement-readiness.json"
+        ),
     }
     sources = {source.get("source_id"): source for source in rollup.get("required_sources", [])}
     require(set(sources) == set(expected_sources), f"{ROLLUP_PATH}: source set mismatch", failures)
@@ -204,6 +213,7 @@ def main() -> int:
         "report_response_readiness",
         "report_trial_operations_readiness",
         "pilot_control_readiness",
+        "final_announcement_readiness",
     }
     require(set(gates) == expected_gates, f"{ROLLUP_PATH}: readiness gate set mismatch", failures)
     for gate_id, gate in gates.items():
@@ -387,6 +397,18 @@ def main() -> int:
         "pilot control readiness portal packet mismatch",
         failures,
     )
+    require(
+        final_announcement.get("schema_version")
+        == "cavra.aispm.final_announcement_readiness.v1",
+        "final announcement readiness has invalid schema_version",
+        failures,
+    )
+    require(
+        final_announcement.get("portal_packet")
+        == "cavra-aispm-final-announcement-readiness-packet.json",
+        "final announcement readiness portal packet mismatch",
+        failures,
+    )
 
     workflow_needles = [
         "python scripts/validate-sandbox-portal.py",
@@ -403,6 +425,7 @@ def main() -> int:
         "python scripts/validate-aispm-report-response-readiness.py",
         "python scripts/validate-aispm-report-trial-operations-readiness.py",
         "python scripts/validate-aispm-pilot-control-readiness.py",
+        "python scripts/validate-aispm-final-announcement-readiness.py",
         "python scripts/validate-hosted-sandbox-deployment-freshness.py",
         "python scripts/validate-hosted-sandbox-operator-status.py",
         "python scripts/validate-hosted-sandbox-deploy-evidence.py",
@@ -475,6 +498,10 @@ def main() -> int:
         "docs/release-verifications/aispm-pilot-control-readiness.json",
         "scripts/validate-aispm-pilot-control-readiness.py",
         "cavra-aispm-pilot-control-readiness-packet.json",
+        "docs/release-verifications/aispm-final-announcement-readiness.md",
+        "docs/release-verifications/aispm-final-announcement-readiness.json",
+        "scripts/validate-aispm-final-announcement-readiness.py",
+        "cavra-aispm-final-announcement-readiness-packet.json",
     ]
     for doc_path in [
         "README.md",

@@ -894,6 +894,14 @@ const aispmReleaseEvidenceIndexItems = [
     "ready"
   ],
   [
+    "AISPM Final Announcement Readiness",
+    "docs/release-verifications/aispm-final-announcement-readiness.md",
+    "docs/release-verifications/aispm-final-announcement-readiness.json",
+    "scripts/validate-aispm-final-announcement-readiness.py",
+    "Final public-safe go/no-go packet for announcing CAVRA Community AISPM v1.0 and the CAVRA Trial Field Guide.",
+    "ready"
+  ],
+  [
     "AISPM Visual Smoke Validation",
     "docs/release-verifications/aispm-visual-smoke-validation.md",
     "docs/release-verifications/aispm-visual-smoke-validation.json",
@@ -1228,6 +1236,10 @@ const docsLinks = [
   [
     "AISPM Trial Lab Notebook Readiness",
     "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md"
+  ],
+  [
+    "AISPM Final Announcement Readiness",
+    "docs/release-verifications/aispm-final-announcement-readiness.md"
   ]
 ];
 

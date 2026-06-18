@@ -141,6 +141,8 @@ Open-core architecture and boundaries:
 - [Community AISPM v1.0 public release readiness](docs/release-verifications/aispm-v1.0-public-release-readiness.md)
 - [Community AISPM v1.0 public release verification](docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md)
 - [Community AISPM v1.0 public release readiness packet](docs/release-verifications/aispm-v1.0-public-release-readiness.json)
+- [Community AISPM final announcement readiness](docs/release-verifications/aispm-final-announcement-readiness.md)
+- [Community AISPM final announcement readiness packet](docs/release-verifications/aispm-final-announcement-readiness.json)
 - Community AISPM v1.0 public release validator: `scripts/validate-aispm-v100-public-release.py`
 - [Community v1.0.0 publication readiness](docs/release-verifications/community-v1.0.0-publication-readiness.md)
 - [Community v1.0.0 GA publication package packet](docs/release-verifications/community-v1.0.0-ga-publication-package.json)
@@ -654,6 +656,7 @@ AISPM report trial operations readiness is tracked by [AISPM report trial operat
 AISPM pilot control readiness is tracked by [AISPM pilot control readiness](docs/release-verifications/aispm-pilot-control-readiness.md), [AISPM pilot control readiness JSON](docs/release-verifications/aispm-pilot-control-readiness.json), and `scripts/validate-aispm-pilot-control-readiness.py`; the AISPM portal exports `cavra-aispm-pilot-control-readiness-packet.json` to show production-pilot exception, risk acceptance, board pack, artifact freshness, and launch-rollup controls without exposing signed approvals, board minutes, private telemetry, customer records, license keys, private package tokens, Enterprise source, or tenant workflow state.
 
 Community AISPM v1.0 public release readiness is tracked by [Community AISPM v1.0 public release readiness](docs/release-verifications/aispm-v1.0-public-release-readiness.md), [Community AISPM v1.0 public release verification](docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md), [Community AISPM v1.0 public release readiness packet](docs/release-verifications/aispm-v1.0-public-release-readiness.json), and `scripts/validate-aispm-v100-public-release.py`; the public walkthrough is available at [Community AISPM v1.0 public walkthrough](docs/aispm-v1.0-public-walkthrough.md), and release notes are available at [Community AISPM v1.0 release notes](docs/releases/community-v1.0.0-aispm.md).
+Final public announcement readiness is tracked by [Community AISPM final announcement readiness](docs/release-verifications/aispm-final-announcement-readiness.md), [Community AISPM final announcement readiness packet](docs/release-verifications/aispm-final-announcement-readiness.json), and `scripts/validate-aispm-final-announcement-readiness.py`; the portal export is `cavra-aispm-final-announcement-readiness-packet.json`.
 
 The AISPM dashboard also exposes a reviewer-facing Release Evidence Index that
 ties launch readiness, visual smoke, hosted Pages smoke, post-deploy evidence,

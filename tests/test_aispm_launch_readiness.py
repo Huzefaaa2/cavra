@@ -49,6 +49,7 @@ def test_aispm_launch_readiness_rollup_contract() -> None:
         "report_response_readiness",
         "report_trial_operations_readiness",
         "pilot_control_readiness",
+        "final_announcement_readiness",
     }
     assert {gate["gate_id"] for gate in packet["readiness_gates"]} == {
         "public_portal_contract",
@@ -69,6 +70,7 @@ def test_aispm_launch_readiness_rollup_contract() -> None:
         "report_response_readiness",
         "report_trial_operations_readiness",
         "pilot_control_readiness",
+        "final_announcement_readiness",
     }
     assert "Enterprise source code" in packet["public_safety_boundary"]
     assert "Private policy packs" in packet["enterprise_boundaries"]
@@ -148,3 +150,7 @@ def test_aispm_launch_readiness_is_wired_into_workflows_and_docs() -> None:
         assert "docs/release-verifications/aispm-report-trial-operations-readiness.json" in text
         assert "scripts/validate-aispm-report-trial-operations-readiness.py" in text
         assert "cavra-aispm-report-trial-operations-readiness-packet.json" in text
+        assert "docs/release-verifications/aispm-final-announcement-readiness.md" in text
+        assert "docs/release-verifications/aispm-final-announcement-readiness.json" in text
+        assert "scripts/validate-aispm-final-announcement-readiness.py" in text
+        assert "cavra-aispm-final-announcement-readiness-packet.json" in text

@@ -33,6 +33,7 @@ release evidence path.
 | Report response readiness | ready | `docs/release-verifications/aispm-report-response-readiness.json` | `python scripts/validate-aispm-report-response-readiness.py` |
 | Report trial operations readiness | ready | `docs/release-verifications/aispm-report-trial-operations-readiness.json` | `python scripts/validate-aispm-report-trial-operations-readiness.py` |
 | Pilot control readiness | ready | `docs/release-verifications/aispm-pilot-control-readiness.json` | `python scripts/validate-aispm-pilot-control-readiness.py` |
+| Final announcement readiness | ready | `docs/release-verifications/aispm-final-announcement-readiness.json` | `python scripts/validate-aispm-final-announcement-readiness.py` |
 
 ## Readiness Gates
 
@@ -109,6 +110,11 @@ release evidence path.
   `docs/release-verifications/aispm-pilot-control-readiness.json`, validated
   by `scripts/validate-aispm-pilot-control-readiness.py`, and exported as
   `cavra-aispm-pilot-control-readiness-packet.json`.
+- AISPM final announcement readiness is documented at
+  `docs/release-verifications/aispm-final-announcement-readiness.md` and
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  validated by `scripts/validate-aispm-final-announcement-readiness.py`, and
+  exported as `cavra-aispm-final-announcement-readiness-packet.json`.
 
 ## Public Safety Boundary
 

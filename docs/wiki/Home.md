@@ -449,3 +449,9 @@ by `scripts/validate-aispm-v100-public-release.py`, documented in
 `docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md`
 and `Community-v1.0.0-aispm-Public-Release-Verification.md`, and supported by
 the public walkthrough at `docs/aispm-v1.0-public-walkthrough.md`.
+
+Final Community AISPM public announcement readiness is tracked by
+`docs/release-verifications/aispm-final-announcement-readiness.md` and
+`docs/release-verifications/aispm-final-announcement-readiness.json`, enforced
+by `scripts/validate-aispm-final-announcement-readiness.py`, and exported from
+the portal as `cavra-aispm-final-announcement-readiness-packet.json`.

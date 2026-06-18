@@ -50,6 +50,7 @@ def main() -> int:
         "scripts/validate-aispm-report-trial-operations-readiness.py",
         "scripts/validate-aispm-pilot-control-readiness.py",
         "scripts/validate-aispm-v100-public-release.py",
+        "scripts/validate-aispm-final-announcement-readiness.py",
         "scripts/validate-hosted-sandbox-deployment-freshness.py",
         "scripts/validate-hosted-sandbox-operator-status.py",
         ".github/workflows/community-ci.yml",
@@ -182,6 +183,15 @@ def main() -> int:
         f"{INDEX_PATH}: missing AISPM v1.0 public release readiness item",
         failures,
     )
+    require(
+        any(
+            item.get("machine_readable")
+            == "docs/release-verifications/aispm-final-announcement-readiness.json"
+            for item in index.get("evidence_items", [])
+        ),
+        f"{INDEX_PATH}: missing AISPM final announcement readiness item",
+        failures,
+    )
     evidence_items = index.get("evidence_items", [])
     require(len(evidence_items) >= 7, f"{INDEX_PATH}: expected at least 7 evidence items", failures)
     for item in evidence_items:
@@ -219,6 +229,7 @@ def main() -> int:
         "scripts/validate-aispm-report-trial-operations-readiness.py",
         "scripts/validate-aispm-pilot-control-readiness.py",
         "scripts/validate-aispm-v100-public-release.py",
+        "scripts/validate-aispm-final-announcement-readiness.py",
         "scripts/validate-hosted-sandbox-deployment-freshness.py",
         "scripts/validate-hosted-sandbox-operator-status.py",
         "cavra-hosted-sandbox-operator-status-packet.json",
@@ -267,6 +278,8 @@ def main() -> int:
         "docs/release-verifications/aispm-pilot-control-readiness.json",
         "docs/release-verifications/aispm-v1.0-public-release-readiness.md",
         "docs/release-verifications/aispm-v1.0-public-release-readiness.json",
+        "docs/release-verifications/aispm-final-announcement-readiness.md",
+        "docs/release-verifications/aispm-final-announcement-readiness.json",
         "scripts/validate-aispm-report-delivery-setup-readiness.py",
         "scripts/validate-aispm-report-operations-readiness.py",
         "scripts/validate-aispm-report-governance-readiness.py",
@@ -275,6 +288,7 @@ def main() -> int:
         "scripts/validate-aispm-report-trial-operations-readiness.py",
         "scripts/validate-aispm-pilot-control-readiness.py",
         "scripts/validate-aispm-v100-public-release.py",
+        "scripts/validate-aispm-final-announcement-readiness.py",
         "scripts/validate-hosted-sandbox-deployment-freshness.py",
         "scripts/validate-hosted-sandbox-operator-status.py",
         "cavra-hosted-sandbox-operator-status-packet.json",
@@ -285,6 +299,7 @@ def main() -> int:
         "cavra-aispm-report-response-readiness-packet.json",
         "cavra-aispm-report-trial-operations-readiness-packet.json",
         "cavra-aispm-pilot-control-readiness-packet.json",
+        "cavra-aispm-final-announcement-readiness-packet.json",
         "cavra-aispm-release-evidence-index-packet.json",
     ]
     for doc_path in [

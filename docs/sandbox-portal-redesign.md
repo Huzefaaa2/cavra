@@ -99,6 +99,11 @@ Delivered UX:
   `scripts/validate-aispm-v100-public-release.py`,
   `docs/releases/community-v1.0.0-aispm.md`, and
   `docs/aispm-v1.0-public-walkthrough.md`;
+- AISPM final announcement readiness through
+  `docs/release-verifications/aispm-final-announcement-readiness.md`,
+  `docs/release-verifications/aispm-final-announcement-readiness.json`,
+  `scripts/validate-aispm-final-announcement-readiness.py`, and
+  `cavra-aispm-final-announcement-readiness-packet.json`;
 - command palette with `Ctrl+K` search for pages, policies, controls,
   integrations, documentation, and examples;
 - interactive architecture explorer with clickable nodes and an inspector

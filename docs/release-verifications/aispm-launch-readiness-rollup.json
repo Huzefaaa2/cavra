@@ -121,6 +121,12 @@
       "path": "docs/release-verifications/aispm-pilot-control-readiness.json",
       "status": "ready",
       "validator": "python scripts/validate-aispm-pilot-control-readiness.py"
+    },
+    {
+      "source_id": "final_announcement_readiness",
+      "path": "docs/release-verifications/aispm-final-announcement-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-final-announcement-readiness.py"
     }
   ],
   "readiness_gates": [
@@ -213,6 +219,11 @@
       "gate_id": "pilot_control_readiness",
       "status": "ready",
       "evidence": "docs/release-verifications/aispm-pilot-control-readiness.json"
+    },
+    {
+      "gate_id": "final_announcement_readiness",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-final-announcement-readiness.json"
     }
   ],
   "public_safety_boundary": "This rollup references public Community Edition AISPM portal readiness only. It must not include Enterprise source code, customer records, raw prompts, license signing secrets, private registry credentials, hosted telemetry payloads, or private policy pack logic.",

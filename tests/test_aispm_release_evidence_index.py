@@ -43,6 +43,7 @@ def test_aispm_release_evidence_index_contract() -> None:
         "AISPM Report Trial Operations Readiness",
         "AISPM Pilot Control Readiness",
         "AISPM v1.0 Public Release Readiness",
+        "AISPM Final Announcement Readiness",
         "AISPM Visual Smoke Validation",
         "Hosted Sandbox Pages Smoke",
         "Hosted Sandbox Deployment Freshness",
@@ -129,4 +130,8 @@ def test_aispm_release_evidence_index_is_wired_into_portal_workflows_and_docs() 
         assert "cavra-aispm-report-assurance-readiness-packet.json" in text
         assert "cavra-aispm-report-response-readiness-packet.json" in text
         assert "cavra-aispm-report-trial-operations-readiness-packet.json" in text
+        assert "docs/release-verifications/aispm-final-announcement-readiness.md" in text
+        assert "docs/release-verifications/aispm-final-announcement-readiness.json" in text
+        assert "scripts/validate-aispm-final-announcement-readiness.py" in text
+        assert "cavra-aispm-final-announcement-readiness-packet.json" in text
         assert "cavra-aispm-release-evidence-index-packet.json" in text

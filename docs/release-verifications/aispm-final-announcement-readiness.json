@@ -1,0 +1,110 @@
+{
+  "schema_version": "cavra.aispm.final_announcement_readiness.v1",
+  "product": "CAVRA",
+  "edition": "community",
+  "release": "community-v1.0.0-aispm",
+  "generated_at": "2026-06-18T00:00:00Z",
+  "status": "ready",
+  "announcement_decision": "ready_for_public_announcement",
+  "validator": "scripts/validate-aispm-final-announcement-readiness.py",
+  "portal_packet": "cavra-aispm-final-announcement-readiness-packet.json",
+  "required_sources": [
+    {
+      "source_id": "launch_readiness_rollup",
+      "path": "docs/release-verifications/aispm-launch-readiness-rollup.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-launch-readiness.py"
+    },
+    {
+      "source_id": "release_evidence_index",
+      "path": "docs/release-verifications/aispm-release-evidence-index.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-release-evidence-index.py"
+    },
+    {
+      "source_id": "public_release_readiness",
+      "path": "docs/release-verifications/aispm-v1.0-public-release-readiness.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-v100-public-release.py"
+    },
+    {
+      "source_id": "trial_field_guide",
+      "path": "docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json",
+      "status": "ready",
+      "validator": "python scripts/validate-aispm-trial-lab-notebook.py --check-summary"
+    },
+    {
+      "source_id": "hosted_operator_status",
+      "path": "docs/release-verifications/hosted-sandbox-operator-release-status.json",
+      "status": "ready",
+      "validator": "python scripts/validate-hosted-sandbox-operator-status.py"
+    },
+    {
+      "source_id": "hosted_post_deploy_evidence",
+      "path": "docs/release-verifications/hosted-sandbox-post-deploy-evidence.json",
+      "status": "workflow_enforced",
+      "validator": "python scripts/validate-hosted-sandbox-deploy-evidence.py"
+    },
+    {
+      "source_id": "community_release_verification",
+      "path": "docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md",
+      "status": "ready",
+      "validator": "manual_public_release_record"
+    },
+    {
+      "source_id": "release_notes",
+      "path": "docs/releases/community-v1.0.0-aispm.md",
+      "status": "ready",
+      "validator": "docs_review"
+    }
+  ],
+  "announcement_gates": [
+    {
+      "gate_id": "community_portal_ready",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-launch-readiness-rollup.json"
+    },
+    {
+      "gate_id": "release_evidence_ready",
+      "status": "ready",
+      "evidence": "docs/release-verifications/aispm-release-evidence-index.json"
+    },
+    {
+      "gate_id": "field_guide_published",
+      "status": "ready",
+      "evidence": "docs/wiki/CAVRA-Trial-Field-Guide.md"
+    },
+    {
+      "gate_id": "hosted_release_operator_ready",
+      "status": "ready",
+      "evidence": "docs/release-verifications/hosted-sandbox-operator-release-status.json"
+    },
+    {
+      "gate_id": "public_release_notes_ready",
+      "status": "ready",
+      "evidence": "docs/releases/community-v1.0.0-aispm.md"
+    },
+    {
+      "gate_id": "public_safety_boundary_verified",
+      "status": "ready",
+      "evidence": "scripts/validate-boundaries.sh"
+    }
+  ],
+  "announcement_channels": [
+    "GitHub release notes",
+    "GitHub Pages portal",
+    "GitHub Wiki",
+    "Enterprise Trial portal",
+    "direct evaluator handoff"
+  ],
+  "public_summary": "CAVRA Community AISPM v1.0 and the CAVRA Trial Field Guide are ready for public announcement after release operator confirmation that the hosted Pages deployment and trial portal remain live.",
+  "operator_instruction": "Announce only after this packet validates, the GitHub Pages workflow has produced current post-deploy evidence, and the trial access portal remains reachable.",
+  "public_safety_boundary": "This packet includes public-safe release metadata only. It excludes Enterprise source code, customer records, raw prompts, model reasoning, private package tokens, license keys, signing keys, private registry credentials, hosted tenant telemetry, and private policy-pack implementation.",
+  "enterprise_boundary": {
+    "enterprise_trial_package_pull": "requires_private_enterprise_pipeline",
+    "license_expiry_and_revocation": "requires_private_license_service",
+    "live_multi_tenant_ingestion": "requires_cavra_enterprise_or_saas",
+    "licensed_report_delivery": "requires_cavra_enterprise",
+    "tenant_evidence_room": "requires_enterprise_evidence_store"
+  }
+}
