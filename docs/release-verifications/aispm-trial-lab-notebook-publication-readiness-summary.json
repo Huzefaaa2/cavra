@@ -66,7 +66,7 @@
       {
         "blockers": [],
         "gate_id": "trial-lab-notebook",
-        "label": "Trial Lab Notebook",
+        "label": "Trial Field Guide",
         "status": "ready"
       },
       {
@@ -117,7 +117,7 @@
   "navigation_checks": [
     {
       "location": "docs/wiki/Home.md",
-      "nav_id": "wiki-home-trial-lab-entry",
+      "nav_id": "wiki-home-trial-field-guide-entry",
       "required_page_ids": [
         "trial-lab-overview",
         "trial-access-flow",
@@ -140,9 +140,9 @@
         "## Public Safety Rules",
         "## Related Pages"
       ],
-      "source_ref": "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
+      "source_ref": "docs/wiki/CAVRA-Trial-Field-Guide.md",
       "status": "ready",
-      "title": "CAVRA Enterprise Trial Lab Notebook",
+      "title": "CAVRA Trial Field Guide",
       "title_present": true
     },
     {

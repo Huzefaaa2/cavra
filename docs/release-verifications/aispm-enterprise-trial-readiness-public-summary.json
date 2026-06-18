@@ -39,9 +39,9 @@
     },
     {
       "gate_id": "trial-lab-notebook",
-      "label": "Trial Lab Notebook",
+      "label": "Trial Field Guide",
       "status": "ready",
-      "public_summary": "Enterprise Trial lab notebook links public-safe screenshots, diagrams, flow charts, walkthroughs, and release evidence references.",
+      "public_summary": "CAVRA Trial Field Guide links public-safe screenshots, diagrams, flow charts, walkthroughs, and release evidence references.",
       "public_safe": true
     },
     {
@@ -81,6 +81,7 @@
     }
   ],
   "public_docs": [
+    "docs/wiki/CAVRA-Trial-Field-Guide.md",
     "docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md",
     "docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md",
     "docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md",

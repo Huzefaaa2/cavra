@@ -195,12 +195,12 @@ Open-core architecture and boundaries:
 - [AISPM Report Center trial operator dashboard API/view-model public contract](src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json)
 - [AISPM Report Center trial evaluator handoff packet public contract](src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json)
 - [AISPM Report Center trial revocation and expiry evidence public contract](src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json)
-- [AISPM Report Center trial lab notebook outline public contract](src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json)
-- [AISPM Report Center trial lab notebook publication readiness public contract](src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json)
-- [AISPM trial lab notebook publication readiness summary](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md)
-- [AISPM trial lab notebook publication readiness summary JSON](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json)
+- [AISPM Report Center trial field guide outline public contract](src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json)
+- [AISPM Report Center trial field guide publication readiness public contract](src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json)
+- [AISPM trial field guide publication readiness summary](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md)
+- [AISPM trial field guide publication readiness summary JSON](docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json)
 - [AISPM Enterprise Trial readiness public summary](docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json)
-- AISPM trial lab notebook publication validator: `scripts/validate-aispm-trial-lab-notebook.py`
+- AISPM trial field guide publication validator: `scripts/validate-aispm-trial-lab-notebook.py`
 - [AISPM report catalog readiness](docs/release-verifications/aispm-report-catalog-readiness.md)
 - [AISPM report catalog readiness JSON](docs/release-verifications/aispm-report-catalog-readiness.json)
 - AISPM report catalog readiness validator: `scripts/validate-aispm-report-catalog-readiness.py`

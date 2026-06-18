@@ -70,6 +70,6 @@ source code.
 
 ## Related Pages
 
-- [CAVRA Enterprise Trial Lab Notebook](AISPM-Enterprise-Trial-Lab-Notebook)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
 - [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
 - [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness)

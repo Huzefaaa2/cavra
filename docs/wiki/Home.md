@@ -152,7 +152,8 @@ Transparent CAVRA engineering-agent methodology is now documented for the reposi
 - AISPM Enterprise Live Ingestion: `AISPM-Enterprise-Live-Ingestion.md`
 - AISPM CSO Report Center: `AISPM-CSO-Report-Center.md`
 - AISPM Report Center Enterprise Readiness: `AISPM-Report-Center-Enterprise-Readiness.md`
-- AISPM Enterprise Trial Lab Notebook: `AISPM-Enterprise-Trial-Lab-Notebook.md`
+- CAVRA Trial Field Guide: `CAVRA-Trial-Field-Guide.md`
+- AISPM Enterprise Trial Lab Notebook legacy pointer: `AISPM-Enterprise-Trial-Lab-Notebook.md`
 - AISPM Trial Access And Operator Approval: `AISPM-Trial-Access-And-Operator-Approval.md`
 - AISPM Trial Revocation, Expiry, And Closeout: `AISPM-Trial-Revocation-Expiry-And-Closeout.md`
 - Trial License Evaluator Access Sync: `Trial-License-Evaluator-Access-Sync.md`

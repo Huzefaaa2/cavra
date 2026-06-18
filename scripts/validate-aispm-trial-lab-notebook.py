@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate AISPM Enterprise Trial lab notebook wiki publication readiness."""
+"""Validate AISPM Enterprise Trial Field Guide wiki publication readiness."""
 
 from __future__ import annotations
 
@@ -354,7 +354,7 @@ def _enterprise_readiness_sync(root: Path) -> dict[str, Any]:
 
 
 def validate(root: Path, packet_path: Path = DEFAULT_PACKET, schema_path: Path = DEFAULT_SCHEMA) -> list[str]:
-    """Return validation failures for AISPM trial lab notebook publication readiness."""
+    """Return validation failures for AISPM trial Field Guide publication readiness."""
 
     return list(build_summary(root, packet_path, schema_path)["blockers"])
 
@@ -363,7 +363,7 @@ def render_markdown(summary: dict[str, Any]) -> str:
     """Render a reviewer-facing Markdown readiness summary."""
 
     lines = [
-        "# AISPM Trial Lab Notebook Publication Readiness Summary",
+        "# AISPM Trial Field Guide Publication Readiness Summary",
         "",
         f"Status: `{summary['overall_status']}`",
         f"Generated At: `{summary['generated_at']}`",
@@ -533,12 +533,12 @@ def main() -> int:
             )
         )
     if failures:
-        print("CAVRA AISPM trial lab notebook publication validation failed:")
+        print("CAVRA AISPM trial Field Guide publication validation failed:")
         for failure in failures:
             print(f"- {failure}")
         return 1
 
-    print("CAVRA AISPM trial lab notebook publication validation passed.")
+    print("CAVRA AISPM trial Field Guide publication validation passed.")
     return 0
 
 

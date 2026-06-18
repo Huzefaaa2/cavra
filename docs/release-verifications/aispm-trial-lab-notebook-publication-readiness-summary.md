@@ -1,4 +1,4 @@
-# AISPM Trial Lab Notebook Publication Readiness Summary
+# AISPM Trial Field Guide Publication Readiness Summary
 
 Status: `ready`
 Generated At: `2026-06-12T13:00:00Z`
@@ -19,7 +19,7 @@ Source Schema: `src/cavra/schemas/aispm-report-center-trial-lab-notebook-publica
 
 | Page | Source | Home Nav | Public Safety | Status |
 | --- | --- | --- | --- | --- |
-| CAVRA Enterprise Trial Lab Notebook | `docs/wiki/AISPM-Enterprise-Trial-Lab-Notebook.md` | yes | ## Public Safety Rules, ## Related Pages | `ready` |
+| CAVRA Trial Field Guide | `docs/wiki/CAVRA-Trial-Field-Guide.md` | yes | ## Public Safety Rules, ## Related Pages | `ready` |
 | Trial Access And Operator Approval | `docs/wiki/AISPM-Trial-Access-And-Operator-Approval.md` | yes | ## Public Safety Rules, ## Related Pages | `ready` |
 | Trial Revocation, Expiry, And Closeout | `docs/wiki/AISPM-Trial-Revocation-Expiry-And-Closeout.md` | yes | ## Public Safety Rules, ## Related Pages | `ready` |
 
@@ -41,7 +41,7 @@ Source: `docs/release-verifications/aispm-enterprise-trial-readiness-public-summ
 | runtime-binding | Runtime Binding | `ready` |
 | alert-transport | Alert Transport | `ready` |
 | release-dashboard-publication | Release Dashboard Publication | `ready` |
-| trial-lab-notebook | Trial Lab Notebook | `ready` |
+| trial-lab-notebook | Trial Field Guide | `ready` |
 | operator-audit-archive | Operator Audit Archive | `ready` |
 | trial-package-readiness-validator | Trial Package Readiness Validator | `ready` |
 | runtime-control-closeout | Runtime Control Closeout | `ready` |
