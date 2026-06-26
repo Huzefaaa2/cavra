@@ -34,6 +34,7 @@ commit, and the Enterprise Trial access portal remains reachable.
 | `docs/release-verifications/aispm-release-evidence-index.json` | ready | `python scripts/validate-aispm-release-evidence-index.py` |
 | `docs/release-verifications/aispm-v1.0-public-release-readiness.json` | ready | `python scripts/validate-aispm-v100-public-release.py` |
 | `docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json` | ready | `python scripts/validate-aispm-trial-lab-notebook.py --check-summary` |
+| `docs/trial-final-launch-retrospective-closeout-sync.md` | ready | public-safe docs sync |
 | `docs/release-verifications/hosted-sandbox-operator-release-status.json` | ready | `python scripts/validate-hosted-sandbox-operator-status.py` |
 | `docs/release-verifications/hosted-sandbox-post-deploy-evidence.json` | workflow_enforced | `python scripts/validate-hosted-sandbox-deploy-evidence.py` |
 | `docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md` | ready | manual public release record |
@@ -47,6 +48,15 @@ python scripts/validate-aispm-launch-readiness.py
 python scripts/validate-aispm-release-evidence-index.py
 python scripts/validate-aispm-trial-lab-notebook.py --check-summary
 ```
+
+## Private Retrospective Sync
+
+The public announcement also requires
+`docs/trial-final-launch-retrospective-closeout-sync.md`. That page summarizes
+the private final launch retrospective closeout at the boundary level and links
+to the wiki mirror without exposing Enterprise source, customer/account
+records, finance data, license-service internals, artifact-signing internals,
+or production provisioning secrets.
 
 ## Public Safety Boundary
 

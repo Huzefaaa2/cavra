@@ -35,6 +35,7 @@ def test_aispm_final_announcement_readiness_contract() -> None:
         "release_evidence_index",
         "public_release_readiness",
         "trial_field_guide",
+        "private_final_launch_retrospective_closeout_sync",
         "hosted_operator_status",
         "hosted_post_deploy_evidence",
         "community_release_verification",
@@ -44,6 +45,7 @@ def test_aispm_final_announcement_readiness_contract() -> None:
         "community_portal_ready",
         "release_evidence_ready",
         "field_guide_published",
+        "private_final_launch_retrospective_synced",
         "hosted_release_operator_ready",
         "public_release_notes_ready",
         "public_safety_boundary_verified",
@@ -66,8 +68,18 @@ def test_aispm_final_announcement_readiness_is_wired() -> None:
         "docs/release-verifications/aispm-launch-readiness-rollup.md",
         "docs/wiki/Home.md",
         "docs/wiki/AISPM-Dashboard-Roadmap.md",
+        "docs/trial-final-launch-retrospective-closeout-sync.md",
+        "docs/wiki/Trial-Final-Launch-Retrospective-Closeout-Sync.md",
     ]:
         text = Path(doc_path).read_text(encoding="utf-8")
         assert "docs/release-verifications/aispm-final-announcement-readiness.md" in text
         assert "docs/release-verifications/aispm-final-announcement-readiness.json" in text
         assert "scripts/validate-aispm-final-announcement-readiness.py" in text
+
+    sync_text = Path("docs/trial-final-launch-retrospective-closeout-sync.md").read_text(encoding="utf-8")
+    wiki_sync_text = Path("docs/wiki/Trial-Final-Launch-Retrospective-Closeout-Sync.md").read_text(
+        encoding="utf-8"
+    )
+    for text in (sync_text, wiki_sync_text):
+        assert "## AISPM Announcement Sync" in text
+        assert "private_final_launch_retrospective_closeout_sync" in text

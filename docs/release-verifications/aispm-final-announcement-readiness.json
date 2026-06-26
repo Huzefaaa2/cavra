@@ -34,6 +34,12 @@
       "validator": "python scripts/validate-aispm-trial-lab-notebook.py --check-summary"
     },
     {
+      "source_id": "private_final_launch_retrospective_closeout_sync",
+      "path": "docs/trial-final-launch-retrospective-closeout-sync.md",
+      "status": "ready",
+      "validator": "public_safe_docs_sync"
+    },
+    {
       "source_id": "hosted_operator_status",
       "path": "docs/release-verifications/hosted-sandbox-operator-release-status.json",
       "status": "ready",
@@ -73,6 +79,11 @@
       "gate_id": "field_guide_published",
       "status": "ready",
       "evidence": "docs/wiki/CAVRA-Trial-Field-Guide.md"
+    },
+    {
+      "gate_id": "private_final_launch_retrospective_synced",
+      "status": "ready",
+      "evidence": "docs/trial-final-launch-retrospective-closeout-sync.md"
     },
     {
       "gate_id": "hosted_release_operator_ready",

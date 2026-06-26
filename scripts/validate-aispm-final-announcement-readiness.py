@@ -79,6 +79,7 @@ def main() -> int:
         "release_evidence_index",
         "public_release_readiness",
         "trial_field_guide",
+        "private_final_launch_retrospective_closeout_sync",
         "hosted_operator_status",
         "hosted_post_deploy_evidence",
         "community_release_verification",
@@ -103,6 +104,7 @@ def main() -> int:
             "community_portal_ready",
             "release_evidence_ready",
             "field_guide_published",
+            "private_final_launch_retrospective_synced",
             "hosted_release_operator_ready",
             "public_release_notes_ready",
             "public_safety_boundary_verified",
@@ -137,6 +139,7 @@ def main() -> int:
         "## Announcement Decision",
         "## Required Sources",
         "## Operator Commands",
+        "## Private Retrospective Sync",
         "## Public Safety Boundary",
         "## Enterprise Boundary",
     ):
@@ -146,11 +149,28 @@ def main() -> int:
         "docs/release-verifications/aispm-launch-readiness-rollup.json",
         "docs/release-verifications/aispm-release-evidence-index.json",
         "docs/wiki/CAVRA-Trial-Field-Guide.md",
+        "docs/trial-final-launch-retrospective-closeout-sync.md",
+        "private_final_launch_retrospective_closeout_sync",
+        "private_final_launch_retrospective_synced",
         "cavra-aispm-final-announcement-readiness-packet.json",
     ):
         require(needle in json.dumps(packet) + markdown, f"missing {needle}", failures)
 
-    combined = json.dumps(packet) + "\n" + markdown
+    retrospective_sync = read("docs/trial-final-launch-retrospective-closeout-sync.md")
+    retrospective_wiki_sync = read("docs/wiki/Trial-Final-Launch-Retrospective-Closeout-Sync.md")
+    for sync_path, sync_text in (
+        ("docs/trial-final-launch-retrospective-closeout-sync.md", retrospective_sync),
+        ("docs/wiki/Trial-Final-Launch-Retrospective-Closeout-Sync.md", retrospective_wiki_sync),
+    ):
+        for needle in (
+            "## AISPM Announcement Sync",
+            "private_final_launch_retrospective_closeout_sync",
+            "docs/release-verifications/aispm-final-announcement-readiness.md",
+            "docs/release-verifications/aispm-final-announcement-readiness.json",
+        ):
+            require(needle in sync_text, f"{sync_path}: missing {needle}", failures)
+
+    combined = json.dumps(packet) + "\n" + markdown + "\n" + retrospective_sync + "\n" + retrospective_wiki_sync
     for term in FORBIDDEN:
         require(term not in combined, f"final announcement packet must not expose {term}", failures)
 
