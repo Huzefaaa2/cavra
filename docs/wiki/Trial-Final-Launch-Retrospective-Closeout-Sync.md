@@ -55,6 +55,28 @@ workflow, expected gates, and reference names. It must not store:
 - Enterprise source code;
 - paid policy packs.
 
+## AISPM Announcement Sync
+
+This page is now a required public-safe source for the AISPM final announcement
+readiness packet. The packet records the source as
+`private_final_launch_retrospective_closeout_sync` and points to this document
+so Community users can see the boundary-level closeout summary without needing
+private Enterprise repository access.
+
+The sync confirms only that private final launch retrospective evidence exists
+and has been summarized at the boundary level. It does not publish evaluator
+identities, account health signals, customer-success notes, renewal records,
+support trend bodies, archive contents, registry credentials, license material,
+artifact-signing details, production provisioning data, or Enterprise source
+code.
+
+Announcement operators must keep this page aligned with
+`docs/release-verifications/aispm-final-announcement-readiness.md` and
+`docs/release-verifications/aispm-final-announcement-readiness.json` before
+announcing AISPM Community v1.0 or the Enterprise Trial handoff publicly.
+Run `scripts/validate-aispm-final-announcement-readiness.py` after updating
+this sync page.
+
 ## Readiness Gates
 
 The private evidence is ready only when:
