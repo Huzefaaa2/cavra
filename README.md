@@ -109,6 +109,23 @@ Open `http://localhost:5173`.
 
 ![CAVRA GUI dashboard](docs/wiki/assets/textbook/gui-dashboard.png)
 
+## Community SaaS On Azure
+
+CAVRA Community can be published as a lightweight SaaS-style deployment on Azure:
+
+- FastAPI backend on Azure Container Apps.
+- Static sandbox UI on Azure Static Web Apps.
+- Container image build and publish through Azure Container Registry.
+- GitHub Actions deployment through Azure OIDC.
+
+The deployment artifacts are:
+
+- `docker/Dockerfile.azure-api`
+- `.github/workflows/deploy-azure-api.yml`
+- `.github/workflows/deploy-azure-static-ui.yml`
+
+Use [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md) for the full setup, required GitHub variables, Azure resources, persistence boundary, and validation steps. This path exposes Community features only; Enterprise tenant isolation, live connectors, report delivery, private policy packs, and AISPM production validation remain Enterprise deployment work.
+
 ## CLI Command Families
 
 The `cavra` CLI covers local decisions, policies, approvals, evidence, registries, operations, runtime workflows, releases, and demos.
@@ -161,6 +178,7 @@ Start with the wiki textbook:
 - [Community Edition User Guide](docs/wiki/Textbook-06-Community-Edition-User-Guide.md)
 - [Enterprise Edition User Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md)
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
+- [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md)
 
 Canonical references:
 

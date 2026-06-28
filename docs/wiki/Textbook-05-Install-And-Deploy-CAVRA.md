@@ -148,6 +148,44 @@ Use Docker when you want repeatable local startup or a shared demo environment. 
 
 CAVRA includes a public API surface for decisions, policy packs, approvals, evidence, AISPM samples, and sandbox workflows. See [API](API.md) for endpoint families. A local deployment normally starts the API, configures policy and storage paths, then allows the sandbox UI or automation scripts to call the API.
 
+## Azure Community SaaS Deployment
+
+The public Community repository includes an Azure deployment path for teams that
+want to run CAVRA as a lightweight hosted Community service instead of only as a
+local CLI or static sandbox.
+
+The pattern uses:
+
+- Azure Container Apps for the CAVRA FastAPI backend.
+- Azure Static Web Apps for the sandbox and AISPM sample UI.
+- Azure Container Registry for the API container image.
+- GitHub Actions with Azure OIDC for deployment.
+
+The implementation files are:
+
+- `docker/Dockerfile.azure-api`
+- `.github/workflows/deploy-azure-api.yml`
+- `.github/workflows/deploy-azure-static-ui.yml`
+
+The API container runs:
+
+```bash
+uvicorn cavra.api:app --host 0.0.0.0 --port 8000
+```
+
+The static UI workflow writes a deployment-specific `config.js` so the browser
+uses the published API endpoint. Operators configure `CAVRA_PUBLIC_API_BASE_URL`
+for the UI and `CAVRA_CORS_ORIGINS` for the API.
+
+Use [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md) for the
+full Azure resource list, GitHub variables, deployment flow, and validation
+steps.
+
+This path is intentionally Community-scoped. It publishes public-safe CAVRA
+surfaces; it does not add Enterprise tenant isolation, live connectors, private
+policy packs, report-provider delivery, license enforcement, or AISPM production
+readiness validation.
+
 ## CI/CD Deployment
 
 CAVRA can be used in CI/CD to require policy decisions and evidence before merging or deploying. A typical flow is:

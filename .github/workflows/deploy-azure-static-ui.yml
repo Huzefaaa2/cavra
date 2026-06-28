@@ -1,0 +1,81 @@
+name: Deploy Azure Static UI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/sandbox-ui/**"
+      - "assets/brand/**"
+      - "docs/diagrams/*.svg"
+      - "examples/demos/before-the-agent-acts/generated/evidence.json"
+      - "examples/demos/final-closeout-trial/**"
+      - ".github/workflows/deploy-azure-static-ui.yml"
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+concurrency:
+  group: azure-community-static-ui
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy-azure-community-static-ui
+    if: vars.AZURE_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: azure-community
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Validate sandbox JavaScript
+        run: |
+          npm ci
+          node --check apps/sandbox-ui/config.js
+          node --check apps/sandbox-ui/sandbox.js
+          python3 scripts/validate-sandbox-portal.py
+
+      - name: Build Azure Static Web Apps artifact
+        env:
+          CAVRA_PUBLIC_API_BASE_URL: ${{ vars.CAVRA_PUBLIC_API_BASE_URL }}
+          CAVRA_PUBLIC_TRIAL_API_URL: ${{ vars.CAVRA_PUBLIC_TRIAL_API_URL }}
+        run: |
+          set -euo pipefail
+          rm -rf azure-static-web-app
+          mkdir -p azure-static-web-app
+          cp -R apps/sandbox-ui/. azure-static-web-app/
+          {
+            printf 'window.CAVRA_API_BASE = %s;\n' "$(python3 -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_API_BASE_URL", "")))')"
+            printf 'window.CAVRA_TRIAL_API_URL = %s;\n' "$(python3 -c 'import json, os; print(json.dumps(os.environ.get("CAVRA_PUBLIC_TRIAL_API_URL", "")))')"
+          } > azure-static-web-app/config.js
+          mkdir -p azure-static-web-app/assets
+          cp -R assets/brand azure-static-web-app/assets/
+          mkdir -p azure-static-web-app/evidence/before-the-agent-acts
+          cp examples/demos/before-the-agent-acts/generated/evidence.json azure-static-web-app/evidence/before-the-agent-acts/evidence.json
+          mkdir -p azure-static-web-app/evidence/final-closeout-trial
+          cp examples/demos/final-closeout-trial/sample-evidence-package.json azure-static-web-app/evidence/final-closeout-trial/sample-evidence-package.json
+          cp examples/demos/final-closeout-trial/pilot-intake-template.json azure-static-web-app/evidence/final-closeout-trial/pilot-intake-template.json
+          cp docs/diagrams/*.svg azure-static-web-app/
+
+      - name: Deploy Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: azure-static-web-app
+          api_location: ""
+          output_location: ""
+          skip_app_build: true

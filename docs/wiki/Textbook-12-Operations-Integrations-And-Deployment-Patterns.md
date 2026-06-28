@@ -70,6 +70,36 @@ API integration steps:
 
 See [API](API.md) for endpoint families.
 
+## Azure Community SaaS Pattern
+
+Use the Azure Community SaaS pattern when the public Community experience should
+be reachable as a hosted service without introducing Enterprise-only runtime
+contracts.
+
+The pattern is:
+
+1. Build the API image from `docker/Dockerfile.azure-api`.
+2. Deploy the API to Azure Container Apps.
+3. Publish the static sandbox UI to Azure Static Web Apps.
+4. Configure the UI with `CAVRA_PUBLIC_API_BASE_URL`.
+5. Restrict browser access with `CAVRA_CORS_ORIGINS`.
+6. Run `/health` and `/deployment/production-readiness` checks after deploy.
+
+GitHub Actions workflows:
+
+- `.github/workflows/deploy-azure-api.yml`
+- `.github/workflows/deploy-azure-static-ui.yml`
+
+Use [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md) for the
+complete setup. Treat persistence explicitly: Container Apps filesystem state is
+not a durable database, so Community SaaS demos should either mount approved
+storage for SQLite files or accept ephemeral sample state.
+
+This pattern is not an Enterprise production-control-plane pattern. Enterprise
+deployment still requires tenant isolation, private policy packs, live
+connectors, report delivery, runtime workflow validation, and AISPM production
+readiness evidence.
+
 ## Enterprise Connector Pattern
 
 Use live connectors for production operations:
@@ -142,6 +172,7 @@ Historical records for these operating chains are stored in [Development And Tes
 | Local CLI | Learning, demos, repo-level checks. | Inconsistent adoption. | Document wrapper usage and run CI checks. |
 | CI/CD required check | Protected branches and releases. | Evidence not tied to real action. | Verify attestation and evidence bundle. |
 | API service | Shared governance across clients. | Incomplete caller context. | Require actor, policy, resource, and evidence metadata. |
+| Azure Community SaaS | Hosted Community API and sandbox UI. | Confusing Community demo scope with Enterprise production. | Configure CORS, public API URL, OIDC deploy, and explicit persistence boundary. |
 | Docker/Compose | Labs and pilots. | Secrets in local files. | Use env vars and mounted secret stores. |
 | Kubernetes/Helm-style | Production control plane. | Misconfigured identity or storage. | Add SSO/RBAC, network policy, persistent stores, monitoring. |
 | Air-gapped | Regulated offline environments. | Trust root drift. | Use signed bundles, offline trust distribution, immutable evidence. |

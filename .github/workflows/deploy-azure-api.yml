@@ -1,0 +1,134 @@
+name: Deploy Azure API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "policies/community/**"
+      - "pyproject.toml"
+      - "setup.py"
+      - "docker/Dockerfile.azure-api"
+      - ".github/workflows/deploy-azure-api.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+concurrency:
+  group: azure-community-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy-azure-community-api
+    if: vars.AZURE_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: azure-community
+      url: ${{ steps.show-url.outputs.api_url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Validate API package import
+        run: |
+          python -m pip install .
+          python - <<'PY'
+          from cavra.api import app
+          assert app is not None
+          PY
+
+      - name: Log in to Azure with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}
+          dockerfilePath: docker/Dockerfile.azure-api
+          acrName: ${{ vars.AZURE_CONTAINER_REGISTRY_NAME }}
+          containerAppName: ${{ vars.AZURE_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
+
+      - name: Configure Community API environment
+        uses: azure/cli@v2
+        env:
+          AZURE_CONTAINER_APP_NAME: ${{ vars.AZURE_CONTAINER_APP_NAME }}
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+          CAVRA_CORS_ORIGINS: ${{ vars.CAVRA_CORS_ORIGINS }}
+          CAVRA_PUBLIC_API_BASE_URL: ${{ vars.CAVRA_PUBLIC_API_BASE_URL }}
+          CAVRA_EVIDENCE_METADATA_DB: ${{ vars.CAVRA_EVIDENCE_METADATA_DB }}
+          CAVRA_APPROVAL_DB: ${{ vars.CAVRA_APPROVAL_DB }}
+          CAVRA_REGISTRY_DB: ${{ vars.CAVRA_REGISTRY_DB }}
+          CAVRA_ACTIVITY_DB: ${{ vars.CAVRA_ACTIVITY_DB }}
+          CAVRA_INVENTORY_DB: ${{ vars.CAVRA_INVENTORY_DB }}
+          CAVRA_INTEGRATION_DB: ${{ vars.CAVRA_INTEGRATION_DB }}
+          CAVRA_EVIDENCE_ARTIFACT_ROOT: ${{ vars.CAVRA_EVIDENCE_ARTIFACT_ROOT }}
+        with:
+          inlineScript: |
+            set -euo pipefail
+            env_vars=("CAVRA_EDITION=community")
+            for name in \
+              CAVRA_CORS_ORIGINS \
+              CAVRA_PUBLIC_API_BASE_URL \
+              CAVRA_EVIDENCE_METADATA_DB \
+              CAVRA_APPROVAL_DB \
+              CAVRA_REGISTRY_DB \
+              CAVRA_ACTIVITY_DB \
+              CAVRA_INVENTORY_DB \
+              CAVRA_INTEGRATION_DB \
+              CAVRA_EVIDENCE_ARTIFACT_ROOT
+            do
+              value="${!name:-}"
+              if [ -n "$value" ]; then
+                env_vars+=("${name}=${value}")
+              fi
+            done
+            az containerapp update \
+              --name "$AZURE_CONTAINER_APP_NAME" \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --set-env-vars "${env_vars[@]}"
+
+      - name: Show API URL
+        id: show-url
+        uses: azure/cli@v2
+        env:
+          AZURE_CONTAINER_APP_NAME: ${{ vars.AZURE_CONTAINER_APP_NAME }}
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+        with:
+          inlineScript: |
+            set -euo pipefail
+            fqdn="$(az containerapp show \
+              --name "$AZURE_CONTAINER_APP_NAME" \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --query properties.configuration.ingress.fqdn \
+              --output tsv)"
+            api_url="https://${fqdn}"
+            echo "api_url=${api_url}" >> "$GITHUB_OUTPUT"
+            echo "CAVRA API deployed to ${api_url}"
+
+      - name: Smoke test API health
+        env:
+          API_URL: ${{ steps.show-url.outputs.api_url }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if curl -fsS "${API_URL}/health"; then
+              exit 0
+            fi
+            echo "API health check not ready yet; retry ${attempt}/12"
+            sleep 10
+          done
+          curl -fsS "${API_URL}/health"

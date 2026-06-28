@@ -17,6 +17,7 @@
 - [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
+- [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md)
 
 ## Appendix B: Command Families
 

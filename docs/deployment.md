@@ -8,6 +8,32 @@ API: run `uvicorn cavra.api:app --host 0.0.0.0 --port 8000`.
 
 Sandbox UI: run `python -m http.server 5173 --directory apps/sandbox-ui`.
 
+## Azure Community SaaS
+
+CAVRA Community can be deployed from GitHub to Azure as a public Community
+service:
+
+- API: Azure Container Apps using `docker/Dockerfile.azure-api`.
+- UI: Azure Static Web Apps using `apps/sandbox-ui`.
+- Image registry: Azure Container Registry.
+- CI/CD: GitHub Actions with Azure OIDC.
+
+The implementation workflows are:
+
+- `.github/workflows/deploy-azure-api.yml`
+- `.github/workflows/deploy-azure-static-ui.yml`
+
+Set `AZURE_DEPLOY_ENABLED=true` only after the Azure resources, GitHub
+variables, and Static Web Apps deployment token are configured. Use
+`CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` to bind the static UI to the
+published API.
+
+Full operator guide: [Azure Community SaaS Deployment](azure-community-saas-deployment.md).
+
+This is a Community deployment path. It does not add Enterprise tenant
+isolation, private policy packs, live connectors, SMTP/report-provider delivery,
+or AISPM production readiness gates.
+
 ## Configuration
 
 Configure production paths with environment variables instead of source changes.

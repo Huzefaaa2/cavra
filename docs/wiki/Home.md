@@ -111,6 +111,7 @@ close out the trial without leaving stale package or license access behind.
 - [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
 - [Enterprise Trial Availability](Enterprise-Trial-Availability.md)
 - [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)
+- [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md)
 
 ## Development And Testing Archive
 
