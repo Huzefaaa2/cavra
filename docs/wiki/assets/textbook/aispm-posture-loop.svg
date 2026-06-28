@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">AISPM posture loop</title>
+  <desc id="desc">AISPM converts CAVRA runtime evidence into findings, posture, reports, remediation, and readiness decisions.</desc>
+  <rect width="1200" height="720" fill="#f8fbfa"/>
+  <text x="600" y="56" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#102a43">AISPM Posture Loop</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="17">
+    <circle cx="600" cy="360" r="100" fill="#0f766e"/>
+    <text x="600" y="344" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">AISPM</text>
+    <text x="600" y="376" text-anchor="middle" fill="#d7fff5">AI Security Posture</text>
+    <text x="600" y="402" text-anchor="middle" fill="#d7fff5">Management</text>
+    <rect x="90" y="118" width="240" height="92" rx="18" fill="#e8f1ff" stroke="#4f7cc8" stroke-width="2"/>
+    <text x="210" y="154" text-anchor="middle" font-weight="700" fill="#183b72">Runtime Evidence</text>
+    <text x="210" y="184" text-anchor="middle" fill="#334155">decisions, approvals, tools</text>
+    <rect x="470" y="100" width="260" height="92" rx="18" fill="#fff5e3" stroke="#d58d1f" stroke-width="2"/>
+    <text x="600" y="136" text-anchor="middle" font-weight="700" fill="#754200">Findings and Coverage</text>
+    <text x="600" y="166" text-anchor="middle" fill="#4d3920">risk, drift, control gaps</text>
+    <rect x="870" y="118" width="240" height="92" rx="18" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="990" y="154" text-anchor="middle" font-weight="700" fill="#4c1d95">Reports</text>
+    <text x="990" y="184" text-anchor="middle" fill="#3c2f57">CSO, CISO, board packs</text>
+    <rect x="870" y="506" width="240" height="92" rx="18" fill="#fbecec" stroke="#cc3d3d" stroke-width="2"/>
+    <text x="990" y="542" text-anchor="middle" font-weight="700" fill="#7f1d1d">Remediation</text>
+    <text x="990" y="572" text-anchor="middle" fill="#5e2b2b">owners, SLAs, exceptions</text>
+    <rect x="470" y="528" width="260" height="92" rx="18" fill="#eafaf2" stroke="#38a169" stroke-width="2"/>
+    <text x="600" y="564" text-anchor="middle" font-weight="700" fill="#245a39">Readiness Gate</text>
+    <text x="600" y="594" text-anchor="middle" fill="#245a39">trial, pilot, production</text>
+    <rect x="90" y="506" width="240" height="92" rx="18" fill="#edf8ff" stroke="#0284c7" stroke-width="2"/>
+    <text x="210" y="542" text-anchor="middle" font-weight="700" fill="#075985">Evidence Room</text>
+    <text x="210" y="572" text-anchor="middle" fill="#164e63">auditors and operators</text>
+    <path d="M330 164 C420 126 452 127 470 146" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M730 146 C820 126 850 128 870 164" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M990 210 V500" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M870 552 C805 600 755 604 730 574" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M470 574 C380 610 340 594 330 552" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M210 506 V214" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2 L10 6 L2 10 Z" fill="#334155"/></marker>
+  </defs>
+</svg>

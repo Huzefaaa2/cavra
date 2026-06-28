@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="CAVRA runtime decision flow">
+  <rect width="1200" height="520" fill="#101316"/>
+  <text x="60" y="64" fill="#eef3f6" font-family="Arial" font-size="32" font-weight="700">CAVRA Runtime Decision Flow</text>
+  <g font-family="Arial">
+    <g fill="#151a1e" stroke="#76d6b2" stroke-width="2">
+      <rect x="60" y="180" width="170" height="90" rx="8"/>
+      <rect x="280" y="180" width="170" height="90" rx="8"/>
+      <rect x="500" y="180" width="170" height="90" rx="8"/>
+      <rect x="720" y="180" width="170" height="90" rx="8"/>
+      <rect x="940" y="180" width="170" height="90" rx="8"/>
+    </g>
+    <g fill="#eef3f6" font-size="16" font-weight="700">
+      <text x="145" y="218" text-anchor="middle">Agent Request</text>
+      <text x="145" y="242" text-anchor="middle">Before Action</text>
+      <text x="365" y="230" text-anchor="middle">Normalize</text>
+      <text x="585" y="218" text-anchor="middle">Policy</text>
+      <text x="585" y="242" text-anchor="middle">Evaluation</text>
+      <text x="805" y="218" text-anchor="middle">Decision</text>
+      <text x="805" y="242" text-anchor="middle">allow/block/approve</text>
+      <text x="1025" y="218" text-anchor="middle">Evidence</text>
+      <text x="1025" y="242" text-anchor="middle">and Attestation</text>
+    </g>
+  </g>
+  <g stroke="#76d6b2" stroke-width="3" fill="none" marker-end="url(#arrow2)">
+    <defs><marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#76d6b2"/></marker></defs>
+    <path d="M230 225 L280 225"/>
+    <path d="M450 225 L500 225"/>
+    <path d="M670 225 L720 225"/>
+    <path d="M890 225 L940 225"/>
+  </g>
+  <text x="600" y="370" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="18">CAVRA intercepts meaningful engineering actions before files, shell, Git, MCP, cloud, or CI/CD are touched.</text>
+</svg>

@@ -1,0 +1,62 @@
+# Post-Onboarding SaaS Operating Readiness
+
+Status date: 2026-06-02.
+
+## Slice Name
+
+Post-onboarding SaaS operating readiness.
+
+## Current Position
+
+Completed before and during this slice:
+
+- public trial-to-pilot intake plan;
+- public licensing interface hardening;
+- public SaaS Control Plane contract;
+- public tenant onboarding contract;
+- public entitlement status contract;
+- private trial package readiness gates in `cavra-enterprise` PR #61;
+- private customer pilot handoff evidence in `cavra-enterprise` PR #62;
+- private tenant onboarding readiness evidence in `cavra-enterprise` PR #63;
+- private entitlement and license-service handoff evidence in private PR #64;
+- private paid-pilot promotion evidence in private PR #65;
+- private customer rollout closeout evidence in private PR #66;
+- public-safe commercialization batch syncs.
+
+This slice has started with the public hosted policy registry readiness
+contract, public tenant audit-store operating contract, and public
+billing/subscription boundary documentation.
+
+## Why This Is Next
+
+After onboarding, CAVRA needs steady-state operating evidence for hosted policy
+registry readiness, tenant audit-store health, billing/subscription status,
+license-service observability, support ownership, and SaaS dashboards.
+
+## Proposed PR Sequence
+
+1. Public hosted policy registry readiness contract. Delivered.
+2. Public tenant audit-store operating contract. Delivered.
+3. Public billing/subscription boundary documentation. Delivered.
+4. Private hosted policy registry readiness evidence.
+5. Private tenant audit-store operating evidence.
+6. Private billing/subscription and license-service observability evidence.
+7. Private SaaS operating readiness rollup evidence.
+8. Private support and customer-success operating handoff evidence.
+9. Private operating dashboard and support escalation rollup evidence.
+10. Private final SaaS customer operating closeout evidence.
+11. Public docs/wiki sync and public customer operating dashboard/support
+    handoff contracts.
+
+## Boundary
+
+The public Community repository may contain public-safe contracts, unavailable
+responses, documentation, and synthetic examples only. Enterprise source,
+customer data, private policy packs, billing records, license keys, provider
+URLs, connector credentials, and SaaS backend code remain private.
+
+## Recommended Next PR
+
+Continue private SaaS operating automation required for trial-to-paid customer
+scale. Private hosted policy registry readiness through final SaaS customer
+operating closeout evidence is delivered in `cavra-enterprise` PRs #67-#73.

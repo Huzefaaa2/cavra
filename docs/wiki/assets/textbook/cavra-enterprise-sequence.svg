@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise runtime sequence</title>
+  <desc id="desc">Enterprise CAVRA sequence from agent request through policy evaluation, approval, connector execution, evidence, AISPM, and reporting.</desc>
+  <rect width="1200" height="720" fill="#fbfcff"/>
+  <text x="600" y="50" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#122033">Enterprise Runtime Sequence</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="15">
+    <g font-weight="700" fill="#122033">
+      <text x="115" y="110" text-anchor="middle">Agent</text>
+      <text x="275" y="110" text-anchor="middle">CAVRA Runtime</text>
+      <text x="455" y="110" text-anchor="middle">Policy and RBAC</text>
+      <text x="635" y="110" text-anchor="middle">Approver</text>
+      <text x="815" y="110" text-anchor="middle">Connectors</text>
+      <text x="995" y="110" text-anchor="middle">Evidence and AISPM</text>
+    </g>
+    <g stroke="#94a3b8" stroke-width="2">
+      <line x1="115" y1="130" x2="115" y2="640"/><line x1="275" y1="130" x2="275" y2="640"/><line x1="455" y1="130" x2="455" y2="640"/>
+      <line x1="635" y1="130" x2="635" y2="640"/><line x1="815" y1="130" x2="815" y2="640"/><line x1="995" y1="130" x2="995" y2="640"/>
+    </g>
+    <g stroke="#1f2937" stroke-width="3" marker-end="url(#arrow)">
+      <line x1="115" y1="170" x2="275" y2="170"/><line x1="275" y1="225" x2="455" y2="225"/><line x1="455" y1="280" x2="635" y2="280"/>
+      <line x1="635" y1="335" x2="275" y2="335"/><line x1="275" y1="390" x2="815" y2="390"/><line x1="815" y1="445" x2="995" y2="445"/>
+      <line x1="275" y1="500" x2="995" y2="500"/><line x1="995" y1="555" x2="635" y2="555"/>
+    </g>
+    <g fill="#122033">
+      <text x="186" y="160">1. proposed action</text>
+      <text x="340" y="215">2. evaluate policy</text>
+      <text x="520" y="270">3. route approval</text>
+      <text x="440" y="325">4. approve, deny, or break glass</text>
+      <text x="548" y="380">5. execute allowed connector call</text>
+      <text x="900" y="435">6. attach delivery evidence</text>
+      <text x="620" y="490">7. sign bundle and update posture</text>
+      <text x="815" y="545">8. report readiness and blockers</text>
+    </g>
+  </g>
+  <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2 L10 6 L2 10 Z" fill="#1f2937"/></marker></defs>
+</svg>

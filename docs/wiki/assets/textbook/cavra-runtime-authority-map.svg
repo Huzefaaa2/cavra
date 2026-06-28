@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA runtime authority map</title>
+  <desc id="desc">AI agents pass through CAVRA before reaching code, cloud, Git, MCP tools, shell, CI/CD, and evidence systems.</desc>
+  <rect width="1200" height="720" fill="#f7fbff"/>
+  <rect x="55" y="72" width="1090" height="576" rx="28" fill="#ffffff" stroke="#b7c7da" stroke-width="2"/>
+  <text x="600" y="52" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700" fill="#122033">CAVRA Runtime Authority Map</text>
+  <text x="600" y="100" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" fill="#415269">Before the agent acts, CAVRA decides.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="95" y="166" width="220" height="116" rx="18" fill="#e8f1ff" stroke="#6e99df" stroke-width="2"/>
+    <text x="205" y="214" text-anchor="middle" font-size="22" font-weight="700" fill="#143a73">AI Agents</text>
+    <text x="205" y="244" text-anchor="middle" font-size="15" fill="#33506f">Codex, Claude Code, MCP clients</text>
+    <rect x="490" y="138" width="220" height="172" rx="22" fill="#0f766e" stroke="#0b5e58" stroke-width="2"/>
+    <text x="600" y="190" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">CAVRA</text>
+    <text x="600" y="222" text-anchor="middle" font-size="15" fill="#d8fff7">Policy, identity, approval, evidence</text>
+    <text x="600" y="252" text-anchor="middle" font-size="15" fill="#d8fff7">runtime decisions</text>
+    <rect x="885" y="130" width="210" height="66" rx="14" fill="#fff3db" stroke="#d68b1c" stroke-width="2"/>
+    <text x="990" y="171" text-anchor="middle" font-size="18" font-weight="700" fill="#684000">Code and Git</text>
+    <rect x="885" y="218" width="210" height="66" rx="14" fill="#eafaf2" stroke="#38a169" stroke-width="2"/>
+    <text x="990" y="259" text-anchor="middle" font-size="18" font-weight="700" fill="#245a39">Cloud and IaC</text>
+    <rect x="885" y="306" width="210" height="66" rx="14" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="990" y="347" text-anchor="middle" font-size="18" font-weight="700" fill="#4c1d95">MCP and Tools</text>
+    <rect x="885" y="394" width="210" height="66" rx="14" fill="#fbecec" stroke="#cc3d3d" stroke-width="2"/>
+    <text x="990" y="435" text-anchor="middle" font-size="18" font-weight="700" fill="#7f1d1d">Shell and CI/CD</text>
+    <rect x="490" y="478" width="220" height="86" rx="18" fill="#113b5f" stroke="#0c2d49" stroke-width="2"/>
+    <text x="600" y="514" text-anchor="middle" font-size="19" font-weight="700" fill="#ffffff">Evidence Hub</text>
+    <text x="600" y="540" text-anchor="middle" font-size="14" fill="#d7edff">Signed bundles, reports, audit trails</text>
+    <rect x="95" y="430" width="220" height="96" rx="18" fill="#fff8e8" stroke="#c79a2e" stroke-width="2"/>
+    <text x="205" y="468" text-anchor="middle" font-size="20" font-weight="700" fill="#755100">Human Approval</text>
+    <text x="205" y="496" text-anchor="middle" font-size="14" fill="#6b5a34">review, deny, break glass</text>
+    <path d="M318 224 H470" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+    <path d="M710 224 H860" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+    <path d="M600 310 V458" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+    <path d="M490 506 H335" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+    <path d="M315 478 C395 400 440 330 500 272" stroke="#334155" stroke-width="3" fill="none" stroke-dasharray="8 8" marker-end="url(#arrow)"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>

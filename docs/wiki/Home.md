@@ -1,457 +1,204 @@
-# CAVRA
+# Before the Agent Acts: The CAVRA Technical Textbook
 
-Controlled Agentic Verification & Runtime Authority
+Welcome to the CAVRA Wiki. This wiki now opens as a technical textbook for CAVRA, Controlled Agentic Verification and Runtime Authority. It is written for developers, security engineers, platform owners, compliance teams, architects, and enterprise evaluators who need to understand what CAVRA is, how it works, how to run it, and how to operate it safely.
 
-Before the agent acts, CAVRA decides.
+CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM.
 
-## Wiki Purpose
+![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
-This wiki is the operating manual for CAVRA as an enterprise AI-agent runtime governance platform. It explains the product thesis, architecture, roadmap, user stories, enterprise challenges, controls, evidence model, and implementation phases.
+## Start Here
 
-CAVRA is now planned as an open-core product. The public repository is the
-Community Edition and product landing repo; Enterprise source, paid policy
-packs, SaaS backend, and license service implementation must live in private
-repositories. Start with the [Open-Core Implementation Plan](Open-Core-Implementation-Plan),
-[Edition Boundaries](Edition-Boundaries), and [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan).
+Read the book in order if you are new to CAVRA. Jump directly to the command, GUI, AISPM, or deployment chapters if you already know the product shape.
 
-Community v1.0.0 is published and verified. CAVRA Enterprise Trial package
-`2026.06.05` is ready for approved private evaluators through a gated GHCR image
-with public-safe digest, signed trial license validation, revoked-license
-failure validation, private registry pull validation, and runtime license
-enforcement. See [Enterprise Trial Availability](Enterprise-Trial-Availability).
-The public portal now links to the dedicated Enterprise Trial landing page and
-approved-access request form. See
-[Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access).
-The live trial request API is hosted at `https://cavra-trial.mind-ops.cloud`
-and has public-safe validation evidence for health, PostgreSQL storage, signup,
-approval, license validation, and revocation as of 2026-06-05.
+1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths)
+2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists)
+3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model)
+4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design)
+5. [Editions, Licensing, And Feature Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries)
+6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA)
+7. [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide)
+8. [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide)
+9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference)
+10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
+11. [AISPM Guide](Textbook-10-AISPM-Guide)
+12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
+13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
+14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
+15. [Reference Appendices](Textbook-14-Reference-Appendices)
 
-AISPM launch-board readiness now includes the public-safe
-[AISPM Launch Board Pack Artifact Index](AISPM-Launch-Board-Pack-Artifact-Index)
-with freshness validation through `scripts/validate-aispm-launch-artifacts.py`.
-The portal also has Playwright visual smoke validation recorded in
-`docs/release-verifications/aispm-visual-smoke-validation.md`; run
-`npm run validate:sandbox:visual` through
-`scripts/validate-sandbox-visual.mjs`.
-Visual freshness is enforced by `scripts/validate-aispm-visual-freshness.py`.
-AISPM launch readiness is rolled up in
-`docs/release-verifications/aispm-launch-readiness-rollup.md` and
-`docs/release-verifications/aispm-launch-readiness-rollup.json`, with release
-freshness enforced by `scripts/validate-aispm-launch-readiness.py`.
-Enterprise Trial AISPM readiness is now mirrored through a public-safe gate
-summary at
-`docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json`.
-The latest private external evaluator announcement closeout sync is documented
-in [AISPM Enterprise Trial Announcement Closeout Sync](AISPM-Enterprise-Trial-Announcement-Closeout-Sync).
-The trial lab notebook validator checks runtime binding, alert transport,
-release dashboard publication, trial lab notebook, operator audit archive, and
-trial package readiness validator gate summaries without exposing Enterprise
-source, license material, customer data, or private package credentials.
-Hosted Pages smoke validation is recorded in
-`docs/release-verifications/hosted-sandbox-pages-smoke-validation.md` and
-`docs/release-verifications/hosted-sandbox-pages-smoke-validation.json`, and is
-implemented by `scripts/validate-hosted-sandbox-pages.mjs`.
-Hosted post-deploy evidence is defined in
-`docs/release-verifications/hosted-sandbox-post-deploy-evidence.md` and
-`docs/release-verifications/hosted-sandbox-post-deploy-evidence.json`,
-generated by `scripts/generate-hosted-sandbox-deploy-evidence.py`, validated by
-`scripts/validate-hosted-sandbox-deploy-evidence.py`, and uploaded as
-`cavra-hosted-sandbox-post-deploy-evidence`.
+## Visual Index
 
-## Current Phase Status
+| Topic | Diagram |
+| --- | --- |
+| Runtime authority | [CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg) |
+| Architecture context | [Architecture context](assets/textbook/architecture-context.svg) |
+| Runtime decision flow | [Runtime flow](assets/textbook/runtime-flow.svg) |
+| Editions | [Edition map](assets/textbook/cavra-edition-map.svg) |
+| CLI command families | [Command map](assets/textbook/cavra-command-map.svg) |
+| AISPM posture loop | [AISPM posture loop](assets/textbook/aispm-posture-loop.svg) |
+| Enterprise sequence | [Enterprise sequence](assets/textbook/cavra-enterprise-sequence.svg) |
 
-Phase 1, Productization Foundation, is complete in PR #1. It establishes CAVRA identity, CLI, MCP server, Claude Code setup, policy packs, runtime decisions, Docker validation, API contract, sandbox, and enterprise documentation.
+## Primary Product References
 
-Phase 2, Policy Engine Hardening, is complete in PR #1. It adds strict schema validation, inheritance, normalized compile output, semantic diff, signature metadata, and tamper-detection tests.
+- [CLI](CLI)
+- [API](API)
+- [Diagrams](Diagrams)
+- [Edition Boundaries](Edition-Boundaries)
+- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model)
+- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust)
+- [Approval Workflows](Approval-Workflows)
+- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation)
+- [Policy Engine Hardening](Policy-Engine-Hardening)
+- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap)
+- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
+- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
+- [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
+- [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
+- [Enterprise Trial Availability](Enterprise-Trial-Availability)
+- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
 
-Phase 3, Evidence Hub and Attestation, now includes signed evidence bundles, trust-root bundles, offline trust-root distribution packages, SIEM exports, retention controls, AWS/Azure immutable evidence storage references, SQLite and JSON evidence metadata search, governed artifact retrieval APIs for session and rollout evidence, console API wiring, and migration automation.
+## Development And Testing Archive
 
-Phase 4, Approval Router, is complete for the current production-readiness slice. It includes JSON and SQLite approval persistence, default and repository-specific routing, claims-based approval authorization, signed OIDC/JWKS validation, repository RBAC, Entra/Okta OIDC-RBAC deployment references, provider payload and request-spec exports, secret-backed live provider delivery, console approval queue actions, console break-glass creation, approval audit detail views, and approval evidence linkage.
+Historical implementation notes, release packets, validation records, trial synchronization notes, rollback-drill records, closeout documents, and readiness artifacts are preserved in one archive:
 
-Phase 5, Agent Registry and MCP Trust Registry, is complete for the current production-readiness slice. It includes JSON and SQLite governed agent identities, MCP server trust records, predefined agent capability profiles, MCP capability classification, API and CLI access, console registry views, and registry-backed MCP runtime decisions.
+- [Development And Testing Artifacts](Development-And-Testing-Artifacts/Index)
 
-Phase 6, Console and Persistent API, has started. It now includes JSON and SQLite activity persistence for sessions and decisions, repository inventory and policy rollout persistence, policy-pack authoring previews, approval-bound signed policy publishing, rollout change workflows, production deployment validation, integration inventory persistence, evidence artifact retrieval views, persistent API backup/restore/retention operations, policy rollout drill-downs, read-only console security boundary reporting, authenticated console sessions, RBAC-enforced console mutations, decision search filters, session summaries, and console Activity Explorer plus repository/rollout/integration views.
+The archive is intentionally separated from the textbook so new readers can learn CAVRA without walking through every development milestone.
 
-Phase 7, Go Enforcement Plane, has started with a bounded parity scaffold. It includes a Go module, runtime evaluator, CLI entrypoint, compiled-policy JSON loader, generated Go enforcement contracts, typed release-governance evidence contract payloads, runner authentication contract payloads, daemon and CI runner examples, signed CI runner bundle metadata, reusable release-governance runner wrappers, a GitHub composite runner action, HMAC-signed runner authentication claims, CI-provider OIDC JWT runner verification, provider-native OIDC token acquisition for GitHub Actions, GitLab CI, and Azure Pipelines wrappers, runner/evidence key custody documentation, hash-chained HMAC-signed daemon evidence streams, daemon evidence verifier CLI support, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, runtime evidence references, trust-registry JSON loading, registry-backed MCP decisions, all-bundled-policy compiled parity, high-risk command and cloud/IaC parity for Cloud IAM, Kubernetes, Terraform/OpenTofu, GitHub, OWASP command-injection, and transparent delivery controls, Python/Go release governance parity for approvals, delivery failures, endpoint publication, inventory freshness, reconciliation drift, SLA reports, handoff status, rollout evidence verification, rollout artifact integrity, promotion audit export contract fixtures, and rollback audit export contract fixtures, signed release package workflow, SBOM generation, reproducibility manifests, release signing operations metadata, SLSA provenance, signed installer metadata, managed endpoint deployment manifests, release channel manifests, managed workstation updater policy, release-channel promotion approvals, Jamf/Intune/Linux endpoint-management export bundles, release channel promotion and endpoint export history views, governed endpoint export artifact downloads, checksum-enforced endpoint export integrity, endpoint export publication records, Jamf/Intune/Linux connector delivery, endpoint publication history dashboards, endpoint inventory ingestion, endpoint inventory freshness SLA reports, reconciliation automation from ingested inventory, managed endpoint reconciliation, endpoint drift dashboards, approval-bound endpoint drift remediation plans, approved remediation execution records, endpoint remediation handoff packages, endpoint remediation handoff status reconciliation, endpoint remediation SLA and executive reporting, endpoint remediation SLA notification delivery with routing policies, acknowledgements, duplicate suppression, escalation ladders, owner-specific SLOs, escalation delivery actions, owner review workflows, recurrence policies, owner calendars, maintenance-window suppression, recurrence delivery batching, suppression audit exports, recurrence retry policies, owner digest notifications, suppression trend analytics, Evidence Console recurrence operations filters and export drill-downs, scheduled recurrence automation worker runs, Evidence Console recurrence automation worker history, recurrence automation deployment templates, recurrence automation health reporting, recurrence automation health alert delivery and acknowledgements, managed endpoint rollout evidence capture, rollout evidence verification and indexing, rollout evidence search filters and console/API views, governed rollout artifact retrieval, rollout artifact integrity status, promotion readiness indicators, signed promotion approval requests, approved promotion execution records, promotion execution search and audit drill-downs, rollback evidence links, approved rollback execution records, SIEM/ITSM promotion audit exports, connector delivery for promotion audit and rollback execution records, persisted release connector delivery history, alerting dashboard summaries, installer smoke validation, GitHub keyless OIDC attestations, offline trust bootstrap metadata, air-gapped zip verification, release-candidate upgrade validation, release evidence, GitHub Release asset attachment, verifier CLI support, shared critical decision fixture, Python and Go parity tests, a dedicated `go-runtime-parity` CI job, Go test execution in the required governance check, an explicitly opt-in Go backend path with CLI/API readiness reports, production-readiness evidence, shadow/enforce/promoted modes, audited Python fallback, deployment readiness checks for CI runner and workstation rollout metadata, a promotion gate requiring approved audited parity evidence, rollback controls requiring an approved path back to Python-only mode, rollback rehearsal evidence with console visibility, fresh rollback drill history, recurring rollback drill scheduling, stale-drill notification delivery, acknowledgement audit delivery retry workers, retry execution approvals, approval-bound live retry execution records, connector recovery closure evidence, retry execution dashboards, recovery SLO reporting, closure trend analytics, recovery escalation notifications, recovery escalation acknowledgements, escalation delivery retry plans, recovery escalation retry health reports, recovery retry health alert retry workers, executive recovery reports, scheduled executive report runs, executive report delivery retry plans, executive retry health alerts, executive health alert retry workers, final reporting closure dashboards, release-readiness summaries, operator runbook exports, readiness approval decisions, release record attachments, closure packet verifications, auditor exports, auditor export delivery routing, immutable archive references, recovery escalation notifications, and executive recovery reports before Go is selected as an optional backend.
+<!--
+Legacy validation references kept non-rendered so historical release validators can
+confirm public navigation freshness while the visible wiki home remains book-first.
 
-Latest Phase 10 delivery adds public-safe customer operating dashboard and
-support handoff contracts, SaaS operating automation documentation, public
-API/CLI surfaces, Evidence Console inspection, Enterprise trial distribution
-sync, trial license evaluator access sync, trial access expiry sync, trial
-expired follow-up sync, trial conversion readiness sync, trial conversion
-activation handoff sync, trial conversion closeout revenue sync, trial
-conversion executive renewal sync, trial conversion customer follow-through
-sync, trial conversion renewal outcome rollup sync, trial final commercial
-renewal closeout sync, trial commercialization closure readiness sync, trial
-commercialization closure release acceptance sync, trial commercialization
-closure final closeout sync, trial commercial launch-readiness handoff sync,
-trial commercial launch-readiness final approval sync, and trial commercial
-launch-readiness operating transition sync, trial commercial
-launch-readiness operating closeout sync, and trial commercial
-launch-readiness executive review sync, and trial commercial launch-readiness
-final archive sync, and trial production observability and support readiness
-sync, trial final release hardening and packaging readiness sync, and trial
-commercialization closeout and release-to-market approval sync, and trial
-post-launch operating handoff sync, and trial release retrospective and
-roadmap intake sync, and trial final launch retrospective closeout sync after private
-Enterprise PRs #70-#74, #81-#85, #86, #87, #88, #89, #90, #91, #92, #93, #94,
-#95, #96, #97, #98, #99, #100, #101, #102, #103, #104, #105, #106, #107, #108, #109, #110, and #111 added billing/license
-observability, support and customer-success handoff, operating dashboard
-escalation, final SaaS customer operating closeout, SaaS operating automation
-plan evidence, final closure rollups, customer-success handoff packages,
-executive summary packages, release governance packages, public contract sync
-evidence, the private trial package release pipeline, trial license
-issuance/evaluator access evidence, trial access expiry evidence,
-expired-trial follow-up automation evidence, trial conversion readiness
-evidence, paid-pilot activation/production handoff evidence, conversion
-closeout/revenue handoff evidence, conversion executive summary/renewal action
-evidence, conversion customer follow-through evidence, conversion renewal
-outcome rollup evidence, final commercial renewal closeout package evidence,
-commercialization closure readiness summary evidence, commercialization closure
-release acceptance evidence, commercialization closure final closeout evidence,
-commercial launch-readiness handoff evidence, commercial launch-readiness final
-approval evidence, commercial launch-readiness operating transition evidence,
-commercial launch-readiness operating closeout evidence, and commercial
-launch-readiness executive review evidence, and commercial launch-readiness
-final archive evidence, and production observability and support runbook
-readiness evidence, and final release hardening and packaging readiness
-evidence, and commercialization closeout and release-to-market approval
-evidence, post-launch operating handoff evidence, and release retrospective
-and roadmap intake evidence, and final launch retrospective closeout evidence
-while keeping the public Community repository limited to public-safe contracts
-and documentation.
-
-Phase 8, Enterprise Integrations, has started with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload for branch protection, approval-bound policy write-back, live SIEM/ITSM/ChatOps connector execution hooks, AWS/Azure immutable evidence storage references, and Entra/Okta OIDC-RBAC deployment references.
-
-Phase 9, Public Sandbox, has started with a GitHub Pages deployment workflow for the Before the Agent Acts sandbox and evidence console. GitHub Pages is enabled for Actions publishing, and the public sandbox URL is `https://huzefaaa2.github.io/cavra/`. The workflow now includes packaged downloadable sample evidence, optional API configuration for backend-driven scenario runs, and post-deploy smoke validation for the page, JavaScript, stylesheet, brand assets, C4 diagram, and evidence JSON.
-
-Transparent CAVRA engineering-agent methodology is now documented for the repository. It defines bot identities, agent roles, branch conventions, approval gates, evidence requirements, and the rule that CAVRA must never use fake human identities.
-
-## Primary Pages
-
-- White Paper: `White-Paper.md`
-- CAVRA Productization Report: `CAVRA-Productization-Report.md`
-- Open-Core Implementation Plan: `Open-Core-Implementation-Plan.md`
-- Production Readiness Next Slice: `Production-Readiness-Next-Slice.md`
-- SaaS Control Plane Contract: `SaaS-Control-Plane-Contract.md`
-- Tenant Onboarding Contract: `Tenant-Onboarding-Contract.md`
-- Entitlement Status Contract: `Entitlement-Status-Contract.md`
-- Hosted Policy Registry Readiness Contract: `Hosted-Policy-Registry-Readiness-Contract.md`
-- Tenant Audit-Store Operating Contract: `Tenant-Audit-Store-Operating-Contract.md`
-- Billing And Subscription Boundary: `Billing-And-Subscription-Boundary.md`
-- Customer Operating Dashboard And Support Handoff Contract: `Customer-Operating-Dashboard-And-Support-Handoff-Contract.md`
-- SaaS Operating Automation Contract: `SaaS-Operating-Automation-Contract.md`
-- SaaS Operating Automation Public Contract Sync: `SaaS-Operating-Automation-Public-Contract-Sync.md`
-- SaaS Operating Automation Worker Handoff: `SaaS-Operating-Automation-Worker-Handoff.md`
-- Enterprise Trial Distribution Sync: `Enterprise-Trial-Distribution-Sync.md`
-- Enterprise Trial Availability: `Enterprise-Trial-Availability.md`
-- Enterprise Trial Self-Service Access: `Enterprise-Trial-Self-Service-Access.md`
-- AISPM Dashboard Roadmap: `AISPM-Dashboard-Roadmap.md`
-- AI Security Posture Dashboard Contract: `AI-Security-Posture-Dashboard-Contract.md`
-- AISPM Phase B Closeout Verification: `AISPM-Phase-B-Closeout-Verification.md`
-- AISPM Enterprise Live Ingestion: `AISPM-Enterprise-Live-Ingestion.md`
-- AISPM CSO Report Center: `AISPM-CSO-Report-Center.md`
-- AISPM Report Center Enterprise Readiness: `AISPM-Report-Center-Enterprise-Readiness.md`
-- CAVRA Trial Field Guide: `CAVRA-Trial-Field-Guide.md`
-- AISPM Enterprise Trial Lab Notebook legacy pointer: `AISPM-Enterprise-Trial-Lab-Notebook.md`
-- AISPM Trial Access And Operator Approval: `AISPM-Trial-Access-And-Operator-Approval.md`
-- AISPM Trial Revocation, Expiry, And Closeout: `AISPM-Trial-Revocation-Expiry-And-Closeout.md`
-- Trial License Evaluator Access Sync: `Trial-License-Evaluator-Access-Sync.md`
-- Trial Access Expiry Sync: `Trial-Access-Expiry-Sync.md`
-- Trial Expired Follow-Up Sync: `Trial-Expired-Followup-Sync.md`
-- Trial Conversion Readiness Sync: `Trial-Conversion-Readiness-Sync.md`
-- Trial Conversion Activation Handoff Sync: `Trial-Conversion-Activation-Handoff-Sync.md`
-- Trial Conversion Closeout Revenue Sync: `Trial-Conversion-Closeout-Revenue-Sync.md`
-- Trial Conversion Executive Renewal Sync: `Trial-Conversion-Executive-Renewal-Sync.md`
-- Trial Conversion Customer Follow-Through Sync: `Trial-Conversion-Customer-Followthrough-Sync.md`
-- Trial Conversion Renewal Outcome Rollup Sync: `Trial-Conversion-Renewal-Outcome-Rollup-Sync.md`
-- Trial Final Commercial Renewal Closeout Sync: `Trial-Final-Commercial-Renewal-Closeout-Sync.md`
-- Trial Commercialization Closure Readiness Sync: `Trial-Commercialization-Closure-Readiness-Sync.md`
-- Trial Commercialization Closure Release Acceptance Sync: `Trial-Commercialization-Closure-Release-Acceptance-Sync.md`
-- Trial Commercialization Closure Final Closeout Sync: `Trial-Commercialization-Closure-Final-Closeout-Sync.md`
-- Trial Commercial Launch-Readiness Handoff Sync: `Trial-Commercial-Launch-Readiness-Handoff-Sync.md`
-- Trial Commercial Launch-Readiness Final Approval Sync: `Trial-Commercial-Launch-Readiness-Final-Approval-Sync.md`
-- Trial Commercial Launch-Readiness Operating Transition Sync: `Trial-Commercial-Launch-Readiness-Operating-Transition-Sync.md`
-- Trial Commercial Launch-Readiness Operating Closeout Sync: `Trial-Commercial-Launch-Readiness-Operating-Closeout-Sync.md`
-- Trial Commercial Launch-Readiness Executive Review Sync: `Trial-Commercial-Launch-Readiness-Executive-Review-Sync.md`
-- Trial Commercial Launch-Readiness Final Archive Sync: `Trial-Commercial-Launch-Readiness-Final-Archive-Sync.md`
-- Trial Production Observability Support Readiness Sync: `Trial-Production-Observability-Support-Readiness-Sync.md`
-- Trial Final Release Hardening Packaging Readiness Sync: `Trial-Final-Release-Hardening-Packaging-Readiness-Sync.md`
-- Trial Commercialization Closeout Release-Market Approval Sync: `Trial-Commercialization-Closeout-Release-Market-Approval-Sync.md`
-- Trial Post-Launch Operating Handoff Sync: `Trial-Post-Launch-Operating-Handoff-Sync.md`
-- Trial Release Retrospective Roadmap Intake Sync: `Trial-Release-Retrospective-Roadmap-Intake-Sync.md`
-- Trial Final Launch Retrospective Closeout Sync: `Trial-Final-Launch-Retrospective-Closeout-Sync.md`
-- Roadmap Status Audit And Next Batch: `Roadmap-Status-Audit-And-Next-Batch.md`
-- Community GA Control Hardening Sync: `Community-GA-Control-Hardening-Sync.md`
-- Evidence Console Community GA Closeout: `Evidence-Console-Community-GA-Closeout.md`
-- Community GA Release Checklist: `Community-GA-Release-Checklist.md`
-- Community GA Release Packet Template: `Community-GA-Release-Packet-Template.md`
-- Community GA Dry-Run Release Packet: `Community-GA-Dry-Run-Release-Packet.md`
-- Community GA Release Packet Validation: `Community-GA-Release-Packet-Validation.md`
-- Community GA v0.1.0 Release Packet: `Community-GA-v0.1.0-Release-Packet.md`
-- Community GA v0.1.0 Release Publication: `Community-GA-v0.1.0-Release-Publication.md`
-- Community GA v0.1.0 Post-Release Verification: `Community-GA-v0.1.0-Post-Release-Verification.md`
-- Community GA User-Verifiable Path: `Community-GA-User-Verifiable-Path.md`
-- Production Deployment Guide Validation: `Production-Deployment-Guide-Validation.md`
-- Go Enforcement Production Hardening: `Go-Enforcement-Production-Hardening.md`
-- Enterprise Integration Validation: `Enterprise-Integration-Validation.md`
-- Production Readiness Procurement Closeout: `Production-Readiness-Procurement-Closeout.md`
-- Community Release Verification Runbook: `Community-Release-Verification-Runbook.md`
-- Community GA v0.1.0 Release Notes: `Community-GA-v0.1.0-Release-Notes.md`
-- Community Maintenance Release Checklist: `Community-Maintenance-Release-Checklist.md`
-- Community Maintenance Release Evidence Template: `Community-Maintenance-Release-Evidence-Template.md`
-- Community Release Note Freshness: `Community-Release-Note-Freshness.md`
-- Community v0.1.1 Release Notes: `Community-v0.1.1-Release-Notes.md`
-- Community v0.1.1 Maintenance Verification: `Community-v0.1.1-Maintenance-Verification.md`
-- Community v0.1.1 Post-Release Verification: `Community-v0.1.1-Post-Release-Verification.md`
-- Community v0.1.2 Readiness: `Community-v0.1.2-Readiness.md`
-- Community v0.1.2 Release Notes: `Community-v0.1.2-Release-Notes.md`
-- Community v0.1.2 Maintenance Verification: `Community-v0.1.2-Maintenance-Verification.md`
-- Community v0.1.2 Post-Release Verification: `Community-v0.1.2-Post-Release-Verification.md`
-- Community v0.1.3 Maintenance Planning: `Community-v0.1.3-Maintenance-Planning.md`
-- Community v0.1.3 Release Notes: `Community-v0.1.3-Release-Notes.md`
-- Community v0.1.3 Maintenance Verification: `Community-v0.1.3-Maintenance-Verification.md`
-- Community v0.1.3 Post-Release Verification: `Community-v0.1.3-Post-Release-Verification.md`
-- Community v1.0.0 Stabilization Plan: `Community-v1.0.0-Stabilization-Plan.md`
-- Community v1.0.0 Release-Candidate Hardening: `Community-v1.0.0-Release-Candidate-Hardening.md`
-- Community v1.0.0 Release-Candidate Publication: `Community-v1.0.0-Release-Candidate-Publication.md`
-- Community v1.0.0 RC1 Release Notes: `Community-v1.0.0-rc.1-Release-Notes.md`
-- Community v1.0.0 RC1 Publication Verification: `Community-v1.0.0-rc.1-Publication-Verification.md`
-- Community v1.0.0 RC1 Post-Publication Verification: `Community-v1.0.0-rc.1-Post-Publication-Verification.md`
-- Community v1.0.0 GA Readiness: `Community-v1.0.0-GA-Readiness.md`
-- Community v1.0.0 GA Publication Package: `Community-v1.0.0-GA-Publication-Package.md`
-- Community v1.0.0 Release Notes: `Community-v1.0.0-Release-Notes.md`
-- Community v1.0.0 Publication Verification: `Community-v1.0.0-Publication-Verification.md`
-- Community v1.0.0 Post-Publication Verification: `Community-v1.0.0-Post-Publication-Verification.md`
-- Community v1.0.0 AISPM Release Notes:
-  `Community-v1.0.0-aispm-Release-Notes.md`
-- Community v1.0.0 AISPM Public Release Verification:
-  `Community-v1.0.0-aispm-Public-Release-Verification.md`
-- Community Release Keyless Attestation: `Community-Release-Keyless-Attestation.md`
-- Community Release Index: `Community-Release-Index.md`
-- Community Release Index Freshness: `Community-Release-Index-Freshness.md`
-- Community Release Readiness Dashboard: `Community-Release-Readiness-Dashboard.md`
-- Community Release Readiness Dashboard Validation: `Community-Release-Readiness-Dashboard-Validation.md`
-- CAVRA Developer Portal Redesign: `CAVRA-Developer-Portal-Redesign.md`
-- CAVRA Developer Portal Smoke Validation: `CAVRA-Developer-Portal-Smoke-Validation.md`
-- Console Closeout Operator Experience: `Console-Closeout-Operator-Experience.md`
-- Policy Signing Key Workflow: `Policy-Signing-Key-Workflow.md`
-- Runtime Policy Modes: `Runtime-Policy-Modes.md`
-- Trial and SaaS Commercialization Batch Sync: `Trial-And-SaaS-Commercialization-Batch-Sync.md`
-- Tenant, Entitlement, and Commercialization Batch Sync: `Tenant-Entitlement-And-Commercialization-Batch-Sync.md`
-- Post-Onboarding SaaS Operating Readiness: `Post-Onboarding-SaaS-Operating-Readiness.md`
-- Post-Onboarding SaaS Operating Batch Sync: `Post-Onboarding-SaaS-Operating-Batch-Sync.md`
-- SaaS Customer Operating Closeout Batch Sync: `SaaS-Customer-Operating-Closeout-Batch-Sync.md`
-- SaaS Operating Automation Batch Sync: `SaaS-Operating-Automation-Batch-Sync.md`
-- Roadmap Status and Next Slice: `Roadmap-Status-And-Next-Slice.md`
-- Go Reproducible Air-Gapped Builds: `Go-Reproducible-Airgap-Builds.md`
-- Release Signing Operations: `Release-Signing-Operations.md`
-- Go Backend Rollback Drill Readiness Approval Release Record: `Go-Backend-Rollback-Drill-Readiness-Approval-Release-Record.md`
-- Go Backend Rollback Drill Closure Packet Auditor Export: `Go-Backend-Rollback-Drill-Closure-Packet-Auditor-Export.md`
-- Go Backend Rollback Drill Auditor Export Routing Archive: `Go-Backend-Rollback-Drill-Auditor-Export-Routing-Archive.md`
-- Go Backend Rollback Drill Auditor Export Retry Archive Health: `Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health.md`
-- Go Backend Rollback Drill Final Readiness Bundle Closeout: `Go-Backend-Rollback-Drill-Final-Readiness-Bundle-Closeout.md`
-- Go Backend Rollback Drill Final Closeout Delivery Retention: `Go-Backend-Rollback-Drill-Final-Closeout-Delivery-Retention.md`
-- Go Backend Rollback Drill Final Closeout Health Retry: `Go-Backend-Rollback-Drill-Final-Closeout-Health-Retry.md`
-- Release Governance Final Closeout Operator Guide: `Release-Governance-Final-Closeout-Operator-Guide.md`
-- Release Governance Final Closeout Release Criteria: `Release-Governance-Final-Closeout-Release-Criteria.md`
-- Final Closeout Trial Guide: `Final-Closeout-Trial-Guide.md`
-- Trial To Pilot Intake: `Trial-To-Pilot-Intake.md`
-- Final Closeout Trial Walkthrough: `Final-Closeout-Trial-Walkthrough.md`
-- Final Closeout Trial Sample Evidence: `Final-Closeout-Trial-Sample-Evidence.md`
-- Final Closeout Sales Engineering Demo: `Final-Closeout-Sales-Engineering-Demo.md`
-- Final Closeout Production Pilot Intake: `Final-Closeout-Production-Pilot-Intake.md`
-- Final Closeout Pilot Intake API: `Final-Closeout-Pilot-Intake-API.md`
-- Final Closeout Pilot Readiness Checklists: `Final-Closeout-Pilot-Readiness-Checklists.md`
-- Final Closeout Enterprise And SaaS Handoff: `Final-Closeout-Enterprise-And-SaaS-Handoff.md`
-- High-Risk Command And Cloud/IaC Parity: `High-Risk-Command-Cloud-IaC-Parity.md`
-- Edition Boundaries: `Edition-Boundaries.md`
-- Private Enterprise Repo Plan: `Private-Enterprise-Repo-Plan.md`
-- Production Roadmap: `Production-Roadmap.md`
-- Recurrence Automation Deployment: `Recurrence-Automation-Deployment.md`
-- Go Release Packaging: `Go-Release-Packaging.md`
-- Go Backend Rollback Drill Audit Delivery Retry Worker: `Go-Backend-Rollback-Drill-Audit-Delivery-Retry-Worker.md`
-- Go Backend Rollback Drill Audit Worker Health Alerts: `Go-Backend-Rollback-Drill-Audit-Worker-Health-Alerts.md`
-- Go Backend Rollback Drill Retry Approvals And Recovery Playbooks: `Go-Backend-Rollback-Drill-Retry-Approvals-And-Recovery-Playbooks.md`
-- Go Backend Rollback Drill Live Retry Closure Evidence: `Go-Backend-Rollback-Drill-Live-Retry-Closure-Evidence.md`
-- Go Backend Rollback Drill Retry Recovery Reporting: `Go-Backend-Rollback-Drill-Retry-Recovery-Reporting.md`
-- Go Backend Rollback Drill Recovery Escalation And Executive Reporting: `Go-Backend-Rollback-Drill-Recovery-Escalation-And-Executive-Reporting.md`
-- Go Backend Rollback Drill Recovery Escalation Acknowledgements And Scheduling: `Go-Backend-Rollback-Drill-Recovery-Escalation-Acknowledgements-And-Scheduling.md`
-- Go Backend Rollback Drill Recovery Escalation Retry Execution And Executive Delivery: `Go-Backend-Rollback-Drill-Recovery-Escalation-Retry-Execution-And-Executive-Delivery.md`
-- Go Backend Rollback Drill Recovery Retry Health And Executive Delivery Retry: `Go-Backend-Rollback-Drill-Recovery-Retry-Health-And-Executive-Delivery-Retry.md`
-- Go Backend Rollback Drill Executive Delivery Retry Execution And Recovery Health Alerts: `Go-Backend-Rollback-Drill-Executive-Delivery-Retry-Execution-And-Recovery-Health-Alerts.md`
-- Go Backend Rollback Drill Executive Retry Health And Recovery Health Alert Retry: `Go-Backend-Rollback-Drill-Executive-Retry-Health-And-Recovery-Health-Alert-Retry.md`
-- Go Backend Rollback Drill Recovery Health Alert Retry Worker And Executive Retry Health Alerts: `Go-Backend-Rollback-Drill-Recovery-Health-Alert-Retry-Worker-And-Executive-Retry-Health-Alerts.md`
-- Go Backend Rollback Drill Executive Health Alert Retry And Final Closure: `Go-Backend-Rollback-Drill-Executive-Health-Alert-Retry-And-Final-Closure.md`
-- Go Backend Rollback Drill Final Readiness Runbook Export: `Go-Backend-Rollback-Drill-Final-Readiness-Runbook-Export.md`
-- Go Backend Rollback Drill Closure Packet Auditor Export: `Go-Backend-Rollback-Drill-Closure-Packet-Auditor-Export.md`
-- Go Backend Rollback Drill Auditor Export Routing Archive: `Go-Backend-Rollback-Drill-Auditor-Export-Routing-Archive.md`
-- Go Backend Rollback Drill Auditor Export Retry Archive Health: `Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health.md`
-- Vulnerability Disclosure: `Vulnerability-Disclosure.md`
-- Release Security Advisories: `Release-Security-Advisories.md`
-- Implementation Plan: `Implementation-Plan.md`
-- User Stories: `User-Stories.md`
-- Enterprise Challenges: `Enterprise-Challenges.md`
-- Diagrams: `Diagrams.md`
-- Phase Completion Log: `Phase-Completion-Log.md`
-- Approval Workflows: `Approval-Workflows.md`
-- Policy Engine Hardening: `Policy-Engine-Hardening.md`
-- Evidence Hub and Attestation: `Evidence-Hub-and-Attestation.md`
-- Evidence Key Management: `Evidence-Key-Management.md`
-- Runner Auth and Evidence Key Custody: `Runner-Auth-And-Evidence-Key-Custody.md`
-- Evidence Trust-Root Distribution: `Evidence-Trust-Root-Distribution.md`
-- Evidence Metadata Migrations: `Evidence-Metadata-Migrations.md`
-- GitHub Repository Readiness: `GitHub-Repository-Readiness.md`
-- GitHub Required Checks and CI/CD Enforcement: `GitHub-Required-Checks-and-CI-CD-Enforcement.md`
-- Release Documentation Policy: `Release-Documentation-Policy.md`
-- Transparent Agent Methodology: `Transparent-Agent-Methodology.md`
-- Agent Orchestration Architecture: `Agent-Orchestration-Architecture.md`
-- AI Agent Enforcement and Anti-Bypass Model: `AI-Agent-Enforcement-And-Anti-Bypass-Model.md`
-- Agent Registry and MCP Trust Registry: `Agent-Registry-and-MCP-Trust.md`
-- Activity Persistence: `Activity-Persistence.md`
-- Repository Inventory and Policy Rollout: `Repository-Policy-Rollout.md`
-- Persistent API Operations: `Persistent-API-Operations.md`
-- Integration Inventory: `Integration-Inventory.md`
-- Connector Execution Hooks: `Connector-Execution-Hooks.md`
-- Console Security Boundary: `Console-Security-Boundary.md`
-- Console Authenticated Sessions: `Console-Authenticated-Sessions.md`
-- OIDC/RBAC Deployment: `OIDC-RBAC-Deployment.md`
-- Evidence Artifact Retrieval: `Evidence-Artifact-Retrieval.md`
-- Immutable Evidence Storage: `Immutable-Evidence-Storage.md`
-- Policy Pack Authoring Workflows: `Policy-Pack-Authoring-Workflows.md`
-- Production Deployment Validation: `Production-Deployment-Validation.md`
-- Go Enforcement Parity: `Go-Enforcement-Parity.md`
-- Go Enforcement Contracts: `Go-Enforcement-Contracts.md`
-- Go Daemon Transport: `Go-Daemon-Transport.md`
-- Go Backend Pilot: `Go-Backend-Pilot.md`
-- Go Backend Deployment Readiness: `Go-Backend-Deployment-Readiness.md`
-- Go Backend Promotion Gate: `Go-Backend-Promotion.md`
-- Go Backend Rollback Controls: `Go-Backend-Rollback.md`
-- Go Backend Rollback Rehearsal Evidence: `Go-Backend-Rollback-Rehearsal.md`
-- Go Backend Rollback Drill History: `Go-Backend-Rollback-Drill-History.md`
-- Go Backend Rollback Drill Scheduling: `Go-Backend-Rollback-Drill-Scheduling.md`
-- Go Backend Rollback Drill Notification Escalation: `Go-Backend-Rollback-Drill-Notification-Escalation.md`
-- Go Backend Rollback Drill Routing: `Go-Backend-Rollback-Drill-Routing.md`
-- Go Backend Rollback Drill Routing History: `Go-Backend-Rollback-Drill-Routing-History.md`
-- Go Backend Rollback Drill Console: `Go-Backend-Rollback-Drill-Console.md`
-- Go Backend Rollback Drill Acknowledgement Controls: `Go-Backend-Rollback-Drill-Acknowledgement-Controls.md`
-- Go Backend Rollback Drill Bulk Acknowledgement Audit: `Go-Backend-Rollback-Drill-Bulk-Acknowledgement-Audit.md`
-- Go Backend Rollback Drill Acknowledgement Audit Delivery: `Go-Backend-Rollback-Drill-Acknowledgement-Audit-Delivery.md`
-- Go Backend Rollback Drill Audit Delivery Health: `Go-Backend-Rollback-Drill-Audit-Delivery-Health.md`
-- Go Backend Rollback Drill Executive Retry Health And Recovery Health Alert Retry: `Go-Backend-Rollback-Drill-Executive-Retry-Health-And-Recovery-Health-Alert-Retry.md`
-- Go Backend Rollback Drill Auditor Export Retry Worker Archive Alert Acks: `Go-Backend-Rollback-Drill-Auditor-Export-Retry-Worker-Archive-Alert-Acks.md`
-- Vulnerability Disclosure: `Vulnerability-Disclosure.md`
-- Release Security Advisories: `Release-Security-Advisories.md`
-- Hosted Sandbox Deployment: `Hosted-Sandbox-Deployment.md`
-- Brand Assets: `Brand-Assets.md`
-
-## Quick Start
-
-```bash
-pipx install cavra
-cavra policy test
-cavra evaluate read_file .env --json
-cavra init claude-code
-claude mcp add cavra -- cavra-mcp-server
-```
-
-## Sandbox
-
-Run the local sandbox:
-
-```bash
-docker compose up -d --build
-```
-
-Open `http://127.0.0.1:5173`.
-
-After merge to `main`, deploy the hosted sandbox with:
-
-```bash
-gh workflow run deploy-sandbox.yml --repo Huzefaaa2/cavra --ref main
-```
-
-AISPM release reviewers can use the public-safe Release Evidence Index at
-`docs/release-verifications/aispm-release-evidence-index.md` with the
-machine-readable packet
-`docs/release-verifications/aispm-release-evidence-index.json`. It is enforced
-by `scripts/validate-aispm-release-evidence-index.py` and exported from the
-portal as `cavra-aispm-release-evidence-index-packet.json`.
-
-Hosted GitHub Pages freshness is tracked by
-`docs/release-verifications/hosted-sandbox-deployment-freshness.md` and
-`docs/release-verifications/hosted-sandbox-deployment-freshness.json`, enforced
-by `scripts/validate-hosted-sandbox-deployment-freshness.py`, and anchored by
-the build sentinel `community-v1.0.0-aispm-release-evidence-index`.
-
-Hosted release operator status is tracked by
-`docs/release-verifications/hosted-sandbox-operator-release-status.md` and
-`docs/release-verifications/hosted-sandbox-operator-release-status.json`,
-enforced by `scripts/validate-hosted-sandbox-operator-status.py`, and exported
-from the portal as `cavra-hosted-sandbox-operator-status-packet.json`.
-
-AISPM report catalog readiness is tracked by
-`docs/release-verifications/aispm-report-catalog-readiness.md` and
-`docs/release-verifications/aispm-report-catalog-readiness.json`, enforced by
-`scripts/validate-aispm-report-catalog-readiness.py`, and exported from the
-portal as `cavra-aispm-report-catalog-packet.json`.
-
-AISPM report delivery setup readiness is tracked by
-`docs/release-verifications/aispm-report-delivery-setup-readiness.md` and
-`docs/release-verifications/aispm-report-delivery-setup-readiness.json`,
-enforced by `scripts/validate-aispm-report-delivery-setup-readiness.py`, and
-exported from the portal as
-`cavra-aispm-report-delivery-setup-packet.json`.
-
-AISPM report operations readiness is tracked by
-`docs/release-verifications/aispm-report-operations-readiness.md` and
-`docs/release-verifications/aispm-report-operations-readiness.json`, enforced
-by `scripts/validate-aispm-report-operations-readiness.py`, and exported from
-the portal as `cavra-aispm-report-operations-readiness-packet.json`.
-
-AISPM report governance readiness is tracked by
-`docs/release-verifications/aispm-report-governance-readiness.md` and
-`docs/release-verifications/aispm-report-governance-readiness.json`, enforced
-by `scripts/validate-aispm-report-governance-readiness.py`, and exported from
-the portal as `cavra-aispm-report-governance-readiness-packet.json`.
-
-AISPM report assurance readiness is tracked by
-`docs/release-verifications/aispm-report-assurance-readiness.md` and
-`docs/release-verifications/aispm-report-assurance-readiness.json`, enforced
-by `scripts/validate-aispm-report-assurance-readiness.py`, and exported from
-the portal as `cavra-aispm-report-assurance-readiness-packet.json`.
-
-AISPM report response readiness is tracked by
-`docs/release-verifications/aispm-report-response-readiness.md` and
-`docs/release-verifications/aispm-report-response-readiness.json`, enforced by
-`scripts/validate-aispm-report-response-readiness.py`, and exported from the
-portal as `cavra-aispm-report-response-readiness-packet.json`.
-
-AISPM report trial operations readiness is tracked by
-`docs/release-verifications/aispm-report-trial-operations-readiness.md` and
-`docs/release-verifications/aispm-report-trial-operations-readiness.json`,
-enforced by `scripts/validate-aispm-report-trial-operations-readiness.py`, and
-exported from the portal as
-`cavra-aispm-report-trial-operations-readiness-packet.json`.
-
-AISPM pilot control readiness is tracked by
-`docs/release-verifications/aispm-pilot-control-readiness.md` and
-`docs/release-verifications/aispm-pilot-control-readiness.json`, enforced by
-`scripts/validate-aispm-pilot-control-readiness.py`, and exported from the
-portal as `cavra-aispm-pilot-control-readiness-packet.json`.
-
-Community AISPM v1.0 public release readiness is tracked by
-`docs/release-verifications/aispm-v1.0-public-release-readiness.md` and
-`docs/release-verifications/aispm-v1.0-public-release-readiness.json`, enforced
-by `scripts/validate-aispm-v100-public-release.py`, documented in
-`docs/releases/community-v1.0.0-aispm.md`, mirrored at
-`Community-v1.0.0-aispm-Release-Notes.md`, verified by
-`docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md`
-and `Community-v1.0.0-aispm-Public-Release-Verification.md`, and supported by
-the public walkthrough at `docs/aispm-v1.0-public-walkthrough.md`.
-
-Final Community AISPM public announcement readiness is tracked by
-`docs/release-verifications/aispm-final-announcement-readiness.md` and
-`docs/release-verifications/aispm-final-announcement-readiness.json`, enforced
-by `scripts/validate-aispm-final-announcement-readiness.py`, and exported from
-the portal as `cavra-aispm-final-announcement-readiness-packet.json`.
+CAVRA-Developer-Portal-Redesign.md
+CAVRA-Developer-Portal-Smoke-Validation.md
+docs/releases/community-v1.0.0-aispm.md
+docs/aispm-v1.0-public-walkthrough.md
+docs/release-verifications/aispm-v1.0-public-release-readiness.md
+docs/release-verifications/aispm-v1.0-public-release-readiness.json
+scripts/validate-aispm-v100-public-release.py
+docs/release-verifications/aispm-launch-readiness-rollup.md
+docs/release-verifications/aispm-launch-readiness-rollup.json
+scripts/validate-aispm-launch-readiness.py
+docs/release-verifications/hosted-sandbox-pages-smoke-validation.md
+docs/release-verifications/hosted-sandbox-pages-smoke-validation.json
+scripts/validate-hosted-sandbox-pages.mjs
+docs/release-verifications/hosted-sandbox-deployment-freshness.md
+docs/release-verifications/hosted-sandbox-deployment-freshness.json
+scripts/validate-hosted-sandbox-deployment-freshness.py
+community-v1.0.0-aispm-release-evidence-index
+docs/release-verifications/hosted-sandbox-operator-release-status.md
+docs/release-verifications/hosted-sandbox-operator-release-status.json
+scripts/validate-hosted-sandbox-operator-status.py
+cavra-hosted-sandbox-operator-status-packet.json
+docs/release-verifications/hosted-sandbox-post-deploy-evidence.md
+docs/release-verifications/hosted-sandbox-post-deploy-evidence.json
+scripts/generate-hosted-sandbox-deploy-evidence.py
+scripts/validate-hosted-sandbox-deploy-evidence.py
+cavra-hosted-sandbox-post-deploy-evidence
+docs/release-verifications/aispm-release-evidence-index.md
+docs/release-verifications/aispm-release-evidence-index.json
+scripts/validate-aispm-release-evidence-index.py
+cavra-aispm-release-evidence-index-packet.json
+docs/release-verifications/aispm-report-catalog-readiness.md
+docs/release-verifications/aispm-report-catalog-readiness.json
+scripts/validate-aispm-report-catalog-readiness.py
+cavra-aispm-report-catalog-packet.json
+scripts/validate-aispm-report-delivery-setup-readiness.py
+docs/release-verifications/aispm-report-delivery-setup-readiness.md
+docs/release-verifications/aispm-report-delivery-setup-readiness.json
+cavra-aispm-report-delivery-setup-packet.json
+docs/release-verifications/aispm-report-operations-readiness.md
+docs/release-verifications/aispm-report-operations-readiness.json
+scripts/validate-aispm-report-operations-readiness.py
+cavra-aispm-report-operations-readiness-packet.json
+docs/release-verifications/aispm-report-governance-readiness.md
+docs/release-verifications/aispm-report-governance-readiness.json
+scripts/validate-aispm-report-governance-readiness.py
+cavra-aispm-report-governance-readiness-packet.json
+docs/release-verifications/aispm-report-assurance-readiness.md
+docs/release-verifications/aispm-report-assurance-readiness.json
+scripts/validate-aispm-report-assurance-readiness.py
+cavra-aispm-report-assurance-readiness-packet.json
+docs/release-verifications/aispm-report-response-readiness.md
+docs/release-verifications/aispm-report-response-readiness.json
+scripts/validate-aispm-report-response-readiness.py
+cavra-aispm-report-response-readiness-packet.json
+docs/release-verifications/aispm-report-trial-operations-readiness.md
+docs/release-verifications/aispm-report-trial-operations-readiness.json
+scripts/validate-aispm-report-trial-operations-readiness.py
+cavra-aispm-report-trial-operations-readiness-packet.json
+docs/release-verifications/aispm-pilot-control-readiness.md
+docs/release-verifications/aispm-pilot-control-readiness.json
+scripts/validate-aispm-pilot-control-readiness.py
+cavra-aispm-pilot-control-readiness-packet.json
+docs/release-verifications/aispm-final-announcement-readiness.md
+docs/release-verifications/aispm-final-announcement-readiness.json
+scripts/validate-aispm-final-announcement-readiness.py
+cavra-aispm-final-announcement-readiness-packet.json
+docs/releases/community-v0.1.0.md
+docs/release-verifications/community-v0.1.0-post-release-verification.md
+Community-GA-v0.1.0-Release-Notes.md
+Community-GA-v0.1.0-Post-Release-Verification.md
+docs/releases/community-v0.1.1.md
+docs/release-verifications/community-v0.1.1-maintenance-verification.md
+Community-v0.1.1-Release-Notes.md
+Community-v0.1.1-Maintenance-Verification.md
+docs/releases/community-v0.1.2.md
+docs/release-verifications/community-v0.1.2-maintenance-verification.md
+Community-v0.1.2-Release-Notes.md
+Community-v0.1.2-Maintenance-Verification.md
+docs/releases/community-v0.1.3.md
+docs/release-verifications/community-v0.1.3-maintenance-verification.md
+Community-v0.1.3-Release-Notes.md
+Community-v0.1.3-Maintenance-Verification.md
+docs/releases/community-v1.0.0-aispm.md
+docs/release-verifications/community-v1.0.0-aispm-public-release-verification.md
+Community-v1.0.0-aispm-Release-Notes.md
+Community-v1.0.0-aispm-Public-Release-Verification.md
+docs/releases/community-v1.0.0-rc.1.md
+docs/release-verifications/community-v1.0.0-rc.1-publication-readiness.md
+Community-v1.0.0-rc.1-Release-Notes.md
+Community-v1.0.0-rc.1-Publication-Verification.md
+docs/releases/community-v1.0.0.md
+docs/release-verifications/community-v1.0.0-publication-readiness.md
+Community-v1.0.0-Release-Notes.md
+Community-v1.0.0-Publication-Verification.md
+Community-Release-Index.md
+Community-Release-Readiness-Dashboard.md
+Console-Closeout-Operator-Experience.md
+Community-GA-User-Verifiable-Path.md
+Production-Deployment-Guide-Validation.md
+Go-Enforcement-Production-Hardening.md
+Enterprise-Integration-Validation.md
+Production-Readiness-Procurement-Closeout.md
+Community-v1.0.0-Stabilization-Plan.md
+Community-v1.0.0-Release-Candidate-Hardening.md
+Community-v1.0.0-Release-Candidate-Publication.md
+Community-v1.0.0-rc.1-Publication-Verification.md
+Community-v1.0.0-rc.1-Post-Publication-Verification.md
+Community-v1.0.0-GA-Readiness.md
+Community-v1.0.0-GA-Publication-Package.md
+Community-v1.0.0-Publication-Verification.md
+Community-v1.0.0-Post-Publication-Verification.md
+Community-Release-Keyless-Attestation.md
+Community-GA-Release-Checklist.md
+Community-GA-Release-Packet-Template.md
+Community-GA-Release-Packet-Validation.md
+Community-GA-Dry-Run-Release-Packet.md
+Community-GA-v0.1.0-Release-Packet.md
+Community-GA-v0.1.0-Release-Publication.md
+Community-Maintenance-Release-Checklist.md
+Community-Maintenance-Release-Evidence-Template.md
+Community-Release-Note-Freshness.md
+Community-v0.1.1-Post-Release-Verification.md
+Community-v0.1.2-Readiness.md
+Community-v0.1.2-Post-Release-Verification.md
+Community-Release-Index-Freshness.md
+Community-Release-Readiness-Dashboard-Validation.md
+Community-v0.1.3-Maintenance-Planning.md
+Community-v0.1.3-Post-Release-Verification.md
+npm run validate:sandbox:visual
+scripts/validate-sandbox-visual.mjs
+-->

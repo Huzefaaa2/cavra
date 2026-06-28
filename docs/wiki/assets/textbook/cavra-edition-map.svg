@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA edition map</title>
+  <desc id="desc">Community, Trial, Enterprise, and SaaS editions share the same runtime authority model while adding progressively richer control plane features.</desc>
+  <rect width="1200" height="700" fill="#fbfcff"/>
+  <text x="600" y="58" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#132033">CAVRA Editions</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="70" y="120" width="250" height="430" rx="24" fill="#e8f1ff" stroke="#4f7cc8" stroke-width="2"/>
+    <text x="195" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#183b72">Community</text>
+    <text x="195" y="205" text-anchor="middle" font-size="16" fill="#26384f">Local governance</text>
+    <text x="195" y="240" text-anchor="middle" font-size="15" fill="#26384f">CLI and API</text>
+    <text x="195" y="275" text-anchor="middle" font-size="15" fill="#26384f">Starter policies</text>
+    <text x="195" y="310" text-anchor="middle" font-size="15" fill="#26384f">Evidence bundles</text>
+    <text x="195" y="345" text-anchor="middle" font-size="15" fill="#26384f">Public sandbox</text>
+    <text x="195" y="380" text-anchor="middle" font-size="15" fill="#26384f">AISPM samples</text>
+    <rect x="350" y="120" width="250" height="430" rx="24" fill="#eefbf4" stroke="#2d9b63" stroke-width="2"/>
+    <text x="475" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#1f6a43">Trial</text>
+    <text x="475" y="205" text-anchor="middle" font-size="16" fill="#264332">Guided evaluation</text>
+    <text x="475" y="240" text-anchor="middle" font-size="15" fill="#264332">Private artifacts</text>
+    <text x="475" y="275" text-anchor="middle" font-size="15" fill="#264332">Field guide labs</text>
+    <text x="475" y="310" text-anchor="middle" font-size="15" fill="#264332">Pilot evidence room</text>
+    <text x="475" y="345" text-anchor="middle" font-size="15" fill="#264332">Report delivery checks</text>
+    <text x="475" y="380" text-anchor="middle" font-size="15" fill="#264332">Activation readiness</text>
+    <rect x="630" y="120" width="250" height="430" rx="24" fill="#fff5e3" stroke="#d58d1f" stroke-width="2"/>
+    <text x="755" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#754200">Enterprise</text>
+    <text x="755" y="205" text-anchor="middle" font-size="16" fill="#4d3920">Org-wide control</text>
+    <text x="755" y="240" text-anchor="middle" font-size="15" fill="#4d3920">SSO and RBAC</text>
+    <text x="755" y="275" text-anchor="middle" font-size="15" fill="#4d3920">Live connectors</text>
+    <text x="755" y="310" text-anchor="middle" font-size="15" fill="#4d3920">Tenant isolation</text>
+    <text x="755" y="345" text-anchor="middle" font-size="15" fill="#4d3920">AISPM live posture</text>
+    <text x="755" y="380" text-anchor="middle" font-size="15" fill="#4d3920">Executive reports</text>
+    <rect x="910" y="120" width="220" height="430" rx="24" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1020" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#4c1d95">SaaS</text>
+    <text x="1020" y="205" text-anchor="middle" font-size="16" fill="#3c2f57">Hosted control plane</text>
+    <text x="1020" y="240" text-anchor="middle" font-size="15" fill="#3c2f57">Tenant onboarding</text>
+    <text x="1020" y="275" text-anchor="middle" font-size="15" fill="#3c2f57">Central dashboards</text>
+    <text x="1020" y="310" text-anchor="middle" font-size="15" fill="#3c2f57">Operating reviews</text>
+    <text x="1020" y="345" text-anchor="middle" font-size="15" fill="#3c2f57">Support handoff</text>
+    <text x="1020" y="380" text-anchor="middle" font-size="15" fill="#3c2f57">Managed lifecycle</text>
+    <rect x="250" y="592" width="700" height="54" rx="18" fill="#123b5f"/>
+    <text x="600" y="626" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff">Shared foundation: runtime decisions, policies, approvals, evidence, attestations</text>
+  </g>
+</svg>
