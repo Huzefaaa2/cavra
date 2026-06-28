@@ -577,6 +577,17 @@ function runScenario() {
   setRoute("evidence");
 }
 
+function setSidebarCollapsed(collapsed) {
+  const sidebar = el("#sidebar");
+  const toggle = el("#collapseSidebar");
+  if (!sidebar || !toggle) return;
+  sidebar.classList.toggle("is-collapsed", collapsed);
+  toggle.textContent = collapsed ? "Expand" : "Collapse";
+  toggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+  toggle.setAttribute("aria-expanded", String(!collapsed));
+  localStorage.setItem("cavra.sidebarCollapsed", String(collapsed));
+}
+
 function wireEvents() {
   document.addEventListener("click", async (event) => {
     const routeTarget = event.target.closest("[data-route], [data-route-link]");
@@ -607,8 +618,7 @@ function wireEvents() {
       return;
     }
     if (event.target.closest("#collapseSidebar")) {
-      el("#sidebar").classList.toggle("is-collapsed");
-      localStorage.setItem("cavra.sidebarCollapsed", String(el("#sidebar").classList.contains("is-collapsed")));
+      setSidebarCollapsed(!el("#sidebar").classList.contains("is-collapsed"));
       return;
     }
     if (event.target.closest("#runScenario")) {
@@ -658,9 +668,7 @@ function init() {
   renderCards();
   wireEvents();
   applyTheme(localStorage.getItem("cavra.theme") || "sentinel");
-  if (localStorage.getItem("cavra.sidebarCollapsed") === "true") {
-    el("#sidebar")?.classList.add("is-collapsed");
-  }
+  setSidebarCollapsed(localStorage.getItem("cavra.sidebarCollapsed") === "true");
   const initialRoute = location.hash.slice(1) || "dashboard";
   setRoute(initialRoute, { fromHash: true });
 }

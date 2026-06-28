@@ -210,10 +210,23 @@ kbd {
 .sidebar.is-collapsed { width: 84px; }
 .sidebar.is-collapsed .nav-heading,
 .sidebar.is-collapsed .nav-label,
-.sidebar.is-collapsed .collapse-button,
 .sidebar.is-collapsed small { display: none; }
 .site-shell:has(.sidebar.is-collapsed) { grid-template-columns: 84px minmax(0, 1fr) 220px; }
-.collapse-button { width: 100%; margin-bottom: 18px; color: var(--muted); background: transparent; }
+.collapse-button {
+  width: 100%;
+  min-height: 42px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  background: transparent;
+}
+.sidebar.is-collapsed .collapse-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  margin: 0 auto 18px;
+  padding: 0;
+  color: var(--text);
+}
 .nav-heading {
   margin: 18px 10px 8px;
   color: var(--muted);
