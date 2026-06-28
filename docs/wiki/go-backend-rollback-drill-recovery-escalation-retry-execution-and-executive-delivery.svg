@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA recovery escalation retry execution and executive delivery</title>
+  <desc id="desc">Architecture diagram showing recovery escalation acknowledgements, retry worker execution records, and scheduled executive report delivery.</desc>
+  <defs>
+    <style>
+      .bg{fill:#0b1117}
+      .panel{fill:#111a22;stroke:#5ee0c2;stroke-width:2;rx:14}
+      .data{fill:#16232d;stroke:#8aa4b3;stroke-width:1.5;rx:12}
+      .edge{stroke:#7dd3fc;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .muted{fill:#b9c6d2;font:16px Arial,sans-serif}
+      .title{fill:#f4fbff;font:bold 24px Arial,sans-serif}
+      .label{fill:#e8f3f7;font:bold 18px Arial,sans-serif}
+      .small{fill:#c8d4de;font:14px Arial,sans-serif}
+      .safe{fill:#5ee0c2;font:bold 14px Arial,sans-serif}
+      .warn{fill:#ffd166;font:bold 14px Arial,sans-serif}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7dd3fc"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1180" height="620"/>
+  <text x="52" y="54" class="title">CAVRA Recovery Escalation Retry Execution And Executive Delivery</text>
+  <text x="52" y="84" class="muted">Public-safe evidence loop for failed escalation delivery, operator acknowledgement, retry execution, and leadership reporting.</text>
+
+  <rect x="52" y="128" width="250" height="112" class="panel"/>
+  <text x="74" y="162" class="label">Recovery Escalation</text>
+  <text x="74" y="192" class="small">Plan + failed connector delivery</text>
+  <text x="74" y="218" class="warn">Failure becomes retry input</text>
+
+  <rect x="362" y="128" width="250" height="112" class="panel"/>
+  <text x="384" y="162" class="label">Operator Acknowledgement</text>
+  <text x="384" y="192" class="small">Accepted provider review</text>
+  <text x="384" y="218" class="safe">Required for live retry</text>
+
+  <rect x="672" y="128" width="250" height="112" class="panel"/>
+  <text x="694" y="162" class="label">Retry Worker Run</text>
+  <text x="694" y="192" class="small">Dry-run default</text>
+  <text x="694" y="218" class="small">Selects acknowledged retries</text>
+
+  <rect x="52" y="324" width="250" height="112" class="data"/>
+  <text x="74" y="358" class="label">Execution Record</text>
+  <text x="74" y="388" class="small">Delivered, failed, or skipped</text>
+  <text x="74" y="414" class="safe">No connector secrets stored</text>
+
+  <rect x="362" y="324" width="250" height="112" class="data"/>
+  <text x="384" y="358" class="label">Scheduled Executive Report</text>
+  <text x="384" y="388" class="small">Recovery summary + key risks</text>
+  <text x="384" y="414" class="small">Evidence-only payload</text>
+
+  <rect x="672" y="324" width="250" height="112" class="panel"/>
+  <text x="694" y="358" class="label">Connector Delivery</text>
+  <text x="694" y="388" class="small">Webhook, SIEM, ITSM, ChatOps</text>
+  <text x="694" y="414" class="safe">Redacted delivery metadata</text>
+
+  <rect x="958" y="224" width="170" height="116" class="data"/>
+  <text x="980" y="258" class="label">Dashboard</text>
+  <text x="980" y="288" class="small">Retry runs</text>
+  <text x="980" y="312" class="small">Executions</text>
+  <text x="980" y="336" class="small">Executive sends</text>
+
+  <path class="edge" d="M302 184 L362 184"/>
+  <path class="edge" d="M612 184 L672 184"/>
+  <path class="edge" d="M797 240 L797 324"/>
+  <path class="edge" d="M672 380 L612 380"/>
+  <path class="edge" d="M362 380 L302 380"/>
+  <path class="edge" d="M612 380 L672 380"/>
+  <path class="edge" d="M922 380 C968 380 986 350 1010 340"/>
+  <path class="edge" d="M302 380 C910 508 1040 420 1043 340"/>
+
+  <rect x="52" y="500" width="1076" height="72" class="data"/>
+  <text x="76" y="532" class="label">Security boundary</text>
+  <text x="76" y="558" class="small">Community evidence stores only public-safe metadata. Runtime connector credentials, Enterprise code, customer payloads, and private policy packs remain outside the public repository.</text>
+</svg>

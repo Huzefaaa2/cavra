@@ -53,7 +53,7 @@ CAVRA can evaluate decisions from several inputs:
 
 ## Anti-Bypass Design
 
-CAVRA treats bypass risk as a first-class design problem. The runtime authority model assumes agents may try alternate tools, indirect file paths, generated scripts, shell wrappers, or CI/CD side channels. CAVRA therefore documents anti-bypass principles in [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model) and uses evidence to detect whether expected gates were used.
+CAVRA treats bypass risk as a first-class design problem. The runtime authority model assumes agents may try alternate tools, indirect file paths, generated scripts, shell wrappers, or CI/CD side channels. CAVRA therefore documents anti-bypass principles in [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model.md) and uses evidence to detect whether expected gates were used.
 
 ## Control Loop
 

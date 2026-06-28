@@ -38,10 +38,10 @@ Community AISPM is public-safe. It includes static samples, schemas, public cont
 
 Community references:
 
-- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
-- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
-- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness)
+- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
+- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap.md)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
+- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness.md)
 
 ## Enterprise AISPM
 

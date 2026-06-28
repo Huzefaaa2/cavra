@@ -1,7 +1,7 @@
 # CAVRA Enterprise Trial Lab Notebook
 
 This page is retained as a legacy wiki pointer. The canonical evaluator
-handbook is now the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide).
+handbook is now the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md).
 
 Use the Field Guide for the current public-safe trial walkthrough, screenshots,
 diagrams, role paths, labs, checkpoints, report-center guidance, operator
@@ -30,7 +30,7 @@ validators and release packets still inspect this legacy page:
 ## Step-By-Step Lab
 
 For the complete current walkthrough, use the
-[CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide). The canonical guide covers
+[CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md). The canonical guide covers
 product orientation, approved trial access, governed agent actions, AISPM
 posture review, CSO report-center downloads, operator readiness, pilot
 evidence-room review, and trial closeout.
@@ -46,7 +46,7 @@ tenant-specific findings in this public pointer.
 
 ## Related Pages
 
-- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
-- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
-- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
+- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
+- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)

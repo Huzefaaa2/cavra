@@ -80,7 +80,7 @@ and private-source boundaries.
 1. Open `https://cavra-trial.mind-ops.cloud`.
 2. Submit a trial request with business contact details.
 3. Confirm the request is recorded as pending approval.
-4. Review [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
+4. Review [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
    to understand operator approval, package access, and license issuance.
 
 Checkpoint: `checkpoint-trial-request`
@@ -121,7 +121,7 @@ posture without raw prompt or private payload exposure in Community.
 1. Open the report center inside the AI Posture route.
 2. Download Community-safe executive, audit, control coverage, evidence
    freshness, and agent-risk reports.
-3. Review [AISPM CSO Report Center](AISPM-CSO-Report-Center) for the Enterprise
+3. Review [AISPM CSO Report Center](AISPM-CSO-Report-Center.md) for the Enterprise
    expansion: PDF, XLSX, DOCX, HTML, signed JSON, JSONL, GRC packages,
    scheduled email delivery, retry evidence, retention, and evidence-room
    access events.
@@ -162,7 +162,7 @@ without receiving customer-private evidence.
 
 ## Lab 8: Trial Closeout
 
-1. Review [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout).
+1. Review [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md).
 2. Confirm closeout expectations: license expiry or revocation, package access
    removal, blocked runtime validation, archived evidence packet, evaluator
    feedback, and commercial/pilot handoff decision.
@@ -199,8 +199,8 @@ status fields only.
 
 ## Related Pages
 
-- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
-- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
-- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness)
-- [AISPM Enterprise Trial Announcement Closeout Sync](Development-And-Testing-Artifacts)
+- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
+- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
+- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness.md)
+- [AISPM Enterprise Trial Announcement Closeout Sync](Development-And-Testing-Artifacts.md)

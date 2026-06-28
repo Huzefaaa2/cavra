@@ -33,7 +33,7 @@ A production tenant needs:
 - Report delivery recipients.
 - Operating contacts and escalation routes.
 
-See [Tenant Onboarding Contract](Tenant-Onboarding-Contract), [Tenant Audit Store Operating Contract](Tenant-Audit-Store-Operating-Contract), and [Entitlement Status Contract](Entitlement-Status-Contract).
+See [Tenant Onboarding Contract](Tenant-Onboarding-Contract.md), [Tenant Audit Store Operating Contract](Tenant-Audit-Store-Operating-Contract.md), and [Entitlement Status Contract](Entitlement-Status-Contract.md).
 
 ## Evaluator Walkthrough
 
@@ -119,4 +119,4 @@ After launch, Enterprise teams should use recurring operating reviews:
 - Security advisory drill.
 - Production readiness archive closeout.
 
-These reviews are described through the product contract pages and preserved historical records in [Development And Testing Artifacts](Development-And-Testing-Artifacts).
+These reviews are described through the product contract pages and preserved historical records in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md).

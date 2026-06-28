@@ -23,7 +23,7 @@ If you want to see CAVRA work before reading the full book, follow this short pa
 5. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
 6. Open the sandbox GUI and review the decision, evidence, and AISPM views.
 
-The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA), [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows).
+The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md), [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md).
 
 ## Learning Paths
 
@@ -37,21 +37,21 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 
 ## Complete Table Of Contents
 
-1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths)
-2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists)
-3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model)
-4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design)
-5. [Editions, Licensing, And Feature Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries)
-6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA)
-7. [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide)
-8. [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide)
-9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference)
-10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
-11. [AISPM Guide](Textbook-10-AISPM-Guide)
-12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
-13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
-14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
-15. [Reference Appendices](Textbook-14-Reference-Appendices)
+1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths.md)
+2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists.md)
+3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model.md)
+4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design.md)
+5. [Editions, Licensing, And Feature Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
+6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md)
+7. [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md)
+8. [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
+9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
+10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
+11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
+12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)
+13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md)
+14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md)
+15. [Reference Appendices](Textbook-14-Reference-Appendices.md)
 
 ## Visual Index
 
@@ -71,30 +71,30 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 
 ## Primary Product References
 
-- [CLI](CLI)
-- [API](API)
-- [Diagrams](Diagrams)
-- [Edition Boundaries](Edition-Boundaries)
-- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model)
-- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust)
-- [Approval Workflows](Approval-Workflows)
-- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation)
-- [Policy Engine Hardening](Policy-Engine-Hardening)
-- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap)
-- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
-- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion)
+- [CLI](CLI.md)
+- [API](API.md)
+- [Diagrams](Diagrams.md)
+- [Edition Boundaries](Edition-Boundaries.md)
+- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model.md)
+- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust.md)
+- [Approval Workflows](Approval-Workflows.md)
+- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation.md)
+- [Policy Engine Hardening](Policy-Engine-Hardening.md)
+- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap.md)
+- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
+- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
 - [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
 - [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
-- [Enterprise Trial Availability](Enterprise-Trial-Availability)
-- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
+- [Enterprise Trial Availability](Enterprise-Trial-Availability.md)
+- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)
 
 ## Development And Testing Archive
 
 Historical implementation notes, release packets, validation records, trial synchronization notes, rollback-drill records, closeout documents, and readiness artifacts are preserved in one archive:
 
-- [Development And Testing Artifacts](Development-And-Testing-Artifacts)
+- [Development And Testing Artifacts](Development-And-Testing-Artifacts.md)
 
 The archive is intentionally separated from the textbook so new readers can learn CAVRA without walking through every development milestone.
 

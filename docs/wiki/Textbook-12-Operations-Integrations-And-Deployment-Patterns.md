@@ -68,7 +68,7 @@ API integration steps:
 5. Store the decision and evidence reference.
 6. Surface the record in AISPM.
 
-See [API](API) for endpoint families.
+See [API](API.md) for endpoint families.
 
 ## Enterprise Connector Pattern
 
@@ -133,7 +133,7 @@ Post-GA operations should include:
 - GA operating archive closeout.
 - Final docs and status sync.
 
-Historical records for these operating chains are stored in [Development And Testing Artifacts](Development-And-Testing-Artifacts).
+Historical records for these operating chains are stored in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md).
 
 ## Deployment Pattern Matrix
 

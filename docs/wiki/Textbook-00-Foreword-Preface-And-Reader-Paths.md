@@ -39,28 +39,28 @@ If you are new to CAVRA, read chapters 1 through 5 first. Then choose your opera
 
 Community users should read:
 
-- [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA)
-- [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide)
-- [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference)
-- [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
+- [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md)
+- [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md)
+- [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
+- [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
 
 Enterprise evaluators should read:
 
-- [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide)
-- [AISPM Guide](Textbook-10-AISPM-Guide)
-- [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
-- [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
+- [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
+- [AISPM Guide](Textbook-10-AISPM-Guide.md)
+- [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md)
+- [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md)
 
 Security architects should read:
 
-- [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists)
-- [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model)
-- [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
-- [Reference Appendices](Textbook-14-Reference-Appendices)
+- [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists.md)
+- [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model.md)
+- [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)
+- [Reference Appendices](Textbook-14-Reference-Appendices.md)
 
 ## Book Structure
 
-Each chapter includes references to product pages, diagrams, examples, or screenshots. The wiki keeps historical development artifacts in [Development And Testing Artifacts](Development-And-Testing-Artifacts), while this book remains the reader-facing product guide.
+Each chapter includes references to product pages, diagrams, examples, or screenshots. The wiki keeps historical development artifacts in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md), while this book remains the reader-facing product guide.
 
 ## The Reader Promise
 

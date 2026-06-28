@@ -85,4 +85,4 @@ Open the sandbox and answer these questions:
 
 ## Hosted Sandbox
 
-The public hosted sandbox is documented in [Hosted Sandbox Deployment](Hosted-Sandbox-Deployment). In production-like environments, configure API base URLs and CORS policies so the static UI can query backend decisions and evidence.
+The public hosted sandbox is documented in [Hosted Sandbox Deployment](Hosted-Sandbox-Deployment.md). In production-like environments, configure API base URLs and CORS policies so the static UI can query backend decisions and evidence.

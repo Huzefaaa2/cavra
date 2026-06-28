@@ -22,7 +22,7 @@ CAVRA uses an open-core architecture. The public repository contains the Communi
 
 Community Edition includes local governance and public-safe workflows. Enterprise features include organization-wide identity, live connectors, tenant isolation, private policy packs, central dashboards, compliance reporting, production report delivery, and live AISPM ingestion.
 
-See [Edition Boundaries](Edition-Boundaries) and [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan) for detailed separation.
+See [Edition Boundaries](Edition-Boundaries.md) and [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan.md) for detailed separation.
 
 ## Runtime Planes
 

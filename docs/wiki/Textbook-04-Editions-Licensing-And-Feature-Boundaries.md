@@ -24,7 +24,7 @@ Community does not include Enterprise source code, private tenant data, live pro
 
 ## Trial Edition
 
-Trial Edition is for controlled evaluation of Enterprise workflows. It can be delivered through private binaries, private containers, or hosted environments. Trial users should follow the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide) and [Enterprise Trial Availability](Enterprise-Trial-Availability).
+Trial Edition is for controlled evaluation of Enterprise workflows. It can be delivered through private binaries, private containers, or hosted environments. Trial users should follow the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) and [Enterprise Trial Availability](Enterprise-Trial-Availability.md).
 
 Trial adds evaluation packaging:
 
@@ -49,11 +49,11 @@ Enterprise Edition is for organization-wide production governance. It adds:
 - Production readiness gates.
 - Support handoff and customer operating review workflows.
 
-Enterprise boundaries are documented in [Edition Boundaries](Edition-Boundaries), [Enterprise Challenges](Enterprise-Challenges), [Enterprise Integration Validation](Enterprise-Integration-Validation), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion).
+Enterprise boundaries are documented in [Edition Boundaries](Edition-Boundaries.md), [Enterprise Challenges](Enterprise-Challenges.md), [Enterprise Integration Validation](Enterprise-Integration-Validation.md), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md).
 
 ## SaaS Control Plane
 
-The SaaS model hosts the Enterprise control plane and centralizes tenant onboarding, entitlement status, policy registry operations, billing boundaries, customer dashboards, support handoff, and recurring operating automation. Public contracts are documented in [SaaS Control Plane Contract](SaaS-Control-Plane-Contract), [Tenant Onboarding Contract](Tenant-Onboarding-Contract), and [Customer Operating Dashboard And Support Handoff Contract](Customer-Operating-Dashboard-And-Support-Handoff-Contract).
+The SaaS model hosts the Enterprise control plane and centralizes tenant onboarding, entitlement status, policy registry operations, billing boundaries, customer dashboards, support handoff, and recurring operating automation. Public contracts are documented in [SaaS Control Plane Contract](SaaS-Control-Plane-Contract.md), [Tenant Onboarding Contract](Tenant-Onboarding-Contract.md), and [Customer Operating Dashboard And Support Handoff Contract](Customer-Operating-Dashboard-And-Support-Handoff-Contract.md).
 
 ## Feature Matrix
 

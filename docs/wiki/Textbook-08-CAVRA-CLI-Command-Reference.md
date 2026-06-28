@@ -4,7 +4,7 @@ The `cavra` CLI is the main command surface for local users, automation, CI/CD, 
 
 ![CAVRA command map](assets/textbook/cavra-command-map.svg)
 
-For the complete generated command list, see [CLI](CLI). This chapter groups the commands by job-to-be-done.
+For the complete generated command list, see [CLI](CLI.md). This chapter groups the commands by job-to-be-done.
 
 ## Core Commands
 
@@ -172,7 +172,7 @@ Operations commands support persistence, backup, restore, and retention planning
 
 ## Runtime And Release Commands
 
-Runtime and release commands cover Go backend operations, rollback rehearsals, endpoint rollout, package verification, channel promotion, endpoint reconciliation, remediation, SLA reporting, and connector delivery. These commands are advanced and should be used with the detailed [CLI](CLI), [Go Backend Deployment Readiness](Go-Backend-Deployment-Readiness), and [Release Security Advisories](Release-Security-Advisories) pages.
+Runtime and release commands cover Go backend operations, rollback rehearsals, endpoint rollout, package verification, channel promotion, endpoint reconciliation, remediation, SLA reporting, and connector delivery. These commands are advanced and should be used with the detailed [CLI](CLI.md), [Go Backend Deployment Readiness](Go-Backend-Deployment-Readiness.md), and [Release Security Advisories](Release-Security-Advisories.md) pages.
 
 ## Demo And Setup Commands
 

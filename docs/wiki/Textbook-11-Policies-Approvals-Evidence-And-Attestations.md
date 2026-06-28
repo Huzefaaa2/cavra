@@ -153,7 +153,7 @@ Use approvals when:
 - The policy requires human review.
 - The organization needs external change-management evidence.
 
-See [Approval Workflows](Approval-Workflows).
+See [Approval Workflows](Approval-Workflows.md).
 
 Approval command path:
 

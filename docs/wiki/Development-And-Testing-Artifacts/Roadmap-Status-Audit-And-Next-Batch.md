@@ -60,9 +60,9 @@ are:
 
 - production deployment guide validation across install, configuration,
   storage, backup, restore, CORS/API, and GitHub Pages portal checks is
-  delivered in [Production-Deployment-Guide-Validation](Production-Deployment-Guide-Validation).
+  delivered in [Production-Deployment-Guide-Validation](Production-Deployment-Guide-Validation.md).
 - Go enforcement plane production-path hardening is delivered in
-  [Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening)
+  [Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening.md)
   with Unix-socket transport, gRPC boundary planning, air-gapped packaging,
   reproducibility, upgrade validation, performance smoke, and operational
   readiness evidence validation.
@@ -117,37 +117,37 @@ This batch must not add:
 ## Delivered Console Closeout
 
 Console closeout operator experience is documented at
-[Console-Closeout-Operator-Experience](Console-Closeout-Operator-Experience)
+[Console-Closeout-Operator-Experience](Console-Closeout-Operator-Experience.md)
 and enforced by `scripts/validate-console-closeout.py`.
 
 ## Delivered Community GA Path
 
 Community GA user-verifiable path is documented at
-[Community-GA-User-Verifiable-Path](Community-GA-User-Verifiable-Path)
+[Community-GA-User-Verifiable-Path](Community-GA-User-Verifiable-Path.md)
 and enforced by `scripts/validate-community-ga-path.py`.
 
 ## Delivered Production Deployment Guide Validation
 
 Production deployment guide validation is documented at
-[Production-Deployment-Guide-Validation](Production-Deployment-Guide-Validation)
+[Production-Deployment-Guide-Validation](Production-Deployment-Guide-Validation.md)
 and enforced by `scripts/validate-production-deployment-guide.py`.
 
 ## Delivered Go Enforcement Production Hardening
 
 Go enforcement production hardening is documented at
-[Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening)
+[Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening.md)
 and enforced by `scripts/validate-go-production-hardening.py`.
 
 ## Delivered Enterprise Integration Validation
 
 Enterprise integration validation is documented at
-[Enterprise-Integration-Validation](Enterprise-Integration-Validation)
+[Enterprise-Integration-Validation](Enterprise-Integration-Validation.md)
 and enforced by `scripts/validate-enterprise-integration-readiness.py`.
 
 ## Delivered Production Readiness Procurement Closeout
 
 Production readiness procurement closeout is documented at
-[Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout)
+[Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout.md)
 and enforced by `scripts/validate-production-readiness-procurement-closeout.py`.
 
 ## Recommended Next PR

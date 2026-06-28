@@ -90,6 +90,6 @@ Use only redacted screenshots for:
 
 ## Related Pages
 
-- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
-- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
-- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
+- [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
+- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)

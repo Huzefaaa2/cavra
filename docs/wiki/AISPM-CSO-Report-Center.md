@@ -4,7 +4,7 @@ The CAVRA AISPM CSO Report Center gives executives, auditors, GRC teams, and
 platform owners downloadable or deliverable reports from AI-agent posture data.
 
 The private implementation readiness checklist is maintained in
-[AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness).
+[AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness.md).
 
 ## Community Edition
 

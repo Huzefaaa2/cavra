@@ -94,7 +94,7 @@ The SaaS tenant onboarding and entitlement readiness batch is complete:
 - private final SaaS customer operating closeout evidence is delivered in
   `cavra-enterprise` PR #73;
 - public-safe batch sync is delivered in
-  [tenant-entitlement-commercialization-batch-sync.md](tenant-entitlement-commercialization-batch-sync.md).
+  [Tenant-Entitlement-And-Commercialization-Batch-Sync.md](Tenant-Entitlement-And-Commercialization-Batch-Sync.md).
 
 The post-onboarding SaaS operating readiness slice is now complete through the
 SaaS operating readiness rollup and public-safe documentation sync:
@@ -103,12 +103,12 @@ SaaS operating readiness rollup and public-safe documentation sync:
 - public tenant audit-store operating contract is delivered.
 - public billing/subscription boundary documentation is delivered.
 - public post-onboarding SaaS operating batch sync is delivered in
-  [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
+  [Post-Onboarding-SaaS-Operating-Batch-Sync.md](Post-Onboarding-SaaS-Operating-Batch-Sync.md).
 - public SaaS customer operating closeout batch sync is delivered in
-  [saas-customer-operating-closeout-batch-sync.md](saas-customer-operating-closeout-batch-sync.md).
+  [SaaS-Customer-Operating-Closeout-Batch-Sync.md](SaaS-Customer-Operating-Closeout-Batch-Sync.md).
 - public customer operating dashboard and support handoff contracts are
   delivered in
-  [architecture/customer-operating-dashboard-support-handoff-contract.md](architecture/customer-operating-dashboard-support-handoff-contract.md).
+  [Customer-Operating-Dashboard-And-Support-Handoff-Contract.md](Customer-Operating-Dashboard-And-Support-Handoff-Contract.md).
 
 ## Remaining Production Themes
 
@@ -117,19 +117,19 @@ yet fully production-complete. Remaining themes are:
 
 - production deployment guide validation across install, configuration,
   storage, backup, restore, CORS/API, and GitHub Pages portal checks is
-  delivered in [production-deployment-guide-validation.md](production-deployment-guide-validation.md).
+  delivered in [Production-Deployment-Guide-Validation.md](Production-Deployment-Guide-Validation.md).
 - Go enforcement plane production-path hardening is delivered in
-  [Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening)
+  [Go-Enforcement-Production-Hardening](Go-Enforcement-Production-Hardening.md)
   with Unix-socket transport, gRPC boundary planning, air-gapped packaging,
   reproducibility, upgrade validation, performance smoke, and operational
   readiness evidence validation.
 - Enterprise integration validation is delivered in
-  [Enterprise-Integration-Validation](Enterprise-Integration-Validation)
+  [Enterprise-Integration-Validation](Enterprise-Integration-Validation.md)
   with GitHub App/orchestrator governance, GitLab CI parity, Azure DevOps
   parity, SAML identity readiness, SIEM workflow evidence, ITSM workflow
   evidence, README navigation, wiki navigation, and CI workflow wiring.
 - Production readiness procurement closeout is delivered in
-  [Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout)
+  [Production-Readiness-Procurement-Closeout](Production-Readiness-Procurement-Closeout.md)
   with performance, concurrency, backup/restore, upgrade/migration, SOC 2
   readiness, security advisory drills, release integrity evidence, README
   navigation, wiki navigation, and CI workflow wiring.
@@ -234,7 +234,7 @@ or provisioning secrets.
      promotion gate.
 
 7. Public docs/wiki sync. Delivered with
-   [post-onboarding-saas-operating-batch-sync.md](post-onboarding-saas-operating-batch-sync.md).
+   [Post-Onboarding-SaaS-Operating-Batch-Sync.md](Post-Onboarding-SaaS-Operating-Batch-Sync.md).
    - Publish public-safe outcomes and update the phase log after the private
      operating-readiness batch.
 
@@ -261,13 +261,13 @@ or provisioning secrets.
       release acceptance.
 
 12. Public docs/wiki sync. Delivered with
-    [saas-customer-operating-closeout-batch-sync.md](saas-customer-operating-closeout-batch-sync.md).
+    [SaaS-Customer-Operating-Closeout-Batch-Sync.md](SaaS-Customer-Operating-Closeout-Batch-Sync.md).
     - Publish public-safe outcomes and update the phase log after the private
       customer operating closeout batch.
 
 13. Public customer operating dashboard and support handoff contracts.
     Delivered with
-    [architecture/customer-operating-dashboard-support-handoff-contract.md](architecture/customer-operating-dashboard-support-handoff-contract.md).
+    [Customer-Operating-Dashboard-And-Support-Handoff-Contract.md](Customer-Operating-Dashboard-And-Support-Handoff-Contract.md).
     - Define public-safe request and response shapes for operating dashboards,
       support ownership, customer-success ownership, escalation readiness, and
       closeout evidence boundaries.

@@ -70,6 +70,6 @@ source code.
 
 ## Related Pages
 
-- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
-- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
-- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
+- [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
+- [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness.md)

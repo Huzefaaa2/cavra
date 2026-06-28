@@ -146,7 +146,7 @@ Use Docker when you want repeatable local startup or a shared demo environment. 
 
 ## API Deployment
 
-CAVRA includes a public API surface for decisions, policy packs, approvals, evidence, AISPM samples, and sandbox workflows. See [API](API) for endpoint families. A local deployment normally starts the API, configures policy and storage paths, then allows the sandbox UI or automation scripts to call the API.
+CAVRA includes a public API surface for decisions, policy packs, approvals, evidence, AISPM samples, and sandbox workflows. See [API](API.md) for endpoint families. A local deployment normally starts the API, configures policy and storage paths, then allows the sandbox UI or automation scripts to call the API.
 
 ## CI/CD Deployment
 
@@ -158,7 +158,7 @@ CAVRA can be used in CI/CD to require policy decisions and evidence before mergi
 4. Evidence is generated.
 5. A CI required check verifies the evidence and attestation.
 
-See [GitHub Required Checks And CI/CD Enforcement](GitHub-Required-Checks-and-CI-CD-Enforcement) and [Evidence Hub And Attestation](Evidence-Hub-and-Attestation).
+See [GitHub Required Checks And CI/CD Enforcement](GitHub-Required-Checks-and-CI-CD-Enforcement.md) and [Evidence Hub And Attestation](Evidence-Hub-and-Attestation.md).
 
 Example workflow files are available under:
 
@@ -168,7 +168,7 @@ Example workflow files are available under:
 
 ## Enterprise Deployment
 
-Enterprise deployment adds SSO, RBAC, tenant configuration, live connectors, private policy packs, report delivery, and AISPM live ingestion. Use [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access), [OIDC RBAC Deployment](OIDC-RBAC-Deployment), [Connector Execution Hooks](Connector-Execution-Hooks), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion) as the main references.
+Enterprise deployment adds SSO, RBAC, tenant configuration, live connectors, private policy packs, report delivery, and AISPM live ingestion. Use [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md), [OIDC RBAC Deployment](OIDC-RBAC-Deployment.md), [Connector Execution Hooks](Connector-Execution-Hooks.md), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md) as the main references.
 
 Enterprise deployment models:
 

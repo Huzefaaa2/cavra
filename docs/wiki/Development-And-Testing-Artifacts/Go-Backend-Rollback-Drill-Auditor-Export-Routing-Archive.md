@@ -38,4 +38,4 @@ See `docs/diagrams/go-backend-rollback-drill-auditor-export-routing-archive.svg`
 
 ## Next Recommended Work
 
-Delivered in [Go Backend Rollback Drill Auditor Export Retry Archive Health](Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health). Next: add final auditor export retry worker execution records and archive health alert delivery acknowledgements.
+Delivered in [Go Backend Rollback Drill Auditor Export Retry Archive Health](Go-Backend-Rollback-Drill-Auditor-Export-Retry-Archive-Health.md). Next: add final auditor export retry worker execution records and archive health alert delivery acknowledgements.

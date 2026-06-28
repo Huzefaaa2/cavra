@@ -2,21 +2,21 @@
 
 ## Appendix A: Canonical Pages
 
-- [CLI](CLI)
-- [API](API)
-- [Diagrams](Diagrams)
-- [Edition Boundaries](Edition-Boundaries)
-- [Open Core Implementation Plan](Open-Core-Implementation-Plan)
-- [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan)
-- [Policy Engine Hardening](Policy-Engine-Hardening)
-- [Approval Workflows](Approval-Workflows)
-- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation)
-- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust)
-- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model)
-- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap)
-- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
-- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion)
+- [CLI](CLI.md)
+- [API](API.md)
+- [Diagrams](Diagrams.md)
+- [Edition Boundaries](Edition-Boundaries.md)
+- [Open Core Implementation Plan](Open-Core-Implementation-Plan.md)
+- [Private Enterprise Repo Plan](Private-Enterprise-Repo-Plan.md)
+- [Policy Engine Hardening](Policy-Engine-Hardening.md)
+- [Approval Workflows](Approval-Workflows.md)
+- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation.md)
+- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust.md)
+- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model.md)
+- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap.md)
+- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
+- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
 
 ## Appendix B: Command Families
 
@@ -102,11 +102,11 @@ Open the readiness packet and resolve blockers one by one. Common blockers inclu
 
 Public contracts include dashboard, report catalog, setup, delivery audit, operations dashboard, retention lifecycle, search and retrieval, export package manifest, schedule policy, recipient policy, approval decision, exception lifecycle, evidence room, incident packet, closure, KPI metrics, alert escalation, drilldown, remediation plan, remediation closure, executive digest, digest distribution, trial validation, operator dashboard, evaluator handoff, and publication readiness schemas.
 
-See [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract) for schema links and public-safe examples.
+See [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md) for schema links and public-safe examples.
 
 ## Appendix F: Development And Testing Artifacts
 
-Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.
+Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.
 
 ## Conclusion: The Runtime Authority Revolution
 
