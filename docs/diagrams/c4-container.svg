@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980" role="img" aria-labelledby="title desc">
   <title id="title">CAVRA C4 Container View</title>
-  <desc id="desc">A C4 container diagram showing CAVRA interaction surfaces, runtime authority, evidence plane, scaffolded Go enforcement plane, sandbox deployment, and enterprise integrations.</desc>
+  <desc id="desc">A C4 container diagram showing CAVRA interaction surfaces, runtime authority, AISPM posture and report center, evidence plane, scaffolded Go enforcement plane, sandbox deployment, and enterprise integrations.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#344955"/>
@@ -15,6 +15,7 @@
       .surface { fill: #eef6ff; stroke: #3b6f8f; stroke-width: 1.4; }
       .authority { fill: #f3fbef; stroke: #4d8b55; stroke-width: 1.4; }
       .evidence { fill: #fff4e5; stroke: #bd7a22; stroke-width: 1.4; }
+      .aispm { fill: #eefaf8; stroke: #16806f; stroke-width: 1.4; }
       .external { fill: #f2f0fa; stroke: #7256b8; stroke-width: 1.4; }
       .planned { fill: #f6f8fa; stroke: #7d8b95; stroke-width: 1.4; stroke-dasharray: 6 5; }
       .scaffold { fill: #f0f7f5; stroke: #40766a; stroke-width: 1.4; stroke-dasharray: 4 3; }
@@ -30,7 +31,7 @@
 
   <rect class="bg" width="1440" height="980"/>
   <text x="54" y="54" class="title">CAVRA C4 Container View</text>
-  <text x="54" y="80" class="subtitle">Runtime authority, signed policy publishing, deployment readiness, evidence retrieval, required checks, connector delivery, and integrations.</text>
+  <text x="54" y="80" class="subtitle">Runtime authority, AISPM posture, signed policy publishing, deployment readiness, evidence retrieval, required checks, connector delivery, and integrations.</text>
 
   <rect x="54" y="108" width="210" height="72" rx="8" class="actor"/>
   <text x="78" y="136" class="node-title">Developer</text>
@@ -91,6 +92,11 @@
   <text x="442" y="502" class="node-title">Before the Agent Acts Sandbox</text>
   <text x="442" y="520" class="node-text">GitHub Pages workflow and API demo</text>
 
+  <rect x="420" y="596" width="560" height="86" rx="8" class="aispm"/>
+  <text x="442" y="620" class="node-title">AISPM Posture and Report Center</text>
+  <text x="442" y="640" class="node-text">Posture overview, control coverage, report center, release readiness, and production-pilot evidence.</text>
+  <text x="442" y="656" class="node-text">Community ships public-safe samples and contracts; Enterprise adds live tenant ingestion and delivery.</text>
+
   <rect x="750" y="480" width="250" height="54" rx="8" class="scaffold"/>
   <text x="772" y="502" class="node-title">Go Enforcement Plane</text>
   <text x="772" y="520" class="node-text">Unix socket, contracts, CI parity</text>
@@ -114,6 +120,9 @@
   <path class="soft-arrow" d="M875 264 L875 480"/>
   <path class="soft-arrow" d="M962 357 L1042 507"/>
   <path class="arrow" d="M545 480 L545 380"/>
+  <path class="arrow" d="M837 380 L700 596"/>
+  <path class="arrow" d="M1179 338 C1090 520 920 560 800 596"/>
+  <path class="arrow" d="M700 596 C650 548 610 532 545 534"/>
 
   <path class="arrow" d="M264 144 L360 241"/>
   <path class="arrow" d="M264 236 L360 357"/>
@@ -152,6 +161,6 @@
   <rect x="1040" y="596" width="282" height="86" rx="8" class="legend"/>
   <text x="1060" y="622" class="node-title">Reading guide</text>
   <text x="1060" y="642" class="small">Runtime Guard is the decision boundary.</text>
-  <text x="1060" y="658" class="small">Stores expose sessions, repos, and rollouts.</text>
+  <text x="1060" y="658" class="small">AISPM turns evidence into posture.</text>
   <text x="1060" y="674" class="small">Evidence feeds checks and connector hooks.</text>
 </svg>

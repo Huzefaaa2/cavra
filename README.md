@@ -7,7 +7,7 @@
 
 Before the agent acts, CAVRA decides.
 
-CAVRA is a runtime governance and authority layer for AI coding agents. It controls, verifies, approves, blocks, and audits what agents can read, write, execute, connect to, approve, and change across code, cloud, Git, MCP, shell, CI/CD, infrastructure, and regulated engineering workflows.
+CAVRA is a runtime governance and authority layer for AI coding agents. It controls, verifies, approves, blocks, and audits what agents can read, write, execute, connect to, approve, and change across code, cloud, Git, MCP, shell, CI/CD, infrastructure, and regulated engineering workflows. CAVRA also includes AISPM, an AI Security Posture Management surface for turning runtime evidence into posture, control coverage, report, and release-readiness views.
 
 ## What is CAVRA?
 
@@ -35,6 +35,9 @@ Trial Edition should be distributed as a private binary, private Docker image, o
 | Compliance reports | No | Yes |
 | Private policy packs | No | Yes |
 | Central dashboard | No | Yes |
+| AISPM posture dashboard | Public-safe sample dashboard | Live tenant posture |
+| AISPM report center | Public contracts and sample packets | Rendered CSO/CISO reports |
+| AISPM runtime controls | Public validation contracts | Live workflow enforcement |
 | Drift monitoring | No | Yes |
 | AI remediation | No | Yes |
 | SaaS control plane | No | Yes |
@@ -267,6 +270,32 @@ AI coding agents now inspect repositories, modify code, invoke tools, run shell 
 - MCP servers and tools, including filesystem, shell, network, database, SaaS, and unknown server governance.
 - Evidence and approvals, including decision logs, signed bundles, PR attestations, SIEM events, and approver routing.
 
+## AISPM: AI Security Posture Management
+
+AISPM turns CAVRA runtime evidence into an AI security posture view for security leaders, platform teams, and evaluators. The Community repository includes public-safe dashboard data, schemas, release packets, walkthroughs, and portal exports; Enterprise adds live tenant ingestion, private connectors, report delivery, runtime-control validation, tenant isolation, and production readiness evidence.
+
+Community AISPM includes:
+
+- posture overview, agent coverage, risk findings, observed control coverage, near-miss queues, execution timelines, control heatmaps, evidence confidence, evidence freshness, and executive risk narrative samples;
+- replay-to-policy review packets, CI gate readiness validation, rollout checklists, auditor packets, and public-safe trace replay artifacts;
+- CSO/CISO report center contracts for catalog, delivery setup, delivery audit, operations, governance, assurance, response, evidence room, incident, KPI, alert, remediation, and trial operations workflows;
+- public release evidence for AISPM v1.0, hosted sandbox smoke validation, final announcement readiness, and the CAVRA Trial Field Guide publication path.
+
+Enterprise AISPM adds live production capabilities behind the open-core boundary:
+
+- live connector ingestion from AI agents, Git/CI systems, MCP gateways, SIEM/ITSM signals, and tenant-scoped event stores;
+- authenticated operator dashboards, tenant isolation, runtime workflow controls, report rendering and SMTP/provider delivery, audit dashboards, and production readiness gates;
+- private release evidence proving deployment runtime validation, live streaming, report delivery, runtime controls, public-safe inputs, and GA operating archive readiness.
+
+Start here:
+
+- [Community AISPM v1.0 public walkthrough](docs/aispm-v1.0-public-walkthrough.md)
+- [AI Security Posture Dashboard roadmap](docs/ai-security-posture-dashboard-roadmap.md)
+- [AI Security Posture Dashboard contract](docs/ai-security-posture-dashboard-contract.md)
+- [AISPM Enterprise live ingestion](docs/architecture/aispm-enterprise-live-ingestion.md)
+- [AISPM CSO Report Center](docs/architecture/aispm-report-center.md)
+- [AISPM launch readiness rollup](docs/release-verifications/aispm-launch-readiness-rollup.md)
+
 ## How CAVRA works
 
 1. An agent requests an action.
@@ -274,11 +303,11 @@ AI coding agents now inspect repositories, modify code, invoke tools, run shell 
 3. The policy registry loads the active policy pack.
 4. Runtime guards evaluate the request before execution.
 5. CAVRA returns `allow`, `block`, `require_approval`, `warn`, `audit_only`, or `allow_with_attestation`.
-6. Evidence is written for audit, PR review, SIEM export, and compliance mapping.
+6. Evidence is written for audit, PR review, SIEM export, compliance mapping, and AISPM posture/reporting.
 
 ## Architecture overview
 
-CAVRA keeps the current Python management plane and introduces a Go enforcement-plane roadmap. Python owns policy authoring, evidence, integrations, FastAPI, Claude Code adapters, risk classification, and compliance mapping. Go is planned for low-latency local enforcement, CI runner enforcement, streaming audit events, and air-gapped single-binary deployment. The current Go backend path is explicitly opt-in, defaults to disabled, falls back to Python unless readiness and parity checks pass, and requires separate promotion evidence, rollback controls, rollback rehearsal evidence, and fresh rollback drill history before `promoted` mode can select Go as an optional backend.
+CAVRA keeps the current Python management plane and introduces a Go enforcement-plane roadmap. Python owns policy authoring, evidence, integrations, FastAPI, Claude Code adapters, risk classification, compliance mapping, and the public AISPM dashboard/report-center contracts. Go is planned for low-latency local enforcement, CI runner enforcement, streaming audit events, and air-gapped single-binary deployment. AISPM reads CAVRA evidence and activity metadata to produce posture, control coverage, report-center, release-readiness, and production-pilot evidence views while Enterprise live ingestion and report delivery remain private. The current Go backend path is explicitly opt-in, defaults to disabled, falls back to Python unless readiness and parity checks pass, and requires separate promotion evidence, rollback controls, rollback rehearsal evidence, and fresh rollback drill history before `promoted` mode can select Go as an optional backend.
 
 Architecture references:
 
@@ -633,6 +662,13 @@ Open `http://127.0.0.1:5173`, run the agent scenario, review telemetry-free publ
 
 For deployed topologies, configure `window.CAVRA_API_BASE` in the hosted page or set `CAVRA_PUBLIC_API_BASE_URL` and `CAVRA_CORS_ORIGINS` on the API. The console reads `/console/config`, `/api/sandbox/metrics`, `/aispm/posture`, `/aispm/trace-replay/{session_id}`, `/aispm/replay-to-policy-draft`, `/aispm/replay-to-policy-tests`, `/aispm/approval-lineage`, `/aispm/behavior-fingerprints`, `/aispm/policy-context-gaps`, `/aispm/pre-action-risk-forecasts`, `/aispm/intent-action-drift`, `/aispm/tool-chain-graph`, `/aispm/agent-blast-radius`, `/aispm/control-coverage-heatmap`, `/aispm/evidence-confidence`, `/aispm/evidence-freshness`, `/aispm/executive-risk-narrative`, `/saas/control-plane/contract`, `/saas/operating-automation`, and `/saas/operating-automation/worker-handoff` when available and falls back to bundled sample evidence, AISPM sample posture, and public-safe contract previews when the API is unreachable. The AISPM view includes posture overview, agent coverage, risk findings, observed control coverage, near-miss queue, execution timeline, approval lineage, behavior fingerprinting, policy context gaps, pre-action risk forecasts, intent-to-action drift, tool-chain risk graph, agent blast-radius map, control coverage heatmap, evidence confidence drilldown, evidence freshness and retention SLO panel, executive risk narrative, CSO report center downloads, replay-to-policy draft candidate controls, replay-to-policy review workflow readiness, copy/download actions for replay-to-policy test fixture previews, copy/download actions for replay-to-policy review packets, packaged replay-to-policy review packet schema/sample artifacts, PR attachment guidance with copyable approval language, replay-to-policy CI gate setup paths, readiness summary, rollout checklist export, audit packet export, CI gate rollout auditor view, and readiness export/validation actions for GitHub Actions, GitLab CI, and Azure Pipelines, and public-safe trace replay packets from CAVRA activity metadata only; no cookies, browser identifiers, or third-party analytics are required. The report delivery public contract is packaged at [src/cavra/schemas/aispm-report-delivery-contract.schema.json](src/cavra/schemas/aispm-report-delivery-contract.schema.json), the Enterprise setup wizard contract is packaged at [src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json](src/cavra/schemas/aispm-report-setup-wizard-contract.schema.json), the delivery audit event contract is packaged at [src/cavra/schemas/aispm-report-delivery-audit-event.schema.json](src/cavra/schemas/aispm-report-delivery-audit-event.schema.json), the operations dashboard contract is packaged at [src/cavra/schemas/aispm-report-operations-dashboard.schema.json](src/cavra/schemas/aispm-report-operations-dashboard.schema.json), the retention lifecycle contract is packaged at [src/cavra/schemas/aispm-report-retention-lifecycle.schema.json](src/cavra/schemas/aispm-report-retention-lifecycle.schema.json), the search/retrieval contract is packaged at [src/cavra/schemas/aispm-report-search-retrieval.schema.json](src/cavra/schemas/aispm-report-search-retrieval.schema.json), the export package manifest contract is packaged at [src/cavra/schemas/aispm-report-export-package-manifest.schema.json](src/cavra/schemas/aispm-report-export-package-manifest.schema.json), the schedule policy contract is packaged at [src/cavra/schemas/aispm-report-schedule-policy.schema.json](src/cavra/schemas/aispm-report-schedule-policy.schema.json), the recipient policy contract is packaged at [src/cavra/schemas/aispm-report-recipient-policy.schema.json](src/cavra/schemas/aispm-report-recipient-policy.schema.json), the approval decision contract is packaged at [src/cavra/schemas/aispm-report-approval-decision.schema.json](src/cavra/schemas/aispm-report-approval-decision.schema.json), the exception lifecycle contract is packaged at [src/cavra/schemas/aispm-report-exception-lifecycle.schema.json](src/cavra/schemas/aispm-report-exception-lifecycle.schema.json), the evidence room contract is packaged at [src/cavra/schemas/aispm-report-evidence-room.schema.json](src/cavra/schemas/aispm-report-evidence-room.schema.json), the evidence room access event contract is packaged at [src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json](src/cavra/schemas/aispm-report-evidence-room-access-event.schema.json), the incident packet contract is packaged at [src/cavra/schemas/aispm-report-incident-packet.schema.json](src/cavra/schemas/aispm-report-incident-packet.schema.json), the incident closure contract is packaged at [src/cavra/schemas/aispm-report-incident-closure.schema.json](src/cavra/schemas/aispm-report-incident-closure.schema.json), the KPI metrics contract is packaged at [src/cavra/schemas/aispm-report-kpi-metrics.schema.json](src/cavra/schemas/aispm-report-kpi-metrics.schema.json), the alert escalation contract is packaged at [src/cavra/schemas/aispm-report-alert-escalation.schema.json](src/cavra/schemas/aispm-report-alert-escalation.schema.json), the alert operations dashboard contract is packaged at [src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json](src/cavra/schemas/aispm-report-alert-operations-dashboard.schema.json), the alert drilldown contract is packaged at [src/cavra/schemas/aispm-report-alert-drilldown.schema.json](src/cavra/schemas/aispm-report-alert-drilldown.schema.json), the alert remediation plan contract is packaged at [src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json](src/cavra/schemas/aispm-report-alert-remediation-plan.schema.json), the alert remediation closure contract is packaged at [src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json](src/cavra/schemas/aispm-report-alert-remediation-closure.schema.json), the remediation closure operations dashboard contract is packaged at [src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json](src/cavra/schemas/aispm-report-remediation-closure-operations-dashboard.schema.json), the remediation closure executive digest contract is packaged at [src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json](src/cavra/schemas/aispm-report-remediation-closure-executive-digest.schema.json), the remediation closure digest distribution contract is packaged at [src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json](src/cavra/schemas/aispm-report-remediation-closure-digest-distribution.schema.json), the Report Center Enterprise Trial validation packet is packaged at [src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json](src/cavra/schemas/aispm-report-center-trial-validation-packet.schema.json), the Report Center trial operator dashboard readiness contract is packaged at [src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json](src/cavra/schemas/aispm-report-center-trial-operator-dashboard-readiness.schema.json), the Report Center trial operator dashboard API/view-model contract is packaged at [src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json](src/cavra/schemas/aispm-report-center-trial-operator-api-view-model.schema.json), the Report Center trial evaluator handoff packet is packaged at [src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json](src/cavra/schemas/aispm-report-center-trial-evaluator-handoff-packet.schema.json), the Report Center trial revocation and expiry evidence contract is packaged at [src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json](src/cavra/schemas/aispm-report-center-trial-revocation-expiry-evidence.schema.json), the Report Center trial lab notebook outline contract is packaged at [src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json](src/cavra/schemas/aispm-report-center-trial-lab-notebook-outline.schema.json), and the Report Center trial lab notebook publication readiness contract is packaged at [src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json](src/cavra/schemas/aispm-report-center-trial-lab-notebook-publication-readiness.schema.json). See [docs/sandbox.md](docs/sandbox.md), [docs/aispm-phase-b-closeout-verification.md](docs/aispm-phase-b-closeout-verification.md), and [docs/architecture/aispm-report-center.md](docs/architecture/aispm-report-center.md).
 
+AISPM screenshots and visual evidence:
+
+- [AISPM desktop posture screenshot](docs/screenshots/aispm-posture-desktop.png)
+- [AISPM mobile posture screenshot](docs/screenshots/aispm-posture-mobile.png)
+- [AISPM visual smoke validation](docs/release-verifications/aispm-visual-smoke-validation.md)
+- [AISPM release evidence index](docs/release-verifications/aispm-release-evidence-index.md)
+
 The GitHub Pages sandbox is live at `https://huzefaaa2.github.io/cavra/`. GitHub Pages is enabled for Actions publishing, and the deployment workflow now packages downloadable sample evidence and smoke-tests the public page, JavaScript, stylesheet, brand assets, C4 diagram, evidence JSON, and browser-rendered dashboard/AISPM routes through [Hosted sandbox Pages smoke validation](docs/release-verifications/hosted-sandbox-pages-smoke-validation.md), [Hosted sandbox Pages smoke validation JSON](docs/release-verifications/hosted-sandbox-pages-smoke-validation.json), and `scripts/validate-hosted-sandbox-pages.mjs`. Successful post-deploy runs generate a public-safe `cavra-hosted-sandbox-post-deploy-evidence` artifact using `scripts/generate-hosted-sandbox-deploy-evidence.py`; its contract is documented in [Hosted sandbox post-deploy evidence contract](docs/release-verifications/hosted-sandbox-post-deploy-evidence.md), [Hosted sandbox post-deploy evidence contract JSON](docs/release-verifications/hosted-sandbox-post-deploy-evidence.json), and enforced by `scripts/validate-hosted-sandbox-deploy-evidence.py`.
 
 Hosted deployment freshness is tracked by [Hosted sandbox deployment freshness](docs/release-verifications/hosted-sandbox-deployment-freshness.md), [Hosted sandbox deployment freshness JSON](docs/release-verifications/hosted-sandbox-deployment-freshness.json), and `scripts/validate-hosted-sandbox-deployment-freshness.py` using the build sentinel `community-v1.0.0-aispm-release-evidence-index`.
@@ -688,6 +724,12 @@ Current phase status:
 - Phase 8: Enterprise Integrations - started in PR #1 with a GitHub required-check workflow, reusable GitHub Actions templates, GitLab CI and Azure Pipelines enforcement examples, CI evidence artifact upload, live SIEM/ITSM/ChatOps connector execution hooks, immutable storage references, OIDC/RBAC references, and Go parity execution in CI.
 - Phase 9: Public Sandbox and Growth Loop - deployment workflow started in PR #1 with a GitHub Pages workflow for the static sandbox and evidence console, optional API configuration for backend-driven scenario runs, telemetry-free public run counters, and post-deploy smoke validation.
 - Phase 10: Production Readiness and Release.
+
+AISPM phase status:
+
+- Community AISPM v1.0 public dashboard, public contracts, public release notes, hosted walkthrough, release-readiness packet, final announcement readiness, and visual smoke evidence are delivered in this repository.
+- Enterprise AISPM production implementation is delivered in the private Enterprise repository and validated by its production-readiness gate. The public repository exposes only public-safe contracts, sample evidence, release packets, and trial/evaluator documentation.
+- AISPM operational evidence covers posture dashboard, replay-to-policy, CI gate readiness, CSO report center, report delivery setup, report operations, report governance, report assurance, report response, trial operations, pilot controls, launch readiness, release evidence index, hosted sandbox post-deploy evidence, and final announcement readiness.
 
 Latest delivery:
 

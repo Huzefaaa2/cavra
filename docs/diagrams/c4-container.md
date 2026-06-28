@@ -5,7 +5,7 @@ This container view separates the collaboration surfaces, runtime authority, evi
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"primaryColor": "#eef6ff", "primaryTextColor": "#17242d", "primaryBorderColor": "#3b6f8f", "lineColor": "#526777", "secondaryColor": "#f6fff0", "tertiaryColor": "#fff7eb"}}}%%
 C4Container
-title CAVRA Container View - Runtime Authority, Evidence, CI/CD Enforcement, and Enterprise Integrations
+title CAVRA Container View - Runtime Authority, AISPM, Evidence, CI/CD Enforcement, and Enterprise Integrations
 
 Person(developer, "Developer", "Uses AI coding tools under CAVRA governance.")
 Person(platform, "Platform / Security Engineer", "Authors policies, reviews approvals, and operates integrations.")
@@ -28,6 +28,7 @@ System_Boundary(cavra, "CAVRA") {
 
   Container_Boundary(evidencePlane, "Evidence and Audit Plane") {
     Container(evidence, "Evidence Hub", "Python + JSON/Markdown", "Bundles manifests, checksums, Ed25519/HMAC signatures, PR attestations, required-check evidence, compliance mapping, SIEM payloads, and retention policies.")
+    Container(aispm, "AISPM Posture and Report Center", "Public dashboard contracts + Enterprise live ingestion", "Turns runtime evidence and tenant-scoped events into posture, control coverage, report-center, release-readiness, and production-pilot evidence views.")
     Container(connectorDelivery, "Connector Delivery Hooks", "Python + HTTP", "Executes configured SIEM, ITSM, ChatOps, and webhook deliveries with retry handling and credential-redacted evidence.")
     ContainerDb(metadata, "Metadata, Activity, and Inventory Stores", "JSON/SQLite", "Searchable evidence, session, decision, approval, registry, repository inventory, policy rollout, integration inventory, backup manifests, and retention plans.")
     ContainerDb(bundleStore, "Evidence Bundle Store", "Filesystem + immutable storage references", "Verifier-ready bundle artifacts, governed retrieval root, ZIP bundle downloads, AWS S3 Object Lock references, Azure Blob immutability references, and storage plans.")
@@ -62,15 +63,19 @@ Rel(runtime, policy, "Loads compiled policy rules")
 Rel(runtime, approval, "Requires human approval for risky actions")
 Rel(runtime, registry, "Checks agent and MCP trust state")
 Rel(runtime, evidence, "Writes decision evidence")
+Rel(runtime, aispm, "Feeds governed runtime events")
 Rel(goRuntime, runtime, "Critical decision parity fixture")
 
 Rel(evidence, metadata, "Indexes searchable evidence metadata")
+Rel(evidence, aispm, "Feeds posture, freshness, confidence, and release packets")
+Rel(aispm, metadata, "Reads public-safe activity and release metadata")
 Rel(evidence, connectorDelivery, "Builds signed evidence events")
 Rel(cli, connectorDelivery, "Delivers configured connector events")
 Rel(api, connectorDelivery, "Delivers integration events")
 Rel(connectorDelivery, metadata, "Writes redacted delivery evidence")
 Rel(api, metadata, "Persists sessions, decisions, repositories, rollout state, integrations, approvals, registry records, and operations status")
 Rel(evidence, bundleStore, "Writes and serves verifier-ready bundles through governed retrieval")
+Rel(aispm, git, "Publishes CI gate readiness and release evidence")
 Rel(evidence, git, "Publishes PR attestation and required-check artifacts")
 Rel(evidence, siem, "Exports SIEM payloads")
 Rel(connectorDelivery, siem, "Sends SIEM events")
@@ -88,5 +93,6 @@ Rel(runtime, cloud, "Allows, blocks, or routes infra operations")
 
 - Interaction and Management Surfaces are where users, agents, demos, and operators enter CAVRA.
 - Runtime Authority is the decision boundary: CAVRA decides before files, commands, Git operations, MCP tools, or infrastructure changes happen.
-- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, governed artifact downloads, CI/CD required-check artifacts for GitHub, GitLab, and Azure DevOps, policy draft, signed publish, and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, connector delivery records, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
+- Evidence and Audit Plane converts decisions into verifier-ready artifacts, searchable session and decision records, AISPM posture and report-center views, governed artifact downloads, CI/CD required-check artifacts for GitHub, GitLab, and Azure DevOps, policy draft, signed publish, and rollout change metadata, repository inventory, policy rollout state and drill-downs, integration inventory, connector delivery records, security boundary and console session metadata, deployment readiness checks, backup/restore manifests, SIEM payloads, metadata, retention controls, and immutable storage plans.
+- AISPM is the posture and reporting layer. Community exposes public-safe dashboard samples, contracts, release packets, and trial field guide evidence; Enterprise adds live ingestion, tenant-scoped storage, runtime workflow validation, SMTP/provider report delivery, and production-readiness gates.
 - Planned containers are shown to clarify the production direction without implying that the full enterprise console is complete today. The Go enforcement plane now has a scaffolded Go module, runtime evaluator, CLI entrypoint, compiled-policy loader, generated request/response contracts, Unix-socket daemon transport, reusable daemon client helper, CLI `--daemon` mode, daemon lifecycle `start/status/stop`, request/response evidence hooks, shared parity fixture, Go unit tests, and CI execution, but expanded approval/registry parity and signed binary packaging remain future work. The Approval Router now has JSON/SQLite persistence, repository routing files, signed OIDC/JWKS validation, repository RBAC policy checks, console queue actions, console break-glass creation, audit detail views, credential-free provider request specs, and live provider delivery evidence. The Agent and MCP Trust Registry now has JSON/SQLite persistence, predefined agent profiles, MCP tool classifications, console registry views, and registry-backed trust decisions.
