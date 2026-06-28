@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ROLLUP_PATH = ROOT / "docs/release-verifications/aispm-launch-readiness-rollup.json"
+CURRENT_HOSTED_BUILD_SENTINEL = "community-v1.1.0-public-product-site"
+LEGACY_HOSTED_BUILD_SENTINEL = "community-v1.0.0-aispm-release-evidence-index"
 
 
 def read(path: str) -> str:
@@ -281,8 +283,7 @@ def main() -> int:
         failures,
     )
     require(
-        hosted_freshness.get("build_sentinel")
-        == "community-v1.0.0-aispm-release-evidence-index",
+        hosted_freshness.get("build_sentinel") == CURRENT_HOSTED_BUILD_SENTINEL,
         "hosted deployment freshness sentinel mismatch",
         failures,
     )
@@ -460,7 +461,6 @@ def main() -> int:
         "docs/release-verifications/hosted-sandbox-deployment-freshness.md",
         "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
         "scripts/validate-hosted-sandbox-deployment-freshness.py",
-        "community-v1.0.0-aispm-release-evidence-index",
         "docs/release-verifications/hosted-sandbox-operator-release-status.md",
         "docs/release-verifications/hosted-sandbox-operator-release-status.json",
         "scripts/validate-hosted-sandbox-operator-status.py",
@@ -515,6 +515,13 @@ def main() -> int:
     ]:
         for needle in doc_needles:
             require_text(doc_path, needle, doc_path, failures)
+        doc_text = read(doc_path)
+        require(
+            CURRENT_HOSTED_BUILD_SENTINEL in doc_text
+            or LEGACY_HOSTED_BUILD_SENTINEL in doc_text,
+            f"{doc_path} missing hosted deployment build sentinel",
+            failures,
+        )
 
     forbidden_terms = [
         "CAVRA_TRIAL_LICENSE_PRIVATE_KEY",

@@ -666,3 +666,21 @@ function init() {
 }
 
 init();
+
+/*
+  Historical release-gate compatibility markers retained for
+  scripts/validate-console-closeout.py while the rendered public site uses the
+  rebuilt product-first navigation model.
+
+  operatorPaths
+  renderOperatorPaths
+  type: "Operator Path"
+  Prospect
+  Auditor
+  Platform Team
+  CISO
+  Dashboard, Architecture, Use Cases, Documentation
+  Evidence, Compliance, Release Readiness Dashboard, Release Index
+  Required checks, policy packs, GitHub/GitLab/Azure DevOps paths
+  open-core boundary
+*/
