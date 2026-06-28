@@ -39,6 +39,6 @@ paid policy packs.
 
 Public docs:
 
-- [Enterprise Trial](Enterprise-Trial)
-- [Enterprise Trial Distribution Sync](Enterprise-Trial-Distribution-Sync)
-- [Trial License Evaluator Access Sync](Trial-License-Evaluator-Access-Sync)
+- [Enterprise Trial](Enterprise-Trial-Self-Service-Access)
+- [Enterprise Trial Distribution Sync](Development-And-Testing-Artifacts)
+- [Trial License Evaluator Access Sync](Development-And-Testing-Artifacts)

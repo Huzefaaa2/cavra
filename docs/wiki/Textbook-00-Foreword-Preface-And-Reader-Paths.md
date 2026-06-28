@@ -44,4 +44,4 @@ Security architects should read:
 
 ## Book Structure
 
-Each chapter includes references to product pages, diagrams, examples, or screenshots. The wiki keeps historical development artifacts in [Development And Testing Artifacts](Development-And-Testing-Artifacts/Index), while this book remains the reader-facing product guide.
+Each chapter includes references to product pages, diagrams, examples, or screenshots. The wiki keeps historical development artifacts in [Development And Testing Artifacts](Development-And-Testing-Artifacts), while this book remains the reader-facing product guide.

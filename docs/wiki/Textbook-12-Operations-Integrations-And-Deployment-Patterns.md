@@ -57,4 +57,4 @@ Post-GA operations should include:
 - GA operating archive closeout.
 - Final docs and status sync.
 
-Historical records for these operating chains are stored in [Development And Testing Artifacts](Development-And-Testing-Artifacts/Index).
+Historical records for these operating chains are stored in [Development And Testing Artifacts](Development-And-Testing-Artifacts).

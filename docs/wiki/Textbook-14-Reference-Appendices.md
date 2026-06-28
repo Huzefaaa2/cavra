@@ -57,4 +57,4 @@ See [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contr
 
 ## Appendix E: Development And Testing Artifacts
 
-Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts/Index). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.
+Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.

@@ -203,4 +203,4 @@ status fields only.
 - [Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center)
 - [AISPM Report Center Enterprise Readiness](AISPM-Report-Center-Enterprise-Readiness)
-- [AISPM Enterprise Trial Announcement Closeout Sync](AISPM-Enterprise-Trial-Announcement-Closeout-Sync)
+- [AISPM Enterprise Trial Announcement Closeout Sync](Development-And-Testing-Artifacts)

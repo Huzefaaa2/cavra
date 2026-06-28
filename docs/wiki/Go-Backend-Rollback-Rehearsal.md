@@ -79,7 +79,7 @@ curl http://127.0.0.1:8000/runtime/go-pilot/rollback-rehearsal
 curl http://127.0.0.1:8000/deployment/production-readiness
 ```
 
-Production readiness includes a `go_backend_rollback_rehearsal` section and a `go_backend_rollback_rehearsal` check. The Evidence Console Production Readiness panel displays rehearsal status, recovery target, and evidence references. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without valid rehearsal evidence. Ongoing drill history is documented in [Go backend rollback drill history](go-backend-rollback-drill-history.md).
+Production readiness includes a `go_backend_rollback_rehearsal` section and a `go_backend_rollback_rehearsal` check. The Evidence Console Production Readiness panel displays rehearsal status, recovery target, and evidence references. `not_requested` is acceptable when promoted mode is not configured. `needs_attention` blocks readiness when promoted mode is requested without valid rehearsal evidence. Ongoing drill history is documented in [Go backend rollback drill history](Development-And-Testing-Artifacts).
 
 ## User Stories
 

@@ -63,7 +63,7 @@ Read the book in order if you are new to CAVRA. Jump directly to the command, GU
 
 Historical implementation notes, release packets, validation records, trial synchronization notes, rollback-drill records, closeout documents, and readiness artifacts are preserved in one archive:
 
-- [Development And Testing Artifacts](Development-And-Testing-Artifacts/Index)
+- [Development And Testing Artifacts](Development-And-Testing-Artifacts)
 
 The archive is intentionally separated from the textbook so new readers can learn CAVRA without walking through every development milestone.
 
