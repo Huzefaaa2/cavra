@@ -1,5 +1,5 @@
 const navItems = [
-  { id: "dashboard", label: "Overview", icon: "C", group: "Start", description: "Product story, value, runtime loop, and public sandbox summary." },
+  { id: "dashboard", label: "Overview", icon: "C", group: "Start", description: "Business outcomes, executive deliverables, editions, downloads, and public demo summary." },
   { id: "ai-posture", label: "AISPM", icon: "A", group: "Start", description: "AI Security Posture Management, reports, board packs, and trial labs." },
   { id: "architecture", label: "Architecture", icon: "N", group: "Platform", description: "Runtime authority, policy, evidence, posture, identity, and integrations." },
   { id: "policy-engine", label: "Policy Engine", icon: "P", group: "Platform", description: "Policy decisions across files, commands, Git, MCP, CI/CD, cloud, and releases." },
@@ -14,11 +14,50 @@ const navItems = [
 ];
 
 const metrics = [
-  ["Decision modes", "4", "Allow, block, require approval, or attest."],
-  ["Control surfaces", "7", "Code, shell, Git, MCP, CI/CD, cloud, and infrastructure."],
+  ["Runtime Decision Actions", "4", "Allow, block, require approval, or attest."],
+  ["Protected Enterprise Assets", "7", "Code, shell, Git, MCP, CI/CD, cloud, and infrastructure."],
   ["Evidence outputs", "6", "Bundles, attestations, reports, packets, exports, and release records."],
   ["AISPM views", "9", "Coverage, findings, drift, blast radius, reports, and readiness."],
   ["Editions", "4", "Community, Trial, Enterprise, and SaaS deployment paths."]
+];
+
+const businessOutcomes = [
+  ["Reduce AI Risk", "Stop unsafe autonomous actions before they reach code, infrastructure, tools, or production systems."],
+  ["Accelerate Secure Delivery", "Keep agent-assisted engineering moving with policy-backed allow, approval, and attestation paths."],
+  ["Generate Audit Evidence", "Capture reviewable decisions, rationale, control mappings, and board-ready evidence packets."],
+  ["Improve AI Security Posture", "Continuously measure coverage, findings, exceptions, drift, and production-readiness blockers."]
+];
+
+const executiveDeliverables = [
+  ["Executive Readiness", "Board-level posture summary, launch status, blockers, exceptions, and approval path."],
+  ["Board Packet", "Public-safe pilot launch packet with scope, risk acceptance, report readiness, and closeout plan."],
+  ["Report Center", "Executive risk brief, SOC 2-style audit summary, KPI pack, and evidence freshness exports."],
+  ["Trial Field Guide", "Guided evaluator journey to prove a complete AISPM use case with evidence and closeout."]
+];
+
+const editionComparison = [
+  ["Community", "Open public sandbox", "Sample decisions, policy examples, local evidence, CLI/docs, Azure Community path.", "Developers, open-source users, and first-look reviewers."],
+  ["Trial", "Time-limited Enterprise evaluation", "Trial portal, private package, guided AISPM labs, license, revocation, and closeout.", "CISO, platform, audit, and evaluator teams proving one use case."],
+  ["Enterprise", "Private control plane", "Tenant isolation, SSO/RBAC, connectors, policy packs, SMTP/report delivery, runtime workflows.", "Organizations governing live AI-agent operations."],
+  ["SaaS", "Managed operating model", "Hosted control plane, managed deployment, monitoring, reporting, and support paths.", "Teams that want CAVRA operated as an enterprise service."]
+];
+
+const downloadArtifacts = [
+  ["Executive Product Brief", "PDF-ready", "Two-page business summary for CISO, board, and procurement review."],
+  ["CAVRA Datasheet", "Product brief", "Capabilities, editions, runtime actions, protected surfaces, and evaluation path."],
+  ["AISPM Capability Brief", "Datasheet", "Posture loop, findings, reports, readiness gates, and guided trial labs."],
+  ["Runtime Authority Whitepaper", "Reference", "How pre-action governance works across AI-agent software delivery."],
+  ["Architecture Reference Guide", "Diagram pack", "Runtime authority, policy, evidence, AISPM, identity, and integrations."],
+  ["Board Readiness Packet", "Packet", "Sample launch summary, risk acceptance, report readiness, and evidence room index."],
+  ["Sample Evidence Bundle", "Evidence", "Public-safe decision record, attestation outline, and control mapping examples."],
+  ["Sample Attestation", "Evidence", "Example signed decision and reviewer attestation payload."],
+  ["Security Controls Mapping", "SOC 2 / ISO / NIST", "Public-safe mapping from CAVRA evidence to common control families."],
+  ["Gartner-style Feature Matrix", "Matrix", "Feature comparison across Community, Trial, Enterprise, and SaaS."],
+  ["Deployment Reference Architecture", "Azure", "Community, Trial, Enterprise, and SaaS deployment topology summary."],
+  ["Enterprise Trial Guide", "Guide", "Evaluator steps, trial portal, guided use case, AISPM labs, and closeout."],
+  ["API Reference", "Reference", "Public-safe API surface overview and Enterprise integration boundaries."],
+  ["Policy Pack Samples", "Examples", "Secret, Terraform, protected branch, MCP, and release governance examples."],
+  ["Release Readiness Checklist", "Checklist", "Evidence, validation, release, and production-readiness review checklist."]
 ];
 
 const communityCards = [
@@ -319,6 +358,48 @@ function renderCards() {
     </article>
   `).join("");
 
+  el("#businessOutcomeCards").innerHTML = businessOutcomes.map(([title, detail], index) => `
+    <article class="outcome-card">
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+
+  el("#executiveDeliverableCards").innerHTML = executiveDeliverables.map(([title, detail]) => `
+    <article class="deliverable-card">
+      <span class="eyebrow">Board-ready</span>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `).join("");
+
+  el("#editionComparison").innerHTML = `
+    <div class="edition-row edition-header">
+      <strong>Edition</strong>
+      <strong>Operating model</strong>
+      <strong>What it includes</strong>
+      <strong>Best for</strong>
+    </div>
+    ${editionComparison.map(([edition, model, includes, bestFor]) => `
+      <div class="edition-row">
+        <strong>${escapeHtml(edition)}</strong>
+        <span>${escapeHtml(model)}</span>
+        <span>${escapeHtml(includes)}</span>
+        <span>${escapeHtml(bestFor)}</span>
+      </div>
+    `).join("")}
+  `;
+
+  el("#downloadCards").innerHTML = downloadArtifacts.map(([title, type, detail]) => `
+    <article class="download-card">
+      <span class="eyebrow">${escapeHtml(type)}</span>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(detail)}</p>
+      <button type="button" data-download="${escapeHtml(title)}">Download</button>
+    </article>
+  `).join("");
+
   el("#communityGaSummary").innerHTML = communityCards.map(([title, status, detail]) => `
     <article class="readiness-card community-ga-card">
       <span class="eyebrow">${escapeHtml(status)}</span>
@@ -560,6 +641,36 @@ function buildBoardPacket() {
   };
 }
 
+function buildDownloadArtifact(title) {
+  const artifact = downloadArtifacts.find(([name]) => name === title);
+  return {
+    product: "CAVRA",
+    artifact: title,
+    artifact_type: artifact?.[1] || "Public-safe artifact",
+    generated_at: new Date().toISOString(),
+    purpose: artifact?.[2] || "CAVRA public product evaluation artifact.",
+    overview: "CAVRA is the Runtime Authority platform for governing AI coding agents across software delivery.",
+    includes_aispm: "Built-in AI Security Posture Management continuously measures AI operational risk and governance readiness.",
+    recommended_evaluation_path: [
+      "Run the public demo",
+      "Review sample evidence",
+      "Download the board packet",
+      "Request an Enterprise Trial"
+    ],
+    public_safety_boundary: [
+      "No customer tenant data",
+      "No connector secrets",
+      "No SMTP/provider credentials",
+      "No private Enterprise source or runtime logs"
+    ],
+    links: {
+      public_site: "https://huzefaaa2.github.io/cavra/",
+      trial_portal: "https://cavra-trial.mind-ops.cloud/",
+      wiki_textbook: "https://github.com/Huzefaaa2/cavra/wiki"
+    }
+  };
+}
+
 function runScenario() {
   const packet = {
     decision_id: `demo-${Date.now()}`,
@@ -625,6 +736,10 @@ function wireEvents() {
       runScenario();
       return;
     }
+    if (event.target.closest("#overviewRunDemo")) {
+      runScenario();
+      return;
+    }
     if (event.target.closest("#copyAispmPilotLaunchBoardPackPacket")) {
       const ok = await copyText(JSON.stringify(buildBoardPacket(), null, 2));
       event.target.textContent = ok ? "Copied" : "Copy Failed";
@@ -644,6 +759,12 @@ function wireEvents() {
         generated_at: new Date().toISOString(),
         boundary: "Enterprise report rendering, SMTP/provider delivery, and private report content are not included in Community."
       });
+      return;
+    }
+    const downloadButton = event.target.closest("[data-download]");
+    if (downloadButton) {
+      const title = downloadButton.dataset.download;
+      downloadJson(`${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.json`, buildDownloadArtifact(title));
     }
   });
 

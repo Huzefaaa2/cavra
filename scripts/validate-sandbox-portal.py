@@ -50,7 +50,12 @@ def validate_files(failures: list[str]) -> None:
 def validate_index(html: str, failures: list[str]) -> None:
     for needle in [
         "CAVRA | Runtime Governance for AI Coding Agents",
-        "Runtime governance for AI coding agents",
+        "Runtime Authority for AI coding agents",
+        "The Runtime Authority platform for governing AI coding agents across software delivery.",
+        "Why Enterprises Deploy CAVRA",
+        "Business outcomes",
+        "Product Demonstration Environment",
+        "Downloads",
         "Before the agent acts, CAVRA decides.",
         "AI Security Posture Management",
         "Run Public Demo",
@@ -162,7 +167,7 @@ def validate_workflows(failures: list[str]) -> None:
     for needle in [
         "npm run validate:sandbox:hosted",
         "scripts/validate-hosted-sandbox-pages.mjs",
-        "Runtime governance for AI coding agents",
+        "Runtime Authority for AI coding agents",
         "AI Security Posture Management",
         "https://cavra-trial.mind-ops.cloud/",
     ]:

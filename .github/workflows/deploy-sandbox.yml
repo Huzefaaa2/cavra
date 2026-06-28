@@ -127,7 +127,8 @@ jobs:
           npx playwright install --with-deps chromium
           test -n "$CAVRA_SANDBOX_URL"
           curl --fail --silent --show-error --location "$CAVRA_SANDBOX_URL" | tee index.html
-          grep -q "Runtime governance for AI coding agents" index.html
+          grep -q "Runtime Authority for AI coding agents" index.html
+          grep -q "The Runtime Authority platform for governing AI coding agents across software delivery." index.html
           grep -q "Before the agent acts, CAVRA decides." index.html
           grep -q "AI Security Posture Management" index.html
           grep -q "Run Public Demo" index.html

@@ -321,6 +321,14 @@ p { color: var(--muted); line-height: 1.58; }
   color: var(--soft);
   font-size: clamp(18px, 2.2vw, 24px);
 }
+.hero-business-line {
+  max-width: 820px;
+  margin: 18px 0 10px;
+  color: var(--text);
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 900;
+  line-height: 1.22;
+}
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -384,18 +392,21 @@ p { color: var(--muted); line-height: 1.58; }
   50% { transform: scale(1.05); opacity: .62; }
 }
 
-.proof-strip, .feature-grid, .metric-grid, .readiness-grid, .posture-overview-grid,
+.proof-strip, .feature-grid, .outcome-grid, .deliverable-grid, .download-grid,
+.metric-grid, .readiness-grid, .posture-overview-grid,
 .board-pack-grid, .board-pack-manifest-grid, .report-center-grid, .policy-grid,
 .usecase-grid, .operator-path-grid, .trial-card-grid, .integration-grid,
 .compliance-grid, .roadmap-board {
   display: grid;
   gap: 16px;
 }
+.executive-intro { margin-top: 24px; }
 .proof-strip {
   grid-template-columns: repeat(4, 1fr);
   margin: 18px 0 42px;
 }
-.proof-strip div, .feature-card, .metric-card, .readiness-card, .posture-card,
+.proof-strip div, .feature-card, .outcome-card, .deliverable-card, .download-card,
+.metric-card, .readiness-card, .posture-card,
 .board-pack-card, .board-pack-manifest-card, .report-card, .policy-card,
 .usecase-card, .operator-path-card, .trial-access-card, .integration-card,
 .compliance-card, .roadmap-card {
@@ -409,8 +420,19 @@ p { color: var(--muted); line-height: 1.58; }
 .section-heading { margin: 46px 0 18px; max-width: 960px; }
 .section-heading.compact { margin: 0 0 20px; }
 .section-heading p { font-size: 18px; }
+.key-point {
+  margin: 18px 0 38px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--brand-strong) 10%, var(--panel));
+  color: var(--soft);
+}
+.key-point strong { color: var(--brand); }
 .feature-grid { grid-template-columns: repeat(4, 1fr); }
-.feature-card span {
+.outcome-grid, .deliverable-grid { grid-template-columns: repeat(4, 1fr); }
+.download-grid { grid-template-columns: repeat(3, 1fr); }
+.feature-card span, .outcome-card > span {
   display: inline-grid;
   place-items: center;
   width: 34px;
@@ -420,6 +442,62 @@ p { color: var(--muted); line-height: 1.58; }
   background: color-mix(in srgb, var(--brand) 18%, transparent);
   color: var(--brand);
   font-weight: 950;
+}
+.outcome-card {
+  position: relative;
+  overflow: hidden;
+}
+.outcome-card::after, .deliverable-card::after, .download-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -42px -42px auto;
+  width: 112px;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, transparent);
+  border-radius: 50%;
+  animation: pulse 4.6s ease-in-out infinite;
+}
+.deliverable-card, .download-card { position: relative; overflow: hidden; }
+.download-card button { margin-top: 10px; }
+.executive-value-flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--brand) 18%, transparent), transparent 42%, color-mix(in srgb, var(--brand-strong) 14%, transparent)),
+    color-mix(in srgb, var(--panel) 88%, transparent);
+  overflow: hidden;
+}
+.executive-value-flow::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 20px;
+  width: calc(100% - 40px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--brand), var(--brand-strong), transparent);
+  animation: flowPulse 3.4s ease-in-out infinite;
+}
+.executive-value-flow span {
+  position: relative;
+  z-index: 1;
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--brand) 36%, var(--line));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
+  color: var(--soft);
+  font-weight: 950;
+  text-align: center;
+}
+@keyframes flowPulse {
+  0%, 100% { transform: translateX(-12px); opacity: .38; }
+  50% { transform: translateX(12px); opacity: .88; }
 }
 .accent-cyan { border-top-color: #59e4d6; }
 .accent-blue { border-top-color: #2db7ff; }
@@ -454,6 +532,25 @@ p { color: var(--muted); line-height: 1.58; }
 .loop-step small { color: var(--muted); margin-top: 10px; line-height: 1.45; }
 .metric-grid { grid-template-columns: repeat(5, 1fr); }
 .readiness-grid { grid-template-columns: repeat(4, 1fr); margin-top: 16px; }
+.edition-comparison {
+  display: grid;
+  gap: 10px;
+}
+.edition-row {
+  display: grid;
+  grid-template-columns: .7fr .9fr 1.4fr 1.2fr;
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+}
+.edition-row strong { color: var(--soft); }
+.edition-row span { color: var(--muted); line-height: 1.48; }
+.edition-header {
+  background: color-mix(in srgb, var(--brand-strong) 18%, var(--panel));
+}
 .metric-card strong {
   display: block;
   margin: 8px 0;
@@ -466,6 +563,23 @@ p { color: var(--muted); line-height: 1.58; }
   gap: 24px;
   margin-top: 42px;
   padding: 26px;
+}
+.next-steps-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.next-steps-rail a {
+  display: grid;
+  place-items: center;
+  min-height: 58px;
+  border: 1px solid color-mix(in srgb, var(--brand) 45%, var(--line));
+  border-radius: var(--radius);
+  padding: 12px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--brand-strong) 12%, var(--panel));
+  font-weight: 900;
+  text-align: center;
 }
 
 .page-hero {
@@ -762,7 +876,11 @@ p { color: var(--muted); line-height: 1.58; }
   .posture-overview-grid, .board-pack-grid, .board-pack-manifest-grid,
   .report-center-grid, .policy-grid, .usecase-grid, .operator-path-grid,
   .trial-card-grid, .integration-grid, .compliance-grid, .roadmap-board,
-  .architecture-map {
+  .architecture-map, .outcome-grid, .deliverable-grid, .download-grid,
+  .next-steps-rail, .executive-value-flow {
+    grid-template-columns: 1fr;
+  }
+  .edition-row {
     grid-template-columns: 1fr;
   }
   h1 { font-size: clamp(42px, 14vw, 58px); }

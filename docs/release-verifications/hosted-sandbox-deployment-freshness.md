@@ -23,7 +23,11 @@ CAVRA_CHECK_LIVE_SANDBOX=true python scripts/validate-hosted-sandbox-deployment-
 
 ## Required Hosted Markers
 
-- `Runtime governance for AI coding agents`
+- `Runtime Authority for AI coding agents`
+- `The Runtime Authority platform for governing AI coding agents across software delivery.`
+- `Why Enterprises Deploy CAVRA`
+- `Product Demonstration Environment`
+- `Downloads`
 - `Before the agent acts, CAVRA decides.`
 - `AI Security Posture Management`
 - `Run Public Demo`
