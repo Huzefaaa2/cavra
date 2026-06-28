@@ -73,30 +73,14 @@ async function capture(page, name) {
 async function validateHttpAssets() {
   const index = await assertFetchOk(baseUrl, "hosted index");
   for (const needle of [
-    "Evidence Console",
-    "Community GA Control Hardening",
-    "Production Pilot Readiness",
-    "Enterprise Trial Access Portal",
-    "AISPM Trial Lab Notebook Readiness",
-    "Release Evidence Index",
-    "Hosted Release Operator Status",
-    "CSO Report Center",
-    "cavra-aispm-report-catalog-packet.json",
-    "Report Delivery Setup Readiness",
-    "cavra-aispm-report-delivery-setup-packet.json",
-    "Report Operations Readiness",
-    "cavra-aispm-report-operations-readiness-packet.json",
-    "Report Governance Readiness",
-    "cavra-aispm-report-governance-readiness-packet.json",
-    "Report Assurance Readiness",
-    "cavra-aispm-report-assurance-readiness-packet.json",
-    "Report Response Readiness",
-    "cavra-aispm-report-response-readiness-packet.json",
-    "Report Trial Operations Readiness",
-    "cavra-aispm-report-trial-operations-readiness-packet.json",
-    "cavra-aispm-release-evidence-index-packet.json",
-    "cavra-hosted-sandbox-operator-status-packet.json",
-    "community-v1.0.0-aispm-release-evidence-index",
+    "Runtime governance for AI coding agents",
+    "Before the agent acts, CAVRA decides.",
+    "AI Security Posture Management",
+    "Run Public Demo",
+    "Request Enterprise Trial",
+    "Trial Field Guide",
+    "GitHub Wiki e-book",
+    "community-v1.1.0-public-product-site",
     "sandbox.js",
   ]) {
     if (!index.includes(needle)) {
@@ -114,7 +98,7 @@ async function validateHttpAssets() {
   await assertFetchOk(new URL("evidence/final-closeout-trial/sample-evidence-package.json", baseUrl).toString(), "hosted final closeout evidence");
 }
 
-async function validateDashboard(page) {
+async function validateOverview(page) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto("about:blank");
   await page.goto(`${baseUrl}#dashboard`, { waitUntil: "networkidle" });
@@ -123,11 +107,11 @@ async function validateDashboard(page) {
   await assertVisible(page, [
     ".hero-product-mark",
     "#demoMetrics .metric-card",
-    "#communityGaSummary",
-    "#pilotReadinessSummary",
+    "#communityGaSummary .community-ga-card",
+    "#pilotReadinessSummary .pilot-readiness-card",
   ]);
-  await assertReadableAndContained(page, "#dashboard .metric-card, #dashboard .community-ga-card, #dashboard .pilot-readiness-card");
-  return capture(page, "hosted-dashboard-classic.png");
+  await assertReadableAndContained(page, "#dashboard .metric-card, #dashboard .feature-card, #dashboard .readiness-card");
+  return capture(page, "hosted-product-overview-classic.png");
 }
 
 async function validateAispm(page) {
@@ -147,7 +131,17 @@ async function validateAispm(page) {
   await page.locator("#commandSearch").fill("Pilot Launch Board Pack Packet");
   await page.getByText("Pilot Launch Board Pack Packet").first().waitFor({ state: "visible", timeout: 10_000 });
   await page.keyboard.press("Escape");
-  return capture(page, "hosted-aispm-sentinel.png");
+  return capture(page, "hosted-aispm-product-sentinel.png");
+}
+
+async function validateTrialAndDocs(page) {
+  await page.setViewportSize({ width: 1280, height: 960 });
+  await page.goto(`${baseUrl}#enterprise-trial`, { waitUntil: "networkidle" });
+  await page.locator("#enterprise-trial.is-active").waitFor({ state: "visible", timeout: 15_000 });
+  await assertVisible(page, ["#trialAccessCards .trial-access-card"]);
+  await page.goto(`${baseUrl}#documentation`, { waitUntil: "networkidle" });
+  await page.locator("#documentation.is-active").waitFor({ state: "visible", timeout: 15_000 });
+  await assertVisible(page, ["#docsNav a", ".docs-feature"]);
 }
 
 async function main() {
@@ -158,17 +152,18 @@ async function main() {
     browser = await chromium.launch();
     const page = await browser.newPage();
     await assertNoConsoleErrors(page, failures);
-    const screenshots = [await validateDashboard(page), await validateAispm(page)];
+    const screenshots = [await validateOverview(page), await validateAispm(page)];
+    await validateTrialAndDocs(page);
     if (failures.length) {
       throw new Error(failures.join("\n"));
     }
-    console.log("CAVRA hosted sandbox Pages validation passed.");
+    console.log("CAVRA hosted public product site validation passed.");
     console.log(`- ${baseUrl}`);
     for (const screenshot of screenshots) {
       console.log(`- ${path.relative(repoRoot, screenshot)}`);
     }
   } catch (error) {
-    console.error("CAVRA hosted sandbox Pages validation failed.");
+    console.error("CAVRA hosted public product site validation failed.");
     console.error(error.message);
     process.exitCode = 1;
   } finally {

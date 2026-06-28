@@ -127,36 +127,29 @@ jobs:
           npx playwright install --with-deps chromium
           test -n "$CAVRA_SANDBOX_URL"
           curl --fail --silent --show-error --location "$CAVRA_SANDBOX_URL" | tee index.html
-          grep -q "Evidence Console" index.html
-          grep -q "Community GA Control Hardening" index.html
-          grep -q "Production Pilot Readiness" index.html
-          grep -q "Enterprise Trial Access Portal" index.html
-          grep -q "AISPM Trial Lab Notebook Readiness" index.html
-          grep -q "Release Evidence Index" index.html
-          grep -q "Hosted Release Operator Status" index.html
-          grep -q "CSO Report Center" index.html
-          grep -q "cavra-aispm-report-catalog-packet.json" index.html
-          grep -q "Report Delivery Setup Readiness" index.html
-          grep -q "cavra-aispm-report-delivery-setup-packet.json" index.html
-          grep -q "Report Operations Readiness" index.html
-          grep -q "cavra-aispm-report-operations-readiness-packet.json" index.html
-          grep -q "Report Governance Readiness" index.html
-          grep -q "cavra-aispm-report-governance-readiness-packet.json" index.html
-          grep -q "Report Assurance Readiness" index.html
-          grep -q "cavra-aispm-report-assurance-readiness-packet.json" index.html
-          grep -q "Report Response Readiness" index.html
-          grep -q "cavra-aispm-report-response-readiness-packet.json" index.html
-          grep -q "Report Trial Operations Readiness" index.html
-          grep -q "cavra-aispm-report-trial-operations-readiness-packet.json" index.html
-          grep -q "Pilot Control Readiness" index.html
-          grep -q "cavra-aispm-pilot-control-readiness-packet.json" index.html
-          grep -q "AISPM Trial Lab Notebook Readiness" index.html
-          grep -q "cavra-aispm-release-evidence-index-packet.json" index.html
-          grep -q "cavra-hosted-sandbox-operator-status-packet.json" index.html
-          grep -q "community-v1.0.0-aispm-release-evidence-index" index.html
-          grep -q "aispm-trial-lab-notebook-publication-readiness-summary.md" index.html
+          grep -q "Runtime governance for AI coding agents" index.html
+          grep -q "Before the agent acts, CAVRA decides." index.html
+          grep -q "AI Security Posture Management" index.html
+          grep -q "Run Public Demo" index.html
+          grep -q "Request Enterprise Trial" index.html
+          grep -q "Trial Field Guide" index.html
+          grep -q "GitHub Wiki e-book" index.html
+          grep -q "community-v1.1.0-public-product-site" index.html
           grep -q "https://cavra-trial.mind-ops.cloud/" index.html
           grep -q "sandbox.js" index.html
+          # Historical public-release validator evidence markers:
+          # grep -q "Report Operations Readiness"
+          # grep -q "cavra-aispm-report-operations-readiness-packet.json"
+          # grep -q "Report Governance Readiness"
+          # grep -q "cavra-aispm-report-governance-readiness-packet.json"
+          # grep -q "Report Assurance Readiness"
+          # grep -q "cavra-aispm-report-assurance-readiness-packet.json"
+          # grep -q "Report Response Readiness"
+          # grep -q "cavra-aispm-report-response-readiness-packet.json"
+          # grep -q "Report Trial Operations Readiness"
+          # grep -q "cavra-aispm-report-trial-operations-readiness-packet.json"
+          # grep -q "Pilot Control Readiness"
+          # grep -q "cavra-aispm-pilot-control-readiness-packet.json"
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}sandbox.js" >/dev/null
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}config.js" | grep -q "CAVRA_TRIAL_API_URL"
           curl --fail --silent --show-error --location "${CAVRA_SANDBOX_URL}styles.css" >/dev/null

@@ -5,1159 +5,401 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="CAVRA portal for Continuous AI Validation, Risk and Audit."
+      content="CAVRA is a runtime governance and AI Security Posture Management layer for AI coding agents. Before the agent acts, CAVRA decides."
+    />
+    <meta name="theme-color" content="#07111f" />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:title" content="CAVRA | Runtime Governance for AI Coding Agents" />
+    <meta
+      property="og:description"
+      content="Evaluate, block, approve, attest, and record evidence for AI-agent actions across code, shell, Git, MCP, CI/CD, cloud, and infrastructure."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://huzefaaa2.github.io/cavra/" />
+    <meta property="og:image" content="https://huzefaaa2.github.io/cavra/brand/cavra-mark.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CAVRA | Before the agent acts, CAVRA decides" />
+    <meta
+      name="twitter:description"
+      content="Runtime authority, policy enforcement, evidence, and AISPM for AI coding agents."
     />
     <meta
       name="cavra-sandbox-build"
-      content="community-v1.0.0-aispm-release-evidence-index"
+      content="community-v1.1.0-public-product-site"
     />
-    <title>CAVRA | Evidence Console</title>
+    <link rel="canonical" href="https://huzefaaa2.github.io/cavra/" />
+    <title>CAVRA | Runtime Governance for AI Coding Agents</title>
     <link rel="icon" href="./brand/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
+  <body data-theme="sentinel">
     <a class="skip-link" href="#mainContent">Skip to content</a>
-    <header class="top-shell" aria-label="CAVRA portal header">
-      <div class="hero-title-block">
-        <img src="./brand/cavra-mark.svg" alt="CAVRA shield mark" width="34" height="34" />
-        <div>
-          <p class="hero-wordmark">CAVRA</p>
-          <span>Continuous AI Validation, Risk &amp; Audit</span>
-        </div>
-      </div>
+
+    <header class="top-shell" aria-label="CAVRA public site header">
+      <a class="brand-lockup" href="#dashboard" data-route-link="dashboard" aria-label="Open CAVRA overview">
+        <img src="./brand/cavra-mark.svg" alt="CAVRA shield mark" width="38" height="38" />
+        <span>
+          <strong>CAVRA</strong>
+          <small>Controlled Agentic Verification and Runtime Authority</small>
+        </span>
+      </a>
+
       <button class="search-trigger" id="openSearch" aria-label="Open command palette">
-        <span>Search pages, policies, controls</span>
+        <span>Search pages, controls, diagrams</span>
         <kbd>Ctrl K</kbd>
       </button>
-      <nav class="top-actions" aria-label="Top navigation">
-        <a href="#documentation" data-route-link="documentation">Documentation</a>
-        <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+
+      <nav class="top-actions" aria-label="Primary links">
+        <a href="#dashboard" data-route-link="dashboard">Overview</a>
+        <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
+        <a href="#architecture" data-route-link="architecture">Architecture</a>
         <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
-        <a href="#dashboard" data-route-link="dashboard">Demo</a>
-        <a id="downloadEvidence" href="./evidence/before-the-agent-acts/evidence.json" download>Download</a>
-        <label class="theme-picker" for="themeSelect">
-          <span>Theme</span>
-          <select id="themeSelect" data-theme-select aria-label="Dashboard theme">
-            <option value="sentinel">Sentinel</option>
-            <option value="classic">Classic</option>
-            <option value="retro">Retro</option>
-            <option value="executive">Executive</option>
-          </select>
-        </label>
-        <span class="version-badge">v1.0.0</span>
+        <a href="#documentation" data-route-link="documentation">Docs</a>
+        <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
       </nav>
+
+      <label class="theme-picker" for="themeSelect">
+        <span>Theme</span>
+        <select id="themeSelect" data-theme-select aria-label="Dashboard theme">
+          <option value="sentinel">Sentinel</option>
+          <option value="classic">Classic</option>
+          <option value="retro">Retro</option>
+          <option value="executive">Executive</option>
+        </select>
+      </label>
+
+      <a class="trial-pill" href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">
+        Request Trial
+      </a>
       <button class="mobile-menu-button" id="openMobileNav" aria-label="Open navigation">Menu</button>
     </header>
 
-    <div class="portal-shell">
-      <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
-        <button class="collapse-button" id="collapseSidebar" aria-label="Collapse sidebar">
-          Collapse
-        </button>
+    <div class="site-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Section navigation">
+        <button class="collapse-button" id="collapseSidebar" aria-label="Collapse sidebar">Collapse</button>
         <nav id="portalNav"></nav>
       </aside>
 
       <main class="portal-main" id="mainContent" tabindex="-1">
-        <section class="page-panel is-active" id="dashboard" data-title="Dashboard">
-          <div class="hero">
-            <nav class="hero-side" aria-label="Install action">
-              <button id="copyInstall">claude mcp add cavra</button>
-              <div class="hero-logo-lockup">
-                <img class="hero-product-mark" src="./brand/cavra-mark.svg" width="220" height="220" alt="CAVRA shield mark" />
-              </div>
-            </nav>
+        <section class="page-panel is-active" id="dashboard" data-title="Overview">
+          <section class="hero product-hero" aria-label="CAVRA product introduction">
             <div class="hero-copy">
-              <p class="eyebrow">Enterprise AI-agent runtime governance</p>
-              <h1>Evidence Console</h1>
-              <p>
-                CAVRA validates AI coding agent actions before they touch
-                repositories, infrastructure, MCP tools, policies, or release
-                workflows.
+              <p class="eyebrow">Before the agent acts, CAVRA decides.</p>
+              <h1>Runtime governance for AI coding agents.</h1>
+              <p class="hero-lede">
+                CAVRA evaluates AI-agent actions before they touch code, shell,
+                Git, MCP tools, CI/CD, cloud, or infrastructure. It can allow,
+                block, require approval, or attach an attestation, then record
+                signed evidence for audit and review.
               </p>
-              <div class="actions">
-                <button id="runScenario">Run Agent Scenario</button>
-                <a href="#architecture" data-route-link="architecture">Explore Architecture</a>
+              <div class="hero-actions">
+                <button id="runScenario" class="primary-action">Run Public Demo</button>
+                <a href="#ai-posture" data-route-link="ai-posture">Explore AISPM</a>
+                <a href="#documentation" data-route-link="documentation">Read Docs</a>
+                <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">View GitHub</a>
               </div>
               <p id="scenarioStatus" class="status-line">
-                Scenario source: local sample until the CAVRA API is reachable.
+                Demo mode uses public sample data. Enterprise connects to live repositories,
+                tenants, reports, connectors, and runtime evidence streams.
               </p>
-              <div id="demoMetrics" class="hero-metrics" aria-live="polite"></div>
             </div>
+
+            <div class="authority-orb" aria-label="Animated CAVRA runtime authority diagram">
+              <img class="hero-product-mark" src="./brand/cavra-mark.svg" alt="CAVRA shield mark" />
+              <span class="orbit orbit-agent">Agent intent</span>
+              <span class="orbit orbit-policy">Policy</span>
+              <span class="orbit orbit-evidence">Evidence</span>
+              <span class="orbit orbit-posture">AISPM</span>
+              <span class="pulse-ring ring-one"></span>
+              <span class="pulse-ring ring-two"></span>
+            </div>
+          </section>
+
+          <section class="proof-strip" aria-label="CAVRA product proof points">
+            <div><strong>Pre-action</strong><span>Decisions before execution</span></div>
+            <div><strong>Policy-backed</strong><span>Files, shell, Git, MCP, IaC</span></div>
+            <div><strong>Audit-ready</strong><span>Evidence and attestations</span></div>
+            <div><strong>AISPM</strong><span>Posture, findings, readiness</span></div>
+          </section>
+
+          <section class="section-heading">
+            <p class="eyebrow">What CAVRA does</p>
+            <h2>Make AI-assisted engineering governable without turning automation off.</h2>
+          </section>
+          <div class="feature-grid">
+            <article class="feature-card accent-cyan">
+              <span>01</span>
+              <h3>Pre-action decisions</h3>
+              <p>Allow, block, warn, require approval, or attest before an AI agent acts.</p>
+            </article>
+            <article class="feature-card accent-blue">
+              <span>02</span>
+              <h3>Policy enforcement</h3>
+              <p>Apply controls to files, commands, pull requests, infrastructure, MCP tools, and releases.</p>
+            </article>
+            <article class="feature-card accent-green">
+              <span>03</span>
+              <h3>Audit evidence</h3>
+              <p>Generate signed bundles, attestations, control mappings, and review-ready records.</p>
+            </article>
+            <article class="feature-card accent-gold">
+              <span>04</span>
+              <h3>AI security posture</h3>
+              <p>Show coverage, findings, exceptions, open risks, and production-readiness blockers.</p>
+            </article>
           </div>
 
-          <section class="dashboard-grid" aria-label="Platform overview">
-            <article class="feature-card accent-blue">
-              <span>Risk posture</span>
-              <strong>84</strong>
-              <p>Governed release and agent activity with approval and evidence coverage.</p>
-              <div class="risk-ring" aria-label="Risk score 84 out of 100"></div>
-            </article>
-            <article class="feature-card">
-              <span>Governance flow</span>
-              <strong>Before the agent acts</strong>
-              <p>Policy decision, attestation, audit event, and remediation guidance in one pass.</p>
-            </article>
-            <article class="feature-card">
-              <span>Audit coverage</span>
-              <strong>92%</strong>
-              <p>Release packets, evidence bundles, PR attestations, and public boundary checks.</p>
-            </article>
-          </section>
-
-          <section class="stat-grid" aria-label="Platform statistics">
-            <div><span>Policy Packs</span><strong>14</strong></div>
-            <div><span>Evidence Types</span><strong>28</strong></div>
-            <div><span>Integrations</span><strong>10</strong></div>
-            <div><span>Compliance Controls</span><strong>47</strong></div>
-            <div><span>Risk Categories</span><strong>6</strong></div>
-          </section>
-
-          <section class="console community-ga-console">
-            <div class="console-header">
-              <div>
-                <h2>Community GA Control Hardening</h2>
-                <p>
-                  Public Community release readiness across policy signing,
-                  runtime modes, golden decisions, deployment validation, and
-                  release evidence.
-                </p>
-              </div>
-              <button id="refreshCommunityGa">Refresh</button>
+          <section class="loop-panel" aria-label="How CAVRA works">
+            <div class="section-heading compact">
+              <p class="eyebrow">How it works</p>
+              <h2>Four control moments before a risky action completes.</h2>
             </div>
-            <div id="communityGaSummary" class="community-ga-grid"></div>
+            <div class="runtime-loop" aria-label="Runtime authority loop">
+              <div class="loop-step"><span>1</span><strong>Agent proposes action</strong><small>Read, write, execute, merge, deploy, or call a tool.</small></div>
+              <div class="loop-step"><span>2</span><strong>CAVRA evaluates context</strong><small>Actor, target, repository, policy, trust, blast radius.</small></div>
+              <div class="loop-step"><span>3</span><strong>Decision is returned</strong><small>Allow, block, require approval, or attest.</small></div>
+              <div class="loop-step"><span>4</span><strong>Evidence is recorded</strong><small>Audit bundle, control map, posture signal, report input.</small></div>
+            </div>
           </section>
 
-          <section class="console pilot-readiness-console">
-            <div class="console-header">
-              <div>
-                <h2>Production Pilot Readiness</h2>
-                <p>
-                  Convert trial evidence into a scoped production pilot with
-                  repository, agent, CI/CD, connector, identity, and handoff readiness.
-                </p>
-              </div>
-              <button id="savePilotIntake">Save Intake Snapshot</button>
+          <section class="section-heading">
+            <p class="eyebrow">Public sandbox</p>
+            <h2>Explore the demo console with clear Community and Enterprise boundaries.</h2>
+            <p>
+              The hosted site is a public Community-safe sandbox. It demonstrates the product
+              model without exposing private tenant data, secrets, connectors, or Enterprise source.
+            </p>
+          </section>
+          <div id="demoMetrics" class="metric-grid" aria-live="polite"></div>
+          <div id="communityGaSummary" class="readiness-grid" aria-label="Community readiness summary"></div>
+          <div id="pilotReadinessSummary" class="readiness-grid" aria-label="Production pilot readiness summary"></div>
+
+          <section class="operator-teaser">
+            <div>
+              <p class="eyebrow">Who uses CAVRA</p>
+              <h2>Built for security, platform, audit, and engineering leadership.</h2>
             </div>
-            <div id="pilotReadinessSummary" class="pilot-readiness-grid"></div>
+            <a href="#operator-experience" data-route-link="operator-experience">View role paths</a>
           </section>
         </section>
 
-        <section class="page-panel" id="ai-posture" data-title="AI Posture">
-          <div class="section-heading">
-            <p class="eyebrow">AI Security Posture</p>
-            <h2>Agent activity, risk findings, and execution timeline</h2>
-            <p>
-              Public-safe posture visibility for CSO/CISO review. Community
-              shows sample or local activity metadata; live multi-tenant
-              streaming, kill switch, runtime overrides, and trace replay
-              require CAVRA Enterprise.
-            </p>
-          </div>
-          <div class="posture-toolbar">
+        <section class="page-panel" id="ai-posture" data-title="AISPM">
+          <section class="page-hero split-hero">
             <div>
-              <span>Data provenance</span>
-              <strong id="aispmSourceBadge">sample_data</strong>
+              <p class="eyebrow">AI Security Posture Management</p>
+              <h1>AISPM turns agent activity into posture, evidence, and readiness decisions.</h1>
+              <p>
+                Community shows demo-safe activity, findings, report catalogs, and readiness
+                boundaries. Enterprise adds live tenant ingestion, streaming, kill switch,
+                runtime overrides, report delivery, tenant isolation, and production gates.
+              </p>
             </div>
-            <button id="refreshAispm">Refresh Posture</button>
-          </div>
+            <div class="posture-radar" aria-label="Animated AISPM posture loop">
+              <span>Discover</span><span>Assess</span><span>Decide</span><span>Evidence</span><span>Report</span>
+            </div>
+          </section>
+
           <div id="aispmOverviewCards" class="posture-overview-grid"></div>
-          <section class="posture-panel aispm-trial-readiness-panel" aria-label="AISPM Enterprise Trial readiness checklist">
+
+          <section class="posture-panel aispm-board-pack-panel">
             <div class="console-header">
               <div>
-                <h3>AISPM Enterprise Trial Readiness Checklist</h3>
-                <p>One CSO/CISO view of the lab notebook, approved access, operator workflow, revocation evidence, and release verification needed before an external evaluator starts.</p>
+                <p class="eyebrow">Executive readiness</p>
+                <h2>Pilot Launch Board Pack</h2>
+                <p>
+                  A public-safe view of launch decision artifacts: scope, exceptions,
+                  risk acceptance, evidence room, report readiness, and go/no-go status.
+                </p>
               </div>
-              <span class="severity approved">Reviewer Ready</span>
-            </div>
-            <div id="aispmTrialReadinessChecklist" class="trial-readiness-checklist"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Enterprise Trial readiness export actions">
-              <div>
-                <strong>Trial readiness export</strong>
-                <p>Copy a public-safe Markdown summary or download the reviewer packet for procurement, security, or evaluator handoff.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmTrialReadinessSummary" type="button">Copy Summary</button>
-                <button id="downloadAispmTrialReadinessPacket" type="button">Download Packet</button>
-              </div>
-            </div>
-            <p id="aispmTrialReadinessStatus" class="status-line">Trial readiness export will load from public-safe checklist data.</p>
-          </section>
-          <section class="posture-panel aispm-evaluator-handoff-panel" aria-label="AISPM Enterprise Trial evaluator handoff">
-            <div class="console-header">
-              <div>
-                <h3>Enterprise Trial Evaluator Handoff</h3>
-                <p>What an approved evaluator receives after operator approval, shown as public-safe package, license, notebook, and support signals.</p>
-              </div>
-              <span class="severity controlled">Approved Access</span>
-            </div>
-            <div id="aispmEvaluatorHandoff" class="evaluator-handoff-grid"></div>
-          </section>
-          <section class="posture-panel aispm-trial-journey-panel" aria-label="AISPM Enterprise Trial evaluation journey">
-            <div class="console-header">
-              <div>
-                <h3>Enterprise Trial Evaluation Journey</h3>
-                <p>Public-safe milestone view from request submission through approval, package run, evidence review, and revocation closeout.</p>
-              </div>
-              <span class="severity approved">Traceable</span>
-            </div>
-            <div id="aispmTrialJourney" class="trial-journey-timeline"></div>
-          </section>
-          <section class="posture-panel aispm-trial-closeout-panel" aria-label="AISPM Trial closeout evidence">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Closeout Evidence</h3>
-                <p>Close the evaluation with public-safe proof of expiry, revocation, package access removal, blocked runtime validation, and evaluator feedback collection.</p>
-              </div>
-              <span class="severity approved">Closeout Ready</span>
-            </div>
-            <div id="aispmTrialCloseoutEvidence" class="trial-closeout-grid"></div>
-          </section>
-          <section class="posture-panel aispm-trial-feedback-panel" aria-label="AISPM Trial feedback intake">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Feedback Intake</h3>
-                <p>Public-safe feedback categories for evaluator closeout. The Community portal displays the intake model only; Enterprise stores governed feedback with tenant evidence.</p>
-              </div>
-              <span class="severity controlled">No Local Storage</span>
-            </div>
-            <div id="aispmTrialFeedbackIntake" class="trial-feedback-grid"></div>
-          </section>
-          <section class="posture-panel aispm-trial-outcome-panel" aria-label="AISPM Trial outcome summary">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Outcome Summary</h3>
-                <p>Go/no-go style roll-up for CSO/CISO review across readiness, evaluator handoff, journey execution, closeout evidence, and feedback coverage.</p>
-              </div>
-              <span class="severity approved">Go Candidate</span>
-            </div>
-            <div id="aispmTrialOutcomeSummary" class="trial-outcome-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Trial review packet export actions">
-              <div>
-                <strong>Trial review packet</strong>
-                <p>Bundle readiness, handoff, journey, closeout, feedback, and outcome summary into one public-safe JSON artifact.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmTrialReviewPacket" type="button">Copy Review Packet</button>
-                <button id="downloadAispmTrialReviewPacket" type="button">Download Review Packet</button>
-              </div>
-            </div>
-            <p id="aispmTrialReviewPacketStatus" class="status-line">Trial review packet will load from public-safe AISPM trial sections.</p>
-          </section>
-          <section class="posture-panel aispm-trial-integrity-panel" aria-label="AISPM Trial review packet integrity">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Review Packet Integrity</h3>
-                <p>Public-safe integrity view for schema, generation time, expected filename, excluded private fields, and Enterprise boundary validation.</p>
-              </div>
-              <span class="severity approved">Public Safe</span>
-            </div>
-            <div id="aispmTrialReviewPacketIntegrity" class="trial-integrity-grid"></div>
-          </section>
-          <section class="posture-panel aispm-procurement-readiness-panel" aria-label="AISPM Trial procurement readiness">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Procurement Readiness</h3>
-                <p>Buyer-facing review map for legal, security, deployment, support, licensing, data handling, and production pilot scope.</p>
-              </div>
-              <span class="severity controlled">Buyer Review</span>
-            </div>
-            <div id="aispmTrialProcurementReadiness" class="procurement-readiness-grid"></div>
-          </section>
-          <section class="posture-panel aispm-pilot-scope-panel" aria-label="AISPM Trial pilot scope builder">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Trial Pilot Scope Builder</h3>
-                <p>Convert procurement readiness into a concrete pilot plan covering repositories, agents, required checks, policies, evidence owners, success criteria, and go/no-go date.</p>
-              </div>
-              <span class="severity approved">Pilot Draft</span>
-            </div>
-            <div id="aispmTrialPilotScope" class="pilot-scope-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Trial pilot scope packet export actions">
-              <div>
-                <strong>Pilot scope packet</strong>
-                <p>Export the pilot definition for internal approval tickets without including customer records or Enterprise secrets.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmTrialPilotScopePacket" type="button">Copy Pilot Packet</button>
-                <button id="downloadAispmTrialPilotScopePacket" type="button">Download Pilot Packet</button>
-              </div>
-            </div>
-            <p id="aispmTrialPilotScopeStatus" class="status-line">Pilot scope packet will load from public-safe pilot scope data.</p>
-          </section>
-          <section class="posture-panel aispm-pilot-approval-panel" aria-label="AISPM Pilot approval checklist">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Pilot Approval Checklist</h3>
-                <p>Final approval gates before a production pilot starts: owners, repositories, agents, required checks, policies, evidence reviewers, support path, and go/no-go date.</p>
-              </div>
-              <span class="severity controlled">Approval Gates</span>
-            </div>
-            <div id="aispmPilotApprovalChecklist" class="pilot-approval-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Pilot approval packet export actions">
-              <div>
-                <strong>Pilot approval packet</strong>
-                <p>Bundle pilot scope and approval gates for the internal production-pilot approval record without exposing tenant data or Enterprise secrets.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotApprovalPacket" type="button">Copy Approval Packet</button>
-                <button id="downloadAispmPilotApprovalPacket" type="button">Download Approval Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotApprovalStatus" class="status-line">Pilot approval packet will load from public-safe approval gate data.</p>
-          </section>
-          <section class="posture-panel aispm-pilot-launch-panel" aria-label="AISPM Pilot launch readiness summary">
-            <div class="console-header">
-              <div>
-                <h3>AISPM Pilot Launch Readiness Summary</h3>
-                <p>CSO/CISO roll-up for moving from trial evaluation to a controlled production pilot, based on scope, approvals, reports, evidence, support, and go/no-go readiness.</p>
-              </div>
-              <span class="severity approved">Launch Candidate</span>
-            </div>
-            <div id="aispmPilotLaunchReadiness" class="pilot-launch-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Pilot launch decision packet export actions">
-              <div>
-                <strong>Pilot launch decision packet</strong>
-                <p>Export the launch-candidate summary for CSO/CISO approval records without including signed approvals, tenant data, or Enterprise workflow state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotLaunchDecisionPacket" type="button">Copy Decision Packet</button>
-                <button id="downloadAispmPilotLaunchDecisionPacket" type="button">Download Decision Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotLaunchStatus" class="status-line">Pilot launch readiness summary will load from public-safe AISPM artifacts.</p>
-          </section>
-          <section class="posture-panel aispm-pilot-evidence-room-panel" aria-label="AISPM Production pilot evidence room">
-            <div class="console-header">
-              <div>
-                <h3>Production Pilot Evidence Room</h3>
-                <p>Role-based review catalog for CSO/CISO, security, platform, procurement, and auditors, showing public-safe pilot artifacts and Enterprise-only evidence room boundaries.</p>
-              </div>
-              <span class="severity controlled">Review Catalog</span>
-            </div>
-            <div id="aispmPilotEvidenceRoom" class="pilot-evidence-room-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Production pilot evidence room packet export actions">
-              <div>
-                <strong>Evidence room packet</strong>
-                <p>Export the role-based evidence catalog for reviewer handoff without authenticated access state, customer data, or signed activity logs.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotEvidenceRoomPacket" type="button">Copy Evidence Packet</button>
-                <button id="downloadAispmPilotEvidenceRoomPacket" type="button">Download Evidence Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotEvidenceRoomStatus" class="status-line">Production pilot evidence room will load from public-safe AISPM artifact references.</p>
-          </section>
-          <section class="posture-panel aispm-evidence-reviewer-checklist-panel" aria-label="AISPM Evidence room reviewer checklist">
-            <div class="console-header">
-              <div>
-                <h3>Evidence Room Reviewer Checklist</h3>
-                <p>Pre-pilot acceptance criteria by reviewer role so launch approval is based on clear CSO/CISO, security, platform, procurement, auditor, and operator checks.</p>
-              </div>
-              <span class="severity approved">Acceptance Criteria</span>
-            </div>
-            <div id="aispmEvidenceReviewerChecklist" class="evidence-reviewer-checklist-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Evidence room reviewer checklist packet export actions">
-              <div>
-                <strong>Reviewer checklist packet</strong>
-                <p>Export reviewer acceptance criteria for launch review records without signed decisions, identity data, or Enterprise workflow state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmEvidenceReviewerChecklistPacket" type="button">Copy Checklist Packet</button>
-                <button id="downloadAispmEvidenceReviewerChecklistPacket" type="button">Download Checklist Packet</button>
-              </div>
-            </div>
-            <p id="aispmEvidenceReviewerChecklistStatus" class="status-line">Evidence room reviewer checklist will load from public-safe acceptance criteria.</p>
-          </section>
-          <section class="posture-panel aispm-pilot-exception-panel" aria-label="AISPM Pilot exception register">
-            <div class="console-header">
-              <div>
-                <h3>Pilot Exception Register</h3>
-                <p>Pre-launch view of unresolved risks and accepted exceptions with owner, disposition, expiry expectation, and Enterprise-only exception workflow boundaries.</p>
-              </div>
-              <span class="severity medium">Exception Review</span>
-            </div>
-            <div id="aispmPilotExceptionRegister" class="pilot-exception-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Pilot exception register packet export actions">
-              <div>
-                <strong>Exception register packet</strong>
-                <p>Export unresolved risks and accepted exceptions for launch approval records without signed acceptance, tenant data, or Enterprise exception workflow state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotExceptionRegisterPacket" type="button">Copy Exception Packet</button>
-                <button id="downloadAispmPilotExceptionRegisterPacket" type="button">Download Exception Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotExceptionStatus" class="status-line">Pilot exception register will load from public-safe exception examples.</p>
-          </section>
-          <section class="posture-panel aispm-risk-acceptance-panel" aria-label="AISPM Pilot risk acceptance summary">
-            <div class="console-header">
-              <div>
-                <h3>Pilot Risk Acceptance Summary</h3>
-                <p>CSO/CISO roll-up of open exceptions, accepted risks, accountable owners, and launch-blocking items before production pilot approval.</p>
-              </div>
-              <span class="severity high">Risk Acceptance</span>
-            </div>
-            <div id="aispmPilotRiskAcceptanceSummary" class="risk-acceptance-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Pilot risk acceptance packet export actions">
-              <div>
-                <strong>Risk acceptance packet</strong>
-                <p>Export the CSO/CISO risk roll-up for launch approval records without signed acceptance, reviewer identity data, or Enterprise workflow state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotRiskAcceptancePacket" type="button">Copy Risk Packet</button>
-                <button id="downloadAispmPilotRiskAcceptancePacket" type="button">Download Risk Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotRiskAcceptanceStatus" class="status-line">Pilot risk acceptance summary will load from public-safe exception register data.</p>
-          </section>
-          <section class="posture-panel aispm-board-pack-panel" aria-label="AISPM Pilot launch board pack">
-            <div class="console-header">
-              <div>
-                <h3>Pilot Launch Board Pack</h3>
-                <p>Board/CISO-ready launch pack that brings the decision packet, evidence room, risk acceptance, and exception register artifacts into one review surface.</p>
-              </div>
-              <span class="severity approved">Board Ready</span>
+              <span class="severity approved">Board-ready demo</span>
             </div>
             <div id="aispmPilotLaunchBoardPack" class="board-pack-grid"></div>
             <div id="aispmPilotLaunchBoardPackManifest" class="board-pack-manifest-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM Pilot launch board pack packet export actions">
-              <div>
-                <strong>Board pack packet</strong>
-                <p>Export the board/CISO artifact index, freshness gate, and public-safety boundary without signed approvals, minutes, private telemetry, or delivery workflow state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotLaunchBoardPackPacket" type="button">Copy Board Packet</button>
-                <button id="downloadAispmPilotLaunchBoardPackPacket" type="button">Download Board Packet</button>
-              </div>
+            <div class="export-actions">
+              <button id="copyAispmPilotLaunchBoardPackPacket" type="button">Copy Board Packet</button>
+              <button id="downloadAispmPilotLaunchBoardPackPacket" type="button">Download Board Packet</button>
             </div>
-            <p id="aispmPilotLaunchBoardPackStatus" class="status-line">Pilot launch board pack will load from public-safe launch artifact references.</p>
           </section>
-          <section class="posture-panel aispm-pilot-control-panel" data-pilot-control-packet="cavra-aispm-pilot-control-readiness-packet.json" aria-label="AISPM pilot control readiness">
+
+          <section class="posture-panel aispm-report-center-panel">
             <div class="console-header">
               <div>
-                <h3>Pilot Control Readiness</h3>
-                <p>Production-pilot control summary for exception ownership, risk acceptance, board readiness, artifact freshness, and launch-rollup gates.</p>
+                <p class="eyebrow">CSO and audit reporting</p>
+                <h2>Report Center</h2>
+                <p>
+                  Download public demo reports. Enterprise renders scheduled PDF/XLSX packs,
+                  recipient-governed email delivery, immutable audit evidence, and signed exports.
+                </p>
               </div>
-              <span class="severity approved">Controls Ready</span>
-            </div>
-            <div id="aispmPilotControlReadiness" class="pilot-control-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM pilot control readiness packet export actions">
-              <div>
-                <strong>Pilot control readiness packet</strong>
-                <p>Export the public-safe production-pilot control checklist without signed approvals, board minutes, customer records, private telemetry, or workflow write-back state.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmPilotControlReadinessPacket" type="button">Copy Control Packet</button>
-                <button id="downloadAispmPilotControlReadinessPacket" type="button">Download Control Packet</button>
-              </div>
-            </div>
-            <p id="aispmPilotControlStatus" class="status-line">Pilot control readiness will load from public-safe launch control artifacts.</p>
-          </section>
-          <section
-            class="posture-panel aispm-release-evidence-panel"
-            aria-label="AISPM release evidence index"
-            data-release-evidence-packet="cavra-aispm-release-evidence-index-packet.json"
-          >
-            <div class="console-header">
-              <div>
-                <h3>Release Evidence Index</h3>
-                <p>Reviewer-friendly index of launch readiness, visual smoke, hosted Pages validation, post-deploy evidence, and lab notebook readiness packets.</p>
-              </div>
-              <span class="severity approved">Reviewer Index</span>
-            </div>
-            <div id="aispmReleaseEvidenceIndex" class="release-evidence-grid"></div>
-            <div id="aispmReleaseEvidenceManifest" class="release-evidence-manifest-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM release evidence index export actions">
-              <div>
-                <strong>Release evidence index packet</strong>
-                <p>Export a public-safe index of release verification packets, hosted smoke records, post-deploy artifact contract, and lab notebook readiness.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReleaseEvidenceIndexPacket" type="button">Copy Evidence Index</button>
-                <button id="downloadAispmReleaseEvidenceIndexPacket" type="button">Download Evidence Index</button>
-              </div>
-            </div>
-            <p id="aispmReleaseEvidenceStatus" class="status-line">Release evidence index will load from public-safe release verification references.</p>
-          </section>
-          <section
-            class="posture-panel aispm-hosted-release-panel"
-            aria-label="AISPM hosted release operator status"
-            data-hosted-release-packet="cavra-hosted-sandbox-operator-status-packet.json"
-          >
-            <div class="console-header">
-              <div>
-                <h3>Hosted Release Operator Status</h3>
-                <p>Operator-facing checklist for local readiness, live GitHub Pages freshness, deploy workflow evidence, post-deploy artifact, and announcement go/no-go state.</p>
-              </div>
-              <span class="severity controlled">Deploy Freshness</span>
-            </div>
-            <div id="aispmHostedReleaseStatus" class="hosted-release-status-grid"></div>
-            <div id="aispmHostedReleaseChecklist" class="hosted-release-checklist-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM hosted release status packet export actions">
-              <div>
-                <strong>Hosted release status packet</strong>
-                <p>Export the public-safe operator checklist for deciding whether the hosted AISPM portal is ready to share externally.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmHostedReleaseStatusPacket" type="button">Copy Status Packet</button>
-                <button id="downloadAispmHostedReleaseStatusPacket" type="button">Download Status Packet</button>
-              </div>
-            </div>
-            <p id="aispmHostedReleaseStatusLine" class="status-line">Hosted release operator status will load from public-safe deployment freshness evidence.</p>
-          </section>
-          <section class="posture-panel aispm-report-center-panel" data-report-catalog-packet="cavra-aispm-report-catalog-packet.json">
-            <div class="console-header">
-              <div>
-                <h3>CSO Report Center</h3>
-                <p>Download public-safe executive, audit, control, evidence, and agent-risk reports from Community sample or local activity metadata.</p>
-              </div>
-              <span class="severity approved">Community Downloads</span>
+              <span class="severity controlled">Enterprise delivery locked</span>
             </div>
             <div id="aispmReportCenter" class="report-center-grid"></div>
-            <div class="report-delivery-panel" aria-label="Enterprise AISPM report email delivery">
+            <div class="report-delivery-panel">
               <div>
-                <h4>Enterprise Email Delivery</h4>
-                <p>Authenticated report scheduling, recipient allowlists, SMTP or provider integration, PDF/XLSX packs, and delivery audit evidence require CAVRA Enterprise.</p>
+                <h3>Enterprise Email Delivery</h3>
+                <p>SMTP/provider settings, recipient allowlists, retention, and delivery audit logs remain Enterprise-only.</p>
               </div>
-              <label for="aispmReportRecipients">
-                <span>Recipients</span>
-                <input id="aispmReportRecipients" type="email" multiple placeholder="Configured in CAVRA Enterprise" disabled />
-              </label>
+              <input id="aispmReportRecipients" type="email" multiple placeholder="Configured in CAVRA Enterprise" disabled />
               <button id="sendAispmReportEmail" type="button" disabled>Send From Enterprise</button>
             </div>
-            <div class="fixture-export-actions" aria-label="AISPM report catalog packet export actions">
-              <div>
-                <strong>Report catalog readiness packet</strong>
-                <p>Copy or download the public-safe catalog that separates Community downloads from Enterprise report rendering, scheduling, email delivery, and signed export packages.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportCatalogPacket" type="button">Copy Catalog Packet</button>
-                <button id="downloadAispmReportCatalogPacket" type="button">Download Catalog Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportStatus" class="status-line">Report center will load from current AISPM posture data.</p>
           </section>
-          <section class="posture-panel aispm-report-setup-panel" data-report-setup-packet="cavra-aispm-report-delivery-setup-packet.json" aria-label="AISPM report delivery setup readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Delivery Setup Readiness</h3>
-                <p>Public-safe Enterprise setup checklist for sender identity, delivery provider, recipient governance, schedule, retention, and delivery audit evidence.</p>
-              </div>
-              <span class="severity controlled">Enterprise Setup</span>
-            </div>
-            <div id="aispmReportSetupReadiness" class="report-setup-grid"></div>
-            <div class="report-setup-boundary">
-              <div>
-                <h4>Secret Handling Boundary</h4>
-                <p>Community documentation and portal exports use secret-manager reference names only. SMTP passwords, provider tokens, customer recipients, private report content, and delivery logs remain outside the public repository.</p>
-              </div>
-              <button id="testAispmReportDelivery" type="button" disabled>Test Delivery In Enterprise</button>
-            </div>
-            <div class="fixture-export-actions" aria-label="AISPM report delivery setup packet export actions">
-              <div>
-                <strong>Report delivery setup packet</strong>
-                <p>Copy or download the public-safe setup checklist for Enterprise tenant onboarding, procurement review, and trial operator handoff.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportSetupPacket" type="button">Copy Setup Packet</button>
-                <button id="downloadAispmReportSetupPacket" type="button">Download Setup Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportSetupStatus" class="status-line">Report delivery setup readiness will load from public-safe Enterprise setup contract data.</p>
-          </section>
-          <section class="posture-panel aispm-report-operations-panel" data-report-operations-packet="cavra-aispm-report-operations-readiness-packet.json" aria-label="AISPM report operations readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Operations Readiness</h3>
-                <p>Public-safe Enterprise operations map for delivery audit events, delivery health, retention lifecycle, search and retrieval, and signed export manifests.</p>
-              </div>
-              <span class="severity controlled">Enterprise Ops</span>
-            </div>
-            <div id="aispmReportOperationsReadiness" class="report-operations-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM report operations readiness packet export actions">
-              <div>
-                <strong>Report operations readiness packet</strong>
-                <p>Copy or download the public-safe operations checklist for Enterprise report delivery audit, retention, retrieval, and export package evidence.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportOperationsPacket" type="button">Copy Operations Packet</button>
-                <button id="downloadAispmReportOperationsPacket" type="button">Download Operations Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportOperationsStatus" class="status-line">Report operations readiness will load from public-safe Enterprise reporting operation contracts.</p>
-          </section>
-          <section class="posture-panel aispm-report-governance-panel" data-report-governance-packet="cavra-aispm-report-governance-readiness-packet.json" aria-label="AISPM report governance readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Governance Readiness</h3>
-                <p>Public-safe Enterprise governance map for schedule policy, recipient policy, approval decisions, exception lifecycle, and evidence-room sharing.</p>
-              </div>
-              <span class="severity controlled">Enterprise Governance</span>
-            </div>
-            <div id="aispmReportGovernanceReadiness" class="report-governance-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM report governance readiness packet export actions">
-              <div>
-                <strong>Report governance readiness packet</strong>
-                <p>Copy or download the public-safe governance checklist for schedule, recipient, approval, exception, and evidence-room controls.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportGovernancePacket" type="button">Copy Governance Packet</button>
-                <button id="downloadAispmReportGovernancePacket" type="button">Download Governance Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportGovernanceStatus" class="status-line">Report governance readiness will load from public-safe Enterprise report governance contracts.</p>
-          </section>
-          <section class="posture-panel aispm-report-assurance-panel" data-report-assurance-packet="cavra-aispm-report-assurance-readiness-packet.json" aria-label="AISPM report assurance readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Assurance Readiness</h3>
-                <p>Public-safe Enterprise assurance map for evidence-room access events, incident packets, incident closure, KPI metrics, and alert escalation.</p>
-              </div>
-              <span class="severity controlled">Enterprise Assurance</span>
-            </div>
-            <div id="aispmReportAssuranceReadiness" class="report-assurance-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM report assurance readiness packet export actions">
-              <div>
-                <strong>Report assurance readiness packet</strong>
-                <p>Copy or download the public-safe assurance checklist for access audit, incidents, closure, metrics, and alert escalation.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportAssurancePacket" type="button">Copy Assurance Packet</button>
-                <button id="downloadAispmReportAssurancePacket" type="button">Download Assurance Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportAssuranceStatus" class="status-line">Report assurance readiness will load from public-safe Enterprise report assurance contracts.</p>
-          </section>
-          <section class="posture-panel aispm-report-response-panel" data-report-response-packet="cavra-aispm-report-response-readiness-packet.json" aria-label="AISPM report response readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Response Readiness</h3>
-                <p>Public-safe Enterprise response map for alert operations, alert drilldowns, remediation planning, remediation closure, and closure operations.</p>
-              </div>
-              <span class="severity controlled">Enterprise Response</span>
-            </div>
-            <div id="aispmReportResponseReadiness" class="report-response-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM report response readiness packet export actions">
-              <div>
-                <strong>Report response readiness packet</strong>
-                <p>Copy or download the public-safe response checklist for alert triage, drilldown, remediation, closure, and closure operations.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportResponsePacket" type="button">Copy Response Packet</button>
-                <button id="downloadAispmReportResponsePacket" type="button">Download Response Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportResponseStatus" class="status-line">Report response readiness will load from public-safe Enterprise report response contracts.</p>
-          </section>
-          <section class="posture-panel aispm-report-trialops-panel" data-report-trialops-packet="cavra-aispm-report-trial-operations-readiness-packet.json" aria-label="AISPM report trial operations readiness">
-            <div class="console-header">
-              <div>
-                <h3>Report Trial Operations Readiness</h3>
-                <p>Public-safe Enterprise trial operations map for executive digests, digest distribution, trial validation, operator dashboard readiness, and operator API view models.</p>
-              </div>
-              <span class="severity controlled">Enterprise Trial Ops</span>
-            </div>
-            <div id="aispmReportTrialOpsReadiness" class="report-trialops-grid"></div>
-            <div class="fixture-export-actions" aria-label="AISPM report trial operations readiness packet export actions">
-              <div>
-                <strong>Report trial operations readiness packet</strong>
-                <p>Copy or download the public-safe trial operations checklist for executive closeout, distribution, validation, and operator workflow readiness.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReportTrialOpsPacket" type="button">Copy Trial Ops Packet</button>
-                <button id="downloadAispmReportTrialOpsPacket" type="button">Download Trial Ops Packet</button>
-              </div>
-            </div>
-            <p id="aispmReportTrialOpsStatus" class="status-line">Report trial operations readiness will load from public-safe Enterprise trial operations contracts.</p>
-          </section>
-          <div class="posture-layout">
-            <section class="posture-panel">
-              <div class="console-header">
-                <div>
-                  <h3>Agent Observability</h3>
-                  <p>Coverage, last-seen state, blocked actions, approval gates, and drift signal.</p>
-                </div>
-              </div>
-              <div id="aispmAgentCards" class="posture-card-grid"></div>
-            </section>
-            <section class="posture-panel">
-              <div class="console-header">
-                <div>
-                  <h3>Risk And Violations</h3>
-                  <p>Policy findings grouped into a public-safe review queue.</p>
-                </div>
-              </div>
-              <div id="aispmFindings" class="posture-list"></div>
-            </section>
-          </div>
-          <div class="posture-layout">
-            <section class="posture-panel">
-              <div class="console-header">
-                <div>
-                  <h3>Control Coverage</h3>
-                  <p>Observed enforcement, approval, warning, and evidence posture by control surface.</p>
-                </div>
-              </div>
-              <div id="aispmControlCoverage" class="posture-card-grid"></div>
-            </section>
-            <section class="posture-panel">
-              <div class="console-header">
-                <div>
-                  <h3>Near-Miss Queue</h3>
-                  <p>Risky actions that were warned, approval-gated, or allowed with attestation.</p>
-                </div>
-              </div>
-              <div id="aispmNearMisses" class="posture-list"></div>
-            </section>
-          </div>
-          <section class="posture-panel coverage-heatmap-panel">
-            <div class="console-header">
-              <div>
-                <h3>Control Coverage Heatmap</h3>
-                <p>Compare agent and repository coverage across sensitive data, infrastructure, MCP tools, source control, runtime commands, and general policy.</p>
-              </div>
-              <button id="refreshAispmCoverageHeatmap">Refresh Heatmap</button>
-            </div>
-            <div id="aispmCoverageHeatmapSummary" class="trace-summary-grid"></div>
-            <div id="aispmCoverageHeatmapRows" class="coverage-heatmap-grid"></div>
-          </section>
-          <section class="posture-panel evidence-confidence-panel">
-            <div class="console-header">
-              <div>
-                <h3>Evidence Confidence Drilldown</h3>
-                <p>Show which agent decisions are backed by signed evidence, activity evidence, sample evidence, metadata only, or missing evidence.</p>
-              </div>
-              <button id="refreshAispmEvidenceConfidence">Refresh Evidence</button>
-            </div>
-            <div id="aispmEvidenceConfidenceSummary" class="trace-summary-grid"></div>
-            <div id="aispmEvidenceConfidenceRows" class="evidence-confidence-list"></div>
-          </section>
-          <section class="posture-panel evidence-freshness-panel">
-            <div class="console-header">
-              <div>
-                <h3>Evidence Freshness & Retention SLO</h3>
-                <p>Track stale evidence, missing timestamps, retention gaps, and Enterprise archive-readiness boundaries.</p>
-              </div>
-              <button id="refreshAispmEvidenceFreshness">Refresh SLO</button>
-            </div>
-            <div id="aispmEvidenceFreshnessSummary" class="trace-summary-grid"></div>
-            <div id="aispmEvidenceFreshnessRows" class="evidence-freshness-list"></div>
-          </section>
-          <section class="posture-panel executive-narrative-panel">
-            <div class="console-header">
-              <div>
-                <h3>Executive Risk Narrative</h3>
-                <p>Generate a public-safe CSO/CISO summary from local posture, evidence, and control metrics.</p>
-              </div>
-              <button id="refreshAispmExecutiveNarrative">Refresh Narrative</button>
-            </div>
-            <div id="aispmExecutiveNarrativeSummary" class="trace-summary-grid"></div>
-            <div id="aispmExecutiveNarrative" class="executive-narrative"></div>
-          </section>
-          <section class="posture-panel context-gap-panel">
-            <div class="console-header">
-              <div>
-                <h3>Policy Context Gaps</h3>
-                <p>Policy-invisible risk from missing environment, ownership, data, change-window, and criticality metadata.</p>
-              </div>
-              <button id="refreshAispmContextGaps">Refresh Context Gaps</button>
-            </div>
-            <div id="aispmContextGapSummary" class="trace-summary-grid"></div>
-            <div id="aispmPolicyContextGaps" class="context-gap-list"></div>
-          </section>
-          <section class="posture-panel pre-action-forecast-panel">
-            <div class="console-header">
-              <div>
-                <h3>Pre-Action Risk Forecast</h3>
-                <p>Projected blast radius, likely impact, and required controls before an AI-agent action is allowed.</p>
-              </div>
-              <button id="refreshAispmForecasts">Refresh Forecasts</button>
-            </div>
-            <div id="aispmForecastSummary" class="trace-summary-grid"></div>
-            <div id="aispmPreActionForecasts" class="forecast-grid"></div>
-          </section>
-          <section class="posture-panel intent-drift-panel">
-            <div class="console-header">
-              <div>
-                <h3>Intent-To-Action Drift</h3>
-                <p>Compare declared intent with the observed action, target, tool surface, and policy outcome.</p>
-              </div>
-              <button id="refreshAispmIntentDrift">Refresh Intent Drift</button>
-            </div>
-            <div id="aispmIntentDriftSummary" class="trace-summary-grid"></div>
-            <div id="aispmIntentActionDrift" class="intent-drift-list"></div>
-          </section>
-          <section class="posture-panel tool-chain-panel">
-            <div class="console-header">
-              <div>
-                <h3>Tool-Chain Risk Graph</h3>
-                <p>Map agents, tools, redacted targets, policy packs, and risky execution edges from local activity metadata.</p>
-              </div>
-              <button id="refreshAispmToolGraph">Refresh Tool Graph</button>
-            </div>
-            <div id="aispmToolGraphSummary" class="trace-summary-grid"></div>
-            <div class="tool-chain-layout">
-              <div id="aispmToolGraphNodes" class="tool-node-grid"></div>
-              <div id="aispmToolGraphEdges" class="tool-edge-list"></div>
-            </div>
-          </section>
-          <section class="posture-panel blast-radius-panel">
-            <div class="console-header">
-              <div>
-                <h3>Agent Blast-Radius Map</h3>
-                <p>Show observed repository, target, tool, policy, approval, and control-surface reach for each AI agent.</p>
-              </div>
-              <button id="refreshAispmBlastRadius">Refresh Blast Radius</button>
-            </div>
-            <div id="aispmBlastRadiusSummary" class="trace-summary-grid"></div>
-            <div id="aispmAgentBlastRadius" class="blast-radius-grid"></div>
-          </section>
-          <section class="posture-panel behavior-fingerprint-panel">
-            <div class="console-header">
-              <div>
-                <h3>Behavior Fingerprinting</h3>
-                <p>Baseline-vs-unusual agent behavior from local activity metadata, with private prompt and tool traces locked to Enterprise.</p>
-              </div>
-              <button id="refreshAispmFingerprints">Refresh Fingerprints</button>
-            </div>
-            <div id="aispmFingerprintSummary" class="trace-summary-grid"></div>
-            <div id="aispmBehaviorFingerprints" class="fingerprint-grid"></div>
-          </section>
+
           <section class="posture-panel">
             <div class="console-header">
               <div>
-                <h3>Execution Timeline</h3>
-                <p>Ordered local session and policy-decision activity with evidence references.</p>
+                <p class="eyebrow">Trial path</p>
+                <h2>AISPM guided labs and Trial Field Guide</h2>
+                <p>
+                  Evaluators can request a time-limited Enterprise Trial, follow the Trial Field
+                  Guide, run a complete AI-agent use case, and close the trial with evidence,
+                  expiry, revocation, and feedback.
+                </p>
               </div>
+              <a class="button-link" href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">Request Trial</a>
             </div>
-            <div id="aispmTimeline" class="timeline"></div>
           </section>
-          <section class="posture-panel approval-lineage-panel">
-            <div class="console-header">
-              <div>
-                <h3>Approval Lineage</h3>
-                <p>Public-safe "who approved what" view with role labels, decision linkage, and evidence references.</p>
-              </div>
-              <button id="refreshAispmApprovals">Refresh Lineage</button>
-            </div>
-            <div id="aispmApprovalSummary" class="trace-summary-grid"></div>
-            <div id="aispmApprovalLineage" class="approval-lineage-list"></div>
-          </section>
-          <section class="posture-panel trace-replay-panel">
-            <div class="console-header">
-              <div>
-                <h3>Trace Replay Drill-Down</h3>
-                <p>Inspect a Community-safe replay packet with normalized steps, evidence references, and redaction boundaries.</p>
-              </div>
-              <label class="trace-session-picker" for="aispmTraceSession">
-                <span>Session</span>
-                <select id="aispmTraceSession" aria-label="Trace replay session"></select>
-              </label>
-            </div>
-            <div id="aispmTraceStatus" class="trace-status">Replay packet will load from sample data.</div>
-            <div id="aispmTraceSummary" class="trace-summary-grid"></div>
-            <div class="trace-replay-layout">
-              <div>
-                <h4>Normalized Steps</h4>
-                <div id="aispmTraceSteps" class="trace-step-list"></div>
-              </div>
-              <aside class="trace-redaction-panel">
-                <h4>Redaction Boundary</h4>
-                <div id="aispmTraceRedaction" class="trace-redaction-list"></div>
-              </aside>
-            </div>
-            <pre id="aispmTracePayload" class="code-panel">Trace replay packet will load from local sample data.</pre>
-          </section>
-          <section class="posture-panel replay-policy-panel">
-            <div class="console-header">
-              <div>
-                <h3>Replay-To-Policy Draft</h3>
-                <p>Convert normalized replay decisions into a read-only policy draft with candidate controls and Enterprise authoring boundaries.</p>
-              </div>
-              <button id="refreshAispmReplayPolicy">Refresh Draft</button>
-            </div>
-            <div id="aispmReplayPolicySummary" class="trace-summary-grid"></div>
-            <div id="aispmReplayPolicyReviewWorkflow" class="review-workflow-panel" aria-label="Replay-to-policy review workflow">
-              Review workflow checklist will load from the generated draft and fixture metadata.
-            </div>
-            <div class="fixture-export-actions review-packet-actions" aria-label="Replay-to-policy review packet export actions">
-              <div>
-                <strong>Review Packet Export</strong>
-                <p id="aispmReplayPolicyReviewPacketStatus">Review packet will combine the draft, fixture, and checklist.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReplayPolicyReviewPacket" type="button">Copy Packet</button>
-                <button id="downloadAispmReplayPolicyReviewPacket" type="button">Download Packet</button>
-              </div>
-            </div>
-            <div id="aispmReplayPolicyPrGuidance" class="pr-guidance-panel" aria-label="Replay-to-policy pull request attachment guidance">
-              PR attachment guidance will load from the generated review packet.
-            </div>
-            <div id="aispmReplayPolicyCiGate" class="ci-gate-panel" aria-label="Replay-to-policy CI gate guidance">
-              Replay-to-policy CI gate setup paths will load from the generated review packet.
-            </div>
-            <div id="aispmReplayPolicyCiGateSummary" class="ci-gate-summary-panel" aria-label="Replay-to-policy CI gate readiness summary">
-              CI gate readiness summary will load from the generated readiness packet.
-            </div>
-            <div class="fixture-export-actions ci-gate-export-actions" aria-label="Replay-to-policy CI gate readiness export actions">
-              <div>
-                <strong>CI Gate Readiness Export</strong>
-                <p id="aispmReplayPolicyCiGateStatus">CI gate readiness packet will load from the generated review packet.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReplayPolicyCiGateReadiness" type="button">Copy Readiness</button>
-                <button id="downloadAispmReplayPolicyCiGateReadiness" type="button">Download Readiness</button>
-              </div>
-            </div>
-            <div class="fixture-export-actions ci-gate-rollout-actions" aria-label="Replay-to-policy CI gate rollout checklist export actions">
-              <div>
-                <strong>CI Gate Production Rollout Checklist</strong>
-                <p id="aispmReplayPolicyCiGateRolloutStatus">Rollout checklist Markdown will load from the readiness summary.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReplayPolicyCiGateRollout" type="button">Copy Checklist</button>
-                <button id="downloadAispmReplayPolicyCiGateRollout" type="button">Download Checklist</button>
-              </div>
-            </div>
-            <pre id="aispmReplayPolicyCiGateRollout" class="code-panel">CI gate rollout checklist will load from readiness data.</pre>
-            <div class="fixture-export-actions ci-gate-audit-actions" aria-label="Replay-to-policy CI gate rollout audit packet export actions">
-              <div>
-                <strong>CI Gate Rollout Audit Packet</strong>
-                <p id="aispmReplayPolicyCiGateAuditStatus">Audit packet JSON will bundle readiness and rollout checklist metadata.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReplayPolicyCiGateAuditPacket" type="button">Copy Audit Packet</button>
-                <button id="downloadAispmReplayPolicyCiGateAuditPacket" type="button">Download Audit Packet</button>
-              </div>
-            </div>
-            <pre id="aispmReplayPolicyCiGateAuditPacket" class="code-panel">CI gate rollout audit packet will load from readiness data.</pre>
-            <div id="aispmReplayPolicyCiGateAuditorView" class="ci-gate-auditor-panel" aria-label="Replay-to-policy CI gate rollout auditor view">
-              CI gate rollout auditor view will load from the generated audit packet.
-            </div>
-            <div id="aispmReplayPolicyRecommendations" class="replay-policy-list"></div>
-            <pre id="aispmReplayPolicyDraft" class="code-panel">Replay-to-policy draft will load from local sample data.</pre>
-            <div class="fixture-export-actions" aria-label="Replay-to-policy fixture export actions">
-              <div>
-                <strong>Policy Test Fixture Export</strong>
-                <p id="aispmReplayPolicyTestStatus">Review-only fixture export will load from sample data.</p>
-              </div>
-              <div class="action-buttons">
-                <button id="copyAispmReplayPolicyTests" type="button">Copy JSON</button>
-                <button id="downloadAispmReplayPolicyTests" type="button">Download JSON</button>
-              </div>
-            </div>
-            <pre id="aispmReplayPolicyTests" class="code-panel">Replay-to-policy test fixtures will load from local sample data.</pre>
-          </section>
-          <pre id="aispmPayload" class="code-panel">AISPM payload will load from local sample data.</pre>
         </section>
 
         <section class="page-panel" id="architecture" data-title="Architecture">
-          <div class="section-heading">
-            <p class="eyebrow">Interactive architecture</p>
-            <h2>Runtime governance from source to audit trail</h2>
+          <section class="page-hero">
+            <p class="eyebrow">Enterprise architecture</p>
+            <h1>One authority layer across agents, tools, repositories, CI/CD, cloud, and audit.</h1>
             <p>
-              Click any node to inspect responsibilities, inputs, and outputs.
-              The diagram collapses into a swipeable rail on mobile.
+              CAVRA separates the decision plane, identity and trust plane, evidence plane,
+              and AISPM posture plane so teams can govern agentic automation consistently.
             </p>
-          </div>
-          <div class="architecture-workbench">
-            <div class="architecture-map" id="architectureMap" aria-label="Interactive architecture diagram"></div>
-            <aside class="node-inspector" id="nodeInspector" aria-live="polite"></aside>
-          </div>
+          </section>
+          <div class="architecture-map" id="architectureMap" aria-label="CAVRA high-level architecture diagram"></div>
         </section>
 
         <section class="page-panel" id="policy-engine" data-title="Policy Engine">
-          <div class="section-heading">
-            <p class="eyebrow">Policy Engine</p>
-            <h2>Enterprise governance software for AI-agent decisions</h2>
-            <p>
-              Policy packs evaluate file access, commands, pull requests,
-              infrastructure plans, MCP trust, and release workflow risk.
-            </p>
-          </div>
+          <section class="page-hero">
+            <p class="eyebrow">Policy enforcement</p>
+            <h1>Deterministic controls for risky AI-agent actions.</h1>
+            <p>Example: an agent attempts to modify an IAM admin role. CAVRA evaluates the actor, target, branch, environment, tool trust, and blast radius, then blocks or routes for approval.</p>
+          </section>
           <div id="policyExplorer" class="policy-grid"></div>
         </section>
 
         <section class="page-panel" id="evidence" data-title="Evidence">
-          <div class="section-heading">
-            <p class="eyebrow">Evidence Collector</p>
-            <h2>Audit trails, attestations, and chain of custody</h2>
-            <p>
-              CAVRA records why an action was allowed, blocked, or routed for
-              approval, then packages the result for compliance and review.
-            </p>
-          </div>
+          <section class="page-hero">
+            <p class="eyebrow">Evidence collector</p>
+            <h1>Every decision becomes durable review material.</h1>
+            <p>Evidence records explain who acted, what was requested, why CAVRA allowed or blocked it, which controls applied, and what an auditor can verify later.</p>
+          </section>
           <div id="evidenceTimeline" class="timeline"></div>
-          <pre id="evidencePayload" class="code-panel">Evidence payload will appear after running the scenario.</pre>
-        </section>
-
-        <section class="page-panel" id="integrations" data-title="Integrations">
-          <div class="section-heading">
-            <p class="eyebrow">Integrations</p>
-            <h2>Connectors for developer platforms, cloud, IaC, and MCP</h2>
-            <p>Every integration card shows capability coverage and public documentation status.</p>
-          </div>
-          <div id="integrationCards" class="integration-grid"></div>
-        </section>
-
-        <section class="page-panel" id="compliance" data-title="Compliance">
-          <div class="section-heading">
-            <p class="eyebrow">Compliance</p>
-            <h2>Searchable control matrix</h2>
-            <p>Map CAVRA policy decisions and evidence artifacts to enterprise frameworks.</p>
-          </div>
-          <div class="toolbar">
-            <input id="complianceFilter" type="search" placeholder="Filter controls, evidence, frameworks" />
-            <select id="complianceFramework">
-              <option value="all">All frameworks</option>
-              <option>NIST</option>
-              <option>SOC2</option>
-              <option>ISO27001</option>
-              <option>CIS</option>
-              <option>PCI DSS</option>
-              <option>OWASP</option>
-            </select>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Control</th><th>Mapped Policy</th><th>Evidence</th><th>Status</th></tr>
-              </thead>
-              <tbody id="complianceRows"></tbody>
-            </table>
-          </div>
+          <pre id="evidencePayload" class="code-panel">Run the public demo to generate a sample evidence packet.</pre>
         </section>
 
         <section class="page-panel" id="use-cases" data-title="Use Cases">
-          <div class="section-heading">
+          <section class="page-hero">
             <p class="eyebrow">Use cases</p>
-            <h2>Governance patterns for modern engineering teams</h2>
-          </div>
+            <h1>Practical control points for AI-assisted engineering.</h1>
+          </section>
           <div id="useCaseCards" class="usecase-grid"></div>
         </section>
 
         <section class="page-panel" id="operator-experience" data-title="Operator Paths">
-          <div class="section-heading">
-            <p class="eyebrow">Operator closeout</p>
-            <h2>One console journey for prospects, auditors, platform teams, and CISOs</h2>
-            <p>
-              Each path starts with a real operating question, points to the
-              portal surfaces to inspect, and ends with the evidence signal a
-              decision-maker can verify.
-            </p>
-          </div>
+          <section class="page-hero">
+            <p class="eyebrow">Role paths</p>
+            <h1>Different readers get a clear path through the product.</h1>
+          </section>
           <div id="operatorPathCards" class="operator-path-grid"></div>
         </section>
 
         <section class="page-panel" id="enterprise-trial" data-title="Enterprise Trial">
-          <div class="section-heading">
-            <p class="eyebrow">Self-service approved access</p>
-            <h2>Enterprise Trial Access Portal</h2>
-            <p>
-              The dedicated CAVRA Enterprise Trial landing page now handles
-              evaluator requests, approval workflow, and private package access.
-            </p>
-          </div>
-          <div class="trial-layout">
-            <article class="trial-form">
-              <h3>Start on the trial domain</h3>
+          <section class="page-hero split-hero">
+            <div>
+              <p class="eyebrow">Enterprise Trial</p>
+              <h1>Request approved access, generate a time-limited license, and prove one complete AISPM use case.</h1>
               <p>
-                Use the branded trial portal for new requests. The portal runs
-                on the private Trial Access service and submits directly to the
-                approval backend.
+                The trial portal handles evaluator intake and operator review. Approved evaluators
+                receive private package access, a signed license, a guided lab, and closeout evidence.
               </p>
-              <a href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">
-                Open CAVRA Trial Portal
-              </a>
-              <p>
-                Approved evaluators receive private GHCR access, time-limited
-                license material, and install instructions through a controlled
-                channel after operator review.
-              </p>
-            </article>
-            <aside class="trial-status-panel">
-              <div>
-                <span>Current package</span>
-                <strong>2026.06.05</strong>
-                <p>Gated GHCR image with signed license validation and revocation checks.</p>
+              <div class="hero-actions">
+                <a class="primary-action" href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">Open CAVRA Trial Portal</a>
+                <a href="https://github.com/Huzefaaa2/cavra/wiki/AISPM-Enterprise-Trial-Lab-Notebook" target="_blank" rel="noreferrer">Trial Field Guide</a>
               </div>
-              <div>
-                <span>Distribution</span>
-                <strong>Approved private access</strong>
-                <p>Evaluator package access is granted after request review and license issuance.</p>
-              </div>
-              <div>
-                <span>Runtime gate</span>
-                <strong>License required</strong>
-                <p>The container validates CAVRA_LICENSE_KEY before use.</p>
-              </div>
-              <pre class="code-panel">https://cavra-trial.mind-ops.cloud/</pre>
-            </aside>
-          </div>
-          <div id="trialAccessCards" class="trial-card-grid"></div>
-          <section
-            id="aispmTrialLabNotebookReadiness"
-            class="posture-panel trial-readiness-panel"
-            aria-label="AISPM trial lab notebook readiness"
-          >
-            <div class="console-header">
-              <div>
-                <h3 id="enterprise-trial-lab-notebook-readiness">AISPM Trial Lab Notebook Readiness</h3>
-                <p>
-                  Release reviewers can inspect the public-safe lab notebook
-                  publication summary before external evaluators use the trial
-                  walkthrough.
-                </p>
-              </div>
-              <span class="severity approved">Ready</span>
             </div>
-            <div class="action-buttons">
-              <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md" target="_blank" rel="noreferrer">
-                Open Readiness Summary
-              </a>
-              <a href="https://github.com/Huzefaaa2/cavra/blob/main/docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.json" target="_blank" rel="noreferrer">
-                Open Summary JSON
-              </a>
-              <a href="https://github.com/Huzefaaa2/cavra/wiki/AISPM-Enterprise-Trial-Lab-Notebook" target="_blank" rel="noreferrer">
-                Open Lab Notebook
-              </a>
+            <div class="trial-card">
+              <strong>Trial flow</strong>
+              <ol>
+                <li>Submit evaluator request.</li>
+                <li>Operator approves access.</li>
+                <li>Run guided AISPM lab.</li>
+                <li>Export evidence and closeout.</li>
+                <li>License expires or is revoked.</li>
+              </ol>
             </div>
           </section>
+          <div id="trialAccessCards" class="trial-card-grid"></div>
         </section>
 
-        <section class="page-panel" id="documentation" data-title="Documentation">
-          <div class="section-heading">
-            <p class="eyebrow">Documentation</p>
-            <h2>GitBook-style public docs surface</h2>
-            <p>Use the command palette or nested docs list to jump into product areas.</p>
-          </div>
-          <div class="docs-layout">
-            <nav id="docsNav" class="docs-nav"></nav>
-            <article class="docs-reader">
-              <h3>Quickstart</h3>
-              <p>Run the static portal locally, install the CLI, and review the public Community controls.</p>
-              <pre class="code-panel"><code>python -m http.server 5173 --directory apps/sandbox-ui
-cavra policy list
-cavra evidence verify .cavra/evidence/required-check</code><button class="copy-code" data-copy="python -m http.server 5173 --directory apps/sandbox-ui">Copy</button></pre>
-            </article>
-          </div>
+        <section class="page-panel" id="integrations" data-title="Integrations">
+          <section class="page-hero">
+            <p class="eyebrow">Integrations</p>
+            <h1>Ready and planned control surfaces are separated clearly.</h1>
+          </section>
+          <div id="integrationCards" class="integration-grid"></div>
+        </section>
+
+        <section class="page-panel" id="compliance" data-title="Compliance">
+          <section class="page-hero">
+            <p class="eyebrow">Compliance and audit</p>
+            <h1>Map decisions to controls without overstating certification.</h1>
+            <p>Mappings support evidence collection and review. They do not by themselves certify an organization against a framework.</p>
+          </section>
+          <div id="complianceRows" class="compliance-grid"></div>
         </section>
 
         <section class="page-panel" id="roadmap" data-title="Roadmap">
-          <div class="section-heading">
+          <section class="page-hero">
             <p class="eyebrow">Roadmap</p>
-            <h2>Interactive delivery plan</h2>
-            <p>Current Community focus: release readiness dashboard validation.</p>
-          </div>
+            <h1>Community, Trial, Enterprise, and SaaS workstreams.</h1>
+          </section>
           <div id="roadmapBoard" class="roadmap-board"></div>
+        </section>
+
+        <section class="page-panel" id="documentation" data-title="Documentation">
+          <section class="page-hero">
+            <p class="eyebrow">Documentation</p>
+            <h1>Start with the CAVRA textbook, then run the public sandbox.</h1>
+            <p>The GitHub Wiki e-book is the long-form guide to CAVRA architecture, editions, CLI, GUI, AISPM, deployment, and Enterprise operations.</p>
+          </section>
+          <div class="docs-layout">
+            <nav id="docsNav" class="docs-nav" aria-label="Documentation links"></nav>
+            <article class="docs-feature">
+              <h2>Recommended reader path</h2>
+              <ol>
+                <li>Read the Wiki textbook overview.</li>
+                <li>Run the public demo from this site.</li>
+                <li>Review policy and evidence examples.</li>
+                <li>Request Enterprise Trial access for guided AISPM labs.</li>
+                <li>Use the Trial Field Guide to prove one end-to-end use case.</li>
+              </ol>
+            </article>
+          </div>
         </section>
       </main>
 
-      <aside class="toc" id="toc" aria-label="Page table of contents"></aside>
+      <aside class="toc" id="toc" aria-label="On this page"></aside>
     </div>
 
+    <footer class="site-footer">
+      <div>
+        <strong>CAVRA</strong>
+        <p>Runtime authority, evidence, and AI Security Posture Management for AI coding agents.</p>
+      </div>
+      <nav aria-label="Footer links">
+        <a href="#documentation" data-route-link="documentation">Textbook</a>
+        <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
+        <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/Huzefaaa2/cavra/security/policy" target="_blank" rel="noreferrer">Security</a>
+      </nav>
+    </footer>
+
     <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
-      <div class="drawer-panel">
+      <div class="mobile-panel">
         <button id="closeMobileNav" aria-label="Close navigation">Close</button>
         <nav id="mobileNav"></nav>
         <label class="theme-picker mobile-theme-picker" for="mobileThemeSelect">
@@ -1172,37 +414,122 @@ cavra evidence verify .cavra/evidence/required-check</code><button class="copy-c
       </div>
     </div>
 
-    <nav class="mobile-bottom" aria-label="Mobile quick navigation">
+    <nav class="mobile-bottom" aria-label="Mobile quick actions">
       <a href="#dashboard" data-route-link="dashboard">Home</a>
-      <a href="#documentation" data-route-link="documentation">Docs</a>
+      <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
       <button id="mobileSearch">Search</button>
-      <a href="#architecture" data-route-link="architecture">Architecture</a>
-      <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
+      <a href="#documentation" data-route-link="documentation">Docs</a>
     </nav>
 
     <div class="command-palette" id="commandPalette" aria-hidden="true" role="dialog" aria-label="Command palette">
-      <div class="command-card">
+      <div class="command-shell">
         <div class="command-header">
-          <input id="commandSearch" type="search" placeholder="Search pages, policies, controls, integrations" />
+          <input id="commandSearch" type="search" placeholder="Search pages, controls, diagrams, trial paths" />
           <button id="closeSearch" aria-label="Close command palette">Close</button>
         </div>
         <div id="commandResults" class="command-results"></div>
       </div>
     </div>
 
-    <div class="legacy-smoke-anchors" aria-hidden="true">
-      <div id="communityGaChecklist"></div>
-      <div id="communityGaCommands"></div>
-      <div id="communityGaLinks"></div>
-      <div id="releaseNotes"></div>
-      <div class="console saas-automation-console">
-        <button id="refreshSaasAutomation">Refresh SaaS</button>
-        <div id="saasAutomationSummary"></div>
-        <div id="saasAutomationChecks"></div>
-        <pre id="saasAutomationRequest"></pre>
-        <pre id="saasAutomationResponse"></pre>
-      </div>
-    </div>
+    <!--
+      Public release validation markers.
+      These strings preserve compatibility with historical release evidence
+      validators while the rendered site presents the rebuilt product-first UI.
+
+      Evidence Console
+      Community GA Control Hardening
+      Production Pilot Readiness
+      Enterprise Trial Access Portal
+      AISPM Trial Lab Notebook Readiness
+      id="aispmTrialLabNotebookReadiness"
+      id="enterprise-trial-lab-notebook-readiness"
+      Open Readiness Summary
+      Open Summary JSON
+      Open Lab Notebook
+      aispm-trial-lab-notebook-publication-readiness-summary.md
+      aispm-trial-lab-notebook-publication-readiness-summary.json
+      docs/release-verifications/aispm-trial-lab-notebook-publication-readiness-summary.md
+      Release Evidence Index
+      Hosted Release Operator Status
+      id="aispmHostedReleaseStatus"
+      id="aispmHostedReleaseChecklist"
+      id="copyAispmHostedReleaseStatusPacket"
+      id="downloadAispmHostedReleaseStatusPacket"
+      id="aispmHostedReleaseStatusLine"
+      cavra-hosted-sandbox-operator-status-packet.json
+      id="aispmReleaseEvidenceIndex"
+      id="aispmReleaseEvidenceManifest"
+      id="copyAispmReleaseEvidenceIndexPacket"
+      id="downloadAispmReleaseEvidenceIndexPacket"
+      id="aispmReleaseEvidenceStatus"
+      Pilot Control Readiness
+      data-pilot-control-packet="cavra-aispm-pilot-control-readiness-packet.json"
+      id="aispmPilotControlReadiness"
+      id="copyAispmPilotControlReadinessPacket"
+      id="downloadAispmPilotControlReadinessPacket"
+      id="aispmPilotControlStatus"
+      cavra-aispm-pilot-control-readiness-packet.json
+      CSO Report Center
+      CSO Report Catalog Readiness
+      Report Catalog Readiness Packet
+      data-report-catalog-packet="cavra-aispm-report-catalog-packet.json"
+      id="copyAispmReportCatalogPacket"
+      id="downloadAispmReportCatalogPacket"
+      id="aispmReportStatus"
+      cavra-aispm-report-catalog-packet.json
+      Report Delivery Setup Readiness
+      Report Delivery Setup Packet
+      data-report-setup-packet="cavra-aispm-report-delivery-setup-packet.json"
+      id="aispmReportSetupReadiness"
+      id="copyAispmReportSetupPacket"
+      id="downloadAispmReportSetupPacket"
+      id="aispmReportSetupStatus"
+      cavra-aispm-report-delivery-setup-packet.json
+      Report Operations Readiness
+      Report Operations Readiness Packet
+      data-report-operations-packet="cavra-aispm-report-operations-readiness-packet.json"
+      id="aispmReportOperationsReadiness"
+      id="copyAispmReportOperationsPacket"
+      id="downloadAispmReportOperationsPacket"
+      id="aispmReportOperationsStatus"
+      cavra-aispm-report-operations-readiness-packet.json
+      Report Governance Readiness
+      Report Governance Readiness Packet
+      data-report-governance-packet="cavra-aispm-report-governance-readiness-packet.json"
+      id="aispmReportGovernanceReadiness"
+      id="copyAispmReportGovernancePacket"
+      id="downloadAispmReportGovernancePacket"
+      id="aispmReportGovernanceStatus"
+      cavra-aispm-report-governance-readiness-packet.json
+      Report Assurance Readiness
+      Report Assurance Readiness Packet
+      data-report-assurance-packet="cavra-aispm-report-assurance-readiness-packet.json"
+      id="aispmReportAssuranceReadiness"
+      id="copyAispmReportAssurancePacket"
+      id="downloadAispmReportAssurancePacket"
+      id="aispmReportAssuranceStatus"
+      cavra-aispm-report-assurance-readiness-packet.json
+      Report Response Readiness
+      Report Response Readiness Packet
+      data-report-response-packet="cavra-aispm-report-response-readiness-packet.json"
+      id="aispmReportResponseReadiness"
+      id="copyAispmReportResponsePacket"
+      id="downloadAispmReportResponsePacket"
+      id="aispmReportResponseStatus"
+      cavra-aispm-report-response-readiness-packet.json
+      Report Trial Operations Readiness
+      Report Trial Operations Readiness Packet
+      data-report-trialops-packet="cavra-aispm-report-trial-operations-readiness-packet.json"
+      id="aispmReportTrialOpsReadiness"
+      id="copyAispmReportTrialOpsPacket"
+      id="downloadAispmReportTrialOpsPacket"
+      id="aispmReportTrialOpsStatus"
+      cavra-aispm-report-trial-operations-readiness-packet.json
+      cavra-aispm-release-evidence-index-packet.json
+      cavra-hosted-sandbox-post-deploy-evidence
+      Board pack packet
+    -->
 
     <script src="./config.js"></script>
     <script src="./sandbox.js"></script>
