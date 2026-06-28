@@ -86,3 +86,13 @@ Open the sandbox and answer these questions:
 ## Hosted Sandbox
 
 The public hosted sandbox is documented in [Hosted Sandbox Deployment](Hosted-Sandbox-Deployment.md). In production-like environments, configure API base URLs and CORS policies so the static UI can query backend decisions and evidence.
+
+## Check Your Understanding
+
+1. Which GUI page proves what happened after a decision?
+2. Which GUI page would you use to explain AI-agent posture to an executive?
+3. Why does the public sandbox use public-safe sample state?
+
+## What's Next
+
+Read [AISPM Guide](Textbook-10-AISPM-Guide.md) to understand how decisions and evidence become posture, findings, and reports.

@@ -66,3 +66,15 @@ When CAVRA is adopted well, teams do not have to choose between powerful AI auto
 CAVRA is not a replacement for code review, SAST, DAST, SCA, secrets scanning, cloud posture management, IAM governance, or incident response. CAVRA works alongside those systems. Its unique role is runtime authority for agentic workflows.
 
 If traditional tools answer "what is wrong with the artifact?", CAVRA answers "should this agent be allowed to perform this action right now, and what evidence proves the decision?"
+
+![Animated runtime authority loop](assets/textbook/dynamic-runtime-authority-loop.svg)
+
+## Check Your Understanding
+
+1. Why can a chain of individually reasonable agent actions become unsafe?
+2. What seven questions does CAVRA ask before meaningful action?
+3. Why is AISPM more useful than a collection of isolated runtime decisions?
+
+## What's Next
+
+Read [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model.md) to learn the actors, actions, decisions, and authority sources behind the control loop.

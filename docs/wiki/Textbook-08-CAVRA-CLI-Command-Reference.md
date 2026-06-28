@@ -191,3 +191,13 @@ cavra policy explain execute_command "terraform apply -auto-approve"
 cavra evidence bundle --output .cavra/evidence/latest --private-key .cavra/keys/evidence-ed25519-private.pem --key-id local-evidence-key
 cavra evidence verify .cavra/evidence/latest
 ```
+
+## Check Your Understanding
+
+1. Which command explains a policy decision before you change the policy?
+2. Which command family proves evidence after an action is evaluated?
+3. Why should CLI examples be run against the same policy pack used in CI/CD?
+
+## What's Next
+
+Read [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) to see the same runtime story in the visual product surface.

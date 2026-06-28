@@ -75,3 +75,13 @@ By the end of this textbook, you should be able to:
 - Decide when an organization needs Enterprise controls such as SSO/RBAC, tenant isolation, live connectors, report delivery, and production readiness validators.
 
 The goal is not only to document CAVRA. The goal is to help teams build a new habit: before the agent acts, authority is checked, evidence is created, and risk is visible.
+
+## Check Your Understanding
+
+1. What made the nightmare scenario dangerous even though each step looked plausible?
+2. Which reader path best fits your role?
+3. What should CAVRA prove after an agent action is evaluated?
+
+## What's Next
+
+Read [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists.md) to understand the agentic risk surface that CAVRA is built to govern.

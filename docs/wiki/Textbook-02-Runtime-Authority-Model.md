@@ -67,3 +67,13 @@ The runtime authority loop is:
 6. Evidence is signed, indexed, searched, exported, or transformed into AISPM posture.
 
 This loop is the heart of the product.
+
+## Check Your Understanding
+
+1. What is the difference between `deny` and `requires_approval`?
+2. Why does CAVRA model MCP servers and tools as trust objects?
+3. Which evidence should exist after a blocked action?
+
+## What's Next
+
+Read [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design.md) to see how the runtime authority model becomes product components and data boundaries.

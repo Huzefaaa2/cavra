@@ -71,3 +71,13 @@ CAVRA Community Edition lets a team learn the operating model locally. A typical
 5. Move into Enterprise evaluation when SSO, RBAC, tenant isolation, live connectors, and production reporting are required.
 
 ![Enterprise sequence](assets/textbook/cavra-enterprise-sequence.svg)
+
+## Check Your Understanding
+
+1. Which plane produces signed proof for audit and reporting?
+2. Why does the public repository avoid private connector and tenant implementation details?
+3. What changes when a team moves from Community to Enterprise?
+
+## What's Next
+
+Read [Editions, Licensing, And Feature Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries.md) to choose the right operating model.

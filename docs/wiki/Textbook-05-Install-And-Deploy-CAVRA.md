@@ -199,3 +199,13 @@ You have completed the first onboarding path when:
 - `cavra evidence bundle` creates an evidence directory.
 - `cavra evidence verify` succeeds.
 - The sandbox GUI opens and you can identify Dashboard, Evidence, Approval, Registry, and AI Posture areas.
+
+## Check Your Understanding
+
+1. Which command gives the fastest proof that CAVRA can block a risky action?
+2. Why should trust roots be configured before evidence is used in CI/CD or audit?
+3. What is the difference between serving the sandbox GUI and running Enterprise live ingestion?
+
+## What's Next
+
+Read [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md) to turn the installation into repeatable local governance workflows.

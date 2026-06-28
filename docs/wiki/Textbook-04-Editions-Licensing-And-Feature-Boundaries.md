@@ -69,3 +69,13 @@ The SaaS model hosts the Enterprise control plane and centralizes tenant onboard
 | Report delivery | Public-safe sample | Evaluation | Production | Managed |
 | Central dashboards | No | Limited | Yes | Yes |
 | Production readiness gate | Public contract | Trial gate | Live gate | Managed gate |
+
+## Check Your Understanding
+
+1. Which edition is enough for local learning and public-safe demonstrations?
+2. Which edition is required for SSO, RBAC, tenant isolation, and live production connectors?
+3. Why are Trial and SaaS separate operating models?
+
+## What's Next
+
+Read [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md) to run the product and complete the first hands-on path.

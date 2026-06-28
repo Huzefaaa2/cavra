@@ -142,3 +142,13 @@ The sandbox is the fastest way to understand CAVRA visually:
 ## Community Limits
 
 Community Edition intentionally avoids storing private enterprise tenant data, live production connector credentials, or paid enterprise source. When you need SSO, RBAC, tenant isolation, private policy packs, live production connectors, production report delivery, and live AISPM ingestion, move to the Enterprise evaluation path.
+
+## Check Your Understanding
+
+1. Which Community workflow proves a risky change was evaluated before it happened?
+2. Why should policy tests be run before a policy pack is trusted?
+3. Which Enterprise requirements are intentionally outside Community Edition?
+
+## What's Next
+
+Read [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide.md) if you need organization-wide controls, or [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md) if you want deeper command coverage first.

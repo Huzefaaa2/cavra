@@ -6,6 +6,8 @@ CAVRA exists for a simple reason: AI agents should not receive unchecked authori
 
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
+![Animated CAVRA runtime authority loop showing an agent request moving through policy, approval, evidence, and AISPM posture](assets/textbook/dynamic-runtime-authority-loop.svg)
+
 ## Start Here
 
 Read the book in order if you are new to CAVRA. Jump directly to the command, GUI, AISPM, or deployment chapters if you already know the product shape.
@@ -31,9 +33,9 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | --- | --- | --- |
 | First-time user | Chapters 0, 1, 5, 6, 13 | Install, run a demo, block a risky action, and verify evidence. |
 | Developer | Chapters 5, 6, 8, 11 | Use the CLI, write policy, route approvals, and create evidence. |
-| Security architect | Chapters 1, 2, 3, 11, 14 | Understand the runtime authority model and governance controls. |
+| Security architect | Chapters 1, 2, 3, 11, 15, 16 | Understand the runtime authority model, policy language, governance controls, and troubleshooting. |
 | Platform owner | Chapters 3, 5, 8, 12 | Integrate CAVRA into CI/CD, APIs, and operating workflows. |
-| Enterprise evaluator | Chapters 4, 7, 10, 12, 13 | Validate SSO/RBAC, connectors, tenant isolation, AISPM, and report delivery. |
+| Enterprise evaluator | Chapters 4, 7, 10, 12, 13, 16 | Validate SSO/RBAC, connectors, tenant isolation, AISPM, report delivery, and blocker closeout. |
 
 ## Complete Table Of Contents
 
@@ -52,6 +54,9 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md)
 14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md)
 15. [Reference Appendices](Textbook-14-Reference-Appendices.md)
+16. [Policy Language Reference](Textbook-15-Policy-Language-Reference.md)
+17. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md)
+18. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution.md)
 
 ## Visual Index
 
@@ -68,6 +73,10 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Policy authoring journey | [Policy authoring journey](assets/textbook/policy-authoring-journey.svg) |
 | Approval routing | [Approval routing flow](assets/textbook/approval-routing-flow.svg) |
 | Troubleshooting | [Troubleshooting decision tree](assets/textbook/troubleshooting-decision-tree.svg) |
+| Dynamic runtime loop | [Animated runtime authority loop](assets/textbook/dynamic-runtime-authority-loop.svg) |
+| Dynamic AISPM readiness | [Animated AISPM readiness pulse](assets/textbook/dynamic-aispm-readiness-pulse.svg) |
+
+The animated diagrams are SVG-native and are written to degrade into readable static diagrams when motion is disabled by browser, accessibility, or renderer settings. Every textbook image uses descriptive alt text in the surrounding Markdown.
 
 ## Primary Product References
 

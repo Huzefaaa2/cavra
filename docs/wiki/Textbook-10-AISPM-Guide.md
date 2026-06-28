@@ -134,3 +134,13 @@ AISPM should be reviewed on a recurring cadence:
 | Report delivery unverified | SMTP/provider settings were configured but not proven end to end. | Send a validation report to approved recipients and capture audit output. |
 | Runtime workflow synthetic only | Validators used fixtures but not real agent/tool workflows. | Run a real agent scenario through file, command, Git, and MCP paths. |
 | Evidence stale | The packet is older than the release or pilot decision window. | Regenerate evidence and rerun the production readiness validator. |
+
+## Check Your Understanding
+
+1. Why should a green posture score still be traceable to source evidence?
+2. Which blocker means validators used fixtures instead of real agent workflows?
+3. What must happen before `ready_for_aispm_production: true` is trustworthy?
+
+## What's Next
+
+Read [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md) to connect AISPM posture back to the decision and evidence mechanics.

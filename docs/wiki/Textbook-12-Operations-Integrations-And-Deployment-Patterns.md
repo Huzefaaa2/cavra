@@ -157,3 +157,13 @@ Historical records for these operating chains are stored in [Development And Tes
 | CI/CD check fails | Evidence verification output | Confirm bundle path, trust root, key ID, and PR attestation. |
 | Connector delivery fails | Connector audit evidence | Retry with redacted provider logs and preserve failure evidence. |
 | AISPM production gate has blockers | Final readiness packet | Resolve each blocker and rerun source validators plus final gate. |
+
+## Check Your Understanding
+
+1. Why should CI/CD required checks verify evidence instead of trusting a summary?
+2. Which deployment pattern needs the strongest tenant, storage, and network controls?
+3. Why should failed connector delivery be recorded instead of hidden?
+
+## What's Next
+
+Read [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md) to practice the operating patterns end to end.

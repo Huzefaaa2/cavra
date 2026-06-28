@@ -120,3 +120,13 @@ After launch, Enterprise teams should use recurring operating reviews:
 - Production readiness archive closeout.
 
 These reviews are described through the product contract pages and preserved historical records in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md).
+
+## Check Your Understanding
+
+1. Why is synthetic validation not enough for Enterprise production readiness?
+2. What must report delivery prove beyond packet generation?
+3. Which recurring review would catch stale evidence or connector drift?
+
+## What's Next
+
+Read [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md) for command-level operation, then [AISPM Guide](Textbook-10-AISPM-Guide.md) for posture and reporting.

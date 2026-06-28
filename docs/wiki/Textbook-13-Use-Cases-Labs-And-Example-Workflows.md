@@ -96,21 +96,36 @@ Enterprise users configure real tenant inputs, real connector credentials, SMTP 
 
 ## Case Study 1: Prevent A Cloud Bill Disaster
 
-Scenario: a platform team asks an agent to "clean up unused Kubernetes resources." The agent proposes a broad `kubectl delete` command that would remove production namespaces.
+Beginning: a platform team sees a sudden cloud bill spike after a quarter-end test cycle. A developer asks an AI agent to "clean up unused Kubernetes resources and reduce the bill before Monday." The request is sensible. The agent reads manifests, compares namespace activity, and finds old workloads. It also notices that one namespace named `production` appears idle because the workload moved to a different autoscaling profile during the weekend.
 
-Without CAVRA:
+Without CAVRA, the agent may choose speed over authority. It may propose or run:
 
-- The agent may run the command if it has shell access.
-- The incident is discovered from cluster alerts or user impact.
-- Reviewers reconstruct intent from logs after damage.
+```bash
+kubectl delete namespace production
+```
 
-With CAVRA:
+The agent can explain the action convincingly: unused namespace, cost pressure, cleanup request, no recent pods. The problem is that the namespace is not unused; it is temporarily quiet. The deletion would remove production configuration, trigger incident response, and turn a cost cleanup into an outage.
 
-- `cavra evaluate execute_command "kubectl delete namespace production" --json` blocks or routes the command.
-- The decision records the actor, command, policy, reason, and expected evidence.
-- AISPM records the prevented high-risk action and control coverage.
+Middle: with CAVRA in the path, the command is evaluated before execution:
 
-Outcome: the team still uses AI to inspect cluster state, but destructive execution requires explicit authority.
+```bash
+cavra evaluate execute_command "kubectl delete namespace production" --json
+```
+
+CAVRA recognizes a destructive command against a production resource. The policy returns `deny` or `requires_approval`, depending on the organization's route. The agent can still inspect cluster state, summarize cost drivers, identify non-production cleanup candidates, and draft a pull request. It cannot silently delete production.
+
+The evidence records:
+
+- the actor and requested command;
+- the production target;
+- the matching policy rule;
+- the decision and reason;
+- the approval route, if the action is legitimate;
+- the evidence expected before any production-impacting cleanup proceeds.
+
+End: the platform owner approves only a scoped cleanup for non-production namespaces. The team reduces spend without an outage. AISPM records that a high-risk production deletion path was governed, that evidence exists, and that the control is covered for future agent workflows.
+
+Before CAVRA, the team had an agent with shell access and after-the-fact logs. After CAVRA, the team has AI-assisted cleanup with runtime authority, human approval where needed, and audit-ready evidence.
 
 ## Case Study 2: Pass A SOX Change-Control Review
 
@@ -180,3 +195,13 @@ cavra evidence verify .cavra/evidence/end-to-end
 ```
 
 Then open the sandbox and identify where the same story appears in the dashboard, evidence area, approvals, registry, and AISPM posture.
+
+## Check Your Understanding
+
+1. In the cloud-bill case study, which part of the request was legitimate and which part required authority?
+2. Which lab proves the evidence path after a runtime decision?
+3. Why is the Enterprise AISPM trial complete only when blockers are closed with real validation evidence?
+
+## What's Next
+
+Read [Reference Appendices](Textbook-14-Reference-Appendices.md) for canonical references, then use [Policy Language Reference](Textbook-15-Policy-Language-Reference.md) and [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md) as working field guides.

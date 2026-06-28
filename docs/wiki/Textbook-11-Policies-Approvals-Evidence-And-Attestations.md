@@ -217,3 +217,13 @@ Common causes:
 | Risky file write is allowed | Path does not match policy glob. | Add explicit path or directory rule. |
 | Approval is never created | Decision is `allow` or `block`, not `requires_approval`. | Move the rule from block/allow into approval routing. |
 | Evidence verification fails | Missing trust root or wrong key ID. | Regenerate trust root and verify with the expected key. |
+
+## Check Your Understanding
+
+1. Why is break glass not the same thing as bypass?
+2. Which artifact connects runtime governance to pull request review?
+3. What should you check first when evidence verification fails?
+
+## What's Next
+
+Read [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md) for integration patterns, then [Policy Language Reference](Textbook-15-Policy-Language-Reference.md) for complete policy syntax.

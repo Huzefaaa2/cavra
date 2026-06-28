@@ -8,8 +8,8 @@
 | Start | Build | Operate | Assure |
 | --- | --- | --- | --- |
 | [Quick Start](Home.md#five-minute-quick-start) | [CLI](Textbook-08-CAVRA-CLI-Command-Reference.md) | [Enterprise Guide](Textbook-07-Enterprise-Edition-User-Guide.md) | [AISPM](Textbook-10-AISPM-Guide.md) |
-| [Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths.md) | [Policies](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md) | [Deployments](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md) | [Evidence](Evidence-Hub-and-Attestation.md) |
-| [Community](Textbook-06-Community-Edition-User-Guide.md) | [GUI](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) | [Labs](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md) | [FAQ](Textbook-14-Reference-Appendices.md) |
+| [Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths.md) | [Policy Syntax](Textbook-15-Policy-Language-Reference.md) | [Deployments](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md) | [Evidence](Evidence-Hub-and-Attestation.md) |
+| [Community](Textbook-06-Community-Edition-User-Guide.md) | [GUI](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) | [Troubleshooting](Textbook-16-Troubleshooting-And-FAQ.md) | [Conclusion](Textbook-17-The-Runtime-Authority-Revolution.md) |
 
 <div align="center">
   <sub>

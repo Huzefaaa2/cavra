@@ -53,6 +53,8 @@
 
 ![Troubleshooting decision tree](assets/textbook/troubleshooting-decision-tree.svg)
 
+This appendix keeps the quick FAQ close to the reference material. For the full field playbook, use [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md).
+
 ### My action was blocked. What should I do?
 
 Run:
@@ -108,20 +110,12 @@ See [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contr
 
 Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts.md). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.
 
-## Conclusion: The Runtime Authority Revolution
+## Check Your Understanding
 
-AI agents are becoming part of the operating fabric of software delivery. The organizations that benefit most will not be the ones that simply give agents more tools. They will be the ones that give agents governed authority, clear boundaries, auditable evidence, and measurable posture.
+1. Which appendix helps you find canonical product pages?
+2. Which command family verifies evidence bundles and attestations?
+3. Where should historical development and testing records live?
 
-CAVRA is a step toward that operating model. It lets teams say yes to AI acceleration while still asking the questions that matter before action: who is acting, what are they touching, what policy applies, who approved the risk, what evidence exists, and what posture does this create?
+## What's Next
 
-The call to action is practical:
-
-- Run the Community Edition.
-- Complete the first five-minute tutorial.
-- Protect one repository or workflow.
-- Write one policy that blocks a real risk.
-- Generate one evidence bundle and verify it.
-- Use AISPM to explain what changed.
-- Move to Enterprise when identity, tenant isolation, live connectors, report delivery, and production gates become necessary.
-
-Before the agent acts, CAVRA decides. After the agent acts, CAVRA proves what happened.
+Read [Policy Language Reference](Textbook-15-Policy-Language-Reference.md) for complete policy syntax, then [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md), and finish with [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution.md).
