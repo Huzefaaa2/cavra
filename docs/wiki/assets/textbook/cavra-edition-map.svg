@@ -1,42 +1,121 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
-  <title id="title">CAVRA edition map</title>
-  <desc id="desc">Community, Trial, Enterprise, and SaaS editions share the same runtime authority model while adding progressively richer control plane features.</desc>
-  <rect width="1200" height="700" fill="#fbfcff"/>
-  <text x="600" y="58" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#132033">CAVRA Editions</text>
-  <g font-family="Inter, Arial, sans-serif">
-    <rect x="70" y="120" width="250" height="430" rx="24" fill="#e8f1ff" stroke="#4f7cc8" stroke-width="2"/>
-    <text x="195" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#183b72">Community</text>
-    <text x="195" y="205" text-anchor="middle" font-size="16" fill="#26384f">Local governance</text>
-    <text x="195" y="240" text-anchor="middle" font-size="15" fill="#26384f">CLI and API</text>
-    <text x="195" y="275" text-anchor="middle" font-size="15" fill="#26384f">Starter policies</text>
-    <text x="195" y="310" text-anchor="middle" font-size="15" fill="#26384f">Evidence bundles</text>
-    <text x="195" y="345" text-anchor="middle" font-size="15" fill="#26384f">Public sandbox</text>
-    <text x="195" y="380" text-anchor="middle" font-size="15" fill="#26384f">AISPM samples</text>
-    <rect x="350" y="120" width="250" height="430" rx="24" fill="#eefbf4" stroke="#2d9b63" stroke-width="2"/>
-    <text x="475" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#1f6a43">Trial</text>
-    <text x="475" y="205" text-anchor="middle" font-size="16" fill="#264332">Guided evaluation</text>
-    <text x="475" y="240" text-anchor="middle" font-size="15" fill="#264332">Private artifacts</text>
-    <text x="475" y="275" text-anchor="middle" font-size="15" fill="#264332">Field guide labs</text>
-    <text x="475" y="310" text-anchor="middle" font-size="15" fill="#264332">Pilot evidence room</text>
-    <text x="475" y="345" text-anchor="middle" font-size="15" fill="#264332">Report delivery checks</text>
-    <text x="475" y="380" text-anchor="middle" font-size="15" fill="#264332">Activation readiness</text>
-    <rect x="630" y="120" width="250" height="430" rx="24" fill="#fff5e3" stroke="#d58d1f" stroke-width="2"/>
-    <text x="755" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#754200">Enterprise</text>
-    <text x="755" y="205" text-anchor="middle" font-size="16" fill="#4d3920">Org-wide control</text>
-    <text x="755" y="240" text-anchor="middle" font-size="15" fill="#4d3920">SSO and RBAC</text>
-    <text x="755" y="275" text-anchor="middle" font-size="15" fill="#4d3920">Live connectors</text>
-    <text x="755" y="310" text-anchor="middle" font-size="15" fill="#4d3920">Tenant isolation</text>
-    <text x="755" y="345" text-anchor="middle" font-size="15" fill="#4d3920">AISPM live posture</text>
-    <text x="755" y="380" text-anchor="middle" font-size="15" fill="#4d3920">Executive reports</text>
-    <rect x="910" y="120" width="220" height="430" rx="24" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
-    <text x="1020" y="165" text-anchor="middle" font-size="24" font-weight="700" fill="#4c1d95">SaaS</text>
-    <text x="1020" y="205" text-anchor="middle" font-size="16" fill="#3c2f57">Hosted control plane</text>
-    <text x="1020" y="240" text-anchor="middle" font-size="15" fill="#3c2f57">Tenant onboarding</text>
-    <text x="1020" y="275" text-anchor="middle" font-size="15" fill="#3c2f57">Central dashboards</text>
-    <text x="1020" y="310" text-anchor="middle" font-size="15" fill="#3c2f57">Operating reviews</text>
-    <text x="1020" y="345" text-anchor="middle" font-size="15" fill="#3c2f57">Support handoff</text>
-    <text x="1020" y="380" text-anchor="middle" font-size="15" fill="#3c2f57">Managed lifecycle</text>
-    <rect x="250" y="592" width="700" height="54" rx="18" fill="#123b5f"/>
-    <text x="600" y="626" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff">Shared foundation: runtime decisions, policies, approvals, evidence, attestations</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA editions map</title>
+  <desc id="desc">Animated enterprise architecture diagram comparing Community, Trial, Enterprise, and SaaS editions on a shared runtime authority foundation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07111f"/>
+      <stop offset="52%" stop-color="#101a2f"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+    <linearGradient id="rail" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="42%" stop-color="#5eead4"/>
+      <stop offset="72%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .title { font: 900 46px Inter, Arial, sans-serif; fill: #ffffff; }
+      .subtitle { font: 500 20px Inter, Arial, sans-serif; fill: #c7d2fe; }
+      .edition { font: 900 26px Inter, Arial, sans-serif; fill: #ffffff; }
+      .tag { font: 700 13px Inter, Arial, sans-serif; fill: #93c5fd; letter-spacing: .08em; }
+      .body { font: 500 16px Inter, Arial, sans-serif; fill: #d8e2f0; }
+      .small { font: 600 14px Inter, Arial, sans-serif; fill: #aebbd1; }
+      .card { fill: rgba(15,23,42,.84); stroke: rgba(125,211,252,.62); stroke-width: 2.3; }
+      .trial { stroke: rgba(94,234,212,.84); }
+      .enterprise { stroke: rgba(251,191,36,.9); }
+      .saas { stroke: rgba(192,132,252,.9); }
+      .pulse { animation: pulse 4.5s ease-in-out infinite; transform-origin: center; }
+      .flow { stroke-dasharray: 15 18; animation: flow 9s linear infinite; }
+      .scan { animation: scan 6s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity:.85; transform: translateY(0); } 50% { opacity:1; transform: translateY(-6px); } }
+      @keyframes flow { to { stroke-dashoffset: -220; } }
+      @keyframes scan { 0%,100% { transform: translateX(0); opacity:.2; } 50% { transform: translateX(1100px); opacity:.82; } }
+      @media (prefers-reduced-motion: reduce) { .pulse,.flow,.scan { animation: none; } }
+    </style>
+  </defs>
+
+  <rect width="1400" height="820" fill="url(#bg)"/>
+  <circle cx="1190" cy="140" r="210" fill="#7dd3fc" opacity=".08"/>
+  <circle cx="190" cy="700" r="260" fill="#5eead4" opacity=".08"/>
+  <text x="70" y="78" class="title">CAVRA Editions</text>
+  <text x="72" y="116" class="subtitle">One runtime authority foundation, four adoption paths from open community use to managed enterprise operations.</text>
+
+  <rect x="122" y="680" width="1156" height="72" rx="24" fill="rgba(2,6,23,.76)" stroke="url(#rail)" stroke-width="3"/>
+  <path d="M160 715 H1240" fill="none" stroke="url(#rail)" stroke-width="6" stroke-linecap="round" class="flow"/>
+  <rect x="160" y="690" width="65" height="50" rx="16" fill="#67e8f9" opacity=".35" class="scan"/>
+  <text x="700" y="712" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="900" fill="#ffffff">Shared Foundation: runtime decisions, policy evaluation, approvals, evidence, and attestations</text>
+  <text x="700" y="738" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" fill="#c7d2fe">Every edition uses the same authority model; higher tiers add live posture, tenant controls, and operating lifecycle.</text>
+
+  <g class="pulse">
+    <rect x="70" y="182" width="290" height="415" rx="28" class="card"/>
+    <text x="100" y="231" class="tag">OPEN CORE START</text>
+    <text x="100" y="271" class="edition">Community</text>
+    <text x="100" y="310" class="body">Local governance for teams</text>
+    <text x="100" y="352" class="small">- CLI and API</text>
+    <text x="100" y="386" class="small">- Starter policy packs</text>
+    <text x="100" y="420" class="small">- Evidence bundles</text>
+    <text x="100" y="454" class="small">- Public sandbox GUI</text>
+    <text x="100" y="488" class="small">- AISPM sample posture</text>
+    <text x="100" y="548" class="tag">BEST FOR</text>
+    <text x="100" y="574" class="small">Learning, local controls, demos</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:.4s">
+    <rect x="390" y="148" width="290" height="449" rx="28" class="card trial"/>
+    <text x="420" y="197" class="tag" fill="#5eead4">APPROVED EVALUATION</text>
+    <text x="420" y="237" class="edition">Trial</text>
+    <text x="420" y="276" class="body">Guided proof-of-value</text>
+    <text x="420" y="318" class="small">- Trial portal request</text>
+    <text x="420" y="352" class="small">- Operator approval</text>
+    <text x="420" y="386" class="small">- Time-limited license</text>
+    <text x="420" y="420" class="small">- Field Guide labs</text>
+    <text x="420" y="454" class="small">- Evidence room closeout</text>
+    <text x="420" y="488" class="small">- Pilot decision packet</text>
+    <text x="420" y="548" class="tag">BEST FOR</text>
+    <text x="420" y="574" class="small">Measurable enterprise evaluation</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:.8s">
+    <rect x="710" y="122" width="290" height="475" rx="28" class="card enterprise"/>
+    <text x="740" y="171" class="tag" fill="#fbbf24">ORG-WIDE CONTROL</text>
+    <text x="740" y="211" class="edition">Enterprise</text>
+    <text x="740" y="250" class="body">Private tenant operations</text>
+    <text x="740" y="292" class="small">- SSO and RBAC</text>
+    <text x="740" y="326" class="small">- Live connectors</text>
+    <text x="740" y="360" class="small">- Tenant isolation</text>
+    <text x="740" y="394" class="small">- AISPM live ingestion</text>
+    <text x="740" y="428" class="small">- Report delivery</text>
+    <text x="740" y="462" class="small">- Production readiness gates</text>
+    <text x="740" y="548" class="tag">BEST FOR</text>
+    <text x="740" y="574" class="small">Regulated production adoption</text>
+  </g>
+
+  <g class="pulse" style="animation-delay:1.2s">
+    <rect x="1030" y="148" width="290" height="449" rx="28" class="card saas"/>
+    <text x="1060" y="197" class="tag" fill="#c084fc">MANAGED CONTROL PLANE</text>
+    <text x="1060" y="237" class="edition">SaaS</text>
+    <text x="1060" y="276" class="body">Hosted operating lifecycle</text>
+    <text x="1060" y="318" class="small">- Tenant onboarding</text>
+    <text x="1060" y="352" class="small">- Central dashboards</text>
+    <text x="1060" y="386" class="small">- Operating reviews</text>
+    <text x="1060" y="420" class="small">- Support handoff</text>
+    <text x="1060" y="454" class="small">- Managed lifecycle</text>
+    <text x="1060" y="488" class="small">- Advisory drill readiness</text>
+    <text x="1060" y="548" class="tag">BEST FOR</text>
+    <text x="1060" y="574" class="small">Hosted enterprise operations</text>
+  </g>
+
+  <g filter="url(#glow)">
+    <circle cx="215" cy="650" r="9" fill="#67e8f9"/>
+    <circle cx="535" cy="650" r="9" fill="#5eead4"/>
+    <circle cx="855" cy="650" r="9" fill="#fbbf24"/>
+    <circle cx="1175" cy="650" r="9" fill="#c084fc"/>
   </g>
 </svg>

@@ -1,39 +1,127 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
   <title id="title">AISPM posture loop</title>
-  <desc id="desc">AISPM converts CAVRA runtime evidence into findings, posture, reports, remediation, and readiness decisions.</desc>
-  <rect width="1200" height="720" fill="#f8fbfa"/>
-  <text x="600" y="56" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#102a43">AISPM Posture Loop</text>
-  <g font-family="Inter, Arial, sans-serif" font-size="17">
-    <circle cx="600" cy="360" r="100" fill="#0f766e"/>
-    <text x="600" y="344" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">AISPM</text>
-    <text x="600" y="376" text-anchor="middle" fill="#d7fff5">AI Security Posture</text>
-    <text x="600" y="402" text-anchor="middle" fill="#d7fff5">Management</text>
-    <rect x="90" y="118" width="240" height="92" rx="18" fill="#e8f1ff" stroke="#4f7cc8" stroke-width="2"/>
-    <text x="210" y="154" text-anchor="middle" font-weight="700" fill="#183b72">Runtime Evidence</text>
-    <text x="210" y="184" text-anchor="middle" fill="#334155">decisions, approvals, tools</text>
-    <rect x="470" y="100" width="260" height="92" rx="18" fill="#fff5e3" stroke="#d58d1f" stroke-width="2"/>
-    <text x="600" y="136" text-anchor="middle" font-weight="700" fill="#754200">Findings and Coverage</text>
-    <text x="600" y="166" text-anchor="middle" fill="#4d3920">risk, drift, control gaps</text>
-    <rect x="870" y="118" width="240" height="92" rx="18" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
-    <text x="990" y="154" text-anchor="middle" font-weight="700" fill="#4c1d95">Reports</text>
-    <text x="990" y="184" text-anchor="middle" fill="#3c2f57">CSO, CISO, board packs</text>
-    <rect x="870" y="506" width="240" height="92" rx="18" fill="#fbecec" stroke="#cc3d3d" stroke-width="2"/>
-    <text x="990" y="542" text-anchor="middle" font-weight="700" fill="#7f1d1d">Remediation</text>
-    <text x="990" y="572" text-anchor="middle" fill="#5e2b2b">owners, SLAs, exceptions</text>
-    <rect x="470" y="528" width="260" height="92" rx="18" fill="#eafaf2" stroke="#38a169" stroke-width="2"/>
-    <text x="600" y="564" text-anchor="middle" font-weight="700" fill="#245a39">Readiness Gate</text>
-    <text x="600" y="594" text-anchor="middle" fill="#245a39">trial, pilot, production</text>
-    <rect x="90" y="506" width="240" height="92" rx="18" fill="#edf8ff" stroke="#0284c7" stroke-width="2"/>
-    <text x="210" y="542" text-anchor="middle" font-weight="700" fill="#075985">Evidence Room</text>
-    <text x="210" y="572" text-anchor="middle" fill="#164e63">auditors and operators</text>
-    <path d="M330 164 C420 126 452 127 470 146" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-    <path d="M730 146 C820 126 850 128 870 164" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-    <path d="M990 210 V500" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-    <path d="M870 552 C805 600 755 604 730 574" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-    <path d="M470 574 C380 610 340 594 330 552" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-    <path d="M210 506 V214" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-  </g>
+  <desc id="desc">Animated enterprise architecture diagram showing how CAVRA runtime evidence flows into AISPM findings, reports, remediation, evidence rooms, and readiness gates.</desc>
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2 L10 6 L2 10 Z" fill="#334155"/></marker>
+    <radialGradient id="bgGlow" cx="50%" cy="44%" r="75%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="48%" stop-color="#101a2f"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </radialGradient>
+    <linearGradient id="cyanGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="48%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#172338"/>
+      <stop offset="100%" stop-color="#0c1222"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#67e8f9"/>
+    </marker>
+    <style>
+      .title { font: 800 44px Inter, Arial, sans-serif; fill: #f8fafc; }
+      .subtitle { font: 500 20px Inter, Arial, sans-serif; fill: #c7d2fe; }
+      .label { font: 800 21px Inter, Arial, sans-serif; fill: #ffffff; }
+      .body { font: 500 15px Inter, Arial, sans-serif; fill: #cbd5e1; }
+      .tiny { font: 600 13px Inter, Arial, sans-serif; fill: #93a4bd; letter-spacing: .04em; }
+      .panel { fill: url(#panel); stroke: rgba(125,211,252,.7); stroke-width: 2.2; }
+      .panelGold { fill: #201a0a; stroke: rgba(251,191,36,.85); stroke-width: 2.2; }
+      .panelGreen { fill: #06221e; stroke: rgba(45,212,191,.9); stroke-width: 2.2; }
+      .line { fill: none; stroke: url(#cyanGold); stroke-width: 4; stroke-linecap: round; marker-end: url(#arrow); }
+      .thin { fill: none; stroke: rgba(148,163,184,.35); stroke-width: 1.5; }
+      .pulse { animation: pulse 4s ease-in-out infinite; transform-origin: center; }
+      .orbit { animation: orbit 12s linear infinite; transform-origin: 700px 420px; }
+      .orbit2 { animation: orbit 16s linear infinite reverse; transform-origin: 700px 420px; }
+      .dash { stroke-dasharray: 12 14; animation: flow 8s linear infinite; }
+      .blink { animation: blink 2.8s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity:.84; transform:scale(1); } 50% { opacity:1; transform:scale(1.018); } }
+      @keyframes orbit { to { transform: rotate(360deg); } }
+      @keyframes flow { to { stroke-dashoffset: -160; } }
+      @keyframes blink { 0%,100% { opacity:.45; } 50% { opacity:1; } }
+      @media (prefers-reduced-motion: reduce) { .pulse,.orbit,.orbit2,.dash,.blink { animation: none; } }
+    </style>
   </defs>
+
+  <rect width="1400" height="860" fill="url(#bgGlow)"/>
+  <path d="M90 710 C310 610 415 675 590 565 C780 446 928 480 1138 302" class="thin"/>
+  <path d="M146 202 C318 128 470 150 640 205 C843 271 990 232 1215 143" class="thin"/>
+  <circle cx="700" cy="420" r="255" fill="none" stroke="rgba(103,232,249,.12)" stroke-width="42"/>
+  <circle cx="700" cy="420" r="182" fill="none" stroke="rgba(251,191,36,.08)" stroke-width="26"/>
+  <circle class="orbit" cx="700" cy="165" r="7" fill="#fbbf24" filter="url(#glow)"/>
+  <circle class="orbit2" cx="700" cy="238" r="6" fill="#67e8f9" filter="url(#glow)"/>
+
+  <text x="70" y="78" class="title">AISPM Posture Loop</text>
+  <text x="72" y="114" class="subtitle">Runtime authority becomes findings, executive posture, remediation, evidence rooms, and production readiness.</text>
+
+  <g class="pulse">
+    <circle cx="700" cy="420" r="112" fill="#071426" stroke="url(#cyanGold)" stroke-width="4" filter="url(#glow)"/>
+    <text x="700" y="395" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" fill="#ffffff">AISPM</text>
+    <text x="700" y="427" text-anchor="middle" class="body">AI Security Posture</text>
+    <text x="700" y="452" text-anchor="middle" class="body">Management Loop</text>
+  </g>
+
+  <g>
+    <rect x="74" y="206" width="285" height="130" rx="20" class="panel"/>
+    <text x="104" y="248" class="label">1. Runtime Evidence</text>
+    <text x="104" y="280" class="body">decisions, approvals, tools</text>
+    <text x="104" y="306" class="body">agent and MCP activity</text>
+    <text x="104" y="332" class="tiny">SOURCE OF POSTURE</text>
+
+    <rect x="552" y="122" width="300" height="130" rx="20" class="panelGold"/>
+    <text x="582" y="164" class="label">2. Findings And Coverage</text>
+    <text x="582" y="196" class="body">risk queue, drift, gaps</text>
+    <text x="582" y="222" class="body">control coverage and freshness</text>
+    <text x="582" y="248" class="tiny">NORMALIZE AND PRIORITIZE</text>
+
+    <rect x="1044" y="206" width="285" height="130" rx="20" class="panel"/>
+    <text x="1074" y="248" class="label">3. Executive Reports</text>
+    <text x="1074" y="280" class="body">CSO, CISO, board, audit</text>
+    <text x="1074" y="306" class="body">signed exports and delivery</text>
+    <text x="1074" y="332" class="tiny">COMMUNICATE RISK</text>
+
+    <rect x="1044" y="525" width="285" height="130" rx="20" class="panelGold"/>
+    <text x="1074" y="567" class="label">4. Remediation</text>
+    <text x="1074" y="599" class="body">owners, SLAs, exceptions</text>
+    <text x="1074" y="625" class="body">closure and advisory drills</text>
+    <text x="1074" y="651" class="tiny">ACT ON FINDINGS</text>
+
+    <rect x="552" y="608" width="300" height="130" rx="20" class="panelGreen"/>
+    <text x="582" y="650" class="label">5. Readiness Gate</text>
+    <text x="582" y="682" class="body">trial, pilot, production</text>
+    <text x="582" y="708" class="body">blockers and evidence checks</text>
+    <text x="582" y="734" class="tiny">DECIDE WITH PROOF</text>
+
+    <rect x="74" y="525" width="285" height="130" rx="20" class="panel"/>
+    <text x="104" y="567" class="label">6. Evidence Room</text>
+    <text x="104" y="599" class="body">auditor and operator access</text>
+    <text x="104" y="625" class="body">immutability and retention</text>
+    <text x="104" y="651" class="tiny">PRESERVE THE RECORD</text>
+  </g>
+
+  <path d="M359 268 C438 180 487 176 552 186" class="line dash"/>
+  <path d="M852 186 C937 171 989 198 1044 268" class="line dash"/>
+  <path d="M1188 336 L1188 520" class="line dash"/>
+  <path d="M1044 594 C955 695 904 704 852 674" class="line dash"/>
+  <path d="M552 674 C462 718 395 687 359 594" class="line dash"/>
+  <path d="M216 525 L216 336" class="line dash"/>
+
+  <g class="blink" filter="url(#glow)">
+    <circle cx="395" cy="230" r="6" fill="#67e8f9"/>
+    <circle cx="905" cy="196" r="6" fill="#fbbf24"/>
+    <circle cx="1188" cy="430" r="6" fill="#67e8f9"/>
+    <circle cx="930" cy="662" r="6" fill="#fbbf24"/>
+    <circle cx="430" cy="670" r="6" fill="#67e8f9"/>
+    <circle cx="216" cy="430" r="6" fill="#fbbf24"/>
+  </g>
+
+  <rect x="82" y="780" width="1236" height="48" rx="16" fill="rgba(15,23,42,.72)" stroke="rgba(148,163,184,.35)"/>
+  <text x="108" y="811" class="body">Enterprise signal: every posture statement must trace back to a runtime decision, evidence reference, owner, report, and readiness gate.</text>
 </svg>

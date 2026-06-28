@@ -1,39 +1,124 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="CAVRA high level architecture with AISPM">
-  <rect width="1200" height="760" fill="#101316"/>
-  <text x="60" y="70" fill="#eef3f6" font-family="Arial" font-size="34" font-weight="700">CAVRA High-Level Architecture</text>
-  <text x="60" y="108" fill="#76d6b2" font-family="Arial" font-size="18">Before the agent acts, CAVRA decides. AISPM turns decisions into posture.</text>
-  <rect x="430" y="220" width="340" height="170" rx="10" fill="#182026" stroke="#76d6b2" stroke-width="3"/>
-  <text x="600" y="288" text-anchor="middle" fill="#eef3f6" font-family="Arial" font-size="32" font-weight="700">CAVRA</text>
-  <text x="600" y="323" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="16">Runtime Authority Layer</text>
-  <text x="600" y="351" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="16">Policy • Evidence • Approval</text>
-  <rect x="430" y="455" width="340" height="110" rx="10" fill="#102722" stroke="#76d6b2" stroke-width="3"/>
-  <text x="600" y="497" text-anchor="middle" fill="#eef3f6" font-family="Arial" font-size="26" font-weight="700">AISPM</text>
-  <text x="600" y="528" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="15">AI Security Posture Management</text>
-  <text x="600" y="550" text-anchor="middle" fill="#c8d2d8" font-family="Arial" font-size="15">Posture • Reports • Release readiness</text>
-  <g fill="#151a1e" stroke="#3d4b52" stroke-width="2">
-    <rect x="70" y="180" width="260" height="90" rx="8"/>
-    <rect x="70" y="330" width="260" height="90" rx="8"/>
-    <rect x="70" y="480" width="260" height="90" rx="8"/>
-    <rect x="870" y="180" width="260" height="90" rx="8"/>
-    <rect x="870" y="330" width="260" height="90" rx="8"/>
-    <rect x="870" y="480" width="260" height="90" rx="8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA high-level architecture</title>
+  <desc id="desc">Animated enterprise architecture diagram showing AI agents, developers, MCP tools, repositories, CI/CD, CAVRA runtime authority, AISPM posture, evidence, approvals, reports, and enterprise control plane boundaries.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814"/>
+      <stop offset="50%" stop-color="#101a2f"/>
+      <stop offset="100%" stop-color="#06231f"/>
+    </linearGradient>
+    <linearGradient id="authority" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="55%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#67e8f9"/>
+    </marker>
+    <style>
+      .title { font: 900 46px Inter, Arial, sans-serif; fill: #ffffff; }
+      .subtitle { font: 500 20px Inter, Arial, sans-serif; fill: #c7d2fe; }
+      .zone { fill: rgba(15,23,42,.62); stroke: rgba(148,163,184,.32); stroke-width: 2; }
+      .core { fill: #071426; stroke: url(#authority); stroke-width: 4; }
+      .panel { fill: rgba(15,23,42,.86); stroke: rgba(125,211,252,.68); stroke-width: 2.2; }
+      .gold { stroke: rgba(251,191,36,.86); }
+      .green { stroke: rgba(45,212,191,.88); }
+      .purple { stroke: rgba(192,132,252,.86); }
+      .label { font: 900 21px Inter, Arial, sans-serif; fill: #ffffff; }
+      .body { font: 500 15px Inter, Arial, sans-serif; fill: #cbd5e1; }
+      .tiny { font: 700 12px Inter, Arial, sans-serif; fill: #93a4bd; letter-spacing: .08em; }
+      .line { fill: none; stroke: url(#authority); stroke-width: 4; stroke-linecap: round; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 13 16; animation: flow 8s linear infinite; }
+      .pulse { animation: pulse 4.2s ease-in-out infinite; transform-origin: center; }
+      .beacon { animation: beacon 2.8s ease-in-out infinite; }
+      @keyframes flow { to { stroke-dashoffset: -180; } }
+      @keyframes pulse { 0%,100% { opacity:.88; transform:scale(1); } 50% { opacity:1; transform:scale(1.012); } }
+      @keyframes beacon { 0%,100% { opacity:.32; r: 5; } 50% { opacity:1; r: 9; } }
+      @media (prefers-reduced-motion: reduce) { .dash,.pulse,.beacon { animation: none; } }
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" fill="url(#bg)"/>
+  <circle cx="1210" cy="150" r="230" fill="#38bdf8" opacity=".08"/>
+  <circle cx="255" cy="760" r="260" fill="#5eead4" opacity=".07"/>
+  <text x="70" y="78" class="title">CAVRA High-Level Architecture</text>
+  <text x="72" y="116" class="subtitle">Before the agent acts, CAVRA decides. AISPM turns runtime decisions into enterprise posture and readiness.</text>
+
+  <rect x="52" y="160" width="396" height="620" rx="32" class="zone"/>
+  <rect x="1052" y="160" width="396" height="620" rx="32" class="zone"/>
+  <rect x="496" y="156" width="508" height="628" rx="36" fill="rgba(2,6,23,.52)" stroke="rgba(103,232,249,.38)" stroke-width="2"/>
+  <text x="84" y="198" class="tiny">ACTORS AND TOOLING</text>
+  <text x="1084" y="198" class="tiny">ENTERPRISE SYSTEMS</text>
+  <text x="530" y="198" class="tiny">CAVRA CONTROL PLANES</text>
+
+  <g>
+    <rect x="92" y="238" width="300" height="92" rx="18" class="panel"/>
+    <text x="120" y="275" class="label">AI Coding Agents</text>
+    <text x="120" y="305" class="body">plan, write, invoke tools</text>
+
+    <rect x="92" y="398" width="300" height="92" rx="18" class="panel green"/>
+    <text x="120" y="435" class="label">MCP Servers</text>
+    <text x="120" y="465" class="body">repository, shell, cloud tools</text>
+
+    <rect x="92" y="558" width="300" height="92" rx="18" class="panel gold"/>
+    <text x="120" y="595" class="label">Developers</text>
+    <text x="120" y="625" class="body">request, review, approve</text>
   </g>
-  <g fill="#eef3f6" font-family="Arial" font-size="18" font-weight="700">
-    <text x="200" y="233" text-anchor="middle">AI Coding Agents</text>
-    <text x="200" y="383" text-anchor="middle">MCP Servers</text>
-    <text x="200" y="533" text-anchor="middle">Developers</text>
-    <text x="1000" y="233" text-anchor="middle">Git / CI/CD</text>
-    <text x="1000" y="383" text-anchor="middle">Cloud / IaC</text>
-    <text x="1000" y="533" text-anchor="middle">SIEM / ITSM / Audit</text>
+
+  <g class="pulse">
+    <rect x="575" y="250" width="350" height="178" rx="26" class="core" filter="url(#glow)"/>
+    <text x="750" y="308" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="900" fill="#ffffff">CAVRA</text>
+    <text x="750" y="342" text-anchor="middle" class="body">Runtime Authority Layer</text>
+    <text x="750" y="374" text-anchor="middle" class="body">policy evaluation, approvals, evidence, anti-bypass</text>
+    <text x="750" y="404" text-anchor="middle" class="tiny">SAME DECISION MODEL ACROSS CLI, CI/CD, AGENTS, AND ENTERPRISE</text>
   </g>
-  <g stroke="#76d6b2" stroke-width="3" fill="none" marker-end="url(#arrow)">
-    <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#76d6b2"/></marker></defs>
-    <path d="M330 225 L430 278"/>
-    <path d="M330 375 L430 338"/>
-    <path d="M330 525 L430 365"/>
-    <path d="M600 390 L600 455"/>
-    <path d="M770 278 L870 225"/>
-    <path d="M770 338 L870 375"/>
-    <path d="M770 510 L870 525"/>
+
+  <g class="pulse" style="animation-delay:.55s">
+    <rect x="575" y="510" width="350" height="148" rx="26" fill="#06221e" stroke="rgba(45,212,191,.9)" stroke-width="3"/>
+    <text x="750" y="562" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" fill="#ffffff">AISPM</text>
+    <text x="750" y="595" text-anchor="middle" class="body">AI Security Posture Management</text>
+    <text x="750" y="625" text-anchor="middle" class="body">findings, coverage, reports, readiness gates</text>
   </g>
+
+  <g>
+    <rect x="1108" y="238" width="300" height="92" rx="18" class="panel"/>
+    <text x="1136" y="275" class="label">Git And CI/CD</text>
+    <text x="1136" y="305" class="body">PRs, pipelines, attestations</text>
+
+    <rect x="1108" y="398" width="300" height="92" rx="18" class="panel gold"/>
+    <text x="1136" y="435" class="label">Cloud And IaC</text>
+    <text x="1136" y="465" class="body">runtime targets and blast radius</text>
+
+    <rect x="1108" y="558" width="300" height="92" rx="18" class="panel purple"/>
+    <text x="1136" y="595" class="label">SIEM, ITSM, Audit</text>
+    <text x="1136" y="625" class="body">reports, tickets, evidence rooms</text>
+  </g>
+
+  <path d="M392 284 C478 276 510 294 575 320" class="line dash"/>
+  <path d="M392 444 C482 426 518 396 575 372" class="line dash"/>
+  <path d="M392 604 C500 570 520 470 575 405" class="line dash"/>
+  <path d="M750 428 L750 510" class="line dash"/>
+  <path d="M925 320 C995 294 1030 276 1108 284" class="line dash"/>
+  <path d="M925 372 C1005 396 1030 426 1108 444" class="line dash"/>
+  <path d="M925 584 C1000 604 1038 604 1108 604" class="line dash"/>
+
+  <g filter="url(#glow)">
+    <circle class="beacon" cx="464" cy="292" r="6" fill="#67e8f9"/>
+    <circle class="beacon" cx="504" cy="414" r="6" fill="#5eead4"/>
+    <circle class="beacon" cx="515" cy="535" r="6" fill="#fbbf24"/>
+    <circle class="beacon" cx="750" cy="466" r="6" fill="#67e8f9"/>
+    <circle class="beacon" cx="1010" cy="292" r="6" fill="#67e8f9"/>
+    <circle class="beacon" cx="1015" cy="414" r="6" fill="#fbbf24"/>
+    <circle class="beacon" cx="1015" cy="604" r="6" fill="#c084fc"/>
+  </g>
+
+  <rect x="138" y="720" width="1224" height="58" rx="20" fill="rgba(15,23,42,.78)" stroke="rgba(148,163,184,.35)"/>
+  <text x="170" y="756" class="body">Open-core boundary: Community exposes public runtime authority, sample AISPM, and contracts; Enterprise adds private tenant isolation, live connectors, report delivery, and production validation.</text>
 </svg>
