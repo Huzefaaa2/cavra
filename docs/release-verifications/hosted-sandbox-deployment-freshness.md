@@ -5,7 +5,7 @@ Status: ready
 This public-safe packet explains how CAVRA distinguishes a ready local AISPM
 portal build from a stale deployed GitHub Pages site. The current static portal
 includes the build sentinel
-`community-v1.0.0-aispm-release-evidence-index`.
+`community-v1.1.0-public-product-site`.
 
 ## Validator
 
@@ -23,24 +23,15 @@ CAVRA_CHECK_LIVE_SANDBOX=true python scripts/validate-hosted-sandbox-deployment-
 
 ## Required Hosted Markers
 
-- `AISPM Trial Lab Notebook Readiness`
-- `Release Evidence Index`
-- `CSO Report Center`
-- `Report Delivery Setup Readiness`
-- `Report Operations Readiness`
-- `Report Governance Readiness`
-- `Report Assurance Readiness`
-- `Report Response Readiness`
-- `Report Trial Operations Readiness`
-- `cavra-aispm-report-catalog-packet.json`
-- `cavra-aispm-report-delivery-setup-packet.json`
-- `cavra-aispm-report-operations-readiness-packet.json`
-- `cavra-aispm-report-governance-readiness-packet.json`
-- `cavra-aispm-report-assurance-readiness-packet.json`
-- `cavra-aispm-report-response-readiness-packet.json`
-- `cavra-aispm-report-trial-operations-readiness-packet.json`
-- `cavra-aispm-release-evidence-index-packet.json`
-- `community-v1.0.0-aispm-release-evidence-index`
+- `Runtime governance for AI coding agents`
+- `Before the agent acts, CAVRA decides.`
+- `AI Security Posture Management`
+- `Run Public Demo`
+- `Request Enterprise Trial`
+- `Trial Field Guide`
+- `GitHub Wiki e-book`
+- `community-v1.1.0-public-product-site`
+- `sandbox.js`
 
 If local validation passes but live validation fails, the repository is ready
 and the hosted GitHub Pages deployment is stale. Rerun the deploy workflow,

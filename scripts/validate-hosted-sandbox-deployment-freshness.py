@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/release-verifications/hosted-sandbox-deployment-freshness.json"
+CURRENT_BUILD_SENTINEL = "community-v1.1.0-public-product-site"
+LEGACY_BUILD_SENTINEL = "community-v1.0.0-aispm-release-evidence-index"
 
 
 def read(path: str) -> str:
@@ -79,7 +81,7 @@ def main() -> int:
         failures,
     )
     require(
-        packet.get("build_sentinel") == "community-v1.0.0-aispm-release-evidence-index",
+        packet.get("build_sentinel") == CURRENT_BUILD_SENTINEL,
         f"{PACKET_PATH}: build sentinel mismatch",
         failures,
     )
@@ -116,7 +118,6 @@ def main() -> int:
         "docs/release-verifications/hosted-sandbox-deployment-freshness.md",
         "docs/release-verifications/hosted-sandbox-deployment-freshness.json",
         "scripts/validate-hosted-sandbox-deployment-freshness.py",
-        "community-v1.0.0-aispm-release-evidence-index",
     ]
     for doc_path in [
         "README.md",
@@ -131,6 +132,11 @@ def main() -> int:
         text = read(doc_path)
         for needle in doc_needles:
             require(needle in text, f"{doc_path} missing {needle}", failures)
+        require(
+            CURRENT_BUILD_SENTINEL in text or LEGACY_BUILD_SENTINEL in text,
+            f"{doc_path} missing hosted freshness build sentinel",
+            failures,
+        )
 
     if os.environ.get("CAVRA_CHECK_LIVE_SANDBOX", "").lower() in {"1", "true", "yes"}:
         target = os.environ.get("CAVRA_SANDBOX_URL") or packet["validated_target"]
