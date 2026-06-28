@@ -1,41 +1,230 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
-  <title id="title">CAVRA runtime authority map</title>
-  <desc id="desc">AI agents pass through CAVRA before reaching code, cloud, Git, MCP tools, shell, CI/CD, and evidence systems.</desc>
-  <rect width="1200" height="720" fill="#f7fbff"/>
-  <rect x="55" y="72" width="1090" height="576" rx="28" fill="#ffffff" stroke="#b7c7da" stroke-width="2"/>
-  <text x="600" y="52" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700" fill="#122033">CAVRA Runtime Authority Map</text>
-  <text x="600" y="100" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" fill="#415269">Before the agent acts, CAVRA decides.</text>
-  <g font-family="Inter, Arial, sans-serif">
-    <rect x="95" y="166" width="220" height="116" rx="18" fill="#e8f1ff" stroke="#6e99df" stroke-width="2"/>
-    <text x="205" y="214" text-anchor="middle" font-size="22" font-weight="700" fill="#143a73">AI Agents</text>
-    <text x="205" y="244" text-anchor="middle" font-size="15" fill="#33506f">Codex, Claude Code, MCP clients</text>
-    <rect x="490" y="138" width="220" height="172" rx="22" fill="#0f766e" stroke="#0b5e58" stroke-width="2"/>
-    <text x="600" y="190" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">CAVRA</text>
-    <text x="600" y="222" text-anchor="middle" font-size="15" fill="#d8fff7">Policy, identity, approval, evidence</text>
-    <text x="600" y="252" text-anchor="middle" font-size="15" fill="#d8fff7">runtime decisions</text>
-    <rect x="885" y="130" width="210" height="66" rx="14" fill="#fff3db" stroke="#d68b1c" stroke-width="2"/>
-    <text x="990" y="171" text-anchor="middle" font-size="18" font-weight="700" fill="#684000">Code and Git</text>
-    <rect x="885" y="218" width="210" height="66" rx="14" fill="#eafaf2" stroke="#38a169" stroke-width="2"/>
-    <text x="990" y="259" text-anchor="middle" font-size="18" font-weight="700" fill="#245a39">Cloud and IaC</text>
-    <rect x="885" y="306" width="210" height="66" rx="14" fill="#f3efff" stroke="#7c3aed" stroke-width="2"/>
-    <text x="990" y="347" text-anchor="middle" font-size="18" font-weight="700" fill="#4c1d95">MCP and Tools</text>
-    <rect x="885" y="394" width="210" height="66" rx="14" fill="#fbecec" stroke="#cc3d3d" stroke-width="2"/>
-    <text x="990" y="435" text-anchor="middle" font-size="18" font-weight="700" fill="#7f1d1d">Shell and CI/CD</text>
-    <rect x="490" y="478" width="220" height="86" rx="18" fill="#113b5f" stroke="#0c2d49" stroke-width="2"/>
-    <text x="600" y="514" text-anchor="middle" font-size="19" font-weight="700" fill="#ffffff">Evidence Hub</text>
-    <text x="600" y="540" text-anchor="middle" font-size="14" fill="#d7edff">Signed bundles, reports, audit trails</text>
-    <rect x="95" y="430" width="220" height="96" rx="18" fill="#fff8e8" stroke="#c79a2e" stroke-width="2"/>
-    <text x="205" y="468" text-anchor="middle" font-size="20" font-weight="700" fill="#755100">Human Approval</text>
-    <text x="205" y="496" text-anchor="middle" font-size="14" fill="#6b5a34">review, deny, break glass</text>
-    <path d="M318 224 H470" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
-    <path d="M710 224 H860" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
-    <path d="M600 310 V458" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
-    <path d="M490 506 H335" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
-    <path d="M315 478 C395 400 440 330 500 272" stroke="#334155" stroke-width="3" fill="none" stroke-dasharray="8 8" marker-end="url(#arrow)"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA Runtime Authority Map</title>
+  <desc id="desc">A dynamic map of CAVRA runtime authority. AI agents send requests through the CAVRA authority core, which evaluates policy, identity, approvals, tool trust, and evidence before allowing access to code, cloud, Git, MCP tools, shell, CI/CD, and AISPM posture.</desc>
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-      <path d="M2 2 L10 6 L2 10 Z" fill="#334155"/>
+    <radialGradient id="bgGlow" cx="50%" cy="44%" r="70%">
+      <stop offset="0%" stop-color="#123a4a"/>
+      <stop offset="45%" stop-color="#0b1724"/>
+      <stop offset="100%" stop-color="#05080d"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="48%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#102a43"/>
+    </radialGradient>
+    <linearGradient id="agentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="targetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="50%" stop-color="#ecfeff"/>
+      <stop offset="100%" stop-color="#f5f3ff"/>
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity=".35"/>
+    </filter>
+    <marker id="arrowTeal" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#2dd4bf"/>
     </marker>
+    <marker id="arrowAmber" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#fbbf24"/>
+    </marker>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill: #eef8ff; }
+      .muted { font-family: Inter, Arial, sans-serif; fill: #b8c7d9; }
+      .micro { font-family: Inter, Arial, sans-serif; fill: #dffcf6; }
+      .card { filter: url(#cardShadow); }
+      .agent-card { fill: url(#agentGradient); stroke: #bfdbfe; stroke-width: 2; }
+      .target-card { fill: url(#targetGradient); stroke: #d8b4fe; stroke-width: 2; }
+      .satellite { fill: #0f1f2d; stroke: #67e8f9; stroke-width: 2; }
+      .wire { fill: none; stroke: #2dd4bf; stroke-width: 4; opacity: .82; marker-end: url(#arrowTeal); }
+      .wire-soft { fill: none; stroke: #94a3b8; stroke-width: 2; opacity: .36; }
+      .approval-wire { fill: none; stroke: #fbbf24; stroke-width: 3.4; stroke-dasharray: 9 10; marker-end: url(#arrowAmber); }
+      .grid-line { stroke: #1f3b4c; stroke-width: 1; opacity: .42; }
+      .packet { fill: #fde68a; filter: url(#softGlow); opacity: 0; }
+      .deny { fill: #ef4444; filter: url(#softGlow); }
+      .allow { fill: #34d399; filter: url(#softGlow); }
+      .orbit { fill: none; stroke: #67e8f9; stroke-width: 2; opacity: .24; }
+      @media (prefers-reduced-motion: no-preference) {
+        .core-ring-a { animation: ringPulse 4s ease-out infinite; transform-origin: 700px 400px; }
+        .core-ring-b { animation: ringPulse 4s ease-out infinite 1.3s; transform-origin: 700px 400px; }
+        .core-ring-c { animation: ringPulse 4s ease-out infinite 2.6s; transform-origin: 700px 400px; }
+        .orbit-spin { animation: orbitSpin 18s linear infinite; transform-origin: 700px 400px; }
+        .packet-agent { animation: moveAgent 5.6s linear infinite; offset-path: path("M240 310 C395 260 510 310 585 365"); }
+        .packet-target { animation: moveTarget 5.6s linear infinite 1.6s; offset-path: path("M815 365 C915 305 1030 280 1160 250"); }
+        .packet-evidence { animation: moveEvidence 6.8s linear infinite 2.4s; offset-path: path("M700 515 C720 590 760 640 860 688"); }
+        .packet-approval { animation: moveApproval 7s linear infinite 3s; offset-path: path("M585 430 C465 520 360 565 245 570 C365 520 500 475 585 430"); }
+        .target-card { animation: targetBreath 5s ease-in-out infinite; }
+        .agent-card { animation: targetBreath 5s ease-in-out infinite 1s; }
+      }
+      @keyframes ringPulse {
+        0% { transform: scale(.58); opacity: .75; }
+        100% { transform: scale(1.35); opacity: 0; }
+      }
+      @keyframes orbitSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes moveAgent {
+        from { offset-distance: 0%; opacity: 0; }
+        12% { opacity: 1; }
+        88% { opacity: 1; }
+        to { offset-distance: 100%; opacity: 0; }
+      }
+      @keyframes moveTarget {
+        from { offset-distance: 0%; opacity: 0; }
+        12% { opacity: 1; }
+        88% { opacity: 1; }
+        to { offset-distance: 100%; opacity: 0; }
+      }
+      @keyframes moveEvidence {
+        from { offset-distance: 0%; opacity: 0; }
+        12% { opacity: 1; }
+        88% { opacity: 1; }
+        to { offset-distance: 100%; opacity: 0; }
+      }
+      @keyframes moveApproval {
+        from { offset-distance: 0%; opacity: 0; }
+        12% { opacity: 1; }
+        88% { opacity: 1; }
+        to { offset-distance: 100%; opacity: 0; }
+      }
+      @keyframes targetBreath {
+        0%, 100% { opacity: .96; }
+        50% { opacity: 1; }
+      }
+    </style>
   </defs>
+
+  <rect width="1400" height="860" fill="url(#bgGlow)"/>
+  <g opacity=".5">
+    <path class="grid-line" d="M80 140 H1320"/>
+    <path class="grid-line" d="M80 260 H1320"/>
+    <path class="grid-line" d="M80 380 H1320"/>
+    <path class="grid-line" d="M80 500 H1320"/>
+    <path class="grid-line" d="M80 620 H1320"/>
+    <path class="grid-line" d="M180 90 V760"/>
+    <path class="grid-line" d="M420 90 V760"/>
+    <path class="grid-line" d="M660 90 V760"/>
+    <path class="grid-line" d="M900 90 V760"/>
+    <path class="grid-line" d="M1140 90 V760"/>
+  </g>
+
+  <text class="label" x="700" y="60" text-anchor="middle" font-size="38" font-weight="850">CAVRA Runtime Authority Map</text>
+  <text class="muted" x="700" y="96" text-anchor="middle" font-size="18">An intelligent control fabric between agent intent and real-world engineering authority.</text>
+
+  <g class="card">
+    <rect class="agent-card" x="90" y="210" width="300" height="190" rx="26"/>
+    <text x="240" y="260" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f2d4f">AI Agent Zone</text>
+    <text x="240" y="294" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#16365d">Codex, Claude Code, MCP clients</text>
+    <text x="240" y="326" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#1f426b">file writes, shell commands, Git ops</text>
+    <text x="240" y="354" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#1f426b">tool calls, cloud changes, reports</text>
+  </g>
+
+  <g class="card">
+    <rect class="target-card" x="1010" y="150" width="300" height="360" rx="28"/>
+    <text x="1160" y="198" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#22133b">Governed Targets</text>
+    <g font-family="Inter, Arial, sans-serif" font-size="16" font-weight="750">
+      <rect x="1060" y="226" width="200" height="48" rx="12" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="1160" y="257" text-anchor="middle" fill="#7c2d12">Code and Git</text>
+      <rect x="1060" y="290" width="200" height="48" rx="12" fill="#ecfdf5" stroke="#34d399"/>
+      <text x="1160" y="321" text-anchor="middle" fill="#064e3b">Cloud and IaC</text>
+      <rect x="1060" y="354" width="200" height="48" rx="12" fill="#f5f3ff" stroke="#a78bfa"/>
+      <text x="1160" y="385" text-anchor="middle" fill="#4c1d95">MCP and Tools</text>
+      <rect x="1060" y="418" width="200" height="48" rx="12" fill="#fef2f2" stroke="#f87171"/>
+      <text x="1160" y="449" text-anchor="middle" fill="#7f1d1d">Shell and CI/CD</text>
+    </g>
+  </g>
+
+  <g>
+    <circle class="core-ring-a orbit" cx="700" cy="400" r="170"/>
+    <circle class="core-ring-b orbit" cx="700" cy="400" r="170"/>
+    <circle class="core-ring-c orbit" cx="700" cy="400" r="170"/>
+    <circle cx="700" cy="400" r="145" fill="url(#coreGlow)" stroke="#99f6e4" stroke-width="4" filter="url(#softGlow)"/>
+    <circle cx="700" cy="400" r="98" fill="none" stroke="#ccfbf1" stroke-width="2" opacity=".55"/>
+    <text class="label" x="700" y="362" text-anchor="middle" font-size="27" font-weight="850">CAVRA</text>
+    <text class="label" x="700" y="394" text-anchor="middle" font-size="20" font-weight="750">Authority Core</text>
+    <text class="micro" x="700" y="425" text-anchor="middle" font-size="15">decide before action</text>
+    <text class="micro" x="700" y="450" text-anchor="middle" font-size="15">prove after action</text>
+  </g>
+
+  <g class="orbit-spin">
+    <circle class="orbit" cx="700" cy="400" r="218"/>
+    <circle cx="700" cy="182" r="6" fill="#facc15"/>
+    <circle cx="918" cy="400" r="6" fill="#34d399"/>
+    <circle cx="700" cy="618" r="6" fill="#60a5fa"/>
+    <circle cx="482" cy="400" r="6" fill="#f472b6"/>
+  </g>
+
+  <g class="card" font-family="Inter, Arial, sans-serif">
+    <rect class="satellite" x="542" y="142" width="316" height="74" rx="18"/>
+    <text class="label" x="700" y="174" text-anchor="middle" font-size="18" font-weight="800">Policy and Mode</text>
+    <text class="muted" x="700" y="197" text-anchor="middle" font-size="14">allow, deny, approval, shadow, break glass</text>
+
+    <rect class="satellite" x="384" y="314" width="172" height="92" rx="18"/>
+    <text class="label" x="470" y="350" text-anchor="middle" font-size="17" font-weight="800">Identity</text>
+    <text class="muted" x="470" y="374" text-anchor="middle" font-size="13">agent, user, tenant</text>
+
+    <rect class="satellite" x="844" y="314" width="172" height="92" rx="18"/>
+    <text class="label" x="930" y="350" text-anchor="middle" font-size="17" font-weight="800">Tool Trust</text>
+    <text class="muted" x="930" y="374" text-anchor="middle" font-size="13">MCP, runners, APIs</text>
+
+    <rect class="satellite" x="384" y="500" width="172" height="92" rx="18"/>
+    <text class="label" x="470" y="536" text-anchor="middle" font-size="17" font-weight="800">Approval</text>
+    <text class="muted" x="470" y="560" text-anchor="middle" font-size="13">review, deny, break glass</text>
+
+    <rect class="satellite" x="844" y="500" width="172" height="92" rx="18"/>
+    <text class="label" x="930" y="536" text-anchor="middle" font-size="17" font-weight="800">Evidence</text>
+    <text class="muted" x="930" y="560" text-anchor="middle" font-size="13">signed proof, reports</text>
+  </g>
+
+  <g>
+    <path class="wire" d="M390 305 C480 280 525 315 585 365"/>
+    <path class="wire" d="M815 365 C915 305 1030 280 1060 255"/>
+    <path class="wire" d="M815 420 C930 465 1000 444 1060 444"/>
+    <path class="wire" d="M700 545 C720 620 780 670 860 690"/>
+    <path class="approval-wire" d="M585 430 C470 535 350 590 245 570"/>
+    <path class="approval-wire" d="M245 570 C405 530 505 485 585 430"/>
+    <path class="wire-soft" d="M700 255 V216"/>
+    <path class="wire-soft" d="M555 365 L555 360"/>
+    <path class="wire-soft" d="M845 365 L845 360"/>
+    <path class="wire-soft" d="M555 470 L555 545"/>
+    <path class="wire-soft" d="M845 470 L845 545"/>
+  </g>
+
+  <g class="card">
+    <rect x="90" y="520" width="300" height="120" rx="24" fill="#2b210f" stroke="#fbbf24" stroke-width="2"/>
+    <text class="label" x="240" y="560" text-anchor="middle" font-size="21" font-weight="850">Human Authority</text>
+    <text class="muted" x="240" y="590" text-anchor="middle" font-size="15">approve, reject, expire, escalate</text>
+    <text class="muted" x="240" y="616" text-anchor="middle" font-size="15">emergency break-glass with evidence</text>
+  </g>
+
+  <g class="card">
+    <rect x="802" y="646" width="352" height="112" rx="24" fill="#09263d" stroke="#60a5fa" stroke-width="2"/>
+    <text class="label" x="978" y="688" text-anchor="middle" font-size="21" font-weight="850">Evidence and AISPM</text>
+    <text class="muted" x="978" y="718" text-anchor="middle" font-size="15">signed bundles, report delivery, findings</text>
+    <text class="muted" x="978" y="742" text-anchor="middle" font-size="15">coverage, blockers, production readiness</text>
+  </g>
+
+  <circle class="packet packet-agent" cx="0" cy="0" r="10"/>
+  <circle class="packet allow packet-target" cx="0" cy="0" r="9"/>
+  <circle class="packet packet-evidence" cx="0" cy="0" r="9"/>
+  <circle class="packet deny packet-approval" cx="0" cy="0" r="8"/>
+
+  <g font-family="Inter, Arial, sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="490" y="287" text-anchor="middle">normalize request</text>
+    <text x="960" y="286" text-anchor="middle">allowed path</text>
+    <text x="412" y="610" text-anchor="middle">approval route</text>
+    <text x="742" y="664" text-anchor="middle">evidence feed</text>
+  </g>
+
+  <text class="muted" x="700" y="816" text-anchor="middle" font-size="15">Motion shows decision flow. With reduced motion, this remains a static map of authority, enforcement, approval, evidence, and AISPM.</text>
 </svg>
