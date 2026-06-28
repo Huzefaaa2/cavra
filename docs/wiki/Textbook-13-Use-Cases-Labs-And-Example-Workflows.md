@@ -94,6 +94,56 @@ Goal: understand the production condition.
 
 Enterprise users configure real tenant inputs, real connector credentials, SMTP or report provider settings, and runtime workflows. Then they run source validators and the final production gate. The completion condition is `ready_for_aispm_production: true` with no blockers.
 
+## Lab 8: Enterprise Trial Proof Of Value
+
+Goal: help trial users prove CAVRA's value with one realistic use case instead
+of a broad, unfocused product tour.
+
+Start at the approved-access trial portal:
+
+```text
+https://cavra-trial.mind-ops.cloud
+```
+
+Scenario: a platform team wants an AI coding agent to update deployment
+automation. The action is useful, but it can change production behavior. The
+trial should prove that CAVRA keeps the agent productive while preventing
+unapproved production-impacting changes.
+
+1. Submit a trial request with business contact, GitHub username, role, and
+   evaluation goal.
+2. After operator approval, configure private package access and validate the
+   time-limited evaluator license through the handoff instructions.
+3. Choose one repository, one workflow, and one high-risk action such as
+   editing deployment automation, changing IAM/Kubernetes configuration,
+   invoking a repository mutation tool, or running a destructive command.
+4. Run the workflow through CAVRA and capture the runtime decision.
+5. Route one legitimate high-risk action for approval.
+6. Block or deny one unsafe action.
+7. Generate and verify an evidence bundle.
+8. Review AISPM posture and the report center to confirm that the action,
+   control decision, approval path, evidence confidence, and report readiness
+   are visible.
+9. Close out the trial by recording feedback, blockers, license expiry or
+   revocation, package access removal, and pilot decision.
+
+Success criteria:
+
+- The team can show what the agent attempted before execution.
+- The decision is explainable through policy, risk, and context.
+- Approval is captured for a legitimate high-risk action.
+- Unsafe activity is blocked or denied.
+- Evidence is generated and verifiable.
+- AISPM makes the posture understandable to security, audit, and executive
+  reviewers.
+- Trial closeout does not leave stale package or license access behind.
+
+Use [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) while running this
+lab. It is the operating handbook for access request, license handling,
+guided labs, evidence review, AISPM/report review, and closeout.
+
+![CAVRA trial license to value journey](assets/textbook/cavra-trial-license-to-value-loop.svg)
+
 ## Case Study 1: Prevent A Cloud Bill Disaster
 
 Beginning: a platform team sees a sudden cloud bill spike after a quarter-end test cycle. A developer asks an AI agent to "clean up unused Kubernetes resources and reduce the bill before Monday." The request is sensible. The agent reads manifests, compares namespace activity, and finds old workloads. It also notices that one namespace named `production` appears idle because the workload moved to a different autoscaling profile during the weekend.

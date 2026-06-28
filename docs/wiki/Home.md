@@ -78,6 +78,19 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 
 The animated diagrams are SVG-native and are written to degrade into readable static diagrams when motion is disabled by browser, accessibility, or renderer settings. Every textbook image uses descriptive alt text in the surrounding Markdown.
 
+## Enterprise Trial Path
+
+Approved Enterprise evaluators start at the public trial portal:
+
+- [CAVRA Enterprise Trial](https://cavra-trial.mind-ops.cloud/)
+
+The trial portal is the starting point for requesting operator-reviewed access,
+private package entitlement, and time-limited evaluator license material. After
+approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) to run a
+complete proof-of-value scenario: choose one repository or workflow, govern one
+risky AI-agent action, route one approval, generate evidence, review AISPM, and
+close out the trial without leaving stale package or license access behind.
+
 ## Primary Product References
 
 - [CLI](CLI.md)

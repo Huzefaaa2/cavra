@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA trial license to value journey</title>
+  <desc id="desc">An animated diagram showing how an evaluator moves from trial request to operator approval, private package access, license validation, runtime authority, evidence, AISPM review, and trial closeout.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="46%" stop-color="#17223f"/>
+      <stop offset="100%" stop-color="#102c2c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="50%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7dd3fc"/>
+    </marker>
+    <style>
+      .small { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #dbeafe; }
+      .tiny { font: 500 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #b6c7e6; }
+      .title { font: 800 44px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+      .subtitle { font: 500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #c7d2fe; }
+      .node-title { font: 800 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+      .node-body { font: 500 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #cbd5e1; }
+      .node { fill: rgba(15, 23, 42, 0.9); stroke: rgba(125, 211, 252, 0.72); stroke-width: 2; }
+      .node-warm { fill: rgba(31, 25, 8, 0.92); stroke: rgba(251, 191, 36, 0.82); stroke-width: 2; }
+      .node-safe { fill: rgba(6, 34, 30, 0.92); stroke: rgba(94, 234, 212, 0.82); stroke-width: 2; }
+      .line { fill: none; stroke: #7dd3fc; stroke-width: 3; marker-end: url(#arrow); opacity: 0.72; }
+      .dash { fill: none; stroke: #fbbf24; stroke-width: 3; stroke-dasharray: 8 10; opacity: 0.72; }
+      .pulse {
+        transform-origin: center;
+        animation: pulse 4.8s ease-in-out infinite;
+      }
+      .packet {
+        animation: travel 8s linear infinite;
+      }
+      .glow {
+        animation: glow 3.5s ease-in-out infinite alternate;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.85; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.025); }
+      }
+      @keyframes glow {
+        from { opacity: 0.35; }
+        to { opacity: 0.9; }
+      }
+      @keyframes travel {
+        0% { offset-distance: 0%; opacity: 0; }
+        8% { opacity: 1; }
+        92% { opacity: 1; }
+        100% { offset-distance: 100%; opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse, .packet, .glow { animation: none; }
+      }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="1080" cy="110" r="170" fill="#7dd3fc" opacity="0.08"/>
+  <circle cx="210" cy="612" r="220" fill="#5eead4" opacity="0.08"/>
+  <path d="M126 363 C250 144, 485 132, 650 315 S1006 582, 1160 355" class="dash glow"/>
+  <path id="journeyPath" d="M170 340 C260 180, 430 170, 555 280 C690 398, 802 432, 950 350 C1046 296, 1112 362, 1132 474" class="line"/>
+
+  <circle class="packet" cx="170" cy="340" r="9" fill="#fbbf24" filter="url(#softGlow)" style="offset-path:path('M170 340 C260 180, 430 170, 555 280 C690 398, 802 432, 950 350 C1046 296, 1112 362, 1132 474')"/>
+  <circle class="packet" cx="170" cy="340" r="7" fill="#5eead4" filter="url(#softGlow)" style="offset-path:path('M170 340 C260 180, 430 170, 555 280 C690 398, 802 432, 950 350 C1046 296, 1112 362, 1132 474'); animation-delay: -2.6s"/>
+  <circle class="packet" cx="170" cy="340" r="6" fill="#7dd3fc" filter="url(#softGlow)" style="offset-path:path('M170 340 C260 180, 430 170, 555 280 C690 398, 802 432, 950 350 C1046 296, 1112 362, 1132 474'); animation-delay: -5.1s"/>
+
+  <text x="70" y="82" class="title">CAVRA Enterprise Trial: License To Value Journey</text>
+  <text x="72" y="118" class="subtitle">Request access, validate the evaluator license, run a real governed workflow, prove value, and close out cleanly.</text>
+
+  <g class="pulse">
+    <rect x="70" y="245" width="205" height="126" rx="18" class="node"/>
+    <text x="94" y="284" class="node-title">1. Request Trial</text>
+    <text x="94" y="315" class="node-body">Portal request</text>
+    <text x="94" y="340" class="node-body">business email</text>
+    <text x="94" y="365" class="node-body">evaluation goal</text>
+  </g>
+
+  <g class="pulse">
+    <rect x="305" y="145" width="215" height="132" rx="18" class="node-warm"/>
+    <text x="330" y="185" class="node-title">2. Operator Review</text>
+    <text x="330" y="216" class="node-body">Approved access</text>
+    <text x="330" y="241" class="node-body">private package entitlement</text>
+    <text x="330" y="266" class="node-body">controlled handoff</text>
+  </g>
+
+  <g class="pulse">
+    <rect x="530" y="270" width="220" height="132" rx="18" class="node"/>
+    <text x="555" y="310" class="node-title">3. License Validation</text>
+    <text x="555" y="341" class="node-body">Time-limited material</text>
+    <text x="555" y="366" class="node-body">secret-safe storage</text>
+    <text x="555" y="391" class="node-body">signed validation</text>
+  </g>
+
+  <g class="pulse">
+    <rect x="778" y="400" width="225" height="132" rx="18" class="node-safe"/>
+    <text x="803" y="440" class="node-title">4. Runtime Authority</text>
+    <text x="803" y="471" class="node-body">Govern one risky</text>
+    <text x="803" y="496" class="node-body">agent workflow with</text>
+    <text x="803" y="521" class="node-body">approval evidence</text>
+  </g>
+
+  <g class="pulse">
+    <rect x="1018" y="275" width="205" height="132" rx="18" class="node"/>
+    <text x="1042" y="315" class="node-title">5. AISPM Review</text>
+    <text x="1042" y="346" class="node-body">Posture, reports,</text>
+    <text x="1042" y="371" class="node-body">blockers, closeout,</text>
+    <text x="1042" y="396" class="node-body">pilot decision</text>
+  </g>
+
+  <rect x="80" y="590" width="1120" height="70" rx="18" fill="rgba(15, 23, 42, 0.72)" stroke="rgba(203, 213, 225, 0.28)"/>
+  <text x="108" y="625" class="small">Proof-of-value rule:</text>
+  <text x="300" y="625" class="tiny">one repository or workflow, one risky agent action, one approval route, one evidence bundle, one AISPM/report review, one clean closeout.</text>
+  <text x="108" y="650" class="tiny">Public docs never expose private package names, license keys, token formats, customer records, or operator-only evidence.</text>
+</svg>

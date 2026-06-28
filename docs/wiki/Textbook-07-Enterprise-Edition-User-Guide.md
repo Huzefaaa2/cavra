@@ -50,6 +50,36 @@ An Enterprise evaluation should not start with every possible feature. Start wit
 
 This keeps the evaluation measurable. The question is not "does the dashboard look complete?" The question is "did real runtime authority, evidence, report delivery, and tenant isolation work end to end?"
 
+## Trial Access, License Generation, And Field Guide
+
+Enterprise Trial access starts at the public approved-access portal:
+
+- `https://cavra-trial.mind-ops.cloud`
+
+The evaluator submits a business email, GitHub username, company role, and
+evaluation goal. A CAVRA trial operator reviews the request. Approved
+evaluators receive private package entitlement and one-time, time-limited
+license material through a controlled channel.
+
+Use the trial license only inside the approved evaluation boundary:
+
+1. Store license material in the protected location described by the approval
+   handoff.
+2. Configure private package access through the approved channel.
+3. Run the supplied license validation step before any Enterprise workflow.
+4. Keep evidence from the trial in the approved evidence room or evaluator
+   archive.
+5. Close the evaluation by confirming license expiry or revocation, package
+   access removal, feedback, blockers, and pilot decision.
+
+Use [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) as the working
+handbook. The guide gives trial users a complete proof-of-value use case: pick
+one repository or workflow, govern one risky AI-agent action, route one
+approval, generate evidence, review AISPM/report output, and close out the
+trial cleanly.
+
+![CAVRA trial license to value journey](assets/textbook/cavra-trial-license-to-value-loop.svg)
+
 ## Connector Setup
 
 Enterprise connectors can deliver or retrieve evidence, tickets, alerts, reports, and operating records. Typical connector families include:

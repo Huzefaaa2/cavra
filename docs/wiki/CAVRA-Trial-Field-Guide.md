@@ -59,6 +59,67 @@ surface.
 
 ![CAVRA AISPM trial evaluation flow](assets/aispm-lab/aispm-trial-flow.svg)
 
+![CAVRA trial license to value journey](assets/textbook/cavra-trial-license-to-value-loop.svg)
+
+## Trial License Generation And Use
+
+Enterprise Trial license material is generated only after an approved request
+through the public trial portal:
+
+- `https://cavra-trial.mind-ops.cloud`
+
+The portal collects the evaluator's business contact, GitHub username, company
+role, and evaluation goal. A CAVRA trial operator reviews the request. Approved
+evaluators receive private package access and one-time, time-limited license
+material through a controlled channel.
+
+Use the license material this way:
+
+1. Store the license in the protected location described in the approval
+   handoff. Do not commit it to Git, tickets, screenshots, public docs, or
+   chat transcripts.
+2. Configure package access exactly as described in the handoff.
+3. Run the supplied license validation step before starting Enterprise
+   workflows.
+4. Keep the license bound to the approved evaluator, tenant, and evaluation
+   window.
+5. Treat expiry, revocation, and closeout as part of the trial, not as
+   administrative cleanup after the fact.
+
+The public textbook intentionally avoids publishing private package names,
+license commands, token formats, signing details, or approval-channel
+implementation details.
+
+## Complete Trial Use Case: Prove Runtime Authority
+
+Use this scenario to prove CAVRA's efficiency during a trial.
+
+Goal: show that CAVRA lets a team safely use an AI coding agent for a real
+workflow while preserving runtime authority, approval evidence, and executive
+posture visibility.
+
+1. Pick one repository or workflow that represents a real business risk.
+2. Define one risky agent action, such as editing deployment automation,
+   changing IAM or Kubernetes configuration, invoking a repository mutation
+   tool, or running a destructive command.
+3. Request Enterprise Trial access from `https://cavra-trial.mind-ops.cloud`.
+4. After approval, activate private package access and validate the evaluator
+   license using the handoff instructions.
+5. Run the workflow through CAVRA and record the decision: allow, warn, block,
+   require approval, or allow with attestation.
+6. Route one legitimate high-risk action for approval and deny one unsafe
+   action.
+7. Generate an evidence bundle and verify that the evidence explains actor,
+   action, policy, decision, approval path, and evidence references.
+8. Review the AISPM posture view and report center to see how the trial action
+   appears to security, audit, and executive users.
+9. Close the trial by confirming license expiry or revocation, package access
+   removal, evidence archive status, feedback, and pilot decision.
+
+Success criteria: the evaluator can show exactly what the agent attempted, how
+CAVRA decided, who approved or denied the action, where the evidence lives, and
+whether remaining blockers prevent pilot or production expansion.
+
 ## Lab 1: Product Orientation
 
 1. Open `https://huzefaaa2.github.io/cavra/#dashboard`.
@@ -78,15 +139,20 @@ and private-source boundaries.
 ## Lab 2: Trial Access Request
 
 1. Open `https://cavra-trial.mind-ops.cloud`.
-2. Submit a trial request with business contact details.
-3. Confirm the request is recorded as pending approval.
+2. Submit a trial request with business contact details, GitHub username,
+   company role, and evaluation goal.
+3. Confirm the request is recorded as pending operator review.
 4. Review [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
    to understand operator approval, package access, and license issuance.
+5. After approval, follow the private handoff to configure package access,
+   store license material securely, and validate the time-limited evaluator
+   license before running Enterprise workflows.
 
 Checkpoint: `checkpoint-trial-request`
 
 Expected result: the evaluator understands why Enterprise Trial access is
-approved and gated instead of anonymous.
+approved and gated instead of anonymous, and how the license is generated,
+activated, validated, and closed out.
 
 ## Lab 3: Governed Agent Action
 
@@ -177,7 +243,7 @@ converted without leaving stale package or license access behind.
 | Checkpoint | Expected Evidence |
 | --- | --- |
 | Product surfaces | Public dashboard and open-core docs reviewed. |
-| Trial request | Approved-access flow understood. |
+| Trial request | Approved-access flow, operator review, license handoff, and secure license storage understood. |
 | Agent decision | Public-safe decision evidence downloaded. |
 | AISPM posture | Risk, coverage, timeline, and freshness panels reviewed. |
 | Report center | Community downloads and Enterprise delivery boundary understood. |

@@ -178,7 +178,30 @@ Historical implementation, release, validation, and testing records are archived
 
 ## Enterprise Evaluation
 
-Enterprise evaluation should use the Trial and Enterprise guide paths:
+Enterprise evaluation starts at the approved-access trial portal:
+
+- [CAVRA Enterprise Trial](https://cavra-trial.mind-ops.cloud/)
+
+The trial is not an anonymous Enterprise source download. Approved evaluators
+request access with a business email, GitHub username, company role, and
+evaluation goal. After operator review, approved evaluators receive private
+package access and one-time, time-limited license material through a controlled
+channel.
+
+Recommended trial path:
+
+1. Request access from the trial portal.
+2. Follow the operator approval and license handoff instructions.
+3. Store license material in a secret store or protected local file, never in
+   source control.
+4. Validate the license using the command or package workflow supplied in the
+   approval handoff.
+5. Complete one measurable use case with one repository, one risky agent
+   action, one approval route, one evidence bundle, and one AISPM/report review.
+6. Use the Trial Field Guide to close out the evaluation, capture findings, and
+   decide whether to move to pilot.
+
+Use these Trial and Enterprise guide paths:
 
 - [Enterprise Trial Availability](docs/wiki/Enterprise-Trial-Availability.md)
 - [Enterprise Trial Self-Service Access](docs/wiki/Enterprise-Trial-Self-Service-Access.md)
