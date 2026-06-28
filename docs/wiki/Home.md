@@ -112,6 +112,7 @@ close out the trial without leaving stale package or license access behind.
 - [Enterprise Trial Availability](Enterprise-Trial-Availability.md)
 - [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)
 - [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md)
+- [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
 
 ## Development And Testing Archive
 

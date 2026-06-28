@@ -208,6 +208,28 @@ Example workflow files are available under:
 
 Enterprise deployment adds SSO, RBAC, tenant configuration, live connectors, private policy packs, report delivery, and AISPM live ingestion. Use [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md), [OIDC RBAC Deployment](OIDC-RBAC-Deployment.md), [Connector Execution Hooks](Connector-Execution-Hooks.md), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md) as the main references.
 
+On Azure, Trial and Enterprise deployment use the private
+`Huzefaaa2/cavra-enterprise` workflow set:
+
+- `deploy-azure-trial-api.yml`
+- `deploy-azure-trial-ui.yml`
+- `deploy-azure-enterprise-api.yml`
+- `deploy-azure-enterprise-ui.yml`
+- `deploy-azure-enterprise-connectors.yml`
+- `validate-azure-aispm-production.yml`
+
+The Trial path hosts the approved-access portal, license request workflow,
+time-limited licenses, private package delivery, guided AISPM labs, expiry,
+revocation, audit evidence, and closeout. The Enterprise path hosts the private
+control plane with Entra ID/OIDC, RBAC, tenant isolation, private policy packs,
+persistent audit/evidence stores, SMTP/report-provider integration, live
+connectors, runtime workflow validation, and the final AISPM production
+readiness gate.
+
+Use [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
+for the public-safe architecture. The executable workflows and secrets stay in
+the private Enterprise repository.
+
 Enterprise deployment models:
 
 | Model | Use when | Key work |

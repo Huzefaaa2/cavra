@@ -101,6 +101,20 @@ Use this conceptual path for any AISPM report:
 
 Enterprise report delivery is not complete until real provider settings and real recipients have been validated.
 
+## Azure AISPM Production Gate
+
+For Azure Enterprise deployment, AISPM production readiness is validated in the
+private `cavra-enterprise` workflow `validate-azure-aispm-production.yml`. The
+workflow consumes live validator packets for:
+
+- GA operating archive closeout.
+- Production deployment runtime validation.
+- Report delivery production validation.
+- Runtime workflow validation.
+
+The production packet must return `ready_for_aispm_production: true` and no
+blockers. See [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md).
+
 ## Trial And Pilot Flow
 
 AISPM supports a trial-to-pilot journey:

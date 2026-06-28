@@ -126,6 +126,12 @@ The deployment artifacts are:
 
 Use [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md) for the full setup, required GitHub variables, Azure resources, persistence boundary, and validation steps. This path exposes Community features only; Enterprise tenant isolation, live connectors, report delivery, private policy packs, and AISPM production validation remain Enterprise deployment work.
 
+Trial and Enterprise Azure deployments use a separate private workflow set in
+`Huzefaaa2/cavra-enterprise` for the Trial portal, license workflow, private
+packages, Enterprise control plane, connector jobs, authenticated operator UI,
+and AISPM production readiness gate. Public-safe overview:
+[Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md).
+
 ## CLI Command Families
 
 The `cavra` CLI covers local decisions, policies, approvals, evidence, registries, operations, runtime workflows, releases, and demos.
@@ -179,6 +185,7 @@ Start with the wiki textbook:
 - [Enterprise Edition User Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md)
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
 - [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md)
+- [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md)
 
 Canonical references:
 

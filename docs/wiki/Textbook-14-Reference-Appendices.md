@@ -18,6 +18,7 @@
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
 - [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md)
+- [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
 
 ## Appendix B: Command Families
 

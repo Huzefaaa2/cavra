@@ -100,6 +100,33 @@ deployment still requires tenant isolation, private policy packs, live
 connectors, report delivery, runtime workflow validation, and AISPM production
 readiness evidence.
 
+## Azure Trial And Enterprise Pattern
+
+Use the Azure Trial and Enterprise pattern when CAVRA is being evaluated or
+operated as a controlled private service.
+
+Trial deployment covers the approved-access portal, license request workflow,
+operator approval, time-limited licenses, private package/container delivery,
+Trial sandbox and AISPM guided labs, expiry, revocation, audit evidence, and
+closeout.
+
+Enterprise deployment covers the private control plane, Entra ID OIDC/SSO,
+RBAC, tenant isolation, private policy packs, persistent audit/evidence stores,
+SMTP/report-provider integration, live connectors, runtime workflow validation,
+and the final AISPM production readiness gate.
+
+The private workflow set is:
+
+- `deploy-azure-trial-api.yml`
+- `deploy-azure-trial-ui.yml`
+- `deploy-azure-enterprise-api.yml`
+- `deploy-azure-enterprise-ui.yml`
+- `deploy-azure-enterprise-connectors.yml`
+- `validate-azure-aispm-production.yml`
+
+Use [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
+for the public-safe architecture.
+
 ## Enterprise Connector Pattern
 
 Use live connectors for production operations:
@@ -173,6 +200,8 @@ Historical records for these operating chains are stored in [Development And Tes
 | CI/CD required check | Protected branches and releases. | Evidence not tied to real action. | Verify attestation and evidence bundle. |
 | API service | Shared governance across clients. | Incomplete caller context. | Require actor, policy, resource, and evidence metadata. |
 | Azure Community SaaS | Hosted Community API and sandbox UI. | Confusing Community demo scope with Enterprise production. | Configure CORS, public API URL, OIDC deploy, and explicit persistence boundary. |
+| Azure Trial | Approved Enterprise evaluation. | License or package access outlives the evaluation. | Enforce approval, expiry, revocation, audit evidence, and closeout. |
+| Azure Enterprise | Private production control plane. | Tenant, connector, report, or runtime workflow gap. | Entra ID/RBAC, tenant isolation, Key Vault, immutable evidence, live validators, final AISPM gate. |
 | Docker/Compose | Labs and pilots. | Secrets in local files. | Use env vars and mounted secret stores. |
 | Kubernetes/Helm-style | Production control plane. | Misconfigured identity or storage. | Add SSO/RBAC, network policy, persistent stores, monitoring. |
 | Air-gapped | Regulated offline environments. | Trust root drift. | Use signed bundles, offline trust distribution, immutable evidence. |

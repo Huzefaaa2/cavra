@@ -34,6 +34,19 @@ This is a Community deployment path. It does not add Enterprise tenant
 isolation, private policy packs, live connectors, SMTP/report-provider delivery,
 or AISPM production readiness gates.
 
+## Azure Trial And Enterprise
+
+Trial and Enterprise Azure deployments are implemented in the private
+`Huzefaaa2/cavra-enterprise` repository. They cover the Trial portal and license
+request workflow, authenticated evaluator/operator access, time-limited trial
+licenses, private package delivery, guided AISPM labs, expiry and revocation,
+the private Enterprise control plane, Entra ID OIDC/SSO, RBAC, tenant
+isolation, private policy packs, live connectors, report delivery, runtime
+workflow validation, and AISPM production validation.
+
+Public-safe architecture guide:
+[Azure Trial And Enterprise Deployment](azure-trial-enterprise-deployment.md).
+
 ## Configuration
 
 Configure production paths with environment variables instead of source changes.

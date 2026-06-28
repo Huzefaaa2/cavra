@@ -124,6 +124,23 @@ The production completion condition is a final packet that returns `ready_for_ai
 
 ![Approval routing flow](assets/textbook/approval-routing-flow.svg)
 
+## Azure Enterprise Deployment
+
+Azure Enterprise deployment is operated from the private
+`Huzefaaa2/cavra-enterprise` repository. The workflow set deploys the Trial
+portal, Trial front door, Enterprise control plane, authenticated operator UI,
+connector jobs, and final AISPM production readiness gate.
+
+The Azure architecture uses Container Apps or AKS, Static Web Apps or App
+Service, Azure Container Registry, Key Vault, Azure SQL or PostgreSQL,
+immutable Blob Storage, Service Bus or Event Grid, Front Door/WAF, Private
+Endpoints, Monitor, and Application Insights.
+
+Use [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
+for the public-safe operator map. Production launch is not complete until the
+final private readiness packet returns `ready_for_aispm_production: true` with
+no blockers.
+
 ## What Good Looks Like
 
 | Area | Ready signal |
