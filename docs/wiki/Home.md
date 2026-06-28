@@ -10,6 +10,33 @@ CAVRA exists for a simple reason: AI agents should not receive unchecked authori
 
 Read the book in order if you are new to CAVRA. Jump directly to the command, GUI, AISPM, or deployment chapters if you already know the product shape.
 
+![Five-minute CAVRA journey](assets/textbook/getting-started-journey.svg)
+
+## Five-Minute Quick Start
+
+If you want to see CAVRA work before reading the full book, follow this short path:
+
+1. Install the Community Edition from the repository with `pip install -e .`.
+2. Run `cavra version` and `cavra policy list`.
+3. Run `cavra demo before-the-agent-acts` to see CAVRA block risky agent behavior.
+4. Run `cavra evaluate execute_command "terraform apply -auto-approve" --json` to evaluate a dangerous command directly.
+5. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
+6. Open the sandbox GUI and review the decision, evidence, and AISPM views.
+
+The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA), [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows).
+
+## Learning Paths
+
+| Reader | Read first | Outcome |
+| --- | --- | --- |
+| First-time user | Chapters 0, 1, 5, 6, 13 | Install, run a demo, block a risky action, and verify evidence. |
+| Developer | Chapters 5, 6, 8, 11 | Use the CLI, write policy, route approvals, and create evidence. |
+| Security architect | Chapters 1, 2, 3, 11, 14 | Understand the runtime authority model and governance controls. |
+| Platform owner | Chapters 3, 5, 8, 12 | Integrate CAVRA into CI/CD, APIs, and operating workflows. |
+| Enterprise evaluator | Chapters 4, 7, 10, 12, 13 | Validate SSO/RBAC, connectors, tenant isolation, AISPM, and report delivery. |
+
+## Complete Table Of Contents
+
 1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths)
 2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists)
 3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model)
@@ -37,6 +64,10 @@ Read the book in order if you are new to CAVRA. Jump directly to the command, GU
 | CLI command families | [Command map](assets/textbook/cavra-command-map.svg) |
 | AISPM posture loop | [AISPM posture loop](assets/textbook/aispm-posture-loop.svg) |
 | Enterprise sequence | [Enterprise sequence](assets/textbook/cavra-enterprise-sequence.svg) |
+| Getting started journey | [Getting started journey](assets/textbook/getting-started-journey.svg) |
+| Policy authoring journey | [Policy authoring journey](assets/textbook/policy-authoring-journey.svg) |
+| Approval routing | [Approval routing flow](assets/textbook/approval-routing-flow.svg) |
+| Troubleshooting | [Troubleshooting decision tree](assets/textbook/troubleshooting-decision-tree.svg) |
 
 ## Primary Product References
 

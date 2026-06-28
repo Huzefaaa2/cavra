@@ -37,6 +37,50 @@ cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM ch
 cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
 ```
 
+## Tutorial: Protect Your Git Main Branch
+
+Goal: stop an agent from bypassing pull request review.
+
+```bash
+cavra evaluate git_operation origin/main --json
+```
+
+Expected behavior: the starter policy blocks direct push to protected branches. In a CI/CD path, the same control should become a required check that verifies CAVRA evidence before merge.
+
+Next, route normal work through a pull request and evidence path:
+
+```bash
+cavra evidence bundle --output .cavra/evidence/pr-123
+cavra evidence verify .cavra/evidence/pr-123
+```
+
+Use this tutorial when you want a developer to understand the simplest CAVRA rule: agents can help, but they should not bypass the protected delivery path.
+
+## Tutorial: Audit Shell Commands
+
+Goal: separate safe command exploration from dangerous execution.
+
+```bash
+cavra evaluate execute_command "terraform plan" --json
+cavra evaluate execute_command "terraform apply -auto-approve" --json
+cavra evaluate execute_command "kubectl delete namespace production" --json
+```
+
+Expected behavior: low-risk planning commands are allowed or recorded, while destructive or auto-approved production commands are blocked or routed for approval depending on the policy pack.
+
+## Tutorial: Generate A Compliance-Oriented Evidence Bundle
+
+Goal: prove that policy, approval, and evidence are connected.
+
+```bash
+cavra evidence generate-keypair
+cavra evidence trust-root .cavra/keys/evidence-ed25519-public.pem --key-id local-evidence-key
+cavra evidence bundle --output .cavra/evidence/compliance-demo --classification regulated-sdlc --private-key .cavra/keys/evidence-ed25519-private.pem --key-id local-evidence-key
+cavra evidence verify .cavra/evidence/compliance-demo --trust-root .cavra/keys/evidence-trust-root.json
+```
+
+The bundle can feed CI/CD checks, local review, SIEM export experiments, and AISPM posture samples.
+
 ## Policy Workflow
 
 Community policy work normally follows this path:
@@ -53,6 +97,23 @@ cavra policy verify
 Policies should be treated like code. They need review, tests, signing, and clear rollout modes.
 
 ![Policy lifecycle](assets/textbook/policy-lifecycle.svg)
+
+![Policy authoring journey](assets/textbook/policy-authoring-journey.svg)
+
+Start by copying or initializing a starter policy:
+
+```bash
+cavra policy init --destination .cavra/policy.yaml
+cavra policy validate .cavra/policy.yaml
+cavra policy test --policy-pack cavra-ai-agent-baseline
+```
+
+Then explain decisions before changing enforcement:
+
+```bash
+cavra policy explain execute_command "terraform apply -auto-approve"
+cavra policy explain write_file iam/admin-role.tf
+```
 
 ## Evidence Workflow
 

@@ -15,6 +15,27 @@ cavra evaluate <action> <resource>
 
 Use `cavra evaluate` to ask CAVRA whether an action should proceed.
 
+Practical examples:
+
+```bash
+cavra evaluate read_file .env --json
+cavra evaluate write_file iam/admin-role.tf --json
+cavra evaluate execute_command "terraform apply -auto-approve" --json
+cavra evaluate git_operation origin/main --json
+cavra evaluate mcp_tool_call unknown-filesystem --json
+```
+
+Expected outcomes under the starter baseline:
+
+| Command | Why you run it | Typical decision |
+| --- | --- | --- |
+| `read_file .env` | Confirm secrets are protected. | Block |
+| `write_file iam/admin-role.tf` | Test identity/IAM change control. | Requires approval |
+| `execute_command "terraform plan"` | Confirm safe planning can proceed. | Allow |
+| `execute_command "terraform apply -auto-approve"` | Confirm destructive unattended execution is stopped. | Block |
+| `git_operation origin/main` | Confirm branch protection is respected. | Block |
+| `mcp_tool_call unknown-filesystem` | Confirm untrusted tool calls are blocked. | Block |
+
 ## Agent Commands
 
 ```bash
@@ -38,6 +59,20 @@ cavra policy verify
 
 Use policy commands to manage policy packs and confirm that rules behave as expected.
 
+Policy authoring loop:
+
+```bash
+cavra policy init --destination .cavra/policy.yaml
+cavra policy validate .cavra/policy.yaml
+cavra policy test --policy-pack cavra-ai-agent-baseline
+cavra policy explain execute_command "terraform apply -auto-approve"
+cavra policy keygen
+cavra policy sign .cavra/policy.yaml --signer platform-security --private-key .cavra/policy-signing/local-policy-signing-key.private.pem --key-id local-policy-signing-key
+cavra policy verify .cavra/policy.yaml --public-key .cavra/policy-signing/local-policy-signing-key.public.pem
+```
+
+Use `validate` for schema correctness, `test` for expected behavior, `explain` for human-readable reasoning, and `sign`/`verify` when the policy will be used in stricter governance workflows.
+
 ## Approval Commands
 
 ```bash
@@ -56,12 +91,23 @@ cavra approval deliver
 
 Approval commands turn high-risk decisions into auditable human or external-provider workflows.
 
+Approval example:
+
+```bash
+cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra approval list --state pending
+cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed"
+```
+
+Use approval routing when the action may be legitimate but should not proceed without a named human, reason, and review record.
+
 ## Evidence Commands
 
 ```bash
 cavra evidence generate-keypair
-cavra evidence trust-root
-cavra evidence trust-bundle
+cavra evidence trust-root .cavra/keys/evidence-ed25519-public.pem --key-id local-evidence-key
+cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json
 cavra evidence trust-distribution
 cavra evidence bundle
 cavra evidence verify
@@ -77,6 +123,18 @@ cavra evidence search
 
 Evidence commands produce and validate the proof that CAVRA decisions were made and enforced.
 
+Evidence example:
+
+```bash
+cavra evidence generate-keypair
+cavra evidence trust-root .cavra/keys/evidence-ed25519-public.pem --key-id local-evidence-key
+cavra evidence bundle --output .cavra/evidence/latest --private-key .cavra/keys/evidence-ed25519-private.pem --key-id local-evidence-key
+cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-root.json
+cavra evidence siem-event .cavra/evidence/latest
+```
+
+Use evidence commands whenever decisions must feed CI/CD gates, audit, SIEM export, AISPM, or report delivery.
+
 ## Registry Commands
 
 ```bash
@@ -91,6 +149,15 @@ cavra registry migrate
 ```
 
 Registry commands manage governed agent identities and MCP trust records.
+
+MCP trust example:
+
+```bash
+cavra registry mcp-register github-mcp --trust-tier approved --approval-state approved --capability repository --tool create_pull_request
+cavra registry mcp-check github-mcp create_pull_request --capability repository
+```
+
+Use the registry when a tool call is more important than a file operation. CAVRA should know which MCP servers are trusted, what capabilities they expose, and whether a tool is allowed for the current action.
 
 ## Operations Commands
 
@@ -115,3 +182,12 @@ cavra demo before-the-agent-acts
 ```
 
 Use these commands to initialize Claude Code integration and run the flagship demonstration.
+
+The fastest CLI learning path is:
+
+```bash
+cavra demo before-the-agent-acts
+cavra policy explain execute_command "terraform apply -auto-approve"
+cavra evidence bundle --output .cavra/evidence/latest --private-key .cavra/keys/evidence-ed25519-private.pem --key-id local-evidence-key
+cavra evidence verify .cavra/evidence/latest
+```

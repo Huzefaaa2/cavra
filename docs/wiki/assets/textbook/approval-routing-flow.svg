@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="380" viewBox="0 0 1100 380" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA approval routing flow</title>
+  <desc id="desc">Approval routing from agent action to CAVRA decision, human review, execution, and evidence.</desc>
+  <rect width="1100" height="380" fill="#f8fafc"/>
+  <text x="48" y="54" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Approval routing flow</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="62" y="120" width="160" height="92" rx="8" fill="#fff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="86" y="154" font-size="15" font-weight="700" fill="#0369a1">Agent request</text>
+    <text x="86" y="181" font-size="13" fill="#334155">write IAM / deploy /</text>
+    <text x="86" y="199" font-size="13" fill="#334155">call high-risk tool</text>
+    <path d="M230 166h58" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="300" y="120" width="160" height="92" rx="8" fill="#fff" stroke="#334155" stroke-width="2"/>
+    <text x="324" y="154" font-size="15" font-weight="700" fill="#0f172a">CAVRA decision</text>
+    <text x="324" y="181" font-size="13" fill="#334155">requires_approval</text>
+    <path d="M468 166h58" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="538" y="120" width="160" height="92" rx="8" fill="#fff" stroke="#f59e0b" stroke-width="2"/>
+    <text x="562" y="154" font-size="15" font-weight="700" fill="#b45309">Reviewer</text>
+    <text x="562" y="181" font-size="13" fill="#334155">approve, deny,</text>
+    <text x="562" y="199" font-size="13" fill="#334155">or break glass</text>
+    <path d="M706 166h58" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="776" y="120" width="160" height="92" rx="8" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+    <text x="800" y="154" font-size="15" font-weight="700" fill="#15803d">Execute safely</text>
+    <text x="800" y="181" font-size="13" fill="#334155">bounded action</text>
+    <path d="M856 220v48H260v-48" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+    <rect x="408" y="268" width="250" height="72" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="438" y="300" font-size="15" font-weight="700" fill="#6d28d9">Evidence bundle and AISPM posture</text>
+    <text x="438" y="324" font-size="13" fill="#334155">decision, actor, reason, approval, outcome</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

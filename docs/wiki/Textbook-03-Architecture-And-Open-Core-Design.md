@@ -33,6 +33,33 @@ CAVRA can be understood through four planes:
 - Evidence plane: signed evidence, trust roots, attestation, metadata, search, retention, SIEM export, and report packaging.
 - Posture plane: AISPM dashboards, findings, control coverage, report center, trial readiness, and production readiness gates.
 
+## Decision Request Flow
+
+Every CAVRA integration should preserve the same logical flow:
+
+1. Capture the attempted action from a CLI call, agent hook, MCP tool, CI runner, API request, or Enterprise connector.
+2. Normalize the action into a decision request with actor, action type, resource, repository, policy pack, policy mode, and tenant context when applicable.
+3. Load policy, registry, approval, identity, and evidence context.
+4. Return a decision: allow, deny/block, requires approval, shadow, or break glass.
+5. Enforce the decision at the caller.
+6. Generate evidence and make it available for search, report, attestation, or AISPM ingestion.
+
+The architecture is intentionally caller-neutral. A local CLI, a GitHub Actions runner, a Claude Code wrapper, and an Enterprise runtime workflow should all be able to ask the same control question: should this action proceed?
+
+## Data Boundaries
+
+| Data type | Community handling | Enterprise handling |
+| --- | --- | --- |
+| Policy packs | Public and local policy YAML. | Private policy registry, signed packs, tenant assignment. |
+| Agent identity | Local agent/profile records. | SSO/RBAC, tenant-bound identity, audit records. |
+| MCP trust | Public-safe registry examples. | Organization trust registry and connector-backed validation. |
+| Evidence | Local bundles, sample exports, public-safe packets. | Tenant audit store, retention, immutable storage, SIEM/export connectors. |
+| AISPM | Static samples and schemas. | Live ingestion, streaming, report delivery, tenant posture. |
+
+## Why Open-Core Matters
+
+The public repository must teach the control model without leaking private enterprise implementation, customer evidence, connector credentials, tenant secrets, or paid policy packs. That is why the Community Edition exposes the shape of decisions, policy, evidence, GUI, and public-safe AISPM while Enterprise adds production data plane integrations and commercial operating controls.
+
 ## Community To Enterprise Path
 
 CAVRA Community Edition lets a team learn the operating model locally. A typical path is:

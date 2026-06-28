@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="420" viewBox="0 0 1100 420" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA troubleshooting decision tree</title>
+  <desc id="desc">Troubleshooting path for blocked actions, missing approvals, invalid evidence, connector failures, and AISPM blockers.</desc>
+  <rect width="1100" height="420" fill="#f8fafc"/>
+  <text x="48" y="54" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Troubleshooting decision tree</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="14">
+    <rect x="420" y="95" width="260" height="64" rx="8" fill="#fff" stroke="#334155" stroke-width="2"/>
+    <text x="464" y="132" font-weight="700" fill="#0f172a">Something failed or blocked</text>
+    <path d="M550 160v42" stroke="#64748b" stroke-width="3"/>
+    <path d="M164 202h772" stroke="#64748b" stroke-width="3"/>
+    <path d="M164 202v44M356 202v44M550 202v44M744 202v44M936 202v44" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(80 250)">
+      <rect width="168" height="116" rx="8" fill="#fff" stroke="#ef4444" stroke-width="2"/>
+      <text x="18" y="32" font-weight="700" fill="#b91c1c">Blocked action</text>
+      <text x="18" y="60" fill="#334155">Run policy explain</text>
+      <text x="18" y="80" fill="#334155">Check action/resource</text>
+      <text x="18" y="100" fill="#334155">Fix policy or request</text>
+    </g>
+    <g transform="translate(272 250)">
+      <rect width="168" height="116" rx="8" fill="#fff" stroke="#f59e0b" stroke-width="2"/>
+      <text x="18" y="32" font-weight="700" fill="#b45309">Approval stuck</text>
+      <text x="18" y="60" fill="#334155">List pending items</text>
+      <text x="18" y="80" fill="#334155">Check route owner</text>
+      <text x="18" y="100" fill="#334155">Expire or escalate</text>
+    </g>
+    <g transform="translate(466 250)">
+      <rect width="168" height="116" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="18" y="32" font-weight="700" fill="#6d28d9">Evidence invalid</text>
+      <text x="18" y="60" fill="#334155">Verify bundle</text>
+      <text x="18" y="80" fill="#334155">Check trust root</text>
+      <text x="18" y="100" fill="#334155">Regenerate if needed</text>
+    </g>
+    <g transform="translate(660 250)">
+      <rect width="168" height="116" rx="8" fill="#fff" stroke="#0ea5e9" stroke-width="2"/>
+      <text x="18" y="32" font-weight="700" fill="#0369a1">Connector failed</text>
+      <text x="18" y="60" fill="#334155">Check redaction</text>
+      <text x="18" y="80" fill="#334155">Retry delivery</text>
+      <text x="18" y="100" fill="#334155">Capture audit</text>
+    </g>
+    <g transform="translate(852 250)">
+      <rect width="168" height="116" rx="8" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+      <text x="18" y="32" font-weight="700" fill="#15803d">AISPM blocker</text>
+      <text x="18" y="60" fill="#334155">Open readiness packet</text>
+      <text x="18" y="80" fill="#334155">Resolve blockers</text>
+      <text x="18" y="100" fill="#334155">Rerun validator</text>
+    </g>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

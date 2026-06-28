@@ -2,6 +2,18 @@
 
 This chapter gives practical ways to experience CAVRA.
 
+## Tutorial Ladder
+
+Complete the labs in this order if you are new:
+
+1. Block a risky file write.
+2. Route a legitimate high-risk change for approval.
+3. Generate and verify evidence.
+4. Register and check MCP trust.
+5. Explore the sandbox GUI.
+6. Read AISPM posture and report readiness.
+7. Move from Community evidence to Enterprise production readiness.
+
 ## Lab 1: Block A Risky File Write
 
 Goal: see runtime authority stop an unsafe agent change.
@@ -11,6 +23,8 @@ cavra evaluate write_file iam/admin-role.tf --json
 ```
 
 Expected result: the decision explains whether the write is allowed, denied, or routed for approval. Use the result as input to an approval or evidence workflow.
+
+Why it matters: identity and infrastructure files are high-impact resources. An agent may be allowed to propose changes, but CAVRA can require a human decision before the change proceeds.
 
 ## Lab 2: Approval-Routed Change
 
@@ -34,6 +48,8 @@ cavra evidence verify .cavra/evidence/latest
 ```
 
 Expected result: evidence can be verified, indexed, searched, exported, or used by CI/CD.
+
+Screenshot target: after creating the bundle, open the sandbox Evidence view and compare the GUI summary with the CLI result.
 
 ## Lab 4: MCP Trust Check
 
@@ -59,11 +75,84 @@ Goal: experience the GUI.
 
 ![AISPM desktop sentinel](assets/aispm-lab/aispm-desktop-sentinel.png)
 
-## Lab 6: Enterprise Report Delivery Readiness
+## Lab 6: Generate A Compliance Report Path
+
+Goal: understand the relationship between runtime decisions and report output.
+
+1. Run the flagship demo.
+2. Generate evidence.
+3. Verify evidence.
+4. Open AI Posture in the sandbox.
+5. Open the Report Center panel.
+6. Identify findings, coverage, delivery state, and blocker status.
+
+![AISPM report center](assets/aispm-lab/aispm-report-center-panel.png)
+
+## Lab 7: Enterprise Report Delivery Readiness
 
 Goal: understand the production condition.
 
 Enterprise users configure real tenant inputs, real connector credentials, SMTP or report provider settings, and runtime workflows. Then they run source validators and the final production gate. The completion condition is `ready_for_aispm_production: true` with no blockers.
+
+## Case Study 1: Prevent A Cloud Bill Disaster
+
+Scenario: a platform team asks an agent to "clean up unused Kubernetes resources." The agent proposes a broad `kubectl delete` command that would remove production namespaces.
+
+Without CAVRA:
+
+- The agent may run the command if it has shell access.
+- The incident is discovered from cluster alerts or user impact.
+- Reviewers reconstruct intent from logs after damage.
+
+With CAVRA:
+
+- `cavra evaluate execute_command "kubectl delete namespace production" --json` blocks or routes the command.
+- The decision records the actor, command, policy, reason, and expected evidence.
+- AISPM records the prevented high-risk action and control coverage.
+
+Outcome: the team still uses AI to inspect cluster state, but destructive execution requires explicit authority.
+
+## Case Study 2: Pass A SOX Change-Control Review
+
+Scenario: an enterprise finance platform uses AI-assisted code changes for release automation. Auditors ask whether AI-generated changes can bypass protected branches or change deployment workflows without review.
+
+CAVRA pattern:
+
+- Direct push to `main` is blocked.
+- Pull requests require CAVRA evidence and AI attestation.
+- Production workflow edits require approval.
+- Evidence bundles are retained and linked to release packets.
+- AISPM reports coverage, findings, exceptions, and report readiness.
+
+Outcome: the team can show not only that controls exist, but that agent actions passed through those controls.
+
+## Case Study 3: Govern MCP Tool Expansion
+
+Scenario: a team adds several MCP servers for issue tracking, repository operations, and filesystem access. Developers want fast agent workflows; security wants assurance that untrusted tools cannot touch sensitive resources.
+
+CAVRA pattern:
+
+- Register approved MCP servers and capabilities.
+- Block unknown filesystem tools.
+- Route repository mutation tools for approval when they touch protected branches.
+- Generate evidence for each trust decision.
+
+Outcome: MCP adoption continues without treating every tool as equally trusted.
+
+## Case Study 4: Run An Enterprise AISPM Trial
+
+Scenario: an evaluator wants to decide whether CAVRA is ready for a production pilot.
+
+CAVRA pattern:
+
+- Configure trial tenant, evaluator roles, and report recipients.
+- Run guided labs with real runtime workflows.
+- Validate connector delivery and SMTP/provider report delivery.
+- Collect evidence into a trial room.
+- Run production readiness validators.
+- Require the final packet to return `ready_for_aispm_production: true`.
+
+Outcome: pilot readiness is based on evidence and blockers, not sales promises.
 
 ## Use Case Map
 
@@ -76,3 +165,18 @@ Enterprise users configure real tenant inputs, real connector credentials, SMTP 
 | Executive posture | AISPM, Report Center |
 | Enterprise trial | Trial guide, labs, evidence room |
 | Production readiness | Live validators, production gate |
+
+## End-To-End Practice Scenario
+
+Use this single practice scenario after the individual labs:
+
+```bash
+cavra demo before-the-agent-acts
+cavra policy explain execute_command "terraform apply -auto-approve"
+cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
+cavra approval create /tmp/cavra-decision.json --requested-by developer
+cavra evidence bundle --output .cavra/evidence/end-to-end
+cavra evidence verify .cavra/evidence/end-to-end
+```
+
+Then open the sandbox and identify where the same story appears in the dashboard, evidence area, approvals, registry, and AISPM posture.

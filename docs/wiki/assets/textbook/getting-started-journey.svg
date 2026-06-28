@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="360" viewBox="0 0 1100 360" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA five-minute getting started journey</title>
+  <desc id="desc">A six step journey from install to first blocked action, evidence, sandbox review, and next policy iteration.</desc>
+  <rect width="1100" height="360" fill="#f8fafc"/>
+  <text x="48" y="56" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Five-minute CAVRA journey</text>
+  <text x="48" y="86" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">Install, run, block, prove, review, and iterate.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <g transform="translate(48 130)">
+      <rect width="150" height="112" rx="8" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+      <text x="18" y="32" font-size="15" font-weight="700" fill="#0369a1">1. Install</text>
+      <text x="18" y="62" font-size="13" fill="#334155">Clone repo</text>
+      <text x="18" y="82" font-size="13" fill="#334155">Install package</text>
+    </g>
+    <path d="M206 186h52" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(270 130)">
+      <rect width="150" height="112" rx="8" fill="#ffffff" stroke="#22c55e" stroke-width="2"/>
+      <text x="18" y="32" font-size="15" font-weight="700" fill="#15803d">2. First run</text>
+      <text x="18" y="62" font-size="13" fill="#334155">cavra version</text>
+      <text x="18" y="82" font-size="13" fill="#334155">policy list</text>
+    </g>
+    <path d="M428 186h52" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(492 130)">
+      <rect width="150" height="112" rx="8" fill="#ffffff" stroke="#ef4444" stroke-width="2"/>
+      <text x="18" y="32" font-size="15" font-weight="700" fill="#b91c1c">3. Block</text>
+      <text x="18" y="62" font-size="13" fill="#334155">terraform apply</text>
+      <text x="18" y="82" font-size="13" fill="#334155">push to main</text>
+    </g>
+    <path d="M650 186h52" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(714 130)">
+      <rect width="150" height="112" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="18" y="32" font-size="15" font-weight="700" fill="#6d28d9">4. Prove</text>
+      <text x="18" y="62" font-size="13" fill="#334155">bundle evidence</text>
+      <text x="18" y="82" font-size="13" fill="#334155">verify evidence</text>
+    </g>
+    <path d="M872 186h52" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(936 130)">
+      <rect width="150" height="112" rx="8" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+      <text x="18" y="32" font-size="15" font-weight="700" fill="#b45309">5. Review</text>
+      <text x="18" y="62" font-size="13" fill="#334155">open sandbox</text>
+      <text x="18" y="82" font-size="13" fill="#334155">read AISPM</text>
+    </g>
+    <path d="M1012 252c-130 70-516 70-720 0" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+    <text x="438" y="318" font-size="14" font-weight="700" fill="#334155">6. Tighten policy and repeat safely</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+</svg>

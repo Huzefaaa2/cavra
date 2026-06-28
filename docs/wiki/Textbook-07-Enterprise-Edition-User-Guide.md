@@ -35,6 +35,21 @@ A production tenant needs:
 
 See [Tenant Onboarding Contract](Tenant-Onboarding-Contract), [Tenant Audit Store Operating Contract](Tenant-Audit-Store-Operating-Contract), and [Entitlement Status Contract](Entitlement-Status-Contract).
 
+## Evaluator Walkthrough
+
+An Enterprise evaluation should not start with every possible feature. Start with one tenant, one repository, one high-risk workflow, one connector path, and one report recipient group.
+
+1. Create or select the evaluation tenant.
+2. Assign evaluator, security reviewer, operator, and report-recipient roles.
+3. Attach a policy pack to one repository or workflow.
+4. Run a governed agent workflow that attempts file, command, Git, and MCP activity.
+5. Route one approval and one denied action.
+6. Generate evidence and ingest it into AISPM.
+7. Deliver one report through the configured SMTP/provider path.
+8. Confirm the readiness packet has no blockers before expanding scope.
+
+This keeps the evaluation measurable. The question is not "does the dashboard look complete?" The question is "did real runtime authority, evidence, report delivery, and tenant isolation work end to end?"
+
 ## Connector Setup
 
 Enterprise connectors can deliver or retrieve evidence, tickets, alerts, reports, and operating records. Typical connector families include:
@@ -48,6 +63,19 @@ Enterprise connectors can deliver or retrieve evidence, tickets, alerts, reports
 - Private queues or internal webhooks.
 
 Connector configuration should always avoid storing secrets in source control. Use environment variables, secret stores, or deployment-level secret management.
+
+## Report Delivery Setup
+
+Enterprise report delivery normally requires:
+
+- SMTP or report-provider host, port, TLS setting, and sender identity.
+- Recipient policies for security, compliance, executive, and operator reports.
+- Delivery audit event storage.
+- Retry and escalation policy.
+- Redaction policy for report content and provider logs.
+- Evidence that at least one validation report was delivered successfully.
+
+Treat report delivery as a production control. A generated report that never reaches the right reviewer is not operationally complete.
 
 ## Runtime Workflow Validation
 
@@ -63,6 +91,20 @@ Before production, Enterprise users must run validators against real workflows:
 - AISPM production readiness gate.
 
 The production completion condition is a final packet that returns `ready_for_aispm_production: true` with no blockers.
+
+![Approval routing flow](assets/textbook/approval-routing-flow.svg)
+
+## What Good Looks Like
+
+| Area | Ready signal |
+| --- | --- |
+| Tenant isolation | Cross-tenant evidence, policy, report, and connector access is denied. |
+| SSO/RBAC | Role mappings match evaluator, reviewer, operator, and executive responsibilities. |
+| Runtime workflow | Real agent/tool activity passes through CAVRA rather than only fixture payloads. |
+| Connectors | Delivery succeeds or fails with auditable retry evidence. |
+| AISPM | Findings, coverage, reports, and blockers are traceable to source evidence. |
+| Report delivery | Validation report is delivered to approved recipients and recorded. |
+| Production gate | Final readiness packet returns ready with no blockers. |
 
 ## Enterprise Operating Reviews
 

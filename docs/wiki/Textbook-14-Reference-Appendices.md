@@ -49,12 +49,79 @@
 | Runtime authority | The CAVRA decision point that evaluates an action before it proceeds. |
 | Tenant | An isolated Enterprise customer or organization boundary. |
 
-## Appendix D: AISPM Report Schema Families
+## Appendix D: Troubleshooting And FAQ
+
+![Troubleshooting decision tree](assets/textbook/troubleshooting-decision-tree.svg)
+
+### My action was blocked. What should I do?
+
+Run:
+
+```bash
+cavra policy explain <action> <target>
+```
+
+Check whether the policy pack, action type, resource path, command string, Git target, or MCP trust state matches what you expected. If the action is legitimate, route it through approval rather than weakening the policy silently.
+
+### A safe command is blocked.
+
+The command pattern is probably too broad. Replace broad globs with narrower allow or approval rules, then run:
+
+```bash
+cavra policy validate .cavra/policy.yaml
+cavra policy test --policy-pack cavra-ai-agent-baseline
+```
+
+### A risky command is allowed.
+
+The policy pack may not contain a matching command rule, or the action type may have been normalized incorrectly. Add an explicit rule, then run `cavra policy explain` against the risky command.
+
+### Approval is stuck.
+
+Run:
+
+```bash
+cavra approval list --state pending
+```
+
+Confirm the route owner, expiry, provider delivery state, and escalation path. If the request is stale, expire it and ask the requester to resubmit with better context.
+
+### Evidence verification failed.
+
+Check the bundle path, manifest, trust root, key ID, and signature material. Regenerate the trust root only when you understand why verification failed; do not paper over a broken evidence chain.
+
+### The sandbox does not show the expected state.
+
+Confirm you are serving `apps/sandbox-ui` from the repository root, then hard-refresh the browser. The public sandbox is static, so it demonstrates product state and sample flows rather than connecting to private Enterprise tenants.
+
+### AISPM says production is not ready.
+
+Open the readiness packet and resolve blockers one by one. Common blockers include missing real connector validation, unverified report delivery, tenant isolation gaps, stale evidence, and synthetic-only runtime workflows.
+
+## Appendix E: AISPM Report Schema Families
 
 Public contracts include dashboard, report catalog, setup, delivery audit, operations dashboard, retention lifecycle, search and retrieval, export package manifest, schedule policy, recipient policy, approval decision, exception lifecycle, evidence room, incident packet, closure, KPI metrics, alert escalation, drilldown, remediation plan, remediation closure, executive digest, digest distribution, trial validation, operator dashboard, evaluator handoff, and publication readiness schemas.
 
 See [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract) for schema links and public-safe examples.
 
-## Appendix E: Development And Testing Artifacts
+## Appendix F: Development And Testing Artifacts
 
 Implementation and validation history is archived in [Development And Testing Artifacts](Development-And-Testing-Artifacts). Use it when you need release evidence, trial-sync records, closeout notes, validation packets, or historical implementation context.
+
+## Conclusion: The Runtime Authority Revolution
+
+AI agents are becoming part of the operating fabric of software delivery. The organizations that benefit most will not be the ones that simply give agents more tools. They will be the ones that give agents governed authority, clear boundaries, auditable evidence, and measurable posture.
+
+CAVRA is a step toward that operating model. It lets teams say yes to AI acceleration while still asking the questions that matter before action: who is acting, what are they touching, what policy applies, who approved the risk, what evidence exists, and what posture does this create?
+
+The call to action is practical:
+
+- Run the Community Edition.
+- Complete the first five-minute tutorial.
+- Protect one repository or workflow.
+- Write one policy that blocks a real risk.
+- Generate one evidence bundle and verify it.
+- Use AISPM to explain what changed.
+- Move to Enterprise when identity, tenant isolation, live connectors, report delivery, and production gates become necessary.
+
+Before the agent acts, CAVRA decides. After the agent acts, CAVRA proves what happened.

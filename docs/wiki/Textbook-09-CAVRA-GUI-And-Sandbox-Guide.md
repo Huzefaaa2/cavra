@@ -18,9 +18,18 @@ The Dashboard introduces the operating surface: platform summary, decision flow,
 
 Use the Dashboard to understand the "before the agent acts" journey. A user chooses or runs a scenario, CAVRA evaluates actions, and the UI shows allowed, blocked, or approval-routed decisions.
 
+What to look for:
+
+- The current scenario and policy mode.
+- Which attempted actions were allowed, blocked, or routed.
+- Evidence or export controls that prove the scenario.
+- Links into Evidence, Approvals, Registry, and AI Posture.
+
 ## Demo
 
 The demo route presents scripted agent scenarios. It is useful for sales engineering, onboarding, internal training, and explaining runtime authority to non-developers.
+
+Recommended first demo: run "Before the Agent Acts" and narrate each attempted action as a governance story: secret read blocked, IAM write routed, safe plan allowed, destructive apply blocked, unknown MCP blocked, direct push blocked, PR allowed with attestation.
 
 ## AI Posture
 
@@ -32,9 +41,15 @@ AI Posture is the AISPM surface. It shows posture, findings, control coverage, t
 
 The Evidence view shows how CAVRA records decisions and artifacts. Users can inspect evidence metadata, verify PR attestation, search indexed evidence, and understand which controls produced proof.
 
+Use Evidence after running a demo or CLI bundle. The key question is: can the UI explain why the decision happened and where the proof lives?
+
 ## Approvals
 
 The approval surface shows pending approvals, routed decisions, break-glass activity, and audit details. Enterprise deployments connect this workflow to SSO, RBAC, ITSM, ChatOps, or internal provider workflows.
+
+![Approval routing flow](assets/textbook/approval-routing-flow.svg)
+
+Use Approvals to teach the difference between "blocked" and "not automatically allowed." A legitimate production change may proceed, but only after named review, reason, expiry, and evidence capture.
 
 ## Registry
 
@@ -57,6 +72,16 @@ The sandbox includes multiple visual themes and route states. Theme screenshots 
 | Approvals | Approval queue, decision records, break-glass activity. |
 | Registry | Agent registry, MCP trust registry, profiles, classifications. |
 | Settings | Theme, mode, local portal behavior. |
+
+## Reader Exercise
+
+Open the sandbox and answer these questions:
+
+1. Which page shows the first runtime decision?
+2. Which page proves the decision after the fact?
+3. Which page explains whether an MCP server is trusted?
+4. Which page would a CISO use to understand AI-agent posture?
+5. Which UI element would you show a developer who wants to know why an action was blocked?
 
 ## Hosted Sandbox
 
