@@ -8,7 +8,6 @@ from cavra.product_model import (
     CONFIGURABLE_CAPABILITIES,
     CORE_CAPABILITIES,
     MANAGED_SERVICE_CAPABILITIES,
-    CapabilityExplanation,
     CapabilityStatus,
     CommercialEntitlement,
     DeploymentMode,
