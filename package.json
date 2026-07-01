@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "validate:sandbox:visual": "node scripts/validate-sandbox-visual.mjs",
-    "validate:sandbox:hosted": "node scripts/validate-hosted-sandbox-pages.mjs",
-    "validate:product-site": "node scripts/validate-product-site.mjs"
+    "validate:sandbox:hosted": "node scripts/validate-hosted-sandbox-pages.mjs"
   },
   "devDependencies": {
     "playwright": "1.60.0"

@@ -191,7 +191,7 @@ Start with the wiki textbook:
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
 - [Azure Community Deployment](docs/azure-community-saas-deployment.md)
 - [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md)
-- [CAVRA Product Site Deployment](docs/product/cavra-product-site-deployment.md)
+- [CAVRA Commercial Site Hosting](docs/product/cavra-commercial-site-hosting.md)
 - [CAVRA Product Introduction Video Script](docs/product/cavra-product-introduction-video-script.md)
 
 Canonical references:

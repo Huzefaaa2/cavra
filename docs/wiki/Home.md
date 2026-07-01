@@ -111,7 +111,7 @@ close out the trial without leaving stale package or license access behind.
 ## Primary Product References
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
-- [CAVRA Product Site Deployment](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-site-deployment.md)
+- [CAVRA Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CAVRA Product Introduction Video Script](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-introduction-video-script.md)
 - [CLI](CLI.md)
 - [API](API.md)

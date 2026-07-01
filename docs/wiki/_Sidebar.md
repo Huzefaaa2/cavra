@@ -29,7 +29,7 @@
 ## Practical Paths
 
 - [Development And Testing Archive](Development-And-Testing-Artifacts.md)
-- [Product Site Deployment](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-site-deployment.md)
+- [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)
 - [API](API.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
