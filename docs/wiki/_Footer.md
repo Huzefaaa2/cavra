@@ -13,6 +13,7 @@
 
 <div align="center">
   <sub>
+    Product site: <a href="https://cavra.mind-ops.cloud/">cavra.mind-ops.cloud</a> |
     Textbook home: <a href="Home.md">Before the Agent Acts</a> |
     Development archive: <a href="Development-And-Testing-Artifacts.md">development and testing artifacts</a> |
     Source repository: <a href="https://github.com/Huzefaaa2/cavra">github.com/Huzefaaa2/cavra</a>

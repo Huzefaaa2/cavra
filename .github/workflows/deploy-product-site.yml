@@ -1,0 +1,78 @@
+name: Deploy Product Site
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/product-site/**"
+      - "assets/brand/**"
+      - "docs/product/**"
+      - "scripts/validate-product-site.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-product-site.yml"
+
+permissions:
+  contents: read
+
+env:
+  PRODUCT_SITE_DIR: public-product-site
+
+jobs:
+  build:
+    name: build-product-site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Build product site artifact
+        run: |
+          set -euo pipefail
+          npm ci
+          rm -rf "$PRODUCT_SITE_DIR"
+          mkdir -p "$PRODUCT_SITE_DIR/assets"
+          cp -R apps/product-site/. "$PRODUCT_SITE_DIR/"
+          cp -R assets/brand "$PRODUCT_SITE_DIR/assets/"
+          node --check "$PRODUCT_SITE_DIR/site.js"
+          python -m http.server 5175 --directory "$PRODUCT_SITE_DIR" &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 2
+          CAVRA_PRODUCT_SITE_URL=http://127.0.0.1:5175/ npm run validate:product-site
+      - name: Upload product site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cavra-product-site
+          path: ${{ env.PRODUCT_SITE_DIR }}
+          if-no-files-found: error
+
+  deploy-azure-static-web-apps:
+    name: deploy-product-site-azure
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CAVRA_PRODUCT_SITE }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: cavra-product-site
+          path: public-product-site
+      - name: Deploy product site to Azure Static Web Apps
+        if: env.AZURE_STATIC_WEB_APPS_API_TOKEN != ''
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: public-product-site
+          output_location: ""
+          skip_app_build: true
+      - name: Report artifact-only build
+        if: env.AZURE_STATIC_WEB_APPS_API_TOKEN == ''
+        run: |
+          echo "AZURE_STATIC_WEB_APPS_API_TOKEN_CAVRA_PRODUCT_SITE is not configured."
+          echo "Product site artifact was built and uploaded but not deployed."

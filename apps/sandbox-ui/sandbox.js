@@ -193,6 +193,7 @@ const roadmap = [
 ];
 
 const docsLinks = [
+  ["CAVRA Product Website", "https://cavra.mind-ops.cloud/"],
   ["GitHub Wiki Textbook", "https://github.com/Huzefaaa2/cavra/wiki"],
   ["Trial Field Guide", "https://github.com/Huzefaaa2/cavra/wiki/CAVRA-Trial-Field-Guide"],
   ["CAVRA Trial Portal", "https://cavra-trial.mind-ops.cloud/"],

@@ -10,6 +10,8 @@ Controlled Agentic Verification and Runtime Authority
 
 CAVRA is a runtime governance layer for AI coding agents and agentic engineering workflows. It evaluates what agents can read, write, execute, approve, connect to, and change across code, shell, Git, MCP tools, CI/CD, cloud, infrastructure, and regulated delivery workflows.
 
+The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/)**. It explains CAVRA Managed, Enterprise Subscription, Trial Access, AISPM, trust, resources, and the public product journey. The public interactive sandbox remains **[huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/)**.
+
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
@@ -178,6 +180,7 @@ Guide: [CAVRA GUI And Sandbox Guide](docs/wiki/Textbook-09-CAVRA-GUI-And-Sandbox
 
 Start with the wiki textbook:
 
+- [CAVRA Product Website](https://cavra.mind-ops.cloud/)
 - [CAVRA Technical Textbook](docs/wiki/Home.md)
 - [Why CAVRA Exists](docs/wiki/Textbook-01-Why-CAVRA-Exists.md)
 - [Architecture And Community-First Design](docs/wiki/Textbook-03-Architecture-And-Open-Core-Design.md)
@@ -188,6 +191,8 @@ Start with the wiki textbook:
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
 - [Azure Community Deployment](docs/azure-community-saas-deployment.md)
 - [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md)
+- [CAVRA Product Site Deployment](docs/product/cavra-product-site-deployment.md)
+- [CAVRA Product Introduction Video Script](docs/product/cavra-product-introduction-video-script.md)
 
 Canonical references:
 

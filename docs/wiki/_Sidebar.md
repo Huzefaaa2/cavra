@@ -1,6 +1,7 @@
 # CAVRA Textbook
 
 - [Home](Home.md)
+- [Product Website](https://cavra.mind-ops.cloud/)
 - [Five-Minute Quick Start](Home.md#five-minute-quick-start)
 - [Learning Paths](Home.md#learning-paths)
 
@@ -28,6 +29,7 @@
 ## Practical Paths
 
 - [Development And Testing Archive](Development-And-Testing-Artifacts.md)
+- [Product Site Deployment](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-site-deployment.md)
 - [CLI](CLI.md)
 - [API](API.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)

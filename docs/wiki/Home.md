@@ -4,6 +4,12 @@ Welcome to the CAVRA Wiki. This wiki now opens as a technical textbook for CAVRA
 
 CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM.
 
+## Product Website
+
+The primary commercial product front door is [cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/). Use it for the buyer and evaluator journey across CAVRA Managed, CAVRA Enterprise Subscription, Trial Access, AISPM, trust, resources, and product contact paths.
+
+The GitHub Pages site at [huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/) remains the public interactive sandbox and documentation bridge.
+
 ## Current Product Model
 
 CAVRA is now organized around a Community-first model:
@@ -104,6 +110,9 @@ close out the trial without leaving stale package or license access behind.
 
 ## Primary Product References
 
+- [CAVRA Product Website](https://cavra.mind-ops.cloud/)
+- [CAVRA Product Site Deployment](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-site-deployment.md)
+- [CAVRA Product Introduction Video Script](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-introduction-video-script.md)
 - [CLI](CLI.md)
 - [API](API.md)
 - [Diagrams](Diagrams.md)
