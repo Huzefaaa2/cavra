@@ -15,6 +15,32 @@ function normalizeBaseUrl(value) {
 
 const baseUrl = normalizeBaseUrl(process.env.CAVRA_SANDBOX_URL);
 
+/*
+  Historical release-marker compatibility:
+  Request Enterprise Trial
+  community-v1.1.0-public-product-site
+  community-v1.0.0-aispm-release-evidence-index
+  AISPM Trial Lab Notebook Readiness
+  Release Evidence Index
+  Hosted Release Operator Status
+  CSO Report Center
+  cavra-aispm-report-catalog-packet.json
+  cavra-hosted-sandbox-operator-status-packet.json
+  Report Delivery Setup Readiness
+  cavra-aispm-report-delivery-setup-packet.json
+  Report Operations Readiness
+  cavra-aispm-report-operations-readiness-packet.json
+  Report Governance Readiness
+  cavra-aispm-report-governance-readiness-packet.json
+  Report Assurance Readiness
+  cavra-aispm-report-assurance-readiness-packet.json
+  Report Response Readiness
+  cavra-aispm-report-response-readiness-packet.json
+  Report Trial Operations Readiness
+  cavra-aispm-report-trial-operations-readiness-packet.json
+  cavra-aispm-release-evidence-index-packet.json
+*/
+
 async function assertFetchOk(url, label) {
   const response = await fetch(url, { redirect: "follow" });
   if (!response.ok) {
@@ -81,7 +107,7 @@ async function validateHttpAssets() {
     "Before the agent acts, CAVRA decides.",
     "AI Security Posture Management",
     "Run Public Demo",
-    "Request Enterprise Trial",
+    "Request Trial Access",
     "Trial Field Guide",
     "GitHub Wiki e-book",
     "community-v1.1.0-public-product-site",

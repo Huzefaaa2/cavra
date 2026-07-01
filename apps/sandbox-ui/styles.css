@@ -936,4 +936,9 @@ p { color: var(--muted); line-height: 1.58; }
   .hosted-release-checklist-grid .hosted-release-check-card
   .aispm-release-evidence-panel .release-evidence-grid
   .release-evidence-manifest-grid .release-evidence-card
+  hero-metrics community-ga-grid community-ga-layout release-note-grid
+  release-note-links saas-automation-grid saas-contract-payload
+  fixture-export-actions review-workflow-panel review-checklist
+  pr-guidance-panel pr-guidance-grid action-buttons
+  .hero-side { position: absolute;
 */

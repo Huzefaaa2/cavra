@@ -6,12 +6,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cavra.config.features import explain_locked_feature, is_feature_enabled, list_available_features
-from cavra.edition.community import ENTERPRISE_MESSAGE, current_edition, require_enterprise
+from cavra.edition.community import ENTERPRISE_MESSAGE, current_edition, current_product_model, require_enterprise
 from cavra.edition.enterprise_hooks import EnterpriseFeatureUnavailable, is_enterprise_available, load_enterprise_feature
 from cavra.licensing.license_client import LocalLicenseClient
 from cavra.licensing.license_types import License, LicenseEdition, LicenseStatus
 from cavra.licensing.trial_mode import TrialMode
 from cavra.plugin_runtime.loader import PluginLoadError, load_plugin, read_manifest
+from cavra.product_model import CapabilityStatus, CommercialEntitlement, DeploymentMode, ProviderProfile, explain_capability_status
 
 
 def test_community_mode_is_default_and_requires_no_license() -> None:
@@ -22,27 +23,54 @@ def test_community_mode_is_default_and_requires_no_license() -> None:
     assert LocalLicenseClient().validate(license_obj) == LicenseStatus.VALID
 
 
-def test_enterprise_feature_returns_friendly_community_message() -> None:
+def test_legacy_enterprise_gate_returns_capability_guidance() -> None:
     response = require_enterprise("sso")
 
     assert response["allowed"] is False
-    assert response["reason"] == ENTERPRISE_MESSAGE
+    assert response["capability_status"] == CapabilityStatus.REQUIRES_CONFIGURATION.value
+    assert "requires backing provider configuration" in response["reason"]
     assert is_enterprise_available("cavra_enterprise_missing_for_test") is False
     try:
         load_enterprise_feature("sso", package_name="cavra_enterprise_missing_for_test")
     except EnterpriseFeatureUnavailable as exc:
-        assert str(exc) == ENTERPRISE_MESSAGE
+        assert "CAVRA Enterprise Subscription" in str(exc)
     else:
         raise AssertionError("expected unavailable enterprise feature")
 
 
-def test_feature_registry_separates_community_and_enterprise_features() -> None:
+def test_feature_registry_uses_capability_statuses() -> None:
     assert is_feature_enabled("local_scan", "community") is True
-    assert is_feature_enabled("sso", "community") is False
+    assert is_feature_enabled("sso", "community") is True
     available = list_available_features("community")
     assert "local_scan" in available["enabled"]
-    assert "sso" in available["locked"]
-    assert explain_locked_feature("sso").reason == ENTERPRISE_MESSAGE
+    assert "sso" in available["requires_configuration"]
+    assert "sso" not in available["locked"]
+    explanation = explain_locked_feature("sso")
+    assert explanation.status == CapabilityStatus.REQUIRES_CONFIGURATION.value
+    assert explanation.enabled is True
+
+
+def test_legacy_edition_env_maps_to_product_model() -> None:
+    enterprise = current_product_model({"CAVRA_EDITION": "enterprise"})
+    assert enterprise.deployment_mode == DeploymentMode.COMMUNITY
+    assert enterprise.commercial_entitlement == CommercialEntitlement.ENTERPRISE_SUBSCRIPTION
+    assert enterprise.provider_profile == ProviderProfile.SELF_HOSTED
+    assert enterprise.deprecation_warnings
+
+    saas = current_product_model({"CAVRA_EDITION": "saas"})
+    assert saas.deployment_mode == DeploymentMode.MANAGED
+    assert saas.commercial_entitlement == CommercialEntitlement.MANAGED
+
+
+def test_community_capability_status_distinguishes_configuration_from_commercial_entitlement() -> None:
+    sso = explain_capability_status("sso_rbac")
+    certified = explain_capability_status("certified_connectors")
+    managed = explain_capability_status("managed_report_delivery")
+
+    assert sso.status == CapabilityStatus.REQUIRES_CONFIGURATION
+    assert "identity_provider" in sso.required_configuration
+    assert certified.status == CapabilityStatus.REQUIRES_COMMERCIAL_ENTITLEMENT
+    assert managed.status == CapabilityStatus.REQUIRES_MANAGED_SERVICE
 
 
 def test_plugin_loader_rejects_enterprise_plugin_in_community(tmp_path: Path) -> None:
@@ -90,7 +118,7 @@ def test_trial_license_mock_loads_safely(tmp_path: Path) -> None:
 
     assert trial.active is True
     assert trial.days_remaining() >= 13
-    assert "private CAVRA license service" in trial.validation_note()
+    assert "trial-access checks" in trial.validation_note()
     assert is_feature_enabled("sso", "trial", license_obj) is True
     report = LocalLicenseClient().validation_report(license_obj)
     assert report.valid is True

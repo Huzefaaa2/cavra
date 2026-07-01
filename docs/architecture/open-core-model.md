@@ -1,46 +1,41 @@
-# Open-Core Model
+# Community-First Product Model
 
-CAVRA Community Edition remains publicly available in `Huzefaaa2/cavra`.
-Enterprise Edition, Trial delivery logic, paid policy packs, license service,
-and SaaS backend should live outside this public repository.
+CAVRA Community is publicly available in `Huzefaaa2/cavra` as the full
+self-hosted product surface. CAVRA Managed service operations, commercial policy
+packs, certified connectors, customer-specific support records, license signing
+material, billing records, and private customer operations remain outside this
+public repository.
 
 ## Public Repository
 
 The public repository contains:
 
-- Community source code;
-- public documentation;
-- Enterprise feature documentation;
-- trial installation instructions;
-- references to trial binaries or private container images;
-- extension interfaces for private packages.
+- CAVRA Community source code.
+- Public documentation and wiki textbook sources.
+- Runtime authority, policy, approvals, evidence, AISPM, report center, dashboard, CI/CD, and connector-interface code intended for public use.
+- Reference connectors, public policy packs, and public contracts.
+- Public-safe documentation for Managed, Enterprise Subscription, and Trial access.
 
-## Private Repositories
+## Private Or Commercial Surfaces
 
-Recommended private repository:
+Private and commercial surfaces may include:
 
-- `Huzefaaa2/cavra-enterprise`
+- CAVRA Managed service implementation.
+- Commercial policy packs and compliance packs.
+- Certified connector packages.
+- Customer-specific templates, evidence, support records, and implementation notes.
+- Trial entitlement services and operator review tooling.
+- Billing, uptime, customer-success, and managed-service operations.
 
-Future private repositories may include:
+## Licensing Note
 
-- `cavra-saas-control-plane`;
-- `cavra-commercial-policy-packs`;
-- `cavra-enterprise-deployments`.
+The repository license remains controlled by the legal `LICENSE` file. If
+product language and license language diverge, treat this document as product
+positioning and route license interpretation for legal review.
 
-## Licensing Options
+## Compatibility
 
-Possible licensing options:
-
-- AGPL for strong open-source reciprocity;
-- Business Source License for delayed open conversion;
-- dual commercial license for Enterprise customers;
-- proprietary Enterprise license for private modules.
-
-Final license choice requires legal review.
-
-## Commercial Packaging
-
-Community should be easy to install and useful on its own. Enterprise should be
-installed as a private package, private container image, Helm chart, or hosted
-SaaS connection. Trial should use a time-limited license key or hosted license
-validation flow implemented outside this repository.
+Legacy labels such as Community Edition, Enterprise Edition, Trial Edition, and
+SaaS may remain in old release notes or compatibility APIs. New documentation
+should use CAVRA Community, CAVRA Managed, CAVRA Enterprise Subscription, and
+CAVRA Trial access.

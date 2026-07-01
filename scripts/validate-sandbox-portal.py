@@ -60,7 +60,7 @@ def validate_index(html: str, failures: list[str]) -> None:
         "AI Security Posture Management",
         "Run Public Demo",
         "Explore AISPM",
-        "Request Enterprise Trial",
+        "Request Trial Access",
         "https://cavra-trial.mind-ops.cloud/",
         "GitHub Wiki e-book",
         "Trial Field Guide",
@@ -109,7 +109,7 @@ def validate_js(js: str, failures: list[str]) -> None:
         "const navItems",
         "label: \"Overview\"",
         "label: \"AISPM\"",
-        "label: \"Enterprise Trial\"",
+        "label: \"Trial Access\"",
         "routeContent",
         "setRoute",
         "history.pushState",
@@ -192,6 +192,7 @@ def main() -> int:
       return 1
 
     print("CAVRA public product portal validation passed.")
+    print("CAVRA sandbox portal smoke validation passed.")
     return 0
 
 

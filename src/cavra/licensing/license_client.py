@@ -13,7 +13,7 @@ class LocalLicenseClient:
 
     Real online validation, signing-key verification, revocation checks, billing
     state, and tenant entitlement lookup must be implemented in the private
-    Enterprise/SaaS repository.
+    CAVRA Managed or commercial entitlement service.
     """
 
     def load(self, path: Path | None) -> License:
@@ -67,15 +67,15 @@ class LocalLicenseClient:
         private_required = license_obj.edition != LicenseEdition.COMMUNITY
         if status == LicenseStatus.VALID and private_required:
             message = (
-                "Local validation accepted the public license shape. Real entitlement, "
-                "signature, revocation, billing, and tenant checks require the private CAVRA license service."
+                "Local validation accepted the public entitlement shape. Real commercial entitlement, "
+                "signature, revocation, managed service, billing, and tenant checks require the private CAVRA Managed or entitlement service."
             )
         elif status == LicenseStatus.VALID:
-            message = "Community Edition is valid and does not require a license key."
+            message = "CAVRA Community is valid and does not require a license key for local or self-hosted use."
         elif status == LicenseStatus.EXPIRED:
             message = "License is expired."
         elif status == LicenseStatus.UNSUPPORTED:
-            message = "License payload is unsupported by the public Community client."
+            message = "License payload is unsupported by the public CAVRA Community client."
         elif status in {LicenseStatus.REVOKED, LicenseStatus.SUSPENDED}:
             message = f"License is {status.value}; private validation is required before use."
         else:

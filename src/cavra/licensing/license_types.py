@@ -6,6 +6,13 @@ from enum import Enum
 
 
 class LicenseEdition(str, Enum):
+    """Legacy entitlement labels kept for compatibility.
+
+    New product language uses CAVRA Community, CAVRA Managed, CAVRA Enterprise
+    Subscription, and CAVRA Trial access. These enum values remain so older
+    license payloads, environment variables, and scripts continue to parse.
+    """
+
     COMMUNITY = "community"
     TRIAL = "trial"
     BUSINESS = "business"

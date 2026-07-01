@@ -1,81 +1,106 @@
-# Editions, Licensing, And Feature Boundaries
+# Product Model, Licensing, And Capability Boundaries
 
-CAVRA is organized into Community, Trial, Enterprise, and SaaS operating models. The editions share the same philosophy: agent actions must pass through runtime authority and produce evidence. They differ in scale, identity integration, connector depth, tenancy, reporting, and support model.
+CAVRA now uses a Community-first product model. The public repository is not a
+limited demo or a separate "Community Edition" fork. It is **CAVRA Community**:
+the full public, self-hosted product surface for runtime governance, policy
+evaluation, approvals, evidence, AISPM, report center, dashboards, CI/CD
+enforcement, connector interfaces, reference connectors, public policy packs,
+and public contracts.
 
-![CAVRA edition map](assets/textbook/cavra-edition-map.svg)
+![CAVRA product model map](assets/textbook/cavra-edition-map.svg)
 
-## Community Edition
+## Canonical Product Paths
 
-Community Edition is the public open-core foundation. It is designed for individuals, open source maintainers, small teams, platform experiments, and public-safe demonstrations.
+| Product path | Meaning | Source boundary |
+| --- | --- | --- |
+| CAVRA Community | Full self-hosted public product and default codebase. | Public repository. |
+| CAVRA Managed | Hosted CAVRA operated as a managed service. | Private managed-service operations and infrastructure. |
+| CAVRA Enterprise Subscription | Commercial support, SLA, certified connectors, commercial policy packs, compliance packs, implementation help, and private customer operations. | Contracted commercial packages and support operations. |
+| CAVRA Trial | Temporary evaluation access for CAVRA Managed or Enterprise Subscription capabilities. | Operator-reviewed evaluator access; not a separate source edition. |
 
-Community includes:
+## Capability Statuses
 
-- `cavra` CLI.
-- Public API.
-- Static sandbox GUI.
-- Starter policy packs.
-- Runtime decision examples.
-- Evidence bundle generation and verification.
-- Agent and MCP trust registry surfaces.
-- Public-safe AISPM dashboard samples.
-- Public schema contracts and examples.
+CAVRA no longer describes self-hostable capabilities as "Enterprise-only" just
+because they need infrastructure. A capability should be described by its real
+readiness state:
 
-Community does not include Enterprise source code, private tenant data, live production connector credentials, SSO-backed org administration, or paid reporting workflows.
+| Status | Meaning |
+| --- | --- |
+| `available` | Included in CAVRA Community or enabled by current configuration. |
+| `requires_configuration` | Included in CAVRA Community, but the operator must configure a backing service such as identity, audit storage, report delivery, database, object storage, policy registry, or connector credentials. |
+| `requires_managed_service` | Available through CAVRA Managed because it depends on hosted operation, billing, uptime, customer-success workflow, or managed service execution. |
+| `requires_commercial_entitlement` | Available with Enterprise Subscription, certified connector package, commercial policy pack, compliance pack, or implementation support. |
+| `unsupported` | Not recognized by the public capability registry. |
+| `deprecated` | Kept only for old commands, payloads, docs links, or compatibility labels. |
 
-## Trial Edition
+## CAVRA Community Includes
 
-Trial Edition is for controlled evaluation of Enterprise workflows. It can be delivered through private binaries, private containers, or hosted environments. Trial users should follow the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) and [Enterprise Trial Availability](Enterprise-Trial-Availability.md).
+- Runtime decisions, policy evaluation, approvals, and attestations.
+- Evidence bundles, verification, audit-friendly metadata, and public schemas.
+- AISPM posture, report center contracts, local/self-hosted dashboards, and public-safe samples.
+- CI/CD enforcement and release governance contracts.
+- Self-hosted tenant model and tenant context interfaces.
+- Generic SSO/RBAC hooks and approval provider interfaces.
+- Audit export framework and report delivery interface.
+- Connector SDK, reference connectors, public policy packs, and public contracts.
 
-Trial adds evaluation packaging:
+If a Community operator has not configured identity, audit storage, report
+delivery, object storage, database, policy registry, or connector credentials,
+the product should say **requires configuration**, not **locked**.
 
-- Trial labs and role paths.
-- Report center evaluation.
-- Operator handoff.
-- Pilot evidence rooms.
-- Trial revocation, expiry, and closeout evidence.
-- Trial-to-pilot readiness checks.
+## CAVRA Managed Includes
 
-## Enterprise Edition
+- Hosted tenant onboarding and managed tenant operations.
+- Managed policy registry, managed dashboards, managed report delivery, and managed audit storage.
+- Updates, monitoring, uptime operations, support handoff, customer-success operating review, and billing workflows.
+- Private managed-service execution that is intentionally not shipped in the public repository.
 
-Enterprise Edition is for organization-wide production governance. It adds:
+## CAVRA Enterprise Subscription Includes
 
-- SSO and RBAC.
-- Tenant isolation.
-- Private policy packs.
-- Live SIEM, ITSM, ChatOps, SMTP, cloud, endpoint, and evidence connectors.
-- Central dashboards.
-- Compliance and executive reporting.
-- Production AISPM live ingestion.
-- Production readiness gates.
-- Support handoff and customer operating review workflows.
+- Commercial support and SLA.
+- Certified connectors and supported integration packages.
+- Commercial policy packs and compliance packs.
+- Implementation help, custom integrations, procurement/security review support, and private customer operations.
+- Deployment assistance for self-hosted Community, CAVRA Managed, or hybrid customer environments.
 
-Enterprise boundaries are documented in [Edition Boundaries](Edition-Boundaries.md), [Enterprise Challenges](Enterprise-Challenges.md), [Enterprise Integration Validation](Enterprise-Integration-Validation.md), and [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md).
+Enterprise Subscription is a commercial relationship. It is not a separate
+source edition.
 
-## SaaS Control Plane
+## CAVRA Trial Access
 
-The SaaS model hosts the Enterprise control plane and centralizes tenant onboarding, entitlement status, policy registry operations, billing boundaries, customer dashboards, support handoff, and recurring operating automation. Public contracts are documented in [SaaS Control Plane Contract](SaaS-Control-Plane-Contract.md), [Tenant Onboarding Contract](Tenant-Onboarding-Contract.md), and [Customer Operating Dashboard And Support Handoff Contract](Customer-Operating-Dashboard-And-Support-Handoff-Contract.md).
+CAVRA Trial is an approved evaluation path. It can provide hosted evaluator
+access, time-limited entitlement material, private package access where still
+needed, guided AISPM labs, expiry, revocation, audit evidence, and closeout.
 
-## Feature Matrix
+Trial is not a product edition. Trial users should use the
+[CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) and
+[Trial Access Guide](Trial-Access-Guide.md) to prove one complete use case.
 
-| Capability | Community | Trial | Enterprise | SaaS |
-| --- | --- | --- | --- | --- |
-| Local CLI and policies | Yes | Yes | Yes | Yes |
-| Public sandbox GUI | Yes | Yes | Yes | Yes |
-| Evidence bundles | Yes | Yes | Yes | Yes |
-| AISPM sample posture | Yes | Yes | Yes | Yes |
-| SSO and RBAC | No | Evaluation | Yes | Yes |
-| Tenant isolation | No | Evaluation | Yes | Yes |
-| Live connectors | No | Limited | Yes | Yes |
-| Report delivery | Public-safe sample | Evaluation | Production | Managed |
-| Central dashboards | No | Limited | Yes | Yes |
-| Production readiness gate | Public contract | Trial gate | Live gate | Managed gate |
+## Compatibility
 
-## Check Your Understanding
+Old labels still appear in some commands, payloads, release records, and
+historical documents. They map as follows:
 
-1. Which edition is enough for local learning and public-safe demonstrations?
-2. Which edition is required for SSO, RBAC, tenant isolation, and live production connectors?
-3. Why are Trial and SaaS separate operating models?
+| Legacy label | Current meaning |
+| --- | --- |
+| Community Edition | CAVRA Community |
+| Enterprise Edition | CAVRA Enterprise Subscription or a supported self-hosted deployment |
+| SaaS | CAVRA Managed |
+| Trial Edition | CAVRA Trial access |
+| Enterprise-only feature | Requires configuration, managed service, or commercial entitlement depending on the capability |
+| Locked feature | Not configured, managed-service capability, or commercial entitlement capability |
+
+The code keeps legacy inputs such as `CAVRA_EDITION=enterprise`,
+`CAVRA_EDITION=saas`, and old `LicenseEdition` values for compatibility. New
+configuration should prefer:
+
+```bash
+CAVRA_DEPLOYMENT_MODE=community|managed|trial_access
+CAVRA_COMMERCIAL_ENTITLEMENT=none|enterprise_subscription|managed
+CAVRA_PROVIDER_PROFILE=local|self_hosted|managed
+```
 
 ## What's Next
 
-Read [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md) to run the product and complete the first hands-on path.
+Read [Capability Configuration Guide](Capability-Configuration-Guide.md) to
+understand which providers must be configured for self-hosted production use.

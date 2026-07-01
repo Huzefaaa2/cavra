@@ -1,14 +1,15 @@
 # CAVRA Trial Field Guide
 
 The CAVRA Trial Field Guide is the public-safe operating handbook for approved
-Community and Enterprise Trial evaluators. It walks trial users through CAVRA
-from first contact to closeout without exposing Enterprise source code,
-license material, private package credentials, customer data, raw prompts, or
-private policy-pack implementation details.
+CAVRA Trial evaluators. CAVRA Trial is a temporary evaluation access path for
+CAVRA Managed or Enterprise Subscription capabilities. It is not a separate
+source edition. This guide walks evaluators through CAVRA from first contact to
+closeout without exposing private source code, entitlement material, package
+credentials, customer data, raw prompts, or private policy-pack implementation
+details.
 
-Use this guide with the public Community portal, the approved Enterprise Trial
-request flow, and the validation packets linked from the release evidence
-index.
+Use this guide with CAVRA Community, the approved CAVRA Trial request flow, and
+the validation packets linked from the release evidence index.
 
 ## Audience
 
@@ -24,11 +25,11 @@ index.
 
 | Lab | Name | Outcome | Primary Surface |
 | --- | --- | --- | --- |
-| 1 | Product orientation | Understand Community, Enterprise Trial, SaaS, and private-source boundaries. | Public docs and portal |
-| 2 | Trial access request | Understand approved-access signup, operator review, package access, and license validation. | Trial portal |
+| 1 | Product orientation | Understand CAVRA Community, CAVRA Managed, Enterprise Subscription, Trial access, and private-source boundaries. | Public docs and portal |
+| 2 | Trial access request | Understand approved-access signup, operator review, hosted or package access, and entitlement validation. | Trial portal |
 | 3 | Governed agent action | Review allow, warn, block, approval, and attestation decisions. | Community dashboard |
 | 4 | AISPM posture review | Inspect risk, agent coverage, timelines, evidence confidence, and control coverage. | AI Posture |
-| 5 | CSO report center | Download Community reports and understand Enterprise delivery, audit, and retention controls. | Report Center |
+| 5 | CSO report center | Download Community reports and understand configured delivery, audit, Managed, and retention controls. | Report Center |
 | 6 | Operator readiness | Review release gates, trial handoff, runtime controls, and package-readiness boundaries. | Readiness packets |
 | 7 | Pilot evidence room | Review pilot launch, exception, risk, board-pack, deployment, report-delivery, and runtime-workflow evidence. | Evidence packets |
 | 8 | Trial closeout | Understand revocation, expiry, package access removal, blocked runtime validation, and feedback capture. | Closeout pages |
@@ -61,33 +62,33 @@ surface.
 
 ![CAVRA trial license to value journey](assets/textbook/cavra-trial-license-to-value-loop.svg)
 
-## Trial License Generation And Use
+## Trial Access Generation And Use
 
-Enterprise Trial license material is generated only after an approved request
+CAVRA Trial entitlement material is generated only after an approved request
 through the public trial portal:
 
 - `https://cavra-trial.mind-ops.cloud`
 
 The portal collects the evaluator's business contact, GitHub username, company
 role, and evaluation goal. A CAVRA trial operator reviews the request. Approved
-evaluators receive private package access and one-time, time-limited license
-material through a controlled channel.
+evaluators receive hosted access or private package access where applicable,
+plus one-time, time-limited entitlement material through a controlled channel.
 
-Use the license material this way:
+Use the entitlement material this way:
 
-1. Store the license in the protected location described in the approval
+1. Store the entitlement in the protected location described in the approval
    handoff. Do not commit it to Git, tickets, screenshots, public docs, or
    chat transcripts.
 2. Configure package access exactly as described in the handoff.
 3. Run the supplied license validation step before starting Enterprise
    workflows.
-4. Keep the license bound to the approved evaluator, tenant, and evaluation
+4. Keep the entitlement bound to the approved evaluator, tenant, and evaluation
    window.
 5. Treat expiry, revocation, and closeout as part of the trial, not as
    administrative cleanup after the fact.
 
 The public textbook intentionally avoids publishing private package names,
-license commands, token formats, signing details, or approval-channel
+entitlement commands, token formats, signing details, or approval-channel
 implementation details.
 
 ## Complete Trial Use Case: Prove Runtime Authority
@@ -102,9 +103,9 @@ posture visibility.
 2. Define one risky agent action, such as editing deployment automation,
    changing IAM or Kubernetes configuration, invoking a repository mutation
    tool, or running a destructive command.
-3. Request Enterprise Trial access from `https://cavra-trial.mind-ops.cloud`.
-4. After approval, activate private package access and validate the evaluator
-   license using the handoff instructions.
+3. Request CAVRA Trial access from `https://cavra-trial.mind-ops.cloud`.
+4. After approval, activate hosted or package access and validate the evaluator
+   entitlement using the handoff instructions.
 5. Run the workflow through CAVRA and record the decision: allow, warn, block,
    require approval, or allow with attestation.
 6. Route one legitimate high-risk action for approval and deny one unsafe
@@ -113,7 +114,7 @@ posture visibility.
    action, policy, decision, approval path, and evidence references.
 8. Review the AISPM posture view and report center to see how the trial action
    appears to security, audit, and executive users.
-9. Close the trial by confirming license expiry or revocation, package access
+9. Close the trial by confirming entitlement expiry or revocation, package access
    removal, evidence archive status, feedback, and pilot decision.
 
 Success criteria: the evaluator can show exactly what the agent attempted, how
@@ -125,16 +126,16 @@ whether remaining blockers prevent pilot or production expansion.
 1. Open `https://huzefaaa2.github.io/cavra/#dashboard`.
 2. Confirm that the product is CAVRA: Controlled Agentic Verification &
    Runtime Authority.
-3. Review the open-core boundary: Community source is public; Enterprise
-   source, license service, SaaS backend, private policy packs, and private
-   trial package implementation remain private.
+3. Review the product boundary: CAVRA Community source is public; Managed
+   service code, commercial entitlement services, certified connector packages,
+   private policy packs, and private trial package implementation remain private.
 4. Open the documentation links for AISPM Dashboard Roadmap, AI Security
-   Posture Dashboard Contract, and Enterprise Trial Availability.
+   Posture Dashboard Contract, Product Model, and Trial Access Guide.
 
 Checkpoint: `checkpoint-product-surfaces`
 
-Expected result: the evaluator can explain Community, Enterprise Trial, SaaS,
-and private-source boundaries.
+Expected result: the evaluator can explain CAVRA Community, CAVRA Managed,
+Enterprise Subscription, Trial access, and private-source boundaries.
 
 ## Lab 2: Trial Access Request
 
@@ -143,16 +144,16 @@ and private-source boundaries.
    company role, and evaluation goal.
 3. Confirm the request is recorded as pending operator review.
 4. Review [Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
-   to understand operator approval, package access, and license issuance.
-5. After approval, follow the private handoff to configure package access,
-   store license material securely, and validate the time-limited evaluator
-   license before running Enterprise workflows.
+   to understand operator approval, package access where applicable, and entitlement issuance.
+5. After approval, follow the private handoff to configure hosted or package access,
+   store entitlement material securely, and validate the time-limited evaluator
+   entitlement before running Managed or Enterprise Subscription workflows.
 
 Checkpoint: `checkpoint-trial-request`
 
-Expected result: the evaluator understands why Enterprise Trial access is
-approved and gated instead of anonymous, and how the license is generated,
-activated, validated, and closed out.
+Expected result: the evaluator understands why CAVRA Trial access is
+approved and gated instead of anonymous, and how evaluator entitlement is
+generated, activated, validated, and closed out.
 
 ## Lab 3: Governed Agent Action
 
@@ -187,19 +188,20 @@ posture without raw prompt or private payload exposure in Community.
 1. Open the report center inside the AI Posture route.
 2. Download Community-safe executive, audit, control coverage, evidence
    freshness, and agent-risk reports.
-3. Review [AISPM CSO Report Center](AISPM-CSO-Report-Center.md) for the Enterprise
-   expansion: PDF, XLSX, DOCX, HTML, signed JSON, JSONL, GRC packages,
+3. Review [AISPM CSO Report Center](AISPM-CSO-Report-Center.md) for the configured
+   or Managed expansion: PDF, XLSX, DOCX, HTML, signed JSON, JSONL, GRC packages,
    scheduled email delivery, retry evidence, retention, and evidence-room
    access events.
 
 Checkpoint: `checkpoint-report-center`
 
 Expected result: executives and auditors can identify which reports exist in
-Community and which delivery/governance capabilities require Enterprise.
+Community and which delivery/governance capabilities require configuration,
+CAVRA Managed, or Enterprise Subscription.
 
 ## Lab 6: Operator Readiness
 
-1. Review the Enterprise Trial readiness public summary:
+1. Review the CAVRA Trial readiness public summary:
    `docs/release-verifications/aispm-enterprise-trial-readiness-public-summary.json`.
 2. Confirm the public-safe gates are ready: runtime binding, alert transport,
    release dashboard publication, trial field guide, operator audit archive,
@@ -246,14 +248,14 @@ converted without leaving stale package or license access behind.
 | Trial request | Approved-access flow, operator review, license handoff, and secure license storage understood. |
 | Agent decision | Public-safe decision evidence downloaded. |
 | AISPM posture | Risk, coverage, timeline, and freshness panels reviewed. |
-| Report center | Community downloads and Enterprise delivery boundary understood. |
+| Report center | Community downloads and configured or Managed delivery boundary understood. |
 | Operator readiness | Public-safe readiness summary reviewed. |
 | Pilot evidence room | Required artifact families identified. |
 | Revocation and expiry | Closeout and blocked-access expectations understood. |
 
 ## Public Safety Rules
 
-Do not publish or attach Enterprise source code, license keys, package tokens,
+Do not publish or attach private source code, license keys, package tokens,
 private container URLs, SMTP credentials, signing keys, private policy-pack
 implementation details, customer records, evaluator identities, operator
 identities, IP addresses, raw prompts, model reasoning, raw tool output,

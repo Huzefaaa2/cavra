@@ -8,7 +8,7 @@ from cavra.licensing.license_types import License, LicenseEdition, LicenseStatus
 
 @dataclass(frozen=True)
 class TrialMode:
-    """Local placeholder for future trial validation."""
+    """Local placeholder for CAVRA Trial access validation."""
 
     license: License
 
@@ -28,7 +28,7 @@ class TrialMode:
 
     def validation_note(self) -> str:
         return (
-            "Local trial checks are placeholders. Real trial entitlement, "
-            "signature, and revocation validation must be delegated to the "
-            "private CAVRA license service."
+            "Local trial-access checks are placeholders. Real evaluator entitlement, "
+            "signature, expiry, and revocation validation must be delegated to the "
+            "private CAVRA Managed or entitlement service."
         )

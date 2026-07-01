@@ -1,74 +1,74 @@
-# CAVRA Edition Boundaries
+# Product Boundaries
 
-CAVRA uses an open-core model. This public repository is the Community Edition
-and public product landing repository. It may contain public documentation for
-Enterprise, Trial, and SaaS, but it must not contain their private source code.
+CAVRA uses a Community-first model. This public repository contains CAVRA
+Community and public product documentation. It may describe CAVRA Managed,
+Enterprise Subscription, and Trial access, but it must not contain private
+managed-service source code, secrets, signing material, customer records, or
+commercial package internals.
 
-## Community Edition
+## Public CAVRA Community
 
-Community belongs in this public repository:
+Belongs in this repository:
 
-- core runtime policy evaluation;
-- local CLI and MCP integration;
-- starter policy packs;
-- public examples and GitHub Actions templates;
-- public evidence bundle formats;
-- public plugin runtime interfaces;
-- public edition, licensing, and feature abstractions;
-- public documentation and community Docker build.
+- Runtime policy evaluation.
+- Local CLI, API, and MCP integration.
+- Approvals, evidence bundles, attestations, and public schemas.
+- AISPM, report center contracts, dashboards, and public-safe samples.
+- CI/CD enforcement.
+- Connector SDK and reference connectors.
+- Public policy packs and examples.
+- Public documentation, diagrams, and deployment guides.
 
-Community must run without a license key.
+Community must run without a license key for local or self-hosted use.
 
-## Enterprise Edition
+## Provider-Configured Community
 
-Enterprise belongs in a private repository such as `cavra-enterprise`:
+These capabilities are included but require operator configuration:
 
-- SSO and enterprise identity connectors;
-- advanced RBAC;
-- central dashboards;
-- paid audit exports and compliance report implementations;
-- private policy packs;
-- organization-wide enforcement;
-- drift monitoring;
-- AI remediation recommendations;
-- enterprise-only plugins;
-- enterprise Docker images, Helm charts, and support tooling.
+- SSO/RBAC hooks.
+- Audit export.
+- Report delivery.
+- Policy registry.
+- Object storage and database.
+- Live connector credentials.
+- Monitoring and retention.
 
-The public repo may contain documentation and safe hooks only.
+The correct status for missing backing services is `requires_configuration`.
 
-## Trial Edition
+## CAVRA Managed
 
-Trial distribution should be a private binary, private Docker image, or hosted
-SaaS trial. The public repo may document installation and license activation,
-but must not include trial bypass logic, signing keys, license-server code, or
-enterprise source.
+Belongs in private managed-service repositories and infrastructure:
 
-## SaaS Control Plane
+- Hosted tenant onboarding.
+- Managed policy registry and dashboards.
+- Managed report delivery and audit storage.
+- Billing, uptime, support handoff, and customer-success operations.
+- Internal runbooks, service credentials, and customer records.
 
-The SaaS backend belongs in private infrastructure and private repositories:
+## Enterprise Subscription
 
-- tenant management;
-- billing integration;
-- license service;
-- hosted policy registry;
-- hosted audit store;
-- dashboards;
-- compliance exports;
-- AI recommendation services.
+Belongs in commercial packages or private customer operations:
 
-The public repo may document API boundaries and future integration contracts.
+- Certified connectors.
+- Commercial policy packs and compliance packs.
+- SLA and support workflows.
+- Custom integrations and implementation help.
+- Procurement, security review, and customer-specific deployment material.
+
+## CAVRA Trial
+
+Trial is an approved evaluator access path. It may include hosted access,
+time-limited entitlement material, private package access where applicable,
+guided labs, expiry, revocation, audit evidence, and closeout. Trial is not a
+separate product edition.
 
 ## Never Public
 
 Do not commit:
 
-- enterprise source code;
-- proprietary algorithms;
-- license validation secrets or signing keys;
-- SaaS backend secrets;
-- paid policy pack source;
-- private customer templates;
-- customer data;
-- internal-only operational runbooks;
-- private commercial roadmap details;
-- production credentials or private keys.
+- Production credentials or private keys.
+- License signing material or package tokens.
+- CAVRA Managed secrets.
+- Customer data, customer templates, or customer evidence.
+- Support records, billing records, or internal-only operational runbooks.
+- Private commercial roadmap details.

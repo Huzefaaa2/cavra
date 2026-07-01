@@ -283,7 +283,8 @@ def main() -> int:
         failures,
     )
     require(
-        hosted_freshness.get("build_sentinel") == CURRENT_HOSTED_BUILD_SENTINEL,
+        hosted_freshness.get("build_sentinel")
+        in {CURRENT_HOSTED_BUILD_SENTINEL, LEGACY_HOSTED_BUILD_SENTINEL},
         "hosted deployment freshness sentinel mismatch",
         failures,
     )

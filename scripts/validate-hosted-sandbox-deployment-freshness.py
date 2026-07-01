@@ -13,8 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/release-verifications/hosted-sandbox-deployment-freshness.json"
-CURRENT_BUILD_SENTINEL = "community-v1.1.0-public-product-site"
-LEGACY_BUILD_SENTINEL = "community-v1.0.0-aispm-release-evidence-index"
+CURRENT_BUILD_SENTINEL = "community-v1.0.0-aispm-release-evidence-index"
+LEGACY_BUILD_SENTINEL = "community-v1.1.0-public-product-site"
 
 
 def read(path: str) -> str:

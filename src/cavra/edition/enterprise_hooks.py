@@ -5,12 +5,15 @@ from dataclasses import dataclass
 from typing import Any
 
 ENTERPRISE_PACKAGE = "cavra_enterprise"
-ENTERPRISE_MESSAGE = "This feature is available in CAVRA Enterprise. See docs/enterprise/features.md for details."
+ENTERPRISE_MESSAGE = (
+    "This capability requires a CAVRA Enterprise Subscription, CAVRA Managed, "
+    "or a private commercial package that is not shipped in the public repository."
+)
 
 
 @dataclass(frozen=True)
 class EnterpriseFeatureUnavailable(Exception):
-    """Raised when a private Enterprise feature is requested from Community code."""
+    """Raised when a private commercial package is requested from public code."""
 
     feature_name: str
     message: str = ENTERPRISE_MESSAGE
@@ -20,7 +23,7 @@ class EnterpriseFeatureUnavailable(Exception):
 
 
 def is_enterprise_available(package_name: str = ENTERPRISE_PACKAGE) -> bool:
-    """Return true only when the private Enterprise package is installed."""
+    """Return true only when the private commercial compatibility package is installed."""
 
     try:
         importlib.import_module(package_name)
@@ -30,7 +33,7 @@ def is_enterprise_available(package_name: str = ENTERPRISE_PACKAGE) -> bool:
 
 
 def load_enterprise_feature(name: str, package_name: str = ENTERPRISE_PACKAGE) -> Any:
-    """Dynamically load a private Enterprise feature without shipping it publicly."""
+    """Dynamically load a private commercial package without shipping it publicly."""
 
     try:
         package = importlib.import_module(package_name)

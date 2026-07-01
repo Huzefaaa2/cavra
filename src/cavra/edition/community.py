@@ -4,13 +4,18 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
+from cavra.product_model import ProductModelConfig, explain_capability_status
+
 COMMUNITY_EDITION = "community"
-ENTERPRISE_MESSAGE = "This feature is available in CAVRA Enterprise. See docs/enterprise/features.md for details."
+ENTERPRISE_MESSAGE = (
+    "CAVRA Community includes the public capability surface. This capability may "
+    "require provider configuration, CAVRA Managed, or a CAVRA Enterprise Subscription."
+)
 
 
 @dataclass(frozen=True)
 class CommunityEdition:
-    """Runtime edition descriptor for the public Community Edition."""
+    """Runtime descriptor for CAVRA Community, the public self-hosted product."""
 
     name: str = COMMUNITY_EDITION
     license_required: bool = False
@@ -32,17 +37,30 @@ def current_edition(env: dict[str, str] | None = None) -> str:
     return requested
 
 
+def current_product_model(env: dict[str, str] | None = None) -> ProductModelConfig:
+    """Return the canonical product model while preserving old env parsing."""
+
+    source = env if env is not None else os.environ
+    return ProductModelConfig.from_env(source)
+
+
 def is_community_mode(env: dict[str, str] | None = None) -> bool:
     return current_edition(env) == COMMUNITY_EDITION
 
 
 def require_enterprise(feature_name: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Return a public-safe blocked response for enterprise-only features."""
+    """Deprecated compatibility wrapper for old Enterprise-only checks."""
 
+    explanation = explain_capability_status(feature_name)
     return {
         "allowed": False,
         "feature": feature_name,
         "edition": COMMUNITY_EDITION,
-        "reason": ENTERPRISE_MESSAGE,
+        "reason": explanation.reason,
+        "capability_status": explanation.status.value,
+        "required_configuration": list(explanation.required_configuration),
+        "commercial_entitlement_required": explanation.commercial_entitlement_required,
+        "managed_service_available": explanation.managed_service_available,
+        "deprecated": True,
         "context": context or {},
     }

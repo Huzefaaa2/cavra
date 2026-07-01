@@ -4,6 +4,17 @@ Welcome to the CAVRA Wiki. This wiki now opens as a technical textbook for CAVRA
 
 CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM.
 
+## Current Product Model
+
+CAVRA is now organized around a Community-first model:
+
+- **CAVRA Community:** the full public self-hosted product and default codebase.
+- **CAVRA Managed:** hosted CAVRA operated as a managed service.
+- **CAVRA Enterprise Subscription:** commercial support, SLA, certified integrations, policy packs, compliance packs, implementation help, and private customer operations.
+- **CAVRA Trial:** temporary evaluation access for Managed or Enterprise Subscription capabilities. Trial is not a separate source edition.
+
+Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Community-Self-Hosted-Guide.md), [CAVRA Managed Guide](CAVRA-Managed-Guide.md), [Enterprise Subscription Guide](Enterprise-Subscription-Guide.md), and [Trial Access Guide](Trial-Access-Guide.md).
+
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
 ![Animated CAVRA runtime authority loop showing an agent request moving through policy, approval, evidence, and AISPM posture](assets/textbook/dynamic-runtime-authority-loop.svg)
@@ -18,14 +29,14 @@ Read the book in order if you are new to CAVRA. Jump directly to the command, GU
 
 If you want to see CAVRA work before reading the full book, follow this short path:
 
-1. Install the Community Edition from the repository with `pip install -e .`.
+1. Install CAVRA Community from the repository with `pip install -e .`.
 2. Run `cavra version` and `cavra policy list`.
 3. Run `cavra demo before-the-agent-acts` to see CAVRA block risky agent behavior.
 4. Run `cavra evaluate execute_command "terraform apply -auto-approve" --json` to evaluate a dangerous command directly.
 5. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
 6. Open the sandbox GUI and review the decision, evidence, and AISPM views.
 
-The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md), [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md).
+The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md), [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide.md), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md).
 
 ## Learning Paths
 
@@ -35,7 +46,7 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Developer | Chapters 5, 6, 8, 11 | Use the CLI, write policy, route approvals, and create evidence. |
 | Security architect | Chapters 1, 2, 3, 11, 15, 16 | Understand the runtime authority model, policy language, governance controls, and troubleshooting. |
 | Platform owner | Chapters 3, 5, 8, 12 | Integrate CAVRA into CI/CD, APIs, and operating workflows. |
-| Enterprise evaluator | Chapters 4, 7, 10, 12, 13, 16 | Validate SSO/RBAC, connectors, tenant isolation, AISPM, report delivery, and blocker closeout. |
+| Evaluator or buyer | Chapters 4, 7, 10, 12, 13, 16 | Validate self-hosted configuration, Managed service fit, Enterprise Subscription needs, AISPM, report delivery, and blocker closeout. |
 
 ## Complete Table Of Contents
 
@@ -43,10 +54,10 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists.md)
 3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model.md)
 4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design.md)
-5. [Editions, Licensing, And Feature Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
+5. [Product Model, Licensing, And Capability Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
 6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md)
-7. [Community Edition User Guide](Textbook-06-Community-Edition-User-Guide.md)
-8. [Enterprise Edition User Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
+7. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide.md)
+8. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
 9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
 10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
 11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
@@ -65,7 +76,7 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Runtime authority | [CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg) |
 | Architecture context | [Architecture context](assets/textbook/architecture-context.svg) |
 | Runtime decision flow | [Runtime flow](assets/textbook/runtime-flow.svg) |
-| Editions | [Edition map](assets/textbook/cavra-edition-map.svg) |
+| Product model | [Product model map](assets/textbook/cavra-edition-map.svg) |
 | CLI command families | [Command map](assets/textbook/cavra-command-map.svg) |
 | AISPM posture loop | [AISPM posture loop](assets/textbook/aispm-posture-loop.svg) |
 | Enterprise sequence | [Enterprise sequence](assets/textbook/cavra-enterprise-sequence.svg) |
@@ -78,14 +89,14 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 
 The animated diagrams are SVG-native and are written to degrade into readable static diagrams when motion is disabled by browser, accessibility, or renderer settings. Every textbook image uses descriptive alt text in the surrounding Markdown.
 
-## Enterprise Trial Path
+## Trial Access Path
 
-Approved Enterprise evaluators start at the public trial portal:
+Approved evaluators start at the public trial portal:
 
-- [CAVRA Enterprise Trial](https://cavra-trial.mind-ops.cloud/)
+- [CAVRA Trial](https://cavra-trial.mind-ops.cloud/)
 
 The trial portal is the starting point for requesting operator-reviewed access,
-private package entitlement, and time-limited evaluator license material. After
+hosted or package entitlement where applicable, and time-limited evaluator material. After
 approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) to run a
 complete proof-of-value scenario: choose one repository or workflow, govern one
 risky AI-agent action, route one approval, generate evidence, review AISPM, and
@@ -96,6 +107,10 @@ close out the trial without leaving stale package or license access behind.
 - [CLI](CLI.md)
 - [API](API.md)
 - [Diagrams](Diagrams.md)
+- [Product Model](Product-Model.md)
+- [Product Boundaries](Product-Boundaries.md)
+- [Capability Configuration Guide](Capability-Configuration-Guide.md)
+- [Provider Interfaces](Provider-Interfaces.md)
 - [Edition Boundaries](Edition-Boundaries.md)
 - [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model.md)
 - [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust.md)
@@ -109,9 +124,10 @@ close out the trial without leaving stale package or license access behind.
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
 - [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
 - [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
+- [Trial Access Guide](Trial-Access-Guide.md)
 - [Enterprise Trial Availability](Enterprise-Trial-Availability.md)
 - [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)
-- [Azure Community SaaS Deployment](Azure-Community-SaaS-Deployment.md)
+- [Azure Community Deployment](Azure-Community-SaaS-Deployment.md)
 - [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
 
 ## Development And Testing Archive

@@ -10,7 +10,7 @@ Controlled Agentic Verification and Runtime Authority
 
 CAVRA is a runtime governance layer for AI coding agents and agentic engineering workflows. It evaluates what agents can read, write, execute, approve, connect to, and change across code, shell, Git, MCP tools, CI/CD, cloud, infrastructure, and regulated delivery workflows.
 
-The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, editions, CLI, GUI, AISPM, deployment, and Enterprise operations.
+The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 
@@ -41,27 +41,29 @@ It helps teams answer:
 
 ![AISPM posture loop](docs/wiki/assets/textbook/aispm-posture-loop.svg)
 
-Community AISPM includes public-safe dashboard samples, schemas, report center contracts, and sandbox views. Enterprise AISPM adds live tenant ingestion, production connectors, report delivery, tenant isolation, runtime workflow validation, and production readiness gates.
+Community AISPM includes dashboard samples, schemas, report center contracts, public-safe sandbox views, and self-hostable interfaces. Provider-backed capabilities such as report delivery, audit storage, tenant context, and connectors require user configuration. CAVRA Managed operates those services for customers, and CAVRA Enterprise Subscription adds commercial support, certified connectors, compliance packs, and implementation help.
 
-## Editions
+## Product Model
 
-This repository is the public CAVRA Community Edition and product documentation repository. Enterprise source code is maintained separately.
+This repository is the public CAVRA Community and product documentation repository. Community is the full self-hosted public product surface, not a crippled demo. Hosted operations, certified commercial packs, customer-specific support, and private managed-service automation live outside this public repository.
 
-![CAVRA editions](docs/wiki/assets/textbook/cavra-edition-map.svg)
+![CAVRA product model](docs/wiki/assets/textbook/cavra-edition-map.svg)
 
-| Capability | Community | Trial | Enterprise | SaaS |
+| Capability | CAVRA Community | CAVRA Managed | Enterprise Subscription | CAVRA Trial |
 | --- | --- | --- | --- | --- |
-| Local CLI and policy packs | Yes | Yes | Yes | Yes |
-| Runtime decisions | Yes | Yes | Yes | Yes |
-| Evidence bundles | Yes | Yes | Yes | Yes |
-| Public sandbox GUI | Yes | Yes | Yes | Yes |
-| AISPM public-safe samples | Yes | Yes | Yes | Yes |
-| SSO and RBAC | No | Evaluation | Yes | Yes |
-| Tenant isolation | No | Evaluation | Yes | Yes |
-| Live connectors | No | Limited | Yes | Yes |
-| Private policy packs | No | Evaluation | Yes | Yes |
-| Production report delivery | No | Evaluation | Yes | Managed |
-| Central dashboards | No | Limited | Yes | Yes |
+| Local CLI, policy engine, approvals, and evidence | Included | Hosted and operated | Supported | Evaluated |
+| AISPM, report center, dashboards, and public contracts | Included | Hosted and operated | Supported | Evaluated |
+| Self-hosted tenant model, SSO/RBAC hooks, audit export, report delivery interface | Included, requires configuration | Managed by CAVRA | Supported | Evaluated |
+| Connector framework and reference connectors | Included | Managed by CAVRA | Supported | Evaluated |
+| Certified connectors, commercial policy packs, compliance packs | Not bundled | Available when subscribed | Included by contract | Evaluated when approved |
+| Managed onboarding, uptime, updates, billing, customer-success operations | Self-operated | Included | Optional managed path | Temporary evaluator path |
+
+Terminology:
+
+- **CAVRA Community** is the public self-hosted product.
+- **CAVRA Managed** is hosted CAVRA operated as a managed service.
+- **CAVRA Enterprise Subscription** is the commercial relationship for support, SLA, certified integrations, commercial policy and compliance packs, implementation help, and private customer operations.
+- **CAVRA Trial** is temporary evaluation access for CAVRA Managed and/or Enterprise Subscription capabilities. It is not a separate source edition.
 
 ## Architecture
 
@@ -109,9 +111,9 @@ Open `http://localhost:5173`.
 
 ![CAVRA GUI dashboard](docs/wiki/assets/textbook/gui-dashboard.png)
 
-## Community SaaS On Azure
+## Community Deployment On Azure
 
-CAVRA Community can be published as a lightweight SaaS-style deployment on Azure:
+CAVRA Community can be published as a self-hosted Azure deployment:
 
 - FastAPI backend on Azure Container Apps.
 - Static sandbox UI on Azure Static Web Apps.
@@ -124,11 +126,11 @@ The deployment artifacts are:
 - `.github/workflows/deploy-azure-api.yml`
 - `.github/workflows/deploy-azure-static-ui.yml`
 
-Use [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md) for the full setup, required GitHub variables, Azure resources, persistence boundary, and validation steps. This path exposes Community features only; Enterprise tenant isolation, live connectors, report delivery, private policy packs, and AISPM production validation remain Enterprise deployment work.
+Use [Azure Community Deployment](docs/azure-community-saas-deployment.md) for the full setup, required GitHub variables, Azure resources, persistence boundary, and validation steps. Provider-backed services such as report delivery, audit storage, object storage, database, policy registry, and connector credentials must be configured by the self-hosting operator.
 
-Trial and Enterprise Azure deployments use a separate private workflow set in
-`Huzefaaa2/cavra-enterprise` for the Trial portal, license workflow, private
-packages, Enterprise control plane, connector jobs, authenticated operator UI,
+Trial, Managed, and Enterprise Subscription Azure deployments use a separate private workflow set in
+`Huzefaaa2/cavra-enterprise` for the trial portal, evaluator entitlement workflow, private
+commercial packages, managed control plane, connector jobs, authenticated operator UI,
 and AISPM production readiness gate. Public-safe overview:
 [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md).
 
@@ -178,13 +180,13 @@ Start with the wiki textbook:
 
 - [CAVRA Technical Textbook](docs/wiki/Home.md)
 - [Why CAVRA Exists](docs/wiki/Textbook-01-Why-CAVRA-Exists.md)
-- [Architecture And Open-Core Design](docs/wiki/Textbook-03-Architecture-And-Open-Core-Design.md)
-- [Editions, Licensing, And Feature Boundaries](docs/wiki/Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
+- [Architecture And Community-First Design](docs/wiki/Textbook-03-Architecture-And-Open-Core-Design.md)
+- [Product Model, Licensing, And Capability Boundaries](docs/wiki/Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
 - [Install And Deploy CAVRA](docs/wiki/Textbook-05-Install-And-Deploy-CAVRA.md)
-- [Community Edition User Guide](docs/wiki/Textbook-06-Community-Edition-User-Guide.md)
-- [Enterprise Edition User Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md)
+- [CAVRA Community User Guide](docs/wiki/Textbook-06-Community-Edition-User-Guide.md)
+- [CAVRA Managed And Enterprise Subscription Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md)
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
-- [Azure Community SaaS Deployment](docs/azure-community-saas-deployment.md)
+- [Azure Community Deployment](docs/azure-community-saas-deployment.md)
 - [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md)
 
 Canonical references:
@@ -192,7 +194,10 @@ Canonical references:
 - [API](docs/wiki/API.md)
 - [CLI](docs/wiki/CLI.md)
 - [Diagrams](docs/wiki/Diagrams.md)
-- [Edition Boundaries](docs/wiki/Edition-Boundaries.md)
+- [Product Model](docs/wiki/Product-Model.md)
+- [Product Boundaries](docs/wiki/Product-Boundaries.md)
+- [Capability Configuration Guide](docs/wiki/Capability-Configuration-Guide.md)
+- [Provider Interfaces](docs/wiki/Provider-Interfaces.md)
 - [Evidence Hub And Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
 - [Approval Workflows](docs/wiki/Approval-Workflows.md)
 - [Agent Registry And MCP Trust](docs/wiki/Agent-Registry-and-MCP-Trust.md)
@@ -201,16 +206,16 @@ Canonical references:
 
 Historical implementation, release, validation, and testing records are archived in [Development And Testing Artifacts](docs/wiki/Development-And-Testing-Artifacts/Index.md).
 
-## Enterprise Evaluation
+## Trial Access
 
-Enterprise evaluation starts at the approved-access trial portal:
+CAVRA Trial access starts at the approved-access trial portal:
 
-- [CAVRA Enterprise Trial](https://cavra-trial.mind-ops.cloud/)
+- [CAVRA Trial](https://cavra-trial.mind-ops.cloud/)
 
-The trial is not an anonymous Enterprise source download. Approved evaluators
+The trial is not an anonymous source download and it is not a separate product edition. Approved evaluators
 request access with a business email, GitHub username, company role, and
 evaluation goal. After operator review, approved evaluators receive private
-package access and one-time, time-limited license material through a controlled
+package or hosted access where applicable, plus one-time, time-limited entitlement material through a controlled
 channel.
 
 Recommended trial path:
@@ -228,6 +233,7 @@ Recommended trial path:
 
 Use these Trial and Enterprise guide paths:
 
+- [Trial Access Guide](docs/wiki/Trial-Access-Guide.md)
 - [Enterprise Trial Availability](docs/wiki/Enterprise-Trial-Availability.md)
 - [Enterprise Trial Self-Service Access](docs/wiki/Enterprise-Trial-Self-Service-Access.md)
 - [CAVRA Trial Field Guide](docs/wiki/CAVRA-Trial-Field-Guide.md)

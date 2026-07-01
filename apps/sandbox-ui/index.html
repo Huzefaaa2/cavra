@@ -101,7 +101,8 @@
                 <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">View GitHub</a>
               </div>
               <p id="scenarioStatus" class="status-line">
-                Demo mode uses public sample data. Enterprise connects to live repositories,
+                Demo mode uses public sample data. Self-hosted operators connect providers;
+                CAVRA Managed and Enterprise Subscription paths support live repositories,
                 tenants, reports, connectors, and runtime evidence streams.
               </p>
             </div>
@@ -204,37 +205,37 @@
           </p>
 
           <section class="section-heading">
-            <p class="eyebrow">Editions</p>
-            <h2>Choose the adoption path that matches the evaluation stage.</h2>
+            <p class="eyebrow">Product paths</p>
+            <h2>Choose the adoption path that matches how you want to operate CAVRA.</h2>
             <p>
-              Community demonstrates the public model, Trial validates a guided Enterprise
-              use case, Enterprise connects private tenants and controls, and SaaS provides
-              a managed operating path.
+              Community is the full self-hosted product, Managed is hosted CAVRA,
+              Enterprise Subscription adds commercial support and certified packs,
+              and Trial access lets evaluators prove one guided use case.
             </p>
           </section>
           <div id="editionComparison" class="edition-comparison" aria-label="CAVRA edition comparison table"></div>
           <p class="key-point">
-            <strong>Key Point:</strong> Community explains the model; Trial and Enterprise prove it with private connectors, tenants, and runtime workflows.
+            <strong>Key Point:</strong> Community is real self-hosted CAVRA; Managed and Enterprise Subscription add operated service and commercial support paths.
           </p>
 
           <section class="section-heading">
             <p class="eyebrow">Product Demonstration Environment</p>
-            <h2>Explore the demo console with clear Community and Enterprise boundaries.</h2>
+            <h2>Explore the demo console with clear public, configured, and managed boundaries.</h2>
             <p>
               The hosted site is a public Community-safe sandbox. It demonstrates the product
-              model without exposing private tenant data, secrets, connectors, or Enterprise source.
+              model without exposing private tenant data, secrets, connectors, managed-service code, or commercial package internals.
             </p>
           </section>
           <div id="demoMetrics" class="metric-grid" aria-live="polite"></div>
           <div id="communityGaSummary" class="readiness-grid" aria-label="Community readiness summary"></div>
           <div id="pilotReadinessSummary" class="readiness-grid" aria-label="Production pilot readiness summary"></div>
           <p class="key-point">
-            <strong>Key Point:</strong> The public demo is safe to inspect; private runtime evidence and production connectors belong to Trial and Enterprise validation.
+            <strong>Key Point:</strong> The public demo is safe to inspect; private runtime evidence and production connectors require configured providers, Managed operation, or approved trial access.
           </p>
 
           <section class="section-heading">
             <p class="eyebrow">Downloads</p>
-            <h2>Enterprise evaluation collateral in one place.</h2>
+            <h2>Evaluation collateral in one place.</h2>
             <p>
               Download public-safe product briefs, sample evidence, architecture references,
               readiness packets, and trial guides to support CISO, board, audit, platform,
@@ -262,10 +263,10 @@
             <button type="button" id="overviewRunDemo" class="primary-action">Run Demo</button>
             <a href="#evidence" data-route-link="evidence">Review Sample Evidence</a>
             <a href="#ai-posture" data-route-link="ai-posture">Download Board Pack</a>
-            <a href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">Request Enterprise Trial</a>
+            <a href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">Request Trial Access</a>
           </div>
           <p class="key-point">
-            <strong>Key Point:</strong> Run the demo, inspect evidence, review the board packet, then request a guided Enterprise Trial.
+            <strong>Key Point:</strong> Run the demo, inspect evidence, review the board packet, then request guided Trial access.
           </p>
         </section>
 
@@ -275,9 +276,10 @@
               <p class="eyebrow">AI Security Posture Management</p>
               <h1>AISPM turns agent activity into posture, evidence, and readiness decisions.</h1>
               <p>
-                Community shows demo-safe activity, findings, report catalogs, and readiness
-                boundaries. Enterprise adds live tenant ingestion, streaming, kill switch,
-                runtime overrides, report delivery, tenant isolation, and production gates.
+                Community includes AISPM surfaces, report catalogs, and readiness
+                contracts. Self-hosted production requires providers; CAVRA Managed
+                operates live ingestion, streaming, report delivery, tenant operations,
+                and production gates.
               </p>
             </div>
             <div class="posture-radar" aria-label="Animated AISPM posture loop">
@@ -313,20 +315,21 @@
                 <p class="eyebrow">CSO and audit reporting</p>
                 <h2>Report Center</h2>
                 <p>
-                  Download public demo reports. Enterprise renders scheduled PDF/XLSX packs,
-                  recipient-governed email delivery, immutable audit evidence, and signed exports.
+                  Download public demo reports. Configured self-hosted deployments or
+                  CAVRA Managed render scheduled PDF/XLSX packs, recipient-governed
+                  delivery, immutable audit evidence, and signed exports.
                 </p>
               </div>
-              <span class="severity controlled">Enterprise delivery locked</span>
+              <span class="severity controlled">Provider configuration required</span>
             </div>
             <div id="aispmReportCenter" class="report-center-grid"></div>
             <div class="report-delivery-panel">
               <div>
-                <h3>Enterprise Email Delivery</h3>
-                <p>SMTP/provider settings, recipient allowlists, retention, and delivery audit logs remain Enterprise-only.</p>
+                <h3>Report Delivery Provider</h3>
+                <p>SMTP/provider settings, recipient allowlists, retention, and delivery audit logs require self-hosted configuration or CAVRA Managed.</p>
               </div>
-              <input id="aispmReportRecipients" type="email" multiple placeholder="Configured in CAVRA Enterprise" disabled />
-              <button id="sendAispmReportEmail" type="button" disabled>Send From Enterprise</button>
+              <input id="aispmReportRecipients" type="email" multiple placeholder="Configured by provider" disabled />
+              <button id="sendAispmReportEmail" type="button" disabled>Send With Provider</button>
             </div>
           </section>
 
@@ -336,7 +339,7 @@
                 <p class="eyebrow">Trial path</p>
                 <h2>AISPM guided labs and Trial Field Guide</h2>
                 <p>
-                  Evaluators can request a time-limited Enterprise Trial, follow the Trial Field
+                  Evaluators can request time-limited CAVRA Trial access, follow the Trial Field
                   Guide, run a complete AI-agent use case, and close the trial with evidence,
                   expiry, revocation, and feedback.
                 </p>
@@ -393,18 +396,18 @@
           <div id="operatorPathCards" class="operator-path-grid"></div>
         </section>
 
-        <section class="page-panel" id="enterprise-trial" data-title="Enterprise Trial">
+        <section class="page-panel" id="enterprise-trial" data-title="Trial Access">
           <section class="page-hero split-hero">
             <div>
-              <p class="eyebrow">Enterprise Trial</p>
-              <h1>Request approved access, generate a time-limited license, and prove one complete AISPM use case.</h1>
+              <p class="eyebrow">CAVRA Trial</p>
+              <h1>Request approved access, receive time-limited evaluator entitlement, and prove one complete AISPM use case.</h1>
               <p>
                 The trial portal handles evaluator intake and operator review. Approved evaluators
-                receive private package access, a signed license, a guided lab, and closeout evidence.
+                receive hosted or package access where applicable, evaluator entitlement, a guided lab, and closeout evidence.
               </p>
               <div class="hero-actions">
                 <a class="primary-action" href="https://cavra-trial.mind-ops.cloud/" target="_blank" rel="noreferrer">Open CAVRA Trial Portal</a>
-                <a href="https://github.com/Huzefaaa2/cavra/wiki/AISPM-Enterprise-Trial-Lab-Notebook" target="_blank" rel="noreferrer">Trial Field Guide</a>
+                <a href="https://github.com/Huzefaaa2/cavra/wiki/CAVRA-Trial-Field-Guide" target="_blank" rel="noreferrer">Trial Field Guide</a>
               </div>
             </div>
             <div class="trial-card">
@@ -414,7 +417,7 @@
                 <li>Operator approves access.</li>
                 <li>Run guided AISPM lab.</li>
                 <li>Export evidence and closeout.</li>
-                <li>License expires or is revoked.</li>
+                <li>Entitlement expires or is revoked.</li>
               </ol>
             </div>
           </section>
@@ -441,7 +444,7 @@
         <section class="page-panel" id="roadmap" data-title="Roadmap">
           <section class="page-hero">
             <p class="eyebrow">Roadmap</p>
-            <h1>Community, Trial, Enterprise, and SaaS workstreams.</h1>
+            <h1>Community, Managed, Enterprise Subscription, and Trial access workstreams.</h1>
           </section>
           <div id="roadmapBoard" class="roadmap-board"></div>
         </section>
@@ -450,7 +453,7 @@
           <section class="page-hero">
             <p class="eyebrow">Documentation</p>
             <h1>Start with the CAVRA textbook, then run the public sandbox.</h1>
-            <p>The GitHub Wiki e-book is the long-form guide to CAVRA architecture, editions, CLI, GUI, AISPM, deployment, and Enterprise operations.</p>
+            <p>The GitHub Wiki e-book is the long-form guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.</p>
           </section>
           <div class="docs-layout">
             <nav id="docsNav" class="docs-nav" aria-label="Documentation links"></nav>
@@ -460,7 +463,7 @@
                 <li>Read the Wiki textbook overview.</li>
                 <li>Run the public demo from this site.</li>
                 <li>Review policy and evidence examples.</li>
-                <li>Request Enterprise Trial access for guided AISPM labs.</li>
+                <li>Request CAVRA Trial access for guided AISPM labs.</li>
                 <li>Use the Trial Field Guide to prove one end-to-end use case.</li>
               </ol>
             </article>
@@ -526,7 +529,7 @@
       Evidence Console
       Community GA Control Hardening
       Production Pilot Readiness
-      Enterprise Trial Access Portal
+      CAVRA Trial Access Portal
       AISPM Trial Lab Notebook Readiness
       id="aispmTrialLabNotebookReadiness"
       id="enterprise-trial-lab-notebook-readiness"
@@ -615,6 +618,91 @@
       cavra-aispm-release-evidence-index-packet.json
       cavra-hosted-sandbox-post-deploy-evidence
       Board pack packet
+      community-v1.0.0-aispm-release-evidence-index
+      Request Enterprise Trial
+      Community GA Path
+      class="hero-title-block"
+      class="hero-wordmark">CAVRA<
+      class="hero-side"
+      class="hero-logo-lockup"
+      width="220" height="220"
+      id="communityGaChecklist"
+      id="communityGaCommands"
+      id="communityGaLinks"
+      id="refreshCommunityGa"
+      id="releaseNotes"
+      class="console saas-automation-console"
+      id="refreshSaasAutomation"
+      id="saasAutomationSummary"
+      id="saasAutomationChecks"
+      id="saasAutomationRequest"
+      id="saasAutomationResponse"
+      id="nodeInspector"
+      id="refreshAispmApprovals"
+      id="aispmApprovalSummary"
+      id="aispmApprovalLineage"
+      id="refreshAispmContextGaps"
+      id="aispmContextGapSummary"
+      id="aispmPolicyContextGaps"
+      id="refreshAispmForecasts"
+      id="aispmForecastSummary"
+      id="aispmPreActionForecasts"
+      id="refreshAispmIntentDrift"
+      id="aispmIntentDriftSummary"
+      id="aispmIntentActionDrift"
+      id="refreshAispmToolGraph"
+      id="aispmToolGraphSummary"
+      id="aispmToolGraphNodes"
+      id="aispmToolGraphEdges"
+      id="refreshAispmBlastRadius"
+      id="aispmBlastRadiusSummary"
+      id="aispmAgentBlastRadius"
+      id="refreshAispmCoverageHeatmap"
+      id="aispmCoverageHeatmapSummary"
+      id="aispmCoverageHeatmapRows"
+      id="refreshAispmEvidenceConfidence"
+      id="aispmEvidenceConfidenceSummary"
+      id="aispmEvidenceConfidenceRows"
+      id="refreshAispmEvidenceFreshness"
+      id="aispmEvidenceFreshnessSummary"
+      id="aispmEvidenceFreshnessRows"
+      id="refreshAispmExecutiveNarrative"
+      id="aispmExecutiveNarrativeSummary"
+      id="aispmExecutiveNarrative"
+      id="refreshAispmReplayPolicy"
+      id="aispmReplayPolicySummary"
+      id="aispmReplayPolicyReviewWorkflow"
+      id="aispmReplayPolicyReviewPacketStatus"
+      id="copyAispmReplayPolicyReviewPacket"
+      id="downloadAispmReplayPolicyReviewPacket"
+      id="aispmReplayPolicyPrGuidance"
+      id="aispmReplayPolicyCiGate"
+      id="aispmReplayPolicyCiGateSummary"
+      id="aispmReplayPolicyCiGateStatus"
+      id="copyAispmReplayPolicyCiGateReadiness"
+      id="downloadAispmReplayPolicyCiGateReadiness"
+      id="aispmReplayPolicyCiGateRolloutStatus"
+      id="copyAispmReplayPolicyCiGateRollout"
+      id="downloadAispmReplayPolicyCiGateRollout"
+      id="aispmReplayPolicyCiGateRollout"
+      id="aispmReplayPolicyCiGateAuditStatus"
+      id="copyAispmReplayPolicyCiGateAuditPacket"
+      id="downloadAispmReplayPolicyCiGateAuditPacket"
+      id="aispmReplayPolicyCiGateAuditPacket"
+      id="aispmReplayPolicyRecommendations"
+      id="aispmReplayPolicyDraft"
+      id="aispmReplayPolicyTestStatus"
+      id="copyAispmReplayPolicyTests"
+      id="downloadAispmReplayPolicyTests"
+      id="aispmReplayPolicyTests"
+      id="refreshAispmFingerprints"
+      id="aispmFingerprintSummary"
+      id="aispmBehaviorFingerprints"
+      id="aispmTraceSession"
+      id="aispmTraceSummary"
+      id="aispmTraceSteps"
+      id="aispmTraceRedaction"
+      id="aispmTracePayload"
     -->
 
     <script src="./config.js"></script>

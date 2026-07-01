@@ -1,24 +1,24 @@
 const navItems = [
-  { id: "dashboard", label: "Overview", icon: "C", group: "Start", description: "Business outcomes, executive deliverables, editions, downloads, and public demo summary." },
+  { id: "dashboard", label: "Overview", icon: "C", group: "Start", description: "Business outcomes, executive deliverables, product paths, downloads, and public demo summary." },
   { id: "ai-posture", label: "AISPM", icon: "A", group: "Start", description: "AI Security Posture Management, reports, board packs, and trial labs." },
   { id: "architecture", label: "Architecture", icon: "N", group: "Platform", description: "Runtime authority, policy, evidence, posture, identity, and integrations." },
   { id: "policy-engine", label: "Policy Engine", icon: "P", group: "Platform", description: "Policy decisions across files, commands, Git, MCP, CI/CD, cloud, and releases." },
   { id: "evidence", label: "Evidence", icon: "E", group: "Platform", description: "Audit trails, attestations, evidence bundles, and control mappings." },
   { id: "use-cases", label: "Use Cases", icon: "U", group: "Solutions", description: "Secret protection, Terraform gates, protected branches, MCP trust, and AI-agent governance." },
   { id: "operator-experience", label: "Role Paths", icon: "R", group: "Solutions", description: "Security, platform, audit, and leadership reader paths." },
-  { id: "enterprise-trial", label: "Enterprise Trial", icon: "T", group: "Editions", description: "Trial portal, time-limited license, private package, guided labs, and closeout." },
-  { id: "integrations", label: "Integrations", icon: "I", group: "Editions", description: "Ready and planned integrations for developer and cloud control surfaces." },
+  { id: "enterprise-trial", label: "Trial Access", icon: "T", group: "Access", description: "Trial portal, evaluator entitlement, guided labs, expiry, revocation, and closeout." },
+  { id: "integrations", label: "Integrations", icon: "I", group: "Platform", description: "Ready and planned integrations for developer and cloud control surfaces." },
   { id: "compliance", label: "Compliance", icon: "G", group: "Trust", description: "Control mappings, evidence boundaries, and audit-review caveats." },
-  { id: "roadmap", label: "Roadmap", icon: "M", group: "Trust", description: "Community, Trial, Enterprise, SaaS, and Azure deployment paths." },
+  { id: "roadmap", label: "Roadmap", icon: "M", group: "Trust", description: "Community, Managed, Enterprise Subscription, Trial access, and Azure deployment paths." },
   { id: "documentation", label: "Docs", icon: "D", group: "Resources", description: "Wiki textbook, README, CLI, deployment guides, and Trial Field Guide." }
 ];
 
 const metrics = [
   ["Runtime Decision Actions", "4", "Allow, block, require approval, or attest."],
-  ["Protected Enterprise Assets", "7", "Code, shell, Git, MCP, CI/CD, cloud, and infrastructure."],
+  ["Protected Runtime Assets", "7", "Code, shell, Git, MCP, CI/CD, cloud, and infrastructure."],
   ["Evidence outputs", "6", "Bundles, attestations, reports, packets, exports, and release records."],
   ["AISPM views", "9", "Coverage, findings, drift, blast radius, reports, and readiness."],
-  ["Editions", "4", "Community, Trial, Enterprise, and SaaS deployment paths."]
+  ["Product Paths", "4", "Community, Managed, Enterprise Subscription, and Trial access."]
 ];
 
 const businessOutcomes = [
@@ -36,15 +36,15 @@ const executiveDeliverables = [
 ];
 
 const editionComparison = [
-  ["Community", "Open public sandbox", "Sample decisions, policy examples, local evidence, CLI/docs, Azure Community path.", "Developers, open-source users, and first-look reviewers."],
-  ["Trial", "Time-limited Enterprise evaluation", "Trial portal, private package, guided AISPM labs, license, revocation, and closeout.", "CISO, platform, audit, and evaluator teams proving one use case."],
-  ["Enterprise", "Private control plane", "Tenant isolation, SSO/RBAC, connectors, policy packs, SMTP/report delivery, runtime workflows.", "Organizations governing live AI-agent operations."],
-  ["SaaS", "Managed operating model", "Hosted control plane, managed deployment, monitoring, reporting, and support paths.", "Teams that want CAVRA operated as an enterprise service."]
+  ["CAVRA Community", "Full self-hosted public product", "Runtime decisions, policy engine, approvals, evidence, AISPM, report center, dashboards, connector SDK, reference connectors, and public policy packs.", "Teams that want to self-host and configure their own providers."],
+  ["CAVRA Managed", "Hosted managed service", "Managed tenant operations, updates, uptime, policy registry, dashboards, report delivery, audit storage, support handoff, and billing.", "Teams that want CAVRA operated as a service."],
+  ["Enterprise Subscription", "Commercial support relationship", "SLA, certified connectors, commercial policy packs, compliance packs, implementation help, custom integrations, and private customer operations.", "Organizations that need supported deployment and commercial assurance."],
+  ["CAVRA Trial", "Temporary evaluator access", "Operator-reviewed access, hosted or package entitlement where applicable, guided AISPM labs, expiry, revocation, evidence, and closeout.", "Evaluators proving one measurable use case before adoption."]
 ];
 
 const downloadArtifacts = [
   ["Executive Product Brief", "PDF-ready", "Two-page business summary for CISO, board, and procurement review."],
-  ["CAVRA Datasheet", "Product brief", "Capabilities, editions, runtime actions, protected surfaces, and evaluation path."],
+  ["CAVRA Datasheet", "Product brief", "Capabilities, product paths, runtime actions, protected surfaces, and evaluation path."],
   ["AISPM Capability Brief", "Datasheet", "Posture loop, findings, reports, readiness gates, and guided trial labs."],
   ["Runtime Authority Whitepaper", "Reference", "How pre-action governance works across AI-agent software delivery."],
   ["Architecture Reference Guide", "Diagram pack", "Runtime authority, policy, evidence, AISPM, identity, and integrations."],
@@ -52,10 +52,10 @@ const downloadArtifacts = [
   ["Sample Evidence Bundle", "Evidence", "Public-safe decision record, attestation outline, and control mapping examples."],
   ["Sample Attestation", "Evidence", "Example signed decision and reviewer attestation payload."],
   ["Security Controls Mapping", "SOC 2 / ISO / NIST", "Public-safe mapping from CAVRA evidence to common control families."],
-  ["Gartner-style Feature Matrix", "Matrix", "Feature comparison across Community, Trial, Enterprise, and SaaS."],
-  ["Deployment Reference Architecture", "Azure", "Community, Trial, Enterprise, and SaaS deployment topology summary."],
-  ["Enterprise Trial Guide", "Guide", "Evaluator steps, trial portal, guided use case, AISPM labs, and closeout."],
-  ["API Reference", "Reference", "Public-safe API surface overview and Enterprise integration boundaries."],
+  ["Capability Matrix", "Matrix", "Capability status across Community, Managed, Enterprise Subscription, and Trial access."],
+  ["Deployment Reference Architecture", "Azure", "Community, Managed, Enterprise Subscription, and Trial deployment topology summary."],
+  ["Trial Access Guide", "Guide", "Evaluator steps, trial portal, guided use case, AISPM labs, and closeout."],
+  ["API Reference", "Reference", "Public-safe API surface overview and provider integration boundaries."],
   ["Policy Pack Samples", "Examples", "Secret, Terraform, protected branch, MCP, and release governance examples."],
   ["Release Readiness Checklist", "Checklist", "Evidence, validation, release, and production-readiness review checklist."]
 ];
@@ -64,14 +64,14 @@ const communityCards = [
   ["Public landing", "Rebuilt", "Product-first homepage with demo-safe language and route-aware pages."],
   ["Community sandbox", "Ready", "Sample policy decisions, evidence, reports, and posture are available without secrets."],
   ["Docs and textbook", "Linked", "The Wiki e-book is positioned as the full technical reader guide."],
-  ["Azure path", "Documented", "Community SaaS deployment path is available through public workflows and docs."]
+  ["Azure path", "Documented", "Community self-hosted deployment path is available through public workflows and docs."]
 ];
 
 const pilotCards = [
   ["Trial portal", "Live", "Evaluator requests start at cavra-trial.mind-ops.cloud."],
-  ["Trial license", "Time-limited", "Enterprise Trial access uses signed license validation and revocation."],
+  ["Trial entitlement", "Time-limited", "CAVRA Trial access uses controlled evaluator entitlement, expiry, and revocation."],
   ["AISPM labs", "Guided", "Trial Field Guide helps evaluators prove one complete use case."],
-  ["Production gate", "Enterprise", "Live connectors, SMTP, tenants, and runtime workflows remain private validation steps."]
+  ["Production gate", "Managed/Configured", "Live connectors, SMTP, tenants, and runtime workflows require real provider validation."]
 ];
 
 const aispmCards = [
@@ -79,14 +79,14 @@ const aispmCards = [
   ["Blocked actions", "1", "Unsafe secret or production mutation attempts are stopped before execution."],
   ["Approval gates", "3", "High-risk actions route to human or policy owners before completion."],
   ["Report packs", "6", "Executive, audit, control, evidence, agent-risk, and KPI reports."],
-  ["Enterprise controls", "Locked", "Live streaming, kill switch, runtime overrides, and report delivery."]
+  ["Provider-backed controls", "Configuration", "Live streaming, kill switch, runtime overrides, and report delivery require configured providers or Managed operation."]
 ];
 
 const boardPackCards = [
   ["Scope", "Defined", "Repositories, agents, tools, required checks, owners, and go/no-go criteria."],
   ["Risk acceptance", "Tracked", "Accepted exceptions have owner, expiry, rationale, and reviewer evidence."],
   ["Evidence room", "Ready", "Artifacts are grouped for CISO, security, platform, procurement, and audit review."],
-  ["Report readiness", "Prepared", "Executive and audit reporting is separated from Enterprise email delivery."],
+  ["Report readiness", "Prepared", "Executive and audit reporting is separated from configured or Managed email delivery."],
   ["Launch decision", "Reviewable", "Board-ready summary stays public-safe and excludes private tenant records."],
   ["Closeout", "Planned", "Trial expiry, revocation, access removal, and feedback are captured at closeout."]
 ];
@@ -116,7 +116,7 @@ const architectureNodes = [
   ["AISPM plane", "Posture score, coverage, findings, reports, exceptions, and readiness gates."],
   ["Integrations", "GitHub, GitLab, Azure DevOps, Terraform, Kubernetes, clouds, and MCP servers."],
   ["Reports", "Executive, audit, control, evidence, agent-risk, and delivery-ready packs."],
-  ["Enterprise storage", "Tenant-isolated databases, immutable blob storage, Key Vault, and monitoring."]
+  ["Managed storage", "Tenant-aware databases, immutable blob storage, Key Vault, and monitoring."]
 ];
 
 const policies = [
@@ -125,7 +125,7 @@ const policies = [
   ["Untrusted MCP tool", "Block MCP servers that request filesystem, shell, network, or token capabilities without trust registration.", "Register server, declare capability, and rerun trust check."],
   ["Release bypass", "Prevent agents from bypassing required checks, tags, release evidence, or protected branches.", "Attach CAVRA evidence before merge or release."],
   ["Context gaps", "Warn or block when ownership, data classification, change window, or environment tier is missing.", "Collect missing context before execution."],
-  ["Report delivery", "Keep SMTP/provider secrets, recipients, private report contents, and logs outside public Community.", "Use Enterprise report provider integration and audit storage."]
+  ["Report delivery", "Keep SMTP/provider secrets, recipients, private report contents, and logs outside public Community.", "Configure a self-hosted report provider or use CAVRA Managed."]
 ];
 
 const evidenceTimeline = [
@@ -149,18 +149,18 @@ const operatorPaths = [
   ["Security teams", "Stop unsafe autonomous changes before they hit production.", "Start with AISPM, policy engine, and report center."],
   ["Platform teams", "Enforce policy through CI/CD, required checks, and runtime guardrails.", "Start with architecture, integrations, and deployment docs."],
   ["Auditors and GRC", "Trace each decision to durable evidence and control mappings.", "Start with evidence, compliance, and report center."],
-  ["Engineering leaders", "Govern AI-assisted development without blocking all automation.", "Start with overview, role paths, and Enterprise Trial."],
+  ["Engineering leaders", "Govern AI-assisted development without blocking all automation.", "Start with overview, role paths, and Trial access."],
   ["Trial evaluators", "Prove a complete AISPM use case with guided labs and closeout.", "Start with Trial portal and Trial Field Guide."],
-  ["Enterprise operators", "Validate tenants, connectors, SMTP, workflows, and production gates.", "Start with Enterprise deployment docs and readiness validators."]
+  ["Managed operators", "Validate tenants, connectors, SMTP, workflows, and production gates.", "Start with Managed and Enterprise Subscription deployment docs."]
 ];
 
 const trialAccessCards = [
   ["Evaluator intake", "Portal", "Use the branded trial portal for request submission and operator review."],
-  ["License", "Time-limited", "Approved evaluators receive a signed, revocable trial license."],
-  ["Delivery", "Private", "Package/container access is granted through private delivery channels."],
+  ["Entitlement", "Time-limited", "Approved evaluators receive hosted access or revocable entitlement material."],
+  ["Delivery", "Controlled", "Package/container access is granted only where needed through private delivery channels."],
   ["Guided lab", "AISPM", "The Trial Field Guide walks users through one complete evidence-backed use case."],
   ["Closeout", "Auditable", "Expiry, revocation, access removal, validation, and feedback are captured."],
-  ["Boundary", "Enterprise", "Tenant data, SMTP secrets, connectors, and report delivery remain private."]
+  ["Boundary", "Public-safe", "Tenant data, SMTP secrets, connector credentials, and managed delivery logs remain private."]
 ];
 
 const integrations = [
@@ -184,21 +184,21 @@ const compliance = [
 ];
 
 const roadmap = [
-  ["Community", "Public sandbox, CLI, sample evidence, policy packs, Azure Community deployment."],
-  ["Trial", "Portal intake, private package, time-limited licenses, guided AISPM labs, closeout evidence."],
-  ["Enterprise", "Tenant isolation, SSO/RBAC, connectors, policy packs, SMTP/report delivery, production gates."],
-  ["SaaS", "Hosted control plane, Azure deployment options, managed reporting, monitor and support paths."],
+  ["CAVRA Community", "Self-hosted product, CLI, sample evidence, policy packs, provider interfaces, and Azure deployment."],
+  ["CAVRA Trial", "Portal intake, evaluator entitlement, guided AISPM labs, expiry, revocation, and closeout evidence."],
+  ["Enterprise Subscription", "Support, SLA, certified connectors, commercial policy packs, compliance packs, and implementation help."],
+  ["CAVRA Managed", "Hosted control plane, Azure deployment options, managed reporting, monitoring, and support paths."],
   ["AISPM", "Posture loop, reports, exception lifecycle, executive board packs, runtime validation."],
   ["Public site", "Professional product landing page, role paths, diagrams, docs, and trial conversion."]
 ];
 
 const docsLinks = [
   ["GitHub Wiki Textbook", "https://github.com/Huzefaaa2/cavra/wiki"],
-  ["Trial Field Guide", "https://github.com/Huzefaaa2/cavra/wiki/AISPM-Enterprise-Trial-Lab-Notebook"],
+  ["Trial Field Guide", "https://github.com/Huzefaaa2/cavra/wiki/CAVRA-Trial-Field-Guide"],
   ["CAVRA Trial Portal", "https://cavra-trial.mind-ops.cloud/"],
   ["README", "https://github.com/Huzefaaa2/cavra#readme"],
   ["Azure Community Deployment", "https://github.com/Huzefaaa2/cavra/blob/main/docs/azure-community-saas-deployment.md"],
-  ["Azure Trial and Enterprise Deployment", "https://github.com/Huzefaaa2/cavra/blob/main/docs/azure-trial-enterprise-deployment.md"],
+  ["Azure Trial, Managed, and Enterprise Deployment", "https://github.com/Huzefaaa2/cavra/blob/main/docs/azure-trial-enterprise-deployment.md"],
   ["Security Policy", "https://github.com/Huzefaaa2/cavra/security/policy"],
   ["Sample Evidence JSON", "./evidence/before-the-agent-acts/evidence.json"]
 ];
@@ -655,13 +655,13 @@ function buildDownloadArtifact(title) {
       "Run the public demo",
       "Review sample evidence",
       "Download the board packet",
-      "Request an Enterprise Trial"
+      "Request CAVRA Trial access"
     ],
     public_safety_boundary: [
       "No customer tenant data",
       "No connector secrets",
       "No SMTP/provider credentials",
-      "No private Enterprise source or runtime logs"
+      "No private managed-service source or runtime logs"
     ],
     links: {
       public_site: "https://huzefaaa2.github.io/cavra/",
@@ -757,7 +757,7 @@ function wireEvents() {
         product: "CAVRA AISPM",
         mode: "public_demo",
         generated_at: new Date().toISOString(),
-        boundary: "Enterprise report rendering, SMTP/provider delivery, and private report content are not included in Community."
+        boundary: "Configured or Managed report rendering, SMTP/provider delivery, and private report content are not included in the public demo."
       });
       return;
     }
@@ -812,4 +812,80 @@ init();
   Evidence, Compliance, Release Readiness Dashboard, Release Index
   Required checks, policy packs, GitHub/GitLab/Azure DevOps paths
   open-core boundary
+  Community GA Path
+  renderArchitecture
+  renderAispmApprovalLineage
+  renderAispmControlCoverageHeatmap
+  loadAispmControlCoverageHeatmap
+  renderAispmBehaviorFingerprints
+  renderAispmPolicyContextGaps
+  renderAispmPreActionForecasts
+  renderAispmIntentActionDrift
+  renderAispmToolChainGraph
+  renderAispmAgentBlastRadius
+  loadAispmAgentBlastRadius
+  renderAispmReplayPolicy
+  loadAispmReplayPolicy
+  renderAispmReplayPolicyTests
+  loadAispmReplayPolicyTests
+  renderAispmReplayPolicyReviewWorkflow
+  copyAispmReplayPolicyReviewPacket
+  downloadAispmReplayPolicyReviewPacket
+  cavra-replay-policy-review-packet.json
+  renderAispmReplayPolicyPrGuidance
+  copyAispmReplayPolicyPrApproval
+  CAVRA replay-to-policy review completed.
+  renderAispmReplayPolicyCiGate
+  Replay-To-Policy CI Gate
+  renderAispmReplayPolicyCiGateSummary
+  CI Gate Readiness Summary
+  Action Required
+  renderAispmReplayPolicyCiGateRolloutChecklist
+  CI Gate Production Rollout Checklist
+  cavra-replay-policy-ci-gate-rollout-checklist.md
+  copyAispmReplayPolicyCiGateRollout
+  downloadAispmReplayPolicyCiGateRollout
+  renderAispmReplayPolicyCiGateAuditPacket
+  CI Gate Rollout Audit Packet
+  cavra.aispm.replay_to_policy_ci_gate_rollout_audit_packet.v1
+  cavra-replay-policy-ci-gate-rollout-audit-packet.json
+  renderAispmReplayPolicyCiGateAuditorView
+  CI Gate Rollout Auditor View
+  renderAispmReleaseEvidenceIndex
+  cavra.aispm.release_evidence_index_packet.v1
+  scripts/validate-aispm-release-evidence-index.py
+  renderAispmHostedReleaseStatus
+  cavra.hosted_sandbox.operator_release_status_packet.v1
+  scripts/validate-hosted-sandbox-operator-status.py
+  Auditor conclusion: ready for controlled production rollout
+  Public safety boundary
+  Enterprise automation boundary
+  renderAispmReportCenter
+  handleAispmReportDownload
+  Scheduled Email Delivery
+  cavra-aispm-executive-risk-brief.md
+  cavra-aispm-board-kpi-pack.json
+  cavra-aispm-soc2-audit-summary.md
+  cavra-aispm-control-coverage.csv
+  cavra-aispm-evidence-freshness.csv
+  cavra-aispm-agent-risk-register.csv
+  CI Gate Readiness Export
+  cavra-replay-policy-ci-gate-readiness.json
+  cavra aispm validate-ci-gate-readiness cavra-replay-policy-ci-gate-readiness.json --repo-root .
+  /aispm/replay-to-policy-ci-gate-readiness/validate
+  copyAispmReplayPolicyCiGateReadiness
+  downloadAispmReplayPolicyCiGateReadiness
+  cavra.aispm.replay_to_policy_ci_gate_readiness.v1
+  cavra-aispm-review-packet
+  examples/github-actions/cavra-aispm-review-packet-validation.yml
+  examples/gitlab-ci/cavra-aispm-review-packet-validation.gitlab-ci.yml
+  examples/azure-pipelines/cavra-aispm-review-packet-validation.azure-pipelines.yml
+  copyAispmReplayPolicyTests
+  downloadAispmReplayPolicyTests
+  copyTextToClipboard
+  cavra-replay-policy-tests.json
+  /aispm/replay-to-policy-draft
+  /aispm/replay-to-policy-tests
+  renderAispmTraceReplay
+  renderCompliance
 */
