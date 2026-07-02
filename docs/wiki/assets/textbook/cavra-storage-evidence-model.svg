@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Animated CAVRA storage and evidence model</title>
+  <desc id="desc">A diagram showing Community JSON defaults, optional SQLite stores, local evidence bundles, artifact roots, and production export targets such as immutable object storage.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#030712"/>
+      <stop offset=".45" stop-color="#082f49"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#34d399"/>
+    </marker>
+    <style>
+      .bg { fill: url(#bg); }
+      .title { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 38px; font-weight: 900; }
+      .subtitle { fill: #bae6fd; font-family: Inter, Arial, sans-serif; font-size: 17px; }
+      .box { fill: #0f172a; stroke: #38bdf8; stroke-width: 2.5; }
+      .box-green { fill: #052e2b; stroke: #2dd4bf; stroke-width: 2.5; }
+      .box-amber { fill: #221a06; stroke: #f59e0b; stroke-width: 2.5; }
+      .box-red { fill: #260f19; stroke: #fb7185; stroke-width: 2.5; }
+      .text { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 20px; font-weight: 850; }
+      .small { fill: #dbeafe; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+      .muted { fill: #cbd5e1; font-family: Inter, Arial, sans-serif; font-size: 13px; }
+      .line { fill: none; stroke: #34d399; stroke-width: 4; marker-end: url(#arrow); stroke-dasharray: 12 12; opacity: .76; }
+      .seal { fill: #facc15; filter: url(#glow); }
+      @media (prefers-reduced-motion: no-preference) {
+        .line { animation: dash 4s linear infinite; }
+        .seal { animation: seal 5.8s ease-in-out infinite; transform-origin: center; }
+        .float { animation: float 4.5s ease-in-out infinite; }
+      }
+      @keyframes dash { to { stroke-dashoffset: -96; } }
+      @keyframes seal { 0%,100% { transform: scale(.9); opacity: .7; } 50% { transform: scale(1.13); opacity: 1; } }
+      @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="760"/>
+  <text class="title" x="700" y="62" text-anchor="middle">Community Persistence And Evidence Model</text>
+  <text class="subtitle" x="700" y="96" text-anchor="middle">CAVRA Community starts simple with JSON or SQLite, then exports signed evidence for audit, SIEM, and immutable storage workflows.</text>
+
+  <g class="float">
+    <rect class="box-green" x="95" y="165" width="280" height="115" rx="20"/>
+    <text class="text" x="235" y="208" text-anchor="middle">Runtime decision</text>
+    <text class="small" x="235" y="237" text-anchor="middle">action, actor, resource, policy</text>
+  </g>
+
+  <rect class="box" x="515" y="135" width="370" height="175" rx="24"/>
+  <text class="text" x="700" y="178" text-anchor="middle">Community local stores</text>
+  <text class="small" x="700" y="211" text-anchor="middle">Default: .cavra/api/*.json</text>
+  <text class="small" x="700" y="240" text-anchor="middle">Optional: SQLite DB env vars</text>
+  <text class="muted" x="700" y="273" text-anchor="middle">approvals | registry | activity | inventory | integrations | evidence metadata</text>
+
+  <rect class="box-amber" x="1025" y="165" width="280" height="115" rx="20"/>
+  <text class="text" x="1165" y="208" text-anchor="middle">API config</text>
+  <text class="small" x="1165" y="237" text-anchor="middle">/console/config reports active stores</text>
+
+  <rect class="box-green" x="95" y="410" width="280" height="125" rx="20"/>
+  <text class="text" x="235" y="455" text-anchor="middle">Evidence bundle</text>
+  <text class="small" x="235" y="484" text-anchor="middle">JSON, Markdown, ZIP, manifest</text>
+  <text class="small" x="235" y="512" text-anchor="middle">signed digest or signature</text>
+
+  <rect class="box" x="515" y="390" width="370" height="165" rx="24"/>
+  <text class="text" x="700" y="434" text-anchor="middle">Artifact root</text>
+  <text class="small" x="700" y="466" text-anchor="middle">local filesystem evidence output</text>
+  <text class="small" x="700" y="494" text-anchor="middle">PR attestation, SIEM event, retention policy</text>
+  <text class="muted" x="700" y="524" text-anchor="middle">simple self-hosting boundary for Community deployments</text>
+
+  <rect class="box-red" x="1025" y="390" width="280" height="165" rx="20"/>
+  <text class="text" x="1165" y="434" text-anchor="middle">Production export</text>
+  <text class="small" x="1165" y="466" text-anchor="middle">Azure immutable Blob</text>
+  <text class="small" x="1165" y="494" text-anchor="middle">S3 Object Lock plans</text>
+  <text class="small" x="1165" y="522" text-anchor="middle">SIEM and audit archives</text>
+
+  <path class="line" d="M375 222 L515 222"/>
+  <path class="line" d="M885 222 L1025 222"/>
+  <path class="line" d="M700 310 L700 390"/>
+  <path class="line" d="M515 472 L375 472"/>
+  <path class="line" d="M885 472 L1025 472"/>
+  <path class="line" d="M235 280 C235 340 235 370 235 410"/>
+  <path class="line" d="M1165 280 C1165 335 1165 365 1165 390"/>
+
+  <circle class="seal" cx="700" cy="625" r="38"/>
+  <path d="M683 626 L694 637 L719 610" fill="none" stroke="#052e16" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="text" x="700" y="692" text-anchor="middle">Production caveat</text>
+  <text class="subtitle" x="700" y="722" text-anchor="middle">Public Community persistence is JSON/SQLite. Managed and Enterprise production database design is private and operator-controlled.</text>
+</svg>

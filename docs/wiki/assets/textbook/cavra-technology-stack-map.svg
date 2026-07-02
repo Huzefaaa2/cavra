@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">Animated CAVRA technology stack map</title>
+  <desc id="desc">A layered map of the public CAVRA Community technology stack, from static front ends and CLI to FastAPI, Python runtime modules, policy, evidence, persistence, deployment, and validation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06111f"/>
+      <stop offset=".55" stop-color="#081827"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#042f2e"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#22d3ee"/>
+    </marker>
+    <style>
+      .bg { fill: url(#bg); }
+      .grid { stroke: #164e63; stroke-width: 1; opacity: .18; }
+      .title { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 40px; font-weight: 900; }
+      .subtitle { fill: #bae6fd; font-family: Inter, Arial, sans-serif; font-size: 18px; }
+      .lane-title { fill: #7dd3fc; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: .4px; }
+      .box { fill: #0f172a; stroke: #38bdf8; stroke-width: 2.5; }
+      .box-green { fill: #092b2b; stroke: #2dd4bf; stroke-width: 2.5; }
+      .box-purple { fill: #15152e; stroke: #a78bfa; stroke-width: 2.5; }
+      .box-amber { fill: #241a08; stroke: #f59e0b; stroke-width: 2.5; }
+      .box-red { fill: #250c14; stroke: #fb7185; stroke-width: 2.5; }
+      .text { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 19px; font-weight: 800; }
+      .small { fill: #cbd5e1; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+      .tiny { fill: #93c5fd; font-family: Inter, Arial, sans-serif; font-size: 12px; font-weight: 700; }
+      .core { fill: url(#core); stroke: #2dd4bf; stroke-width: 3; filter: url(#glow); }
+      .line { fill: none; stroke: #22d3ee; stroke-width: 3; stroke-dasharray: 12 12; marker-end: url(#arrow); opacity: .78; }
+      .dot { fill: #22c55e; filter: url(#glow); }
+      @media (prefers-reduced-motion: no-preference) {
+        .line { animation: dash 3.8s linear infinite; }
+        .orbit { animation: orbit 14s linear infinite; transform-origin: 700px 440px; }
+        .pulse { animation: pulse 2.8s ease-in-out infinite; transform-origin: center; }
+      }
+      @keyframes dash { to { stroke-dashoffset: -96; } }
+      @keyframes orbit { to { transform: rotate(360deg); } }
+      @keyframes pulse {
+        0%, 100% { opacity: .55; transform: scale(.96); }
+        50% { opacity: 1; transform: scale(1.05); }
+      }
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="860"/>
+  <g>
+    <path class="grid" d="M0 80 H1400 M0 160 H1400 M0 240 H1400 M0 320 H1400 M0 400 H1400 M0 480 H1400 M0 560 H1400 M0 640 H1400 M0 720 H1400 M0 800 H1400"/>
+    <path class="grid" d="M100 0 V860 M200 0 V860 M300 0 V860 M400 0 V860 M500 0 V860 M600 0 V860 M700 0 V860 M800 0 V860 M900 0 V860 M1000 0 V860 M1100 0 V860 M1200 0 V860 M1300 0 V860"/>
+  </g>
+  <text class="title" x="700" y="64" text-anchor="middle">CAVRA Public Technology Stack</text>
+  <text class="subtitle" x="700" y="98" text-anchor="middle">Python authority core, FastAPI control surface, static product interfaces, signed evidence, and cloud-ready deployment paths.</text>
+
+  <g class="orbit" opacity=".45">
+    <circle cx="700" cy="440" r="260" fill="none" stroke="#22d3ee" stroke-width="2" stroke-dasharray="8 16"/>
+    <circle cx="960" cy="440" r="7" fill="#2dd4bf"/>
+    <circle cx="440" cy="440" r="7" fill="#f59e0b"/>
+  </g>
+
+  <rect class="core" x="485" y="325" width="430" height="230" rx="28"/>
+  <text class="text" x="700" y="388" text-anchor="middle" font-size="30">Python Authority Core</text>
+  <text class="small" x="700" y="424" text-anchor="middle">RuntimeGuard | Policy engine | AISPM builders</text>
+  <text class="small" x="700" y="454" text-anchor="middle">Approvals | Evidence signing | Agent registry</text>
+  <text class="small" x="700" y="484" text-anchor="middle">MCP trust | Connectors | SaaS contracts</text>
+  <text class="tiny" x="700" y="523" text-anchor="middle">Python 3.9+ package, containerized with Python 3.12</text>
+
+  <g>
+    <text class="lane-title" x="110" y="160">PUBLIC INTERFACES</text>
+    <rect class="box-green" x="90" y="185" width="250" height="92" rx="16"/>
+    <text class="text" x="215" y="225" text-anchor="middle">CLI</text>
+    <text class="small" x="215" y="252" text-anchor="middle">Typer + Rich</text>
+
+    <rect class="box" x="385" y="185" width="250" height="92" rx="16"/>
+    <text class="text" x="510" y="225" text-anchor="middle">API</text>
+    <text class="small" x="510" y="252" text-anchor="middle">FastAPI + Uvicorn</text>
+
+    <rect class="box-purple" x="765" y="185" width="250" height="92" rx="16"/>
+    <text class="text" x="890" y="225" text-anchor="middle">Product site</text>
+    <text class="small" x="890" y="252" text-anchor="middle">HTML/CSS/JS</text>
+
+    <rect class="box-purple" x="1060" y="185" width="250" height="92" rx="16"/>
+    <text class="text" x="1185" y="225" text-anchor="middle">Sandbox UI</text>
+    <text class="small" x="1185" y="252" text-anchor="middle">Static web app</text>
+  </g>
+
+  <g>
+    <text class="lane-title" x="82" y="632">DATA, POLICY, AND EVIDENCE</text>
+    <rect class="box-amber" x="90" y="655" width="250" height="92" rx="16"/>
+    <text class="text" x="215" y="694" text-anchor="middle">Policy format</text>
+    <text class="small" x="215" y="722" text-anchor="middle">YAML + JSON Schema</text>
+
+    <rect class="box-green" x="385" y="655" width="250" height="92" rx="16"/>
+    <text class="text" x="510" y="694" text-anchor="middle">Crypto</text>
+    <text class="small" x="510" y="722" text-anchor="middle">Ed25519 + HMAC/SHA256</text>
+
+    <rect class="box-amber" x="765" y="655" width="250" height="92" rx="16"/>
+    <text class="text" x="890" y="694" text-anchor="middle">Persistence</text>
+    <text class="small" x="890" y="722" text-anchor="middle">JSON default, SQLite optional</text>
+
+    <rect class="box-red" x="1060" y="655" width="250" height="92" rx="16"/>
+    <text class="text" x="1185" y="694" text-anchor="middle">Evidence</text>
+    <text class="small" x="1185" y="722" text-anchor="middle">JSON, MD, ZIP, SIEM</text>
+  </g>
+
+  <g>
+    <text class="lane-title" x="83" y="335">CONTROL LAYER</text>
+    <rect class="box" x="90" y="360" width="250" height="92" rx="16"/>
+    <text class="text" x="215" y="399" text-anchor="middle">Middleware</text>
+    <text class="small" x="215" y="427" text-anchor="middle">CORS, RBAC, OIDC hooks</text>
+
+    <rect class="box" x="90" y="485" width="250" height="92" rx="16"/>
+    <text class="text" x="215" y="524" text-anchor="middle">Connectors</text>
+    <text class="small" x="215" y="552" text-anchor="middle">SIEM, chat, ITSM, device</text>
+
+    <text class="lane-title" x="1060" y="335">OPERATING SURFACE</text>
+    <rect class="box-green" x="1060" y="360" width="250" height="92" rx="16"/>
+    <text class="text" x="1185" y="399" text-anchor="middle">Deployment</text>
+    <text class="small" x="1185" y="427" text-anchor="middle">Docker, GitHub Actions, Azure</text>
+
+    <rect class="box-purple" x="1060" y="485" width="250" height="92" rx="16"/>
+    <text class="text" x="1185" y="524" text-anchor="middle">Validation</text>
+    <text class="small" x="1185" y="552" text-anchor="middle">pytest, Ruff, Mypy, Playwright</text>
+  </g>
+
+  <path class="line" d="M340 231 C415 265 455 304 505 350"/>
+  <path class="line" d="M510 277 C540 305 570 320 605 340"/>
+  <path class="line" d="M890 277 C865 310 830 326 795 350"/>
+  <path class="line" d="M1060 231 C1000 260 940 302 895 350"/>
+  <path class="line" d="M340 406 C400 410 440 418 485 430"/>
+  <path class="line" d="M340 531 C410 515 450 500 485 480"/>
+  <path class="line" d="M915 435 C965 420 1010 410 1060 406"/>
+  <path class="line" d="M915 482 C960 502 1010 515 1060 531"/>
+  <path class="line" d="M340 701 C420 668 485 602 560 542"/>
+  <path class="line" d="M510 655 C560 610 615 575 650 555"/>
+  <path class="line" d="M765 701 C745 635 725 594 710 555"/>
+  <path class="line" d="M1060 701 C990 658 920 600 840 542"/>
+
+  <circle class="dot pulse" cx="700" cy="324" r="11"/>
+  <circle class="dot pulse" cx="915" cy="442" r="9"/>
+  <circle class="dot pulse" cx="485" cy="442" r="9"/>
+  <text class="subtitle" x="700" y="812" text-anchor="middle">Public Community stack: self-hostable by default. Managed and Enterprise production internals are private operational extensions.</text>
+</svg>

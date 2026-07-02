@@ -14,6 +14,8 @@ The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind
 
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
+For implementation details, read the new textbook chapter [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md). It explains the public Community stack across Python, FastAPI, Typer/Rich, static web front ends, JSON/SQLite persistence, policy and evidence formats, cryptography, Docker, Azure, GitHub Actions, and validation.
+
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 
 ## What CAVRA Does
@@ -188,6 +190,7 @@ Start with the wiki textbook:
 - [Install And Deploy CAVRA](docs/wiki/Textbook-05-Install-And-Deploy-CAVRA.md)
 - [CAVRA Community User Guide](docs/wiki/Textbook-06-Community-Edition-User-Guide.md)
 - [CAVRA Managed And Enterprise Subscription Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md)
+- [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md)
 - [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md)
 - [Azure Community Deployment](docs/azure-community-saas-deployment.md)
 - [Azure Trial And Enterprise Deployment](docs/azure-trial-enterprise-deployment.md)

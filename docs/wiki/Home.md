@@ -49,9 +49,9 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Reader | Read first | Outcome |
 | --- | --- | --- |
 | First-time user | Chapters 0, 1, 5, 6, 13 | Install, run a demo, block a risky action, and verify evidence. |
-| Developer | Chapters 5, 6, 8, 11 | Use the CLI, write policy, route approvals, and create evidence. |
+| Developer | Chapters 5, 6, 8, 11, 18 | Use the CLI, write policy, route approvals, understand the implementation stack, and create evidence. |
 | Security architect | Chapters 1, 2, 3, 11, 15, 16 | Understand the runtime authority model, policy language, governance controls, and troubleshooting. |
-| Platform owner | Chapters 3, 5, 8, 12 | Integrate CAVRA into CI/CD, APIs, and operating workflows. |
+| Platform owner | Chapters 3, 5, 8, 12, 18 | Integrate CAVRA into CI/CD, APIs, operating workflows, storage, deployment, and validation paths. |
 | Evaluator or buyer | Chapters 4, 7, 10, 12, 13, 16 | Validate self-hosted configuration, Managed service fit, Enterprise Subscription needs, AISPM, report delivery, and blocker closeout. |
 
 ## Complete Table Of Contents
@@ -73,7 +73,8 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 15. [Reference Appendices](Textbook-14-Reference-Appendices.md)
 16. [Policy Language Reference](Textbook-15-Policy-Language-Reference.md)
 17. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md)
-18. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution.md)
+18. [CAVRA Technology Stack And Implementation Model](Textbook-18-CAVRA-Technology-Stack.md)
+19. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution.md)
 
 ## Visual Index
 
@@ -92,6 +93,9 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Troubleshooting | [Troubleshooting decision tree](assets/textbook/troubleshooting-decision-tree.svg) |
 | Dynamic runtime loop | [Animated runtime authority loop](assets/textbook/dynamic-runtime-authority-loop.svg) |
 | Dynamic AISPM readiness | [Animated AISPM readiness pulse](assets/textbook/dynamic-aispm-readiness-pulse.svg) |
+| Technology stack | [Animated technology stack map](assets/textbook/cavra-technology-stack-map.svg) |
+| Runtime implementation pipeline | [Animated runtime implementation pipeline](assets/textbook/cavra-technology-runtime-pipeline.svg) |
+| Storage and evidence model | [Animated storage and evidence model](assets/textbook/cavra-storage-evidence-model.svg) |
 
 The animated diagrams are SVG-native and are written to degrade into readable static diagrams when motion is disabled by browser, accessibility, or renderer settings. Every textbook image uses descriptive alt text in the surrounding Markdown.
 

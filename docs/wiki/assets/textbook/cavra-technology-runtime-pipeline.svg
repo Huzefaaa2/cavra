@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Animated CAVRA runtime implementation pipeline</title>
+  <desc id="desc">A sequence-style technical diagram showing user and agent entry points moving through CAVRA CLI, API, MCP server, Python modules, persistence, evidence, and deployment validation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset=".45" stop-color="#0b172a"/>
+      <stop offset="1" stop-color="#082f49"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#67e8f9"/>
+    </marker>
+    <style>
+      .bg { fill: url(#bg); }
+      .title { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 38px; font-weight: 900; }
+      .subtitle { fill: #c4b5fd; font-family: Inter, Arial, sans-serif; font-size: 17px; }
+      .lane { fill: rgba(15,23,42,.72); stroke: #334155; stroke-width: 2; }
+      .label { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 800; }
+      .muted { fill: #cbd5e1; font-family: Inter, Arial, sans-serif; font-size: 13px; }
+      .step { fill: #0f172a; stroke: #22d3ee; stroke-width: 2.5; }
+      .step2 { fill: #102a2a; stroke: #2dd4bf; stroke-width: 2.5; }
+      .step3 { fill: #22173a; stroke: #a78bfa; stroke-width: 2.5; }
+      .line { fill: none; stroke: #67e8f9; stroke-width: 4; marker-end: url(#arrow); stroke-dasharray: 14 12; opacity: .78; }
+      .token { fill: #facc15; filter: url(#glow); }
+      @media (prefers-reduced-motion: no-preference) {
+        .line { animation: dash 4s linear infinite; }
+        .token {
+          animation: token 9s linear infinite;
+          offset-path: path("M92 214 L300 214 L490 214 L690 214 L890 214 L1105 214 L1245 360 L1040 520 L700 520 L355 520 L125 520");
+        }
+        .breath { animation: breath 3s ease-in-out infinite; transform-origin: center; }
+      }
+      @keyframes dash { to { stroke-dashoffset: -104; } }
+      @keyframes token { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+      @keyframes breath { 0%,100% { opacity: .68; } 50% { opacity: 1; } }
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="760"/>
+  <text class="title" x="700" y="62" text-anchor="middle">Runtime Implementation Pipeline</text>
+  <text class="subtitle" x="700" y="96" text-anchor="middle">How the public CAVRA stack turns agent intent into governed decisions, signed evidence, posture, and deployable controls.</text>
+
+  <rect class="lane" x="70" y="145" width="1260" height="150" rx="24"/>
+  <text class="label" x="104" y="178">Entry points</text>
+  <g>
+    <rect class="step" x="95" y="205" width="170" height="58" rx="14"/>
+    <text class="label" x="180" y="239" text-anchor="middle">Agent</text>
+    <rect class="step" x="315" y="205" width="170" height="58" rx="14"/>
+    <text class="label" x="400" y="239" text-anchor="middle">CLI</text>
+    <text class="muted" x="400" y="259" text-anchor="middle">cavra ...</text>
+    <rect class="step" x="535" y="205" width="170" height="58" rx="14"/>
+    <text class="label" x="620" y="239" text-anchor="middle">API</text>
+    <text class="muted" x="620" y="259" text-anchor="middle">FastAPI</text>
+    <rect class="step" x="755" y="205" width="170" height="58" rx="14"/>
+    <text class="label" x="840" y="239" text-anchor="middle">MCP</text>
+    <text class="muted" x="840" y="259" text-anchor="middle">tool interface</text>
+    <rect class="step" x="975" y="205" width="250" height="58" rx="14"/>
+    <text class="label" x="1100" y="239" text-anchor="middle">Static UI</text>
+    <text class="muted" x="1100" y="259" text-anchor="middle">product site and sandbox</text>
+  </g>
+
+  <rect class="lane" x="70" y="340" width="1260" height="150" rx="24"/>
+  <text class="label" x="104" y="373">Python control modules</text>
+  <g>
+    <rect class="step2" x="95" y="400" width="170" height="58" rx="14"/>
+    <text class="label" x="180" y="434" text-anchor="middle">Normalize</text>
+    <rect class="step2" x="315" y="400" width="170" height="58" rx="14"/>
+    <text class="label" x="400" y="434" text-anchor="middle">Policy</text>
+    <rect class="step2" x="535" y="400" width="170" height="58" rx="14"/>
+    <text class="label" x="620" y="434" text-anchor="middle">Approval</text>
+    <rect class="step2" x="755" y="400" width="170" height="58" rx="14"/>
+    <text class="label" x="840" y="434" text-anchor="middle">Evidence</text>
+    <rect class="step2" x="975" y="400" width="250" height="58" rx="14"/>
+    <text class="label" x="1100" y="434" text-anchor="middle">AISPM</text>
+    <text class="muted" x="1100" y="454" text-anchor="middle">coverage, findings, reports</text>
+  </g>
+
+  <rect class="lane" x="70" y="535" width="1260" height="150" rx="24"/>
+  <text class="label" x="104" y="568">Persistence, deployment, and validation</text>
+  <g>
+    <rect class="step3" x="95" y="595" width="190" height="58" rx="14"/>
+    <text class="label" x="190" y="629" text-anchor="middle">JSON stores</text>
+    <rect class="step3" x="335" y="595" width="190" height="58" rx="14"/>
+    <text class="label" x="430" y="629" text-anchor="middle">SQLite stores</text>
+    <rect class="step3" x="575" y="595" width="190" height="58" rx="14"/>
+    <text class="label" x="670" y="629" text-anchor="middle">Signed bundles</text>
+    <rect class="step3" x="815" y="595" width="190" height="58" rx="14"/>
+    <text class="label" x="910" y="629" text-anchor="middle">Docker/Azure</text>
+    <rect class="step3" x="1055" y="595" width="190" height="58" rx="14"/>
+    <text class="label" x="1150" y="629" text-anchor="middle">CI validation</text>
+  </g>
+
+  <path class="line" d="M265 234 L315 234"/>
+  <path class="line" d="M485 234 L535 234"/>
+  <path class="line" d="M705 234 L755 234"/>
+  <path class="line" d="M925 234 L975 234"/>
+  <path class="line" d="M1100 263 C1100 315 1040 355 1100 400"/>
+  <path class="line" d="M975 429 L925 429"/>
+  <path class="line" d="M755 429 L705 429"/>
+  <path class="line" d="M535 429 L485 429"/>
+  <path class="line" d="M315 429 L265 429"/>
+  <path class="line" d="M180 458 C180 520 190 552 190 595"/>
+  <path class="line" d="M400 458 C400 520 430 552 430 595"/>
+  <path class="line" d="M840 458 C820 520 705 552 670 595"/>
+  <path class="line" d="M1100 458 C1088 520 980 555 910 595"/>
+  <path class="line" d="M1100 458 C1168 520 1160 555 1150 595"/>
+
+  <circle class="token" cx="0" cy="0" r="10"/>
+  <circle class="breath" cx="700" cy="430" r="210" fill="none" stroke="#2dd4bf" stroke-width="3" opacity=".55"/>
+  <text class="subtitle" x="700" y="724" text-anchor="middle">Static interfaces are intentionally thin. The authority boundary lives in the Python package, API, CLI, MCP surface, policies, and evidence chain.</text>
+</svg>

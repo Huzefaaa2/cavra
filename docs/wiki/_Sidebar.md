@@ -24,7 +24,8 @@
 15. [Appendices And FAQ](Textbook-14-Reference-Appendices.md)
 16. [Policy Language Reference](Textbook-15-Policy-Language-Reference.md)
 17. [Troubleshooting Playbook](Textbook-16-Troubleshooting-And-FAQ.md)
-18. [Conclusion](Textbook-17-The-Runtime-Authority-Revolution.md)
+18. [Technology Stack](Textbook-18-CAVRA-Technology-Stack.md)
+19. [Conclusion](Textbook-17-The-Runtime-Authority-Revolution.md)
 
 ## Practical Paths
 
