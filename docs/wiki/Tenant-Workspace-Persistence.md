@@ -10,6 +10,9 @@ CAVRA R2.2 starts with a public-safe tenant/workspace persistence contract and r
 | `SQLiteTenantWorkspaceStore` | SQLite reference store for local tenant and workspace records. |
 | `ActivityStore` / `SQLiteActivityStore` | Runtime decision and session history can carry and filter by `tenant_id` and `workspace_id`. |
 | `ApprovalStore` / `SQLiteApprovalStore` | Approval queues and approval history can carry and filter by `tenant_id` and `workspace_id`. |
+| `EvidenceMetadataStore` / `SQLiteEvidenceMetadataStore` | Evidence metadata can carry and filter by `tenant_id` and `workspace_id`. |
+| `InventoryStore` / `SQLiteInventoryStore` | Repository and policy rollout inventory can carry and filter by `tenant_id` and `workspace_id`. |
+| `IntegrationStore` / `SQLiteIntegrationStore` | Integration inventory can carry and filter by `tenant_id` and `workspace_id`. |
 | `assert_tenant_workspace_scope` | Rejects actor/resource tenant or workspace mismatches. |
 | `build_tenant_persistence_contract` | Publishes required tenant/workspace fields and isolation rules. |
 | `build_tenant_persistence_readiness` | Produces the R2.2 foundation readiness result. |
@@ -28,6 +31,9 @@ The current public reference implementation includes scoped helpers for local JS
 
 - `list_decisions_for_scope`, `list_sessions_for_scope`, and `summarize_sessions_for_scope` on activity stores.
 - `list_for_scope` on approval stores.
+- `list_for_scope` and `search_for_scope` on evidence metadata stores.
+- `list_repositories_for_scope` and `list_policy_rollouts_for_scope` on inventory stores.
+- `list_integrations_for_scope` on integration stores.
 - Nullable `tenant_id` and `workspace_id` SQLite columns with in-place migration for existing local databases.
 
 Production deployments should carry the same predicates into the managed database layer and run cross-tenant negative tests before production readiness gates pass.
@@ -36,7 +42,7 @@ Production deployments should carry the same predicates into the managed databas
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
-python3 -m pytest tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py -q
+python3 -m pytest tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py tests/test_evidence.py tests/test_inventory.py tests/test_integrations.py -q
 ```
 
 Detailed repo document: [Tenant And Workspace Persistence](https://github.com/Huzefaaa2/cavra/blob/main/docs/tenant-workspace-persistence.md).

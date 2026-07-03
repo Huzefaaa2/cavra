@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from cavra.tenancy import TenantScope
+
 
 REPOSITORY_STATUSES = {"active", "archived", "disabled"}
 POLICY_ROLLOUT_STATES = {"planned", "active", "paused", "retired"}
@@ -24,7 +26,7 @@ def normalize_repository_record(payload: dict[str, Any]) -> dict[str, Any]:
     if status not in REPOSITORY_STATUSES:
         raise ValueError(f"repository status must be one of: {', '.join(sorted(REPOSITORY_STATUSES))}")
     now = utc_now()
-    return {
+    record = {
         "schema_version": "cavra.repository.v1",
         "repository_id": str(payload.get("repository_id") or name),
         "repository": str(name),
@@ -42,6 +44,8 @@ def normalize_repository_record(payload: dict[str, Any]) -> dict[str, Any]:
         "updated_at": now,
         "evidence_refs": _string_list(payload.get("evidence_refs", [])),
     }
+    record.update(_tenant_workspace_context(payload))
+    return record
 
 
 def normalize_policy_rollout_record(payload: dict[str, Any]) -> dict[str, Any]:
@@ -59,7 +63,7 @@ def normalize_policy_rollout_record(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"policy rollout mode must be one of: {', '.join(sorted(POLICY_MODES))}")
     rollout_id = payload.get("rollout_id") or f"{repository}:{policy_pack}"
     now = utc_now()
-    return {
+    record = {
         "schema_version": "cavra.policy_rollout.v1",
         "rollout_id": str(rollout_id),
         "repository": str(repository),
@@ -74,6 +78,8 @@ def normalize_policy_rollout_record(payload: dict[str, Any]) -> dict[str, Any]:
         "updated_at": now,
         "evidence_refs": _string_list(payload.get("evidence_refs", [])),
     }
+    record.update(_tenant_workspace_context(payload))
+    return record
 
 
 class InventoryStore:
@@ -88,6 +94,8 @@ class InventoryStore:
         policy_pack: str | None = None,
         status: str | None = None,
         risk_tier: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
         items = _filter_records(
             self._load()["repositories"],
@@ -96,8 +104,13 @@ class InventoryStore:
             policy_pack=policy_pack,
             status=status,
             risk_tier=risk_tier,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
         )
         return {"items": sorted(items, key=lambda item: item.get("repository", "")), "total": len(items)}
+
+    def list_repositories_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_repositories(**scope.as_filters(), **kwargs)
 
     def upsert_repository(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_repository_record(payload)
@@ -127,6 +140,8 @@ class InventoryStore:
         state: str | None = None,
         mode: str | None = None,
         owner: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
         items = _filter_records(
             self._load()["policy_rollouts"],
@@ -135,8 +150,13 @@ class InventoryStore:
             state=state,
             mode=mode,
             owner=owner,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
         )
         return {"items": sorted(items, key=lambda item: item.get("rollout_id", "")), "total": len(items)}
+
+    def list_policy_rollouts_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_policy_rollouts(**scope.as_filters(), **kwargs)
 
     def upsert_policy_rollout(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_policy_rollout_record(payload)
@@ -182,6 +202,8 @@ class SQLiteInventoryStore:
                 """
                 CREATE TABLE IF NOT EXISTS inventory_repositories (
                   repository_id TEXT PRIMARY KEY,
+                  tenant_id TEXT,
+                  workspace_id TEXT,
                   repository TEXT NOT NULL,
                   provider TEXT,
                   owner TEXT,
@@ -198,9 +220,17 @@ class SQLiteInventoryStore:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_inventory_repositories_policy ON inventory_repositories (policy_pack)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_inventory_repositories_status ON inventory_repositories (status)")
             connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_inventory_repositories_tenant_workspace "
+                "ON inventory_repositories (tenant_id, workspace_id)"
+            )
+            _ensure_column(connection, "inventory_repositories", "tenant_id", "TEXT")
+            _ensure_column(connection, "inventory_repositories", "workspace_id", "TEXT")
+            connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS inventory_policy_rollouts (
                   rollout_id TEXT PRIMARY KEY,
+                  tenant_id TEXT,
+                  workspace_id TEXT,
                   repository TEXT NOT NULL,
                   policy_pack TEXT NOT NULL,
                   state TEXT NOT NULL,
@@ -215,6 +245,12 @@ class SQLiteInventoryStore:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_inventory_rollouts_policy ON inventory_policy_rollouts (policy_pack)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_inventory_rollouts_state ON inventory_policy_rollouts (state)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_inventory_rollouts_mode ON inventory_policy_rollouts (mode)")
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_inventory_rollouts_tenant_workspace "
+                "ON inventory_policy_rollouts (tenant_id, workspace_id)"
+            )
+            _ensure_column(connection, "inventory_policy_rollouts", "tenant_id", "TEXT")
+            _ensure_column(connection, "inventory_policy_rollouts", "workspace_id", "TEXT")
 
     def list_repositories(
         self,
@@ -224,8 +260,10 @@ class SQLiteInventoryStore:
         policy_pack: str | None = None,
         status: str | None = None,
         risk_tier: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
-        params = _optional_filter_params(provider, owner, policy_pack, status, risk_tier)
+        params = _optional_filter_params(provider, owner, policy_pack, status, risk_tier, tenant_id, workspace_id)
         with self._connect() as connection:
             rows = connection.execute(
                 """
@@ -235,6 +273,8 @@ class SQLiteInventoryStore:
                   AND (? IS NULL OR policy_pack = ?)
                   AND (? IS NULL OR status = ?)
                   AND (? IS NULL OR risk_tier = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 ORDER BY repository ASC
                 """,
                 params,
@@ -242,16 +282,21 @@ class SQLiteInventoryStore:
         items = [json.loads(row["payload"]) for row in rows]
         return {"items": items, "total": len(items)}
 
+    def list_repositories_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_repositories(**scope.as_filters(), **kwargs)
+
     def upsert_repository(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_repository_record(payload)
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO inventory_repositories (
-                  repository_id, repository, provider, owner, policy_pack, risk_tier, status, updated_at, payload
+                  repository_id, tenant_id, workspace_id, repository, provider, owner, policy_pack, risk_tier, status, updated_at, payload
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(repository_id) DO UPDATE SET
+                  tenant_id=excluded.tenant_id,
+                  workspace_id=excluded.workspace_id,
                   repository=excluded.repository,
                   provider=excluded.provider,
                   owner=excluded.owner,
@@ -263,6 +308,8 @@ class SQLiteInventoryStore:
                 """,
                 (
                     record["repository_id"],
+                    record.get("tenant_id"),
+                    record.get("workspace_id"),
                     record["repository"],
                     record["provider"],
                     record["owner"],
@@ -291,8 +338,10 @@ class SQLiteInventoryStore:
         state: str | None = None,
         mode: str | None = None,
         owner: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
-        params = _optional_filter_params(repository, policy_pack, state, mode, owner)
+        params = _optional_filter_params(repository, policy_pack, state, mode, owner, tenant_id, workspace_id)
         with self._connect() as connection:
             rows = connection.execute(
                 """
@@ -302,6 +351,8 @@ class SQLiteInventoryStore:
                   AND (? IS NULL OR state = ?)
                   AND (? IS NULL OR mode = ?)
                   AND (? IS NULL OR owner = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 ORDER BY rollout_id ASC
                 """,
                 params,
@@ -309,16 +360,21 @@ class SQLiteInventoryStore:
         items = [json.loads(row["payload"]) for row in rows]
         return {"items": items, "total": len(items)}
 
+    def list_policy_rollouts_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_policy_rollouts(**scope.as_filters(), **kwargs)
+
     def upsert_policy_rollout(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_policy_rollout_record(payload)
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO inventory_policy_rollouts (
-                  rollout_id, repository, policy_pack, state, mode, owner, updated_at, payload
+                  rollout_id, tenant_id, workspace_id, repository, policy_pack, state, mode, owner, updated_at, payload
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(rollout_id) DO UPDATE SET
+                  tenant_id=excluded.tenant_id,
+                  workspace_id=excluded.workspace_id,
                   repository=excluded.repository,
                   policy_pack=excluded.policy_pack,
                   state=excluded.state,
@@ -329,6 +385,8 @@ class SQLiteInventoryStore:
                 """,
                 (
                     record["rollout_id"],
+                    record.get("tenant_id"),
+                    record.get("workspace_id"),
                     record["repository"],
                     record["policy_pack"],
                     record["state"],
@@ -351,6 +409,20 @@ def _optional_filter_params(*values: str | None) -> list[Any]:
     for value in values:
         params.extend([value, value])
     return params
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def _tenant_workspace_context(payload: dict[str, Any]) -> dict[str, str]:
+    context: dict[str, str] = {}
+    for key in ("tenant_id", "workspace_id"):
+        if payload.get(key) not in {None, ""}:
+            context[key] = str(payload[key])
+    return context
 
 
 def _filter_records(items: list[dict[str, Any]], **filters: str | None) -> list[dict[str, Any]]:

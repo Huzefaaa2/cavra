@@ -14,6 +14,7 @@ from cavra.integrations import (
     filter_connector_delivery_history,
 )
 from cavra.runtime import RuntimeGuard
+from cavra.tenancy import TenantScope
 
 
 def test_command_interceptor_blocks_terraform_apply() -> None:
@@ -78,6 +79,15 @@ def _integration() -> dict[str, object]:
     }
 
 
+def _scoped_integration(integration_id: str, *, tenant_id: str, workspace_id: str) -> dict[str, object]:
+    return {
+        **_integration(),
+        "integration_id": integration_id,
+        "tenant_id": tenant_id,
+        "workspace_id": workspace_id,
+    }
+
+
 def test_integration_store_persists_and_filters_records(tmp_path: Path) -> None:
     store = IntegrationStore(tmp_path / "integrations.json")
 
@@ -109,6 +119,32 @@ def test_sqlite_integration_store_filters_records(tmp_path: Path) -> None:
     assert store.list_integrations(provider="github")["total"] == 1
     assert store.list_integrations(health_status="degraded")["items"][0]["provider"] == "jira"
     assert store.get_integration("jira")["category"] == "itsm"
+
+
+def test_integration_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = IntegrationStore(tmp_path / "integrations.json")
+    store.upsert_integration(_scoped_integration("tenant-a-prod-github", tenant_id="tenant-a", workspace_id="prod"))
+    store.upsert_integration(_scoped_integration("tenant-a-dev-github", tenant_id="tenant-a", workspace_id="dev"))
+    store.upsert_integration(_scoped_integration("tenant-b-prod-github", tenant_id="tenant-b", workspace_id="prod"))
+
+    assert store.list_integrations(tenant_id="tenant-a")["total"] == 2
+    scoped = store.list_integrations_for_scope(TenantScope("tenant-a", "prod"))
+
+    assert scoped["total"] == 1
+    assert scoped["items"][0]["integration_id"] == "tenant-a-prod-github"
+
+
+def test_sqlite_integration_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = SQLiteIntegrationStore(tmp_path / "integrations.db")
+    store.upsert_integration(_scoped_integration("tenant-a-prod-github", tenant_id="tenant-a", workspace_id="prod"))
+    store.upsert_integration(_scoped_integration("tenant-a-dev-github", tenant_id="tenant-a", workspace_id="dev"))
+    store.upsert_integration(_scoped_integration("tenant-b-prod-github", tenant_id="tenant-b", workspace_id="prod"))
+
+    assert store.list_integrations(tenant_id="tenant-a")["total"] == 2
+    scoped = store.list_integrations_for_scope(TenantScope("tenant-a", "prod"))
+
+    assert scoped["total"] == 1
+    assert scoped["items"][0]["integration_id"] == "tenant-a-prod-github"
 
 
 def _connector_event() -> dict[str, object]:

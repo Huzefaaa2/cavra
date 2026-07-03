@@ -23,6 +23,7 @@ from cavra.evidence import (
     verify_evidence_bundle,
 )
 from cavra.runtime import RuntimeGuard
+from cavra.tenancy import TenantScope
 
 
 def _decisions() -> list[dict[str, object]]:
@@ -256,6 +257,45 @@ def test_evidence_metadata_store_indexes_bundle(tmp_path: Path) -> None:
     assert store.get("pytest")["blocked_count"] == 2
 
 
+def test_evidence_metadata_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = EvidenceMetadataStore(tmp_path / "metadata.json")
+    store.upsert(
+        {
+            "session_id": "tenant-a-prod",
+            "tenant_id": "tenant-a",
+            "workspace_id": "prod",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "tenant-a-dev",
+            "tenant_id": "tenant-a",
+            "workspace_id": "dev",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "tenant-b-prod",
+            "tenant_id": "tenant-b",
+            "workspace_id": "prod",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+
+    assert len(store.list(tenant_id="tenant-a")) == 2
+    scoped = store.list_for_scope(TenantScope("tenant-a", "prod"))
+    assert len(scoped) == 1
+    assert scoped[0]["session_id"] == "tenant-a-prod"
+
+
 def test_evidence_artifact_root_lists_and_loads_allowed_files(tmp_path: Path) -> None:
     root = tmp_path / "artifacts"
     bundle_dir = root / "pytest"
@@ -412,6 +452,51 @@ def test_sqlite_evidence_metadata_store_searches_with_pagination(tmp_path: Path)
     assert signed_by_docs["items"][0]["session_id"] == "second"
     assert first_page["limit"] == 1
     assert len(first_page["items"]) == 1
+
+
+def test_sqlite_evidence_metadata_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = SQLiteEvidenceMetadataStore(tmp_path / "metadata.db")
+    store.upsert(
+        {
+            "session_id": "tenant-a-prod",
+            "tenant_id": "tenant-a",
+            "workspace_id": "prod",
+            "created_at": "2026-05-19T00:00:00Z",
+            "signer": "security",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "tenant-a-dev",
+            "tenant_id": "tenant-a",
+            "workspace_id": "dev",
+            "created_at": "2026-05-19T00:01:00Z",
+            "signer": "security",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+    store.upsert(
+        {
+            "session_id": "tenant-b-prod",
+            "tenant_id": "tenant-b",
+            "workspace_id": "prod",
+            "created_at": "2026-05-19T00:02:00Z",
+            "signer": "security",
+            "decision_count": 1,
+            "blocked_count": 0,
+            "approval_required_count": 0,
+        }
+    )
+
+    assert store.search(tenant_id="tenant-a")["total"] == 2
+    scoped = store.search_for_scope(TenantScope("tenant-a", "prod"))
+    assert scoped["total"] == 1
+    assert scoped["items"][0]["session_id"] == "tenant-a-prod"
 
 
 def test_sqlite_evidence_metadata_store_filters_rollout_metadata(tmp_path: Path) -> None:

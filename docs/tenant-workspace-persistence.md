@@ -12,6 +12,7 @@ The public repository now includes:
 - `SQLiteTenantWorkspaceStore`: SQLite reference store for local tenant/workspace records.
 - Tenant/workspace-aware activity stores for runtime decisions and session summaries.
 - Tenant/workspace-aware approval stores for approval queues and decision history.
+- Tenant/workspace-aware evidence metadata, inventory, and integration stores for local operating evidence.
 - `assert_tenant_workspace_scope`: shared guard for actor/resource tenant and workspace comparisons.
 - `build_tenant_persistence_contract`: public contract for required tenant/workspace fields and isolation rules.
 - `build_tenant_persistence_readiness`: readiness packet for the R2.2 foundation.
@@ -59,6 +60,12 @@ The R2.2 foundation now binds tenant/workspace scope into these operational stor
 | `SQLiteActivityStore` | SQLite `activity_decisions` and `activity_sessions` tables include nullable `tenant_id` and `workspace_id` columns plus tenant/workspace indexes. Existing local DBs are migrated in place. | `list_decisions_for_scope`, `list_sessions_for_scope`, `summarize_sessions_for_scope`. |
 | `ApprovalStore` | Approval records copy scope from the decision/resource context and can still filter legacy approvals where scope only exists inside `decision`. | `list_for_scope`. |
 | `SQLiteApprovalStore` | SQLite `approvals` table includes nullable `tenant_id` and `workspace_id` columns plus a tenant/workspace index. Existing local DBs are migrated in place. | `list_for_scope`. |
+| `EvidenceMetadataStore` | Evidence metadata records include optional `tenant_id` and `workspace_id`. | `list_for_scope`. |
+| `SQLiteEvidenceMetadataStore` | SQLite `evidence_metadata` includes nullable `tenant_id` and `workspace_id` columns plus a tenant/workspace index. Existing local DBs are migrated in place. | `search_for_scope`. |
+| `InventoryStore` | Repository and policy rollout records include optional `tenant_id` and `workspace_id`. | `list_repositories_for_scope`, `list_policy_rollouts_for_scope`. |
+| `SQLiteInventoryStore` | SQLite repository and rollout inventory tables include nullable `tenant_id` and `workspace_id` columns plus tenant/workspace indexes. Existing local DBs are migrated in place. | `list_repositories_for_scope`, `list_policy_rollouts_for_scope`. |
+| `IntegrationStore` | Integration inventory records include optional `tenant_id` and `workspace_id`. | `list_integrations_for_scope`. |
+| `SQLiteIntegrationStore` | SQLite integration inventory includes nullable `tenant_id` and `workspace_id` columns plus a tenant/workspace index. Existing local DBs are migrated in place. | `list_integrations_for_scope`. |
 
 These stores remain local reference implementations. The production Enterprise implementation should map the same fields into Postgres with mandatory tenant predicates, row-level security, encrypted backups, retention policy, and cross-tenant negative tests.
 
@@ -66,7 +73,7 @@ These stores remain local reference implementations. The production Enterprise i
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
-python3 -m pytest tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py -q
+python3 -m pytest tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py tests/test_evidence.py tests/test_inventory.py tests/test_integrations.py -q
 ```
 
 Expected result:
@@ -79,7 +86,6 @@ tenant persistence readiness controls validated
 
 The next R2.2 slices should:
 
-- finish tenant/workspace binding for evidence metadata, inventory, and integrations;
 - define private Postgres DDL and row-level security policies;
 - add migration tests from JSON and SQLite reference stores into the production data model;
 - use the `tenant_id` and `workspace_id` from the live identity validation packet as isolation inputs;

@@ -12,6 +12,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from cavra.tenancy import TenantScope
+
 
 @dataclass(frozen=True)
 class EvidenceBundleResult:
@@ -1258,11 +1260,20 @@ class EvidenceMetadataStore:
     def __init__(self, path: Path) -> None:
         self.path = path
 
-    def list(self) -> list[dict[str, Any]]:
+    def list(
+        self,
+        *,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []
         payload = json.loads(self.path.read_text(encoding="utf-8"))
-        return payload.get("items", [])
+        items = payload.get("items", [])
+        return _filter_scope(items, tenant_id=tenant_id, workspace_id=workspace_id)
+
+    def list_for_scope(self, scope: TenantScope) -> list[dict[str, Any]]:
+        return self.list(**scope.as_filters())
 
     def get(self, session_id: str) -> dict[str, Any] | None:
         for item in self.list():
@@ -1276,6 +1287,7 @@ class EvidenceMetadataStore:
             raise ValueError("metadata must include session_id")
         items = [item for item in self.list() if item.get("session_id") != session_id]
         item = {"schema_version": "cavra.evidence.metadata.v1", "product": "CAVRA", **metadata}
+        item.update(_tenant_workspace_context(metadata))
         items.append(item)
         write_json(self.path, {"items": sorted(items, key=lambda value: str(value.get("session_id")))})
         return item
@@ -1301,6 +1313,8 @@ class SQLiteEvidenceMetadataStore:
                 """
                 CREATE TABLE IF NOT EXISTS evidence_metadata (
                     session_id TEXT PRIMARY KEY,
+                    tenant_id TEXT,
+                    workspace_id TEXT,
                     created_at TEXT,
                     signer TEXT,
                     decision_count INTEGER NOT NULL,
@@ -1310,19 +1324,28 @@ class SQLiteEvidenceMetadataStore:
                 )
                 """
             )
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_evidence_metadata_tenant_workspace "
+                "ON evidence_metadata (tenant_id, workspace_id)"
+            )
+            _ensure_column(connection, "evidence_metadata", "tenant_id", "TEXT")
+            _ensure_column(connection, "evidence_metadata", "workspace_id", "TEXT")
 
     def upsert(self, metadata: dict[str, Any]) -> dict[str, Any]:
         session_id = metadata.get("session_id")
         if not session_id:
             raise ValueError("metadata must include session_id")
         item = {"schema_version": "cavra.evidence.metadata.v1", "product": "CAVRA", **metadata}
+        item.update(_tenant_workspace_context(metadata))
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO evidence_metadata (
-                    session_id, created_at, signer, decision_count, blocked_count, approval_required_count, payload
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    session_id, tenant_id, workspace_id, created_at, signer, decision_count, blocked_count, approval_required_count, payload
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(session_id) DO UPDATE SET
+                    tenant_id=excluded.tenant_id,
+                    workspace_id=excluded.workspace_id,
                     created_at=excluded.created_at,
                     signer=excluded.signer,
                     decision_count=excluded.decision_count,
@@ -1332,6 +1355,8 @@ class SQLiteEvidenceMetadataStore:
                 """,
                 (
                     session_id,
+                    item.get("tenant_id"),
+                    item.get("workspace_id"),
                     item.get("created_at"),
                     item.get("signer"),
                     int(item.get("decision_count", 0)),
@@ -1368,6 +1393,8 @@ class SQLiteEvidenceMetadataStore:
         approval_state: str | None = None,
         promotion_execution_status: str | None = None,
         rollback_execution_status: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1386,6 +1413,12 @@ class SQLiteEvidenceMetadataStore:
             params.append(min_blocked)
         if has_approvals is not None:
             clauses.append("approval_required_count > 0" if has_approvals else "approval_required_count = 0")
+        if tenant_id:
+            clauses.append("tenant_id = ?")
+            params.append(tenant_id)
+        if workspace_id:
+            clauses.append("workspace_id = ?")
+            params.append(workspace_id)
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         payload_filters = any(
             [
@@ -1443,6 +1476,37 @@ class SQLiteEvidenceMetadataStore:
             "limit": limit,
             "offset": offset,
         }
+
+    def search_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.search(**scope.as_filters(), **kwargs)
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def _tenant_workspace_context(payload: dict[str, Any]) -> dict[str, str]:
+    context: dict[str, str] = {}
+    for key in ("tenant_id", "workspace_id"):
+        if payload.get(key) not in {None, ""}:
+            context[key] = str(payload[key])
+    return context
+
+
+def _filter_scope(
+    items: list[dict[str, Any]],
+    *,
+    tenant_id: str | None = None,
+    workspace_id: str | None = None,
+) -> list[dict[str, Any]]:
+    filtered = items
+    if tenant_id:
+        filtered = [item for item in filtered if item.get("tenant_id") == tenant_id]
+    if workspace_id:
+        filtered = [item for item in filtered if item.get("workspace_id") == workspace_id]
+    return filtered
 
 
 def _filter_evidence_metadata_payloads(

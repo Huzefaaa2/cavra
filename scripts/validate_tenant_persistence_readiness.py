@@ -39,6 +39,27 @@ REQUIRED_TEXT = {
         "list_for_scope",
         "idx_approvals_tenant_workspace",
     ],
+    "src/cavra/evidence.py": [
+        "tenant_id",
+        "workspace_id",
+        "list_for_scope",
+        "search_for_scope",
+        "idx_evidence_metadata_tenant_workspace",
+    ],
+    "src/cavra/inventory.py": [
+        "tenant_id",
+        "workspace_id",
+        "list_repositories_for_scope",
+        "list_policy_rollouts_for_scope",
+        "idx_inventory_repositories_tenant_workspace",
+        "idx_inventory_rollouts_tenant_workspace",
+    ],
+    "src/cavra/integrations.py": [
+        "tenant_id",
+        "workspace_id",
+        "list_integrations_for_scope",
+        "idx_integrations_tenant_workspace",
+    ],
     "tests/test_tenancy.py": [
         "test_json_tenant_workspace_store_isolates_workspace_lists",
         "test_sqlite_tenant_workspace_store_isolates_workspace_lists",
@@ -52,6 +73,18 @@ REQUIRED_TEXT = {
         "test_approval_store_filters_by_tenant_workspace_scope",
         "test_sqlite_approval_store_filters_by_tenant_workspace_scope",
     ],
+    "tests/test_evidence.py": [
+        "test_evidence_metadata_store_filters_by_tenant_workspace_scope",
+        "test_sqlite_evidence_metadata_store_filters_by_tenant_workspace_scope",
+    ],
+    "tests/test_inventory.py": [
+        "test_inventory_store_filters_by_tenant_workspace_scope",
+        "test_sqlite_inventory_store_filters_by_tenant_workspace_scope",
+    ],
+    "tests/test_integrations.py": [
+        "test_integration_store_filters_by_tenant_workspace_scope",
+        "test_sqlite_integration_store_filters_by_tenant_workspace_scope",
+    ],
     "docs/tenant-workspace-persistence.md": [
         "R2.2",
         "tenant_id",
@@ -60,6 +93,9 @@ REQUIRED_TEXT = {
         "SQLite",
         "ActivityStore",
         "ApprovalStore",
+        "EvidenceMetadataStore",
+        "InventoryStore",
+        "IntegrationStore",
         "Postgres",
         "row-level security",
     ],
@@ -68,6 +104,9 @@ REQUIRED_TEXT = {
         "Tenant/workspace persistence contract",
         "activity decision/session scope binding",
         "approval queue/history scope binding",
+        "evidence metadata scope binding",
+        "inventory scope binding",
+        "integration scope binding",
         "scripts/validate_tenant_persistence_readiness.py",
     ],
     "docs/wiki/Tenant-Workspace-Persistence.md": [
@@ -75,6 +114,9 @@ REQUIRED_TEXT = {
         "SQLiteTenantWorkspaceStore",
         "ActivityStore",
         "ApprovalStore",
+        "EvidenceMetadataStore",
+        "InventoryStore",
+        "IntegrationStore",
         "Postgres",
     ],
 }

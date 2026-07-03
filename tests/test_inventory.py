@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
+from cavra.tenancy import TenantScope
 
 
 def _repository() -> dict[str, object]:
@@ -17,6 +18,16 @@ def _repository() -> dict[str, object]:
     }
 
 
+def _scoped_repository(repository: str, *, tenant_id: str, workspace_id: str) -> dict[str, object]:
+    return {
+        **_repository(),
+        "repository": repository,
+        "repository_id": repository,
+        "tenant_id": tenant_id,
+        "workspace_id": workspace_id,
+    }
+
+
 def _rollout() -> dict[str, object]:
     return {
         "rollout_id": "payments-api-banking",
@@ -27,6 +38,16 @@ def _rollout() -> dict[str, object]:
         "state": "active",
         "owner": "Platform Security",
         "coverage_percent": 95,
+    }
+
+
+def _scoped_rollout(rollout_id: str, repository: str, *, tenant_id: str, workspace_id: str) -> dict[str, object]:
+    return {
+        **_rollout(),
+        "rollout_id": rollout_id,
+        "repository": repository,
+        "tenant_id": tenant_id,
+        "workspace_id": workspace_id,
     }
 
 
@@ -54,3 +75,47 @@ def test_sqlite_inventory_store_filters_records(tmp_path: Path) -> None:
     assert store.list_repositories(policy_pack="cavra-banking")["total"] == 1
     assert store.list_repositories(risk_tier="low")["items"][0]["repository"] == "docs/site"
     assert store.list_policy_rollouts(mode="strict")["total"] == 1
+
+
+def test_inventory_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = InventoryStore(tmp_path / "inventory.json")
+    store.upsert_repository(_scoped_repository("tenant-a/prod", tenant_id="tenant-a", workspace_id="prod"))
+    store.upsert_repository(_scoped_repository("tenant-a/dev", tenant_id="tenant-a", workspace_id="dev"))
+    store.upsert_repository(_scoped_repository("tenant-b/prod", tenant_id="tenant-b", workspace_id="prod"))
+    store.upsert_policy_rollout(
+        _scoped_rollout("tenant-a-prod-rollout", "tenant-a/prod", tenant_id="tenant-a", workspace_id="prod")
+    )
+    store.upsert_policy_rollout(
+        _scoped_rollout("tenant-b-prod-rollout", "tenant-b/prod", tenant_id="tenant-b", workspace_id="prod")
+    )
+
+    assert store.list_repositories(tenant_id="tenant-a")["total"] == 2
+    repos = store.list_repositories_for_scope(TenantScope("tenant-a", "prod"))
+    rollouts = store.list_policy_rollouts_for_scope(TenantScope("tenant-b", "prod"))
+
+    assert repos["total"] == 1
+    assert repos["items"][0]["repository"] == "tenant-a/prod"
+    assert rollouts["total"] == 1
+    assert rollouts["items"][0]["rollout_id"] == "tenant-b-prod-rollout"
+
+
+def test_sqlite_inventory_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = SQLiteInventoryStore(tmp_path / "inventory.db")
+    store.upsert_repository(_scoped_repository("tenant-a/prod", tenant_id="tenant-a", workspace_id="prod"))
+    store.upsert_repository(_scoped_repository("tenant-a/dev", tenant_id="tenant-a", workspace_id="dev"))
+    store.upsert_repository(_scoped_repository("tenant-b/prod", tenant_id="tenant-b", workspace_id="prod"))
+    store.upsert_policy_rollout(
+        _scoped_rollout("tenant-a-prod-rollout", "tenant-a/prod", tenant_id="tenant-a", workspace_id="prod")
+    )
+    store.upsert_policy_rollout(
+        _scoped_rollout("tenant-b-prod-rollout", "tenant-b/prod", tenant_id="tenant-b", workspace_id="prod")
+    )
+
+    assert store.list_repositories(tenant_id="tenant-a")["total"] == 2
+    repos = store.list_repositories_for_scope(TenantScope("tenant-a", "prod"))
+    rollouts = store.list_policy_rollouts_for_scope(TenantScope("tenant-b", "prod"))
+
+    assert repos["total"] == 1
+    assert repos["items"][0]["repository"] == "tenant-a/prod"
+    assert rollouts["total"] == 1
+    assert rollouts["items"][0]["rollout_id"] == "tenant-b-prod-rollout"

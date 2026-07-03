@@ -171,8 +171,8 @@ def build_tenant_persistence_readiness(
         "warning_count": len(warnings),
         "checks": checks,
         "next_controls": [
-            "Bind tenant/workspace scope to activity, approval, evidence, inventory, and integration stores.",
-            "Add private Postgres row-level security migrations and isolation smoke tests.",
+            "Define private Postgres row-level security migrations and isolation smoke tests.",
+            "Add JSON/SQLite to Postgres migration tests for tenant-scoped operational stores.",
             "Use live identity packet tenant_id and workspace_id as R2.2 validation inputs.",
         ],
     }

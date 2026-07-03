@@ -15,6 +15,7 @@ from urllib import error, request
 from cavra.audit import SessionAudit, action_from_decision, create_attestation_markdown
 from cavra.evidence import build_datadog_events, build_sentinel_events, build_splunk_hec_events, build_webhook_payload
 from cavra.runtime import RuntimeGuard
+from cavra.tenancy import TenantScope
 
 
 @dataclass
@@ -146,7 +147,7 @@ def normalize_integration_record(payload: dict[str, Any]) -> dict[str, Any]:
     if health_status not in INTEGRATION_HEALTH:
         raise ValueError("invalid integration health status")
     now = utc_now()
-    return {
+    record = {
         "schema_version": "cavra.integration.v1",
         "integration_id": str(integration_id),
         "name": str(payload.get("name") or provider),
@@ -165,6 +166,8 @@ def normalize_integration_record(payload: dict[str, Any]) -> dict[str, Any]:
         "updated_at": now,
         "evidence_refs": _string_list(payload.get("evidence_refs", [])),
     }
+    record.update(_tenant_workspace_context(payload))
+    return record
 
 
 class IntegrationStore:
@@ -180,6 +183,8 @@ class IntegrationStore:
         owner: str | None = None,
         environment: str | None = None,
         health_status: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
         items = _filter_records(
             self._load()["integrations"],
@@ -189,8 +194,13 @@ class IntegrationStore:
             owner=owner,
             environment=environment,
             health_status=health_status,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
         )
         return {"items": sorted(items, key=lambda item: item.get("integration_id", "")), "total": len(items)}
+
+    def list_integrations_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_integrations(**scope.as_filters(), **kwargs)
 
     def upsert_integration(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_integration_record(payload)
@@ -240,6 +250,8 @@ class SQLiteIntegrationStore:
                 """
                 CREATE TABLE IF NOT EXISTS integrations (
                   integration_id TEXT PRIMARY KEY,
+                  tenant_id TEXT,
+                  workspace_id TEXT,
                   provider TEXT NOT NULL,
                   category TEXT NOT NULL,
                   status TEXT NOT NULL,
@@ -256,6 +268,11 @@ class SQLiteIntegrationStore:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_integrations_status ON integrations (status)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_integrations_owner ON integrations (owner)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_integrations_health ON integrations (health_status)")
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_integrations_tenant_workspace ON integrations (tenant_id, workspace_id)"
+            )
+            _ensure_column(connection, "integrations", "tenant_id", "TEXT")
+            _ensure_column(connection, "integrations", "workspace_id", "TEXT")
 
     def list_integrations(
         self,
@@ -266,8 +283,10 @@ class SQLiteIntegrationStore:
         owner: str | None = None,
         environment: str | None = None,
         health_status: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
-        params = _optional_filter_params(provider, category, status, owner, environment, health_status)
+        params = _optional_filter_params(provider, category, status, owner, environment, health_status, tenant_id, workspace_id)
         with self._connect() as connection:
             rows = connection.execute(
                 """
@@ -278,6 +297,8 @@ class SQLiteIntegrationStore:
                   AND (? IS NULL OR owner = ?)
                   AND (? IS NULL OR environment = ?)
                   AND (? IS NULL OR health_status = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 ORDER BY integration_id ASC
                 """,
                 params,
@@ -285,16 +306,21 @@ class SQLiteIntegrationStore:
         items = [json.loads(row["payload"]) for row in rows]
         return {"items": items, "total": len(items)}
 
+    def list_integrations_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_integrations(**scope.as_filters(), **kwargs)
+
     def upsert_integration(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_integration_record(payload)
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO integrations (
-                  integration_id, provider, category, status, owner, environment, health_status, updated_at, payload
+                  integration_id, tenant_id, workspace_id, provider, category, status, owner, environment, health_status, updated_at, payload
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(integration_id) DO UPDATE SET
+                  tenant_id=excluded.tenant_id,
+                  workspace_id=excluded.workspace_id,
                   provider=excluded.provider,
                   category=excluded.category,
                   status=excluded.status,
@@ -306,6 +332,8 @@ class SQLiteIntegrationStore:
                 """,
                 (
                     record["integration_id"],
+                    record.get("tenant_id"),
+                    record.get("workspace_id"),
                     record["provider"],
                     record["category"],
                     record["status"],
@@ -578,6 +606,20 @@ def _optional_filter_params(*values: str | None) -> list[Any]:
     for value in values:
         params.extend([value, value])
     return params
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def _tenant_workspace_context(payload: dict[str, Any]) -> dict[str, str]:
+    context: dict[str, str] = {}
+    for key in ("tenant_id", "workspace_id"):
+        if payload.get(key) not in {None, ""}:
+            context[key] = str(payload[key])
+    return context
 
 
 def _filter_records(items: list[dict[str, Any]], **filters: str | None) -> list[dict[str, Any]]:
