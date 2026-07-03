@@ -37,3 +37,4 @@
 - [API](API.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
+- [Enterprise HA/DR Readiness](Enterprise-HA-DR-Readiness.md)

@@ -1,0 +1,55 @@
+{
+  "schema_version": "cavra.enterprise_ha.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "sample",
+  "deployment": {
+    "api_replicas": 2,
+    "worker_replicas": 2,
+    "stateless_api": true,
+    "zones": ["1", "2", "3"]
+  },
+  "event_bus": {
+    "provider": "azure_service_bus",
+    "durable": true,
+    "dead_letter_queue": true,
+    "replay_supported": true
+  },
+  "database": {
+    "engine": "postgres",
+    "multi_az": true,
+    "point_in_time_restore": true,
+    "rpo_minutes": 15
+  },
+  "evidence": {
+    "immutable_store_enabled": true,
+    "store_type": "azure_immutable_blob"
+  },
+  "backup_restore": {
+    "backup_frequency_minutes": 60,
+    "restore_tested": true,
+    "restore_duration_minutes": 45,
+    "latest_restore_evidence_ref": "sample://enterprise-ha/restore-drill"
+  },
+  "failover": {
+    "tested": true,
+    "failover_minutes": 30,
+    "data_loss_minutes": 5,
+    "latest_failover_evidence_ref": "sample://enterprise-ha/failover-drill"
+  },
+  "health": {
+    "endpoints": ["/health", "/version", "/console/config"],
+    "monitor_alerts": [
+      "api_availability",
+      "queue_depth",
+      "db_replication_lag",
+      "backup_failure",
+      "evidence_write_failure"
+    ]
+  },
+  "data_residency": {
+    "policy": "customer_managed",
+    "primary_region": "eastus",
+    "allowed_regions": ["eastus", "eastus2"],
+    "observed_regions": ["eastus"]
+  }
+}
