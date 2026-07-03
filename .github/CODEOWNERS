@@ -1,1 +1,32 @@
+# CAVRA ownership map
+#
+# CODEOWNERS is the enforcement hook for Phase 1 roadmap item R1.2.
+# Additional maintainers can be added by area after they complete the onboarding
+# checklist in docs/governance/maintainer-governance.md.
+
 * @Huzefaaa2
+
+# Security-sensitive control planes
+/src/cavra/runtime.py @Huzefaaa2
+/src/cavra/policy_engine.py @Huzefaaa2
+/src/cavra/approvals.py @Huzefaaa2
+/src/cavra/evidence.py @Huzefaaa2
+/src/cavra/api.py @Huzefaaa2
+/src/cavra/mcp_server.py @Huzefaaa2
+/policies/ @Huzefaaa2
+/schemas/ @Huzefaaa2
+/src/cavra/schemas/ @Huzefaaa2
+
+# Release, provenance, and deployment
+/.github/workflows/ @Huzefaaa2
+/scripts/ @Huzefaaa2
+/docker/ @Huzefaaa2
+/docs/release* @Huzefaaa2
+/docs/community-release* @Huzefaaa2
+/docs/go-release* @Huzefaaa2
+
+# Public product, documentation, and wiki mirrors
+/README.md @Huzefaaa2
+/docs/wiki/ @Huzefaaa2
+/docs/product/ @Huzefaaa2
+/apps/sandbox-ui/ @Huzefaaa2

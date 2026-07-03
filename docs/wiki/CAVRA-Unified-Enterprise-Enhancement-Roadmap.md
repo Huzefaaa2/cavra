@@ -20,7 +20,7 @@ The common control planes are Decision, Identity and Trust, Evidence, and Postur
 | Phase | Focus | Primary Dependencies | Current Status | Exit Condition |
 | --- | --- | --- | --- | --- |
 | 0 | Positioning and public roadmap | Review agreement, product scope decision | Completed | README, wiki, and product site describe unified agent-action plus model/artifact governance and link to this tracker. |
-| 1 | Foundation trust | Phase 0 | Planned | Security governance, API contract, signed release, SBOM, and buyer trust documentation are publishable. |
+| 1 | Foundation trust | Phase 0 | In Progress | Security governance, API contract, signed release, SBOM, and buyer trust documentation are publishable. |
 | 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | Planned | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, and production data architecture are implemented and tested. |
 | 3 | Evidence, audit, and compliance | Phase 1 trust model, Phase 2 tenancy model | Planned | KMS-backed evidence, immutable audit log, and dynamic compliance mapping are production-ready. |
 | 4 | Zero-trust scanning and connectors | Phase 2 tenancy, Phase 3 evidence/audit | Planned | Certified connector SDK, priority connectors, and model/artifact scanner agents work without raw model/data egress. |
@@ -35,11 +35,11 @@ The common control planes are Decision, Identity and Trust, Evidence, and Postur
 | R0.2 | 0 | P1-P22 | Publish this numbered product enhancement roadmap with dependencies and status. | R0.1 | Completed | `git diff --check`; wiki Markdown render. |
 | R0.3 | 0 | P1-P22 | Add a unified architecture-roadmap diagram for the public repo and wiki. | R0.1 | Completed | SVG readability and motion-safe fallback. |
 | R0.4 | 0 | P22 | Make product website point buyers to the roadmap, trust posture, and implementation sequence. | R0.1, R0.2 | Completed | Product-site Playwright validation. |
-| R1.1 | 1 | P6, P12 | Harden public security governance: responsible disclosure, supported versions, vulnerability handling, and release security criteria. | R0.2 | Planned | Security-document review and release checklist validation. |
-| R1.2 | 1 | P10, P12 | Establish multi-maintainer governance with CODEOWNERS, maintainer onboarding, RFC process, and release cadence. | R1.1 | Planned | Repository governance review. |
-| R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | Planned | Release workflow with SBOM and signature verification. |
-| R1.4 | 1 | P15 | Publish OpenAPI 3.x contract and API versioning discipline. | R0.1 | Planned | OpenAPI schema validation and API compatibility tests. |
-| R1.5 | 1 | P22 | Publish CISO and buyer trust documentation. | R0.4 | Planned | Trust-pack review against buyer questionnaire. |
+| R1.1 | 1 | P6, P12 | Harden public security governance: responsible disclosure, supported versions, vulnerability handling, and release security criteria. | R0.2 | Completed | Release-security validator and Phase 1 trust-governance tests. |
+| R1.2 | 1 | P10, P12 | Establish multi-maintainer governance with CODEOWNERS, maintainer onboarding, RFC process, and release cadence. | R1.1 | In Progress | CODEOWNERS and RFC docs exist; additional maintainer onboarding remains. |
+| R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | In Progress | Release-trust checklist exists; full SBOM/signing enforcement remains. |
+| R1.4 | 1 | P15 | Publish OpenAPI 3.x contract and API versioning discipline. | R0.1 | Completed | OpenAPI contract, export script, validator, workflow, and tests. |
+| R1.5 | 1 | P22 | Publish CISO and buyer trust documentation. | R0.4 | Completed | Public trust pack and buyer review map. |
 | R2.1 | 2 | P1, P13 | Implement OIDC/SAML, SCIM, RBAC, ABAC, break-glass, model-owner roles, and security-operator roles. | R1.4 | Planned | SSO integration tests and RBAC matrix tests. |
 | R2.2 | 2 | P2, P13 | Implement production multi-tenant persistence with workspaces, Postgres, tenant isolation, and migration path from JSON/SQLite. | R2.1 | Planned | Tenant isolation, migration, and concurrency tests. |
 | R2.3 | 2 | P11, P2, P13 | Define HA topology: stateless workers, queues, health checks, backup/DR, RTO/RPO, and data residency. | R2.2 | Planned | HA smoke, failover, restore, and residency validation. |

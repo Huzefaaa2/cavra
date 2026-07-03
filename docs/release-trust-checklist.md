@@ -1,0 +1,50 @@
+# CAVRA Release Trust Checklist
+
+Last updated: 2026-07-03
+
+This checklist implements the Phase 1 release-trust baseline for roadmap item R1.3. It ties release signing, SBOM, provenance, advisory readiness, OpenAPI contract stability, and roadmap status updates into one release gate.
+
+## Required Release Evidence
+
+| Evidence | Required For | Verification |
+| --- | --- | --- |
+| Checksums | Every release artifact | Hash verification in release packet. |
+| SBOM | Python package, Go runtime, container, and air-gapped bundles where applicable | SBOM artifact attached or referenced in release packet. |
+| Provenance | Go runtime and promoted release packages | SLSA/in-toto provenance validation. |
+| Signatures or signing operations metadata | Release artifacts and evidence manifests | `cavra release verify-go-package` or matching verifier. |
+| OpenAPI contract | API-bearing release | `python3 scripts/validate_openapi_contract.py`. |
+| Release security controls | Security-sensitive release | `python3 scripts/validate_release_security.py`. |
+| Advisory readiness | Security release or security-relevant release | `docs/release-security-advisories.md` checklist. |
+| Roadmap status | Any roadmap item delivered | Source roadmap and wiki mirror updated with test evidence. |
+
+## Release Gate Commands
+
+Run before marking a release candidate ready:
+
+```bash
+python3 scripts/validate_release_security.py
+python3 scripts/validate_openapi_contract.py
+python3 -m pytest tests/test_release_security.py tests/test_openapi_contract.py tests/test_phase1_trust_governance.py -q
+```
+
+Release managers should also run the broader project test suite and language-specific release validators for the release type.
+
+## SBOM Policy
+
+CAVRA release packets must state one of:
+
+- SBOM generated and attached;
+- SBOM generated and stored in immutable artifact storage;
+- SBOM not applicable for documentation-only release;
+- SBOM deferred with explicit blocker and owner.
+
+Documentation-only releases that do not publish packages can use the third option, but code, container, and runtime releases cannot.
+
+## Roadmap Evidence Rule
+
+Roadmap status may move to `Completed` only when the release or PR includes:
+
+1. implementation or document artifact;
+2. test or validation evidence;
+3. public-safe GitHub evidence path;
+4. README/wiki updates if user-facing.

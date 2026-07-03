@@ -119,6 +119,11 @@ close out the trial without leaving stale package or license access behind.
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
 - [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
+- [CAVRA API Versioning And OpenAPI Contract](https://github.com/Huzefaaa2/cavra/blob/main/docs/api-versioning-and-openapi.md)
+- [CAVRA CISO And Enterprise Trust Pack](https://github.com/Huzefaaa2/cavra/blob/main/docs/trust/ciso-enterprise-trust-pack.md)
+- [CAVRA Maintainer Governance](https://github.com/Huzefaaa2/cavra/blob/main/docs/governance/maintainer-governance.md)
+- [CAVRA RFC Process](https://github.com/Huzefaaa2/cavra/blob/main/docs/governance/rfc-process.md)
+- [CAVRA Release Trust Checklist](https://github.com/Huzefaaa2/cavra/blob/main/docs/release-trust-checklist.md)
 - [CAVRA Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CAVRA Product Introduction Video Script](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-introduction-video-script.md)
 - [CLI](CLI.md)

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import quote
 
+from cavra import __version__
 from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.aispm import (
@@ -358,12 +359,49 @@ from cavra.sandbox import (
 try:
     from fastapi import FastAPI, Header, HTTPException, Response
     from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.openapi.utils import get_openapi
 except ImportError:  # pragma: no cover
     FastAPI = None
     Header = None
     HTTPException = None
     Response = None
     CORSMiddleware = None
+    get_openapi = None
+
+
+def _install_openapi_metadata(app) -> None:
+    if get_openapi is None:
+        return
+
+    def custom_openapi() -> dict:
+        if app.openapi_schema:
+            return app.openapi_schema
+        schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            routes=app.routes,
+        )
+        schema["x-cavra-api-versioning"] = {
+            "public_contract": "cavra.api.v1",
+            "compatibility": "Additive changes are allowed within v1. Breaking changes require a new versioned path, media type, or major API contract.",
+            "stability": {
+                "/health": "stable",
+                "/version": "stable",
+                "/console/config": "stable",
+                "/decisions": "stable",
+                "/approvals": "stable",
+                "/evidence": "stable",
+                "/aispm/*": "stable_public_contract",
+                "/runtime/go-pilot/*": "preview",
+            },
+            "governance": "See docs/api-versioning-and-openapi.md.",
+        }
+        schema["x-cavra-governed-assets"] = ["agent_actions", "models_and_artifacts"]
+        app.openapi_schema = schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
 
 def create_app():
@@ -371,9 +409,10 @@ def create_app():
         raise RuntimeError("Install fastapi and uvicorn to run the CAVRA API.")
     app = FastAPI(
         title="CAVRA API",
-        description="Controlled Agentic Verification & Runtime Authority API for AI-agent runtime governance.",
-        version="0.1.0",
+        description="Controlled Agentic Verification & Runtime Authority API for AI-agent runtime governance, evidence, AISPM, and model/artifact governance contracts.",
+        version=__version__,
     )
+    _install_openapi_metadata(app)
     cors_origins = _csv_env("CAVRA_CORS_ORIGINS")
     if cors_origins and CORSMiddleware is not None:
         app.add_middleware(
@@ -428,7 +467,7 @@ def create_app():
 
     @app.get("/version")
     def version() -> dict[str, str]:
-        return {"version": "0.1.0", "name": "CAVRA Runtime Server"}
+        return {"version": __version__, "name": "CAVRA Runtime Server"}
 
     @app.get("/console/config")
     def console_config() -> dict[str, object]:
