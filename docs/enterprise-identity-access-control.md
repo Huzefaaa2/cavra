@@ -128,7 +128,12 @@ When OIDC or RBAC is configured, CAVRA console mutation endpoints reject unauthe
 
 ```bash
 python3 scripts/validate_enterprise_identity_readiness.py
+python3 scripts/validate_enterprise_live_identity_packet.py \
+  --packet .cavra/identity/enterprise-live-identity-validation.json \
+  --output dist/enterprise-live-identity-validation-result.json
 python3 -m pytest tests/test_enterprise_identity.py tests/test_identity_references.py -q
 ```
 
-R2.1 is considered implementation-in-progress until live customer or private Enterprise IdP/SCIM integration tests prove the contract against a real directory, but the public code now exposes and validates the Enterprise identity shape.
+R2.1 is considered implementation-in-progress until live customer or private Enterprise IdP/SCIM integration tests produce a live packet where `ready_for_live_enterprise_identity` is `true`, but the public code now exposes and validates the Enterprise identity shape, runtime scoped approval enforcement, and public-safe live evidence packet.
+
+See [Enterprise Live Identity Validation](enterprise-live-identity-validation.md) for the packet format and completion gate.

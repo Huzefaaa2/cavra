@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -12,7 +13,11 @@ from cavra.enterprise_identity import (
     build_enterprise_identity_contract,
     build_enterprise_identity_readiness,
     enterprise_actor_claims_context,
+    validate_enterprise_live_identity_packet,
 )
+
+
+LIVE_IDENTITY_SAMPLE = Path("examples/identity/enterprise-live-identity-validation.sample.json")
 
 
 def test_enterprise_identity_contract_covers_r2_1_controls() -> None:
@@ -168,6 +173,53 @@ def test_enterprise_abac_preserves_legacy_group_only_approval() -> None:
     assert actor_can_decide({"actor": "iam@example.com", "groups": ["IAM"]}, approval, action="approved")
 
 
+def test_enterprise_live_identity_sample_is_structurally_valid_but_not_ready() -> None:
+    packet = json.loads(LIVE_IDENTITY_SAMPLE.read_text(encoding="utf-8"))
+    result = validate_enterprise_live_identity_packet(packet)
+
+    assert result["schema_version"] == "cavra.enterprise.identity_live_validation_result.v1"
+    assert result["ready_for_live_enterprise_identity"] is False
+    assert any(check["check_id"] == "live_validation_mode" and check["status"] == "blocker" for check in result["checks"])
+
+
+def test_enterprise_live_identity_packet_can_be_ready_with_live_evidence(tmp_path) -> None:
+    packet = json.loads(LIVE_IDENTITY_SAMPLE.read_text(encoding="utf-8"))
+    packet["packet_id"] = "identity-live-ready"
+    packet["environment"]["validation_mode"] = "live"
+    packet["generated_at"] = "2026-07-03T12:00:00Z"
+    packet_path = tmp_path / "identity-live.json"
+    result_path = tmp_path / "identity-live-result.json"
+    packet_path.write_text(json.dumps(packet), encoding="utf-8")
+
+    result = validate_enterprise_live_identity_packet(packet)
+    subprocess.run(
+        [
+            "python3",
+            "scripts/validate_enterprise_live_identity_packet.py",
+            "--packet",
+            str(packet_path),
+            "--output",
+            str(result_path),
+        ],
+        check=True,
+    )
+
+    assert result["ready_for_live_enterprise_identity"] is True
+    assert result_path.exists()
+    assert json.loads(result_path.read_text(encoding="utf-8"))["status"] == "ready"
+
+
+def test_enterprise_live_identity_packet_rejects_secret_like_fields() -> None:
+    packet = json.loads(LIVE_IDENTITY_SAMPLE.read_text(encoding="utf-8"))
+    packet["environment"]["validation_mode"] = "live"
+    packet["evidence"]["access_token"] = "do-not-commit"
+
+    result = validate_enterprise_live_identity_packet(packet)
+
+    assert result["ready_for_live_enterprise_identity"] is False
+    assert any(check["check_id"] == "secret_redaction" and check["status"] == "blocker" for check in result["checks"])
+
+
 def test_api_enterprise_identity_endpoints_report_contract(monkeypatch, tmp_path) -> None:
     policy_path = tmp_path / "identity-policy.json"
     policy_path.write_text(
@@ -211,3 +263,16 @@ def test_api_enterprise_identity_endpoints_report_contract(monkeypatch, tmp_path
 
 def test_enterprise_identity_readiness_validator_passes() -> None:
     subprocess.run(["python3", "scripts/validate_enterprise_identity_readiness.py"], check=True)
+
+
+def test_enterprise_live_identity_sample_validator_allows_not_ready_sample() -> None:
+    subprocess.run(
+        [
+            "python3",
+            "scripts/validate_enterprise_live_identity_packet.py",
+            "--packet",
+            str(LIVE_IDENTITY_SAMPLE),
+            "--allow-not-ready",
+        ],
+        check=True,
+    )

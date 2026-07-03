@@ -18,6 +18,9 @@ REQUIRED_TEXT = {
         "break_glass_approver",
         "SAML assertion is normalized",
         "private_enterprise_sync_contract",
+        "validate_enterprise_live_identity_packet",
+        "REQUIRED_LIVE_IDENTITY_CHECKS",
+        "ready_for_live_enterprise_identity",
     ],
     "src/cavra/approvals.py": [
         "actor_has_enterprise_scope",
@@ -43,6 +46,15 @@ REQUIRED_TEXT = {
         "security_operator",
         "Runtime ABAC Enforcement",
         "approve_model_artifact",
+        "validate_enterprise_live_identity_packet.py",
+    ],
+    "docs/enterprise-live-identity-validation.md": [
+        "ready_for_live_enterprise_identity",
+        "SCIM deprovisioning",
+        "validation_mode",
+        "live",
+        "60 minutes",
+        "validate_enterprise_live_identity_packet.py",
     ],
     "docs/oidc-rbac-deployment.md": [
         "CAVRA_ENTERPRISE_IDENTITY_POLICY",
@@ -54,7 +66,9 @@ REQUIRED_TEXT = {
         "| R2.1 |",
         "Enterprise identity readiness contract",
         "runtime scoped approval enforcement",
+        "live identity validation packet gate",
         "scripts/validate_enterprise_identity_readiness.py",
+        "scripts/validate_enterprise_live_identity_packet.py",
     ],
     "docs/wiki/Enterprise-Identity-And-Access-Control.md": [
         "OIDC",
@@ -62,6 +76,24 @@ REQUIRED_TEXT = {
         "SCIM",
         "ABAC",
         "Runtime Enforcement",
+        "Enterprise Live Identity Validation",
+    ],
+    "docs/wiki/Enterprise-Live-Identity-Validation.md": [
+        "ready_for_live_enterprise_identity",
+        "SCIM",
+        "validation_mode",
+    ],
+    "examples/identity/enterprise-live-identity-validation.sample.json": [
+        "cavra.enterprise.identity_live_validation.v1",
+        "validation_mode",
+        "oidc_token_validation",
+        "scim_deprovisioning",
+        "break_glass_audit",
+    ],
+    "scripts/validate_enterprise_live_identity_packet.py": [
+        "validate_enterprise_live_identity_packet",
+        "--packet",
+        "--allow-not-ready",
     ],
 }
 

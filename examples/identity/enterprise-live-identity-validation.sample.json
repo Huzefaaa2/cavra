@@ -1,0 +1,70 @@
+{
+  "schema_version": "cavra.enterprise.identity_live_validation.v1",
+  "product": "CAVRA",
+  "packet_id": "identity-live-sample-2026-07-03",
+  "generated_at": "2026-07-03T00:00:00Z",
+  "environment": {
+    "validation_mode": "sample",
+    "identity_provider": "Microsoft Entra ID",
+    "issuer": "https://login.microsoftonline.com/example-tenant/v2.0",
+    "tenant_id": "tenant-sample",
+    "workspace_id": "workspace-sample",
+    "repository": "Huzefaaa2/cavra"
+  },
+  "evidence": {
+    "redaction_status": "public_safe",
+    "evidence_refs": [
+      "evidence://identity/oidc-token-validation",
+      "evidence://identity/scim-deprovisioning",
+      "evidence://identity/break-glass-audit"
+    ],
+    "notes": "Sample shape only. Replace with live IdP, SCIM, ABAC, and audit evidence before closing R2.1."
+  },
+  "checks": [
+    {
+      "check_id": "oidc_token_validation",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/oidc-token-validation",
+      "summary": "Issuer, audience, expiry, not-before, JWKS kid, and RS256 signature validated from a sanitized token result."
+    },
+    {
+      "check_id": "rbac_group_mapping",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/rbac-group-mapping",
+      "summary": "CAVRA-CISO, CAVRA-Security-Operations, CAVRA-Platform-Security, CAVRA-Model-Owners, CAVRA-Auditors, and CAB groups mapped to CAVRA roles."
+    },
+    {
+      "check_id": "abac_runtime_scope",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/abac-runtime-scope",
+      "summary": "Tenant, workspace, repository, environment, model owner, and data classification attributes were present in sanitized actor/resource checks."
+    },
+    {
+      "check_id": "scim_group_sync",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/scim-group-sync",
+      "summary": "SCIM group and role synchronization completed with sanitized counts and timestamps."
+    },
+    {
+      "check_id": "scim_deprovisioning",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/scim-deprovisioning",
+      "summary": "Disabled user was removed from active CAVRA role membership within the SLA.",
+      "metrics": {
+        "deprovisioning_sla_minutes": 60
+      }
+    },
+    {
+      "check_id": "break_glass_audit",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/break-glass-audit",
+      "summary": "Break-glass action included CAB role, reason, external reference, short TTL, and retained audit evidence."
+    },
+    {
+      "check_id": "audit_evidence_retention",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/audit-evidence-retention",
+      "summary": "Identity validation evidence was exported into the evidence room with public-safe redaction."
+    }
+  ]
+}

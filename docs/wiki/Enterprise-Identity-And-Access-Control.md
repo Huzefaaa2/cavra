@@ -40,7 +40,12 @@ Community approvals with no Enterprise ABAC fields still use the existing group 
 
 ```bash
 python3 scripts/validate_enterprise_identity_readiness.py
+python3 scripts/validate_enterprise_live_identity_packet.py \
+  --packet .cavra/identity/enterprise-live-identity-validation.json \
+  --output dist/enterprise-live-identity-validation-result.json
 python3 -m pytest tests/test_enterprise_identity.py tests/test_identity_references.py -q
 ```
+
+Live IdP/SCIM closeout is tracked in [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md).
 
 The detailed repo document is [Enterprise Identity And Access Control](https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise-identity-access-control.md).

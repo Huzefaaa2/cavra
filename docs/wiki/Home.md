@@ -23,6 +23,8 @@ Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Comm
 
 The active enhancement tracker is [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md). It records the numbered plan for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, model/artifact governance, policy lifecycle tooling, event-driven monitoring, and scale validation.
 
+For Phase 2 identity implementation, use [Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md) and [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md).
+
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
 ![Animated CAVRA runtime authority loop showing an agent request moving through policy, approval, evidence, and AISPM posture](assets/textbook/dynamic-runtime-authority-loop.svg)

@@ -32,6 +32,32 @@ REQUIRED_CLAIMS = {
     "workspace_id",
 }
 
+ENTERPRISE_LIVE_IDENTITY_SCHEMA_VERSION = "cavra.enterprise.identity_live_validation.v1"
+
+REQUIRED_LIVE_IDENTITY_CHECKS = {
+    "oidc_token_validation",
+    "rbac_group_mapping",
+    "abac_runtime_scope",
+    "scim_group_sync",
+    "scim_deprovisioning",
+    "break_glass_audit",
+    "audit_evidence_retention",
+}
+
+SECRET_FIELD_MARKERS = {
+    "access_token",
+    "api_key",
+    "bearer",
+    "client_secret",
+    "password",
+    "private_key",
+    "saml_certificate",
+    "saml_private_key",
+    "scim_token",
+    "secret",
+    "token",
+}
+
 
 def default_enterprise_identity_policy() -> dict[str, Any]:
     return {
@@ -210,6 +236,195 @@ def actor_has_enterprise_scope(
             if str(actor_context.get(boundary) or "") != str(resource.get(boundary)):
                 return False
     return True
+
+
+def validate_enterprise_live_identity_packet(packet: dict[str, Any]) -> dict[str, Any]:
+    checks = _live_identity_packet_checks(packet)
+    blockers = [check for check in checks if check["status"] == "blocker"]
+    warnings = [check for check in checks if check["status"] == "warn"]
+    return {
+        "schema_version": "cavra.enterprise.identity_live_validation_result.v1",
+        "product": "CAVRA",
+        "packet_schema_version": packet.get("schema_version") if isinstance(packet, dict) else None,
+        "packet_id": packet.get("packet_id") if isinstance(packet, dict) else None,
+        "ready_for_live_enterprise_identity": not blockers,
+        "status": "blocked" if blockers else "ready" if not warnings else "ready_with_warnings",
+        "blocker_count": len(blockers),
+        "warning_count": len(warnings),
+        "checks": checks,
+        "next_controls": [
+            "Attach this packet to the R2.1 identity evidence room.",
+            "Rerun after every IdP claim, SCIM worker, RBAC, ABAC, or break-glass control change.",
+            "Use the same tenant_id and workspace_id evidence as input to R2.2 tenant isolation validation.",
+        ],
+    }
+
+
+def load_enterprise_live_identity_packet(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"enterprise live identity packet not found: {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("enterprise live identity packet must contain a JSON object")
+    return payload
+
+
+def _live_identity_packet_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    checks: list[dict[str, str]] = []
+    if not isinstance(packet, dict):
+        return [_check("packet_shape", "blocker", "Packet must be a JSON object.")]
+    schema_version = packet.get("schema_version")
+    checks.append(
+        _check(
+            "packet_schema",
+            "pass" if schema_version == ENTERPRISE_LIVE_IDENTITY_SCHEMA_VERSION else "blocker",
+            "Live identity packet schema version is correct."
+            if schema_version == ENTERPRISE_LIVE_IDENTITY_SCHEMA_VERSION
+            else f"Live identity packet schema must be {ENTERPRISE_LIVE_IDENTITY_SCHEMA_VERSION}.",
+        )
+    )
+    checks.extend(_packet_required_field_checks(packet))
+    checks.extend(_packet_secret_redaction_checks(packet))
+    checks.extend(_packet_environment_checks(packet))
+    checks.extend(_packet_evidence_checks(packet))
+    checks.extend(_packet_control_checks(packet))
+    return checks
+
+
+def _packet_required_field_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    required_fields = ["packet_id", "generated_at", "environment", "evidence", "checks"]
+    missing = [field for field in required_fields if field not in packet]
+    return [
+        _check(
+            "packet_required_fields",
+            "pass" if not missing else "blocker",
+            "Packet includes required identity validation fields."
+            if not missing
+            else f"Packet missing required fields: {', '.join(missing)}.",
+        )
+    ]
+
+
+def _packet_secret_redaction_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    secret_paths = _find_secret_like_paths(packet)
+    return [
+        _check(
+            "secret_redaction",
+            "pass" if not secret_paths else "blocker",
+            "Packet does not include token, password, certificate, private key, or secret fields."
+            if not secret_paths
+            else f"Packet contains secret-like fields: {', '.join(secret_paths[:5])}.",
+        )
+    ]
+
+
+def _packet_environment_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    environment = packet.get("environment", {})
+    if not isinstance(environment, dict):
+        return [_check("environment_shape", "blocker", "Packet environment must be an object.")]
+    required = ["validation_mode", "identity_provider", "tenant_id", "workspace_id", "issuer", "repository"]
+    missing = [field for field in required if not environment.get(field)]
+    checks = [
+        _check(
+            "environment_contract",
+            "pass" if not missing else "blocker",
+            "Environment includes provider, issuer, tenant, workspace, and repository context."
+            if not missing
+            else f"Environment missing: {', '.join(missing)}.",
+        )
+    ]
+    checks.append(
+        _check(
+            "live_validation_mode",
+            "pass" if environment.get("validation_mode") == "live" else "blocker",
+            "Packet was produced from a live IdP and SCIM validation run."
+            if environment.get("validation_mode") == "live"
+            else "Packet validation_mode must be live before R2.1 can close.",
+        )
+    )
+    return checks
+
+
+def _packet_evidence_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    evidence = packet.get("evidence", {})
+    if not isinstance(evidence, dict):
+        return [_check("evidence_shape", "blocker", "Packet evidence must be an object.")]
+    evidence_refs = _string_list(evidence.get("evidence_refs"))
+    redaction_status = str(evidence.get("redaction_status", "")).lower()
+    return [
+        _check(
+            "evidence_refs",
+            "pass" if evidence_refs else "blocker",
+            "Packet includes public-safe evidence references."
+            if evidence_refs
+            else "Packet must include at least one public-safe evidence reference.",
+        ),
+        _check(
+            "evidence_redaction",
+            "pass" if redaction_status in {"public_safe", "redacted"} else "blocker",
+            "Packet evidence is marked public-safe or redacted."
+            if redaction_status in {"public_safe", "redacted"}
+            else "Packet evidence must be marked public_safe or redacted.",
+        ),
+    ]
+
+
+def _packet_control_checks(packet: dict[str, Any]) -> list[dict[str, str]]:
+    control_checks = packet.get("checks", [])
+    if not isinstance(control_checks, list):
+        return [_check("control_checks_shape", "blocker", "Packet checks must be a list.")]
+    check_by_id = {str(item.get("check_id")): item for item in control_checks if isinstance(item, dict)}
+    missing = sorted(REQUIRED_LIVE_IDENTITY_CHECKS - set(check_by_id))
+    checks = [
+        _check(
+            "required_live_identity_checks",
+            "pass" if not missing else "blocker",
+            "Packet includes all required live identity checks."
+            if not missing
+            else f"Packet missing live identity checks: {', '.join(missing)}.",
+        )
+    ]
+    for check_id in sorted(REQUIRED_LIVE_IDENTITY_CHECKS & set(check_by_id)):
+        item = check_by_id[check_id]
+        status = str(item.get("status", "")).lower()
+        evidence_ref = item.get("evidence_ref")
+        checks.append(
+            _check(
+                f"live_identity_{check_id}",
+                "pass" if status == "pass" and evidence_ref else "blocker",
+                f"{check_id} passed with evidence reference."
+                if status == "pass" and evidence_ref
+                else f"{check_id} must pass and include evidence_ref.",
+            )
+        )
+    scim_deprovisioning = check_by_id.get("scim_deprovisioning", {})
+    metrics = scim_deprovisioning.get("metrics", {}) if isinstance(scim_deprovisioning, dict) else {}
+    sla_minutes = metrics.get("deprovisioning_sla_minutes") if isinstance(metrics, dict) else None
+    checks.append(
+        _check(
+            "scim_deprovisioning_sla",
+            "pass" if isinstance(sla_minutes, int) and sla_minutes <= 60 else "blocker",
+            "SCIM deprovisioning evidence meets the 60 minute SLA."
+            if isinstance(sla_minutes, int) and sla_minutes <= 60
+            else "SCIM deprovisioning must include deprovisioning_sla_minutes <= 60.",
+        )
+    )
+    return checks
+
+
+def _find_secret_like_paths(value: Any, *, prefix: str = "$") -> list[str]:
+    paths: list[str] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = f"{prefix}.{key}"
+            normalized_key = str(key).lower()
+            if any(marker in normalized_key for marker in SECRET_FIELD_MARKERS):
+                paths.append(child_path)
+            paths.extend(_find_secret_like_paths(child, prefix=child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            paths.extend(_find_secret_like_paths(child, prefix=f"{prefix}[{index}]"))
+    return paths
 
 
 def _identity_policy_checks(
