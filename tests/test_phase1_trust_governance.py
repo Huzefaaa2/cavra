@@ -31,6 +31,7 @@ PHASE1_REQUIRED_FILES = {
         "Provenance",
         "OpenAPI contract",
         "Roadmap Evidence Rule",
+        "scripts/validate_release_trust_gate.py",
     ],
     "docs/trust/ciso-enterprise-trust-pack.md": [
         "CISO",
@@ -60,3 +61,4 @@ def test_phase1_trust_governance_artifacts_exist() -> None:
 def test_phase1_release_and_api_validators_pass() -> None:
     subprocess.run(["python3", "scripts/validate_release_security.py"], check=True)
     subprocess.run(["python3", "scripts/validate_openapi_contract.py"], check=True)
+    subprocess.run(["python3", "scripts/validate_release_trust_gate.py"], check=True)

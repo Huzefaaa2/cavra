@@ -37,7 +37,7 @@ The common control planes are Decision, Identity and Trust, Evidence, and Postur
 | R0.4 | 0 | P22 | Make product website point buyers to the roadmap, trust posture, and implementation sequence. | R0.1, R0.2 | Completed | Product-site Playwright validation. |
 | R1.1 | 1 | P6, P12 | Harden public security governance: responsible disclosure, supported versions, vulnerability handling, and release security criteria. | R0.2 | Completed | Release-security validator and Phase 1 trust-governance tests. |
 | R1.2 | 1 | P10, P12 | Establish multi-maintainer governance with CODEOWNERS, maintainer onboarding, RFC process, and release cadence. | R1.1 | In Progress | CODEOWNERS and RFC docs exist; additional maintainer onboarding remains. |
-| R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | In Progress | Release-trust checklist exists; full SBOM/signing enforcement remains. |
+| R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | Completed | Community release workflow now runs the release trust gate, generates checksums, SPDX SBOM, SLSA/in-toto provenance, and release-trust evidence; Go runtime and Community attestation workflows retain GitHub keyless attestation controls. |
 | R1.4 | 1 | P15 | Publish OpenAPI 3.x contract and API versioning discipline. | R0.1 | Completed | OpenAPI contract, export script, validator, workflow, and tests. |
 | R1.5 | 1 | P22 | Publish CISO and buyer trust documentation. | R0.4 | Completed | Public trust pack and buyer review map. |
 | R2.1 | 2 | P1, P13 | Implement OIDC/SAML, SCIM, RBAC, ABAC, break-glass, model-owner roles, and security-operator roles. | R1.4 | Planned | SSO integration tests and RBAC matrix tests. |
@@ -71,10 +71,9 @@ Each requirement should move through the same evidence path:
 
 ## Immediate Next Engineering Work
 
-The next clean engineering sequence is Phase 1:
+The next clean engineering sequence is late Phase 1 into Phase 2:
 
-1. Add CODEOWNERS, governance/RFC docs, maintainer onboarding, and release cadence.
-2. Publish OpenAPI export/versioning and API compatibility validation.
-3. Add signed-release/SBOM plan and release attestation workflow.
-4. Expand buyer/CISO trust pack with architecture, data flow, encryption, HA, and compliance support details.
-5. Start design records for tenant isolation, KMS/HSM signing, plugin SDK, and zero-trust scanner agent.
+1. Complete the remaining R1.2 governance operating action by adding real additional maintainers/reviewers.
+2. Start R2.1 enterprise identity/RBAC/ABAC design and tests.
+3. Continue into R2.2 tenant isolation after the identity contract is stable.
+4. Start design records for R3.1 KMS/HSM signing, R4.1 plugin SDK, and R4.4 zero-trust scanner agent.

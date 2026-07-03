@@ -66,9 +66,14 @@ jobs:
       - run: python scripts/validate-community-v100-ga-publication-package.py
       - run: python scripts/validate-community-v100-ga-post-publication.py
       - run: python scripts/validate-community-release-keyless-attestation.py
+      - run: python scripts/validate_release_security.py
+      - run: python scripts/validate_openapi_contract.py
+      - run: python scripts/validate_release_trust_gate.py
       - run: bash scripts/validate-boundaries.sh .
       - run: python -m pip install --upgrade build
       - run: python -m build
+      - run: python scripts/generate_community_release_trust_artifacts.py --dist dist
+      - run: python scripts/validate_release_trust_gate.py --dist dist --version 1.0.0
       - uses: actions/upload-artifact@v4
         with:
           name: cavra-community-dist
