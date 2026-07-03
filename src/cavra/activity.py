@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from cavra.tenancy import TenantScope
+
 
 DECISION_STATES = {"allow", "block", "require_approval", "warn", "audit_only", "allow_with_attestation"}
 SESSION_STATES = {"active", "completed", "failed", "archived"}
@@ -47,6 +49,9 @@ def normalize_decision_record(payload: dict[str, Any]) -> dict[str, Any]:
     for key in ("declared_intent", "intent", "requested_intent", "user_intent", "task_intent", "business_intent"):
         if payload.get(key) not in {None, ""}:
             record[key] = str(payload[key])
+    for key in ("tenant_id", "workspace_id"):
+        if payload.get(key) not in {None, ""}:
+            record[key] = str(payload[key])
     for key in ("tool", "tool_name", "server", "mcp_server", "tool_vendor", "tool_capability", "operation"):
         if payload.get(key) not in {None, ""}:
             record[key] = str(payload[key])
@@ -74,6 +79,7 @@ def normalize_session_record(payload: dict[str, Any], decisions: list[dict[str, 
     return {
         "schema_version": "cavra.session.v1",
         "session_id": str(session_id),
+        **_tenant_workspace_context(payload, decisions),
         "agent_id": str(payload.get("agent_id", _first_value(decisions, "agent_id", "unknown-agent"))),
         "actor": str(payload.get("actor", _first_value(decisions, "actor", "ai-agent"))),
         "repository": payload.get("repository", _first_value(decisions, "repository", "local")),
@@ -102,6 +108,8 @@ class ActivityStore:
         decision: str | None = None,
         severity: str | None = None,
         action_type: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -117,9 +125,14 @@ class ActivityStore:
             decision=decision,
             severity=severity,
             action_type=action_type,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
         )
         items = sorted(items, key=lambda item: (str(item.get("timestamp", "")), str(item.get("decision_id", ""))), reverse=True)
         return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
+
+    def list_decisions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_decisions(**scope.as_filters(), **kwargs)
 
     def upsert_decision(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_decision_record(payload)
@@ -140,15 +153,28 @@ class ActivityStore:
         repository: str | None = None,
         policy_pack: str | None = None,
         state: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
         limit = max(1, min(limit, 500))
         offset = max(0, offset)
         items = self._load()["sessions"]
-        items = _filter_records(items, agent_id=agent_id, repository=repository, policy_pack=policy_pack, state=state)
+        items = _filter_records(
+            items,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            state=state,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
+        )
         items = sorted(items, key=lambda item: (str(item.get("updated_at", "")), str(item.get("session_id", ""))), reverse=True)
         return {"items": items[offset : offset + limit], "total": len(items), "limit": limit, "offset": offset}
+
+    def list_sessions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_sessions(**scope.as_filters(), **kwargs)
 
     def summarize_sessions(
         self,
@@ -157,10 +183,23 @@ class ActivityStore:
         repository: str | None = None,
         policy_pack: str | None = None,
         state: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
         items = self._load()["sessions"]
-        items = _filter_records(items, agent_id=agent_id, repository=repository, policy_pack=policy_pack, state=state)
+        items = _filter_records(
+            items,
+            agent_id=agent_id,
+            repository=repository,
+            policy_pack=policy_pack,
+            state=state,
+            tenant_id=tenant_id,
+            workspace_id=workspace_id,
+        )
         return _summarize_session_records(items)
+
+    def summarize_sessions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.summarize_sessions(**scope.as_filters(), **kwargs)
 
     def upsert_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         data = self._load()
@@ -214,6 +253,8 @@ class SQLiteActivityStore:
                 """
                 CREATE TABLE IF NOT EXISTS activity_sessions (
                   session_id TEXT PRIMARY KEY,
+                  tenant_id TEXT,
+                  workspace_id TEXT,
                   agent_id TEXT,
                   actor TEXT,
                   repository TEXT,
@@ -231,12 +272,20 @@ class SQLiteActivityStore:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_sessions_agent ON activity_sessions (agent_id)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_sessions_repository ON activity_sessions (repository)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_sessions_policy ON activity_sessions (policy_pack)")
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_activity_sessions_tenant_workspace "
+                "ON activity_sessions (tenant_id, workspace_id)"
+            )
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_sessions_updated ON activity_sessions (updated_at)")
+            _ensure_column(connection, "activity_sessions", "tenant_id", "TEXT")
+            _ensure_column(connection, "activity_sessions", "workspace_id", "TEXT")
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS activity_decisions (
                   decision_id TEXT PRIMARY KEY,
                   session_id TEXT NOT NULL,
+                  tenant_id TEXT,
+                  workspace_id TEXT,
                   agent_id TEXT,
                   actor TEXT,
                   repository TEXT,
@@ -257,7 +306,13 @@ class SQLiteActivityStore:
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_decisions_repository ON activity_decisions (repository)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_decisions_policy ON activity_decisions (policy_pack)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_decisions_decision ON activity_decisions (decision)")
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_activity_decisions_tenant_workspace "
+                "ON activity_decisions (tenant_id, workspace_id)"
+            )
             connection.execute("CREATE INDEX IF NOT EXISTS idx_activity_decisions_timestamp ON activity_decisions (timestamp)")
+            _ensure_column(connection, "activity_decisions", "tenant_id", "TEXT")
+            _ensure_column(connection, "activity_decisions", "workspace_id", "TEXT")
 
     def list_decisions(
         self,
@@ -269,12 +324,24 @@ class SQLiteActivityStore:
         decision: str | None = None,
         severity: str | None = None,
         action_type: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
         limit = max(1, min(limit, 500))
         offset = max(0, offset)
-        params = _optional_filter_params(session_id, agent_id, repository, policy_pack, decision, severity, action_type)
+        params = _optional_filter_params(
+            session_id,
+            agent_id,
+            repository,
+            policy_pack,
+            decision,
+            severity,
+            action_type,
+            tenant_id,
+            workspace_id,
+        )
         with self._connect() as connection:
             total = connection.execute(
                 """
@@ -286,6 +353,8 @@ class SQLiteActivityStore:
                   AND (? IS NULL OR decision = ?)
                   AND (? IS NULL OR severity = ?)
                   AND (? IS NULL OR action_type = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 """,
                 params,
             ).fetchone()["count"]
@@ -299,6 +368,8 @@ class SQLiteActivityStore:
                   AND (? IS NULL OR decision = ?)
                   AND (? IS NULL OR severity = ?)
                   AND (? IS NULL OR action_type = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 ORDER BY timestamp DESC, decision_id ASC
                 LIMIT ? OFFSET ?
                 """,
@@ -306,18 +377,23 @@ class SQLiteActivityStore:
             ).fetchall()
         return {"items": [json.loads(row["payload"]) for row in rows], "total": total, "limit": limit, "offset": offset}
 
+    def list_decisions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_decisions(**scope.as_filters(), **kwargs)
+
     def upsert_decision(self, payload: dict[str, Any]) -> dict[str, Any]:
         record = normalize_decision_record(payload)
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO activity_decisions (
-                  decision_id, session_id, agent_id, actor, repository, policy_pack, action_type,
+                  decision_id, session_id, tenant_id, workspace_id, agent_id, actor, repository, policy_pack, action_type,
                   target, rule_id, decision, severity, timestamp, correlation_id, payload
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(decision_id) DO UPDATE SET
                   session_id=excluded.session_id,
+                  tenant_id=excluded.tenant_id,
+                  workspace_id=excluded.workspace_id,
                   agent_id=excluded.agent_id,
                   actor=excluded.actor,
                   repository=excluded.repository,
@@ -348,12 +424,14 @@ class SQLiteActivityStore:
         repository: str | None = None,
         policy_pack: str | None = None,
         state: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
         limit = max(1, min(limit, 500))
         offset = max(0, offset)
-        params = _optional_filter_params(agent_id, repository, policy_pack, state)
+        params = _optional_filter_params(agent_id, repository, policy_pack, state, tenant_id, workspace_id)
         with self._connect() as connection:
             total = connection.execute(
                 """
@@ -362,6 +440,8 @@ class SQLiteActivityStore:
                   AND (? IS NULL OR repository = ?)
                   AND (? IS NULL OR policy_pack = ?)
                   AND (? IS NULL OR state = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 """,
                 params,
             ).fetchone()["count"]
@@ -372,12 +452,17 @@ class SQLiteActivityStore:
                   AND (? IS NULL OR repository = ?)
                   AND (? IS NULL OR policy_pack = ?)
                   AND (? IS NULL OR state = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 ORDER BY updated_at DESC, session_id ASC
                 LIMIT ? OFFSET ?
                 """,
                 [*params, limit, offset],
             ).fetchall()
         return {"items": [json.loads(row["payload"]) for row in rows], "total": total, "limit": limit, "offset": offset}
+
+    def list_sessions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list_sessions(**scope.as_filters(), **kwargs)
 
     def summarize_sessions(
         self,
@@ -386,8 +471,10 @@ class SQLiteActivityStore:
         repository: str | None = None,
         policy_pack: str | None = None,
         state: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
     ) -> dict[str, Any]:
-        params = _optional_filter_params(agent_id, repository, policy_pack, state)
+        params = _optional_filter_params(agent_id, repository, policy_pack, state, tenant_id, workspace_id)
         with self._connect() as connection:
             row = connection.execute(
                 """
@@ -402,6 +489,8 @@ class SQLiteActivityStore:
                   AND (? IS NULL OR repository = ?)
                   AND (? IS NULL OR policy_pack = ?)
                   AND (? IS NULL OR state = ?)
+                  AND (? IS NULL OR tenant_id = ?)
+                  AND (? IS NULL OR workspace_id = ?)
                 """,
                 params,
             ).fetchone()
@@ -412,6 +501,9 @@ class SQLiteActivityStore:
             "total_approval_required": int(row["total_approval_required"] or 0),
             "latest_session_at": row["latest_session_at"],
         }
+
+    def summarize_sessions_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.summarize_sessions(**scope.as_filters(), **kwargs)
 
     def upsert_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         session_id = payload.get("session_id")
@@ -442,11 +534,13 @@ class SQLiteActivityStore:
             connection.execute(
                 """
                 INSERT INTO activity_sessions (
-                  session_id, agent_id, actor, repository, policy_pack, state, started_at, updated_at,
+                  session_id, tenant_id, workspace_id, agent_id, actor, repository, policy_pack, state, started_at, updated_at,
                   decision_count, blocked_count, approval_required_count, payload
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(session_id) DO UPDATE SET
+                  tenant_id=excluded.tenant_id,
+                  workspace_id=excluded.workspace_id,
                   agent_id=excluded.agent_id,
                   actor=excluded.actor,
                   repository=excluded.repository,
@@ -467,6 +561,8 @@ def _decision_row(record: dict[str, Any]) -> tuple[Any, ...]:
     return (
         record["decision_id"],
         record["session_id"],
+        record.get("tenant_id"),
+        record.get("workspace_id"),
         record["agent_id"],
         record["actor"],
         record["repository"],
@@ -485,6 +581,8 @@ def _decision_row(record: dict[str, Any]) -> tuple[Any, ...]:
 def _session_row(record: dict[str, Any]) -> tuple[Any, ...]:
     return (
         record["session_id"],
+        record.get("tenant_id"),
+        record.get("workspace_id"),
         record["agent_id"],
         record["actor"],
         record["repository"],
@@ -504,6 +602,12 @@ def _optional_filter_params(*values: str | None) -> list[Any]:
     for value in values:
         params.extend([value, value])
     return params
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def _filter_records(items: list[dict[str, Any]], **filters: str | None) -> list[dict[str, Any]]:
@@ -527,6 +631,8 @@ def _summarize_session_records(items: list[dict[str, Any]]) -> dict[str, Any]:
 def _session_payload_from_decision(decision: dict[str, Any]) -> dict[str, Any]:
     return {
         "session_id": decision.get("session_id"),
+        "tenant_id": decision.get("tenant_id"),
+        "workspace_id": decision.get("workspace_id"),
         "agent_id": decision.get("agent_id"),
         "actor": decision.get("actor"),
         "repository": decision.get("repository"),
@@ -534,7 +640,16 @@ def _session_payload_from_decision(decision: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _first_value(items: list[dict[str, Any]], key: str, default: str) -> Any:
+def _tenant_workspace_context(payload: dict[str, Any], decisions: list[dict[str, Any]]) -> dict[str, str]:
+    context: dict[str, str] = {}
+    for key in ("tenant_id", "workspace_id"):
+        value = payload.get(key) or _first_value(decisions, key, None)
+        if value not in {None, ""}:
+            context[key] = str(value)
+    return context
+
+
+def _first_value(items: list[dict[str, Any]], key: str, default: Any) -> Any:
     return next((item.get(key) for item in items if item.get(key)), default)
 
 

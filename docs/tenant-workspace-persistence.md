@@ -10,6 +10,8 @@ The public repository now includes:
 
 - `TenantWorkspaceStore`: JSON reference store for local tenant/workspace records.
 - `SQLiteTenantWorkspaceStore`: SQLite reference store for local tenant/workspace records.
+- Tenant/workspace-aware activity stores for runtime decisions and session summaries.
+- Tenant/workspace-aware approval stores for approval queues and decision history.
 - `assert_tenant_workspace_scope`: shared guard for actor/resource tenant and workspace comparisons.
 - `build_tenant_persistence_contract`: public contract for required tenant/workspace fields and isolation rules.
 - `build_tenant_persistence_readiness`: readiness packet for the R2.2 foundation.
@@ -47,11 +49,24 @@ R2.2 starts with these rules:
 4. Actor `workspace_id` must match resource `workspace_id` when the resource has workspace scope.
 5. JSON and SQLite are Community-safe reference implementations; production SaaS should enforce the same predicates in Postgres with row-level security or an equivalent tenant predicate layer.
 
+## Operational Store Binding
+
+The R2.2 foundation now binds tenant/workspace scope into these operational stores:
+
+| Store | Tenant fields | Scoped query helpers |
+| --- | --- | --- |
+| `ActivityStore` | Runtime decision records and session summaries include optional `tenant_id` and `workspace_id`. | `list_decisions_for_scope`, `list_sessions_for_scope`, `summarize_sessions_for_scope`. |
+| `SQLiteActivityStore` | SQLite `activity_decisions` and `activity_sessions` tables include nullable `tenant_id` and `workspace_id` columns plus tenant/workspace indexes. Existing local DBs are migrated in place. | `list_decisions_for_scope`, `list_sessions_for_scope`, `summarize_sessions_for_scope`. |
+| `ApprovalStore` | Approval records copy scope from the decision/resource context and can still filter legacy approvals where scope only exists inside `decision`. | `list_for_scope`. |
+| `SQLiteApprovalStore` | SQLite `approvals` table includes nullable `tenant_id` and `workspace_id` columns plus a tenant/workspace index. Existing local DBs are migrated in place. | `list_for_scope`. |
+
+These stores remain local reference implementations. The production Enterprise implementation should map the same fields into Postgres with mandatory tenant predicates, row-level security, encrypted backups, retention policy, and cross-tenant negative tests.
+
 ## Validation
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
-python3 -m pytest tests/test_tenancy.py -q
+python3 -m pytest tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py -q
 ```
 
 Expected result:
@@ -64,7 +79,7 @@ tenant persistence readiness controls validated
 
 The next R2.2 slices should:
 
-- bind tenant/workspace scope into activity, approvals, evidence metadata, inventory, and integrations;
+- finish tenant/workspace binding for evidence metadata, inventory, and integrations;
 - define private Postgres DDL and row-level security policies;
 - add migration tests from JSON and SQLite reference stores into the production data model;
 - use the `tenant_id` and `workspace_id` from the live identity validation packet as isolation inputs;

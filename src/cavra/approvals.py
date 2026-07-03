@@ -13,6 +13,7 @@ from typing import Any
 from urllib import error, request
 
 from cavra.enterprise_identity import actor_has_enterprise_scope, enterprise_actor_claims_context
+from cavra.tenancy import TenantScope
 
 
 APPROVAL_STATES = {"pending", "approved", "denied", "expired", "break_glass"}
@@ -46,7 +47,7 @@ def create_approval_request(
     created_at = utc_now()
     expires_at = (datetime.now(timezone.utc) + timedelta(hours=max(1, ttl_hours))).isoformat()
     approval_id = f"apr_{uuid.uuid4().hex[:12]}"
-    return {
+    approval = {
         "schema_version": "cavra.approval.v1",
         "product": "CAVRA",
         "approval_id": approval_id,
@@ -69,6 +70,11 @@ def create_approval_request(
         ],
         "evidence_refs": [f"approval://{approval_id}", *decision.get("evidence_refs", [])],
     }
+    resource = _approval_resource_context(approval)
+    for key in ("tenant_id", "workspace_id"):
+        if resource.get(key) not in {None, ""}:
+            approval[key] = str(resource[key])
+    return approval
 
 
 def default_routing_rules() -> list[dict[str, Any]]:
@@ -343,6 +349,12 @@ def _string_list(value: Any) -> list[str]:
     if isinstance(value, (list, tuple, set)):
         return [str(item) for item in value]
     return [str(value)]
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def _approval_resource_context(approval: dict[str, Any]) -> dict[str, Any]:
@@ -902,6 +914,8 @@ class ApprovalStore:
         *,
         state: str | None = None,
         approver_group: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -912,6 +926,10 @@ class ApprovalStore:
             items = [item for item in items if item.get("state") == state]
         if approver_group:
             items = [item for item in items if item.get("approver_group") == approver_group]
+        if tenant_id:
+            items = [item for item in items if _approval_resource_context(item).get("tenant_id") == tenant_id]
+        if workspace_id:
+            items = [item for item in items if _approval_resource_context(item).get("workspace_id") == workspace_id]
         items = sorted(items, key=lambda item: str(item.get("requested_at", "")), reverse=True)
         return {
             "items": items[offset : offset + limit],
@@ -919,6 +937,9 @@ class ApprovalStore:
             "limit": limit,
             "offset": offset,
         }
+
+    def list_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list(**scope.as_filters(), **kwargs)
 
     def get(self, approval_id: str) -> dict[str, Any] | None:
         for approval in self._load():
@@ -1037,6 +1058,8 @@ class SQLiteApprovalStore:
                     approval_id TEXT PRIMARY KEY,
                     decision_id TEXT NOT NULL,
                     session_id TEXT,
+                    tenant_id TEXT,
+                    workspace_id TEXT,
                     state TEXT NOT NULL,
                     approver_group TEXT NOT NULL,
                     requested_by TEXT,
@@ -1052,13 +1075,20 @@ class SQLiteApprovalStore:
             )
             connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_state ON approvals (state)")
             connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_group ON approvals (approver_group)")
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_approvals_tenant_workspace ON approvals (tenant_id, workspace_id)"
+            )
             connection.execute("CREATE INDEX IF NOT EXISTS idx_approvals_requested_at ON approvals (requested_at)")
+            _ensure_column(connection, "approvals", "tenant_id", "TEXT")
+            _ensure_column(connection, "approvals", "workspace_id", "TEXT")
 
     def list(
         self,
         *,
         state: str | None = None,
         approver_group: str | None = None,
+        tenant_id: str | None = None,
+        workspace_id: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -1072,6 +1102,12 @@ class SQLiteApprovalStore:
         if approver_group:
             clauses.append("approver_group = ?")
             params.append(approver_group)
+        if tenant_id:
+            clauses.append("tenant_id = ?")
+            params.append(tenant_id)
+        if workspace_id:
+            clauses.append("workspace_id = ?")
+            params.append(workspace_id)
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         with self._connect() as connection:
             total = connection.execute(f"SELECT COUNT(*) AS count FROM approvals {where}", params).fetchone()["count"]
@@ -1091,6 +1127,9 @@ class SQLiteApprovalStore:
             "offset": offset,
         }
 
+    def list_for_scope(self, scope: TenantScope, **kwargs: Any) -> dict[str, Any]:
+        return self.list(**scope.as_filters(), **kwargs)
+
     def get(self, approval_id: str) -> dict[str, Any] | None:
         with self._connect() as connection:
             row = connection.execute("SELECT payload FROM approvals WHERE approval_id = ?", (approval_id,)).fetchone()
@@ -1103,16 +1142,19 @@ class SQLiteApprovalStore:
         state = approval.get("state")
         if state not in APPROVAL_STATES:
             raise ValueError(f"unsupported approval state: {state}")
+        resource = _approval_resource_context(approval)
         with self._connect() as connection:
             connection.execute(
                 """
                 INSERT INTO approvals (
-                    approval_id, decision_id, session_id, state, approver_group, requested_by, requested_at,
+                    approval_id, decision_id, session_id, tenant_id, workspace_id, state, approver_group, requested_by, requested_at,
                     expires_at, decided_by, decided_at, external_ref, break_glass, payload
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(approval_id) DO UPDATE SET
                     decision_id=excluded.decision_id,
                     session_id=excluded.session_id,
+                    tenant_id=excluded.tenant_id,
+                    workspace_id=excluded.workspace_id,
                     state=excluded.state,
                     approver_group=excluded.approver_group,
                     requested_by=excluded.requested_by,
@@ -1128,6 +1170,8 @@ class SQLiteApprovalStore:
                     approval_id,
                     approval.get("decision_id"),
                     approval.get("session_id"),
+                    resource.get("tenant_id"),
+                    resource.get("workspace_id"),
                     approval.get("state"),
                     approval.get("approver_group"),
                     approval.get("requested_by"),

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import time
 from base64 import urlsafe_b64encode
@@ -23,6 +25,7 @@ from cavra.approvals import (
 )
 from cavra.evidence import build_evidence_metadata, create_evidence_bundle
 from cavra.runtime import RuntimeGuard
+from cavra.tenancy import TenantScope
 
 
 def _approval_decision() -> dict[str, object]:
@@ -30,6 +33,20 @@ def _approval_decision() -> dict[str, object]:
         Path("iam/admin-role.tf"),
         "write",
     ).to_dict()
+
+
+def _scoped_approval_decision(
+    decision_id: str,
+    *,
+    tenant_id: str,
+    workspace_id: str,
+) -> dict[str, object]:
+    decision = _approval_decision()
+    decision["decision_id"] = decision_id
+    decision["session_id"] = f"session-{decision_id}"
+    decision["tenant_id"] = tenant_id
+    decision["workspace_id"] = workspace_id
+    return decision
 
 
 def _b64url(data: bytes) -> str:
@@ -342,6 +359,44 @@ def test_sqlite_approval_store_searches_and_updates(tmp_path: Path) -> None:
 
     assert result["total"] == 1
     assert result["items"][0]["state"] == "approved"
+
+
+def test_approval_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = ApprovalStore(tmp_path / "approvals.json")
+
+    store.create_request(_scoped_approval_decision("dec-tenant-a-prod", tenant_id="tenant-a", workspace_id="prod"))
+    store.create_request(_scoped_approval_decision("dec-tenant-a-dev", tenant_id="tenant-a", workspace_id="dev"))
+    store.create_request(_scoped_approval_decision("dec-tenant-b-prod", tenant_id="tenant-b", workspace_id="prod"))
+
+    tenant_a = store.list(tenant_id="tenant-a")
+    prod = store.list_for_scope(TenantScope("tenant-a", "prod"))
+    tenant_b = store.list_for_scope(TenantScope("tenant-b", "prod"))
+
+    assert tenant_a["total"] == 2
+    assert prod["total"] == 1
+    assert prod["items"][0]["tenant_id"] == "tenant-a"
+    assert prod["items"][0]["workspace_id"] == "prod"
+    assert tenant_b["total"] == 1
+    assert tenant_b["items"][0]["decision_id"] == "dec-tenant-b-prod"
+
+
+def test_sqlite_approval_store_filters_by_tenant_workspace_scope(tmp_path: Path) -> None:
+    store = SQLiteApprovalStore(tmp_path / "approvals.db")
+
+    store.create_request(_scoped_approval_decision("dec-tenant-a-prod", tenant_id="tenant-a", workspace_id="prod"))
+    store.create_request(_scoped_approval_decision("dec-tenant-a-dev", tenant_id="tenant-a", workspace_id="dev"))
+    store.create_request(_scoped_approval_decision("dec-tenant-b-prod", tenant_id="tenant-b", workspace_id="prod"))
+
+    tenant_a = store.list(tenant_id="tenant-a")
+    prod = store.list_for_scope(TenantScope("tenant-a", "prod"))
+    tenant_b = store.list_for_scope(TenantScope("tenant-b", "prod"))
+
+    assert tenant_a["total"] == 2
+    assert prod["total"] == 1
+    assert prod["items"][0]["tenant_id"] == "tenant-a"
+    assert prod["items"][0]["workspace_id"] == "prod"
+    assert tenant_b["total"] == 1
+    assert tenant_b["items"][0]["decision_id"] == "dec-tenant-b-prod"
 
 
 def test_export_approval_notification_payloads(tmp_path: Path) -> None:

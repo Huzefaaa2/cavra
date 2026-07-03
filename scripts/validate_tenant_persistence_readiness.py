@@ -24,10 +24,33 @@ REQUIRED_TEXT = {
         "Postgres",
         "row-level security",
     ],
+    "src/cavra/activity.py": [
+        "tenant_id",
+        "workspace_id",
+        "list_decisions_for_scope",
+        "list_sessions_for_scope",
+        "summarize_sessions_for_scope",
+        "idx_activity_decisions_tenant_workspace",
+        "idx_activity_sessions_tenant_workspace",
+    ],
+    "src/cavra/approvals.py": [
+        "tenant_id",
+        "workspace_id",
+        "list_for_scope",
+        "idx_approvals_tenant_workspace",
+    ],
     "tests/test_tenancy.py": [
         "test_json_tenant_workspace_store_isolates_workspace_lists",
         "test_sqlite_tenant_workspace_store_isolates_workspace_lists",
         "test_tenant_scope_helpers_reject_cross_tenant_and_cross_workspace_access",
+    ],
+    "tests/test_activity.py": [
+        "test_activity_store_filters_by_tenant_workspace_scope",
+        "test_sqlite_activity_store_filters_by_tenant_workspace_scope",
+    ],
+    "tests/test_approvals.py": [
+        "test_approval_store_filters_by_tenant_workspace_scope",
+        "test_sqlite_approval_store_filters_by_tenant_workspace_scope",
     ],
     "docs/tenant-workspace-persistence.md": [
         "R2.2",
@@ -35,17 +58,23 @@ REQUIRED_TEXT = {
         "workspace_id",
         "JSON",
         "SQLite",
+        "ActivityStore",
+        "ApprovalStore",
         "Postgres",
         "row-level security",
     ],
     "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md": [
         "| R2.2 |",
         "Tenant/workspace persistence contract",
+        "activity decision/session scope binding",
+        "approval queue/history scope binding",
         "scripts/validate_tenant_persistence_readiness.py",
     ],
     "docs/wiki/Tenant-Workspace-Persistence.md": [
         "TenantWorkspaceStore",
         "SQLiteTenantWorkspaceStore",
+        "ActivityStore",
+        "ApprovalStore",
         "Postgres",
     ],
 }
