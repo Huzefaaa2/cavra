@@ -53,6 +53,11 @@ from cavra.evidence import (
     list_evidence_artifacts,
     load_evidence_artifact,
 )
+from cavra.enterprise_identity import (
+    build_enterprise_identity_contract,
+    build_enterprise_identity_readiness,
+    load_enterprise_identity_policy,
+)
 from cavra.go_backend import (
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_retry,
     acknowledge_go_rollback_drill_acknowledgement_audit_delivery_recovery_escalation,
@@ -439,6 +444,11 @@ def create_app():
     connector_config = load_connector_config(Path(os.environ["CAVRA_CONNECTOR_CONFIG"])) if os.environ.get("CAVRA_CONNECTOR_CONFIG") else None
     rbac_rules = load_rbac_rules(Path(os.environ["CAVRA_APPROVAL_RBAC_FILE"])) if os.environ.get("CAVRA_APPROVAL_RBAC_FILE") else {}
     oidc_config = load_oidc_config(Path(os.environ["CAVRA_APPROVAL_OIDC_CONFIG"])) if os.environ.get("CAVRA_APPROVAL_OIDC_CONFIG") else {}
+    enterprise_identity_policy = load_enterprise_identity_policy(
+        Path(os.environ["CAVRA_ENTERPRISE_IDENTITY_POLICY"])
+        if os.environ.get("CAVRA_ENTERPRISE_IDENTITY_POLICY")
+        else None
+    )
     registry_store = (
         SQLiteRegistryStore(Path(os.environ["CAVRA_REGISTRY_DB"]))
         if os.environ.get("CAVRA_REGISTRY_DB")
@@ -491,6 +501,9 @@ def create_app():
             "connector_delivery": "configured" if connector_config is not None else "disabled",
             "approval_oidc": "configured" if oidc_config else "disabled",
             "approval_rbac": "configured" if rbac_rules else "disabled",
+            "enterprise_identity_policy": "configured"
+            if os.environ.get("CAVRA_ENTERPRISE_IDENTITY_POLICY")
+            else "default_contract",
             "evidence_artifacts": "configured" if evidence_artifact_root else "disabled",
             "registry_store": str(registry_store.path),
             "cors_origins": cors_origins,
@@ -578,6 +591,8 @@ def create_app():
                 "endpoint_remediation_sla_reports": "/endpoint-remediation-sla-reports",
                 "endpoint_remediation_sla_dashboard": "/endpoint-remediation-sla-reports/dashboard",
                 "console_session": "/console/session",
+                "enterprise_identity_contract": "/identity/enterprise-contract",
+                "enterprise_identity_readiness": "/identity/enterprise-readiness",
                 "deployment_readiness": "/deployment/production-readiness",
                 "go_backend_readiness": "/runtime/go-pilot/readiness",
                 "go_deployment_readiness": "/runtime/go-pilot/deployment-readiness",
@@ -1344,6 +1359,18 @@ def create_app():
             authorization=authorization,
             oidc_config=oidc_config,
             rbac_rules=rbac_rules,
+        )
+
+    @app.get("/identity/enterprise-contract")
+    def enterprise_identity_contract() -> dict[str, object]:
+        return build_enterprise_identity_contract(enterprise_identity_policy)
+
+    @app.get("/identity/enterprise-readiness")
+    def enterprise_identity_readiness() -> dict[str, object]:
+        return build_enterprise_identity_readiness(
+            oidc_configured=bool(oidc_config),
+            rbac_configured=bool(rbac_rules),
+            policy=enterprise_identity_policy,
         )
 
     @app.get("/operations/retention-plan")

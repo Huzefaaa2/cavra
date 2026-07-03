@@ -2,6 +2,8 @@
 
 CAVRA can validate signed OIDC bearer tokens and apply repository-scoped RBAC before approval, break-glass, and policy write-back actions. This release adds deployment references for Microsoft Entra ID and Okta.
 
+For the wider R2.1 Enterprise identity model, including SAML bridge, SCIM lifecycle, ABAC, model-owner roles, security-operator roles, and break-glass controls, see [Enterprise Identity And Access Control](enterprise-identity-access-control.md).
+
 ## Reference Bundles
 
 - `examples/identity/entra-id-oidc-rbac`: generates CAVRA OIDC config, JWKS cache, RBAC policy, and environment exports from Entra ID OIDC discovery.
@@ -14,6 +16,7 @@ Both references are operator-owned. CAVRA validates tokens and RBAC rules; ident
 ```bash
 export CAVRA_APPROVAL_OIDC_CONFIG=.cavra/identity/entra/approval-oidc.json
 export CAVRA_APPROVAL_RBAC_FILE=.cavra/identity/entra/approval-rbac.yaml
+export CAVRA_ENTERPRISE_IDENTITY_POLICY=.cavra/identity/enterprise-identity-policy.yaml
 export CAVRA_CORS_ORIGINS=https://cavra-console.example.com
 uvicorn cavra.api:app --host 0.0.0.0 --port 8000
 ```
@@ -22,6 +25,7 @@ Validate the console/API identity boundary:
 
 ```bash
 curl http://127.0.0.1:8000/console/security-boundary
+curl http://127.0.0.1:8000/identity/enterprise-readiness
 curl http://127.0.0.1:8000/console/session \
   -H "Authorization: Bearer $CAVRA_CONSOLE_TOKEN"
 ```
@@ -81,6 +85,17 @@ approval_rbac:
 ```
 
 Break-glass actions require `Change Advisory Board` group membership when OIDC or RBAC is configured.
+
+## SAML Bridge, SCIM, And ABAC
+
+SAML bridge and SCIM worker implementation is private to Managed or Enterprise deployments because it contains customer directory metadata, SAML certificates, SCIM bearer tokens, tenant memberships, and IdP-specific automation. The public contract still requires:
+
+- SAML bridge output normalized to the CAVRA OIDC claim contract;
+- SCIM group-to-role synchronization;
+- deprovisioning evidence;
+- tenant and workspace membership synchronization;
+- ABAC attributes for `tenant_id`, `workspace_id`, `repository`, `environment`, `model_owner_ref`, and `data_classification`;
+- `model_owner` and `security_operator` roles for model/artifact governance and security operations.
 
 ## User Stories
 

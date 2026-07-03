@@ -21,7 +21,7 @@ The common control planes are Decision, Identity and Trust, Evidence, and Postur
 | --- | --- | --- | --- | --- |
 | 0 | Positioning and public roadmap | Review agreement, product scope decision | Completed | README, wiki, and product site describe unified agent-action plus model/artifact governance and link to this tracker. |
 | 1 | Foundation trust | Phase 0 | In Progress | Security governance, API contract, signed release, SBOM, and buyer trust documentation are publishable. |
-| 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | Planned | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, and production data architecture are implemented and tested. |
+| 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | In Progress | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, and production data architecture are implemented and tested. |
 | 3 | Evidence, audit, and compliance | Phase 1 trust model, Phase 2 tenancy model | Planned | KMS-backed evidence, immutable audit log, and dynamic compliance mapping are production-ready. |
 | 4 | Zero-trust scanning and connectors | Phase 2 tenancy, Phase 3 evidence/audit | Planned | Certified connector SDK, priority connectors, and model/artifact scanner agents work without raw model/data egress. |
 | 5 | Policy lifecycle and event core | Phase 2 identity/data, Phase 4 connectors | Planned | Policy authoring, test, shadow, rollback, and event-driven continuous assessment paths are working. |
@@ -40,7 +40,7 @@ The common control planes are Decision, Identity and Trust, Evidence, and Postur
 | R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | Completed | Community release workflow now runs the release trust gate, generates checksums, SPDX SBOM, SLSA/in-toto provenance, and release-trust evidence; Go runtime and Community attestation workflows retain GitHub keyless attestation controls. |
 | R1.4 | 1 | P15 | Publish OpenAPI 3.x contract and API versioning discipline. | R0.1 | Completed | OpenAPI contract, export script, validator, workflow, and tests. |
 | R1.5 | 1 | P22 | Publish CISO and buyer trust documentation. | R0.4 | Completed | Public trust pack and buyer review map. |
-| R2.1 | 2 | P1, P13 | Implement OIDC/SAML, SCIM, RBAC, ABAC, break-glass, model-owner roles, and security-operator roles. | R1.4 | Planned | SSO integration tests and RBAC matrix tests. |
+| R2.1 | 2 | P1, P13 | Implement OIDC/SAML, SCIM, RBAC, ABAC, break-glass, model-owner roles, and security-operator roles. | R1.4 | In Progress | Enterprise identity readiness contract, API endpoints, default policy, SAML bridge contract, SCIM lifecycle contract, RBAC/ABAC role model, and break-glass controls are implemented publicly; live IdP and private SCIM worker validation remain. |
 | R2.2 | 2 | P2, P13 | Implement production multi-tenant persistence with workspaces, Postgres, tenant isolation, and migration path from JSON/SQLite. | R2.1 | Planned | Tenant isolation, migration, and concurrency tests. |
 | R2.3 | 2 | P11, P2, P13 | Define HA topology: stateless workers, queues, health checks, backup/DR, RTO/RPO, and data residency. | R2.2 | Planned | HA smoke, failover, restore, and residency validation. |
 | R3.1 | 3 | P4 | Add KMS/HSM-backed evidence signing, key rotation, custody policy, and independent verifier support. | R2.2 | Planned | KMS integration, signature verification, and rotation tests. |

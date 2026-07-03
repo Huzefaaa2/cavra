@@ -7459,6 +7459,46 @@
         "summary": "Health"
       }
     },
+    "/identity/enterprise-contract": {
+      "get": {
+        "operationId": "enterprise_identity_contract_identity_enterprise_contract_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Enterprise Identity Contract Identity Enterprise Contract Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Enterprise Identity Contract"
+      }
+    },
+    "/identity/enterprise-readiness": {
+      "get": {
+        "operationId": "enterprise_identity_readiness_identity_enterprise_readiness_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Enterprise Identity Readiness Identity Enterprise Readiness Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Enterprise Identity Readiness"
+      }
+    },
     "/integrations": {
       "get": {
         "operationId": "integration_index_integrations_get",
