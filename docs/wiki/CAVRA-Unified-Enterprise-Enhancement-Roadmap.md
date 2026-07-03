@@ -1,0 +1,80 @@
+# CAVRA Unified Enterprise Enhancement Roadmap
+
+Last updated: 2026-07-03
+
+This page is the GitHub Wiki version of the product enhancement roadmap. It converts the merged expert review into an implementation sequence with dependencies, status, verification expectations, and GitHub evidence. The source roadmap is maintained in the public repository at [docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md).
+
+## Scope Decision
+
+CAVRA is being planned as a unified AI governance control plane for two governed asset classes:
+
+- **Agent actions:** file writes, shell commands, Git operations, MCP tool calls, CI/CD triggers, cloud operations, infrastructure changes, and production workflow actions.
+- **Models and artifacts:** model registry entries, model metadata, deployment packages, AI supply-chain artifacts, assessment findings, drift signals, and compliance evidence.
+
+The common control planes are Decision, Identity and Trust, Evidence, and Posture. This avoids building two unrelated products: one for agents and another for model risk.
+
+![CAVRA unified enterprise roadmap](assets/textbook/cavra-unified-enterprise-roadmap.svg)
+
+## Phase Dependency Map
+
+| Phase | Focus | Primary Dependencies | Current Status | Exit Condition |
+| --- | --- | --- | --- | --- |
+| 0 | Positioning and public roadmap | Review agreement, product scope decision | Completed | README, wiki, and product site describe unified agent-action plus model/artifact governance and link to this tracker. |
+| 1 | Foundation trust | Phase 0 | Planned | Security governance, API contract, signed release, SBOM, and buyer trust documentation are publishable. |
+| 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | Planned | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, and production data architecture are implemented and tested. |
+| 3 | Evidence, audit, and compliance | Phase 1 trust model, Phase 2 tenancy model | Planned | KMS-backed evidence, immutable audit log, and dynamic compliance mapping are production-ready. |
+| 4 | Zero-trust scanning and connectors | Phase 2 tenancy, Phase 3 evidence/audit | Planned | Certified connector SDK, priority connectors, and model/artifact scanner agents work without raw model/data egress. |
+| 5 | Policy lifecycle and event core | Phase 2 identity/data, Phase 4 connectors | Planned | Policy authoring, test, shadow, rollback, and event-driven continuous assessment paths are working. |
+| 6 | Scale and ecosystem expansion | Phases 1-5 | Planned | Benchmarks, chaos tests, broader agent adapters, LLM guardrails, supply-chain checks, and red-team automation are validated. |
+
+## Numbered Enhancement Tracker
+
+| ID | Phase | Problem(s) | Requirement | Dependency | Status | Tests and verification |
+| --- | --- | --- | --- | --- | --- | --- |
+| R0.1 | 0 | P8, P16, P22 | Document CAVRA as one unified control plane for agent actions and models/artifacts. | None | Completed | README, wiki, and product-site validation. |
+| R0.2 | 0 | P1-P22 | Publish this numbered product enhancement roadmap with dependencies and status. | R0.1 | Completed | `git diff --check`; wiki Markdown render. |
+| R0.3 | 0 | P1-P22 | Add a unified architecture-roadmap diagram for the public repo and wiki. | R0.1 | Completed | SVG readability and motion-safe fallback. |
+| R0.4 | 0 | P22 | Make product website point buyers to the roadmap, trust posture, and implementation sequence. | R0.1, R0.2 | Completed | Product-site Playwright validation. |
+| R1.1 | 1 | P6, P12 | Harden public security governance: responsible disclosure, supported versions, vulnerability handling, and release security criteria. | R0.2 | Planned | Security-document review and release checklist validation. |
+| R1.2 | 1 | P10, P12 | Establish multi-maintainer governance with CODEOWNERS, maintainer onboarding, RFC process, and release cadence. | R1.1 | Planned | Repository governance review. |
+| R1.3 | 1 | P6, P12 | Produce signed releases, SBOMs, provenance, and repeatable release attestations. | R1.2 | Planned | Release workflow with SBOM and signature verification. |
+| R1.4 | 1 | P15 | Publish OpenAPI 3.x contract and API versioning discipline. | R0.1 | Planned | OpenAPI schema validation and API compatibility tests. |
+| R1.5 | 1 | P22 | Publish CISO and buyer trust documentation. | R0.4 | Planned | Trust-pack review against buyer questionnaire. |
+| R2.1 | 2 | P1, P13 | Implement OIDC/SAML, SCIM, RBAC, ABAC, break-glass, model-owner roles, and security-operator roles. | R1.4 | Planned | SSO integration tests and RBAC matrix tests. |
+| R2.2 | 2 | P2, P13 | Implement production multi-tenant persistence with workspaces, Postgres, tenant isolation, and migration path from JSON/SQLite. | R2.1 | Planned | Tenant isolation, migration, and concurrency tests. |
+| R2.3 | 2 | P11, P2, P13 | Define HA topology: stateless workers, queues, health checks, backup/DR, RTO/RPO, and data residency. | R2.2 | Planned | HA smoke, failover, restore, and residency validation. |
+| R3.1 | 3 | P4 | Add KMS/HSM-backed evidence signing, key rotation, custody policy, and independent verifier support. | R2.2 | Planned | KMS integration, signature verification, and rotation tests. |
+| R3.2 | 3 | P14 | Add immutable, append-only audit log separate from evidence bundles. | R2.2, R3.1 | Planned | Tamper-evidence, append-only, and SIEM export validation. |
+| R3.3 | 3 | P5, P17 | Add clause-level compliance mapping packs for NIST AI RMF, ISO/IEC 42001, OWASP LLM/GenAI, NIST SSDF, and EU AI Act. | R3.2 | Planned | Control-pack schema and finding-to-clause tests. |
+| R3.4 | 3 | P21, P5 | Build auditor, BI, executive, and board-ready reporting exports. | R3.3 | Planned | PDF/CSV/JSON export validation. |
+| R4.1 | 4 | P3, P15 | Create public connector/plugin SDK with stable interfaces, certification rules, examples, and compatibility tests. | R1.4 | Planned | SDK, example connector, and compatibility tests. |
+| R4.2 | 4 | P3 | Deliver priority certified connectors across SCM, CI/CD, SIEM, ITSM, and communications. | R4.1, R2.1 | Planned | Connector contract tests and live sandbox validation. |
+| R4.3 | 4 | P3, P16, P20 | Add model registry connectors that work by reference: MLflow, SageMaker, Hugging Face, and Weights & Biases. | R4.1, R3.2 | Planned | No-raw-model-egress and metadata hash validation. |
+| R4.4 | 4 | P16, P20 | Build zero-trust scanner agent that runs in customer VPC/on-prem and emits metadata, hashes, risk scores, and evidence only. | R4.3, R3.1 | Planned | Egress tests, scanner evidence tests, reference deployment validation. |
+| R5.1 | 5 | P9 | Add OPA/Rego policy path alongside current policy engine with testable, Git-versioned policies. | R2.1, R4.1 | Planned | Policy unit tests and Rego parity tests. |
+| R5.2 | 5 | P9 | Build policy lifecycle tooling: authoring UI, linting, versioning, shadow mode, dry run, rollback, and approval workflow builder. | R5.1 | Planned | Policy lifecycle integration tests and visual validation. |
+| R5.3 | 5 | P18, P11 | Add event-driven continuous monitoring with event bus triggers for agent actions, model registration, drift, and promotions. | R2.3, R4.4 | Planned | Event replay, dedupe, latency, and stale-assessment tests. |
+| R6.1 | 6 | P7, P11 | Publish latency, throughput, HA, and failure-mode benchmarks with SLO regression gates. | R2.3, R5.3 | Planned | Benchmark suite and CI regression thresholds. |
+| R6.2 | 6 | P8 | Expand beyond coding agents through generic adapter SDK and action taxonomy. | R4.1, R5.1 | Planned | Adapter contract tests and sample non-coding agent scenario. |
+| R6.3 | 6 | P19, P20, P21 | Add native LLM guardrail testing, AI supply-chain scanning, malicious model checks, and red-team automation. | R4.4, R5.3 | Planned | Prompt-injection tests, serialization scan tests, red-team report validation. |
+| R6.4 | 6 | P16, P22, P3 | Publish zero-trust quickstart demo and reference deployments for Docker Compose, Helm, Terraform, Azure, and scanner operation. | R4.4, R6.1 | Planned | End-to-end reproducible demo and deployment smoke tests. |
+
+## How This Tracker Is Maintained
+
+Each requirement should move through the same evidence path:
+
+1. Requirement accepted in this tracker.
+2. Design or implementation committed.
+3. Tests, validators, screenshots, or deployment checks completed.
+4. GitHub evidence column updated in the repository source roadmap.
+5. Wiki mirror updated so readers can see current status.
+
+## Immediate Next Engineering Work
+
+The next clean engineering sequence is Phase 1:
+
+1. Add CODEOWNERS, governance/RFC docs, maintainer onboarding, and release cadence.
+2. Publish OpenAPI export/versioning and API compatibility validation.
+3. Add signed-release/SBOM plan and release attestation workflow.
+4. Expand buyer/CISO trust pack with architecture, data flow, encryption, HA, and compliance support details.
+5. Start design records for tenant isolation, KMS/HSM signing, plugin SDK, and zero-trust scanner agent.

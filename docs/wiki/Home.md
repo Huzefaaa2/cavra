@@ -2,7 +2,7 @@
 
 Welcome to the CAVRA Wiki. This wiki now opens as a technical textbook for CAVRA, Controlled Agentic Verification and Runtime Authority. It is written for developers, security engineers, platform owners, compliance teams, architects, and enterprise evaluators who need to understand what CAVRA is, how it works, how to run it, and how to operate it safely.
 
-CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM.
+CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM. The current product roadmap also extends the same control planes to model registries, AI artifacts, scanner metadata, supply-chain checks, and compliance evidence.
 
 ## Product Website
 
@@ -20,6 +20,8 @@ CAVRA is now organized around a Community-first model:
 - **CAVRA Trial:** temporary evaluation access for Managed or Enterprise Subscription capabilities. Trial is not a separate source edition.
 
 Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Community-Self-Hosted-Guide.md), [CAVRA Managed Guide](CAVRA-Managed-Guide.md), [Enterprise Subscription Guide](Enterprise-Subscription-Guide.md), and [Trial Access Guide](Trial-Access-Guide.md).
+
+The active enhancement tracker is [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md). It records the numbered plan for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, model/artifact governance, policy lifecycle tooling, event-driven monitoring, and scale validation.
 
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
@@ -96,6 +98,7 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 | Technology stack | [Animated technology stack map](assets/textbook/cavra-technology-stack-map.svg) |
 | Runtime implementation pipeline | [Animated runtime implementation pipeline](assets/textbook/cavra-technology-runtime-pipeline.svg) |
 | Storage and evidence model | [Animated storage and evidence model](assets/textbook/cavra-storage-evidence-model.svg) |
+| Unified enhancement roadmap | [Animated enterprise roadmap](assets/textbook/cavra-unified-enterprise-roadmap.svg) |
 
 The animated diagrams are SVG-native and are written to degrade into readable static diagrams when motion is disabled by browser, accessibility, or renderer settings. Every textbook image uses descriptive alt text in the surrounding Markdown.
 
@@ -115,6 +118,7 @@ close out the trial without leaving stale package or license access behind.
 ## Primary Product References
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
+- [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [CAVRA Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CAVRA Product Introduction Video Script](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-introduction-video-script.md)
 - [CLI](CLI.md)

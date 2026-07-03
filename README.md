@@ -8,13 +8,15 @@ Controlled Agentic Verification and Runtime Authority
 
 **Before the agent acts, CAVRA decides.**
 
-CAVRA is a runtime governance layer for AI coding agents and agentic engineering workflows. It evaluates what agents can read, write, execute, approve, connect to, and change across code, shell, Git, MCP tools, CI/CD, cloud, infrastructure, and regulated delivery workflows.
+CAVRA is a runtime governance layer for AI coding agents, agentic engineering workflows, and the emerging AI model/artifact risk lifecycle. It evaluates what agents can read, write, execute, approve, connect to, and change across code, shell, Git, MCP tools, CI/CD, cloud, infrastructure, and regulated delivery workflows. The roadmap now also treats models, registries, AI artifacts, risk metadata, and compliance evidence as governed asset types under the same decision, identity, evidence, and posture planes.
 
 The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/)**. It explains CAVRA Managed, Enterprise Subscription, Trial Access, AISPM, trust, resources, and the public product journey. The public interactive sandbox remains **[huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/)**.
 
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
 For implementation details, read the new textbook chapter [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md). It explains the public Community stack across Python, FastAPI, Typer/Rich, static web front ends, JSON/SQLite persistence, policy and evidence formats, cryptography, Docker, Azure, GitHub Actions, and validation.
+
+For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 
@@ -30,6 +32,7 @@ CAVRA adds a governed control point between AI agents and meaningful engineering
 - Supports PR attestation and CI/CD required checks.
 - Provides a public sandbox GUI for hands-on exploration.
 - Includes AISPM, AI Security Posture Management, for posture, findings, reports, readiness packets, and production gates.
+- Plans a unified governance path for model registries, AI artifacts, scanner metadata, supply-chain checks, and compliance mapping without requiring raw model or training-data egress.
 
 ## AISPM
 
@@ -184,6 +187,7 @@ Start with the wiki textbook:
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
 - [CAVRA Technical Textbook](docs/wiki/Home.md)
+- [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [Why CAVRA Exists](docs/wiki/Textbook-01-Why-CAVRA-Exists.md)
 - [Architecture And Community-First Design](docs/wiki/Textbook-03-Architecture-And-Open-Core-Design.md)
 - [Product Model, Licensing, And Capability Boundaries](docs/wiki/Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)

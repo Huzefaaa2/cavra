@@ -25,11 +25,13 @@
 16. [Policy Language Reference](Textbook-15-Policy-Language-Reference.md)
 17. [Troubleshooting Playbook](Textbook-16-Troubleshooting-And-FAQ.md)
 18. [Technology Stack](Textbook-18-CAVRA-Technology-Stack.md)
-19. [Conclusion](Textbook-17-The-Runtime-Authority-Revolution.md)
+19. [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
+20. [Conclusion](Textbook-17-The-Runtime-Authority-Revolution.md)
 
 ## Practical Paths
 
 - [Development And Testing Archive](Development-And-Testing-Artifacts.md)
+- [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)
 - [API](API.md)

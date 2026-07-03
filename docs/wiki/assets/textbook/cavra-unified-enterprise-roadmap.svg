@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">CAVRA unified enterprise enhancement roadmap</title>
+  <desc id="desc">Animated enterprise roadmap showing agent actions and model artifacts governed by one CAVRA control plane across decision, identity, evidence, and posture planes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#06111f"/>
+      <stop offset="48%" stop-color="#071827"/>
+      <stop offset="100%" stop-color="#090b16"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#00f6a3"/>
+      <stop offset="100%" stop-color="#38d5ff"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cff"/>
+      <stop offset="100%" stop-color="#20d5a8"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#38d5ff"/>
+    </marker>
+    <style>
+      .bg{fill:url(#bg)}
+      .grid{stroke:#173146;stroke-width:1;opacity:.45}
+      .title{font:800 36px Inter,Arial,sans-serif;fill:#f8fbff}
+      .subtitle{font:600 16px Inter,Arial,sans-serif;fill:#a9b7c8}
+      .eyebrow{font:800 13px Inter,Arial,sans-serif;letter-spacing:2px;fill:#00f6a3}
+      .card{fill:#0d1726;stroke:#24445e;stroke-width:2}
+      .card-green{stroke:#00d995}
+      .card-purple{stroke:#7c5cff}
+      .card-amber{stroke:#f6b342}
+      .label{font:800 19px Inter,Arial,sans-serif;fill:#f8fbff}
+      .small{font:600 13px Inter,Arial,sans-serif;fill:#a9b7c8}
+      .micro{font:700 11px Inter,Arial,sans-serif;fill:#7f91a6}
+      .flow{fill:none;stroke:#38d5ff;stroke-width:3;stroke-dasharray:8 12;marker-end:url(#arrow)}
+      .pulse{fill:url(#green);filter:url(#glow)}
+      .phase{fill:#081421;stroke:#24445e;stroke-width:1.5}
+      .phase-done{stroke:#00d995}
+      .phase-planned{stroke:#7c5cff}
+      @keyframes dash{to{stroke-dashoffset:-80}}
+      @keyframes pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:1;transform:scale(1.06)}}
+      @keyframes orbit{to{transform:rotate(360deg)}}
+      @keyframes scan{0%{transform:translateX(-18px);opacity:.25}50%{opacity:1}100%{transform:translateX(18px);opacity:.25}}
+      .flow{animation:dash 6s linear infinite}
+      .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-in-out infinite}
+      .orbit{transform-box:fill-box;transform-origin:center;animation:orbit 18s linear infinite}
+      .scanner{animation:scan 2.8s ease-in-out infinite alternate}
+      @media (prefers-reduced-motion: reduce){.flow,.pulse,.orbit,.scanner{animation:none}}
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1280" height="720" rx="28"/>
+  <g class="grid">
+    <path d="M80 110H1200M80 210H1200M80 310H1200M80 410H1200M80 510H1200M80 610H1200"/>
+    <path d="M160 70V660M320 70V660M480 70V660M640 70V660M800 70V660M960 70V660M1120 70V660"/>
+  </g>
+
+  <text class="eyebrow" x="74" y="68">UNIFIED CAVRA ROADMAP</text>
+  <text class="title" x="74" y="112">One control plane for AI agent actions and AI model risk.</text>
+  <text class="subtitle" x="76" y="142">Decision, identity, evidence, and posture controls converge across runtime actions, models, artifacts, connectors, and compliance evidence.</text>
+
+  <rect class="card card-green" x="72" y="196" width="240" height="132" rx="22"/>
+  <text class="label" x="104" y="242">Agent actions</text>
+  <text class="small" x="104" y="274">code, shell, Git, MCP</text>
+  <text class="small" x="104" y="300">CI/CD, cloud, IaC</text>
+
+  <rect class="card card-purple" x="72" y="388" width="240" height="132" rx="22"/>
+  <text class="label" x="104" y="434">Models and artifacts</text>
+  <text class="small" x="104" y="466">registries, metadata</text>
+  <text class="small" x="104" y="492">hashes, risk scores</text>
+
+  <path class="flow" d="M316 262 C392 262 398 282 468 282"/>
+  <path class="flow" d="M316 454 C392 454 398 434 468 434"/>
+
+  <g class="orbit">
+    <circle cx="642" cy="358" r="174" fill="none" stroke="#1a5a6e" stroke-width="2" stroke-dasharray="12 16"/>
+    <circle class="pulse" cx="642" cy="184" r="9"/>
+    <circle class="pulse" cx="815" cy="358" r="8"/>
+    <circle class="pulse" cx="642" cy="532" r="7"/>
+    <circle class="pulse" cx="468" cy="358" r="8"/>
+  </g>
+
+  <rect class="card" x="470" y="198" width="344" height="320" rx="28" stroke="url(#green)" filter="url(#glow)"/>
+  <text class="eyebrow" x="548" y="244">CAVRA CONTROL PLANE</text>
+  <rect class="phase phase-done" x="506" y="276" width="130" height="76" rx="16"/>
+  <text class="label" x="534" y="308">Decision</text>
+  <text class="micro" x="530" y="332">gate + approve</text>
+  <rect class="phase phase-planned" x="650" y="276" width="130" height="76" rx="16"/>
+  <text class="label" x="682" y="308">Identity</text>
+  <text class="micro" x="682" y="332">SSO + RBAC</text>
+  <rect class="phase phase-planned" x="506" y="376" width="130" height="76" rx="16"/>
+  <text class="label" x="536" y="408">Evidence</text>
+  <text class="micro" x="526" y="432">KMS + audit</text>
+  <rect class="phase phase-done" x="650" y="376" width="130" height="76" rx="16"/>
+  <text class="label" x="682" y="408">Posture</text>
+  <text class="micro" x="682" y="432">AISPM</text>
+
+  <path class="flow" d="M816 326 C872 326 878 284 934 284"/>
+  <path class="flow" d="M816 398 C872 398 878 454 934 454"/>
+
+  <rect class="card card-amber" x="934" y="196" width="274" height="132" rx="22"/>
+  <text class="label" x="970" y="238">Zero-trust connectors</text>
+  <text class="small" x="970" y="270">SCM, CI/CD, SIEM, ITSM</text>
+  <text class="small" x="970" y="296">model registries by reference</text>
+
+  <rect class="card card-green" x="934" y="388" width="274" height="132" rx="22"/>
+  <text class="label" x="970" y="430">Enterprise outcomes</text>
+  <text class="small" x="970" y="462">audit-grade evidence</text>
+  <text class="small" x="970" y="488">CISO reporting + readiness</text>
+
+  <g class="scanner">
+    <rect x="978" y="338" width="188" height="28" rx="14" fill="#0b2233" stroke="#38d5ff"/>
+    <text class="micro" x="1016" y="357">customer-side scanner agent</text>
+  </g>
+
+  <text class="eyebrow" x="74" y="596">PHASE SEQUENCE</text>
+  <g>
+    <rect class="phase phase-done" x="72" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="106" y="640">0 Position</text>
+    <text class="micro" x="104" y="658">completed</text>
+    <rect class="phase phase-planned" x="238" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="276" y="640">1 Trust</text>
+    <text class="micro" x="270" y="658">planned</text>
+    <rect class="phase phase-planned" x="404" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="432" y="640">2 Identity</text>
+    <text class="micro" x="436" y="658">planned</text>
+    <rect class="phase phase-planned" x="570" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="598" y="640">3 Evidence</text>
+    <text class="micro" x="606" y="658">planned</text>
+    <rect class="phase phase-planned" x="736" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="754" y="640">4 Connectors</text>
+    <text class="micro" x="772" y="658">planned</text>
+    <rect class="phase phase-planned" x="902" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="934" y="640">5 Policy</text>
+    <text class="micro" x="936" y="658">planned</text>
+    <rect class="phase phase-planned" x="1068" y="618" width="150" height="54" rx="16"/>
+    <text class="small" x="1104" y="640">6 Scale</text>
+    <text class="micro" x="1104" y="658">planned</text>
+  </g>
+</svg>
