@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Any
 
 from cavra.tenancy import normalize_tenant_id, normalize_workspace_id
@@ -8,6 +9,8 @@ from cavra.tenancy import normalize_tenant_id, normalize_workspace_id
 
 POSTGRES_TENANT_RLS_CONTRACT_VERSION = "cavra.postgres_tenant_rls.contract.v1"
 POSTGRES_TENANT_RLS_READINESS_VERSION = "cavra.postgres_tenant_rls.readiness.v1"
+POSTGRES_TENANT_SESSION_CONTRACT_VERSION = "cavra.postgres_tenant_session.contract.v1"
+POSTGRES_TENANT_RLS_SMOKE_VERSION = "cavra.postgres_tenant_rls.smoke.v1"
 
 POSTGRES_TENANT_SESSION_SETTING = "cavra.tenant_id"
 POSTGRES_WORKSPACE_SESSION_SETTING = "cavra.workspace_id"
@@ -72,6 +75,22 @@ TENANT_SCOPED_TABLES: dict[str, dict[str, Any]] = {
 }
 
 
+@dataclass(frozen=True)
+class PostgresTenantSessionScope:
+    tenant_id: str
+    workspace_id: str
+
+    @classmethod
+    def from_values(cls, *, tenant_id: Any, workspace_id: Any) -> "PostgresTenantSessionScope":
+        return cls(
+            tenant_id=normalize_tenant_id(tenant_id),
+            workspace_id=normalize_workspace_id(workspace_id),
+        )
+
+    def as_parameters(self) -> dict[str, str]:
+        return {"tenant_id": self.tenant_id, "workspace_id": self.workspace_id}
+
+
 def build_postgres_rls_contract() -> dict[str, Any]:
     """Return the public-safe Postgres row-level security contract.
 
@@ -121,7 +140,30 @@ def build_postgres_rls_contract() -> dict[str, Any]:
             "Migration import rows must include tenant_id and, for workspace-scoped sources, workspace_id.",
             "Cross-tenant and cross-workspace negative tests must fail before production readiness can pass.",
         ],
+        "session_scope_contract": build_postgres_session_contract(),
         "migration_sql": "migrations/postgres/001_tenant_scoped_operational_stores.sql",
+    }
+
+
+def build_postgres_session_contract() -> dict[str, Any]:
+    return {
+        "schema_version": POSTGRES_TENANT_SESSION_CONTRACT_VERSION,
+        "product": "CAVRA",
+        "purpose": "Request-scoped Postgres tenant/workspace session binding for RLS enforcement.",
+        "session_settings": {
+            "tenant_id": POSTGRES_TENANT_SESSION_SETTING,
+            "workspace_id": POSTGRES_WORKSPACE_SESSION_SETTING,
+        },
+        "scope_binding_sql": [
+            "SELECT set_config('cavra.tenant_id', %s, true)",
+            "SELECT set_config('cavra.workspace_id', %s, true)",
+        ],
+        "runtime_requirements": [
+            "Bind scope inside the request transaction before touching tenant-scoped tables.",
+            "Use set_config(..., true) so scope is transaction-local and cannot leak across pooled connections.",
+            "Reject requests without both tenant_id and workspace_id before opening tenant-scoped queries.",
+            "Run cross-tenant and cross-workspace negative reads using the same runtime role used by the application.",
+        ],
     }
 
 
@@ -130,6 +172,8 @@ def build_postgres_rls_readiness(
     contract_documented: bool,
     migration_sql_present: bool,
     import_tests_present: bool,
+    session_adapter_present: bool = False,
+    smoke_harness_present: bool = False,
     live_rls_smoke_tested: bool = False,
 ) -> dict[str, Any]:
     checks = [
@@ -155,6 +199,20 @@ def build_postgres_rls_readiness(
             else "JSON/SQLite import row tests are missing.",
         ),
         _check(
+            "session_adapter_present",
+            "pass" if session_adapter_present else "warn",
+            "Request-scoped Postgres session adapter is present."
+            if session_adapter_present
+            else "Request-scoped Postgres session adapter is not present yet.",
+        ),
+        _check(
+            "smoke_harness_present",
+            "pass" if smoke_harness_present else "warn",
+            "Public-safe live RLS smoke harness is present."
+            if smoke_harness_present
+            else "Public-safe live RLS smoke harness is not present yet.",
+        ),
+        _check(
             "live_rls_smoke_tested",
             "pass" if live_rls_smoke_tested else "warn",
             "Live private Postgres RLS smoke evidence is attached."
@@ -173,9 +231,64 @@ def build_postgres_rls_readiness(
         "warning_count": len(warnings),
         "checks": checks,
         "next_controls": [
-            "Wire the private Enterprise Postgres driver to set cavra.tenant_id and cavra.workspace_id per request.",
+            "Run the public-safe smoke harness with private Enterprise Postgres credentials.",
             "Run live cross-tenant and cross-workspace negative smoke tests against the private production database.",
             "Attach live RLS smoke evidence to the AISPM production readiness gate.",
+        ],
+    }
+
+
+def build_postgres_session_statements(scope: PostgresTenantSessionScope) -> list[tuple[str, tuple[str]]]:
+    return [
+        ("SELECT set_config('cavra.tenant_id', %s, true)", (scope.tenant_id,)),
+        ("SELECT set_config('cavra.workspace_id', %s, true)", (scope.workspace_id,)),
+    ]
+
+
+def apply_postgres_tenant_scope(connection: Any, *, tenant_id: Any, workspace_id: Any) -> dict[str, Any]:
+    """Apply transaction-local tenant/workspace settings to a DB-API-like connection.
+
+    The helper intentionally uses duck typing so the public package does not require
+    a Postgres driver. Private Enterprise runtimes can pass a psycopg connection or
+    cursor; tests can pass a fake executor.
+    """
+
+    scope = PostgresTenantSessionScope.from_values(tenant_id=tenant_id, workspace_id=workspace_id)
+    statements = build_postgres_session_statements(scope)
+    executor = getattr(connection, "execute", None)
+    if executor is None:
+        raise TypeError("connection must provide an execute(sql, params) method")
+    for sql, params in statements:
+        executor(sql, params)
+    return {
+        "schema_version": POSTGRES_TENANT_SESSION_CONTRACT_VERSION,
+        "applied": True,
+        "session_settings": scope.as_parameters(),
+        "statement_count": len(statements),
+    }
+
+
+def build_postgres_rls_smoke_plan(*, tenant_a: str, workspace_a: str, tenant_b: str, workspace_b: str) -> dict[str, Any]:
+    scope_a = PostgresTenantSessionScope.from_values(tenant_id=tenant_a, workspace_id=workspace_a)
+    scope_b = PostgresTenantSessionScope.from_values(tenant_id=tenant_b, workspace_id=workspace_b)
+    return {
+        "schema_version": POSTGRES_TENANT_RLS_SMOKE_VERSION,
+        "product": "CAVRA",
+        "purpose": "Live private Postgres RLS positive and negative smoke validation plan.",
+        "positive_scope": scope_a.as_parameters(),
+        "negative_scope": scope_b.as_parameters(),
+        "steps": [
+            "Apply the Postgres migration contract before running smoke checks.",
+            "Open a transaction as the application runtime role.",
+            "Apply tenant A/workspace A using set_config(..., true).",
+            "Write a tenant A/workspace A smoke row and verify it is readable.",
+            "Switch to tenant B/workspace B in a new transaction using the same runtime role.",
+            "Verify tenant B/workspace B cannot read tenant A/workspace A smoke rows.",
+            "Record the sanitized packet as AISPM production readiness evidence.",
+        ],
+        "required_negative_assertions": [
+            "tenant_b_cannot_read_tenant_a_workspace_a",
+            "workspace_b_cannot_read_workspace_a",
         ],
     }
 

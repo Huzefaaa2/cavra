@@ -27,11 +27,25 @@ REQUIRED_TEXT = {
     ],
     "src/cavra/postgres_tenancy.py": [
         "POSTGRES_TENANT_RLS_CONTRACT_VERSION",
+        "POSTGRES_TENANT_SESSION_CONTRACT_VERSION",
         "build_postgres_rls_contract",
+        "build_postgres_session_contract",
+        "build_postgres_session_statements",
+        "apply_postgres_tenant_scope",
+        "build_postgres_rls_smoke_plan",
         "build_postgres_import_rows",
         "ready_for_postgres_rls_contract",
         "current_setting('cavra.tenant_id', true)",
+        "set_config('cavra.tenant_id', %s, true)",
         "row-level security",
+    ],
+    "scripts/validate_postgres_tenant_rls_smoke.py": [
+        "CAVRA_ENTERPRISE_POSTGRES_DSN",
+        "apply_postgres_tenant_scope",
+        "build_postgres_rls_smoke_plan",
+        "dsn_value_included",
+        "live_rls_smoke_tested",
+        "--require-live",
     ],
     "migrations/postgres/001_tenant_scoped_operational_stores.sql": [
         "ENABLE ROW LEVEL SECURITY",
@@ -104,6 +118,9 @@ REQUIRED_TEXT = {
     ],
     "tests/test_postgres_tenancy.py": [
         "test_postgres_rls_contract",
+        "test_postgres_session_contract_and_adapter_apply_transaction_local_scope",
+        "test_postgres_session_adapter_requires_executor_and_valid_scope",
+        "test_postgres_rls_smoke_plan_defines_positive_and_negative_scopes",
         "test_postgres_rls_migration_sql_contains_required_tables_and_policies",
         "test_json_reference_stores_build_postgres_import_rows",
         "test_sqlite_reference_stores_build_postgres_import_rows",
@@ -124,6 +141,8 @@ REQUIRED_TEXT = {
         "row-level security",
         "migrations/postgres/001_tenant_scoped_operational_stores.sql",
         "build_postgres_import_rows",
+        "apply_postgres_tenant_scope",
+        "validate_postgres_tenant_rls_smoke.py",
         "cavra.tenant_id",
         "cavra.workspace_id",
     ],
@@ -137,6 +156,8 @@ REQUIRED_TEXT = {
         "integration scope binding",
         "Postgres/RLS public contract",
         "JSON/SQLite import row tests",
+        "request-scoped Postgres session adapter",
+        "public-safe RLS smoke harness",
         "scripts/validate_tenant_persistence_readiness.py",
     ],
     "docs/wiki/Tenant-Workspace-Persistence.md": [
@@ -150,6 +171,7 @@ REQUIRED_TEXT = {
         "Postgres",
         "RLS",
         "migrations/postgres/001_tenant_scoped_operational_stores.sql",
+        "validate_postgres_tenant_rls_smoke.py",
     ],
 }
 
@@ -192,6 +214,8 @@ def validate_contract_shape() -> list[str]:
         contract_documented=True,
         migration_sql_present=True,
         import_tests_present=True,
+        session_adapter_present=True,
+        smoke_harness_present=True,
     )
     if postgres_contract.get("schema_version") != "cavra.postgres_tenant_rls.contract.v1":
         failures.append("Postgres RLS contract schema mismatch")
@@ -202,6 +226,9 @@ def validate_contract_shape() -> list[str]:
     settings = postgres_contract.get("session_settings", {})
     if settings.get("tenant_id") != "cavra.tenant_id" or settings.get("workspace_id") != "cavra.workspace_id":
         failures.append("Postgres RLS session settings mismatch")
+    session_contract = postgres_contract.get("session_scope_contract", {})
+    if session_contract.get("schema_version") != "cavra.postgres_tenant_session.contract.v1":
+        failures.append("Postgres tenant session contract schema mismatch")
     if postgres_readiness.get("schema_version") != "cavra.postgres_tenant_rls.readiness.v1":
         failures.append("Postgres RLS readiness schema mismatch")
     if postgres_readiness.get("ready_for_postgres_rls_contract") is not True:

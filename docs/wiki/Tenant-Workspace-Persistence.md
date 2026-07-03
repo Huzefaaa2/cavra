@@ -18,6 +18,8 @@ CAVRA R2.2 starts with a public-safe tenant/workspace persistence contract and r
 | `build_tenant_persistence_readiness` | Produces the R2.2 foundation readiness result. |
 | `build_postgres_rls_contract` | Publishes the public-safe Postgres/RLS table and session-setting contract. |
 | `build_postgres_import_rows` | Converts JSON/SQLite reference rows into validated Postgres import rows. |
+| `apply_postgres_tenant_scope` | Applies transaction-local Postgres RLS session variables for each request. |
+| `scripts/validate_postgres_tenant_rls_smoke.py` | Runs a private live Postgres RLS smoke test when a DSN is supplied externally. |
 | `migrations/postgres/001_tenant_scoped_operational_stores.sql` | Defines the tenant-scoped Postgres tables and RLS policies. |
 
 ## Isolation Rules
@@ -64,12 +66,33 @@ SET LOCAL cavra.tenant_id = '<tenant-id>';
 SET LOCAL cavra.workspace_id = '<workspace-id>';
 ```
 
+The public session adapter uses transaction-local `set_config(..., true)` so tenant scope does not leak across pooled connections:
+
+```python
+apply_postgres_tenant_scope(connection, tenant_id="tenant-a", workspace_id="prod")
+```
+
 The SQL contract enables and forces RLS, with predicates bound to `current_setting('cavra.tenant_id', true)` and `current_setting('cavra.workspace_id', true)`. The runtime database role should not own these tables and should not have `BYPASSRLS`.
+
+## Live RLS Smoke Harness
+
+Public CI can run the smoke harness without credentials and receive a skipped packet. Enterprise deployments should run it with a private DSN secret:
+
+```bash
+export CAVRA_ENTERPRISE_POSTGRES_DSN='<private-postgres-dsn>'
+python3 scripts/validate_postgres_tenant_rls_smoke.py \
+  --apply-migration \
+  --require-live \
+  --output dist/enterprise/postgres-tenant-rls-smoke.json
+```
+
+The output packet reports `dsn_value_included: false`. A passing live result proves tenant A/workspace A can read its own smoke row while tenant B/workspace B cannot read that row with the same runtime role.
 
 ## Validation
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
+python3 scripts/validate_postgres_tenant_rls_smoke.py --output dist/test/postgres-rls-smoke-skipped.json
 python3 -m pytest tests/test_postgres_tenancy.py tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py tests/test_evidence.py tests/test_inventory.py tests/test_integrations.py -q
 ```
 

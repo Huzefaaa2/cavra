@@ -18,6 +18,8 @@ The public repository now includes:
 - `build_tenant_persistence_readiness`: readiness packet for the R2.2 foundation.
 - `build_postgres_rls_contract`: public-safe Postgres/RLS production data model contract.
 - `build_postgres_import_rows`: JSON/SQLite import row builder that rejects missing tenant/workspace scope.
+- `apply_postgres_tenant_scope`: request-scoped session adapter that sets transaction-local Postgres RLS variables.
+- `scripts/validate_postgres_tenant_rls_smoke.py`: public-safe smoke harness for private Enterprise Postgres RLS validation.
 - `migrations/postgres/001_tenant_scoped_operational_stores.sql`: Postgres DDL and row-level security policy contract for the tenant-scoped operational stores.
 
 This is not the final Enterprise SaaS data plane. Production Managed or Enterprise deployments should bind the same contract to Postgres, row-level security, encrypted backups, immutable audit, and tenant-specific retention.
@@ -83,6 +85,7 @@ Contract source:
 | `src/cavra/postgres_tenancy.py` | Defines `POSTGRES_TENANT_RLS_CONTRACT_VERSION`, the tenant-scoped table map, required session settings, readiness checks, and JSON/SQLite import row validation. |
 | `migrations/postgres/001_tenant_scoped_operational_stores.sql` | Creates the public-safe Postgres schema, enables and forces row-level security, and binds policies to the `cavra.tenant_id` and `cavra.workspace_id` session settings. |
 | `tests/test_postgres_tenancy.py` | Verifies the contract shape, SQL policy coverage, JSON import rows, SQLite import rows, and negative validation for missing tenant/workspace scope. |
+| `scripts/validate_postgres_tenant_rls_smoke.py` | Runs the private live smoke test when a DSN is supplied through an environment variable and emits a sanitized packet with no DSN value. |
 
 The contract covers these tables:
 
@@ -105,14 +108,39 @@ SET LOCAL cavra.tenant_id = '<tenant-id>';
 SET LOCAL cavra.workspace_id = '<workspace-id>';
 ```
 
+The public helper uses transaction-local `set_config(..., true)` statements so the scope does not leak across pooled connections:
+
+```python
+apply_postgres_tenant_scope(connection, tenant_id="tenant-a", workspace_id="prod")
+```
+
 The application runtime role should not own these tables and should not have `BYPASSRLS`. The migration contract uses `ENABLE ROW LEVEL SECURITY` and `FORCE ROW LEVEL SECURITY` so reads and writes are filtered through `current_setting('cavra.tenant_id', true)` and `current_setting('cavra.workspace_id', true)`.
 
 `build_postgres_import_rows` creates normalized import rows from JSON and SQLite reference stores. It rejects production operational records unless `tenant_id`, `workspace_id`, and the required source record ID are present. This prevents unscoped local artifacts from being silently promoted into the Enterprise database.
+
+## Live RLS Smoke Harness
+
+Public CI can run the smoke harness without credentials and receive a skipped packet. Enterprise deployments should run it with a private DSN secret and `--require-live`:
+
+```bash
+export CAVRA_ENTERPRISE_POSTGRES_DSN='<private-postgres-dsn>'
+python3 scripts/validate_postgres_tenant_rls_smoke.py \
+  --apply-migration \
+  --require-live \
+  --output dist/enterprise/postgres-tenant-rls-smoke.json
+```
+
+The packet intentionally reports `dsn_value_included: false`. A passing live result requires:
+
+- tenant A/workspace A can write and read its own smoke row;
+- tenant B/workspace B cannot read tenant A/workspace A smoke rows with the same runtime role;
+- the sanitized packet is attached to the AISPM production readiness evidence room.
 
 ## Validation
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
+python3 scripts/validate_postgres_tenant_rls_smoke.py --output dist/test/postgres-rls-smoke-skipped.json
 python3 -m pytest tests/test_postgres_tenancy.py tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py tests/test_evidence.py tests/test_inventory.py tests/test_integrations.py -q
 ```
 
@@ -130,10 +158,10 @@ Completed in the public R2.2 foundation:
 - tenant/workspace scope binding across activity, approvals, evidence metadata, inventory, and integrations;
 - public Postgres/RLS DDL contract for the production operational stores;
 - JSON/SQLite to Postgres import row validation tests.
+- request-scoped Postgres session adapter and public-safe live smoke harness.
 
 Remaining Enterprise deployment work:
 
-- wire the private Postgres driver/connection layer to set `cavra.tenant_id` and `cavra.workspace_id` for every request;
 - use the `tenant_id` and `workspace_id` from the live identity validation packet as isolation inputs;
 - run live cross-tenant and cross-workspace negative tests before any production readiness gate is allowed to pass;
 - attach live RLS smoke evidence to the AISPM production readiness gate.

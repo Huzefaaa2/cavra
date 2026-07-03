@@ -10,10 +10,15 @@ from cavra.evidence import EvidenceMetadataStore, SQLiteEvidenceMetadataStore
 from cavra.integrations import IntegrationStore, SQLiteIntegrationStore
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
 from cavra.postgres_tenancy import (
+    PostgresTenantSessionScope,
     TENANT_SCOPED_TABLES,
+    apply_postgres_tenant_scope,
     build_postgres_import_rows,
     build_postgres_rls_contract,
     build_postgres_rls_readiness,
+    build_postgres_rls_smoke_plan,
+    build_postgres_session_contract,
+    build_postgres_session_statements,
     postgres_table_for_source,
 )
 from cavra.tenancy import SQLiteTenantWorkspaceStore, TenantWorkspaceStore
@@ -33,11 +38,51 @@ def test_postgres_rls_contract() -> None:
         contract_documented=True,
         migration_sql_present=True,
         import_tests_present=True,
+        session_adapter_present=True,
+        smoke_harness_present=True,
     )
 
     assert readiness["ready_for_postgres_rls_contract"] is True
     assert readiness["status"] == "ready_with_warnings"
     assert readiness["warning_count"] == 1
+
+
+def test_postgres_session_contract_and_adapter_apply_transaction_local_scope() -> None:
+    contract = build_postgres_session_contract()
+    scope = PostgresTenantSessionScope.from_values(tenant_id="tenant-a", workspace_id="prod")
+    connection = _FakePostgresConnection()
+
+    result = apply_postgres_tenant_scope(connection, tenant_id=scope.tenant_id, workspace_id=scope.workspace_id)
+    statements = build_postgres_session_statements(scope)
+
+    assert contract["schema_version"] == "cavra.postgres_tenant_session.contract.v1"
+    assert "set_config('cavra.tenant_id', %s, true)" in contract["scope_binding_sql"][0]
+    assert [call[0] for call in connection.calls] == [statement[0] for statement in statements]
+    assert [call[1] for call in connection.calls] == [("tenant-a",), ("prod",)]
+    assert result["applied"] is True
+    assert result["session_settings"] == {"tenant_id": "tenant-a", "workspace_id": "prod"}
+
+
+def test_postgres_session_adapter_requires_executor_and_valid_scope() -> None:
+    with pytest.raises(TypeError, match="execute"):
+        apply_postgres_tenant_scope(object(), tenant_id="tenant-a", workspace_id="prod")
+
+    with pytest.raises(ValueError, match="tenant_id"):
+        apply_postgres_tenant_scope(_FakePostgresConnection(), tenant_id="bad tenant", workspace_id="prod")
+
+
+def test_postgres_rls_smoke_plan_defines_positive_and_negative_scopes() -> None:
+    plan = build_postgres_rls_smoke_plan(
+        tenant_a="tenant-a",
+        workspace_a="prod",
+        tenant_b="tenant-b",
+        workspace_b="prod",
+    )
+
+    assert plan["schema_version"] == "cavra.postgres_tenant_rls.smoke.v1"
+    assert plan["positive_scope"] == {"tenant_id": "tenant-a", "workspace_id": "prod"}
+    assert plan["negative_scope"] == {"tenant_id": "tenant-b", "workspace_id": "prod"}
+    assert "tenant_b_cannot_read_tenant_a_workspace_a" in plan["required_negative_assertions"]
 
 
 def test_postgres_rls_migration_sql_contains_required_tables_and_policies() -> None:
@@ -240,3 +285,11 @@ def _build_import_rows(
     rows.extend(build_postgres_import_rows("inventory_policy_rollout", [rollout]))
     rows.extend(build_postgres_import_rows("integration", [integration]))
     return rows
+
+
+class _FakePostgresConnection:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, tuple[str]]] = []
+
+    def execute(self, sql: str, params: tuple[str]) -> None:
+        self.calls.append((sql, params))
