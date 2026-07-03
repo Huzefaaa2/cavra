@@ -76,6 +76,20 @@ CAVRA treats RBAC as necessary but not sufficient for Enterprise operation. ABAC
 
 The public helper `actor_has_enterprise_scope` enforces tenant and workspace equality for scoped resources and role checks for runtime action approval, model/artifact approval, audit read access, and break-glass access.
 
+## Runtime ABAC Enforcement
+
+Approval decisions now enforce the same Enterprise scope contract at runtime. When an approval request includes Enterprise resource attributes, CAVRA checks the verified actor context before legacy approval group or repository RBAC can authorize the mutation.
+
+| Approval type | Required role | Required boundary |
+| --- | --- | --- |
+| Runtime action approval | `security_operator` or `platform_security` | Matching `tenant_id` and `workspace_id` when present. |
+| Model or AI artifact approval | `model_owner` or `ciso` | Matching `tenant_id` and `workspace_id` when present, plus model owner context when supplied. |
+| Break-glass approval | `break_glass_approver` and `Change Advisory Board` group | Reason, external reference, TTL, and retained audit evidence. |
+
+Scoped approvals are detected from approval or decision fields such as `tenant_id`, `workspace_id`, `repository`, `environment`, `model_owner_ref`, `data_classification`, `asset_type`, `artifact_type`, and `model_artifact_ref`. Community and local workflows that do not include Enterprise ABAC fields continue to use the existing approval group and repository RBAC behavior.
+
+Internally, scoped approval enforcement maps requests to `approve_runtime_action`, `approve_model_artifact`, or `break_glass` before calling the Enterprise scope checker.
+
 ## SAML Bridge
 
 CAVRA does not store SAML certificates or customer SAML metadata in this public repository. Enterprise SAML support uses one of these deployment patterns:

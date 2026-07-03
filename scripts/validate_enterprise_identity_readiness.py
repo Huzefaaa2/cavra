@@ -19,6 +19,13 @@ REQUIRED_TEXT = {
         "SAML assertion is normalized",
         "private_enterprise_sync_contract",
     ],
+    "src/cavra/approvals.py": [
+        "actor_has_enterprise_scope",
+        "_approval_resource_context",
+        "_enterprise_approval_action",
+        "approve_model_artifact",
+        "approve_runtime_action",
+    ],
     "src/cavra/api.py": [
         "CAVRA_ENTERPRISE_IDENTITY_POLICY",
         "/identity/enterprise-contract",
@@ -34,6 +41,8 @@ REQUIRED_TEXT = {
         "break-glass",
         "model_owner",
         "security_operator",
+        "Runtime ABAC Enforcement",
+        "approve_model_artifact",
     ],
     "docs/oidc-rbac-deployment.md": [
         "CAVRA_ENTERPRISE_IDENTITY_POLICY",
@@ -44,6 +53,7 @@ REQUIRED_TEXT = {
     "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md": [
         "| R2.1 |",
         "Enterprise identity readiness contract",
+        "runtime scoped approval enforcement",
         "scripts/validate_enterprise_identity_readiness.py",
     ],
     "docs/wiki/Enterprise-Identity-And-Access-Control.md": [
@@ -51,6 +61,7 @@ REQUIRED_TEXT = {
         "SAML bridge",
         "SCIM",
         "ABAC",
+        "Runtime Enforcement",
     ],
 }
 

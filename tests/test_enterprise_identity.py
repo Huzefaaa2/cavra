@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 import subprocess
-from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from cavra.api import create_app
+from cavra.approvals import actor_can_decide, actor_context_from_claims, create_approval_request
 from cavra.enterprise_identity import (
     actor_has_enterprise_scope,
     build_enterprise_identity_contract,
@@ -88,6 +88,84 @@ def test_enterprise_actor_claims_map_groups_to_roles_and_abac_scope() -> None:
         action="approve_model_artifact",
         resource={"tenant_id": "tenant-b", "workspace_id": "workspace-prod"},
     )
+
+
+def test_enterprise_abac_enforces_model_owner_scope_on_approvals() -> None:
+    approval = create_approval_request(
+        {
+            "decision_id": "dec_model_1",
+            "rule_id": "mcp.model.publish",
+            "asset_type": "model_artifact",
+            "tenant_id": "tenant-a",
+            "workspace_id": "workspace-prod",
+            "repository": "payments/api",
+            "model_owner_ref": "team:model-risk",
+        },
+        approver_group="AI Governance",
+    )
+    actor = actor_context_from_claims(
+        {
+            "sub": "user-123",
+            "email": "model-owner@example.com",
+            "groups": ["CAVRA-Model-Owners", "AI Governance"],
+            "tenant_id": "tenant-a",
+            "workspace_id": "workspace-prod",
+        }
+    )
+    mismatched_actor = {**actor, "tenant_id": "tenant-b"}
+    operator_actor = actor_context_from_claims(
+        {
+            "sub": "user-456",
+            "email": "operator@example.com",
+            "groups": ["CAVRA-Security-Operations", "AI Governance"],
+            "tenant_id": "tenant-a",
+            "workspace_id": "workspace-prod",
+        }
+    )
+
+    assert actor_can_decide(actor, approval, action="approved")
+    assert not actor_can_decide(mismatched_actor, approval, action="approved")
+    assert not actor_can_decide(operator_actor, approval, action="approved")
+
+
+def test_enterprise_abac_enforces_runtime_scope_on_approvals() -> None:
+    approval = create_approval_request(
+        {
+            "decision_id": "dec_runtime_1",
+            "rule_id": "filesystem.write.sensitive",
+            "tenant_id": "tenant-a",
+            "workspace_id": "workspace-prod",
+            "repository": "payments/api",
+            "environment": "production",
+        },
+        approver_group="Platform Security",
+    )
+    platform_actor = actor_context_from_claims(
+        {
+            "sub": "user-789",
+            "email": "platform@example.com",
+            "groups": ["CAVRA-Platform-Security", "Platform Security"],
+            "tenant_id": "tenant-a",
+            "workspace_id": "workspace-prod",
+        }
+    )
+    mismatched_workspace_actor = {**platform_actor, "workspace_id": "workspace-dev"}
+
+    assert actor_can_decide(platform_actor, approval, action="approved")
+    assert not actor_can_decide(mismatched_workspace_actor, approval, action="approved")
+
+
+def test_enterprise_abac_preserves_legacy_group_only_approval() -> None:
+    approval = create_approval_request(
+        {
+            "decision_id": "dec_legacy_1",
+            "rule_id": "filesystem.write",
+            "target": "iam/admin-role.tf",
+        },
+        approver_group="IAM",
+    )
+
+    assert actor_can_decide({"actor": "iam@example.com", "groups": ["IAM"]}, approval, action="approved")
 
 
 def test_api_enterprise_identity_endpoints_report_contract(monkeypatch, tmp_path) -> None:

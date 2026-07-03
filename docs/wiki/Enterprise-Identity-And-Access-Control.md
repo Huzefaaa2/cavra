@@ -24,6 +24,18 @@ CAVRA Enterprise identity uses a public-safe contract for OIDC, SAML bridge, SCI
 | ABAC | Tenant, workspace, repository, environment, model owner, and data classification boundaries. |
 | Break-glass | CAB role, reason, external reference, short TTL, and retained audit event. |
 
+## Runtime Enforcement
+
+Scoped approval decisions now enforce the Enterprise contract before legacy group authorization succeeds:
+
+| Approval type | Required role | Boundary |
+| --- | --- | --- |
+| Runtime action approval | `security_operator` or `platform_security` | Matching tenant and workspace when supplied. |
+| Model or AI artifact approval | `model_owner` or `ciso` | Matching tenant and workspace when supplied, plus model owner context. |
+| Break-glass approval | `break_glass_approver` and `Change Advisory Board` | Reason, external reference, short TTL, and audit evidence. |
+
+Community approvals with no Enterprise ABAC fields still use the existing group and repository RBAC path.
+
 ## Validation
 
 ```bash

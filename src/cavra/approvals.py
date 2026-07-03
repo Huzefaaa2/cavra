@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 from urllib import error, request
 
+from cavra.enterprise_identity import actor_has_enterprise_scope, enterprise_actor_claims_context
+
 
 APPROVAL_STATES = {"pending", "approved", "denied", "expired", "break_glass"}
 
@@ -163,21 +165,33 @@ def _load_object_file(path: Path, description: str) -> dict[str, Any]:
 
 
 def actor_context_from_claims(claims: dict[str, Any], *, rbac_rules: dict[str, Any] | None = None) -> dict[str, Any]:
-    groups = claims.get("groups") or claims.get("roles") or []
+    groups = claims.get("groups") or []
     if isinstance(groups, str):
         groups = [groups]
+    roles = claims.get("roles") or []
+    if isinstance(roles, str):
+        roles = [roles]
+    if not groups and roles:
+        groups = roles
     email = claims.get("email") or claims.get("preferred_username") or claims.get("sub") or "unknown"
     configured = _rbac_policy(rbac_rules or {})
     mapped_groups = set(groups)
     for source, target in configured.get("group_mappings", {}).items():
         if source in groups:
             mapped_groups.add(target)
+    enterprise_context = enterprise_actor_claims_context(claims)
     return {
         "actor": email,
         "subject": claims.get("sub"),
         "groups": sorted(str(item) for item in mapped_groups),
+        "roles": enterprise_context.get("roles", []),
         "issuer": claims.get("iss"),
         "repository": claims.get("repository") or claims.get("repo"),
+        "tenant_id": enterprise_context.get("tenant_id"),
+        "workspace_id": enterprise_context.get("workspace_id"),
+        "environment": enterprise_context.get("environment"),
+        "model_owner_ref": enterprise_context.get("model_owner_ref"),
+        "data_classification": enterprise_context.get("data_classification"),
     }
 
 
@@ -321,6 +335,92 @@ def _decision_action_alias(action: str) -> str:
     return aliases.get(action, action)
 
 
+def _string_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, (list, tuple, set)):
+        return [str(item) for item in value]
+    return [str(value)]
+
+
+def _approval_resource_context(approval: dict[str, Any]) -> dict[str, Any]:
+    decision = approval.get("decision", {})
+    decision = decision if isinstance(decision, dict) else {}
+    nested_resource = decision.get("resource") if isinstance(decision.get("resource"), dict) else {}
+    resource: dict[str, Any] = {}
+    for key in (
+        "tenant_id",
+        "workspace_id",
+        "repository",
+        "environment",
+        "model_owner_ref",
+        "data_classification",
+        "model_artifact_ref",
+        "asset_type",
+        "artifact_type",
+    ):
+        value = approval.get(key)
+        if value is None:
+            value = decision.get(key)
+        if value is None:
+            value = nested_resource.get(key)
+        if value is not None:
+            resource[key] = value
+    repository = resource.get("repository") or _approval_repository(approval)
+    if repository:
+        resource["repository"] = repository
+    return resource
+
+
+def _approval_requires_enterprise_scope(approval: dict[str, Any]) -> bool:
+    if approval.get("break_glass"):
+        return True
+    resource = _approval_resource_context(approval)
+    return any(
+        resource.get(key)
+        for key in (
+            "tenant_id",
+            "workspace_id",
+            "environment",
+            "model_owner_ref",
+            "data_classification",
+            "model_artifact_ref",
+            "asset_type",
+            "artifact_type",
+        )
+    )
+
+
+def _enterprise_approval_action(approval: dict[str, Any]) -> str:
+    if approval.get("break_glass"):
+        return "break_glass"
+    resource = _approval_resource_context(approval)
+    asset_markers = {
+        str(resource.get("asset_type", "")).lower(),
+        str(resource.get("artifact_type", "")).lower(),
+    }
+    if resource.get("model_owner_ref") or resource.get("model_artifact_ref") or asset_markers & {
+        "model",
+        "ai_model",
+        "model_artifact",
+        "ai_artifact",
+    }:
+        return "approve_model_artifact"
+    return "approve_runtime_action"
+
+
+def _enterprise_scope_allows(actor_context: dict[str, Any], approval: dict[str, Any]) -> bool:
+    if not _approval_requires_enterprise_scope(approval):
+        return True
+    return actor_has_enterprise_scope(
+        actor_context,
+        action=_enterprise_approval_action(approval),
+        resource=_approval_resource_context(approval),
+    )
+
+
 def actor_can_decide(
     actor_context: dict[str, Any],
     approval: dict[str, Any],
@@ -331,6 +431,8 @@ def actor_can_decide(
     if action == "expire" and "system" in actor_context.get("groups", []):
         return True
     if approval.get("break_glass") and "Change Advisory Board" not in actor_context.get("groups", []):
+        return False
+    if not _enterprise_scope_allows(actor_context, approval):
         return False
     if _repository_rbac_allows(actor_context, approval, action=action, rbac_rules=rbac_rules or {}):
         return True
