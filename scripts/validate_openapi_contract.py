@@ -7,8 +7,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from cavra import __version__
-from cavra.api import create_app
+from cavra import __version__  # noqa: E402
+from cavra.api import create_app  # noqa: E402
 
 
 OPENAPI_PATH = Path("openapi/cavra-api.openapi.json")

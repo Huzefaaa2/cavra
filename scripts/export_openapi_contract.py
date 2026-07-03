@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from cavra.api import create_app
+from cavra.api import create_app  # noqa: E402
 
 
 DEFAULT_OUTPUT = Path("openapi/cavra-api.openapi.json")

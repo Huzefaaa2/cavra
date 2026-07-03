@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from cavra.postgres_tenancy import build_postgres_rls_contract, build_postgres_rls_readiness
 from cavra.tenancy import build_tenant_persistence_contract, build_tenant_persistence_readiness
 
 
@@ -23,6 +24,22 @@ REQUIRED_TEXT = {
         "build_tenant_persistence_readiness",
         "Postgres",
         "row-level security",
+    ],
+    "src/cavra/postgres_tenancy.py": [
+        "POSTGRES_TENANT_RLS_CONTRACT_VERSION",
+        "build_postgres_rls_contract",
+        "build_postgres_import_rows",
+        "ready_for_postgres_rls_contract",
+        "current_setting('cavra.tenant_id', true)",
+        "row-level security",
+    ],
+    "migrations/postgres/001_tenant_scoped_operational_stores.sql": [
+        "ENABLE ROW LEVEL SECURITY",
+        "FORCE ROW LEVEL SECURITY",
+        "current_setting('cavra.tenant_id', true)",
+        "current_setting('cavra.workspace_id', true)",
+        "cavra.activity_decisions",
+        "cavra.integrations",
     ],
     "src/cavra/activity.py": [
         "tenant_id",
@@ -85,6 +102,13 @@ REQUIRED_TEXT = {
         "test_integration_store_filters_by_tenant_workspace_scope",
         "test_sqlite_integration_store_filters_by_tenant_workspace_scope",
     ],
+    "tests/test_postgres_tenancy.py": [
+        "test_postgres_rls_contract",
+        "test_postgres_rls_migration_sql_contains_required_tables_and_policies",
+        "test_json_reference_stores_build_postgres_import_rows",
+        "test_sqlite_reference_stores_build_postgres_import_rows",
+        "test_postgres_import_rows_require_tenant_workspace_scope",
+    ],
     "docs/tenant-workspace-persistence.md": [
         "R2.2",
         "tenant_id",
@@ -98,6 +122,10 @@ REQUIRED_TEXT = {
         "IntegrationStore",
         "Postgres",
         "row-level security",
+        "migrations/postgres/001_tenant_scoped_operational_stores.sql",
+        "build_postgres_import_rows",
+        "cavra.tenant_id",
+        "cavra.workspace_id",
     ],
     "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md": [
         "| R2.2 |",
@@ -107,6 +135,8 @@ REQUIRED_TEXT = {
         "evidence metadata scope binding",
         "inventory scope binding",
         "integration scope binding",
+        "Postgres/RLS public contract",
+        "JSON/SQLite import row tests",
         "scripts/validate_tenant_persistence_readiness.py",
     ],
     "docs/wiki/Tenant-Workspace-Persistence.md": [
@@ -118,6 +148,8 @@ REQUIRED_TEXT = {
         "InventoryStore",
         "IntegrationStore",
         "Postgres",
+        "RLS",
+        "migrations/postgres/001_tenant_scoped_operational_stores.sql",
     ],
 }
 
@@ -155,6 +187,25 @@ def validate_contract_shape() -> list[str]:
         failures.append("tenant persistence readiness schema mismatch")
     if readiness.get("ready_for_tenant_persistence_foundation") is not True:
         failures.append("tenant persistence foundation should be ready")
+    postgres_contract = build_postgres_rls_contract()
+    postgres_readiness = build_postgres_rls_readiness(
+        contract_documented=True,
+        migration_sql_present=True,
+        import_tests_present=True,
+    )
+    if postgres_contract.get("schema_version") != "cavra.postgres_tenant_rls.contract.v1":
+        failures.append("Postgres RLS contract schema mismatch")
+    table_names = {table.get("table") for table in postgres_contract.get("tables", [])}
+    for table_name in {"cavra.activity_decisions", "cavra.integrations", "cavra.evidence_metadata"}:
+        if table_name not in table_names:
+            failures.append(f"Postgres RLS contract missing table: {table_name}")
+    settings = postgres_contract.get("session_settings", {})
+    if settings.get("tenant_id") != "cavra.tenant_id" or settings.get("workspace_id") != "cavra.workspace_id":
+        failures.append("Postgres RLS session settings mismatch")
+    if postgres_readiness.get("schema_version") != "cavra.postgres_tenant_rls.readiness.v1":
+        failures.append("Postgres RLS readiness schema mismatch")
+    if postgres_readiness.get("ready_for_postgres_rls_contract") is not True:
+        failures.append("Postgres RLS contract should be ready")
     return failures
 
 
