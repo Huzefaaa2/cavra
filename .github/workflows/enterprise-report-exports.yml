@@ -1,0 +1,94 @@
+name: Enterprise Report Exports
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the report export readiness packet JSON."
+        required: false
+        default: "examples/reports/enterprise-report-exports.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/enterprise_reporting_exports.py"
+      - "scripts/validate_enterprise_report_exports.py"
+      - "examples/reports/enterprise-report-exports.sample.json"
+      - "examples/reports/enterprise-report-exports.live.sanitized.example.json"
+      - "tests/test_enterprise_reporting_exports.py"
+      - ".github/workflows/enterprise-report-exports.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/enterprise_reporting_exports.py"
+      - "scripts/validate_enterprise_report_exports.py"
+      - "examples/reports/enterprise-report-exports.sample.json"
+      - "examples/reports/enterprise-report-exports.live.sanitized.example.json"
+      - "tests/test_enterprise_reporting_exports.py"
+      - ".github/workflows/enterprise-report-exports.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  report-export-contract:
+    name: Validate report export contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Generate sample report exports
+        run: |
+          python scripts/validate_enterprise_report_exports.py \
+            --export-dir dist/enterprise-report-exports \
+            --output dist/enterprise-report-export-manifest-result.json
+      - name: Validate sample report export packet
+        run: |
+          python scripts/validate_enterprise_report_exports.py \
+            --packet examples/reports/enterprise-report-exports.sample.json \
+            --output dist/enterprise-report-exports-sample.json
+      - name: Test report exports
+        run: python -m pytest tests/test_enterprise_reporting_exports.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-report-exports-sample
+          path: |
+            dist/enterprise-report-exports
+            dist/enterprise-report-export-manifest-result.json
+            dist/enterprise-report-exports-sample.json
+
+  report-export-live:
+    name: Validate live report export packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected report export packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_enterprise_report_exports.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-report-exports-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-report-exports-live
+          path: dist/enterprise-report-exports-live.json

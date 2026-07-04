@@ -154,6 +154,8 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 
 Enterprise compliance mapping packs now provide a clause-level bridge from runtime evidence and AISPM findings to NIST AI RMF, ISO/IEC 42001, OWASP LLM/GenAI, NIST SSDF, and EU AI Act controls. See [Enterprise Compliance Mapping Packs](enterprise-compliance-mapping-packs.md) for the public-safe registry, readiness packet, live gate, and finding-to-clause report builder.
 
+Enterprise reporting exports now package the evidence plane into auditor Markdown, BI CSV, executive JSON, and board PDF manifest artifacts. See [Enterprise Reporting Exports](enterprise-reporting-exports.md) for the public-safe exporter, readiness packet, live gate, and evidence-room operating boundary.
+
 ## User Stories
 
 - As an auditor, I can verify evidence bundle checksums.
