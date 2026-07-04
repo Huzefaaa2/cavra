@@ -1,0 +1,30 @@
+{
+  "scanner_id": "cavra-vpc-scanner-01",
+  "environment": "customer_vpc",
+  "asset_ref": "model-registry://mlflow/fraud-risk-scorer/42",
+  "asset_type": "model_artifact",
+  "artifact_digest": "sha256:4a878f5f6fd9c8ce4e6bb39f2a2ef7d3b77809207c79f6fb339fd5f4d21e6d32",
+  "risk_score": 72,
+  "risk_tier": "high",
+  "evidence_ref": "evidence://zero-trust-scanner/sample/fraud-risk-scorer",
+  "findings": [
+    {
+      "finding_id": "zt-001",
+      "title": "Model artifact requires owner approval before promotion",
+      "category": "model_governance",
+      "severity": "high",
+      "risk_score": 72,
+      "asset_ref": "model-registry://mlflow/fraud-risk-scorer/42",
+      "evidence_ref": "evidence://zero-trust-scanner/sample/finding/zt-001",
+      "metadata": {
+        "control": "model_owner_approval",
+        "lineage_ref": "lineage://mlflow/run/7f2e9a-public-safe"
+      }
+    }
+  ],
+  "metadata": {
+    "scanner_version": "2026.07",
+    "network_zone": "customer-private-subnet",
+    "egress_profile": "metadata-only"
+  }
+}

@@ -62,3 +62,9 @@ The public repository validates manifests, provider coverage, compatibility meta
 R4.3 adds metadata-only model registry connectors for MLflow, Amazon SageMaker, Hugging Face, and Weights & Biases. See [Model Registry Connectors](model-registry-connectors.md).
 
 These connectors work by reference: they collect model IDs, versions, artifact digests, lineage references, owner references, risk tier, and evidence references. They explicitly block raw model bytes, model weights, training data, prompt samples, private features, and raw artifact egress.
+
+## Zero-Trust Scanner Agent
+
+R4.4 adds the public zero-trust scanner agent contract. The scanner runs in customer-controlled environments such as VPCs, private subnets, on-premises networks, containers, Kubernetes clusters, or air-gapped estates, then emits metadata, hashes, risk scores, finding metadata, and evidence references only. See [Zero-Trust Scanner Agent](zero-trust-scanner-agent.md).
+
+The public gate validates the scanner result schema, recursive raw-egress sanitizer, hash-only scan result builder, negative raw-egress fixture, sample readiness packet, and sanitized live packet. Production tenants still provide private scanner packaging, real deployment evidence, network controls, and operating evidence inside the Enterprise evidence room.

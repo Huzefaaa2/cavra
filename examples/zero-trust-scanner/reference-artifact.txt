@@ -1,0 +1,1 @@
+CAVRA public-safe zero-trust scanner reference artifact.

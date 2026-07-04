@@ -1,0 +1,38 @@
+{
+  "schema_version": "cavra.zero-trust-scanner.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "deployment": {
+    "supported_modes": ["customer_vpc", "on_prem", "container", "kubernetes", "private_subnet"],
+    "customer_side_execution": true,
+    "outbound_only": true,
+    "private_network_supported": true
+  },
+  "scanner_artifacts": {
+    "artifact_ids": [
+      "scanner_result_contract",
+      "egress_sanitizer",
+      "reference_scan_sample",
+      "negative_egress_fixture",
+      "deployment_topology"
+    ],
+    "versioned": true,
+    "docs_published": true,
+    "reference_result_validated": true
+  },
+  "egress_controls": {
+    "metadata_only": true,
+    "hashes_only_for_artifacts": true,
+    "raw_model_blocked": true,
+    "training_data_blocked": true,
+    "secret_redaction_tested": true,
+    "negative_egress_tests_passed": true
+  },
+  "operating_evidence": {
+    "scanner_owner": "enterprise-model-security@example.invalid",
+    "reference_scan_result_ref": "evidence://zero-trust-scanner/live-reference-result-2026-q3-sanitized",
+    "negative_egress_test_ref": "evidence://zero-trust-scanner/live-negative-egress-2026-q3-sanitized",
+    "deployment_validation_ref": "evidence://zero-trust-scanner/live-deployment-validation-2026-q3-sanitized",
+    "customer_network_boundary_ref": "evidence://zero-trust-scanner/live-customer-network-boundary-2026-q3-sanitized"
+  }
+}

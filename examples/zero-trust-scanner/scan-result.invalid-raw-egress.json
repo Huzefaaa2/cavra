@@ -1,0 +1,16 @@
+{
+  "scanner_id": "cavra-vpc-scanner-01",
+  "environment": "customer_vpc",
+  "asset_ref": "model-registry://mlflow/fraud-risk-scorer/42",
+  "asset_type": "model_artifact",
+  "artifact_digest": "sha256:4a878f5f6fd9c8ce4e6bb39f2a2ef7d3b77809207c79f6fb339fd5f4d21e6d32",
+  "risk_score": 72,
+  "risk_tier": "high",
+  "evidence_ref": "evidence://zero-trust-scanner/sample/fraud-risk-scorer",
+  "findings": [],
+  "metadata": {
+    "model_weights": "FORBIDDEN_RAW_WEIGHTS",
+    "training_data": ["FORBIDDEN_ROW"],
+    "secret": "FORBIDDEN_SECRET"
+  }
+}
