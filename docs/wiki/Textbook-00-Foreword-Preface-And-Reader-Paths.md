@@ -4,9 +4,9 @@
 
 If this is your first time reading about CAVRA, watch the short product introduction first. It shows why runtime authority matters for AI agents, how policy and evidence work together, and how AISPM turns agent activity into security posture.
 
-[![Watch the CAVRA introduction video](assets/textbook/dynamic-runtime-authority-loop.svg)](https://ai.invideo.io/watch/cq7iExDcHvs)
+https://github.com/user-attachments/assets/c69dd45a-fb2c-4181-89d6-7cc014531b83
 
-[Watch the CAVRA introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs)
+If the embedded GitHub player does not load in your browser, use the hosted backup: [Watch the CAVRA introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs).
 
 ## Chapter 0: The Nightmare Scenario
 

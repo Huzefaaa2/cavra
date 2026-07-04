@@ -16,12 +16,9 @@ The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind
 
 Start with the CAVRA product introduction video to see the runtime authority model, evidence flow, AISPM posture loop, and product paths before reading the full documentation.
 
-
 https://github.com/user-attachments/assets/60105a67-7c2f-4fda-8743-4d53146c3983
 
-
-
-[![Watch the CAVRA introduction video](assets/brand/png/cavra-thumbnail-1280x640.png)](https://ai.invideo.io/watch/cq7iExDcHvs)
+If the embedded GitHub player does not load in your browser, use the hosted backup: [Watch the introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs).
 
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
