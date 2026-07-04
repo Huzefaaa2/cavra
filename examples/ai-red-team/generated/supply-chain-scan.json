@@ -1,0 +1,38 @@
+{
+  "schema_version": "cavra.ai-supply-chain.scan.v1",
+  "artifact_ref": "model://fraud-detector/v42",
+  "valid": true,
+  "blocker_count": 0,
+  "checks": [
+    {
+      "name": "artifact_digest",
+      "status": "pass",
+      "message": "AI artifact digest is hash-based."
+    },
+    {
+      "name": "provenance_ref",
+      "status": "pass",
+      "message": "AI artifact provenance reference is present."
+    },
+    {
+      "name": "sbom_ref",
+      "status": "pass",
+      "message": "AI artifact SBOM reference is present."
+    },
+    {
+      "name": "serialization_safety",
+      "status": "pass",
+      "message": "AI artifact uses an approved serialization format."
+    },
+    {
+      "name": "dependency_allowlist",
+      "status": "pass",
+      "message": "AI artifact dependencies are pinned and from approved reference namespaces."
+    },
+    {
+      "name": "no_raw_model_egress",
+      "status": "pass",
+      "message": "AI artifact metadata contains references, hashes, and evidence only."
+    }
+  ]
+}

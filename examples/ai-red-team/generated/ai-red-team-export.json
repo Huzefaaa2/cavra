@@ -1,0 +1,12 @@
+{
+  "artifacts": {
+    "artifact_metadata": "examples/ai-red-team/generated/ai-artifact-metadata.json",
+    "guardrail_test_suite": "examples/ai-red-team/generated/guardrail-test-suite.json",
+    "malicious_model_checks": "examples/ai-red-team/generated/malicious-model-checks.json",
+    "readiness_packet": "examples/ai-red-team/generated/ai-red-team-readiness-packet.json",
+    "red_team_run_report": "examples/ai-red-team/generated/red-team-run-report.json",
+    "supply_chain_scan": "examples/ai-red-team/generated/supply-chain-scan.json"
+  },
+  "output_dir": "examples/ai-red-team/generated",
+  "schema_version": "cavra.ai-red-team.export.v1"
+}

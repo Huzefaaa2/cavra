@@ -1,0 +1,20 @@
+{
+  "artifact_ref": "model://fraud-detector/v42",
+  "artifact_type": "model",
+  "artifact_digest": "sha256:7b4c920bc3a8f19dc2d724d1f9b6b2b2f79f2f51d3cf437d1e882b1f7a6c109a",
+  "provenance_ref": "evidence://model-registry/fraud-detector/v42/provenance",
+  "sbom_ref": "evidence://model-registry/fraud-detector/v42/sbom",
+  "serialization_format": "safetensors",
+  "allow_remote_code": false,
+  "dependency_refs": [
+    "pypi:transformers@4.53.0",
+    "pypi:safetensors@0.5.3"
+  ],
+  "model_card_ref": "registry://mlflow/fraud-detector/v42/model-card",
+  "lineage_ref": "registry://mlflow/fraud-detector/v42/lineage",
+  "metadata": {
+    "owner_ref": "group/model-risk",
+    "risk_tier": "high",
+    "scanner_evidence_ref": "evidence://zero-trust-scanner/fraud-detector/v42"
+  }
+}

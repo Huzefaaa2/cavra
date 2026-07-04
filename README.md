@@ -22,6 +22,8 @@ For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](do
 
 For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
 
+For native AI risk validation, read [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md). It defines public guardrail tests, AI artifact supply-chain checks, malicious model checks, and red-team readiness packets without raw prompt or model egress.
+
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 
 ## What CAVRA Does
@@ -210,6 +212,7 @@ Start with the wiki textbook:
 - [CAVRA Continuous Monitoring Event Core](docs/continuous-monitoring-event-core.md)
 - [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md)
 - [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md)
+- [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

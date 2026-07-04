@@ -1,0 +1,28 @@
+{
+  "schema_version": "cavra.malicious-model.checks.v1",
+  "artifact_ref": "model://fraud-detector/v42",
+  "passed": true,
+  "blocker_count": 0,
+  "checks": [
+    {
+      "name": "unsafe_serialization",
+      "status": "pass",
+      "message": "Model artifact avoids unsafe Python object serialization."
+    },
+    {
+      "name": "remote_code_execution",
+      "status": "pass",
+      "message": "Model artifact does not require remote code execution."
+    },
+    {
+      "name": "hidden_prompt_payload",
+      "status": "pass",
+      "message": "Model metadata does not include hidden prompt payloads."
+    },
+    {
+      "name": "dependency_confusion",
+      "status": "pass",
+      "message": "Model dependencies are pinned to approved package namespaces."
+    }
+  ]
+}

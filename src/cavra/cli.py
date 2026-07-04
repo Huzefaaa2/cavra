@@ -12,6 +12,16 @@ from rich.json import JSON
 from cavra import __version__
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
+from cavra.ai_red_team import (
+    build_ai_red_team_readiness_packet,
+    build_guardrail_test_suite,
+    build_sample_ai_artifact_metadata,
+    run_guardrail_test_suite,
+    run_malicious_model_checks,
+    validate_ai_red_team_readiness_packet,
+    validate_ai_supply_chain_metadata,
+    write_ai_red_team_artifacts,
+)
 from cavra.benchmark_slo import (
     build_benchmark_readiness_packet,
     build_reference_benchmark_report,
@@ -264,6 +274,7 @@ aispm_app = typer.Typer(help="AI Security Posture Management commands.")
 monitor_app = typer.Typer(help="Continuous monitoring event commands.")
 benchmark_app = typer.Typer(help="Benchmark and SLO regression commands.")
 adapter_app = typer.Typer(help="Generic agent adapter and action taxonomy commands.")
+ai_red_team_app = typer.Typer(help="Native AI red-team, guardrail, and supply-chain commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -280,11 +291,84 @@ app.add_typer(aispm_app, name="aispm")
 app.add_typer(monitor_app, name="monitor")
 app.add_typer(benchmark_app, name="benchmark")
 app.add_typer(adapter_app, name="adapter")
+app.add_typer(ai_red_team_app, name="ai-red-team")
 
 
 @app.command()
 def version() -> None:
     typer.echo(f"cavra {__version__}")
+
+
+@ai_red_team_app.command("guardrails")
+def ai_red_team_guardrails(
+    suite: Annotated[Optional[Path], typer.Option(help="Optional guardrail test suite JSON.")] = None,
+) -> None:
+    """Run native LLM guardrail tests."""
+    payload = json.loads(suite.read_text(encoding="utf-8")) if suite else build_guardrail_test_suite()
+    result = run_guardrail_test_suite(payload)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if not result["passed"]:
+        raise typer.Exit(code=1)
+
+
+@ai_red_team_app.command("supply-chain")
+def ai_red_team_supply_chain(
+    artifact: Annotated[Optional[Path], typer.Option(help="Optional AI artifact metadata JSON.")] = None,
+) -> None:
+    """Validate AI artifact supply-chain metadata."""
+    payload = json.loads(artifact.read_text(encoding="utf-8")) if artifact else build_sample_ai_artifact_metadata()
+    result = validate_ai_supply_chain_metadata(payload)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if not result["valid"]:
+        raise typer.Exit(code=1)
+
+
+@ai_red_team_app.command("malicious-model")
+def ai_red_team_malicious_model(
+    artifact: Annotated[Optional[Path], typer.Option(help="Optional AI artifact metadata JSON.")] = None,
+) -> None:
+    """Run malicious model checks against AI artifact metadata."""
+    payload = json.loads(artifact.read_text(encoding="utf-8")) if artifact else build_sample_ai_artifact_metadata()
+    result = run_malicious_model_checks(payload)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if not result["passed"]:
+        raise typer.Exit(code=1)
+
+
+@ai_red_team_app.command("export")
+def ai_red_team_export(
+    output_dir: Annotated[Path, typer.Option(help="Directory for AI red-team artifacts.")] = Path("dist/ai-red-team"),
+) -> None:
+    """Export native AI red-team, supply-chain, malicious-model, and readiness artifacts."""
+    result = write_ai_red_team_artifacts(output_dir)
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@ai_red_team_app.command("readiness")
+def ai_red_team_readiness(
+    packet: Annotated[Path, typer.Argument(help="AI red-team readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate an AI red-team readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_ai_red_team_readiness_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_ai_red_team_gate"]):
+        raise typer.Exit(code=1)
+
+
+@ai_red_team_app.command("packet")
+def ai_red_team_packet(
+    evidence_mode: Annotated[str, typer.Option(help="Evidence mode for generated packet.")] = "sample",
+) -> None:
+    """Emit a generated AI red-team readiness packet."""
+    suite = build_guardrail_test_suite()
+    run_report = run_guardrail_test_suite(suite)
+    artifact = build_sample_ai_artifact_metadata()
+    scan = validate_ai_supply_chain_metadata(artifact)
+    malicious = run_malicious_model_checks(artifact)
+    packet = build_ai_red_team_readiness_packet(suite, run_report, scan, malicious, evidence_mode=evidence_mode)
+    console.print(JSON(json.dumps(packet, indent=2)))
 
 
 @adapter_app.command("taxonomy")
