@@ -50,3 +50,9 @@ Supported delivery providers are Splunk, Microsoft Sentinel, Datadog, Slack, Mic
 CAVRA now includes a public connector SDK contract for certified Enterprise integrations. The SDK defines a versioned connector manifest, required security flags, certification test suites, compatibility metadata, a reference webhook connector manifest, a certification packet builder, and sample/live readiness gates.
 
 Start with [Connector SDK And Certification](connector-sdk-certification.md). R4.1 provides the interface and certification harness; R4.2 will use it to certify provider-specific connectors across SCM, CI/CD, SIEM, ITSM, and communications systems.
+
+## Priority Certified Connectors
+
+The first certified connector wave is documented in [Priority Certified Connectors](priority-certified-connectors.md). It covers GitHub, GitLab, Azure Repos, GitHub Actions, Jenkins, Splunk, Microsoft Sentinel, ServiceNow, Jira, Slack, and Microsoft Teams.
+
+The public repository validates manifests, provider coverage, compatibility metadata, request specs, redaction behavior, sample packets, and sanitized live packet shape. Production tenants still provide real credentials, provider sandbox logs, firewall evidence, credential custody records, and support ownership during deployment.

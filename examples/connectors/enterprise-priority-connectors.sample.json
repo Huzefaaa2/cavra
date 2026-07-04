@@ -1,0 +1,43 @@
+{
+  "schema_version": "cavra.certified-connectors.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "sample",
+  "provider_registry": {
+    "provider_ids": [
+      "azure_repos",
+      "github",
+      "github_actions",
+      "gitlab",
+      "jenkins",
+      "jira",
+      "sentinel",
+      "servicenow",
+      "slack",
+      "splunk",
+      "teams"
+    ],
+    "manifests_published": true,
+    "certification_packets_generated": true,
+    "compatibility_matrix_generated": true
+  },
+  "provider_groups": {
+    "scm": ["github", "gitlab", "azure_repos"],
+    "ci_cd": ["github_actions", "jenkins"],
+    "siem": ["splunk", "sentinel"],
+    "itsm": ["servicenow", "jira"],
+    "chatops": ["slack", "teams"]
+  },
+  "delivery_contracts": {
+    "request_specs_tested": true,
+    "redaction_tested": true,
+    "auth_modes_documented": true,
+    "provider_payloads_supported": true
+  },
+  "operating_evidence": {
+    "connector_owner": "product-security@example.invalid",
+    "registry_review_ref": "evidence://sample/priority-connector-registry-review",
+    "live_sandbox_validation_ref": "evidence://sample/priority-connector-sandbox-validation",
+    "compatibility_matrix_ref": "evidence://sample/priority-connector-compatibility-matrix",
+    "credential_custody_ref": "evidence://sample/priority-connector-credential-custody"
+  }
+}

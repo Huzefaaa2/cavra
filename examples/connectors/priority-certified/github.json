@@ -1,0 +1,71 @@
+{
+  "auth": {
+    "modes": [
+      "bearer_token",
+      "oidc_workload_identity"
+    ],
+    "secret_fields": [
+      "authorization",
+      "token",
+      "api_key",
+      "webhook_url",
+      "client_secret"
+    ]
+  },
+  "capabilities": [
+    "required_check",
+    "repository_dispatch",
+    "pull_request_comment",
+    "audit_metadata"
+  ],
+  "category": "scm",
+  "certification_tier": "certified",
+  "compatibility": {
+    "api_contract": "openapi/cavra-api.openapi.json",
+    "cavra_versions": [
+      "1.0.0"
+    ],
+    "connector_sdk": "1.0"
+  },
+  "connector_id": "cavra-certified-github",
+  "display_name": "GitHub Connector",
+  "entrypoint": "cavra.connectors.github:CertifiedConnector",
+  "provider": "github",
+  "runtime": {
+    "language": "python",
+    "max_retries_default": 2,
+    "min_python": "3.9",
+    "network_required": true,
+    "timeout_seconds_default": 10
+  },
+  "schema_version": "cavra.connector.sdk.manifest.v1",
+  "sdk_version": "1.0",
+  "security": {
+    "does_not_log_payload_secrets": true,
+    "idempotency_supported": true,
+    "redacts_secrets": true,
+    "supports_retries": true,
+    "supports_timeout": true,
+    "tenant_scope_required": true
+  },
+  "supported_events": [
+    "cavra.runtime.decision",
+    "cavra.evidence_bundle",
+    "cavra.pr.attestation"
+  ],
+  "tests": {
+    "fixtures": [
+      "examples/connectors/priority-certified/github.json"
+    ],
+    "suites": [
+      "auth",
+      "compatibility",
+      "contract",
+      "redaction",
+      "retry",
+      "timeout",
+      "unit"
+    ]
+  },
+  "version": "2026.07"
+}

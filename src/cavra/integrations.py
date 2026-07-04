@@ -112,6 +112,11 @@ INTEGRATION_CATEGORIES = {
 INTEGRATION_STATUSES = {"planned", "configured", "active", "paused", "disabled"}
 INTEGRATION_HEALTH = {"unknown", "healthy", "degraded", "failed", "not_checked"}
 CONNECTOR_PROVIDERS = {
+    "github",
+    "gitlab",
+    "azure_repos",
+    "github_actions",
+    "jenkins",
     "splunk",
     "sentinel",
     "datadog",
@@ -381,7 +386,18 @@ def build_connector_request_specs(event: dict[str, Any], config: dict[str, Any])
         if not url:
             raise ValueError(f"connector {provider} must configure url or url_env")
         headers = {"content-type": "application/json", **_configured_headers(provider_config)}
-        if provider in {"splunk", "sentinel", "datadog", "jira", "servicenow"} and not _has_auth(headers, provider_config):
+        if provider in {
+            "github",
+            "gitlab",
+            "azure_repos",
+            "github_actions",
+            "jenkins",
+            "splunk",
+            "sentinel",
+            "datadog",
+            "jira",
+            "servicenow",
+        } and not _has_auth(headers, provider_config):
             raise ValueError(f"connector {provider} must configure token_env, authorization_env, api_key_env, or authorization header")
         specs[provider] = {
             "method": str(provider_config.get("method", "POST")),
@@ -700,6 +716,34 @@ def _connector_body(provider: str, event: dict[str, Any], provider_config: dict[
         return {"records": build_sentinel_events(event)}
     if provider == "datadog":
         return {"events": build_datadog_events(event, service=str(provider_config.get("service", "cavra")))}
+    if provider == "github":
+        return {
+            "event_type": str(provider_config.get("event_type", "cavra_runtime_event")),
+            "client_payload": _connector_event_summary(event),
+        }
+    if provider == "gitlab":
+        return {
+            "ref": str(provider_config.get("ref", "main")),
+            "variables": _ci_variable_payload(event, prefix="CAVRA"),
+        }
+    if provider == "azure_repos":
+        return {
+            "eventType": str(event.get("event_type", "cavra.runtime.decision")),
+            "publisherId": "cavra",
+            "resource": _connector_event_summary(event),
+        }
+    if provider == "github_actions":
+        return {
+            "ref": str(provider_config.get("ref", "main")),
+            "inputs": _ci_variable_payload(event, prefix="cavra"),
+        }
+    if provider == "jenkins":
+        return {
+            "parameters": [
+                {"name": name, "value": value}
+                for name, value in _ci_variable_payload(event, prefix="CAVRA").items()
+            ]
+        }
     if provider == "webhook":
         return build_webhook_payload(event)
     if provider == "slack":
@@ -754,6 +798,30 @@ def _connector_body(provider: str, event: dict[str, Any], provider_config: dict[
     if provider in {"jamf", "intune", "linux"}:
         return build_webhook_payload(event)
     raise ValueError(f"unsupported connector provider: {provider}")
+
+
+def _connector_event_summary(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "product": event.get("product", "CAVRA"),
+        "event_type": event.get("event_type", "cavra.connector.event"),
+        "event_id": _event_identity(event),
+        "session_id": event.get("session_id"),
+        "decision_count": event.get("decision_count", 0),
+        "blocked_count": event.get("blocked_count", 0),
+        "approval_required_count": event.get("approval_required_count", 0),
+        "max_severity": event.get("max_severity", "low"),
+    }
+
+
+def _ci_variable_payload(event: dict[str, Any], *, prefix: str) -> dict[str, str]:
+    summary = _connector_event_summary(event)
+    return {
+        f"{prefix}_EVENT_TYPE": str(summary["event_type"]),
+        f"{prefix}_EVENT_ID": str(summary["event_id"]),
+        f"{prefix}_SESSION_ID": str(summary.get("session_id") or ""),
+        f"{prefix}_BLOCKED_COUNT": str(summary["blocked_count"]),
+        f"{prefix}_MAX_SEVERITY": str(summary["max_severity"]),
+    }
 
 
 def _deliver_one_connector(

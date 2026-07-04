@@ -1,0 +1,43 @@
+{
+  "schema_version": "cavra.certified-connectors.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "provider_registry": {
+    "provider_ids": [
+      "azure_repos",
+      "github",
+      "github_actions",
+      "gitlab",
+      "jenkins",
+      "jira",
+      "sentinel",
+      "servicenow",
+      "slack",
+      "splunk",
+      "teams"
+    ],
+    "manifests_published": true,
+    "certification_packets_generated": true,
+    "compatibility_matrix_generated": true
+  },
+  "provider_groups": {
+    "scm": ["github", "gitlab", "azure_repos"],
+    "ci_cd": ["github_actions", "jenkins"],
+    "siem": ["splunk", "sentinel"],
+    "itsm": ["servicenow", "jira"],
+    "chatops": ["slack", "teams"]
+  },
+  "delivery_contracts": {
+    "request_specs_tested": true,
+    "redaction_tested": true,
+    "auth_modes_documented": true,
+    "provider_payloads_supported": true
+  },
+  "operating_evidence": {
+    "connector_owner": "enterprise-connectors@example.invalid",
+    "registry_review_ref": "evidence://priority-connectors/live-registry-review-2026-q3-sanitized",
+    "live_sandbox_validation_ref": "evidence://priority-connectors/live-sandbox-validation-2026-q3-sanitized",
+    "compatibility_matrix_ref": "evidence://priority-connectors/live-compatibility-matrix-2026-q3-sanitized",
+    "credential_custody_ref": "evidence://priority-connectors/live-credential-custody-2026-q3-sanitized"
+  }
+}

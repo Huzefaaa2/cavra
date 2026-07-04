@@ -1,0 +1,108 @@
+name: Priority Certified Connectors
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the priority connector readiness packet JSON."
+        required: false
+        default: "examples/connectors/enterprise-priority-connectors.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/certified_connectors.py"
+      - "src/cavra/integrations.py"
+      - "scripts/validate_priority_connectors.py"
+      - "examples/connectors/priority-certified/**"
+      - "examples/connectors/enterprise-priority-connectors*.json"
+      - "tests/test_certified_connectors.py"
+      - ".github/workflows/priority-connectors.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/certified_connectors.py"
+      - "src/cavra/integrations.py"
+      - "scripts/validate_priority_connectors.py"
+      - "examples/connectors/priority-certified/**"
+      - "examples/connectors/enterprise-priority-connectors*.json"
+      - "tests/test_certified_connectors.py"
+      - ".github/workflows/priority-connectors.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  priority-connectors-contract:
+    name: Validate priority connector contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate built-in registry
+        run: |
+          python scripts/validate_priority_connectors.py \
+            --registry \
+            --output dist/priority-connector-registry.json
+      - name: Validate checked-in manifests
+        run: |
+          python scripts/validate_priority_connectors.py \
+            --manifest-dir examples/connectors/priority-certified \
+            --output dist/priority-connector-manifests.json
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_priority_connectors.py \
+            --packet examples/connectors/enterprise-priority-connectors.sample.json \
+            --output dist/enterprise-priority-connectors-sample.json
+      - name: Validate sanitized live packet
+        run: |
+          python scripts/validate_priority_connectors.py \
+            --packet examples/connectors/enterprise-priority-connectors.live.sanitized.example.json \
+            --require-live \
+            --output dist/enterprise-priority-connectors-live-sanitized.json
+      - name: Test priority connectors
+        run: python -m pytest tests/test_certified_connectors.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: priority-connectors
+          path: |
+            dist/priority-connector-registry.json
+            dist/priority-connector-manifests.json
+            dist/enterprise-priority-connectors-sample.json
+            dist/enterprise-priority-connectors-live-sanitized.json
+
+  priority-connectors-live:
+    name: Validate selected live priority connector packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_priority_connectors.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-priority-connectors-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: priority-connectors-live
+          path: dist/enterprise-priority-connectors-live.json
