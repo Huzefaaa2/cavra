@@ -1,0 +1,75 @@
+{
+  "cavra": {
+    "policy": {
+      "metadata": {
+        "id": "cavra-ai-agent-baseline",
+        "title": "CAVRA AI Agent Baseline",
+        "description": "Baseline rules for AI agent runtime governance.",
+        "version": "0.1.0"
+      },
+      "filesystem": {
+        "block_read": [
+          "**/*.pem",
+          "**/*.pfx",
+          "**/id_rsa",
+          "**/kubeconfig",
+          "**/secrets.*",
+          "**/terraform.tfstate",
+          "**/terraform.tfvars",
+          ".env"
+        ],
+        "block_write": [
+          "**/backend.tf",
+          "**/main.tf",
+          "**/providers.tf",
+          ".github/workflows/**"
+        ],
+        "require_approval_write": [
+          "iam/**",
+          "policies/**",
+          "security/**"
+        ]
+      },
+      "commands": {
+        "block": [
+          "aws iam create-access-key*",
+          "az role assignment create*",
+          "gcloud projects add-iam-policy-binding*",
+          "git push origin main",
+          "git push origin master",
+          "kubectl delete*",
+          "terraform apply*"
+        ],
+        "allow": [
+          "npm test*",
+          "pytest*",
+          "terraform fmt*",
+          "terraform plan*",
+          "terraform validate*"
+        ],
+        "block_regex": {
+          "aws iam create-access-key*": "^aws\\ iam\\ create\\-access\\-key.*$",
+          "az role assignment create*": "^az\\ role\\ assignment\\ create.*$",
+          "gcloud projects add-iam-policy-binding*": "^gcloud\\ projects\\ add\\-iam\\-policy\\-binding.*$",
+          "git push origin main": "^git\\ push\\ origin\\ main$",
+          "git push origin master": "^git\\ push\\ origin\\ master$",
+          "kubectl delete*": "^kubectl\\ delete.*$",
+          "terraform apply*": "^terraform\\ apply.*$"
+        },
+        "allow_regex": {
+          "npm test*": "^npm\\ test.*$",
+          "pytest*": "^pytest.*$",
+          "terraform fmt*": "^terraform\\ fmt.*$",
+          "terraform plan*": "^terraform\\ plan.*$",
+          "terraform validate*": "^terraform\\ validate.*$"
+        }
+      },
+      "git": {},
+      "mcp": {
+        "block_unknown_servers": true,
+        "allowed_servers": [],
+        "blocked_servers": []
+      }
+    }
+  }
+}

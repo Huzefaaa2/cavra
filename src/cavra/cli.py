@@ -89,6 +89,12 @@ from cavra.policy_engine import (
     verify_policy_signature,
     write_policy_signature,
 )
+from cavra.opa_rego_policy import (
+    build_rego_policy_bundle,
+    run_rego_parity_report,
+    validate_opa_rego_policy_packet,
+    write_rego_bundle,
+)
 from cavra.policy_registry import PolicyRegistry
 from cavra.registry import (
     RegistryStore,
@@ -1029,6 +1035,44 @@ def compile_policy(
             console.print(f"  - {error}")
         raise typer.Exit(code=1)
     console.print(JSON(json.dumps(compiled, indent=2)))
+
+
+@policy_app.command("rego-export")
+def rego_export_policy(
+    policy_pack: Annotated[str, typer.Option(help="Base policy pack ID.")] = "cavra-ai-agent-baseline",
+    output_dir: Annotated[Path, typer.Option(help="Directory for generated Rego module, data, fixtures, and manifest.")] = Path(
+        "dist/opa-rego"
+    ),
+    overlay: Annotated[Optional[list[Path]], typer.Option(help="Policy YAML or pack directory overlay.")] = None,
+) -> None:
+    """Export a CAVRA policy pack to a public-safe OPA/Rego compatibility bundle."""
+    bundle = build_rego_policy_bundle(policy_pack, overlays=overlay or [])
+    result = write_rego_bundle(bundle, output_dir)
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@policy_app.command("rego-test")
+def rego_test_policy(
+    policy_pack: Annotated[str, typer.Option(help="Base policy pack ID.")] = "cavra-ai-agent-baseline",
+) -> None:
+    """Run Rego/Python parity tests for the generated policy path."""
+    report = run_rego_parity_report(policy_pack)
+    console.print(JSON(json.dumps(report, indent=2)))
+    if not report["passed"]:
+        raise typer.Exit(code=1)
+
+
+@policy_app.command("rego-readiness")
+def rego_readiness_policy(
+    packet: Annotated[Path, typer.Argument(help="OPA/Rego policy readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate an OPA/Rego policy readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_opa_rego_policy_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_opa_rego_policy_path"]):
+        raise typer.Exit(code=1)
 
 
 @policy_app.command("diff")

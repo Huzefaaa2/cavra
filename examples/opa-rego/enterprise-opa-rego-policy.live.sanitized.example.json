@@ -1,0 +1,48 @@
+{
+  "schema_version": "cavra.opa-rego-policy.readiness.v1",
+  "evidence_mode": "live",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "rego_artifacts": {
+    "artifact_ids": [
+      "rego_module",
+      "rego_data",
+      "opa_input_fixtures",
+      "parity_test_report",
+      "policy_version_manifest"
+    ],
+    "git_versioned": true,
+    "signed_or_reviewed": true,
+    "artifact_refs": [
+      "git://cavra/policies/cavra-ai-agent-baseline/policy.yaml@sha256-public-safe",
+      "git://cavra/examples/opa-rego/generated/cavra_policy.rego@sha256-public-safe",
+      "git://cavra/examples/opa-rego/generated/data.json@sha256-public-safe",
+      "git://cavra/examples/opa-rego/generated/opa-input-fixtures.json@sha256-public-safe",
+      "git://cavra/examples/opa-rego/generated/rego-parity-report.json@sha256-public-safe",
+      "git://cavra/examples/opa-rego/generated/policy-version-manifest.json@sha256-public-safe"
+    ]
+  },
+  "parity_tests": {
+    "case_ids": [
+      "block_env_read",
+      "approval_policy_write",
+      "allow_terraform_plan",
+      "block_terraform_apply",
+      "block_protected_branch_push",
+      "block_unknown_mcp_server"
+    ],
+    "passed_count": 6,
+    "failed_count": 0,
+    "parity_report_ref": "evidence://tenant-redacted/opa-rego/parity-report-2026-07"
+  },
+  "policy_lifecycle": {
+    "source_policy_yaml": "git://tenant-redacted/policies/cavra-ai-agent-baseline/policy.yaml@sha256-redacted",
+    "generated_rego_module": "git://tenant-redacted/policies/generated/cavra_policy.rego@sha256-redacted",
+    "review_workflow_ref": "evidence://tenant-redacted/policy-review/opa-rego-2026-07",
+    "rollback_ref": "evidence://tenant-redacted/policy-rollback/opa-rego-baseline"
+  },
+  "operating_evidence": {
+    "ci_run_ref": "evidence://tenant-redacted/ci/opa-rego-policy-gate",
+    "parity_report_ref": "evidence://tenant-redacted/opa-rego/parity-report-2026-07",
+    "policy_review_ref": "evidence://tenant-redacted/policy-review/opa-rego-2026-07"
+  }
+}

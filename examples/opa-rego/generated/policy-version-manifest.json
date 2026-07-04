@@ -1,0 +1,10 @@
+{
+  "policy_id": "cavra-ai-agent-baseline",
+  "policy_version": "0.1.0",
+  "source_format": "cavra-policy-yaml",
+  "generated_formats": [
+    "rego",
+    "json-data",
+    "opa-input-fixtures"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "cavra.opa-rego-policy.readiness.v1",
+  "evidence_mode": "sample",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "rego_artifacts": {
+    "artifact_ids": [
+      "rego_module",
+      "rego_data",
+      "opa_input_fixtures",
+      "parity_test_report",
+      "policy_version_manifest"
+    ],
+    "git_versioned": true,
+    "signed_or_reviewed": true,
+    "artifact_refs": [
+      "examples/opa-rego/generated/cavra_policy.rego",
+      "examples/opa-rego/generated/data.json",
+      "examples/opa-rego/generated/opa-input-fixtures.json",
+      "examples/opa-rego/generated/rego-parity-report.json",
+      "examples/opa-rego/generated/policy-version-manifest.json"
+    ]
+  },
+  "parity_tests": {
+    "case_ids": [
+      "block_env_read",
+      "approval_policy_write",
+      "allow_terraform_plan",
+      "block_terraform_apply",
+      "block_protected_branch_push",
+      "block_unknown_mcp_server"
+    ],
+    "passed_count": 6,
+    "failed_count": 0,
+    "parity_report_ref": "examples/opa-rego/generated/rego-parity-report.json"
+  },
+  "policy_lifecycle": {
+    "source_policy_yaml": "policies/cavra-ai-agent-baseline/policy.yaml",
+    "generated_rego_module": "examples/opa-rego/generated/cavra_policy.rego",
+    "review_workflow_ref": "docs/policy-opa-rego-path.md#review-workflow",
+    "rollback_ref": "docs/policy-opa-rego-path.md#rollback"
+  },
+  "operating_evidence": {
+    "ci_run_ref": "evidence://sample/opa-rego/ci",
+    "parity_report_ref": "examples/opa-rego/generated/rego-parity-report.json",
+    "policy_review_ref": "evidence://sample/opa-rego/review"
+  }
+}

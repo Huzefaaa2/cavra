@@ -1,0 +1,6 @@
+{
+  "schema_version": "cavra.opa-rego-policy.input.v1",
+  "action_type": "read_file",
+  "target": ".env",
+  "requested_operation": "read"
+}
