@@ -1,0 +1,41 @@
+{
+  "schema_version": "cavra.generic-agent-adapter.manifest.v1",
+  "adapter_id": "cavra-reference-business-agent",
+  "display_name": "CAVRA Reference Business Agent Adapter",
+  "version": "2026.07",
+  "domains": [
+    "data",
+    "identity",
+    "sales",
+    "support",
+    "model_governance"
+  ],
+  "supported_actions": [
+    "knowledge.search",
+    "ticket.summarize",
+    "crm.update_record",
+    "data.export_dataset",
+    "identity.grant_role",
+    "model.promote"
+  ],
+  "runtime_contract": {
+    "pre_action_evaluation_required": true,
+    "decision_required_before_execution": true,
+    "evidence_ref_required_after_execution": true,
+    "fail_closed_on_cavra_unavailable": true
+  },
+  "security": {
+    "tenant_scope_required": true,
+    "workspace_scope_required": true,
+    "raw_secret_egress_allowed": false,
+    "raw_customer_data_egress_allowed": false,
+    "human_approval_supported": true
+  },
+  "compatibility": {
+    "taxonomy_schema": "cavra.generic-agent-adapter.taxonomy.v1",
+    "cavra_versions": [
+      "1.0.0"
+    ],
+    "api_contract": "openapi/cavra-api.openapi.json"
+  }
+}

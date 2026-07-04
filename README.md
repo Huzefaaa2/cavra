@@ -20,6 +20,8 @@ For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Ent
 
 For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
 
+For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
+
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 
 ## What CAVRA Does
@@ -206,6 +208,8 @@ Start with the wiki textbook:
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)
 - [CAVRA Policy Lifecycle Tooling](docs/policy-lifecycle-tooling.md)
 - [CAVRA Continuous Monitoring Event Core](docs/continuous-monitoring-event-core.md)
+- [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md)
+- [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

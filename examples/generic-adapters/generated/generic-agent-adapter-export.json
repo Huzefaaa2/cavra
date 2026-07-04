@@ -1,0 +1,11 @@
+{
+  "artifacts": {
+    "adapter_manifest": "examples/generic-adapters/generated/adapter-manifest.json",
+    "evaluation_report": "examples/generic-adapters/generated/evaluation-report.json",
+    "readiness_packet": "examples/generic-adapters/generated/generic-agent-adapter-readiness-packet.json",
+    "sample_actions": "examples/generic-adapters/generated/non-coding-agent-actions.json",
+    "taxonomy": "examples/generic-adapters/generated/action-taxonomy.json"
+  },
+  "output_dir": "examples/generic-adapters/generated",
+  "schema_version": "cavra.generic-agent-adapter.export.v1"
+}

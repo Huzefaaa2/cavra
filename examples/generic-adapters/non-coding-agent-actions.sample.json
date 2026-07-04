@@ -1,0 +1,64 @@
+{
+  "actions": [
+    {
+      "action_id": "generic-action-001",
+      "adapter_id": "cavra-reference-business-agent",
+      "agent_id": "support-copilot",
+      "actor": "ai-agent",
+      "tenant_id": "tenant-sample",
+      "workspace_id": "workspace-support",
+      "action_type": "ticket.summarize",
+      "target": "ticket/INC-1042",
+      "requested_operation": "summarize ticket and recommend response",
+      "metadata": {
+        "system": "servicedesk",
+        "contains_customer_data": false
+      }
+    },
+    {
+      "action_id": "generic-action-002",
+      "adapter_id": "cavra-reference-business-agent",
+      "agent_id": "revenue-copilot",
+      "actor": "ai-agent",
+      "tenant_id": "tenant-sample",
+      "workspace_id": "workspace-sales",
+      "action_type": "crm.update_record",
+      "target": "account/acme-corp",
+      "requested_operation": "update renewal stage and next-step note",
+      "metadata": {
+        "system": "crm",
+        "business_impact": "customer-facing"
+      }
+    },
+    {
+      "action_id": "generic-action-003",
+      "adapter_id": "cavra-reference-business-agent",
+      "agent_id": "identity-copilot",
+      "actor": "ai-agent",
+      "tenant_id": "tenant-sample",
+      "workspace_id": "workspace-identity",
+      "action_type": "identity.grant_role",
+      "target": "user/alex@example.com",
+      "requested_operation": "grant global administrator",
+      "metadata": {
+        "privilege": "global_admin",
+        "system": "entra_id"
+      }
+    },
+    {
+      "action_id": "generic-action-004",
+      "adapter_id": "cavra-reference-business-agent",
+      "agent_id": "mlops-copilot",
+      "actor": "ai-agent",
+      "tenant_id": "tenant-sample",
+      "workspace_id": "workspace-ml",
+      "action_type": "model.promote",
+      "target": "model/fraud-detector:v42",
+      "requested_operation": "promote candidate model to production",
+      "metadata": {
+        "registry": "mlflow",
+        "approval_ticket": "MLGOV-221"
+      }
+    }
+  ]
+}

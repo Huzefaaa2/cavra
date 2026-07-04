@@ -1,0 +1,377 @@
+{
+  "schema_version": "cavra.generic-agent-adapter.readiness.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "adapter_manifest": {
+    "schema_version": "cavra.generic-agent-adapter.manifest.v1",
+    "adapter_id": "cavra-reference-business-agent",
+    "display_name": "CAVRA Reference Business Agent Adapter",
+    "version": "2026.07",
+    "domains": [
+      "data",
+      "identity",
+      "sales",
+      "support",
+      "model_governance"
+    ],
+    "supported_actions": [
+      "knowledge.search",
+      "ticket.summarize",
+      "crm.update_record",
+      "data.export_dataset",
+      "identity.grant_role",
+      "model.promote"
+    ],
+    "runtime_contract": {
+      "pre_action_evaluation_required": true,
+      "decision_required_before_execution": true,
+      "evidence_ref_required_after_execution": true,
+      "fail_closed_on_cavra_unavailable": true
+    },
+    "security": {
+      "tenant_scope_required": true,
+      "workspace_scope_required": true,
+      "raw_secret_egress_allowed": false,
+      "raw_customer_data_egress_allowed": false,
+      "human_approval_supported": true
+    },
+    "compatibility": {
+      "taxonomy_schema": "cavra.generic-agent-adapter.taxonomy.v1",
+      "cavra_versions": [
+        "1.0.0"
+      ],
+      "api_contract": "openapi/cavra-api.openapi.json"
+    }
+  },
+  "manifest_validation": {
+    "schema_version": "cavra.generic-agent-adapter.manifest-validation.v1",
+    "adapter_id": "cavra-reference-business-agent",
+    "valid": true,
+    "blocker_count": 0,
+    "checks": [
+      {
+        "name": "schema_version",
+        "status": "pass",
+        "message": "Generic adapter manifest schema is valid."
+      },
+      {
+        "name": "identity",
+        "status": "pass",
+        "message": "Adapter identity and version are declared."
+      },
+      {
+        "name": "domains",
+        "status": "pass",
+        "message": "Adapter domains are supported."
+      },
+      {
+        "name": "supported_actions",
+        "status": "pass",
+        "message": "Adapter supported actions map to the public CAVRA taxonomy."
+      },
+      {
+        "name": "runtime_contract",
+        "status": "pass",
+        "message": "Adapter runtime contract requires pre-action CAVRA decisions and fail-closed behavior."
+      },
+      {
+        "name": "security",
+        "status": "pass",
+        "message": "Adapter security boundary prevents raw secret/customer-data egress and requires scope."
+      }
+    ]
+  },
+  "taxonomy": {
+    "schema_version": "cavra.generic-agent-adapter.taxonomy.v1",
+    "product": "CAVRA",
+    "domains": [
+      "communications",
+      "data",
+      "engineering",
+      "finance",
+      "identity",
+      "model_governance",
+      "sales",
+      "support",
+      "workflow"
+    ],
+    "effects": [
+      "approve",
+      "delete",
+      "execute",
+      "export",
+      "grant",
+      "promote",
+      "read",
+      "send",
+      "write"
+    ],
+    "risk_levels": [
+      "critical",
+      "high",
+      "low",
+      "medium"
+    ],
+    "actions": [
+      {
+        "action_type": "crm.update_record",
+        "domain": "sales",
+        "effect": "write",
+        "risk_level": "medium",
+        "default_decision": "require_approval"
+      },
+      {
+        "action_type": "customer.email_send",
+        "domain": "communications",
+        "effect": "send",
+        "risk_level": "medium",
+        "default_decision": "require_approval"
+      },
+      {
+        "action_type": "data.export_dataset",
+        "domain": "data",
+        "effect": "export",
+        "risk_level": "high",
+        "default_decision": "require_approval"
+      },
+      {
+        "action_type": "finance.release_payment",
+        "domain": "finance",
+        "effect": "approve",
+        "risk_level": "critical",
+        "default_decision": "block"
+      },
+      {
+        "action_type": "identity.grant_role",
+        "domain": "identity",
+        "effect": "grant",
+        "risk_level": "critical",
+        "default_decision": "block"
+      },
+      {
+        "action_type": "knowledge.search",
+        "domain": "data",
+        "effect": "read",
+        "risk_level": "low",
+        "default_decision": "allow"
+      },
+      {
+        "action_type": "model.promote",
+        "domain": "model_governance",
+        "effect": "promote",
+        "risk_level": "high",
+        "default_decision": "require_approval"
+      },
+      {
+        "action_type": "ticket.summarize",
+        "domain": "support",
+        "effect": "read",
+        "risk_level": "low",
+        "default_decision": "allow"
+      },
+      {
+        "action_type": "workflow.close_control",
+        "domain": "workflow",
+        "effect": "approve",
+        "risk_level": "high",
+        "default_decision": "require_approval"
+      }
+    ],
+    "runtime_mappings": {
+      "read_file": "RuntimeGuard.evaluate_file_access(read)",
+      "write_file": "RuntimeGuard.evaluate_file_access(write)",
+      "execute_command": "RuntimeGuard.evaluate_command",
+      "git_operation": "RuntimeGuard.evaluate_git_action",
+      "mcp_tool_call": "RuntimeGuard.evaluate_mcp_tool_call",
+      "generic_non_coding": "Generic action taxonomy policy"
+    }
+  },
+  "evaluation_report": {
+    "schema_version": "cavra.generic-agent-adapter.evaluation-report.v1",
+    "product": "CAVRA",
+    "generated_at": "2026-07-04T14:36:17.298304+00:00",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "action_count": 4,
+    "decision_counts": {
+      "allow": 1,
+      "require_approval": 2,
+      "block": 1
+    },
+    "evaluations": [
+      {
+        "decision_id": "dec_3cec71622d12",
+        "session_id": "generic-adapter:cavra-reference-business-agent",
+        "agent_id": "support-copilot",
+        "actor": "ai-agent",
+        "action_type": "ticket.summarize",
+        "target": "ticket/INC-1042",
+        "requested_operation": "summarize ticket and recommend response",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "policy_id": "cavra-ai-agent-baseline",
+        "rule_id": "generic_adapter.read.allow",
+        "decision": "allow",
+        "severity": "low",
+        "reason": "Low-risk generic action is read-only and allowed by taxonomy.",
+        "evidence_refs": [
+          "evidence://generic-adapter:cavra-reference-business-agent/dec_3cec71622d12"
+        ],
+        "approver_group": null,
+        "timestamp": "2026-07-04T14:36:17.294053+00:00",
+        "correlation_id": "corr_516977a6e525",
+        "schema_version": "cavra.generic-agent-adapter.evaluation.v1",
+        "action_id": "generic-action-001",
+        "adapter_id": "cavra-reference-business-agent",
+        "tenant_id": "tenant-sample",
+        "workspace_id": "workspace-support",
+        "taxonomy": {
+          "domain": "support",
+          "effect": "read",
+          "risk_level": "low",
+          "default_decision": "allow"
+        },
+        "metadata_summary": {
+          "keys": [
+            "contains_customer_data",
+            "system"
+          ],
+          "contains_customer_data": false,
+          "system": "servicedesk"
+        }
+      },
+      {
+        "decision_id": "dec_e078e50e89c3",
+        "session_id": "generic-adapter:cavra-reference-business-agent",
+        "agent_id": "revenue-copilot",
+        "actor": "ai-agent",
+        "action_type": "crm.update_record",
+        "target": "account/acme-corp",
+        "requested_operation": "update renewal stage and next-step note",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "policy_id": "cavra-ai-agent-baseline",
+        "rule_id": "generic_adapter.write.require_approval",
+        "decision": "require_approval",
+        "severity": "medium",
+        "reason": "crm.update_record changes business state; approval is required before execution.",
+        "evidence_refs": [
+          "evidence://generic-adapter:cavra-reference-business-agent/dec_e078e50e89c3"
+        ],
+        "approver_group": "Revenue Operations",
+        "timestamp": "2026-07-04T14:36:17.295643+00:00",
+        "correlation_id": "corr_1653b485200e",
+        "schema_version": "cavra.generic-agent-adapter.evaluation.v1",
+        "action_id": "generic-action-002",
+        "adapter_id": "cavra-reference-business-agent",
+        "tenant_id": "tenant-sample",
+        "workspace_id": "workspace-sales",
+        "taxonomy": {
+          "domain": "sales",
+          "effect": "write",
+          "risk_level": "medium",
+          "default_decision": "require_approval"
+        },
+        "metadata_summary": {
+          "keys": [
+            "business_impact",
+            "system"
+          ],
+          "contains_customer_data": false,
+          "system": "crm"
+        }
+      },
+      {
+        "decision_id": "dec_f4d183b751f1",
+        "session_id": "generic-adapter:cavra-reference-business-agent",
+        "agent_id": "identity-copilot",
+        "actor": "ai-agent",
+        "action_type": "identity.grant_role",
+        "target": "user/alex@example.com",
+        "requested_operation": "grant global administrator",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "policy_id": "cavra-ai-agent-baseline",
+        "rule_id": "generic_adapter.grant.critical.block",
+        "decision": "block",
+        "severity": "critical",
+        "reason": "identity.grant_role is a critical non-coding action and cannot execute without a certified private adapter flow.",
+        "evidence_refs": [
+          "evidence://generic-adapter:cavra-reference-business-agent/dec_f4d183b751f1"
+        ],
+        "approver_group": "Security Operations",
+        "timestamp": "2026-07-04T14:36:17.296923+00:00",
+        "correlation_id": "corr_796b79c21cb6",
+        "schema_version": "cavra.generic-agent-adapter.evaluation.v1",
+        "action_id": "generic-action-003",
+        "adapter_id": "cavra-reference-business-agent",
+        "tenant_id": "tenant-sample",
+        "workspace_id": "workspace-identity",
+        "taxonomy": {
+          "domain": "identity",
+          "effect": "grant",
+          "risk_level": "critical",
+          "default_decision": "block"
+        },
+        "metadata_summary": {
+          "keys": [
+            "privilege",
+            "system"
+          ],
+          "contains_customer_data": false,
+          "system": "entra_id"
+        }
+      },
+      {
+        "decision_id": "dec_5793701db05c",
+        "session_id": "generic-adapter:cavra-reference-business-agent",
+        "agent_id": "mlops-copilot",
+        "actor": "ai-agent",
+        "action_type": "model.promote",
+        "target": "model/fraud-detector:v42",
+        "requested_operation": "promote candidate model to production",
+        "policy_pack": "cavra-ai-agent-baseline",
+        "policy_id": "cavra-ai-agent-baseline",
+        "rule_id": "generic_adapter.promote.require_approval",
+        "decision": "require_approval",
+        "severity": "high",
+        "reason": "model.promote changes business state; approval is required before execution.",
+        "evidence_refs": [
+          "evidence://generic-adapter:cavra-reference-business-agent/dec_5793701db05c"
+        ],
+        "approver_group": "Model Risk Governance",
+        "timestamp": "2026-07-04T14:36:17.298285+00:00",
+        "correlation_id": "corr_e3929c534bee",
+        "schema_version": "cavra.generic-agent-adapter.evaluation.v1",
+        "action_id": "generic-action-004",
+        "adapter_id": "cavra-reference-business-agent",
+        "tenant_id": "tenant-sample",
+        "workspace_id": "workspace-ml",
+        "taxonomy": {
+          "domain": "model_governance",
+          "effect": "promote",
+          "risk_level": "high",
+          "default_decision": "require_approval"
+        },
+        "metadata_summary": {
+          "keys": [
+            "approval_ticket",
+            "registry"
+          ],
+          "contains_customer_data": false,
+          "system": "mlflow"
+        }
+      }
+    ]
+  },
+  "readiness_artifacts": [
+    "adapter_manifest_schema",
+    "ci_validator",
+    "evaluation_report",
+    "sample_action_fixture",
+    "sample_adapter_manifest",
+    "taxonomy_schema"
+  ],
+  "operating_evidence": {
+    "ci_run_ref": "github://Huzefaaa2/cavra/actions/runs/sanitized-generic-agent-adapter",
+    "taxonomy_ref": "evidence://enterprise/generic-adapters/taxonomy/sanitized",
+    "adapter_test_ref": "evidence://enterprise/generic-adapters/evaluation/sanitized",
+    "non_coding_scenario_ref": "evidence://enterprise/generic-adapters/non-coding-scenario/sanitized"
+  }
+}

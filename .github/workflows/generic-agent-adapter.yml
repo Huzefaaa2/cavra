@@ -1,0 +1,87 @@
+name: Generic Agent Adapter SDK
+
+on:
+  pull_request:
+    paths:
+      - "src/cavra/generic_agent_adapter.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_generic_agent_adapter.py"
+      - "examples/generic-adapters/**"
+      - "tests/test_generic_agent_adapter.py"
+      - ".github/workflows/generic-agent-adapter.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/generic_agent_adapter.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_generic_agent_adapter.py"
+      - "examples/generic-adapters/**"
+      - "tests/test_generic_agent_adapter.py"
+      - ".github/workflows/generic-agent-adapter.yml"
+  workflow_dispatch:
+    inputs:
+      live_packet:
+        description: "Path to a live generic adapter readiness packet"
+        required: false
+        default: "examples/generic-adapters/enterprise-generic-agent-adapter.live.sanitized.example.json"
+
+jobs:
+  generic-agent-adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CAVRA
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Export generic adapter reference artifacts
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --export-dir dist/generic-agent-adapter \
+            --output dist/generic-agent-adapter-export.json
+
+      - name: Validate generic action taxonomy
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --taxonomy \
+            --output dist/generic-action-taxonomy.json
+
+      - name: Validate reference business adapter manifest
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --manifest examples/generic-adapters/reference-business-agent.manifest.json \
+            --output dist/reference-business-agent-manifest-validation.json
+
+      - name: Evaluate non-coding sample actions
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --actions examples/generic-adapters/non-coding-agent-actions.sample.json \
+            --output dist/non-coding-agent-action-evaluation.json
+
+      - name: Validate sample readiness packet
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --packet examples/generic-adapters/enterprise-generic-agent-adapter.sample.json \
+            --output dist/enterprise-generic-agent-adapter-sample.json
+
+      - name: Validate live readiness packet contract
+        run: |
+          python scripts/validate_generic_agent_adapter.py \
+            --packet "${{ github.event.inputs.live_packet || 'examples/generic-adapters/enterprise-generic-agent-adapter.live.sanitized.example.json' }}" \
+            --require-live \
+            --output dist/enterprise-generic-agent-adapter-live.json
+
+      - name: Run generic adapter tests
+        run: python -m pytest tests/test_generic_agent_adapter.py -q
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generic-agent-adapter-evidence
+          path: dist/

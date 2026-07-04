@@ -80,6 +80,15 @@ from cavra.go_backend import (
     go_rollback_drill_schedule_report,
     go_rollback_rehearsal_report,
 )
+from cavra.generic_agent_adapter import (
+    build_action_taxonomy,
+    build_sample_adapter_manifest,
+    build_sample_generic_actions,
+    evaluate_generic_actions,
+    validate_adapter_manifest,
+    validate_generic_adapter_readiness_packet,
+    write_generic_adapter_artifacts,
+)
 from cavra.integrations import (
     CommandInterceptor,
     build_connector_delivery_dashboard,
@@ -254,6 +263,7 @@ saas_app = typer.Typer(help="Public-safe SaaS Control Plane contract commands.")
 aispm_app = typer.Typer(help="AI Security Posture Management commands.")
 monitor_app = typer.Typer(help="Continuous monitoring event commands.")
 benchmark_app = typer.Typer(help="Benchmark and SLO regression commands.")
+adapter_app = typer.Typer(help="Generic agent adapter and action taxonomy commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -269,11 +279,83 @@ app.add_typer(saas_app, name="saas")
 app.add_typer(aispm_app, name="aispm")
 app.add_typer(monitor_app, name="monitor")
 app.add_typer(benchmark_app, name="benchmark")
+app.add_typer(adapter_app, name="adapter")
 
 
 @app.command()
 def version() -> None:
     typer.echo(f"cavra {__version__}")
+
+
+@adapter_app.command("taxonomy")
+def adapter_taxonomy(
+    output: Annotated[Optional[Path], typer.Option(help="Optional JSON output path.")] = None,
+) -> None:
+    """Emit the public generic action taxonomy."""
+    taxonomy = build_action_taxonomy()
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(taxonomy, indent=2) + "\n", encoding="utf-8")
+        console.print(f"[green]written[/green] {output}")
+        return
+    console.print(JSON(json.dumps(taxonomy, indent=2)))
+
+
+@adapter_app.command("manifest-validate")
+def adapter_manifest_validate(
+    manifest: Annotated[Path, typer.Argument(help="Generic adapter manifest JSON.")],
+) -> None:
+    """Validate a generic adapter manifest."""
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    result = validate_adapter_manifest(payload)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if not result["valid"]:
+        raise typer.Exit(code=1)
+
+
+@adapter_app.command("evaluate")
+def adapter_evaluate(
+    actions: Annotated[Path, typer.Argument(help="Generic agent actions JSON.")],
+    policy_pack: Annotated[str, typer.Option(help="CAVRA policy pack used for runtime-compatible actions.")] = (
+        "cavra-ai-agent-baseline"
+    ),
+) -> None:
+    """Evaluate generic non-coding agent actions through the CAVRA taxonomy."""
+    payload = json.loads(actions.read_text(encoding="utf-8"))
+    action_items = payload.get("actions", payload) if isinstance(payload, dict) else payload
+    result = evaluate_generic_actions(action_items, policy_pack=policy_pack)
+    console.print(JSON(json.dumps(result, indent=2)))
+    counts = result["decision_counts"]
+    if not (counts.get("allow", 0) >= 1 and counts.get("require_approval", 0) >= 1 and counts.get("block", 0) >= 1):
+        raise typer.Exit(code=1)
+
+
+@adapter_app.command("export")
+def adapter_export(
+    output_dir: Annotated[Path, typer.Option(help="Directory for generic adapter artifacts.")] = Path(
+        "dist/generic-agent-adapter"
+    ),
+) -> None:
+    """Export reference generic adapter taxonomy, manifest, scenario, evaluation, and packet artifacts."""
+    result = write_generic_adapter_artifacts(
+        build_sample_adapter_manifest(),
+        build_sample_generic_actions(),
+        output_dir,
+    )
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@adapter_app.command("readiness")
+def adapter_readiness(
+    packet: Annotated[Path, typer.Argument(help="Generic adapter readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate a generic adapter readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_generic_adapter_readiness_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_generic_adapter_sdk"]):
+        raise typer.Exit(code=1)
 
 
 @benchmark_app.command("export")

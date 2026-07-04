@@ -1,0 +1,105 @@
+{
+  "schema_version": "cavra.generic-agent-adapter.taxonomy.v1",
+  "product": "CAVRA",
+  "domains": [
+    "communications",
+    "data",
+    "engineering",
+    "finance",
+    "identity",
+    "model_governance",
+    "sales",
+    "support",
+    "workflow"
+  ],
+  "effects": [
+    "approve",
+    "delete",
+    "execute",
+    "export",
+    "grant",
+    "promote",
+    "read",
+    "send",
+    "write"
+  ],
+  "risk_levels": [
+    "critical",
+    "high",
+    "low",
+    "medium"
+  ],
+  "actions": [
+    {
+      "action_type": "crm.update_record",
+      "domain": "sales",
+      "effect": "write",
+      "risk_level": "medium",
+      "default_decision": "require_approval"
+    },
+    {
+      "action_type": "customer.email_send",
+      "domain": "communications",
+      "effect": "send",
+      "risk_level": "medium",
+      "default_decision": "require_approval"
+    },
+    {
+      "action_type": "data.export_dataset",
+      "domain": "data",
+      "effect": "export",
+      "risk_level": "high",
+      "default_decision": "require_approval"
+    },
+    {
+      "action_type": "finance.release_payment",
+      "domain": "finance",
+      "effect": "approve",
+      "risk_level": "critical",
+      "default_decision": "block"
+    },
+    {
+      "action_type": "identity.grant_role",
+      "domain": "identity",
+      "effect": "grant",
+      "risk_level": "critical",
+      "default_decision": "block"
+    },
+    {
+      "action_type": "knowledge.search",
+      "domain": "data",
+      "effect": "read",
+      "risk_level": "low",
+      "default_decision": "allow"
+    },
+    {
+      "action_type": "model.promote",
+      "domain": "model_governance",
+      "effect": "promote",
+      "risk_level": "high",
+      "default_decision": "require_approval"
+    },
+    {
+      "action_type": "ticket.summarize",
+      "domain": "support",
+      "effect": "read",
+      "risk_level": "low",
+      "default_decision": "allow"
+    },
+    {
+      "action_type": "workflow.close_control",
+      "domain": "workflow",
+      "effect": "approve",
+      "risk_level": "high",
+      "default_decision": "require_approval"
+    }
+  ],
+  "runtime_mappings": {
+    "read_file": "RuntimeGuard.evaluate_file_access(read)",
+    "write_file": "RuntimeGuard.evaluate_file_access(write)",
+    "execute_command": "RuntimeGuard.evaluate_command",
+    "git_operation": "RuntimeGuard.evaluate_git_action",
+    "mcp_tool_call": "RuntimeGuard.evaluate_mcp_tool_call",
+    "generic_non_coding": "Generic action taxonomy policy"
+  }
+}
