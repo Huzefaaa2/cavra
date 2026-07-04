@@ -1,0 +1,45 @@
+{
+  "schema_version": "cavra.connector.sdk.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "sample",
+  "sdk_artifacts": {
+    "artifact_ids": [
+      "sdk_manifest_schema",
+      "reference_connector_manifest",
+      "certification_validator",
+      "compatibility_matrix",
+      "example_connector"
+    ],
+    "versioned": true,
+    "public_contract": true,
+    "docs_published": true
+  },
+  "certification_program": {
+    "certification_policy_published": true,
+    "compatibility_matrix_published": true,
+    "redaction_required": true,
+    "retries_required": true,
+    "timeouts_required": true,
+    "required_test_suites": ["auth", "compatibility", "contract", "redaction", "retry", "timeout", "unit"]
+  },
+  "reference_connector": {
+    "manifest_validated": true,
+    "certification_packet_generated": true,
+    "delivery_contract_compatible": true,
+    "secret_redaction_tested": true,
+    "example_connector_ref": "examples/connectors/webhook-certified/connector-manifest.json"
+  },
+  "compatibility": {
+    "api_contract_validated": true,
+    "python_versions": ["3.9", "3.10", "3.11", "3.12"],
+    "cavra_versions": ["1.0.0"],
+    "backward_compatibility_policy": "semver-compatible manifest changes require additive fields or a new schema version"
+  },
+  "operating_evidence": {
+    "sdk_owner": "product-security@example.invalid",
+    "certification_review_ref": "evidence://sample/connector-certification-review",
+    "compatibility_matrix_ref": "evidence://sample/connector-compatibility-matrix",
+    "reference_connector_test_ref": "evidence://sample/reference-webhook-test",
+    "partner_onboarding_ref": "evidence://sample/partner-onboarding"
+  }
+}

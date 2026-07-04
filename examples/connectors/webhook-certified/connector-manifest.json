@@ -1,0 +1,52 @@
+{
+  "schema_version": "cavra.connector.sdk.manifest.v1",
+  "connector_id": "cavra-reference-webhook",
+  "display_name": "CAVRA Reference Webhook Connector",
+  "provider": "webhook",
+  "category": "webhook",
+  "version": "2026.07",
+  "sdk_version": "1.0",
+  "entrypoint": "cavra.connectors.reference_webhook:ReferenceWebhookConnector",
+  "certification_tier": "reference",
+  "supported_events": [
+    "cavra.evidence_bundle",
+    "cavra.runtime.decision",
+    "cavra.aispm.finding",
+    "cavra.report.export"
+  ],
+  "capabilities": [
+    "deliver_event",
+    "redact_credentials",
+    "retry_delivery",
+    "timeout_control",
+    "audit_metadata"
+  ],
+  "auth": {
+    "modes": ["webhook_secret", "bearer_token"],
+    "secret_fields": ["authorization", "token", "webhook_url"]
+  },
+  "runtime": {
+    "language": "python",
+    "min_python": "3.9",
+    "network_required": true,
+    "timeout_seconds_default": 10,
+    "max_retries_default": 2
+  },
+  "security": {
+    "redacts_secrets": true,
+    "does_not_log_payload_secrets": true,
+    "supports_timeout": true,
+    "supports_retries": true,
+    "idempotency_supported": true,
+    "tenant_scope_required": false
+  },
+  "tests": {
+    "suites": ["auth", "compatibility", "contract", "redaction", "retry", "timeout", "unit"],
+    "fixtures": ["examples/connectors/webhook-certified/connector-manifest.json"]
+  },
+  "compatibility": {
+    "cavra_versions": ["1.0.0"],
+    "api_contract": "openapi/cavra-api.openapi.json",
+    "connector_sdk": "1.0"
+  }
+}

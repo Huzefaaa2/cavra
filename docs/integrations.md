@@ -44,3 +44,9 @@ cavra integration deliver .cavra/evidence/latest/siem-event.json \
 ```
 
 Supported delivery providers are Splunk, Microsoft Sentinel, Datadog, Slack, Microsoft Teams, Jira, ServiceNow, and generic webhooks. Delivery evidence redacts authorization headers, API keys, query strings, and sensitive webhook URLs.
+
+## Connector SDK And Certification
+
+CAVRA now includes a public connector SDK contract for certified Enterprise integrations. The SDK defines a versioned connector manifest, required security flags, certification test suites, compatibility metadata, a reference webhook connector manifest, a certification packet builder, and sample/live readiness gates.
+
+Start with [Connector SDK And Certification](connector-sdk-certification.md). R4.1 provides the interface and certification harness; R4.2 will use it to certify provider-specific connectors across SCM, CI/CD, SIEM, ITSM, and communications systems.

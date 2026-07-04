@@ -1,0 +1,120 @@
+name: Connector SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the connector SDK readiness packet JSON."
+        required: false
+        default: "examples/connectors/enterprise-connector-sdk.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/connector_sdk.py"
+      - "scripts/validate_connector_sdk.py"
+      - "examples/connectors/**"
+      - "tests/test_connector_sdk.py"
+      - ".github/workflows/connector-sdk.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/connector_sdk.py"
+      - "scripts/validate_connector_sdk.py"
+      - "examples/connectors/**"
+      - "tests/test_connector_sdk.py"
+      - ".github/workflows/connector-sdk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  connector-sdk-contract:
+    name: Validate connector SDK contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate reference connector manifest
+        run: |
+          python scripts/validate_connector_sdk.py \
+            --manifest examples/connectors/webhook-certified/connector-manifest.json \
+            --output dist/reference-webhook-manifest-validation.json
+      - name: Generate reference connector certification packet
+        run: |
+          python scripts/validate_connector_sdk.py \
+            --manifest examples/connectors/webhook-certified/connector-manifest.json \
+            --certify \
+            --output dist/reference-webhook-certification.json
+      - name: Generate compatibility matrix
+        run: |
+          python scripts/validate_connector_sdk.py \
+            --matrix examples/connectors/webhook-certified/connector-manifest.json \
+            --output dist/connector-sdk-compatibility-matrix.json
+      - name: Validate sample connector SDK packet
+        run: |
+          python scripts/validate_connector_sdk.py \
+            --packet examples/connectors/enterprise-connector-sdk.sample.json \
+            --output dist/enterprise-connector-sdk-sample.json
+      - name: Validate sanitized live connector SDK packet
+        run: |
+          python scripts/validate_connector_sdk.py \
+            --packet examples/connectors/enterprise-connector-sdk.live.sanitized.example.json \
+            --require-live \
+            --output dist/enterprise-connector-sdk-live-sanitized.json
+      - name: Confirm required certification suites
+        run: |
+          grep -q "auth" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "compatibility" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "contract" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "redaction" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "retry" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "timeout" examples/connectors/webhook-certified/connector-manifest.json
+          grep -q "unit" examples/connectors/webhook-certified/connector-manifest.json
+      - name: Test connector SDK
+        run: python -m pytest tests/test_connector_sdk.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: connector-sdk-sample
+          path: |
+            dist/reference-webhook-manifest-validation.json
+            dist/reference-webhook-certification.json
+            dist/connector-sdk-compatibility-matrix.json
+            dist/enterprise-connector-sdk-sample.json
+            dist/enterprise-connector-sdk-live-sanitized.json
+
+  connector-sdk-live:
+    name: Validate live connector SDK packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected connector SDK packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_connector_sdk.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-connector-sdk-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: connector-sdk-live
+          path: dist/enterprise-connector-sdk-live.json
