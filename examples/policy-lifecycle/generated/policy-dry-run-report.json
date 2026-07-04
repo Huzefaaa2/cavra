@@ -1,0 +1,117 @@
+{
+  "schema_version": "cavra.policy-lifecycle.dry-run-report.v1",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "case_count": 6,
+  "passed_count": 6,
+  "failed_count": 0,
+  "required_cases_present": true,
+  "passed": true,
+  "results": [
+    {
+      "case_id": "block_env_read",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "read_file",
+        "target": ".env",
+        "requested_operation": "read"
+      },
+      "expected_decision": "block",
+      "decision": {
+        "decision": "block",
+        "rule_id": "filesystem.read.block",
+        "severity": "high",
+        "reason": "Matched sensitive path policy: .env"
+      },
+      "passed": true
+    },
+    {
+      "case_id": "approval_policy_write",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "write_file",
+        "target": "policies/cavra-ai-agent-baseline/policy.yaml",
+        "requested_operation": "write"
+      },
+      "expected_decision": "require_approval",
+      "decision": {
+        "decision": "require_approval",
+        "rule_id": "filesystem.write.require_approval",
+        "severity": "high",
+        "reason": "Matched approval-required path policy: policies/**",
+        "approver_group": "Platform Security"
+      },
+      "passed": true
+    },
+    {
+      "case_id": "allow_terraform_plan",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "execute_command",
+        "target": "terraform plan",
+        "requested_operation": "terraform plan"
+      },
+      "expected_decision": "allow",
+      "decision": {
+        "decision": "allow",
+        "rule_id": "commands.allow",
+        "severity": "low",
+        "reason": "Matched allowed command policy: terraform plan*"
+      },
+      "passed": true
+    },
+    {
+      "case_id": "block_terraform_apply",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "execute_command",
+        "target": "terraform apply -auto-approve",
+        "requested_operation": "terraform apply -auto-approve"
+      },
+      "expected_decision": "block",
+      "decision": {
+        "decision": "block",
+        "rule_id": "commands.block",
+        "severity": "critical",
+        "reason": "Matched blocked command policy: terraform apply*"
+      },
+      "passed": true
+    },
+    {
+      "case_id": "block_protected_branch_push",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "git_operation",
+        "target": "origin/main",
+        "requested_operation": "push"
+      },
+      "expected_decision": "block",
+      "decision": {
+        "decision": "block",
+        "rule_id": "git.protected_branch.block_direct_push",
+        "severity": "high",
+        "reason": "Direct push to protected branch is prohibited."
+      },
+      "passed": true
+    },
+    {
+      "case_id": "block_unknown_mcp_server",
+      "input": {
+        "schema_version": "cavra.opa-rego-policy.input.v1",
+        "action_type": "mcp_tool_call",
+        "target": "unknown-filesystem:read_file",
+        "requested_operation": "filesystem",
+        "server": "unknown-filesystem",
+        "tool": "read_file",
+        "capability": "filesystem"
+      },
+      "expected_decision": "block",
+      "decision": {
+        "decision": "block",
+        "rule_id": "mcp.server.trust.block_unknown",
+        "severity": "high",
+        "reason": "Untrusted MCP server with filesystem/tool capability is not approved."
+      },
+      "passed": true
+    }
+  ]
+}

@@ -23,7 +23,7 @@ Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Comm
 
 The active enhancement tracker is [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md). It records the numbered plan for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, model/artifact governance, policy lifecycle tooling, event-driven monitoring, and scale validation.
 
-New Enterprise contract references: [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md) and [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md).
+New Enterprise contract references: [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md), [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md), and [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md).
 
 For Phase 2 implementation, use [Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md), [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md), and [Tenant Workspace Persistence](Tenant-Workspace-Persistence.md).
 
@@ -144,6 +144,7 @@ close out the trial without leaving stale package or license access behind.
 - [Approval Workflows](Approval-Workflows.md)
 - [Evidence Hub And Attestation](Evidence-Hub-and-Attestation.md)
 - [Policy Engine Hardening](Policy-Engine-Hardening.md)
+- [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md)
 - [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap.md)
 - [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)

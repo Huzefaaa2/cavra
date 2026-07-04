@@ -1,0 +1,24 @@
+{
+  "schema_version": "cavra.policy-lifecycle.lint-report.v1",
+  "valid": true,
+  "blocker_count": 0,
+  "warning_count": 0,
+  "issue_count": 0,
+  "issues": [],
+  "summary": {
+    "policy_id": "cavra-ai-agent-baseline",
+    "title": "CAVRA AI Agent Baseline",
+    "version": "0.1.0",
+    "inherits": null,
+    "mode": "enforce",
+    "rule_counts": {
+      "filesystem": 15,
+      "commands": 12,
+      "git": 0,
+      "mcp": 0,
+      "approvals": 0,
+      "evidence": 0,
+      "compliance": 0
+    }
+  }
+}

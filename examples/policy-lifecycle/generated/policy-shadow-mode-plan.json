@@ -1,0 +1,24 @@
+{
+  "schema_version": "cavra.policy-lifecycle.shadow-mode-plan.v1",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "mode": "shadow",
+  "non_enforcing": true,
+  "compare_against": "current_enforced_policy",
+  "sample_case_ids": [
+    "block_env_read",
+    "approval_policy_write",
+    "allow_terraform_plan",
+    "block_terraform_apply",
+    "block_protected_branch_push",
+    "block_unknown_mcp_server"
+  ],
+  "evidence_refs": [
+    "policy-shadow://cavra-ai-agent-baseline/6a79faa218f8",
+    "policy-dry-run://cavra-ai-agent-baseline/6a79faa218f8"
+  ],
+  "promotion_criteria": {
+    "dry_run_failed_count": 0,
+    "shadow_observation_hours": 24,
+    "approval_required": true
+  }
+}

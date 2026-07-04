@@ -1,0 +1,333 @@
+{
+  "schema_version": "cavra.policy-lifecycle.plan.v1",
+  "product": "CAVRA",
+  "generated_at": "2026-07-04T13:37:30.423168+00:00",
+  "policy_pack": "cavra-ai-agent-baseline",
+  "lifecycle_capabilities": [
+    "approval_workflow",
+    "authoring_ui_contract",
+    "dry_run_report",
+    "lint_report",
+    "rollback_plan",
+    "shadow_mode_plan",
+    "version_manifest"
+  ],
+  "authoring_ui_contract": {
+    "schema_version": "cavra.policy-lifecycle.authoring-ui-contract.v1",
+    "policy_id": "cavra-ai-agent-baseline",
+    "required_surfaces": [
+      "draft_editor",
+      "schema_lint",
+      "semantic_diff",
+      "dry_run_simulator",
+      "shadow_mode_toggle",
+      "approval_workflow_builder",
+      "rollback_picker"
+    ],
+    "api_endpoints": [
+      "POST /policy-packs/draft",
+      "POST /policy-packs/publish-plan",
+      "POST /policy-packs/publish-request",
+      "POST /policy-rollouts/change-plan",
+      "POST /policy-rollouts/apply-change"
+    ],
+    "review_workflow_ref": "github://Huzefaaa2/cavra/actions/workflows/policy-lifecycle.yml",
+    "operator_notes": [
+      "The public contract defines UI behavior; customer-specific UI screenshots are deployment evidence.",
+      "Draft, publish, and rollout API calls are approval-gated and public-safe."
+    ]
+  },
+  "lint_report": {
+    "schema_version": "cavra.policy-lifecycle.lint-report.v1",
+    "valid": true,
+    "blocker_count": 0,
+    "warning_count": 0,
+    "issue_count": 0,
+    "issues": [],
+    "summary": {
+      "policy_id": "cavra-ai-agent-baseline",
+      "title": "CAVRA AI Agent Baseline",
+      "version": "0.1.0",
+      "inherits": null,
+      "mode": "enforce",
+      "rule_counts": {
+        "filesystem": 15,
+        "commands": 12,
+        "git": 0,
+        "mcp": 0,
+        "approvals": 0,
+        "evidence": 0,
+        "compliance": 0
+      }
+    }
+  },
+  "version_manifest": {
+    "schema_version": "cavra.policy-lifecycle.version-manifest.v1",
+    "policy_id": "cavra-ai-agent-baseline",
+    "policy_version": "0.1.0",
+    "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+    "previous_policy_digest": null,
+    "source_ref": "git://Huzefaaa2/cavra/main/policies",
+    "git_versioned": true,
+    "generated_at": "2026-07-04T13:37:30.422404+00:00",
+    "diff": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    }
+  },
+  "shadow_mode_plan": {
+    "schema_version": "cavra.policy-lifecycle.shadow-mode-plan.v1",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "mode": "shadow",
+    "non_enforcing": true,
+    "compare_against": "current_enforced_policy",
+    "sample_case_ids": [
+      "block_env_read",
+      "approval_policy_write",
+      "allow_terraform_plan",
+      "block_terraform_apply",
+      "block_protected_branch_push",
+      "block_unknown_mcp_server"
+    ],
+    "evidence_refs": [
+      "policy-shadow://cavra-ai-agent-baseline/6a79faa218f8",
+      "policy-dry-run://cavra-ai-agent-baseline/6a79faa218f8"
+    ],
+    "promotion_criteria": {
+      "dry_run_failed_count": 0,
+      "shadow_observation_hours": 24,
+      "approval_required": true
+    }
+  },
+  "dry_run_report": {
+    "schema_version": "cavra.policy-lifecycle.dry-run-report.v1",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "case_count": 6,
+    "passed_count": 6,
+    "failed_count": 0,
+    "required_cases_present": true,
+    "passed": true,
+    "results": [
+      {
+        "case_id": "block_env_read",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "read_file",
+          "target": ".env",
+          "requested_operation": "read"
+        },
+        "expected_decision": "block",
+        "decision": {
+          "decision": "block",
+          "rule_id": "filesystem.read.block",
+          "severity": "high",
+          "reason": "Matched sensitive path policy: .env"
+        },
+        "passed": true
+      },
+      {
+        "case_id": "approval_policy_write",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "write_file",
+          "target": "policies/cavra-ai-agent-baseline/policy.yaml",
+          "requested_operation": "write"
+        },
+        "expected_decision": "require_approval",
+        "decision": {
+          "decision": "require_approval",
+          "rule_id": "filesystem.write.require_approval",
+          "severity": "high",
+          "reason": "Matched approval-required path policy: policies/**",
+          "approver_group": "Platform Security"
+        },
+        "passed": true
+      },
+      {
+        "case_id": "allow_terraform_plan",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "execute_command",
+          "target": "terraform plan",
+          "requested_operation": "terraform plan"
+        },
+        "expected_decision": "allow",
+        "decision": {
+          "decision": "allow",
+          "rule_id": "commands.allow",
+          "severity": "low",
+          "reason": "Matched allowed command policy: terraform plan*"
+        },
+        "passed": true
+      },
+      {
+        "case_id": "block_terraform_apply",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "execute_command",
+          "target": "terraform apply -auto-approve",
+          "requested_operation": "terraform apply -auto-approve"
+        },
+        "expected_decision": "block",
+        "decision": {
+          "decision": "block",
+          "rule_id": "commands.block",
+          "severity": "critical",
+          "reason": "Matched blocked command policy: terraform apply*"
+        },
+        "passed": true
+      },
+      {
+        "case_id": "block_protected_branch_push",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "git_operation",
+          "target": "origin/main",
+          "requested_operation": "push"
+        },
+        "expected_decision": "block",
+        "decision": {
+          "decision": "block",
+          "rule_id": "git.protected_branch.block_direct_push",
+          "severity": "high",
+          "reason": "Direct push to protected branch is prohibited."
+        },
+        "passed": true
+      },
+      {
+        "case_id": "block_unknown_mcp_server",
+        "input": {
+          "schema_version": "cavra.opa-rego-policy.input.v1",
+          "action_type": "mcp_tool_call",
+          "target": "unknown-filesystem:read_file",
+          "requested_operation": "filesystem",
+          "server": "unknown-filesystem",
+          "tool": "read_file",
+          "capability": "filesystem"
+        },
+        "expected_decision": "block",
+        "decision": {
+          "decision": "block",
+          "rule_id": "mcp.server.trust.block_unknown",
+          "severity": "high",
+          "reason": "Untrusted MCP server with filesystem/tool capability is not approved."
+        },
+        "passed": true
+      }
+    ]
+  },
+  "rollback_plan": {
+    "schema_version": "cavra.policy-lifecycle.rollback-plan.v1",
+    "rollback_ref": "policy-rollback://cavra-ai-agent-baseline/6a79faa218f8",
+    "current_policy_id": "cavra-ai-agent-baseline",
+    "current_policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+    "previous_policy_id": "cavra-ai-agent-baseline",
+    "previous_policy_digest": null,
+    "approval_required": true,
+    "requested_by": "policy-owner@example.com",
+    "reason": "Pre-approved rollback path for policy lifecycle rollout.",
+    "diff": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "steps": [
+      "Freeze new policy promotion.",
+      "Restore previous policy YAML and signature from Git.",
+      "Run dry-run and shadow comparison against rollback candidate.",
+      "Obtain Platform Security approval.",
+      "Publish rollback through policy catalog workflow.",
+      "Attach rollback evidence bundle to the rollout record."
+    ]
+  },
+  "approval_workflow": {
+    "schema_version": "cavra.policy-lifecycle.approval-workflow.v1",
+    "review_workflow_ref": "github://Huzefaaa2/cavra/actions/workflows/policy-lifecycle.yml",
+    "approval_required": true,
+    "approver_groups": [
+      "Platform Security",
+      "Repository Owners"
+    ],
+    "publish_plan": {
+      "schema_version": "cavra.policy_pack.publish_plan.v1",
+      "product": "CAVRA",
+      "generated_at": "2026-07-04T13:37:30.423543+00:00",
+      "operation": "create",
+      "valid": true,
+      "errors": [],
+      "approval_required": true,
+      "risk": "high",
+      "policy_id": "cavra-ai-agent-baseline",
+      "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+      "target_path": "policies/cavra-ai-agent-baseline/policy.yaml",
+      "summary": {
+        "policy_id": "cavra-ai-agent-baseline",
+        "title": "CAVRA AI Agent Baseline",
+        "version": "0.1.0",
+        "inherits": null,
+        "mode": "enforce",
+        "rule_counts": {
+          "filesystem": 15,
+          "commands": 12,
+          "git": 0,
+          "mcp": 0,
+          "approvals": 0,
+          "evidence": 0,
+          "compliance": 0
+        }
+      },
+      "diff": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "operator_notes": [
+        "Publishing writes policy.yaml and policy.yaml.sig.json only after approval.",
+        "The approval request is bound to the draft policy digest to prevent approving one draft and publishing another.",
+        "Security or platform approval is required before write-back."
+      ]
+    },
+    "publish_decision": {
+      "decision_id": "policy_publish:cavra-ai-agent-baseline:6a79faa218f8",
+      "session_id": "policy-authoring",
+      "agent_id": "policy-authoring-console",
+      "actor": "policy-owner@example.com",
+      "repository": "policy-catalog",
+      "action_type": "policy_publish",
+      "target": "policies/cavra-ai-agent-baseline/policy.yaml",
+      "decision": "require_approval",
+      "severity": "high",
+      "policy_pack": "cavra-ai-agent-baseline",
+      "rule_id": "policy.publish.requires_approval",
+      "reason": "Policy pack write-back requires approval and signature before publishing.",
+      "approver_group": "Platform Security",
+      "policy_id": "cavra-ai-agent-baseline",
+      "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+      "operation": "create",
+      "evidence_refs": [
+        "policy-draft://cavra-ai-agent-baseline/6a79faa218f8"
+      ]
+    },
+    "required_evidence": [
+      "lint_report",
+      "version_manifest",
+      "semantic_diff",
+      "dry_run_report",
+      "shadow_mode_observation",
+      "rollback_plan"
+    ],
+    "review_checklist": [
+      "Schema lint is clean.",
+      "Diff is understood by policy owner and security reviewer.",
+      "Dry-run decisions match expected outcomes.",
+      "Shadow mode has no unexplained high-severity divergence.",
+      "Rollback reference points to a known-good prior policy."
+    ]
+  },
+  "operator_notes": [
+    "Lifecycle plan generation is read-only and does not publish policy changes.",
+    "Use shadow mode and dry-run evidence before enforcing a new or changed policy pack.",
+    "A live Enterprise rollout must attach UI validation, approval, rollback, and CI evidence."
+  ]
+}

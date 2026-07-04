@@ -1,0 +1,15 @@
+{
+  "schema_version": "cavra.policy-lifecycle.version-manifest.v1",
+  "policy_id": "cavra-ai-agent-baseline",
+  "policy_version": "0.1.0",
+  "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+  "previous_policy_digest": null,
+  "source_ref": "git://Huzefaaa2/cavra/main/policies",
+  "git_versioned": true,
+  "generated_at": "2026-07-04T13:37:30.422404+00:00",
+  "diff": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  }
+}

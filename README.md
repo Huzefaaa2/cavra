@@ -202,6 +202,7 @@ Start with the wiki textbook:
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
 - [CAVRA Zero-Trust Scanner Agent](docs/zero-trust-scanner-agent.md)
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)
+- [CAVRA Policy Lifecycle Tooling](docs/policy-lifecycle-tooling.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

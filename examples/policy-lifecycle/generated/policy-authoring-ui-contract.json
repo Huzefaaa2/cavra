@@ -1,0 +1,25 @@
+{
+  "schema_version": "cavra.policy-lifecycle.authoring-ui-contract.v1",
+  "policy_id": "cavra-ai-agent-baseline",
+  "required_surfaces": [
+    "draft_editor",
+    "schema_lint",
+    "semantic_diff",
+    "dry_run_simulator",
+    "shadow_mode_toggle",
+    "approval_workflow_builder",
+    "rollback_picker"
+  ],
+  "api_endpoints": [
+    "POST /policy-packs/draft",
+    "POST /policy-packs/publish-plan",
+    "POST /policy-packs/publish-request",
+    "POST /policy-rollouts/change-plan",
+    "POST /policy-rollouts/apply-change"
+  ],
+  "review_workflow_ref": "github://Huzefaaa2/cavra/actions/workflows/policy-lifecycle.yml",
+  "operator_notes": [
+    "The public contract defines UI behavior; customer-specific UI screenshots are deployment evidence.",
+    "Draft, publish, and rollout API calls are approval-gated and public-safe."
+  ]
+}

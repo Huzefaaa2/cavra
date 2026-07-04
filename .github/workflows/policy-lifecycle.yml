@@ -1,0 +1,116 @@
+name: Policy Lifecycle Tooling
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the policy lifecycle readiness packet JSON."
+        required: false
+        default: "examples/policy-lifecycle/enterprise-policy-lifecycle.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/policy_lifecycle.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_policy_lifecycle.py"
+      - "examples/policy-lifecycle/**"
+      - "tests/test_policy_lifecycle.py"
+      - ".github/workflows/policy-lifecycle.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/policy_lifecycle.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_policy_lifecycle.py"
+      - "examples/policy-lifecycle/**"
+      - "tests/test_policy_lifecycle.py"
+      - ".github/workflows/policy-lifecycle.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  policy-lifecycle-contract:
+    name: Validate policy lifecycle tooling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Export policy lifecycle artifacts
+        run: |
+          python scripts/validate_policy_lifecycle.py \
+            --policy-pack cavra-ai-agent-baseline \
+            --export-dir dist/policy-lifecycle \
+            --output dist/policy-lifecycle-export.json
+      - name: Lint policy lifecycle draft
+        run: |
+          python scripts/validate_policy_lifecycle.py \
+            --policy-pack cavra-ai-agent-baseline \
+            --lint \
+            --output dist/policy-lifecycle-lint.json
+      - name: Dry-run required decisions
+        run: |
+          python scripts/validate_policy_lifecycle.py \
+            --policy-pack cavra-ai-agent-baseline \
+            --dry-run \
+            --output dist/policy-lifecycle-dry-run.json
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_policy_lifecycle.py \
+            --packet examples/policy-lifecycle/enterprise-policy-lifecycle.sample.json \
+            --output dist/enterprise-policy-lifecycle-sample.json
+      - name: Validate sanitized live packet
+        run: |
+          python scripts/validate_policy_lifecycle.py \
+            --packet examples/policy-lifecycle/enterprise-policy-lifecycle.live.sanitized.example.json \
+            --require-live \
+            --output dist/enterprise-policy-lifecycle-live-sanitized.json
+      - name: Test policy lifecycle tooling
+        run: python -m pytest tests/test_policy_lifecycle.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: policy-lifecycle
+          path: |
+            dist/policy-lifecycle-export.json
+            dist/policy-lifecycle-lint.json
+            dist/policy-lifecycle-dry-run.json
+            dist/enterprise-policy-lifecycle-sample.json
+            dist/enterprise-policy-lifecycle-live-sanitized.json
+            dist/policy-lifecycle/
+
+  policy-lifecycle-live:
+    name: Validate selected live policy lifecycle packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_policy_lifecycle.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-policy-lifecycle-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: policy-lifecycle-live
+          path: dist/enterprise-policy-lifecycle-live.json

@@ -1,0 +1,14 @@
+{
+  "schema_version": "cavra.policy-lifecycle.export.v1",
+  "output_dir": "examples/policy-lifecycle/generated",
+  "artifacts": {
+    "policy_lifecycle_plan": "examples/policy-lifecycle/generated/policy-lifecycle-plan.json",
+    "authoring_ui_contract": "examples/policy-lifecycle/generated/policy-authoring-ui-contract.json",
+    "lint_report": "examples/policy-lifecycle/generated/policy-lint-report.json",
+    "version_manifest": "examples/policy-lifecycle/generated/policy-version-manifest.json",
+    "shadow_mode_plan": "examples/policy-lifecycle/generated/policy-shadow-mode-plan.json",
+    "dry_run_report": "examples/policy-lifecycle/generated/policy-dry-run-report.json",
+    "rollback_plan": "examples/policy-lifecycle/generated/policy-rollback-plan.json",
+    "approval_workflow": "examples/policy-lifecycle/generated/policy-approval-workflow.json"
+  }
+}

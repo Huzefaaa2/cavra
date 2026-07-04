@@ -1,0 +1,24 @@
+{
+  "schema_version": "cavra.policy-lifecycle.rollback-plan.v1",
+  "rollback_ref": "policy-rollback://cavra-ai-agent-baseline/6a79faa218f8",
+  "current_policy_id": "cavra-ai-agent-baseline",
+  "current_policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+  "previous_policy_id": "cavra-ai-agent-baseline",
+  "previous_policy_digest": null,
+  "approval_required": true,
+  "requested_by": "policy-owner@example.com",
+  "reason": "Pre-approved rollback path for policy lifecycle rollout.",
+  "diff": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "steps": [
+    "Freeze new policy promotion.",
+    "Restore previous policy YAML and signature from Git.",
+    "Run dry-run and shadow comparison against rollback candidate.",
+    "Obtain Platform Security approval.",
+    "Publish rollback through policy catalog workflow.",
+    "Attach rollback evidence bundle to the rollout record."
+  ]
+}

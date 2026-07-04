@@ -95,6 +95,11 @@ from cavra.opa_rego_policy import (
     validate_opa_rego_policy_packet,
     write_rego_bundle,
 )
+from cavra.policy_lifecycle import (
+    build_policy_lifecycle_plan,
+    validate_policy_lifecycle_packet,
+    write_policy_lifecycle_artifacts,
+)
 from cavra.policy_registry import PolicyRegistry
 from cavra.registry import (
     RegistryStore,
@@ -1072,6 +1077,44 @@ def rego_readiness_policy(
     result = validate_opa_rego_policy_packet(payload, require_live=require_live)
     console.print(JSON(json.dumps(result, indent=2)))
     if result["blocker_count"] or (require_live and not result["ready_for_live_opa_rego_policy_path"]):
+        raise typer.Exit(code=1)
+
+
+@policy_app.command("lifecycle-plan")
+def lifecycle_plan_policy(
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+    previous_policy_pack: Annotated[Optional[str], typer.Option(help="Optional prior policy pack ID for diff/rollback.")] = None,
+    output_dir: Annotated[Path, typer.Option(help="Directory for lifecycle plan artifacts.")] = Path(
+        "dist/policy-lifecycle"
+    ),
+    requested_by: Annotated[str, typer.Option(help="Policy lifecycle requestor identity.")] = "policy-owner@example.com",
+    source_ref: Annotated[str, typer.Option(help="Git/source reference for the policy.")] = "git://Huzefaaa2/cavra/main/policies",
+) -> None:
+    """Export policy lifecycle lint, version, shadow, dry-run, rollback, and approval artifacts."""
+    registry = PolicyRegistry()
+    policy = registry.load_policy(policy_pack)
+    previous = registry.load_policy(previous_policy_pack) if previous_policy_pack else None
+    plan = build_policy_lifecycle_plan(
+        policy,
+        previous_policy=previous,
+        policy_pack=policy_pack,
+        requested_by=requested_by,
+        source_ref=source_ref,
+    )
+    result = write_policy_lifecycle_artifacts(plan, output_dir)
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@policy_app.command("lifecycle-readiness")
+def lifecycle_readiness_policy(
+    packet: Annotated[Path, typer.Argument(help="Policy lifecycle readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate a policy lifecycle readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_policy_lifecycle_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_policy_lifecycle"]):
         raise typer.Exit(code=1)
 
 

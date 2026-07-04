@@ -1,0 +1,84 @@
+{
+  "schema_version": "cavra.policy-lifecycle.approval-workflow.v1",
+  "review_workflow_ref": "github://Huzefaaa2/cavra/actions/workflows/policy-lifecycle.yml",
+  "approval_required": true,
+  "approver_groups": [
+    "Platform Security",
+    "Repository Owners"
+  ],
+  "publish_plan": {
+    "schema_version": "cavra.policy_pack.publish_plan.v1",
+    "product": "CAVRA",
+    "generated_at": "2026-07-04T13:37:30.423543+00:00",
+    "operation": "create",
+    "valid": true,
+    "errors": [],
+    "approval_required": true,
+    "risk": "high",
+    "policy_id": "cavra-ai-agent-baseline",
+    "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+    "target_path": "policies/cavra-ai-agent-baseline/policy.yaml",
+    "summary": {
+      "policy_id": "cavra-ai-agent-baseline",
+      "title": "CAVRA AI Agent Baseline",
+      "version": "0.1.0",
+      "inherits": null,
+      "mode": "enforce",
+      "rule_counts": {
+        "filesystem": 15,
+        "commands": 12,
+        "git": 0,
+        "mcp": 0,
+        "approvals": 0,
+        "evidence": 0,
+        "compliance": 0
+      }
+    },
+    "diff": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "operator_notes": [
+      "Publishing writes policy.yaml and policy.yaml.sig.json only after approval.",
+      "The approval request is bound to the draft policy digest to prevent approving one draft and publishing another.",
+      "Security or platform approval is required before write-back."
+    ]
+  },
+  "publish_decision": {
+    "decision_id": "policy_publish:cavra-ai-agent-baseline:6a79faa218f8",
+    "session_id": "policy-authoring",
+    "agent_id": "policy-authoring-console",
+    "actor": "policy-owner@example.com",
+    "repository": "policy-catalog",
+    "action_type": "policy_publish",
+    "target": "policies/cavra-ai-agent-baseline/policy.yaml",
+    "decision": "require_approval",
+    "severity": "high",
+    "policy_pack": "cavra-ai-agent-baseline",
+    "rule_id": "policy.publish.requires_approval",
+    "reason": "Policy pack write-back requires approval and signature before publishing.",
+    "approver_group": "Platform Security",
+    "policy_id": "cavra-ai-agent-baseline",
+    "policy_digest": "sha256:6a79faa218f8bf77abb5f878c0c822c610ebaff71a4a9736ffbe3fa1ec27f45e",
+    "operation": "create",
+    "evidence_refs": [
+      "policy-draft://cavra-ai-agent-baseline/6a79faa218f8"
+    ]
+  },
+  "required_evidence": [
+    "lint_report",
+    "version_manifest",
+    "semantic_diff",
+    "dry_run_report",
+    "shadow_mode_observation",
+    "rollback_plan"
+  ],
+  "review_checklist": [
+    "Schema lint is clean.",
+    "Diff is understood by policy owner and security reviewer.",
+    "Dry-run decisions match expected outcomes.",
+    "Shadow mode has no unexplained high-severity divergence.",
+    "Rollback reference points to a known-good prior policy."
+  ]
+}
