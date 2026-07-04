@@ -1,0 +1,61 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer renewal outcome closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized customer renewal outcome packet supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "customer_profile_ref is a sanitized reference.",
+      "name": "customer_profile_ref",
+      "status": "pass"
+    },
+    {
+      "message": "renewal_readiness_ref is a sanitized reference.",
+      "name": "renewal_readiness_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source customer renewal expansion readiness is ready.",
+      "name": "renewal_readiness_result",
+      "status": "pass"
+    },
+    {
+      "message": "outcome_owner_refs are present and sanitized.",
+      "name": "outcome_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal outcome sections are complete and healthy.",
+      "name": "outcome_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Expansion outcomes are explicit and sanitized.",
+      "name": "expansion_outcomes",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal outcome controls are explicit.",
+      "name": "outcome_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal outcome packet contains sanitized refs and control metadata only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_customer_renewal_outcome_closeout": true,
+  "schema_version": "cavra.customer-renewal-outcome-closeout.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

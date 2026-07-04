@@ -66,6 +66,11 @@ from cavra.customer_renewal_expansion import (
     validate_customer_renewal_expansion_packet,
     write_customer_renewal_expansion_artifacts,
 )
+from cavra.customer_renewal_outcome import (
+    build_customer_renewal_outcome_packet,
+    validate_customer_renewal_outcome_packet,
+    write_customer_renewal_outcome_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2602,6 +2607,31 @@ def release_customer_renewal_expansion(
         result = validate_customer_renewal_expansion_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_renewal_expansion"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-renewal-outcome")
+def release_customer_renewal_outcome(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer renewal outcome closeout packet JSON.")] = None,
+    renewal_expansion: Annotated[Optional[Path], typer.Option(help="Optional renewal expansion packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer renewal outcome closeout packet."""
+    if export_dir:
+        result = write_customer_renewal_outcome_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            renewal = json.loads(renewal_expansion.read_text(encoding="utf-8")) if renewal_expansion else None
+            payload = build_customer_renewal_outcome_packet(
+                renewal,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_renewal_outcome_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_renewal_outcome_closeout"]):
         raise typer.Exit(code=1)
 
 

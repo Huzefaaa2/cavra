@@ -226,6 +226,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Closeout Handoff](docs/customer-closeout-handoff.md)
 - [CAVRA Customer Operating Review](docs/customer-operating-review.md)
 - [CAVRA Customer Renewal And Expansion Readiness](docs/customer-renewal-expansion.md)
+- [CAVRA Customer Renewal Outcome Closeout](docs/customer-renewal-outcome-closeout.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

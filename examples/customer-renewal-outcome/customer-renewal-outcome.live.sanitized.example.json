@@ -1,0 +1,162 @@
+{
+  "customer_profile_ref": "evidence://customer/redacted",
+  "evidence_mode": "live",
+  "expansion_outcomes": [
+    {
+      "candidate_id": "govern-more-agents",
+      "decision_ref": "evidence://expansion/govern-more-agents/decision",
+      "next_step_ref": "evidence://expansion/govern-more-agents/activation-plan",
+      "owner_ref": "evidence://owner/customer-success"
+    },
+    {
+      "candidate_id": "aispm-deeper-connectors",
+      "decision_ref": "evidence://expansion/aispm-connectors/decision",
+      "next_step_ref": "evidence://expansion/aispm-connectors/connector-plan",
+      "owner_ref": "evidence://owner/security-platform"
+    }
+  ],
+  "outcome_controls": {
+    "archive_ready": true,
+    "commercial_terms_excluded": true,
+    "expansion_decisions_recorded": true,
+    "next_lifecycle_checkpoint_scheduled": true,
+    "no_unresolved_blocking_risk": true,
+    "renewal_outcome_recorded": true,
+    "renewal_readiness_ready": true,
+    "security_acceptance_recorded": true
+  },
+  "outcome_owner_refs": {
+    "account_owner_ref": "evidence://owner/account",
+    "commercial_owner_ref": "evidence://owner/commercial",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_sponsor_ref": "evidence://owner/executive-sponsor",
+    "finance_operations_ref": "evidence://owner/finance-operations",
+    "security_owner_ref": "evidence://owner/security-platform"
+  },
+  "outcome_sections": [
+    {
+      "evidence_refs": [
+        "evidence://renewal/outcome-record",
+        "evidence://renewal/executive-acceptance"
+      ],
+      "section_id": "renewal_decision",
+      "status": "recorded"
+    },
+    {
+      "evidence_refs": [
+        "evidence://expansion/approved-scope",
+        "evidence://expansion/deferred-scope",
+        "evidence://expansion/next-evaluation"
+      ],
+      "section_id": "expansion_decisions",
+      "status": "recorded"
+    },
+    {
+      "evidence_refs": [
+        "evidence://risk/renewal-blocker-closeout",
+        "evidence://security/risk-acceptance-summary"
+      ],
+      "section_id": "risk_closeout",
+      "status": "closed"
+    },
+    {
+      "evidence_refs": [
+        "evidence://metrics/value-realization-final",
+        "evidence://metrics/adoption-confirmation",
+        "evidence://metrics/aispm-posture-trend"
+      ],
+      "section_id": "value_confirmation",
+      "status": "confirmed"
+    },
+    {
+      "evidence_refs": [
+        "evidence://commercial/contract-handoff",
+        "ticket://commercial/finance-ops-handoff"
+      ],
+      "section_id": "contract_handoff",
+      "status": "ready"
+    },
+    {
+      "evidence_refs": [
+        "evidence://evidence-room/renewal-outcome-archive",
+        "evidence://audit/renewal-outcome-manifest"
+      ],
+      "section_id": "lifecycle_archive",
+      "status": "ready"
+    },
+    {
+      "evidence_refs": [
+        "evidence://success/next-quarter-plan",
+        "evidence://operating-review/next-cycle"
+      ],
+      "section_id": "next_success_plan",
+      "status": "scheduled"
+    }
+  ],
+  "product": "CAVRA",
+  "renewal_outcome_id": "cavra-live-customer-renewal-outcome-closeout",
+  "renewal_readiness_ref": "evidence://customer-renewal-expansion/packet",
+  "renewal_readiness_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer renewal expansion schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized customer renewal expansion packet supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "operating_review_ref is a sanitized reference.",
+        "name": "operating_review_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source customer operating review is ready.",
+        "name": "operating_review_result",
+        "status": "pass"
+      },
+      {
+        "message": "renewal_owner_refs are present and sanitized.",
+        "name": "renewal_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Renewal expansion sections are complete and healthy.",
+        "name": "renewal_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Expansion candidates are explicit and sanitized.",
+        "name": "expansion_candidates",
+        "status": "pass"
+      },
+      {
+        "message": "Renewal expansion controls are explicit.",
+        "name": "renewal_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Renewal expansion packet contains sanitized refs and control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_customer_renewal_expansion": true,
+    "schema_version": "cavra.customer-renewal-expansion.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-renewal-outcome-closeout.packet.v1"
+}
