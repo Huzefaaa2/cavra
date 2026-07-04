@@ -1,0 +1,53 @@
+name: Customer Operating Review
+
+on:
+  pull_request:
+    paths:
+      - "src/cavra/customer_operating_review.py"
+      - "scripts/validate_customer_operating_review.py"
+      - "examples/customer-operating-review/**"
+      - "tests/test_customer_operating_review.py"
+      - ".github/workflows/customer-operating-review.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/cavra/customer_operating_review.py"
+      - "scripts/validate_customer_operating_review.py"
+      - "examples/customer-operating-review/**"
+      - "tests/test_customer_operating_review.py"
+      - ".github/workflows/customer-operating-review.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CAVRA
+        run: python -m pip install -e . pytest ruff
+
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_customer_operating_review.py \
+            --packet examples/customer-operating-review/customer-operating-review.sample.json
+
+      - name: Validate live sanitized example
+        run: |
+          python scripts/validate_customer_operating_review.py \
+            --packet examples/customer-operating-review/customer-operating-review.live.sanitized.example.json \
+            --require-live
+
+      - name: Test
+        run: python -m pytest tests/test_customer_operating_review.py -q
+
+      - name: Lint
+        run: |
+          python -m ruff check \
+            src/cavra/customer_operating_review.py \
+            scripts/validate_customer_operating_review.py \
+            tests/test_customer_operating_review.py

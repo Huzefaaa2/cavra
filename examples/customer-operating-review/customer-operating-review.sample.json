@@ -1,0 +1,143 @@
+{
+  "closeout_handoff_ref": "sample://customer-closeout-handoff/packet",
+  "closeout_handoff_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer closeout handoff schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample closeout handoff validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "evidence_room_index_ref is a sanitized reference.",
+        "name": "evidence_room_index_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source evidence-room validates shape but is not live.",
+        "name": "evidence_room_result",
+        "status": "warn"
+      },
+      {
+        "message": "handoff_owner_refs are present and sanitized.",
+        "name": "handoff_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "communication_refs are present and sanitized.",
+        "name": "communication_refs",
+        "status": "pass"
+      },
+      {
+        "message": "operating_review are present and sanitized.",
+        "name": "operating_review",
+        "status": "pass"
+      },
+      {
+        "message": "Known exclusions are explicit and sanitized.",
+        "name": "known_exclusions",
+        "status": "pass"
+      },
+      {
+        "message": "Closeout handoff controls are explicit.",
+        "name": "handoff_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Closeout handoff contains sanitized refs and control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "product": "CAVRA",
+    "ready_for_customer_closeout_handoff": false,
+    "schema_version": "cavra.customer-closeout-handoff.result.v1",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "customer_profile_ref": "sample://customer/redacted",
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "review_controls": {
+    "aispm_posture_acceptable": true,
+    "closeout_handoff_ready": true,
+    "evidence_freshness_current": true,
+    "next_review_scheduled": true,
+    "open_exclusions_reviewed": true,
+    "renewal_checkpoint_current": true,
+    "success_metrics_current": true,
+    "support_sla_healthy": true
+  },
+  "review_id": "cavra-sample-customer-operating-review",
+  "review_owner_refs": {
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_sponsor_ref": "sample://owner/executive-sponsor",
+    "security_owner_ref": "sample://owner/security-platform",
+    "support_owner_ref": "sample://owner/support"
+  },
+  "review_sections": [
+    {
+      "evidence_refs": [
+        "sample://metrics/adoption",
+        "sample://metrics/decision-coverage",
+        "sample://metrics/time-to-approval"
+      ],
+      "section_id": "success_metrics",
+      "status": "healthy"
+    },
+    {
+      "evidence_refs": [
+        "sample://evidence-room/freshness-report",
+        "sample://audit/evidence-custody"
+      ],
+      "section_id": "evidence_freshness",
+      "status": "current"
+    },
+    {
+      "evidence_refs": [
+        "sample://support/sla-dashboard",
+        "ticket://support/escalation-review"
+      ],
+      "section_id": "support_sla_health",
+      "status": "healthy"
+    },
+    {
+      "evidence_refs": [
+        "sample://aispm/posture-score",
+        "sample://aispm/drift-review",
+        "sample://aispm/remediation-summary"
+      ],
+      "section_id": "aispm_posture",
+      "status": "acceptable"
+    },
+    {
+      "evidence_refs": [
+        "sample://exclusion/register",
+        "sample://risk-acceptance/review"
+      ],
+      "section_id": "open_exclusions",
+      "status": "none_open"
+    },
+    {
+      "evidence_refs": [
+        "sample://commercial/renewal-checkpoint",
+        "sample://operating-review/next"
+      ],
+      "section_id": "renewal_checkpoint",
+      "status": "scheduled"
+    }
+  ],
+  "sanitized": false,
+  "schema_version": "cavra.customer-operating-review.packet.v1"
+}

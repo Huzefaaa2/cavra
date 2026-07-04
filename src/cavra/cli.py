@@ -56,6 +56,11 @@ from cavra.customer_closeout_handoff import (
     validate_customer_closeout_handoff_packet,
     write_customer_closeout_handoff_artifacts,
 )
+from cavra.customer_operating_review import (
+    build_customer_operating_review_packet,
+    validate_customer_operating_review_packet,
+    write_customer_operating_review_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2542,6 +2547,31 @@ def release_customer_closeout_handoff(
         result = validate_customer_closeout_handoff_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_closeout_handoff"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-operating-review")
+def release_customer_operating_review(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer operating review packet JSON.")] = None,
+    closeout_handoff: Annotated[Optional[Path], typer.Option(help="Optional closeout handoff packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the recurring customer operating review packet."""
+    if export_dir:
+        result = write_customer_operating_review_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            handoff = json.loads(closeout_handoff.read_text(encoding="utf-8")) if closeout_handoff else None
+            payload = build_customer_operating_review_packet(
+                handoff,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_operating_review_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_operating_review"]):
         raise typer.Exit(code=1)
 
 

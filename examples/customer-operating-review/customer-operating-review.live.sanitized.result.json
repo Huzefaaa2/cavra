@@ -1,0 +1,56 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer operating review schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized customer operating review supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "customer_profile_ref is a sanitized reference.",
+      "name": "customer_profile_ref",
+      "status": "pass"
+    },
+    {
+      "message": "closeout_handoff_ref is a sanitized reference.",
+      "name": "closeout_handoff_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source closeout handoff is ready.",
+      "name": "closeout_handoff_result",
+      "status": "pass"
+    },
+    {
+      "message": "review_owner_refs are present and sanitized.",
+      "name": "review_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Operating review sections are complete and healthy.",
+      "name": "review_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Operating review controls are explicit.",
+      "name": "review_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Operating review contains sanitized refs and control metadata only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_customer_operating_review": true,
+  "schema_version": "cavra.customer-operating-review.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}
