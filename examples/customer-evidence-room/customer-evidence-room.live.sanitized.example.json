@@ -1,0 +1,143 @@
+{
+  "customer_profile_ref": "evidence://customer/redacted",
+  "evidence_mode": "live",
+  "evidence_room_id": "cavra-live-customer-evidence-room",
+  "product": "CAVRA",
+  "publication_controls": {
+    "no_customer_pii": true,
+    "no_raw_model_material": true,
+    "no_secret_material": true,
+    "private_links_access_controlled": true,
+    "reviewer_attestation_required": true,
+    "sanitized_only": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-evidence-room.index.v1",
+  "sections": [
+    {
+      "evidence_refs": [
+        "evidence://evidence-room/cavra-live-closeout",
+        "evidence://approval/customer-live-closeout"
+      ],
+      "section_id": "executive_summary",
+      "title": "Executive readiness summary"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/platform_readiness/data_residency_ref",
+        "evidence://customer-live/platform_readiness/identity_validation_ref",
+        "evidence://customer-live/platform_readiness/private_network_ref",
+        "evidence://customer-live/platform_readiness/tenant_isolation_ref"
+      ],
+      "section_id": "platform_readiness",
+      "title": "Platform readiness"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/evidence_audit/immutable_audit_ref",
+        "evidence://customer-live/evidence_audit/independent_verifier_ref",
+        "evidence://customer-live/evidence_audit/kms_hsm_custody_ref",
+        "evidence://customer-live/evidence_audit/retention_policy_ref"
+      ],
+      "section_id": "evidence_and_audit",
+      "title": "Evidence and audit"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/connectors_scanners/connector_live_delivery_ref",
+        "evidence://customer-live/connectors_scanners/model_registry_sandbox_ref",
+        "evidence://customer-live/connectors_scanners/no_raw_egress_test_ref",
+        "evidence://customer-live/connectors_scanners/zero_trust_scanner_ref"
+      ],
+      "section_id": "connectors_and_scanners",
+      "title": "Connectors and scanners"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/policy_monitoring/continuous_monitoring_ref",
+        "evidence://customer-live/policy_monitoring/event_bus_health_ref",
+        "evidence://customer-live/policy_monitoring/opa_runtime_ref",
+        "evidence://customer-live/policy_monitoring/policy_lifecycle_ref"
+      ],
+      "section_id": "policy_and_monitoring",
+      "title": "Policy and monitoring"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/phase6_ecosystem/ai_red_team_ref",
+        "evidence://customer-live/phase6_ecosystem/benchmark_run_ref",
+        "evidence://customer-live/phase6_ecosystem/generic_adapter_ref",
+        "evidence://customer-live/phase6_ecosystem/phase6_rollup_ref",
+        "evidence://customer-live/phase6_ecosystem/zero_trust_deployment_ref"
+      ],
+      "section_id": "phase6_ecosystem",
+      "title": "Phase 6 ecosystem gates"
+    },
+    {
+      "evidence_refs": [
+        "evidence://customer-live/aispm_production/closeout_approval_ref",
+        "evidence://customer-live/aispm_production/production_readiness_packet_ref",
+        "evidence://customer-live/aispm_production/report_delivery_ref",
+        "evidence://customer-live/aispm_production/runtime_workflow_ref"
+      ],
+      "section_id": "aispm_production",
+      "title": "AISPM production readiness"
+    },
+    {
+      "evidence_refs": [
+        "evidence://operator/customer-success-security",
+        "evidence://approver/cavra-release-authority",
+        "evidence://approval/customer-live-closeout"
+      ],
+      "section_id": "approvals_and_closeout",
+      "title": "Approvals and closeout"
+    }
+  ],
+  "source_intake_packet_ref": "evidence://customer-live-evidence/intake-packet",
+  "source_intake_validation": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer-live evidence schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized customer evidence packet supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "Customer profile uses sanitized references.",
+        "name": "customer_profile",
+        "status": "pass"
+      },
+      {
+        "message": "All customer-live evidence references are present and sanitized.",
+        "name": "evidence_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Redaction controls are explicitly affirmed.",
+        "name": "redaction_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Prepared-by, reviewer, and approval refs are present.",
+        "name": "attestation",
+        "status": "pass"
+      },
+      {
+        "message": "Packet contains only sanitized references and control booleans.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_customer_live_evidence_intake": true,
+    "schema_version": "cavra.customer-live-evidence.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer evidence-room index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized evidence-room index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "Evidence-room publication controls are explicit.",
+      "name": "publication_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Evidence-room sections are complete and sanitized.",
+      "name": "sections",
+      "status": "pass"
+    },
+    {
+      "message": "Source customer-live evidence intake is ready.",
+      "name": "source_intake_validation",
+      "status": "pass"
+    },
+    {
+      "message": "Evidence-room index contains sanitized refs and control metadata only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_customer_evidence_room_closeout": true,
+  "schema_version": "cavra.customer-evidence-room.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

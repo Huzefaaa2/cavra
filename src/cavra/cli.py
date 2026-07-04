@@ -46,6 +46,11 @@ from cavra.customer_live_evidence import (
     validate_customer_live_evidence_packet,
     write_customer_live_evidence_artifacts,
 )
+from cavra.customer_evidence_room import (
+    build_customer_evidence_room_index,
+    validate_customer_evidence_room_index,
+    write_customer_evidence_room_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2482,6 +2487,31 @@ def release_customer_live_evidence(
         result = validate_customer_live_evidence_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_live_evidence_intake"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-evidence-room")
+def release_customer_evidence_room(
+    index: Annotated[Optional[Path], typer.Option(help="Optional customer evidence-room index JSON.")] = None,
+    intake_packet: Annotated[Optional[Path], typer.Option(help="Optional customer-live intake packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live indexes.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer evidence-room closeout index."""
+    if export_dir:
+        result = write_customer_evidence_room_artifacts(export_dir)
+    else:
+        if index:
+            payload = json.loads(index.read_text(encoding="utf-8"))
+        else:
+            intake = json.loads(intake_packet.read_text(encoding="utf-8")) if intake_packet else None
+            payload = build_customer_evidence_room_index(
+                intake,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_evidence_room_index(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_evidence_room_closeout"]):
         raise typer.Exit(code=1)
 
 
