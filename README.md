@@ -12,6 +12,14 @@ CAVRA is a runtime governance layer for AI coding agents, agentic engineering wo
 
 The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/)**. It explains CAVRA Managed, Enterprise Subscription, Trial Access, AISPM, trust, resources, and the public product journey. The public interactive sandbox remains **[huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/)**.
 
+## Introduction Video
+
+Start with the CAVRA product introduction video to see the runtime authority model, evidence flow, AISPM posture loop, and product paths before reading the full documentation.
+
+[![Watch the CAVRA introduction video](assets/brand/png/cavra-thumbnail-1280x640.png)](https://ai.invideo.io/watch/cq7iExDcHvs)
+
+[Watch the introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs)
+
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
 For implementation details, read the new textbook chapter [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md). It explains the public Community stack across Python, FastAPI, Typer/Rich, static web front ends, JSON/SQLite persistence, policy and evidence formats, cryptography, Docker, Azure, GitHub Actions, and validation.

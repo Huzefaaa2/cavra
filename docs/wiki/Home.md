@@ -4,6 +4,14 @@ Welcome to the CAVRA Wiki. This wiki now opens as a technical textbook for CAVRA
 
 CAVRA exists for a simple reason: AI agents should not receive unchecked authority over code, cloud, data, identity, CI/CD, MCP tools, and production workflows. CAVRA gives organizations a runtime authority layer that evaluates agent actions before they happen, records evidence after they happen, and turns that evidence into AI Security Posture Management, or AISPM. The current product roadmap also extends the same control planes to model registries, AI artifacts, scanner metadata, supply-chain checks, and compliance evidence.
 
+## Introduction Video
+
+Start here if you are new to CAVRA. The introduction video explains the core idea: before an AI agent reads, writes, executes, changes infrastructure, or calls tools, CAVRA checks authority, records evidence, and turns runtime activity into AI Security Posture Management.
+
+[![Watch the CAVRA introduction video](assets/textbook/dynamic-runtime-authority-loop.svg)](https://ai.invideo.io/watch/cq7iExDcHvs)
+
+[Watch the CAVRA introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs)
+
 ## Product Website
 
 The primary commercial product front door is [cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/). Use it for the buyer and evaluator journey across CAVRA Managed, CAVRA Enterprise Subscription, Trial Access, AISPM, trust, resources, and product contact paths.

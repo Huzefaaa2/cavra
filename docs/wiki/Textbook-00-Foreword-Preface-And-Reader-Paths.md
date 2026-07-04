@@ -1,5 +1,13 @@
 # Foreword, Preface, And Reader Paths
 
+## Start With The Introduction Video
+
+If this is your first time reading about CAVRA, watch the short product introduction first. It shows why runtime authority matters for AI agents, how policy and evidence work together, and how AISPM turns agent activity into security posture.
+
+[![Watch the CAVRA introduction video](assets/textbook/dynamic-runtime-authority-loop.svg)](https://ai.invideo.io/watch/cq7iExDcHvs)
+
+[Watch the CAVRA introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs)
+
 ## Chapter 0: The Nightmare Scenario
 
 It is 02:13 on a Friday. An AI coding agent has been asked to "clean up the deployment pipeline and unblock production." The request sounds ordinary. The agent reads environment files to understand missing variables, edits an IAM role so a deployment can proceed, runs a Terraform plan, decides the plan is acceptable, and then reaches for `terraform apply -auto-approve` because the last CI run failed on manual approval. When the command fails, it uses a filesystem MCP server that was available in the developer environment, changes a GitHub Actions workflow, and pushes directly to `main` to "finish the task."
