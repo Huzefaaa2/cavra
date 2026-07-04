@@ -1,0 +1,9 @@
+{
+  "schema_version": "cavra.continuous-monitoring.export.v1",
+  "output_dir": "examples/continuous-monitoring/generated",
+  "artifacts": {
+    "events": "examples/continuous-monitoring/generated/continuous-monitoring-events.json",
+    "replay_report": "examples/continuous-monitoring/generated/continuous-monitoring-replay-report.json",
+    "readiness_packet": "examples/continuous-monitoring/generated/continuous-monitoring-readiness-packet.json"
+  }
+}

@@ -16,6 +16,14 @@ from cavra.aispm_validation import (
     validate_aispm_replay_to_policy_ci_gate_readiness_file,
     validate_aispm_replay_to_policy_review_packet_file,
 )
+from cavra.continuous_monitoring import (
+    DEFAULT_BASE_TIME,
+    build_continuous_monitoring_readiness_packet,
+    build_sample_monitoring_events,
+    replay_monitoring_events,
+    validate_continuous_monitoring_packet,
+    write_continuous_monitoring_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -237,6 +245,7 @@ release_app = typer.Typer(help="Release package verification commands.")
 runtime_app = typer.Typer(help="Runtime backend pilot commands.")
 saas_app = typer.Typer(help="Public-safe SaaS Control Plane contract commands.")
 aispm_app = typer.Typer(help="AI Security Posture Management commands.")
+monitor_app = typer.Typer(help="Continuous monitoring event commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -250,11 +259,85 @@ app.add_typer(release_app, name="release")
 app.add_typer(runtime_app, name="runtime")
 app.add_typer(saas_app, name="saas")
 app.add_typer(aispm_app, name="aispm")
+app.add_typer(monitor_app, name="monitor")
 
 
 @app.command()
 def version() -> None:
     typer.echo(f"cavra {__version__}")
+
+
+@monitor_app.command("sample-events")
+def monitor_sample_events(
+    output: Annotated[Optional[Path], typer.Option(help="Optional JSON output path.")] = None,
+) -> None:
+    """Emit deterministic sample continuous monitoring events."""
+    events = build_sample_monitoring_events()
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
+        console.print(f"[green]written[/green] {output}")
+        return
+    console.print(JSON(json.dumps(events, indent=2)))
+
+
+@monitor_app.command("replay")
+def monitor_replay(
+    events: Annotated[Path, typer.Argument(help="Continuous monitoring events JSON.")],
+    now: Annotated[str, typer.Option(help="ISO-8601 timestamp used for stale assessment.")] = DEFAULT_BASE_TIME,
+    latency_slo_ms: Annotated[int, typer.Option(help="Event latency SLO in milliseconds.")] = 5000,
+    stale_after_minutes: Annotated[int, typer.Option(help="Stale assessment threshold in minutes.")] = 60,
+) -> None:
+    """Replay continuous monitoring events and report dedupe, latency, and freshness."""
+    payload = json.loads(events.read_text(encoding="utf-8"))
+    event_items = payload.get("events", payload) if isinstance(payload, dict) else payload
+    result = replay_monitoring_events(
+        event_items,
+        now=now,
+        latency_slo_ms=latency_slo_ms,
+        stale_after_minutes=stale_after_minutes,
+    )
+    console.print(JSON(json.dumps(result, indent=2)))
+    if (
+        not result["required_event_types_present"]
+        or result["invalid_event_count"]
+        or result["latency_summary"]["violation_count"]
+        or result["stale_assessment"]["stale_count"]
+    ):
+        raise typer.Exit(code=1)
+
+
+@monitor_app.command("export")
+def monitor_export(
+    output_dir: Annotated[Path, typer.Option(help="Directory for event, replay, and readiness artifacts.")] = Path(
+        "dist/continuous-monitoring"
+    ),
+    evidence_mode: Annotated[str, typer.Option(help="Evidence mode for generated readiness packet.")] = "sample",
+) -> None:
+    """Export sample continuous monitoring artifacts."""
+    events = build_sample_monitoring_events()
+    replay = replay_monitoring_events(events)
+    packet = build_continuous_monitoring_readiness_packet(replay, evidence_mode=evidence_mode)
+    result = write_continuous_monitoring_artifacts(
+        events=events,
+        replay_report=replay,
+        readiness_packet=packet,
+        output_dir=output_dir,
+    )
+    console.print(JSON(json.dumps(result, indent=2)))
+
+
+@monitor_app.command("readiness")
+def monitor_readiness(
+    packet: Annotated[Path, typer.Argument(help="Continuous monitoring readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate a continuous monitoring readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_continuous_monitoring_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_continuous_monitoring"]):
+        raise typer.Exit(code=1)
 
 
 @aispm_app.command("validate-review-packet")

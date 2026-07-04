@@ -1,0 +1,93 @@
+[
+  {
+    "schema_version": "cavra.continuous-monitoring.event.v1",
+    "event_id": "evt_2963af5d8c91e6c1",
+    "event_type": "cavra.agent.action.decided",
+    "source": "runtime-authority",
+    "source_ref": "dec_public_001",
+    "tenant_id": "tenant-public-example",
+    "workspace_id": "workspace-ai-governance",
+    "occurred_at": "2026-07-04T10:00:00+00:00",
+    "received_at": "2026-07-04T10:00:02+00:00",
+    "severity": "critical",
+    "correlation_id": "session_public_001",
+    "idempotency_key": "evt_2963af5d8c91e6c1",
+    "payload": {
+      "decision_id": "dec_public_001",
+      "session_id": "session_public_001",
+      "agent_id": "claude-code",
+      "action_type": "execute_command",
+      "target": "terraform apply -auto-approve",
+      "decision": "block",
+      "rule_id": "commands.block",
+      "evidence_refs": [
+        "evidence://runtime/session_public_001"
+      ]
+    }
+  },
+  {
+    "schema_version": "cavra.continuous-monitoring.event.v1",
+    "event_id": "evt_1b6cdeec51bb639d",
+    "event_type": "cavra.model.registry.metadata",
+    "source": "model-registry-connector",
+    "source_ref": "mlflow://workspace-public/fraud-model",
+    "tenant_id": "tenant-public-example",
+    "workspace_id": "workspace-ai-governance",
+    "occurred_at": "2026-07-04T10:04:00+00:00",
+    "received_at": "2026-07-04T10:04:03+00:00",
+    "severity": "high",
+    "correlation_id": "mlflow://workspace-public/fraud-model",
+    "idempotency_key": "evt_1b6cdeec51bb639d",
+    "payload": {
+      "registry_provider": "mlflow",
+      "model_ref": "mlflow://workspace-public/fraud-model",
+      "model_version": "17",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owner_ref": "team-risk",
+      "risk_tier": "high",
+      "evidence_ref": "evidence://model/fraud-model/17"
+    }
+  },
+  {
+    "schema_version": "cavra.continuous-monitoring.event.v1",
+    "event_id": "evt_19cf55507050f70d",
+    "event_type": "cavra.model.drift.detected",
+    "source": "zero-trust-scanner",
+    "source_ref": "finding-public-drift-001",
+    "tenant_id": "tenant-public-example",
+    "workspace_id": "workspace-ai-governance",
+    "occurred_at": "2026-07-04T10:08:00+00:00",
+    "received_at": "2026-07-04T10:08:04+00:00",
+    "severity": "high",
+    "correlation_id": "mlflow://workspace-public/fraud-model",
+    "idempotency_key": "evt_19cf55507050f70d",
+    "payload": {
+      "model_ref": "mlflow://workspace-public/fraud-model",
+      "finding_ref": "finding-public-drift-001",
+      "drift_type": "risk_score_increase",
+      "risk_score": 82,
+      "evidence_ref": "evidence://scanner/finding-public-drift-001"
+    }
+  },
+  {
+    "schema_version": "cavra.continuous-monitoring.event.v1",
+    "event_id": "evt_81066d4e3e9d93b2",
+    "event_type": "cavra.production.promotion.requested",
+    "source": "release-governance",
+    "source_ref": "promotion-public-001",
+    "tenant_id": "tenant-public-example",
+    "workspace_id": "workspace-ai-governance",
+    "occurred_at": "2026-07-04T10:12:00+00:00",
+    "received_at": "2026-07-04T10:12:01+00:00",
+    "severity": "medium",
+    "correlation_id": "promotion-public-001",
+    "idempotency_key": "evt_81066d4e3e9d93b2",
+    "payload": {
+      "promotion_ref": "promotion-public-001",
+      "release_ref": "cavra-runtime-v1.0.0",
+      "target_environment": "production",
+      "approval_state": "approved",
+      "evidence_ref": "evidence://release/promotion-public-001"
+    }
+  }
+]

@@ -1,0 +1,111 @@
+name: Continuous Monitoring Event Core
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the continuous monitoring readiness packet JSON."
+        required: false
+        default: "examples/continuous-monitoring/enterprise-continuous-monitoring.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/continuous_monitoring.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_continuous_monitoring.py"
+      - "examples/continuous-monitoring/**"
+      - "tests/test_continuous_monitoring.py"
+      - ".github/workflows/continuous-monitoring.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/continuous_monitoring.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_continuous_monitoring.py"
+      - "examples/continuous-monitoring/**"
+      - "tests/test_continuous_monitoring.py"
+      - ".github/workflows/continuous-monitoring.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  continuous-monitoring-contract:
+    name: Validate continuous monitoring event core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Export sample event artifacts
+        run: |
+          python scripts/validate_continuous_monitoring.py \
+            --build-sample \
+            --export-dir dist/continuous-monitoring \
+            --now 2026-07-04T10:15:00+00:00 \
+            --output dist/continuous-monitoring-export.json
+      - name: Replay sample event stream
+        run: |
+          python scripts/validate_continuous_monitoring.py \
+            --events examples/continuous-monitoring/generated/continuous-monitoring-events.json \
+            --replay \
+            --now 2026-07-04T10:15:00+00:00 \
+            --output dist/continuous-monitoring-replay.json
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_continuous_monitoring.py \
+            --packet examples/continuous-monitoring/enterprise-continuous-monitoring.sample.json \
+            --output dist/enterprise-continuous-monitoring-sample.json
+      - name: Validate sanitized live packet
+        run: |
+          python scripts/validate_continuous_monitoring.py \
+            --packet examples/continuous-monitoring/enterprise-continuous-monitoring.live.sanitized.example.json \
+            --require-live \
+            --output dist/enterprise-continuous-monitoring-live-sanitized.json
+      - name: Test continuous monitoring event core
+        run: python -m pytest tests/test_continuous_monitoring.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: continuous-monitoring
+          path: |
+            dist/continuous-monitoring-export.json
+            dist/continuous-monitoring-replay.json
+            dist/enterprise-continuous-monitoring-sample.json
+            dist/enterprise-continuous-monitoring-live-sanitized.json
+            dist/continuous-monitoring/
+
+  continuous-monitoring-live:
+    name: Validate selected live continuous monitoring packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_continuous_monitoring.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-continuous-monitoring-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: continuous-monitoring-live
+          path: dist/enterprise-continuous-monitoring-live.json
