@@ -1,0 +1,86 @@
+{
+  "closeout_id": "cavra-live-customer-closeout-handoff",
+  "communication_refs": {
+    "announcement_ref": "evidence://announcement/customer-closeout",
+    "evidence_room_ref": "evidence://customer-live-evidence/intake-packet",
+    "handoff_ticket_ref": "ticket://customer-closeout/handoff",
+    "support_path_ref": "runbook://support/managed-enterprise-escalation"
+  },
+  "customer_profile_ref": "evidence://customer/redacted",
+  "evidence_mode": "live",
+  "evidence_room_index_ref": "evidence://customer-evidence-room/index",
+  "evidence_room_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer evidence-room index schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized evidence-room index supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "Evidence-room publication controls are explicit.",
+        "name": "publication_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Evidence-room sections are complete and sanitized.",
+        "name": "sections",
+        "status": "pass"
+      },
+      {
+        "message": "Source customer-live evidence intake is ready.",
+        "name": "source_intake_validation",
+        "status": "pass"
+      },
+      {
+        "message": "Evidence-room index contains sanitized refs and control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_customer_evidence_room_closeout": true,
+    "schema_version": "cavra.customer-evidence-room.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "handoff_controls": {
+    "customer_ack_required": true,
+    "customer_success_owner_assigned": true,
+    "evidence_room_ready": true,
+    "operating_review_scheduled": true,
+    "release_owner_assigned": true,
+    "rollback_contact_defined": true,
+    "security_owner_assigned": true,
+    "support_path_defined": true
+  },
+  "handoff_owner_refs": {
+    "approver_ref": "evidence://approver/cavra-release-authority",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "release_owner_ref": "evidence://owner/release-authority",
+    "security_owner_ref": "evidence://owner/security-platform"
+  },
+  "known_exclusions": [
+    {
+      "exclusion_id": "none-open",
+      "owner_ref": "evidence://owner/release-authority",
+      "reason_ref": "evidence://exclusion/none-open",
+      "risk_acceptance_ref": "evidence://risk-acceptance/not-required"
+    }
+  ],
+  "operating_review": {
+    "cadence_ref": "runbook://operating-review/monthly-cadence",
+    "next_review_ref": "evidence://operating-review/next",
+    "renewal_checkpoint_ref": "evidence://commercial/renewal-checkpoint",
+    "success_metrics_ref": "evidence://metrics/customer-success-slo"
+  },
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-closeout-handoff.packet.v1"
+}

@@ -51,6 +51,11 @@ from cavra.customer_evidence_room import (
     validate_customer_evidence_room_index,
     write_customer_evidence_room_artifacts,
 )
+from cavra.customer_closeout_handoff import (
+    build_customer_closeout_handoff_packet,
+    validate_customer_closeout_handoff_packet,
+    write_customer_closeout_handoff_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2512,6 +2517,31 @@ def release_customer_evidence_room(
         result = validate_customer_evidence_room_index(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_evidence_room_closeout"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-closeout-handoff")
+def release_customer_closeout_handoff(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer closeout handoff packet JSON.")] = None,
+    evidence_room_index: Annotated[Optional[Path], typer.Option(help="Optional evidence-room index JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer closeout handoff packet."""
+    if export_dir:
+        result = write_customer_closeout_handoff_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            evidence_room = json.loads(evidence_room_index.read_text(encoding="utf-8")) if evidence_room_index else None
+            payload = build_customer_closeout_handoff_packet(
+                evidence_room,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_closeout_handoff_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_closeout_handoff"]):
         raise typer.Exit(code=1)
 
 
