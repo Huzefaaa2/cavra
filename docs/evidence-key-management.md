@@ -2,6 +2,8 @@
 
 CAVRA evidence bundles can be signed with Ed25519 keys and verified through either a public key or a trust-root document.
 
+For Enterprise KMS, managed HSM, Vault Transit, or PKCS#11 custody requirements, see [CAVRA Enterprise KMS/HSM Evidence Custody](evidence-kms-hsm-custody.md). That readiness gate keeps private signing operations inside the operator-owned provider boundary while preserving CAVRA trust-root verification for auditors and independent reviewers.
+
 ## Key IDs
 
 Each Ed25519 manifest signature includes:
@@ -66,6 +68,14 @@ Recommended production rotation:
 6. Keep old trust roots for historical bundle verification.
 7. Mark compromised keys as `revoked`.
 8. Rotate keys at least quarterly for regulated release evidence or immediately after suspected exposure.
+
+Enterprise deployments should validate the rotation and custody evidence packet before launch:
+
+```bash
+python3 scripts/validate_enterprise_evidence_custody.py \
+  --packet .cavra/enterprise/enterprise-evidence-custody-live.json \
+  --require-live
+```
 
 ## Verification Guidance
 

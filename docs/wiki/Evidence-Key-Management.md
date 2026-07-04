@@ -2,6 +2,8 @@
 
 CAVRA evidence bundles can be signed with Ed25519 keys and verified through a public key or trust-root document.
 
+Enterprise KMS/HSM custody is covered by [Enterprise KMS/HSM Evidence Custody](Enterprise-KMS-HSM-Evidence-Custody). It validates non-exportable signing keys, dual-control custody, key rotation, revocation drills, and independent verifier handoff.
+
 ## Production Flow
 
 ```bash

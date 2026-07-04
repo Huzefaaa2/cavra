@@ -78,7 +78,7 @@ CAVRA is organized around four planes:
 
 - **Decision plane:** policy evaluation, runtime actions, command checks, MCP checks, approval routing.
 - **Identity and trust plane:** governed agents, MCP trust, OIDC, RBAC, tenant context, entitlement state.
-- **Evidence plane:** signed evidence bundles, trust roots, attestations, metadata, search, SIEM export, retention.
+- **Evidence plane:** signed evidence bundles, trust roots, attestations, KMS/HSM custody readiness, metadata, search, SIEM export, retention.
 - **Posture plane:** AISPM dashboards, findings, reports, trial readiness, pilot evidence rooms, production readiness gates.
 
 ![CAVRA architecture](docs/wiki/assets/textbook/architecture-context.svg)
@@ -192,6 +192,8 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)
 - [CAVRA Enterprise Live Identity Validation](docs/enterprise-live-identity-validation.md)
 - [CAVRA Tenant And Workspace Persistence](docs/tenant-workspace-persistence.md)
+- [CAVRA Enterprise HA/DR Readiness](docs/enterprise-ha-dr-readiness.md)
+- [CAVRA Enterprise KMS/HSM Evidence Custody](docs/evidence-kms-hsm-custody.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)
@@ -219,6 +221,7 @@ Canonical references:
 - [Capability Configuration Guide](docs/wiki/Capability-Configuration-Guide.md)
 - [Provider Interfaces](docs/wiki/Provider-Interfaces.md)
 - [Evidence Hub And Attestation](docs/wiki/Evidence-Hub-and-Attestation.md)
+- [Enterprise KMS/HSM Evidence Custody](docs/wiki/Enterprise-KMS-HSM-Evidence-Custody.md)
 - [Approval Workflows](docs/wiki/Approval-Workflows.md)
 - [Enterprise Identity And Access Control](docs/wiki/Enterprise-Identity-And-Access-Control.md)
 - [Enterprise Live Identity Validation](docs/wiki/Enterprise-Live-Identity-Validation.md)

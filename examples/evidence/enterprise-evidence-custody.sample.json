@@ -1,0 +1,54 @@
+{
+  "schema_version": "cavra.evidence.custody.v1",
+  "product": "CAVRA",
+  "evidence_mode": "sample",
+  "signing_provider": {
+    "type": "azure_key_vault",
+    "key_ref": "azure://keyvault/cavra-evidence/keys/prod-evidence-2026-q3",
+    "key_id": "prod-evidence-2026-q3",
+    "algorithm": "Ed25519",
+    "private_key_exportable": false,
+    "external_signing_enforced": true
+  },
+  "custody_policy": {
+    "custody_boundary": "cloud_kms",
+    "owners": ["platform-security", "security-operations"],
+    "dual_control_required": true,
+    "separation_of_duties": true,
+    "break_glass_process": true,
+    "private_key_export_allowed": false
+  },
+  "rotation": {
+    "cadence_days": 90,
+    "overlap_days": 14,
+    "previous_key_retained_for_verification": true,
+    "emergency_revocation_tested": true,
+    "latest_rotation_evidence_ref": "evidence://custody/sample-rotation-drill",
+    "next_rotation_due_at": "2026-10-01T00:00:00Z"
+  },
+  "trust_roots": {
+    "active_key_ids": ["prod-evidence-2026-q3"],
+    "retired_key_ids": ["prod-evidence-2026-q2"],
+    "revoked_key_ids": [],
+    "distribution_package_ref": "evidence://trust-roots/prod-trust-roots-2026-q3",
+    "distribution_checksum_verified": true,
+    "verifier_access_confirmed": true
+  },
+  "independent_verifier": {
+    "enabled": true,
+    "offline_verification_supported": true,
+    "sample_bundle_verified": true,
+    "attestation_verified": true,
+    "latest_verification_evidence_ref": "evidence://custody/sample-independent-verifier",
+    "commands": [
+      "cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-roots.json --key-id prod-evidence-2026-q3",
+      "cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation"
+    ]
+  },
+  "audit_evidence": {
+    "custody_review_ref": "ticket://sample-custody-review",
+    "rotation_approval_ref": "ticket://sample-rotation-approval",
+    "revocation_drill_ref": "ticket://sample-revocation-drill",
+    "verifier_handoff_ref": "ticket://sample-verifier-handoff"
+  }
+}

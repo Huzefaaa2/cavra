@@ -1,0 +1,54 @@
+{
+  "schema_version": "cavra.evidence.custody.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "signing_provider": {
+    "type": "managed_hsm",
+    "key_ref": "azure://managed-hsm/cavra-prod-hsm/keys/prod-evidence-2026-q3",
+    "key_id": "prod-evidence-2026-q3",
+    "algorithm": "Ed25519",
+    "private_key_exportable": false,
+    "external_signing_enforced": true
+  },
+  "custody_policy": {
+    "custody_boundary": "managed_hsm",
+    "owners": ["platform-security", "security-operations"],
+    "dual_control_required": true,
+    "separation_of_duties": true,
+    "break_glass_process": true,
+    "private_key_export_allowed": false
+  },
+  "rotation": {
+    "cadence_days": 60,
+    "overlap_days": 21,
+    "previous_key_retained_for_verification": true,
+    "emergency_revocation_tested": true,
+    "latest_rotation_evidence_ref": "evidence://enterprise-custody/live-rotation-drill-2026-q3-sanitized",
+    "next_rotation_due_at": "2026-09-15T00:00:00Z"
+  },
+  "trust_roots": {
+    "active_key_ids": ["prod-evidence-2026-q3"],
+    "retired_key_ids": ["prod-evidence-2026-q2", "prod-evidence-2026-q1"],
+    "revoked_key_ids": [],
+    "distribution_package_ref": "evidence://enterprise-custody/prod-trust-roots-2026-q3-sanitized",
+    "distribution_checksum_verified": true,
+    "verifier_access_confirmed": true
+  },
+  "independent_verifier": {
+    "enabled": true,
+    "offline_verification_supported": true,
+    "sample_bundle_verified": true,
+    "attestation_verified": true,
+    "latest_verification_evidence_ref": "evidence://enterprise-custody/live-independent-verifier-2026-q3-sanitized",
+    "commands": [
+      "cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-roots.json --key-id prod-evidence-2026-q3 --minimum-retention-days 2555",
+      "cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation"
+    ]
+  },
+  "audit_evidence": {
+    "custody_review_ref": "evidence://enterprise-custody/live-custody-review-2026-q3-sanitized",
+    "rotation_approval_ref": "evidence://enterprise-custody/live-rotation-approval-2026-q3-sanitized",
+    "revocation_drill_ref": "evidence://enterprise-custody/live-revocation-drill-2026-q3-sanitized",
+    "verifier_handoff_ref": "evidence://enterprise-custody/live-verifier-handoff-2026-q3-sanitized"
+  }
+}
