@@ -1,0 +1,82 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Phase 6 rollup schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "All R6 gates are present.",
+      "name": "required_gates",
+      "status": "pass"
+    },
+    {
+      "message": "R6.1 public contract gate is ready.",
+      "name": "R6.1_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R6.1 public artifacts are present.",
+      "name": "R6.1_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R6.1 customer live evidence remains deployment-specific: tenant_benchmark_run_ref, production_ha_evidence_ref, failure_drill_recording_ref.",
+      "name": "R6.1_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R6.2 public contract gate is ready.",
+      "name": "R6.2_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R6.2 public artifacts are present.",
+      "name": "R6.2_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R6.2 customer live evidence remains deployment-specific: provider_adapter_install_ref, customer_action_fixture_ref, tenant_runtime_evaluation_ref.",
+      "name": "R6.2_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R6.3 public contract gate is ready.",
+      "name": "R6.3_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R6.3 public artifacts are present.",
+      "name": "R6.3_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R6.3 customer live evidence remains deployment-specific: customer_prompt_suite_ref, proprietary_scanner_plugin_ref, red_team_closeout_ref.",
+      "name": "R6.3_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R6.4 public contract gate is ready.",
+      "name": "R6.4_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R6.4 public artifacts are present.",
+      "name": "R6.4_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R6.4 customer live evidence remains deployment-specific: docker_compose_smoke_ref, helm_template_ref, terraform_validate_ref, azure_what_if_ref, scanner_operation_ref.",
+      "name": "R6.4_customer_live_evidence",
+      "status": "warn"
+    }
+  ],
+  "phase": "R6 ecosystem expansion",
+  "product": "CAVRA",
+  "ready_for_customer_live_phase6_closeout": false,
+  "ready_for_phase6_public_contract_release": true,
+  "schema_version": "cavra.phase6-ecosystem-expansion.rollup-result.v1",
+  "status": "ready_with_customer_live_warnings",
+  "warning_count": 4
+}

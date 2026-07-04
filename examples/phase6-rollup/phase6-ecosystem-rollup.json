@@ -1,0 +1,350 @@
+{
+  "evidence_mode": "public_contract_rollup",
+  "gates": [
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "tenant_benchmark_run_ref",
+        "production_ha_evidence_ref",
+        "failure_drill_recording_ref"
+      ],
+      "gate_id": "R6.1",
+      "packet_path": "examples/benchmark-slo/enterprise-benchmark-slo.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/benchmark-slo/enterprise-benchmark-slo.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/benchmark-slo-regression-gates.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Benchmark-SLO-Regression-Gates.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/benchmark-slo.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Benchmark readiness packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live benchmark/SLO evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Benchmark report schema is valid.",
+            "name": "benchmark_report_schema",
+            "status": "pass"
+          },
+          {
+            "message": "SLO regression gate passed.",
+            "name": "slo_regression_gate",
+            "status": "pass"
+          },
+          {
+            "message": "Benchmark, HA, and failure-mode operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_benchmark_slo_contract": true,
+        "ready_for_live_benchmark_slo_gate": true,
+        "schema_version": "cavra.benchmark-slo.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_benchmark_slo_gate",
+      "title": "Benchmark and SLO regression gates",
+      "validator": "benchmark_slo"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "provider_adapter_install_ref",
+        "customer_action_fixture_ref",
+        "tenant_runtime_evaluation_ref"
+      ],
+      "gate_id": "R6.2",
+      "packet_path": "examples/generic-adapters/enterprise-generic-agent-adapter.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/generic-adapters/enterprise-generic-agent-adapter.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/generic-agent-adapter-sdk.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Generic-Agent-Adapter-SDK-And-Action-Taxonomy.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/generic-agent-adapter.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Generic adapter readiness packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live generic adapter evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Adapter manifest validates against the generic adapter SDK contract.",
+            "name": "adapter_manifest",
+            "status": "pass"
+          },
+          {
+            "message": "Action taxonomy is present and complete.",
+            "name": "taxonomy",
+            "status": "pass"
+          },
+          {
+            "message": "Non-coding agent scenario covers allow, approval, and block decisions.",
+            "name": "non_coding_scenario",
+            "status": "pass"
+          },
+          {
+            "message": "Required generic adapter readiness artifacts are listed.",
+            "name": "readiness_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "Generic adapter operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_generic_adapter_contract": true,
+        "ready_for_live_generic_adapter_sdk": true,
+        "schema_version": "cavra.generic-agent-adapter.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_generic_adapter_sdk",
+      "title": "Generic agent adapter SDK and action taxonomy",
+      "validator": "generic_adapter"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "customer_prompt_suite_ref",
+        "proprietary_scanner_plugin_ref",
+        "red_team_closeout_ref"
+      ],
+      "gate_id": "R6.3",
+      "packet_path": "examples/ai-red-team/enterprise-ai-red-team.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/ai-red-team/enterprise-ai-red-team.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/ai-red-team-and-supply-chain-gates.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/AI-Red-Team-And-Supply-Chain-Gates.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/ai-red-team.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "AI red-team readiness packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live AI red-team evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Required native LLM guardrail tests are present.",
+            "name": "guardrail_test_suite",
+            "status": "pass"
+          },
+          {
+            "message": "Native red-team test run passed.",
+            "name": "red_team_run_report",
+            "status": "pass"
+          },
+          {
+            "message": "AI supply-chain scan passed.",
+            "name": "supply_chain_scan",
+            "status": "pass"
+          },
+          {
+            "message": "Malicious model checks passed.",
+            "name": "malicious_model_checks",
+            "status": "pass"
+          },
+          {
+            "message": "Required AI red-team readiness artifacts are listed.",
+            "name": "readiness_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "AI red-team operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_ai_red_team_contract": true,
+        "ready_for_live_ai_red_team_gate": true,
+        "schema_version": "cavra.ai-red-team.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_ai_red_team_gate",
+      "title": "AI red-team and supply-chain gates",
+      "validator": "ai_red_team"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "docker_compose_smoke_ref",
+        "helm_template_ref",
+        "terraform_validate_ref",
+        "azure_what_if_ref",
+        "scanner_operation_ref"
+      ],
+      "gate_id": "R6.4",
+      "packet_path": "examples/reference-deployments/zero-trust-reference-deployments.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/reference-deployments/zero-trust-reference-deployments.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/zero-trust-reference-deployments.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Zero-Trust-Reference-Deployments.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/zero-trust-reference-deployments.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Reference deployment readiness packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live zero-trust reference deployment evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "deployment_artifacts includes all required entries.",
+            "name": "deployment_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "security_controls includes all required entries.",
+            "name": "security_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Reference deployment operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          },
+          {
+            "message": "Zero-trust deployment boundaries are explicit.",
+            "name": "deployment_boundaries",
+            "status": "pass"
+          },
+          {
+            "message": "azure_container_apps contains required zero-trust markers.",
+            "name": "azure_container_apps_markers",
+            "status": "pass"
+          },
+          {
+            "message": "docker_compose contains required zero-trust markers.",
+            "name": "docker_compose_markers",
+            "status": "pass"
+          },
+          {
+            "message": "helm_chart contains required zero-trust markers.",
+            "name": "helm_chart_markers",
+            "status": "pass"
+          },
+          {
+            "message": "quickstart_demo contains required zero-trust markers.",
+            "name": "quickstart_demo_markers",
+            "status": "pass"
+          },
+          {
+            "message": "scanner_operation_runbook contains required zero-trust markers.",
+            "name": "scanner_operation_runbook_markers",
+            "status": "pass"
+          },
+          {
+            "message": "terraform_azure contains required zero-trust markers.",
+            "name": "terraform_azure_markers",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_zero_trust_reference_deployments": true,
+        "ready_for_zero_trust_reference_deployment_contract": true,
+        "schema_version": "cavra.zero-trust-reference-deployments.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_zero_trust_reference_deployments",
+      "title": "Zero-trust reference deployments",
+      "validator": "zero_trust_reference_deployments"
+    }
+  ],
+  "phase": "R6 ecosystem expansion",
+  "product": "CAVRA",
+  "schema_version": "cavra.phase6-ecosystem-expansion.rollup.v1",
+  "scope": {
+    "customer_live_evidence": "not included in public repository; must be supplied by a live deployment",
+    "public_contracts": "validated from repository source, examples, docs, and CI workflows"
+  }
+}

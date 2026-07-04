@@ -120,6 +120,11 @@ from cavra.operations import (
     persistent_api_store_status,
     restore_persistent_api_backup,
 )
+from cavra.phase6_rollup import (
+    build_phase6_rollup_packet,
+    validate_phase6_rollup_packet,
+    write_phase6_rollup_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -2431,6 +2436,31 @@ def persistent_api_retention_plan(
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
     _print_json(result)
+
+
+@release_app.command("phase6-rollup")
+def release_phase6_rollup(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional checked-in Phase 6 rollup packet JSON.")] = None,
+    repo_root: Annotated[Path, typer.Option(help="Repository root for artifact validation.")] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export generated packet/result.")] = None,
+    require_customer_live: Annotated[bool, typer.Option(help="Require customer live deployment evidence refs.")] = False,
+) -> None:
+    """Validate or export the Phase 6 ecosystem expansion rollup."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_phase6_rollup_artifacts(root, export_dir)
+    else:
+        payload = json.loads(packet.read_text(encoding="utf-8")) if packet else build_phase6_rollup_packet(root)
+        result = validate_phase6_rollup_packet(
+            payload,
+            repo_root=root,
+            require_customer_live=require_customer_live,
+        )
+    print(json.dumps(result, indent=2))
+    if not result["ready_for_phase6_public_contract_release"] or (
+        require_customer_live and not result["ready_for_customer_live_phase6_closeout"]
+    ):
+        raise typer.Exit(code=1)
 
 
 @release_app.command("verify-go-package")
