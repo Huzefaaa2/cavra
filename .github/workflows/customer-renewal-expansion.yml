@@ -1,0 +1,53 @@
+name: Customer Renewal Expansion
+
+on:
+  pull_request:
+    paths:
+      - "src/cavra/customer_renewal_expansion.py"
+      - "scripts/validate_customer_renewal_expansion.py"
+      - "examples/customer-renewal-expansion/**"
+      - "tests/test_customer_renewal_expansion.py"
+      - ".github/workflows/customer-renewal-expansion.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/cavra/customer_renewal_expansion.py"
+      - "scripts/validate_customer_renewal_expansion.py"
+      - "examples/customer-renewal-expansion/**"
+      - "tests/test_customer_renewal_expansion.py"
+      - ".github/workflows/customer-renewal-expansion.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CAVRA
+        run: python -m pip install -e . pytest ruff
+
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_customer_renewal_expansion.py \
+            --packet examples/customer-renewal-expansion/customer-renewal-expansion.sample.json
+
+      - name: Validate live sanitized example
+        run: |
+          python scripts/validate_customer_renewal_expansion.py \
+            --packet examples/customer-renewal-expansion/customer-renewal-expansion.live.sanitized.example.json \
+            --require-live
+
+      - name: Test
+        run: python -m pytest tests/test_customer_renewal_expansion.py -q
+
+      - name: Lint
+        run: |
+          python -m ruff check \
+            src/cavra/customer_renewal_expansion.py \
+            scripts/validate_customer_renewal_expansion.py \
+            tests/test_customer_renewal_expansion.py

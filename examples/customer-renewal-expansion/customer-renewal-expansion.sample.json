@@ -1,0 +1,150 @@
+{
+  "customer_profile_ref": "sample://customer/redacted",
+  "evidence_mode": "sample",
+  "expansion_candidates": [
+    {
+      "candidate_id": "govern-more-agents",
+      "owner_ref": "sample://owner/customer-success",
+      "readiness_ref": "sample://expansion/govern-more-agents/readiness",
+      "value_ref": "sample://expansion/govern-more-agents/value"
+    },
+    {
+      "candidate_id": "aispm-deeper-connectors",
+      "owner_ref": "sample://owner/security-platform",
+      "readiness_ref": "sample://expansion/aispm-connectors/readiness",
+      "value_ref": "sample://expansion/aispm-connectors/value"
+    }
+  ],
+  "operating_review_ref": "sample://customer-operating-review/packet",
+  "operating_review_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer operating review schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample operating review validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "closeout_handoff_ref is a sanitized reference.",
+        "name": "closeout_handoff_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source closeout handoff validates shape but is not live.",
+        "name": "closeout_handoff_result",
+        "status": "warn"
+      },
+      {
+        "message": "review_owner_refs are present and sanitized.",
+        "name": "review_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Operating review sections are complete and healthy.",
+        "name": "review_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Operating review controls are explicit.",
+        "name": "review_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Operating review contains sanitized refs and control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "product": "CAVRA",
+    "ready_for_customer_operating_review": false,
+    "schema_version": "cavra.customer-operating-review.result.v1",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "product": "CAVRA",
+  "renewal_controls": {
+    "adoption_threshold_met": true,
+    "aispm_posture_ready": true,
+    "commercial_handoff_ready": true,
+    "expansion_candidates_reviewed": true,
+    "next_checkpoint_scheduled": true,
+    "no_unresolved_blocking_risk": true,
+    "operating_review_ready": true,
+    "value_realization_current": true
+  },
+  "renewal_owner_refs": {
+    "account_owner_ref": "sample://owner/account",
+    "commercial_owner_ref": "sample://owner/commercial",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_sponsor_ref": "sample://owner/executive-sponsor",
+    "security_owner_ref": "sample://owner/security-platform"
+  },
+  "renewal_readiness_id": "cavra-sample-customer-renewal-expansion",
+  "renewal_sections": [
+    {
+      "evidence_refs": [
+        "sample://metrics/value-realization",
+        "sample://metrics/risk-reduction",
+        "sample://metrics/evidence-cycle-time"
+      ],
+      "section_id": "value_realization",
+      "status": "realized"
+    },
+    {
+      "evidence_refs": [
+        "sample://metrics/governed-agents",
+        "sample://metrics/governed-workflows",
+        "sample://metrics/policy-coverage"
+      ],
+      "section_id": "adoption_depth",
+      "status": "adopted"
+    },
+    {
+      "evidence_refs": [
+        "sample://aispm/posture-trend",
+        "sample://aispm/drift-exceptions",
+        "sample://evidence-room/freshness-report"
+      ],
+      "section_id": "posture_continuity",
+      "status": "ready"
+    },
+    {
+      "evidence_refs": [
+        "sample://risk/register",
+        "sample://risk/blocker-review"
+      ],
+      "section_id": "unresolved_risk",
+      "status": "none_blocking"
+    },
+    {
+      "evidence_refs": [
+        "sample://expansion/cloud-agents",
+        "sample://expansion/mcp-tools",
+        "sample://expansion/connector-pack"
+      ],
+      "section_id": "expansion_candidates",
+      "status": "reviewed"
+    },
+    {
+      "evidence_refs": [
+        "sample://commercial/renewal-pack",
+        "ticket://commercial/renewal-handoff"
+      ],
+      "section_id": "commercial_handoff",
+      "status": "scheduled"
+    }
+  ],
+  "sanitized": false,
+  "schema_version": "cavra.customer-renewal-expansion.packet.v1"
+}

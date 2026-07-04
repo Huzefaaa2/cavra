@@ -1,0 +1,61 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer renewal expansion schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized customer renewal expansion packet supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "customer_profile_ref is a sanitized reference.",
+      "name": "customer_profile_ref",
+      "status": "pass"
+    },
+    {
+      "message": "operating_review_ref is a sanitized reference.",
+      "name": "operating_review_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source customer operating review is ready.",
+      "name": "operating_review_result",
+      "status": "pass"
+    },
+    {
+      "message": "renewal_owner_refs are present and sanitized.",
+      "name": "renewal_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal expansion sections are complete and healthy.",
+      "name": "renewal_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Expansion candidates are explicit and sanitized.",
+      "name": "expansion_candidates",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal expansion controls are explicit.",
+      "name": "renewal_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Renewal expansion packet contains sanitized refs and control metadata only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_customer_renewal_expansion": true,
+  "schema_version": "cavra.customer-renewal-expansion.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}
