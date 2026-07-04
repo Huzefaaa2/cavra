@@ -215,6 +215,7 @@ Start with the wiki textbook:
 - [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md)
 - [CAVRA Zero-Trust Reference Deployments](docs/zero-trust-reference-deployments.md)
 - [CAVRA Phase 6 Ecosystem Expansion Rollup](docs/phase6-ecosystem-rollup.md)
+- [CAVRA Customer Live Evidence Intake](docs/customer-live-evidence-intake.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

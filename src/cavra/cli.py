@@ -41,6 +41,11 @@ from cavra.continuous_monitoring import (
     validate_continuous_monitoring_packet,
     write_continuous_monitoring_artifacts,
 )
+from cavra.customer_live_evidence import (
+    build_customer_live_evidence_template,
+    validate_customer_live_evidence_packet,
+    write_customer_live_evidence_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2460,6 +2465,23 @@ def release_phase6_rollup(
     if not result["ready_for_phase6_public_contract_release"] or (
         require_customer_live and not result["ready_for_customer_live_phase6_closeout"]
     ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-live-evidence")
+def release_customer_live_evidence(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer-live evidence packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live templates.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer-live evidence intake packet."""
+    if export_dir:
+        result = write_customer_live_evidence_artifacts(export_dir)
+    else:
+        payload = json.loads(packet.read_text(encoding="utf-8")) if packet else build_customer_live_evidence_template()
+        result = validate_customer_live_evidence_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_live_evidence_intake"]):
         raise typer.Exit(code=1)
 
 

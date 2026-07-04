@@ -1,0 +1,65 @@
+{
+  "attestation": {
+    "approval_ref": "evidence://approval/customer-live-closeout",
+    "prepared_by_ref": "evidence://operator/customer-success-security",
+    "reviewer_ref": "evidence://approver/cavra-release-authority"
+  },
+  "customer_profile": {
+    "customer_ref": "evidence://customer/redacted",
+    "deployment_ref": "evidence://deployment/managed-enterprise",
+    "environment_ref": "evidence://environment/production",
+    "evidence_room_ref": "evidence://evidence-room/cavra-live-closeout",
+    "owner_group_ref": "evidence://owner/security-platform"
+  },
+  "evidence_mode": "live",
+  "evidence_sections": {
+    "aispm_production": {
+      "closeout_approval_ref": "evidence://customer-live/aispm_production/closeout_approval_ref",
+      "production_readiness_packet_ref": "evidence://customer-live/aispm_production/production_readiness_packet_ref",
+      "report_delivery_ref": "evidence://customer-live/aispm_production/report_delivery_ref",
+      "runtime_workflow_ref": "evidence://customer-live/aispm_production/runtime_workflow_ref"
+    },
+    "connectors_scanners": {
+      "connector_live_delivery_ref": "evidence://customer-live/connectors_scanners/connector_live_delivery_ref",
+      "model_registry_sandbox_ref": "evidence://customer-live/connectors_scanners/model_registry_sandbox_ref",
+      "no_raw_egress_test_ref": "evidence://customer-live/connectors_scanners/no_raw_egress_test_ref",
+      "zero_trust_scanner_ref": "evidence://customer-live/connectors_scanners/zero_trust_scanner_ref"
+    },
+    "evidence_audit": {
+      "immutable_audit_ref": "evidence://customer-live/evidence_audit/immutable_audit_ref",
+      "independent_verifier_ref": "evidence://customer-live/evidence_audit/independent_verifier_ref",
+      "kms_hsm_custody_ref": "evidence://customer-live/evidence_audit/kms_hsm_custody_ref",
+      "retention_policy_ref": "evidence://customer-live/evidence_audit/retention_policy_ref"
+    },
+    "phase6_ecosystem": {
+      "ai_red_team_ref": "evidence://customer-live/phase6_ecosystem/ai_red_team_ref",
+      "benchmark_run_ref": "evidence://customer-live/phase6_ecosystem/benchmark_run_ref",
+      "generic_adapter_ref": "evidence://customer-live/phase6_ecosystem/generic_adapter_ref",
+      "phase6_rollup_ref": "evidence://customer-live/phase6_ecosystem/phase6_rollup_ref",
+      "zero_trust_deployment_ref": "evidence://customer-live/phase6_ecosystem/zero_trust_deployment_ref"
+    },
+    "platform_readiness": {
+      "data_residency_ref": "evidence://customer-live/platform_readiness/data_residency_ref",
+      "identity_validation_ref": "evidence://customer-live/platform_readiness/identity_validation_ref",
+      "private_network_ref": "evidence://customer-live/platform_readiness/private_network_ref",
+      "tenant_isolation_ref": "evidence://customer-live/platform_readiness/tenant_isolation_ref"
+    },
+    "policy_monitoring": {
+      "continuous_monitoring_ref": "evidence://customer-live/policy_monitoring/continuous_monitoring_ref",
+      "event_bus_health_ref": "evidence://customer-live/policy_monitoring/event_bus_health_ref",
+      "opa_runtime_ref": "evidence://customer-live/policy_monitoring/opa_runtime_ref",
+      "policy_lifecycle_ref": "evidence://customer-live/policy_monitoring/policy_lifecycle_ref"
+    }
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_customer_pii": true,
+    "contains_no_prompt_samples": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_secrets": true,
+    "contains_no_source_code": true,
+    "contains_no_training_data": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-live-evidence.packet.v1"
+}
