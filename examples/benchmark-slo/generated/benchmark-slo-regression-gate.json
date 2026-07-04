@@ -1,0 +1,37 @@
+{
+  "schema_version": "cavra.benchmark-slo.regression-gate.v1",
+  "passed": true,
+  "blocker_count": 0,
+  "checks": [
+    {
+      "name": "benchmark_suites",
+      "status": "pass",
+      "message": "Required benchmark suites are present."
+    },
+    {
+      "name": "continuous_monitoring_replay_slo",
+      "status": "pass",
+      "message": "continuous_monitoring_replay meets latency and throughput SLO."
+    },
+    {
+      "name": "policy_lifecycle_dry_run_slo",
+      "status": "pass",
+      "message": "policy_lifecycle_dry_run meets latency and throughput SLO."
+    },
+    {
+      "name": "runtime_decision_latency_slo",
+      "status": "pass",
+      "message": "runtime_decision_latency meets latency and throughput SLO."
+    },
+    {
+      "name": "failure_mode_drills",
+      "status": "pass",
+      "message": "Required failure-mode drills passed."
+    },
+    {
+      "name": "ha_slo_targets",
+      "status": "pass",
+      "message": "HA SLO targets cover RTO, RPO, replica floors, and event bus resilience."
+    }
+  ]
+}

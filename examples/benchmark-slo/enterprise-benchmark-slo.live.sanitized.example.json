@@ -1,0 +1,184 @@
+{
+  "schema_version": "cavra.benchmark-slo.readiness.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "benchmark_report": {
+    "schema_version": "cavra.benchmark-slo.report.v1",
+    "product": "CAVRA",
+    "generated_at": "2026-07-04T10:30:00+00:00",
+    "mode": "reference",
+    "benchmark_suites": [
+      {
+        "suite_id": "runtime_decision_latency",
+        "sample_count": 500,
+        "p50_latency_ms": 2,
+        "p95_latency_ms": 5,
+        "max_latency_ms": 9,
+        "throughput_per_second": 1250,
+        "slo": {
+          "p95_latency_ms_max": 50,
+          "throughput_per_second_min": 100
+        },
+        "passed": true
+      },
+      {
+        "suite_id": "continuous_monitoring_replay",
+        "sample_count": 240,
+        "p50_latency_ms": 4,
+        "p95_latency_ms": 11,
+        "max_latency_ms": 18,
+        "throughput_per_second": 620,
+        "slo": {
+          "p95_latency_ms_max": 100,
+          "throughput_per_second_min": 50
+        },
+        "passed": true
+      },
+      {
+        "suite_id": "policy_lifecycle_dry_run",
+        "sample_count": 120,
+        "p50_latency_ms": 12,
+        "p95_latency_ms": 28,
+        "max_latency_ms": 44,
+        "throughput_per_second": 95,
+        "slo": {
+          "p95_latency_ms_max": 250,
+          "throughput_per_second_min": 10
+        },
+        "passed": true
+      }
+    ],
+    "ha_slo_targets": {
+      "schema_version": "cavra.benchmark-slo.ha-targets.v1",
+      "rto_minutes": 60,
+      "rpo_minutes": 15,
+      "min_api_replicas": 2,
+      "min_worker_replicas": 2,
+      "event_bus_required": {
+        "durable_delivery": true,
+        "dead_letter_queue": true,
+        "replay": true,
+        "consumer_lag_metrics": true
+      },
+      "health_endpoints": [
+        "/health",
+        "/version",
+        "/console/config"
+      ]
+    },
+    "failure_mode_drills": [
+      {
+        "drill_id": "event_bus_unavailable",
+        "injected_fault": "continuous monitoring event bus cannot accept writes",
+        "expected_behavior": "runtime decisions fail closed or queue retry without granting unsafe approval",
+        "observed_behavior": "fail_closed_or_retry",
+        "passed": true,
+        "evidence_ref": "sample://failure-mode/event-bus-unavailable"
+      },
+      {
+        "drill_id": "store_write_failure",
+        "injected_fault": "evidence or audit metadata store rejects writes",
+        "expected_behavior": "decision remains governed and write failure is surfaced as blocker evidence",
+        "observed_behavior": "blocker_evidence_emitted",
+        "passed": true,
+        "evidence_ref": "sample://failure-mode/store-write-failure"
+      },
+      {
+        "drill_id": "connector_timeout",
+        "injected_fault": "external connector delivery exceeds timeout",
+        "expected_behavior": "connector delivery is retried or routed to dead-letter evidence",
+        "observed_behavior": "retry_or_dlq",
+        "passed": true,
+        "evidence_ref": "sample://failure-mode/connector-timeout"
+      },
+      {
+        "drill_id": "policy_compile_failure",
+        "injected_fault": "policy artifact cannot be compiled or validated",
+        "expected_behavior": "policy promotion is blocked before enforcement change",
+        "observed_behavior": "promotion_blocked",
+        "passed": true,
+        "evidence_ref": "sample://failure-mode/policy-compile-failure"
+      }
+    ],
+    "regression_gate": {
+      "schema_version": "cavra.benchmark-slo.regression-gate.v1",
+      "passed": true,
+      "blocker_count": 0,
+      "checks": [
+        {
+          "name": "benchmark_suites",
+          "status": "pass",
+          "message": "Required benchmark suites are present."
+        },
+        {
+          "name": "continuous_monitoring_replay_slo",
+          "status": "pass",
+          "message": "continuous_monitoring_replay meets latency and throughput SLO."
+        },
+        {
+          "name": "policy_lifecycle_dry_run_slo",
+          "status": "pass",
+          "message": "policy_lifecycle_dry_run meets latency and throughput SLO."
+        },
+        {
+          "name": "runtime_decision_latency_slo",
+          "status": "pass",
+          "message": "runtime_decision_latency meets latency and throughput SLO."
+        },
+        {
+          "name": "failure_mode_drills",
+          "status": "pass",
+          "message": "Required failure-mode drills passed."
+        },
+        {
+          "name": "ha_slo_targets",
+          "status": "pass",
+          "message": "HA SLO targets cover RTO, RPO, replica floors, and event bus resilience."
+        }
+      ]
+    }
+  },
+  "slo_regression_gate": {
+    "schema_version": "cavra.benchmark-slo.regression-gate.v1",
+    "passed": true,
+    "blocker_count": 0,
+    "checks": [
+      {
+        "name": "benchmark_suites",
+        "status": "pass",
+        "message": "Required benchmark suites are present."
+      },
+      {
+        "name": "continuous_monitoring_replay_slo",
+        "status": "pass",
+        "message": "continuous_monitoring_replay meets latency and throughput SLO."
+      },
+      {
+        "name": "policy_lifecycle_dry_run_slo",
+        "status": "pass",
+        "message": "policy_lifecycle_dry_run meets latency and throughput SLO."
+      },
+      {
+        "name": "runtime_decision_latency_slo",
+        "status": "pass",
+        "message": "runtime_decision_latency meets latency and throughput SLO."
+      },
+      {
+        "name": "failure_mode_drills",
+        "status": "pass",
+        "message": "Required failure-mode drills passed."
+      },
+      {
+        "name": "ha_slo_targets",
+        "status": "pass",
+        "message": "HA SLO targets cover RTO, RPO, replica floors, and event bus resilience."
+      }
+    ]
+  },
+  "operating_evidence": {
+    "ci_run_ref": "github://Huzefaaa2/cavra/actions/runs/sanitized-benchmark-slo",
+    "benchmark_report_ref": "evidence://enterprise/benchmark-slo/report/sanitized",
+    "ha_evidence_ref": "evidence://enterprise/ha-dr/live-sanitized",
+    "failure_drill_ref": "evidence://enterprise/failure-mode-drills/live-sanitized"
+  }
+}

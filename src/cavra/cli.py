@@ -12,6 +12,13 @@ from rich.json import JSON
 from cavra import __version__
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
+from cavra.benchmark_slo import (
+    build_benchmark_readiness_packet,
+    build_reference_benchmark_report,
+    run_local_benchmark_report,
+    validate_benchmark_readiness_packet,
+    write_benchmark_artifacts,
+)
 from cavra.aispm_validation import (
     validate_aispm_replay_to_policy_ci_gate_readiness_file,
     validate_aispm_replay_to_policy_review_packet_file,
@@ -246,6 +253,7 @@ runtime_app = typer.Typer(help="Runtime backend pilot commands.")
 saas_app = typer.Typer(help="Public-safe SaaS Control Plane contract commands.")
 aispm_app = typer.Typer(help="AI Security Posture Management commands.")
 monitor_app = typer.Typer(help="Continuous monitoring event commands.")
+benchmark_app = typer.Typer(help="Benchmark and SLO regression commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -260,11 +268,53 @@ app.add_typer(runtime_app, name="runtime")
 app.add_typer(saas_app, name="saas")
 app.add_typer(aispm_app, name="aispm")
 app.add_typer(monitor_app, name="monitor")
+app.add_typer(benchmark_app, name="benchmark")
 
 
 @app.command()
 def version() -> None:
     typer.echo(f"cavra {__version__}")
+
+
+@benchmark_app.command("export")
+def benchmark_export(
+    output_dir: Annotated[Path, typer.Option(help="Directory for benchmark artifacts.")] = Path("dist/benchmark-slo"),
+    measured: Annotated[bool, typer.Option(help="Run a measured local benchmark instead of reference fixtures.")] = False,
+    iterations: Annotated[int, typer.Option(help="Iterations for measured benchmark mode.")] = 25,
+    evidence_mode: Annotated[str, typer.Option(help="Evidence mode for generated readiness packet.")] = "sample",
+) -> None:
+    """Export benchmark, SLO gate, and readiness artifacts."""
+    report = run_local_benchmark_report(iterations) if measured else build_reference_benchmark_report()
+    packet = build_benchmark_readiness_packet(report, evidence_mode=evidence_mode)
+    result = write_benchmark_artifacts(report, packet, output_dir)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if not report.get("regression_gate", {}).get("passed"):
+        raise typer.Exit(code=1)
+
+
+@benchmark_app.command("run")
+def benchmark_run(
+    measured: Annotated[bool, typer.Option(help="Run a measured local benchmark instead of reference fixtures.")] = False,
+    iterations: Annotated[int, typer.Option(help="Iterations for measured benchmark mode.")] = 25,
+) -> None:
+    """Run or emit the benchmark/SLO report and fail when the gate has blockers."""
+    report = run_local_benchmark_report(iterations) if measured else build_reference_benchmark_report()
+    console.print(JSON(json.dumps(report, indent=2)))
+    if not report.get("regression_gate", {}).get("passed"):
+        raise typer.Exit(code=1)
+
+
+@benchmark_app.command("readiness")
+def benchmark_readiness(
+    packet: Annotated[Path, typer.Argument(help="Benchmark/SLO readiness packet JSON.")],
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate a benchmark/SLO readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_benchmark_readiness_packet(payload, require_live=require_live)
+    console.print(JSON(json.dumps(result, indent=2)))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_benchmark_slo_gate"]):
+        raise typer.Exit(code=1)
 
 
 @monitor_app.command("sample-events")

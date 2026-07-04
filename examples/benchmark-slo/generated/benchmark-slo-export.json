@@ -1,0 +1,9 @@
+{
+  "schema_version": "cavra.benchmark-slo.export.v1",
+  "output_dir": "examples/benchmark-slo/generated",
+  "artifacts": {
+    "benchmark_report": "examples/benchmark-slo/generated/benchmark-slo-report.json",
+    "slo_regression_gate": "examples/benchmark-slo/generated/benchmark-slo-regression-gate.json",
+    "readiness_packet": "examples/benchmark-slo/generated/benchmark-slo-readiness-packet.json"
+  }
+}

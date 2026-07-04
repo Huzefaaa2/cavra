@@ -1,0 +1,75 @@
+name: Benchmark SLO Regression Gate
+
+on:
+  pull_request:
+    paths:
+      - "src/cavra/benchmark_slo.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_benchmark_slo.py"
+      - "examples/benchmark-slo/**"
+      - "tests/test_benchmark_slo.py"
+      - ".github/workflows/benchmark-slo.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/benchmark_slo.py"
+      - "src/cavra/cli.py"
+      - "scripts/validate_benchmark_slo.py"
+      - "examples/benchmark-slo/**"
+      - "tests/test_benchmark_slo.py"
+      - ".github/workflows/benchmark-slo.yml"
+  workflow_dispatch:
+    inputs:
+      live_packet:
+        description: "Path to a live benchmark/SLO readiness packet"
+        required: false
+        default: "examples/benchmark-slo/enterprise-benchmark-slo.live.sanitized.example.json"
+
+jobs:
+  benchmark-slo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CAVRA
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Export reference benchmark artifacts
+        run: |
+          python scripts/validate_benchmark_slo.py \
+            --export-dir dist/benchmark-slo \
+            --output dist/benchmark-slo-export.json
+
+      - name: Validate benchmark SLO gate
+        run: |
+          python scripts/validate_benchmark_slo.py \
+            --report examples/benchmark-slo/generated/benchmark-slo-report.json \
+            --output dist/benchmark-slo-gate.json
+
+      - name: Validate sample readiness packet
+        run: |
+          python scripts/validate_benchmark_slo.py \
+            --packet examples/benchmark-slo/enterprise-benchmark-slo.sample.json \
+            --output dist/enterprise-benchmark-slo-sample.json
+
+      - name: Validate live readiness packet contract
+        run: |
+          python scripts/validate_benchmark_slo.py \
+            --packet "${{ github.event.inputs.live_packet || 'examples/benchmark-slo/enterprise-benchmark-slo.live.sanitized.example.json' }}" \
+            --require-live \
+            --output dist/enterprise-benchmark-slo-live.json
+
+      - name: Run benchmark SLO tests
+        run: python -m pytest tests/test_benchmark_slo.py -q
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-slo-evidence
+          path: dist/
