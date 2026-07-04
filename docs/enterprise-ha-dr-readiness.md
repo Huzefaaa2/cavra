@@ -1,6 +1,6 @@
 # CAVRA Enterprise HA/DR Readiness
 
-Last updated: 2026-07-03
+Last updated: 2026-07-04
 
 This page defines the R2.3 public-safe high availability, disaster recovery, and data residency contract for CAVRA Enterprise and Managed deployments.
 
@@ -27,7 +27,10 @@ R2.3 covers:
 | `src/cavra/enterprise_ha.py` | Defines the HA/DR contract, readiness packet, and evidence packet validator. |
 | `scripts/validate_enterprise_ha_readiness.py` | Validates a sample or live Enterprise HA/DR evidence packet. |
 | `examples/operations/enterprise-ha-readiness.sample.json` | Public-safe sample packet showing the expected evidence shape. |
+| `examples/operations/enterprise-ha-readiness.live.sanitized.example.json` | Sanitized live-mode example that passes `--require-live` without exposing real customer infrastructure. |
+| `.github/workflows/enterprise-ha-readiness.yml` | CI workflow for sample validation and manual strict live validation. |
 | `tests/test_enterprise_ha.py` | Contract, sample, live-mode, blocker, and readiness tests. |
+| `docs/enterprise-ha-dr-azure-evidence-map.md` | Azure evidence mapping runbook for private Managed and Enterprise deployments. |
 
 ## Target SLOs
 
@@ -130,6 +133,14 @@ python3 scripts/validate_enterprise_ha_readiness.py \
   --output dist/enterprise/enterprise-ha-readiness-result.json
 ```
 
+Sanitized live-mode template validation:
+
+```bash
+python3 scripts/validate_enterprise_ha_readiness.py \
+  --packet examples/operations/enterprise-ha-readiness.live.sanitized.example.json \
+  --require-live
+```
+
 Unit tests:
 
 ```bash
@@ -160,3 +171,7 @@ The final AISPM production readiness gate should include the live HA/DR packet a
 - queue replay or dead-letter handling is missing;
 - data residency evidence is missing or out of policy;
 - evidence store immutability is not enabled.
+
+## Azure Evidence Map
+
+For Azure Managed or Enterprise Subscription deployments, use [CAVRA Enterprise HA/DR Azure Evidence Map](enterprise-ha-dr-azure-evidence-map.md) to translate Container Apps or AKS, Service Bus or Event Grid, Postgres, Blob immutable storage, Monitor/Application Insights, and Front Door/WAF evidence into the validator packet.

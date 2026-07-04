@@ -11,6 +11,7 @@ from cavra.enterprise_ha import (
 
 
 SAMPLE_PACKET = Path("examples/operations/enterprise-ha-readiness.sample.json")
+LIVE_SANITIZED_PACKET = Path("examples/operations/enterprise-ha-readiness.live.sanitized.example.json")
 
 
 def test_enterprise_ha_contract_defines_required_topology() -> None:
@@ -53,6 +54,17 @@ def test_enterprise_ha_live_requirement_blocks_sample_packet() -> None:
     assert any(check["name"] == "evidence_mode" and check["status"] == "blocker" for check in result["checks"])
 
 
+def test_enterprise_ha_live_sanitized_example_passes_require_live() -> None:
+    packet = json.loads(LIVE_SANITIZED_PACKET.read_text(encoding="utf-8"))
+
+    result = validate_enterprise_ha_evidence_packet(packet, require_live=True)
+
+    assert result["ready_for_enterprise_live_ha"] is True
+    assert result["status"] == "ready"
+    assert result["blocker_count"] == 0
+    assert result["warning_count"] == 0
+
+
 def test_enterprise_ha_packet_blocks_weak_topology_and_residency() -> None:
     packet = json.loads(SAMPLE_PACKET.read_text(encoding="utf-8"))
     packet["evidence_mode"] = "live"
@@ -75,3 +87,11 @@ def test_enterprise_ha_readiness_without_packet_is_contract_ready_with_warning()
     assert result["ready_for_enterprise_ha_contract"] is True
     assert result["ready_for_enterprise_live_ha"] is False
     assert result["status"] == "ready_with_warnings"
+
+
+def test_enterprise_ha_workflow_runs_require_live_gate() -> None:
+    workflow = Path(".github/workflows/enterprise-ha-readiness.yml").read_text(encoding="utf-8")
+
+    assert "Validate live HA/DR packet" in workflow
+    assert "--require-live" in workflow
+    assert "examples/operations/enterprise-ha-readiness.live.sanitized.example.json" in workflow

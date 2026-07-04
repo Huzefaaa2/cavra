@@ -1,0 +1,96 @@
+name: Enterprise HA Readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the HA/DR evidence packet JSON."
+        required: false
+        default: "examples/operations/enterprise-ha-readiness.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      rto_minutes:
+        description: "Maximum allowed recovery time objective in minutes."
+        required: false
+        default: "60"
+      rpo_minutes:
+        description: "Maximum allowed recovery point objective in minutes."
+        required: false
+        default: "15"
+  pull_request:
+    paths:
+      - "src/cavra/enterprise_ha.py"
+      - "scripts/validate_enterprise_ha_readiness.py"
+      - "examples/operations/enterprise-ha-readiness.sample.json"
+      - "examples/operations/enterprise-ha-readiness.live.sanitized.example.json"
+      - "tests/test_enterprise_ha.py"
+      - ".github/workflows/enterprise-ha-readiness.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/enterprise_ha.py"
+      - "scripts/validate_enterprise_ha_readiness.py"
+      - "examples/operations/enterprise-ha-readiness.sample.json"
+      - "examples/operations/enterprise-ha-readiness.live.sanitized.example.json"
+      - "tests/test_enterprise_ha.py"
+      - ".github/workflows/enterprise-ha-readiness.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  enterprise-ha-contract:
+    name: Validate HA/DR contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample HA/DR packet
+        run: |
+          python scripts/validate_enterprise_ha_readiness.py \
+            --packet examples/operations/enterprise-ha-readiness.sample.json \
+            --output dist/enterprise-ha-readiness-sample.json
+      - name: Test HA/DR contract
+        run: python -m pytest tests/test_enterprise_ha.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-ha-readiness-sample
+          path: dist/enterprise-ha-readiness-sample.json
+
+  enterprise-ha-live:
+    name: Validate live HA/DR packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected HA/DR packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_enterprise_ha_readiness.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --rto-minutes "${{ inputs.rto_minutes }}" \
+            --rpo-minutes "${{ inputs.rpo_minutes }}" \
+            --output dist/enterprise-ha-readiness-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-ha-readiness-live
+          path: dist/enterprise-ha-readiness-live.json

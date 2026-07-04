@@ -10,6 +10,9 @@ CAVRA R2.3 defines a public-safe high availability, disaster recovery, and data 
 | `validate_enterprise_ha_evidence_packet` | Validates sample or live HA/DR evidence packets. |
 | `scripts/validate_enterprise_ha_readiness.py` | CLI validator for public sample packets and private live packets. |
 | `examples/operations/enterprise-ha-readiness.sample.json` | Public-safe packet showing the expected HA/DR evidence shape. |
+| `examples/operations/enterprise-ha-readiness.live.sanitized.example.json` | Sanitized live-mode example that passes `--require-live` without exposing real customer infrastructure. |
+| `.github/workflows/enterprise-ha-readiness.yml` | CI workflow for sample validation and manual strict live validation. |
+| `docs/enterprise-ha-dr-azure-evidence-map.md` | Azure evidence mapping runbook for private Managed and Enterprise deployments. |
 | `tests/test_enterprise_ha.py` | Contract, sample, live-mode, blocker, and readiness tests. |
 
 ## Default Targets
@@ -55,5 +58,7 @@ python3 scripts/validate_enterprise_ha_readiness.py \
 ```
 
 R2.3 is production-complete only when the live packet returns `ready_for_enterprise_live_ha: true`, `blocker_count: 0`, and `warning_count: 0`.
+
+Azure runbook: [Enterprise HA/DR Azure Evidence Map](https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise-ha-dr-azure-evidence-map.md).
 
 Detailed repo document: [Enterprise HA/DR Readiness](https://github.com/Huzefaaa2/cavra/blob/main/docs/enterprise-ha-dr-readiness.md).

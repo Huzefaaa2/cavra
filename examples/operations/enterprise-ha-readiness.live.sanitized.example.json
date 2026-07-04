@@ -1,0 +1,82 @@
+{
+  "schema_version": "cavra.enterprise_ha.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "deployment": {
+    "api_replicas": 3,
+    "worker_replicas": 3,
+    "stateless_api": true,
+    "zones": ["1", "2", "3"],
+    "provider_refs": {
+      "api": "azure://container-apps/cavra-enterprise-api",
+      "workers": "azure://container-apps-jobs/cavra-enterprise-connectors",
+      "ingress": "azure://front-door/cavra-enterprise"
+    }
+  },
+  "event_bus": {
+    "provider": "azure_service_bus",
+    "durable": true,
+    "dead_letter_queue": true,
+    "replay_supported": true,
+    "provider_refs": {
+      "namespace": "azure://service-bus/cavra-enterprise",
+      "queue": "azure://service-bus/cavra-enterprise/queues/runtime-events",
+      "dead_letter": "azure://service-bus/cavra-enterprise/queues/runtime-events/$DeadLetterQueue"
+    }
+  },
+  "database": {
+    "engine": "postgres",
+    "multi_az": true,
+    "point_in_time_restore": true,
+    "rpo_minutes": 10,
+    "provider_refs": {
+      "server": "azure://postgresql-flexible-server/cavra-enterprise-prod",
+      "backup_policy": "azure://postgresql-flexible-server/cavra-enterprise-prod/backups"
+    }
+  },
+  "evidence": {
+    "immutable_store_enabled": true,
+    "store_type": "azure_immutable_blob",
+    "provider_refs": {
+      "storage_account": "azure://storage/cavraevidenceprod",
+      "container": "azure://storage/cavraevidenceprod/blobServices/default/containers/evidence",
+      "immutability_policy": "azure://storage/cavraevidenceprod/blobServices/default/containers/evidence/immutabilityPolicies/default"
+    }
+  },
+  "backup_restore": {
+    "backup_frequency_minutes": 60,
+    "restore_tested": true,
+    "restore_duration_minutes": 42,
+    "latest_restore_evidence_ref": "evidence://enterprise-ha/live-restore-drill-2026-q3-sanitized"
+  },
+  "failover": {
+    "tested": true,
+    "failover_minutes": 28,
+    "data_loss_minutes": 4,
+    "latest_failover_evidence_ref": "evidence://enterprise-ha/live-failover-drill-2026-q3-sanitized"
+  },
+  "health": {
+    "endpoints": ["/health", "/version", "/console/config"],
+    "monitor_alerts": [
+      "api_availability",
+      "queue_depth",
+      "db_replication_lag",
+      "backup_failure",
+      "evidence_write_failure"
+    ],
+    "provider_refs": {
+      "app_insights": "azure://application-insights/cavra-enterprise",
+      "alerts": "azure://monitor/actionGroups/cavra-enterprise-sre"
+    }
+  },
+  "data_residency": {
+    "policy": "customer_managed",
+    "primary_region": "eastus",
+    "allowed_regions": ["eastus", "eastus2"],
+    "observed_regions": ["eastus", "eastus2"],
+    "provider_refs": {
+      "resource_group": "azure://resource-groups/cavra-enterprise-prod-eastus",
+      "policy_assignment": "azure://policyAssignments/cavra-enterprise-residency"
+    }
+  }
+}
