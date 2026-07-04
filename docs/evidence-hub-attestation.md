@@ -152,6 +152,8 @@ The console reads `GET /console/config` when available. Set `CAVRA_PUBLIC_API_BA
 
 Evidence bundles help enterprises prove what happened before an AI-agent action reached code, shell, Git, MCP, cloud, or infrastructure. Reviewers get PR attestation, auditors get compliance mapping, and SOC teams get SIEM-ready events.
 
+Enterprise compliance mapping packs now provide a clause-level bridge from runtime evidence and AISPM findings to NIST AI RMF, ISO/IEC 42001, OWASP LLM/GenAI, NIST SSDF, and EU AI Act controls. See [Enterprise Compliance Mapping Packs](enterprise-compliance-mapping-packs.md) for the public-safe registry, readiness packet, live gate, and finding-to-clause report builder.
+
 ## User Stories
 
 - As an auditor, I can verify evidence bundle checksums.

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "finding-runtime-001",
+    "title": "High-risk infrastructure command required approval",
+    "severity": "high",
+    "finding_type": "approval",
+    "surface": "runtime",
+    "tags": ["approval", "runtime", "human_oversight", "change_control"]
+  },
+  {
+    "id": "finding-aispm-002",
+    "title": "AISPM posture drift detected in covered workflow",
+    "severity": "medium",
+    "finding_type": "aispm",
+    "surface": "posture",
+    "tags": ["aispm", "risk", "measurement", "monitoring"]
+  },
+  {
+    "id": "finding-mcp-003",
+    "title": "MCP tool call was denied after prompt-injection indicators",
+    "severity": "critical",
+    "finding_type": "prompt_injection",
+    "surface": "mcp",
+    "tags": ["prompt_injection", "mcp", "tool_call"]
+  },
+  {
+    "id": "finding-audit-004",
+    "title": "Immutable audit log preserved traceability",
+    "severity": "low",
+    "finding_type": "audit_log",
+    "surface": "evidence",
+    "tags": ["audit_log", "logging", "traceability", "evidence"]
+  },
+  {
+    "id": "finding-supply-005",
+    "title": "AI artifact supply-chain metadata was linked to evidence",
+    "severity": "medium",
+    "finding_type": "supply_chain",
+    "surface": "artifact",
+    "tags": ["supply_chain", "artifact", "sbom", "model"]
+  }
+]

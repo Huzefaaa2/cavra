@@ -195,6 +195,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise HA/DR Readiness](docs/enterprise-ha-dr-readiness.md)
 - [CAVRA Enterprise KMS/HSM Evidence Custody](docs/evidence-kms-hsm-custody.md)
 - [CAVRA Enterprise Immutable Append-Only Audit Log](docs/immutable-append-only-audit-log.md)
+- [CAVRA Enterprise Compliance Mapping Packs](docs/enterprise-compliance-mapping-packs.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

@@ -1,0 +1,53 @@
+{
+  "schema_version": "cavra.compliance.mapping-packs.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "pack_registry": {
+    "approved": true,
+    "versioned": true,
+    "clause_level": true,
+    "owner": "CAVRA Enterprise Compliance",
+    "frameworks": [
+      "nist_ai_rmf",
+      "iso_iec_42001",
+      "owasp_llm_genai",
+      "nist_ssdf",
+      "eu_ai_act"
+    ],
+    "latest_review_ref": "evidence://enterprise-compliance/live-pack-review-2026-q3-sanitized",
+    "change_control_ref": "evidence://enterprise-compliance/live-change-control-2026-q3-sanitized"
+  },
+  "mapping_engine": {
+    "finding_to_clause_enabled": true,
+    "deterministic_mapping_tested": true,
+    "tag_taxonomy_version": "cavra-tags-2026.07",
+    "report_schema_version": "cavra.compliance.mapping-report.v1",
+    "unmapped_finding_policy": "manual_review"
+  },
+  "coverage": {
+    "clause_count": 25,
+    "test_findings_mapped": 18,
+    "coverage_percent": 98.7,
+    "frameworks_with_clause_tests": [
+      "nist_ai_rmf",
+      "iso_iec_42001",
+      "owasp_llm_genai",
+      "nist_ssdf",
+      "eu_ai_act"
+    ]
+  },
+  "reporting": {
+    "formats": ["json", "markdown", "csv", "aispm_report"],
+    "auditor_trace_enabled": true,
+    "evidence_bundle_linking": true,
+    "aispm_report_linking": true,
+    "sample_report_ref": "evidence://enterprise-compliance/live-report-export-2026-q3-sanitized"
+  },
+  "operating_evidence": {
+    "compliance_owner": "enterprise-compliance@example.invalid",
+    "pack_review_ref": "evidence://enterprise-compliance/live-pack-review-2026-q3-sanitized",
+    "exception_register_ref": "evidence://enterprise-compliance/live-exception-register-2026-q3-sanitized",
+    "auditor_handoff_ref": "evidence://enterprise-compliance/live-auditor-handoff-2026-q3-sanitized",
+    "latest_validation_ref": "evidence://enterprise-compliance/live-validation-2026-q3-sanitized"
+  }
+}
