@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cavra-zero-trust
+  labels:
+    app.kubernetes.io/name: cavra-zero-trust
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cavra-zero-trust
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cavra-zero-trust
+    spec:
+      containers:
+        - name: cavra-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: CAVRA_FAIL_CLOSED
+              value: "{{ .Values.runtime.failClosed }}"
+            - name: CAVRA_TENANT_ID
+              value: "{{ .Values.tenant.id }}"
+            - name: CAVRA_WORKSPACE_ID
+              value: "{{ .Values.tenant.workspaceId }}"
+            - name: CAVRA_CORS_ORIGINS
+              value: "{{ .Values.runtime.corsOrigins }}"
+            - name: CAVRA_EVIDENCE_ARTIFACT_ROOT
+              value: /data/evidence
+          volumeMounts:
+            - name: cavra-data
+              mountPath: /data
+        {{- if .Values.scanner.enabled }}
+        - name: cavra-scanner
+          image: "{{ .Values.scanner.image }}"
+          command: ["/bin/sh", "-lc", "sleep infinity"]
+          env:
+            - name: CAVRA_SCANNER_MODE
+              value: "{{ .Values.scanner.mode }}"
+            - name: CAVRA_FAIL_CLOSED
+              value: "{{ .Values.runtime.failClosed }}"
+            - name: CAVRA_NO_RAW_MODEL_EGRESS
+              value: "{{ .Values.scanner.noRawModelEgress }}"
+            - name: CAVRA_TENANT_ID
+              value: "{{ .Values.tenant.id }}"
+            - name: CAVRA_WORKSPACE_ID
+              value: "{{ .Values.tenant.workspaceId }}"
+          volumeMounts:
+            - name: cavra-data
+              mountPath: /data
+        {{- end }}
+      volumes:
+        - name: cavra-data
+          emptyDir: {}

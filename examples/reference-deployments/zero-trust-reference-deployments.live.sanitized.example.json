@@ -1,0 +1,38 @@
+{
+  "catalog_ref": "examples/reference-deployments/zero-trust-reference-deployments.json",
+  "deployment_artifacts": [
+    "azure_container_apps",
+    "docker_compose",
+    "helm_chart",
+    "quickstart_demo",
+    "scanner_operation_runbook",
+    "terraform_azure"
+  ],
+  "deployment_boundaries": {
+    "customer_side_scanner": true,
+    "fail_closed_default": true,
+    "metadata_only_egress": true,
+    "private_network_supported": true,
+    "tenant_workspace_required": true
+  },
+  "evidence_mode": "live",
+  "operating_evidence": {
+    "azure_what_if_ref": "evidence://customer-zero-trust/azure/what-if/2026-07-04",
+    "catalog_ref": "examples/reference-deployments/zero-trust-reference-deployments.json",
+    "compose_smoke_ref": "evidence://customer-zero-trust/docker-compose/smoke/2026-07-04",
+    "evidence_export_ref": "evidence://customer-zero-trust/evidence/export/2026-07-04",
+    "helm_template_ref": "evidence://customer-zero-trust/helm/template/2026-07-04",
+    "scanner_runbook_ref": "examples/reference-deployments/zero-trust/scanner-operation-runbook.md",
+    "terraform_validate_ref": "evidence://customer-zero-trust/terraform/validate/2026-07-04"
+  },
+  "product": "CAVRA",
+  "schema_version": "cavra.zero-trust-reference-deployments.readiness.v1",
+  "security_controls": [
+    "fail_closed_runtime",
+    "metadata_only_scanner",
+    "no_raw_model_egress",
+    "private_network_mode",
+    "signed_evidence_refs",
+    "tenant_workspace_scope"
+  ]
+}

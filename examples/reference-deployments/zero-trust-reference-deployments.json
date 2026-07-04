@@ -1,0 +1,80 @@
+{
+  "catalog_id": "cavra-zero-trust-reference-deployments",
+  "deployment_artifacts": [
+    {
+      "artifact_id": "azure_container_apps",
+      "path": "examples/reference-deployments/zero-trust/azure/container-apps.bicep",
+      "purpose": "Bicep reference for API and scanner sidecar-style jobs in Azure Container Apps."
+    },
+    {
+      "artifact_id": "docker_compose",
+      "path": "examples/reference-deployments/zero-trust/docker-compose.yml",
+      "purpose": "Local and customer-lab reference stack for API plus metadata-only scanner."
+    },
+    {
+      "artifact_id": "helm_chart",
+      "path": "examples/reference-deployments/zero-trust/helm/cavra-zero-trust/Chart.yaml",
+      "purpose": "Kubernetes packaging baseline for private clusters and managed Kubernetes."
+    },
+    {
+      "artifact_id": "quickstart_demo",
+      "path": "examples/reference-deployments/zero-trust/quickstart-demo.md",
+      "purpose": "End-to-end reproducible demo path and validation commands."
+    },
+    {
+      "artifact_id": "scanner_operation_runbook",
+      "path": "examples/reference-deployments/zero-trust/scanner-operation-runbook.md",
+      "purpose": "Customer-side operating checklist for metadata-only scanner execution."
+    },
+    {
+      "artifact_id": "terraform_azure",
+      "path": "examples/reference-deployments/zero-trust/terraform/azure/main.tf",
+      "purpose": "Azure infrastructure skeleton for Container Apps, registry, logging, and storage boundaries."
+    }
+  ],
+  "product": "CAVRA",
+  "reference_commands": [
+    "docker compose -f examples/reference-deployments/zero-trust/docker-compose.yml up --build",
+    "helm template cavra examples/reference-deployments/zero-trust/helm/cavra-zero-trust",
+    "terraform -chdir=examples/reference-deployments/zero-trust/terraform/azure validate",
+    "az deployment group what-if --template-file examples/reference-deployments/zero-trust/azure/container-apps.bicep"
+  ],
+  "scanner_boundary": {
+    "egress": "metadata-only hashes, scores, findings, and evidence references",
+    "execution": "customer-side",
+    "forbidden": [
+      "raw model bytes",
+      "training data",
+      "source code",
+      "prompt samples",
+      "credentials"
+    ]
+  },
+  "schema_version": "cavra.zero-trust-reference-deployments.v1",
+  "security_controls": [
+    {
+      "control_id": "fail_closed_runtime",
+      "description": "Runtime gates must deny risky actions when policy, identity, or approval context is missing."
+    },
+    {
+      "control_id": "metadata_only_scanner",
+      "description": "Scanner output is limited to hashes, risk scores, findings, and evidence references."
+    },
+    {
+      "control_id": "no_raw_model_egress",
+      "description": "Raw model weights, training data, prompts, source code, and secrets cannot leave the boundary."
+    },
+    {
+      "control_id": "private_network_mode",
+      "description": "Deployment examples support private endpoint or internal-only network operation."
+    },
+    {
+      "control_id": "signed_evidence_refs",
+      "description": "Outputs point to signed evidence artifacts rather than raw private data."
+    },
+    {
+      "control_id": "tenant_workspace_scope",
+      "description": "Every deployment path requires tenant and workspace scope variables."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: cavra-zero-trust
+description: CAVRA zero-trust reference deployment for API plus metadata-only scanner.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - cavra
+  - zero-trust
+  - scanner
+  - failClosed
+  - aispm

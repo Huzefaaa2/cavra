@@ -108,6 +108,12 @@ from cavra.integrations import (
     filter_connector_delivery_history,
     load_connector_config,
 )
+from cavra.zero_trust_reference_deployments import (
+    build_reference_deployment_catalog,
+    validate_reference_deployment_catalog,
+    validate_reference_deployment_readiness_packet,
+    write_reference_deployment_artifacts,
+)
 from cavra.operations import (
     backup_persistent_api_stores,
     export_persistent_api_retention_plan,
@@ -275,6 +281,7 @@ monitor_app = typer.Typer(help="Continuous monitoring event commands.")
 benchmark_app = typer.Typer(help="Benchmark and SLO regression commands.")
 adapter_app = typer.Typer(help="Generic agent adapter and action taxonomy commands.")
 ai_red_team_app = typer.Typer(help="Native AI red-team, guardrail, and supply-chain commands.")
+deployment_app = typer.Typer(help="Reference deployment and zero-trust packaging commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -292,6 +299,7 @@ app.add_typer(monitor_app, name="monitor")
 app.add_typer(benchmark_app, name="benchmark")
 app.add_typer(adapter_app, name="adapter")
 app.add_typer(ai_red_team_app, name="ai-red-team")
+app.add_typer(deployment_app, name="deployment")
 
 
 @app.command()
@@ -439,6 +447,43 @@ def adapter_readiness(
     result = validate_generic_adapter_readiness_packet(payload, require_live=require_live)
     console.print(JSON(json.dumps(result, indent=2)))
     if result["blocker_count"] or (require_live and not result["ready_for_live_generic_adapter_sdk"]):
+        raise typer.Exit(code=1)
+
+
+@deployment_app.command("zero-trust-catalog")
+def deployment_zero_trust_catalog(
+    repo_root: Annotated[Optional[Path], typer.Option(help="Repository root for file marker validation.")] = None,
+) -> None:
+    """Emit and validate the zero-trust reference deployment catalog."""
+    catalog = build_reference_deployment_catalog()
+    result = validate_reference_deployment_catalog(catalog, repo_root=repo_root)
+    print(json.dumps({"catalog": catalog, "validation": result}, indent=2))
+    if result["blocker_count"]:
+        raise typer.Exit(code=1)
+
+
+@deployment_app.command("zero-trust-export")
+def deployment_zero_trust_export(
+    output_dir: Annotated[Path, typer.Option(help="Directory for generated reference deployment artifacts.")] = Path(
+        "dist/zero-trust-reference-deployments"
+    ),
+) -> None:
+    """Export zero-trust reference deployment catalog and readiness packets."""
+    result = write_reference_deployment_artifacts(output_dir)
+    print(json.dumps(result, indent=2))
+
+
+@deployment_app.command("zero-trust-readiness")
+def deployment_zero_trust_readiness(
+    packet: Annotated[Path, typer.Argument(help="Zero-trust reference deployment readiness packet JSON.")],
+    repo_root: Annotated[Optional[Path], typer.Option(help="Repository root for file marker validation.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live.")] = False,
+) -> None:
+    """Validate a zero-trust reference deployment readiness packet."""
+    payload = json.loads(packet.read_text(encoding="utf-8"))
+    result = validate_reference_deployment_readiness_packet(payload, repo_root=repo_root, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_live_zero_trust_reference_deployments"]):
         raise typer.Exit(code=1)
 
 

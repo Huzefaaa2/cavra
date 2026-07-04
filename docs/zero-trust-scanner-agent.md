@@ -124,6 +124,8 @@ python3 scripts/validate_zero_trust_scanner.py \
 
 For an Enterprise deployment, replace the public sample packet with a live sanitized packet that references the customer's actual scanner deployment, egress-control test run, custody review, and incident drill. Do not attach raw model files, source files, prompt samples, datasets, or secrets to the public packet.
 
+For deployable reference packaging, use [Zero-Trust Reference Deployments](zero-trust-reference-deployments.md). It covers Docker Compose, Helm, Terraform, Azure Container Apps, scanner operation, quickstart validation, and the reference deployment readiness gate.
+
 The public completion condition is:
 
 ```text

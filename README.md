@@ -213,6 +213,7 @@ Start with the wiki textbook:
 - [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md)
 - [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md)
 - [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md)
+- [CAVRA Zero-Trust Reference Deployments](docs/zero-trust-reference-deployments.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

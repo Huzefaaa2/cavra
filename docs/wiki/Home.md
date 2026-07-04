@@ -23,7 +23,7 @@ Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Comm
 
 The active enhancement tracker is [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md). It records the numbered plan for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, model/artifact governance, policy lifecycle tooling, event-driven monitoring, and scale validation.
 
-New Enterprise contract references: [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md), [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md), [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md), [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core.md), [Benchmark SLO Regression Gates](Benchmark-SLO-Regression-Gates.md), [Generic Agent Adapter SDK And Action Taxonomy](Generic-Agent-Adapter-SDK-And-Action-Taxonomy.md), and [AI Red-Team And Supply-Chain Gates](AI-Red-Team-And-Supply-Chain-Gates.md).
+New Enterprise contract references: [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md), [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments.md), [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md), [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md), [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core.md), [Benchmark SLO Regression Gates](Benchmark-SLO-Regression-Gates.md), [Generic Agent Adapter SDK And Action Taxonomy](Generic-Agent-Adapter-SDK-And-Action-Taxonomy.md), and [AI Red-Team And Supply-Chain Gates](AI-Red-Team-And-Supply-Chain-Gates.md).
 
 For Phase 2 implementation, use [Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md), [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md), and [Tenant Workspace Persistence](Tenant-Workspace-Persistence.md).
 
@@ -151,6 +151,7 @@ close out the trial without leaving stale package or license access behind.
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
+- [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments.md)
 - [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
 - [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
 - [Trial Access Guide](Trial-Access-Guide.md)

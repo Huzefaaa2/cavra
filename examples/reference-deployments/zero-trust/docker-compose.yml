@@ -1,0 +1,48 @@
+services:
+  cavra-api:
+    build:
+      context: ../../..
+      dockerfile: docker/Dockerfile.azure-api
+    image: cavra/community-api:zero-trust-reference
+    ports:
+      - "8000:8000"
+    environment:
+      - CAVRA_EDITION=community
+      - CAVRA_FAIL_CLOSED=true
+      - CAVRA_TENANT_ID=trial-tenant-reference
+      - CAVRA_WORKSPACE_ID=zero-trust-lab
+      - CAVRA_CORS_ORIGINS=http://localhost:8080
+      - CAVRA_EVIDENCE_ARTIFACT_ROOT=/data/evidence
+    volumes:
+      - cavra-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  cavra-scanner:
+    image: python:3.12-slim
+    working_dir: /workspace
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        python scripts/validate_zero_trust_scanner.py \
+          --scan-file examples/zero-trust-scanner/reference-artifact.txt \
+          --output /data/zero-trust-reference-scan.json
+    environment:
+      - CAVRA_SCANNER_MODE=metadata_only
+      - CAVRA_FAIL_CLOSED=true
+      - CAVRA_TENANT_ID=trial-tenant-reference
+      - CAVRA_WORKSPACE_ID=zero-trust-lab
+      - CAVRA_RAW_MODEL_EGRESS=blocked
+    volumes:
+      - ../../..:/workspace:ro
+      - cavra-data:/data
+    depends_on:
+      cavra-api:
+        condition: service_healthy
+
+volumes:
+  cavra-data:
