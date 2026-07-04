@@ -23,8 +23,6 @@ https://github.com/user-attachments/assets/60105a67-7c2f-4fda-8743-4d53146c3983
 
 [![Watch the CAVRA introduction video](assets/brand/png/cavra-thumbnail-1280x640.png)](https://ai.invideo.io/watch/cq7iExDcHvs)
 
-[Watch the introduction video on InVideo](https://ai.invideo.io/watch/cq7iExDcHvs)
-
 The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
 
 For implementation details, read the new textbook chapter [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md). It explains the public Community stack across Python, FastAPI, Typer/Rich, static web front ends, JSON/SQLite persistence, policy and evidence formats, cryptography, Docker, Azure, GitHub Actions, and validation.
