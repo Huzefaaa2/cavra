@@ -56,3 +56,9 @@ Start with [Connector SDK And Certification](connector-sdk-certification.md). R4
 The first certified connector wave is documented in [Priority Certified Connectors](priority-certified-connectors.md). It covers GitHub, GitLab, Azure Repos, GitHub Actions, Jenkins, Splunk, Microsoft Sentinel, ServiceNow, Jira, Slack, and Microsoft Teams.
 
 The public repository validates manifests, provider coverage, compatibility metadata, request specs, redaction behavior, sample packets, and sanitized live packet shape. Production tenants still provide real credentials, provider sandbox logs, firewall evidence, credential custody records, and support ownership during deployment.
+
+## Model Registry Connectors
+
+R4.3 adds metadata-only model registry connectors for MLflow, Amazon SageMaker, Hugging Face, and Weights & Biases. See [Model Registry Connectors](model-registry-connectors.md).
+
+These connectors work by reference: they collect model IDs, versions, artifact digests, lineage references, owner references, risk tier, and evidence references. They explicitly block raw model bytes, model weights, training data, prompt samples, private features, and raw artifact egress.

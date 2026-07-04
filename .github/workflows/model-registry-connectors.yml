@@ -1,0 +1,123 @@
+name: Model Registry Connectors
+
+on:
+  workflow_dispatch:
+    inputs:
+      packet_path:
+        description: "Path to the model registry connector readiness packet JSON."
+        required: false
+        default: "examples/model-registries/enterprise-model-registry-connectors.sample.json"
+      require_live:
+        description: "Require evidence_mode=live and fail on sample packets."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  pull_request:
+    paths:
+      - "src/cavra/model_registry_connectors.py"
+      - "scripts/validate_model_registry_connectors.py"
+      - "examples/model-registries/**"
+      - "tests/test_model_registry_connectors.py"
+      - ".github/workflows/model-registry-connectors.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/cavra/model_registry_connectors.py"
+      - "scripts/validate_model_registry_connectors.py"
+      - "examples/model-registries/**"
+      - "tests/test_model_registry_connectors.py"
+      - ".github/workflows/model-registry-connectors.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  model-registry-connectors-contract:
+    name: Validate model registry connector contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate built-in registry
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --registry \
+            --output dist/model-registry-connector-registry.json
+      - name: Validate checked-in manifests
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --manifest-dir examples/model-registries/connectors \
+            --output dist/model-registry-connector-manifests.json
+      - name: Validate metadata-only sample
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --metadata examples/model-registries/metadata.sample.json \
+            --output dist/model-registry-metadata-validation.json
+      - name: Confirm raw model egress is blocked
+        run: |
+          ! python scripts/validate_model_registry_connectors.py \
+            --metadata examples/model-registries/metadata.invalid-raw-content.json \
+            --output dist/model-registry-metadata-invalid.json
+      - name: Build metadata-only event
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --metadata examples/model-registries/metadata.sample.json \
+            --build-event \
+            --output dist/model-registry-metadata-event.json
+      - name: Validate sample packet
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --packet examples/model-registries/enterprise-model-registry-connectors.sample.json \
+            --output dist/enterprise-model-registry-connectors-sample.json
+      - name: Validate sanitized live packet
+        run: |
+          python scripts/validate_model_registry_connectors.py \
+            --packet examples/model-registries/enterprise-model-registry-connectors.live.sanitized.example.json \
+            --require-live \
+            --output dist/enterprise-model-registry-connectors-live-sanitized.json
+      - name: Test model registry connectors
+        run: python -m pytest tests/test_model_registry_connectors.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model-registry-connectors
+          path: |
+            dist/model-registry-connector-registry.json
+            dist/model-registry-connector-manifests.json
+            dist/model-registry-metadata-validation.json
+            dist/model-registry-metadata-invalid.json
+            dist/model-registry-metadata-event.json
+            dist/enterprise-model-registry-connectors-sample.json
+            dist/enterprise-model-registry-connectors-live-sanitized.json
+
+  model-registry-connectors-live:
+    name: Validate selected live model registry connector packet
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+      - name: Validate selected packet
+        run: |
+          REQUIRE_LIVE=""
+          if [ "${{ inputs.require_live }}" = "true" ]; then
+            REQUIRE_LIVE="--require-live"
+          fi
+          python scripts/validate_model_registry_connectors.py \
+            --packet "${{ inputs.packet_path }}" \
+            $REQUIRE_LIVE \
+            --output dist/enterprise-model-registry-connectors-live.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model-registry-connectors-live
+          path: dist/enterprise-model-registry-connectors-live.json

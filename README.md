@@ -199,6 +199,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Reporting Exports](docs/enterprise-reporting-exports.md)
 - [CAVRA Connector SDK And Certification](docs/connector-sdk-certification.md)
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)
+- [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

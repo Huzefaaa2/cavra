@@ -1,0 +1,14 @@
+{
+  "registry_provider": "mlflow",
+  "model_ref": "models:/fraud-risk-scorer",
+  "model_version": "42",
+  "artifact_digest": "sha256:4a878f5f6fd9c8ce4e6bb39f2a2ef7d3b77809207c79f6fb339fd5f4d21e6d32",
+  "owner_ref": "model-owner:fraud-risk-platform",
+  "lineage_ref": "lineage://mlflow/run/7f2e9a-public-safe",
+  "risk_tier": "high",
+  "evidence_ref": "evidence://model-registry/sample/fraud-risk-scorer",
+  "metadata": {
+    "model_weights": "FORBIDDEN_RAW_MODEL_BYTES",
+    "training_data": ["FORBIDDEN_ROW"]
+  }
+}

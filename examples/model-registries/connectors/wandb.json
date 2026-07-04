@@ -1,0 +1,77 @@
+{
+  "auth": {
+    "modes": [
+      "api_key",
+      "bearer_token"
+    ],
+    "secret_fields": [
+      "authorization",
+      "token",
+      "api_key",
+      "client_secret"
+    ]
+  },
+  "capabilities": [
+    "artifact_metadata",
+    "alias_tracking",
+    "run_lineage_reference",
+    "risk_metadata",
+    "metadata_only_export",
+    "no_raw_model_egress",
+    "audit_metadata"
+  ],
+  "category": "model_registry",
+  "certification_tier": "certified",
+  "compatibility": {
+    "api_contract": "openapi/cavra-api.openapi.json",
+    "cavra_versions": [
+      "1.0.0"
+    ],
+    "connector_sdk": "1.0"
+  },
+  "connector_id": "cavra-model-registry-wandb",
+  "display_name": "Weights & Biases Model Registry Connector",
+  "entrypoint": "cavra.connectors.model_registry.wandb:ModelRegistryConnector",
+  "provider": "wandb",
+  "runtime": {
+    "language": "python",
+    "max_retries_default": 2,
+    "min_python": "3.9",
+    "network_required": true,
+    "timeout_seconds_default": 10
+  },
+  "schema_version": "cavra.connector.sdk.manifest.v1",
+  "sdk_version": "1.0",
+  "security": {
+    "does_not_log_payload_secrets": true,
+    "idempotency_supported": true,
+    "metadata_only": true,
+    "raw_model_egress_blocked": true,
+    "redacts_secrets": true,
+    "supports_retries": true,
+    "supports_timeout": true,
+    "tenant_scope_required": true
+  },
+  "supported_events": [
+    "cavra.model.registry.metadata",
+    "cavra.model.risk.finding",
+    "cavra.model.approval.required"
+  ],
+  "tests": {
+    "fixtures": [
+      "examples/model-registries/connectors/wandb.json"
+    ],
+    "suites": [
+      "auth",
+      "compatibility",
+      "contract",
+      "metadata_only",
+      "no_raw_model_egress",
+      "redaction",
+      "retry",
+      "timeout",
+      "unit"
+    ]
+  },
+  "version": "2026.07"
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": "cavra.model-registry-connectors.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "provider_registry": {
+    "provider_ids": ["huggingface", "mlflow", "sagemaker", "wandb"],
+    "manifests_published": true,
+    "certification_packets_generated": true,
+    "compatibility_matrix_generated": true
+  },
+  "metadata_contract": {
+    "required_fields": [
+      "artifact_digest",
+      "evidence_ref",
+      "lineage_ref",
+      "model_ref",
+      "model_version",
+      "owner_ref",
+      "registry_provider",
+      "risk_tier"
+    ],
+    "hash_required": true,
+    "lineage_required": true,
+    "owner_required": true,
+    "risk_tier_required": true
+  },
+  "no_raw_model_egress": {
+    "raw_model_bytes_blocked": true,
+    "training_data_blocked": true,
+    "private_features_blocked": true,
+    "negative_tests_passed": true
+  },
+  "operating_evidence": {
+    "model_registry_owner": "enterprise-model-risk@example.invalid",
+    "metadata_validation_ref": "evidence://model-registries/live-metadata-validation-2026-q3-sanitized",
+    "no_egress_test_ref": "evidence://model-registries/live-no-egress-test-2026-q3-sanitized",
+    "compatibility_matrix_ref": "evidence://model-registries/live-compatibility-matrix-2026-q3-sanitized",
+    "customer_registry_sandbox_ref": "evidence://model-registries/live-customer-registry-sandbox-2026-q3-sanitized"
+  }
+}
