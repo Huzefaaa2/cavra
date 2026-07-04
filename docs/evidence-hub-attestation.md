@@ -11,6 +11,7 @@ Phase 3 begins the production Evidence Hub. CAVRA now creates verifier-ready evi
 - Key IDs and trust-root verification.
 - Trust-root bundle generation for enterprise distribution.
 - Enterprise KMS/HSM custody readiness validation for non-exportable signing keys, rotation, revocation drills, and independent verifier handoff.
+- Immutable append-only audit-log readiness validation separate from evidence bundles, with hash-chain verification, tamper detection, retention, monitoring, and auditor export checks.
 - `evidence.json` with full CAVRA decisions.
 - `pr-attestation.md` for pull request review.
 - `compliance-mapping.md` for audit and control review.
@@ -164,6 +165,7 @@ Evidence bundles help enterprises prove what happened before an AI-agent action 
 - As a platform engineer, I can persist evidence metadata for API search and review workflows.
 - As a platform engineer, I can distribute one approved trust-root package to CI, reviewers, API services, auditors, and offline environments.
 - As a platform security engineer, I can validate KMS/HSM evidence-signing custody, rotation, revocation, and independent verifier readiness before production launch.
+- As an auditor, I can verify an append-only audit log chain independently from a session evidence bundle.
 
 ## Next Work
 

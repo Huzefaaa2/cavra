@@ -1,0 +1,51 @@
+{
+  "schema_version": "cavra.audit-log.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "live",
+  "storage": {
+    "store_type": "azure_immutable_blob",
+    "separate_from_evidence_bundles": true,
+    "append_only": true,
+    "external_mutation_disabled": true,
+    "provider_refs": {
+      "storage_account": "azure://storage/cavraauditprod",
+      "container": "azure://storage/cavraauditprod/blobServices/default/containers/audit-log",
+      "immutability_policy": "azure://storage/cavraauditprod/blobServices/default/containers/audit-log/immutabilityPolicies/default"
+    }
+  },
+  "integrity": {
+    "hash_chained": true,
+    "sample_log_verified": true,
+    "tamper_detection_tested": true,
+    "signature_or_hmac_enabled": true,
+    "latest_verification_evidence_ref": "evidence://enterprise-audit/live-hash-chain-verification-2026-q3-sanitized"
+  },
+  "retention": {
+    "retention_days": 2555,
+    "legal_hold_supported": true,
+    "delete_protection": true,
+    "retention_policy_ref": "evidence://enterprise-audit/live-retention-policy-2026-q3-sanitized"
+  },
+  "exports": {
+    "formats": ["jsonl", "siem", "auditor_package"],
+    "redaction_supported": true,
+    "auditor_export_tested": true,
+    "siem_export_tested": true,
+    "latest_export_evidence_ref": "evidence://enterprise-audit/live-export-test-2026-q3-sanitized"
+  },
+  "monitoring": {
+    "alerts": [
+      "audit_write_failure",
+      "audit_integrity_failure",
+      "audit_retention_policy_failure",
+      "audit_export_failure"
+    ],
+    "runbook_ref": "evidence://enterprise-audit/live-recovery-runbook-2026-q3-sanitized"
+  },
+  "operating_evidence": {
+    "change_control_ref": "evidence://enterprise-audit/live-change-control-2026-q3-sanitized",
+    "tamper_drill_ref": "evidence://enterprise-audit/live-tamper-drill-2026-q3-sanitized",
+    "recovery_drill_ref": "evidence://enterprise-audit/live-recovery-drill-2026-q3-sanitized",
+    "auditor_handoff_ref": "evidence://enterprise-audit/live-auditor-handoff-2026-q3-sanitized"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "cavra.audit-log.evidence.v1",
+  "product": "CAVRA",
+  "evidence_mode": "sample",
+  "storage": {
+    "store_type": "azure_immutable_blob",
+    "separate_from_evidence_bundles": true,
+    "append_only": true,
+    "external_mutation_disabled": true,
+    "provider_ref": "azure://storage/cavra-audit-sample/blobServices/default/containers/audit"
+  },
+  "integrity": {
+    "hash_chained": true,
+    "sample_log_verified": true,
+    "tamper_detection_tested": true,
+    "signature_or_hmac_enabled": true,
+    "latest_verification_evidence_ref": "evidence://audit-log/sample-verification"
+  },
+  "retention": {
+    "retention_days": 2555,
+    "legal_hold_supported": true,
+    "delete_protection": true,
+    "retention_policy_ref": "policy://audit-retention-7y"
+  },
+  "exports": {
+    "formats": ["jsonl", "siem", "auditor_package"],
+    "redaction_supported": true,
+    "auditor_export_tested": true,
+    "siem_export_tested": true,
+    "latest_export_evidence_ref": "evidence://audit-log/sample-export"
+  },
+  "monitoring": {
+    "alerts": [
+      "audit_write_failure",
+      "audit_integrity_failure",
+      "audit_retention_policy_failure",
+      "audit_export_failure"
+    ],
+    "runbook_ref": "runbook://audit-log-recovery"
+  },
+  "operating_evidence": {
+    "change_control_ref": "ticket://sample-audit-log-change-control",
+    "tamper_drill_ref": "ticket://sample-audit-tamper-drill",
+    "recovery_drill_ref": "ticket://sample-audit-recovery-drill",
+    "auditor_handoff_ref": "ticket://sample-auditor-handoff"
+  }
+}
