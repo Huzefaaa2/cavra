@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Backlog
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-backlog.yml"
+      - "examples/customer-lifecycle-phase8-backlog/**"
+      - "scripts/validate_customer_lifecycle_phase8_backlog.py"
+      - "src/cavra/customer_lifecycle_phase8_backlog.py"
+      - "tests/test_customer_lifecycle_phase8_backlog.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-backlog.yml"
+      - "examples/customer-lifecycle-phase8-backlog/**"
+      - "scripts/validate_customer_lifecycle_phase8_backlog.py"
+      - "src/cavra/customer_lifecycle_phase8_backlog.py"
+      - "tests/test_customer_lifecycle_phase8_backlog.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest ruff
+      - name: Validate sample packet shape
+        run: python scripts/validate_customer_lifecycle_phase8_backlog.py --packet examples/customer-lifecycle-phase8-backlog/customer-lifecycle-phase8-backlog.sample.json --repo-root .
+      - name: Validate live sanitized packet
+        run: python scripts/validate_customer_lifecycle_phase8_backlog.py --packet examples/customer-lifecycle-phase8-backlog/customer-lifecycle-phase8-backlog.live.sanitized.example.json --repo-root . --require-live
+      - name: Run Phase 8 backlog tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_backlog.py tests/test_customer_lifecycle_retrospective.py -q
+      - name: Lint Phase 8 backlog implementation
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_backlog.py scripts/validate_customer_lifecycle_phase8_backlog.py tests/test_customer_lifecycle_phase8_backlog.py src/cavra/cli.py

@@ -1,0 +1,137 @@
+{
+  "backlog_controls": {
+    "acceptance_gates_defined": true,
+    "dependencies_mapped": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owners_assigned": true,
+    "priorities_assigned": true,
+    "retrospective_ready": true
+  },
+  "backlog_id": "cavra-live-customer-lifecycle-phase8-backlog",
+  "backlog_items": [
+    {
+      "acceptance_gates": [
+        "Telemetry packet schema is defined.",
+        "Live sanitized example validates with no blockers.",
+        "CI gate covers sample and live sanitized packets."
+      ],
+      "dependency_refs": [
+        "evidence://customer-lifecycle-retrospective/r7"
+      ],
+      "item_id": "phase8-telemetry-depth",
+      "owner_ref": "evidence://owner/security-platform",
+      "priority": "P0",
+      "summary": "Expand customer-safe telemetry depth for lifecycle operations.",
+      "tracking_ref": "evidence://roadmap/phase8-telemetry-depth"
+    },
+    {
+      "acceptance_gates": [
+        "Support checkpoint packet is defined.",
+        "Owner and escalation refs are sanitized.",
+        "Automation readiness gate validates live sanitized packet."
+      ],
+      "dependency_refs": [
+        "evidence://customer-lifecycle-retrospective/r7",
+        "evidence://support/customer-handoff"
+      ],
+      "item_id": "phase8-support-automation",
+      "owner_ref": "evidence://owner/support",
+      "priority": "P1",
+      "summary": "Automate support and customer-success checkpoint evidence capture.",
+      "tracking_ref": "evidence://roadmap/phase8-support-automation"
+    },
+    {
+      "acceptance_gates": [
+        "Analytics input contract is defined.",
+        "Dashboard-ready sanitized output examples exist.",
+        "Acceptance tests cover posture, adoption, and cadence summaries."
+      ],
+      "dependency_refs": [
+        "evidence://customer-lifecycle-retrospective/r7",
+        "evidence://roadmap/phase8-telemetry-depth"
+      ],
+      "item_id": "phase8-analytics",
+      "owner_ref": "evidence://owner/product-management",
+      "priority": "P1",
+      "summary": "Add lifecycle analytics for posture, adoption, and operating cadence.",
+      "tracking_ref": "evidence://roadmap/phase8-analytics"
+    }
+  ],
+  "backlog_owner_refs": {
+    "product_owner_ref": "evidence://owner/product-management",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "retrospective_ref": "evidence://customer-lifecycle-retrospective/r7",
+  "retrospective_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle retrospective schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized customer lifecycle retrospective supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "announcement_packet_ref is a sanitized reference.",
+        "name": "announcement_packet_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source announcement packet is ready.",
+        "name": "announcement_packet_result",
+        "status": "pass"
+      },
+      {
+        "message": "retrospective_owner_refs are present and sanitized.",
+        "name": "retrospective_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Retrospective sections are complete.",
+        "name": "retrospective_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Follow-up actions are owner-assigned and sanitized.",
+        "name": "follow_up_actions",
+        "status": "pass"
+      },
+      {
+        "message": "phase8_input_refs are present and sanitized.",
+        "name": "phase8_input_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Retrospective controls are explicit.",
+        "name": "retrospective_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Retrospective packet contains sanitized refs and internal-safe lessons only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R7",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_retrospective": true,
+    "schema_version": "cavra.customer-lifecycle-retrospective.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-backlog.packet.v1",
+  "source_phase": "R7"
+}

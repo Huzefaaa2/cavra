@@ -106,6 +106,11 @@ from cavra.customer_lifecycle_retrospective import (
     validate_customer_lifecycle_retrospective_packet,
     write_customer_lifecycle_retrospective_artifacts,
 )
+from cavra.customer_lifecycle_phase8_backlog import (
+    build_customer_lifecycle_phase8_backlog_packet,
+    validate_customer_lifecycle_phase8_backlog_packet,
+    write_customer_lifecycle_phase8_backlog_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2843,6 +2848,34 @@ def release_customer_lifecycle_retrospective(
         result = validate_customer_lifecycle_retrospective_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_retrospective"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-phase8-backlog")
+def release_customer_lifecycle_phase8_backlog(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle Phase 8 backlog packet JSON.")] = None,
+    retrospective: Annotated[Optional[Path], typer.Option(help="Optional lifecycle retrospective packet JSON.")] = None,
+    repo_root: Annotated[Path, typer.Option(help="Repository root used for retrospective generation.")] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle Phase 8 backlog packet."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_customer_lifecycle_phase8_backlog_artifacts(export_dir, root)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            retrospective_payload = json.loads(retrospective.read_text(encoding="utf-8")) if retrospective else None
+            payload = build_customer_lifecycle_phase8_backlog_packet(
+                retrospective_payload,
+                repo_root=root,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_phase8_backlog_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_phase8_backlog"]):
         raise typer.Exit(code=1)
 
 
