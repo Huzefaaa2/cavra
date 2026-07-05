@@ -1,0 +1,118 @@
+{
+  "automation_trigger_contract": {
+    "delivery_channel_ref": "sample://phase8/support-automation/support-delivery-channel",
+    "event_source_ref": "sample://phase8/support-automation/sanitized-event-source",
+    "handler_ref": "sample://phase8/support-automation/checkpoint-handler",
+    "redaction_status": "sanitized",
+    "trigger_ref": "sample://phase8/support-automation/trigger"
+  },
+  "ci_gate_coverage": {
+    "redaction_validation": "sample://ci/phase8/support-redaction-validation",
+    "schema_validation": "sample://ci/phase8/support-schema-validation",
+    "trigger_validation": "sample://ci/phase8/support-trigger-validation"
+  },
+  "escalation_matrix_refs": [
+    "sample://phase8/support-automation/escalation/support",
+    "sample://phase8/support-automation/escalation/security",
+    "sample://phase8/support-automation/escalation/engineering"
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-support-automation.packet.v1",
+  "source_phase": "R7",
+  "sprint1_checkpoint_ref": "sample://customer-lifecycle-phase8-sprint1-checkpoint/r7",
+  "sprint1_checkpoint_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 Sprint 1 checkpoint schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 Sprint 1 checkpoint validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "kickoff_ref is a sanitized reference.",
+        "name": "kickoff_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source Phase 8 kickoff validates shape but is not live.",
+        "name": "kickoff_result",
+        "status": "warn"
+      },
+      {
+        "message": "checkpoint_owner_refs are present and sanitized.",
+        "name": "checkpoint_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint sections are complete.",
+        "name": "checkpoint_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint controls are explicit.",
+        "name": "checkpoint_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint contains sanitized refs and customer-safe progress text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_sprint1_checkpoint": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-sprint1-checkpoint.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "support_automation_id": "cavra-sample-customer-lifecycle-phase8-support-automation",
+  "support_checkpoint_schema": {
+    "redaction_model_ref": "sample://phase8/support-automation/redaction-model",
+    "schema_fields": [
+      "automation_trigger_ref",
+      "checkpoint_ref",
+      "escalation_ref",
+      "evidence_ref",
+      "next_action_ref",
+      "owner_ref",
+      "status",
+      "support_case_ref"
+    ],
+    "schema_ref": "sample://phase8/support-automation/checkpoint-schema",
+    "version_ref": "sample://phase8/support-automation/checkpoint-schema/v1"
+  },
+  "support_controls": {
+    "automation_trigger_defined": true,
+    "ci_gates_defined": true,
+    "escalation_refs_defined": true,
+    "evidence_refs_sanitized": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "sprint1_checkpoint_ready": true,
+    "support_schema_defined": true
+  },
+  "support_evidence_refs": [
+    "sample://phase8/sprint1/support-progress",
+    "sample://phase8/support-automation/checkpoint-schema",
+    "sample://phase8/support-automation/trigger"
+  ],
+  "support_owner_refs": {
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "engineering_owner_ref": "sample://owner/engineering-delivery",
+    "program_owner_ref": "sample://owner/customer-lifecycle-program",
+    "security_owner_ref": "sample://owner/security-platform",
+    "support_owner_ref": "sample://owner/support"
+  }
+}

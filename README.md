@@ -238,6 +238,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Phase 8 Kickoff](docs/customer-lifecycle-phase8-kickoff.md)
 - [CAVRA Customer Lifecycle Phase 8 Sprint 1 Checkpoint](docs/customer-lifecycle-phase8-sprint1-checkpoint.md)
 - [CAVRA Customer Lifecycle Phase 8 Telemetry Depth](docs/customer-lifecycle-phase8-telemetry-depth.md)
+- [CAVRA Customer Lifecycle Phase 8 Support Automation](docs/customer-lifecycle-phase8-support-automation.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

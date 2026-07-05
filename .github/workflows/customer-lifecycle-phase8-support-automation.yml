@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Support Automation
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-support-automation.yml"
+      - "examples/customer-lifecycle-phase8-support-automation/**"
+      - "scripts/validate_customer_lifecycle_phase8_support_automation.py"
+      - "src/cavra/customer_lifecycle_phase8_support_automation.py"
+      - "tests/test_customer_lifecycle_phase8_support_automation.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-support-automation.yml"
+      - "examples/customer-lifecycle-phase8-support-automation/**"
+      - "scripts/validate_customer_lifecycle_phase8_support_automation.py"
+      - "src/cavra/customer_lifecycle_phase8_support_automation.py"
+      - "tests/test_customer_lifecycle_phase8_support_automation.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-support-automation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 support automation packet
+        run: python scripts/validate_customer_lifecycle_phase8_support_automation.py --packet examples/customer-lifecycle-phase8-support-automation/customer-lifecycle-phase8-support-automation.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 support automation packet
+        run: python scripts/validate_customer_lifecycle_phase8_support_automation.py --packet examples/customer-lifecycle-phase8-support-automation/customer-lifecycle-phase8-support-automation.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_support_automation.py tests/test_customer_lifecycle_phase8_sprint1_checkpoint.py -q
+      - name: Lint Phase 8 support automation surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_support_automation.py scripts/validate_customer_lifecycle_phase8_support_automation.py tests/test_customer_lifecycle_phase8_support_automation.py src/cavra/cli.py
