@@ -121,6 +121,11 @@ from cavra.customer_lifecycle_phase8_sprint1_checkpoint import (
     validate_customer_lifecycle_phase8_sprint1_checkpoint_packet,
     write_customer_lifecycle_phase8_sprint1_checkpoint_artifacts,
 )
+from cavra.customer_lifecycle_phase8_telemetry_depth import (
+    build_customer_lifecycle_phase8_telemetry_depth_packet,
+    validate_customer_lifecycle_phase8_telemetry_depth_packet,
+    write_customer_lifecycle_phase8_telemetry_depth_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2944,6 +2949,34 @@ def release_customer_lifecycle_phase8_sprint1_checkpoint(
     if result["blocker_count"] or (
         require_live and not result["ready_for_customer_lifecycle_phase8_sprint1_checkpoint"]
     ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-phase8-telemetry-depth")
+def release_customer_lifecycle_phase8_telemetry_depth(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle Phase 8 telemetry packet JSON.")] = None,
+    sprint1: Annotated[Optional[Path], typer.Option(help="Optional lifecycle Phase 8 Sprint 1 packet JSON.")] = None,
+    repo_root: Annotated[Path, typer.Option(help="Repository root used for Sprint 1 generation.")] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle Phase 8 telemetry depth packet."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_customer_lifecycle_phase8_telemetry_depth_artifacts(export_dir, root)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            sprint1_payload = json.loads(sprint1.read_text(encoding="utf-8")) if sprint1 else None
+            payload = build_customer_lifecycle_phase8_telemetry_depth_packet(
+                sprint1_payload,
+                repo_root=root,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_phase8_telemetry_depth_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_phase8_telemetry_depth"]):
         raise typer.Exit(code=1)
 
 

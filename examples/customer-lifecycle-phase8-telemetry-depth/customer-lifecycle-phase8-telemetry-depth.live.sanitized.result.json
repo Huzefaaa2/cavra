@@ -1,0 +1,68 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 telemetry depth schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 telemetry depth supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "sprint1_checkpoint_ref is a sanitized reference.",
+      "name": "sprint1_checkpoint_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source Phase 8 Sprint 1 checkpoint is ready.",
+      "name": "sprint1_checkpoint_result",
+      "status": "pass"
+    },
+    {
+      "message": "telemetry_owner_refs are present and sanitized.",
+      "name": "telemetry_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Telemetry schema fields and refs are complete.",
+      "name": "telemetry_schema",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized telemetry fixture is complete.",
+      "name": "live_sanitized_fixture",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "Telemetry evidence refs are sanitized.",
+      "name": "telemetry_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Telemetry depth controls are explicit.",
+      "name": "telemetry_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 telemetry depth contains sanitized refs and customer-safe telemetry contract text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_telemetry_depth": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-telemetry-depth.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

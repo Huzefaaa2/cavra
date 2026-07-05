@@ -1,0 +1,112 @@
+{
+  "ci_gate_coverage": {
+    "fixture_validation": "sample://ci/phase8/telemetry-fixture-validation",
+    "redaction_validation": "sample://ci/phase8/telemetry-redaction-validation",
+    "schema_validation": "sample://ci/phase8/telemetry-schema-validation"
+  },
+  "evidence_mode": "sample",
+  "live_sanitized_fixture": {
+    "decision_ref": "sample://runtime/decision/approval-required",
+    "fixture_ref": "sample://phase8/telemetry-depth/live-sanitized-fixture",
+    "policy_ref": "sample://policy/runtime-authority/default",
+    "posture_signal": "agent-action-risk-reviewed",
+    "redaction_status": "sanitized",
+    "source_event_ref": "sample://runtime/event/sanitized-agent-action"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-telemetry-depth.packet.v1",
+  "source_phase": "R7",
+  "sprint1_checkpoint_ref": "sample://customer-lifecycle-phase8-sprint1-checkpoint/r7",
+  "sprint1_checkpoint_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 Sprint 1 checkpoint schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 Sprint 1 checkpoint validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "kickoff_ref is a sanitized reference.",
+        "name": "kickoff_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source Phase 8 kickoff validates shape but is not live.",
+        "name": "kickoff_result",
+        "status": "warn"
+      },
+      {
+        "message": "checkpoint_owner_refs are present and sanitized.",
+        "name": "checkpoint_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint sections are complete.",
+        "name": "checkpoint_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint controls are explicit.",
+        "name": "checkpoint_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint contains sanitized refs and customer-safe progress text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_sprint1_checkpoint": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-sprint1-checkpoint.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "telemetry_controls": {
+    "ci_gates_defined": true,
+    "evidence_refs_sanitized": true,
+    "live_fixture_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "schema_fields_defined": true,
+    "sprint1_checkpoint_ready": true
+  },
+  "telemetry_depth_id": "cavra-sample-customer-lifecycle-phase8-telemetry-depth",
+  "telemetry_evidence_refs": [
+    "sample://phase8/sprint1/telemetry-progress",
+    "sample://phase8/telemetry-depth/schema",
+    "sample://phase8/telemetry-depth/live-sanitized-fixture"
+  ],
+  "telemetry_owner_refs": {
+    "analytics_owner_ref": "sample://owner/product-analytics",
+    "engineering_owner_ref": "sample://owner/engineering-delivery",
+    "program_owner_ref": "sample://owner/customer-lifecycle-program",
+    "security_owner_ref": "sample://owner/security-platform"
+  },
+  "telemetry_schema": {
+    "redaction_model_ref": "sample://phase8/telemetry-depth/redaction-model",
+    "schema_fields": [
+      "agent_ref",
+      "decision_ref",
+      "evidence_ref",
+      "policy_ref",
+      "posture_signal",
+      "risk_score",
+      "runtime_event_ref",
+      "tool_ref"
+    ],
+    "schema_ref": "sample://phase8/telemetry-depth/schema",
+    "version_ref": "sample://phase8/telemetry-depth/schema/v1"
+  }
+}
