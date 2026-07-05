@@ -1,0 +1,39 @@
+name: Customer Lifecycle Retrospective
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-retrospective.yml"
+      - "examples/customer-lifecycle-retrospective/**"
+      - "scripts/validate_customer_lifecycle_retrospective.py"
+      - "src/cavra/customer_lifecycle_retrospective.py"
+      - "tests/test_customer_lifecycle_retrospective.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/customer-lifecycle-retrospective.yml"
+      - "examples/customer-lifecycle-retrospective/**"
+      - "scripts/validate_customer_lifecycle_retrospective.py"
+      - "src/cavra/customer_lifecycle_retrospective.py"
+      - "tests/test_customer_lifecycle_retrospective.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest ruff
+      - name: Validate sample packet shape
+        run: python scripts/validate_customer_lifecycle_retrospective.py --packet examples/customer-lifecycle-retrospective/customer-lifecycle-retrospective.sample.json --repo-root .
+      - name: Validate live sanitized packet
+        run: python scripts/validate_customer_lifecycle_retrospective.py --packet examples/customer-lifecycle-retrospective/customer-lifecycle-retrospective.live.sanitized.example.json --repo-root . --require-live
+      - name: Run retrospective tests
+        run: python -m pytest tests/test_customer_lifecycle_retrospective.py tests/test_customer_lifecycle_announcement.py -q
+      - name: Lint retrospective implementation
+        run: python -m ruff check src/cavra/customer_lifecycle_retrospective.py scripts/validate_customer_lifecycle_retrospective.py tests/test_customer_lifecycle_retrospective.py src/cavra/cli.py
