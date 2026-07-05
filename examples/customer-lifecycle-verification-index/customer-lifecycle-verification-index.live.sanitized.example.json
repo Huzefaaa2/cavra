@@ -1,0 +1,302 @@
+{
+  "completion_condition": "All R7 customer lifecycle gates have live sanitized examples, ready result packets, validators, workflows, tests, repository docs, wiki docs, and customer-safe release commands.",
+  "evidence_mode": "live",
+  "gate_count": 10,
+  "gates": [
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-live-evidence-intake.md",
+        "live_result": "examples/customer-live-evidence/customer-live-evidence.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-live-evidence/customer-live-evidence.live.sanitized.example.json",
+        "test": "tests/test_customer_live_evidence.py",
+        "validator": "scripts/validate_customer_live_evidence.py",
+        "wiki": "docs/wiki/Customer-Live-Evidence-Intake.md",
+        "workflow": ".github/workflows/customer-live-evidence.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.1",
+      "name": "Customer Live Evidence Intake",
+      "ready": true,
+      "ready_key": "ready_for_customer_live_evidence_intake",
+      "validator_command": "python3 scripts/validate_customer_live_evidence.py --packet examples/customer-live-evidence/customer-live-evidence.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-evidence-room-closeout.md",
+        "live_result": "examples/customer-evidence-room/customer-evidence-room.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-evidence-room/customer-evidence-room.live.sanitized.example.json",
+        "test": "tests/test_customer_evidence_room.py",
+        "validator": "scripts/validate_customer_evidence_room.py",
+        "wiki": "docs/wiki/Customer-Evidence-Room-Closeout.md",
+        "workflow": ".github/workflows/customer-evidence-room.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.2",
+      "name": "Customer Evidence Room Closeout",
+      "ready": true,
+      "ready_key": "ready_for_customer_evidence_room_closeout",
+      "validator_command": "python3 scripts/validate_customer_evidence_room.py --index examples/customer-evidence-room/customer-evidence-room.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-closeout-handoff.md",
+        "live_result": "examples/customer-closeout-handoff/customer-closeout-handoff.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-closeout-handoff/customer-closeout-handoff.live.sanitized.example.json",
+        "test": "tests/test_customer_closeout_handoff.py",
+        "validator": "scripts/validate_customer_closeout_handoff.py",
+        "wiki": "docs/wiki/Customer-Closeout-Handoff.md",
+        "workflow": ".github/workflows/customer-closeout-handoff.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.3",
+      "name": "Customer Closeout Handoff",
+      "ready": true,
+      "ready_key": "ready_for_customer_closeout_handoff",
+      "validator_command": "python3 scripts/validate_customer_closeout_handoff.py --packet examples/customer-closeout-handoff/customer-closeout-handoff.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-operating-review.md",
+        "live_result": "examples/customer-operating-review/customer-operating-review.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-operating-review/customer-operating-review.live.sanitized.example.json",
+        "test": "tests/test_customer_operating_review.py",
+        "validator": "scripts/validate_customer_operating_review.py",
+        "wiki": "docs/wiki/Customer-Operating-Review.md",
+        "workflow": ".github/workflows/customer-operating-review.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.4",
+      "name": "Customer Operating Review",
+      "ready": true,
+      "ready_key": "ready_for_customer_operating_review",
+      "validator_command": "python3 scripts/validate_customer_operating_review.py --packet examples/customer-operating-review/customer-operating-review.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-renewal-expansion.md",
+        "live_result": "examples/customer-renewal-expansion/customer-renewal-expansion.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-renewal-expansion/customer-renewal-expansion.live.sanitized.example.json",
+        "test": "tests/test_customer_renewal_expansion.py",
+        "validator": "scripts/validate_customer_renewal_expansion.py",
+        "wiki": "docs/wiki/Customer-Renewal-And-Expansion-Readiness.md",
+        "workflow": ".github/workflows/customer-renewal-expansion.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.5",
+      "name": "Customer Renewal And Expansion Readiness",
+      "ready": true,
+      "ready_key": "ready_for_customer_renewal_expansion",
+      "validator_command": "python3 scripts/validate_customer_renewal_expansion.py --packet examples/customer-renewal-expansion/customer-renewal-expansion.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-renewal-outcome-closeout.md",
+        "live_result": "examples/customer-renewal-outcome/customer-renewal-outcome.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-renewal-outcome/customer-renewal-outcome.live.sanitized.example.json",
+        "test": "tests/test_customer_renewal_outcome.py",
+        "validator": "scripts/validate_customer_renewal_outcome.py",
+        "wiki": "docs/wiki/Customer-Renewal-Outcome-Closeout.md",
+        "workflow": ".github/workflows/customer-renewal-outcome.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.6",
+      "name": "Customer Renewal Outcome Closeout",
+      "ready": true,
+      "ready_key": "ready_for_customer_renewal_outcome_closeout",
+      "validator_command": "python3 scripts/validate_customer_renewal_outcome.py --packet examples/customer-renewal-outcome/customer-renewal-outcome.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-lifecycle-executive-rollup.md",
+        "live_result": "examples/customer-lifecycle-rollup/customer-lifecycle-rollup.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-lifecycle-rollup/customer-lifecycle-rollup.live.sanitized.example.json",
+        "test": "tests/test_customer_lifecycle_rollup.py",
+        "validator": "scripts/validate_customer_lifecycle_rollup.py",
+        "wiki": "docs/wiki/Customer-Lifecycle-Executive-Rollup.md",
+        "workflow": ".github/workflows/customer-lifecycle-rollup.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.7",
+      "name": "Customer Lifecycle Executive Rollup",
+      "ready": true,
+      "ready_key": "ready_for_customer_lifecycle_executive_rollup",
+      "validator_command": "python3 scripts/validate_customer_lifecycle_rollup.py --packet examples/customer-lifecycle-rollup/customer-lifecycle-rollup.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-lifecycle-archive-manifest.md",
+        "live_result": "examples/customer-lifecycle-archive/customer-lifecycle-archive.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-lifecycle-archive/customer-lifecycle-archive.live.sanitized.example.json",
+        "test": "tests/test_customer_lifecycle_archive.py",
+        "validator": "scripts/validate_customer_lifecycle_archive.py",
+        "wiki": "docs/wiki/Customer-Lifecycle-Archive-Manifest.md",
+        "workflow": ".github/workflows/customer-lifecycle-archive.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.8",
+      "name": "Customer Lifecycle Archive Manifest",
+      "ready": true,
+      "ready_key": "ready_for_customer_lifecycle_archive_manifest",
+      "validator_command": "python3 scripts/validate_customer_lifecycle_archive.py --packet examples/customer-lifecycle-archive/customer-lifecycle-archive.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-lifecycle-public-status.md",
+        "live_result": "examples/customer-lifecycle-status/customer-lifecycle-status.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-lifecycle-status/customer-lifecycle-status.live.sanitized.example.json",
+        "test": "tests/test_customer_lifecycle_status.py",
+        "validator": "scripts/validate_customer_lifecycle_status.py",
+        "wiki": "docs/wiki/Customer-Lifecycle-Public-Status.md",
+        "workflow": ".github/workflows/customer-lifecycle-status.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.9",
+      "name": "Customer Lifecycle Public Status Summary",
+      "ready": true,
+      "ready_key": "ready_for_customer_lifecycle_public_status",
+      "validator_command": "python3 scripts/validate_customer_lifecycle_status.py --packet examples/customer-lifecycle-status/customer-lifecycle-status.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    },
+    {
+      "artifact_paths": {
+        "docs": "docs/customer-lifecycle-final-release-seal.md",
+        "live_result": "examples/customer-lifecycle-final-seal/customer-lifecycle-final-seal.live.sanitized.result.json",
+        "live_sanitized_example": "examples/customer-lifecycle-final-seal/customer-lifecycle-final-seal.live.sanitized.example.json",
+        "test": "tests/test_customer_lifecycle_final_seal.py",
+        "validator": "scripts/validate_customer_lifecycle_final_seal.py",
+        "wiki": "docs/wiki/Customer-Lifecycle-Final-Release-Seal.md",
+        "workflow": ".github/workflows/customer-lifecycle-final-seal.yml"
+      },
+      "artifact_presence": {
+        "docs": true,
+        "live_result": true,
+        "live_sanitized_example": true,
+        "test": true,
+        "validator": true,
+        "wiki": true,
+        "workflow": true
+      },
+      "blocker_count": 0,
+      "example_evidence_mode": "live",
+      "example_sanitized": true,
+      "gate_id": "R7.10",
+      "name": "Customer Lifecycle Final Release Seal",
+      "ready": true,
+      "ready_key": "ready_for_customer_lifecycle_final_release_seal",
+      "validator_command": "python3 scripts/validate_customer_lifecycle_final_seal.py --packet examples/customer-lifecycle-final-seal/customer-lifecycle-final-seal.live.sanitized.example.json --require-live",
+      "warning_count": 0
+    }
+  ],
+  "phase": "R7",
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-verification-index.packet.v1",
+  "verification_index_id": "cavra-live-customer-lifecycle-verification-index"
+}

@@ -1,0 +1,42 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle verification index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample verification index validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "Verification index contains all 10 R7 gates.",
+      "name": "gate_count",
+      "status": "pass"
+    },
+    {
+      "message": "All R7 gates are present, ready, documented, tested, and wired to CI.",
+      "name": "gates",
+      "status": "pass"
+    },
+    {
+      "message": "Completion condition is explicit.",
+      "name": "completion_condition",
+      "status": "pass"
+    },
+    {
+      "message": "Verification index contains public artifact refs and sanitized release commands only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R7",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_verification_index": false,
+  "schema_version": "cavra.customer-lifecycle-verification-index.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}
