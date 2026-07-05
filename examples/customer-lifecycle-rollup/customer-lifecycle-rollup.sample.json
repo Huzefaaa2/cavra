@@ -1,0 +1,457 @@
+{
+  "customer_profile_ref": "sample://customer/redacted",
+  "evidence_mode": "sample",
+  "executive_owner_refs": {
+    "commercial_owner_ref": "sample://owner/commercial",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_sponsor_ref": "sample://owner/executive-sponsor",
+    "operations_owner_ref": "sample://owner/platform-operations",
+    "security_owner_ref": "sample://owner/security-platform"
+  },
+  "executive_summary_sections": [
+    {
+      "evidence_refs": [
+        "sample://customer-closeout-handoff/packet",
+        "sample://evidence-room/closeout-index"
+      ],
+      "section_id": "implementation_closeout",
+      "status": "complete"
+    },
+    {
+      "evidence_refs": [
+        "sample://customer-operating-review/packet",
+        "sample://metrics/support-sla-health"
+      ],
+      "section_id": "operating_health",
+      "status": "confirmed"
+    },
+    {
+      "evidence_refs": [
+        "sample://metrics/value-realization",
+        "sample://metrics/aispm-posture-trend"
+      ],
+      "section_id": "value_realization",
+      "status": "confirmed"
+    },
+    {
+      "evidence_refs": [
+        "sample://security/risk-closeout",
+        "sample://audit/security-acceptance"
+      ],
+      "section_id": "risk_and_security",
+      "status": "ready"
+    },
+    {
+      "evidence_refs": [
+        "sample://customer-renewal-outcome/packet",
+        "sample://renewal/executive-acceptance"
+      ],
+      "section_id": "renewal_outcome",
+      "status": "complete"
+    },
+    {
+      "evidence_refs": [
+        "sample://expansion/approved-scope",
+        "sample://expansion/activation-plan"
+      ],
+      "section_id": "expansion_plan",
+      "status": "ready"
+    },
+    {
+      "evidence_refs": [
+        "sample://success/next-quarter-plan",
+        "sample://operating-review/next-cycle"
+      ],
+      "section_id": "next_lifecycle_checkpoint",
+      "status": "scheduled"
+    }
+  ],
+  "lifecycle_gates": [
+    {
+      "gate_id": "R7.1",
+      "packet_ref": "sample://customer-live-evidence/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer-live evidence schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample packet validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "Customer profile uses sanitized references.",
+            "name": "customer_profile",
+            "status": "pass"
+          },
+          {
+            "message": "All customer-live evidence references are present and sanitized.",
+            "name": "evidence_sections",
+            "status": "pass"
+          },
+          {
+            "message": "Redaction controls are explicitly affirmed.",
+            "name": "redaction_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Prepared-by, reviewer, and approval refs are present.",
+            "name": "attestation",
+            "status": "pass"
+          },
+          {
+            "message": "Packet contains only sanitized references and control booleans.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_live_evidence_intake": false,
+        "schema_version": "cavra.customer-live-evidence.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 1
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_live_evidence_intake",
+      "title": "Customer live evidence intake"
+    },
+    {
+      "gate_id": "R7.2",
+      "packet_ref": "sample://customer-evidence-room/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer evidence-room index schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample evidence-room index validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "Evidence-room publication controls are explicit.",
+            "name": "publication_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Evidence-room sections are complete and sanitized.",
+            "name": "sections",
+            "status": "pass"
+          },
+          {
+            "message": "Source intake validates shape but is not live.",
+            "name": "source_intake_validation",
+            "status": "warn"
+          },
+          {
+            "message": "Evidence-room index contains sanitized refs and control metadata only.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_evidence_room_closeout": false,
+        "schema_version": "cavra.customer-evidence-room.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 2
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_evidence_room_closeout",
+      "title": "Customer evidence room closeout"
+    },
+    {
+      "gate_id": "R7.3",
+      "packet_ref": "sample://customer-closeout-handoff/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer closeout handoff schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample closeout handoff validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "customer_profile_ref is a sanitized reference.",
+            "name": "customer_profile_ref",
+            "status": "pass"
+          },
+          {
+            "message": "evidence_room_index_ref is a sanitized reference.",
+            "name": "evidence_room_index_ref",
+            "status": "pass"
+          },
+          {
+            "message": "Source evidence-room validates shape but is not live.",
+            "name": "evidence_room_result",
+            "status": "warn"
+          },
+          {
+            "message": "handoff_owner_refs are present and sanitized.",
+            "name": "handoff_owner_refs",
+            "status": "pass"
+          },
+          {
+            "message": "communication_refs are present and sanitized.",
+            "name": "communication_refs",
+            "status": "pass"
+          },
+          {
+            "message": "operating_review are present and sanitized.",
+            "name": "operating_review",
+            "status": "pass"
+          },
+          {
+            "message": "Known exclusions are explicit and sanitized.",
+            "name": "known_exclusions",
+            "status": "pass"
+          },
+          {
+            "message": "Closeout handoff controls are explicit.",
+            "name": "handoff_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Closeout handoff contains sanitized refs and control metadata only.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_closeout_handoff": false,
+        "schema_version": "cavra.customer-closeout-handoff.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 2
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_closeout_handoff",
+      "title": "Customer closeout handoff"
+    },
+    {
+      "gate_id": "R7.4",
+      "packet_ref": "sample://customer-operating-review/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer operating review schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample operating review validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "customer_profile_ref is a sanitized reference.",
+            "name": "customer_profile_ref",
+            "status": "pass"
+          },
+          {
+            "message": "closeout_handoff_ref is a sanitized reference.",
+            "name": "closeout_handoff_ref",
+            "status": "pass"
+          },
+          {
+            "message": "Source closeout handoff validates shape but is not live.",
+            "name": "closeout_handoff_result",
+            "status": "warn"
+          },
+          {
+            "message": "review_owner_refs are present and sanitized.",
+            "name": "review_owner_refs",
+            "status": "pass"
+          },
+          {
+            "message": "Operating review sections are complete and healthy.",
+            "name": "review_sections",
+            "status": "pass"
+          },
+          {
+            "message": "Operating review controls are explicit.",
+            "name": "review_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Operating review contains sanitized refs and control metadata only.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_operating_review": false,
+        "schema_version": "cavra.customer-operating-review.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 2
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_operating_review",
+      "title": "Customer operating review"
+    },
+    {
+      "gate_id": "R7.5",
+      "packet_ref": "sample://customer-renewal-expansion/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer renewal expansion schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample renewal expansion packet validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "customer_profile_ref is a sanitized reference.",
+            "name": "customer_profile_ref",
+            "status": "pass"
+          },
+          {
+            "message": "operating_review_ref is a sanitized reference.",
+            "name": "operating_review_ref",
+            "status": "pass"
+          },
+          {
+            "message": "Source operating review validates shape but is not live.",
+            "name": "operating_review_result",
+            "status": "warn"
+          },
+          {
+            "message": "renewal_owner_refs are present and sanitized.",
+            "name": "renewal_owner_refs",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal expansion sections are complete and healthy.",
+            "name": "renewal_sections",
+            "status": "pass"
+          },
+          {
+            "message": "Expansion candidates are explicit and sanitized.",
+            "name": "expansion_candidates",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal expansion controls are explicit.",
+            "name": "renewal_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal expansion packet contains sanitized refs and control metadata only.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_renewal_expansion": false,
+        "schema_version": "cavra.customer-renewal-expansion.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 2
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_renewal_expansion",
+      "title": "Customer renewal and expansion readiness"
+    },
+    {
+      "gate_id": "R7.6",
+      "packet_ref": "sample://customer-renewal-outcome/packet",
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Customer renewal outcome closeout schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Sample renewal outcome packet validates shape only.",
+            "name": "evidence_mode",
+            "status": "warn"
+          },
+          {
+            "message": "customer_profile_ref is a sanitized reference.",
+            "name": "customer_profile_ref",
+            "status": "pass"
+          },
+          {
+            "message": "renewal_readiness_ref is a sanitized reference.",
+            "name": "renewal_readiness_ref",
+            "status": "pass"
+          },
+          {
+            "message": "Source renewal readiness validates shape but is not live.",
+            "name": "renewal_readiness_result",
+            "status": "warn"
+          },
+          {
+            "message": "outcome_owner_refs are present and sanitized.",
+            "name": "outcome_owner_refs",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal outcome sections are complete and healthy.",
+            "name": "outcome_sections",
+            "status": "pass"
+          },
+          {
+            "message": "Expansion outcomes are explicit and sanitized.",
+            "name": "expansion_outcomes",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal outcome controls are explicit.",
+            "name": "outcome_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Renewal outcome packet contains sanitized refs and control metadata only.",
+            "name": "no_private_material",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "sample",
+        "product": "CAVRA",
+        "ready_for_customer_renewal_outcome_closeout": false,
+        "schema_version": "cavra.customer-renewal-outcome-closeout.result.v1",
+        "status": "ready_with_warnings",
+        "warning_count": 2
+      },
+      "ready": false,
+      "ready_key": "ready_for_customer_renewal_outcome_closeout",
+      "title": "Customer renewal outcome closeout"
+    }
+  ],
+  "product": "CAVRA",
+  "rollup_controls": {
+    "all_lifecycle_gates_ready": false,
+    "archive_refs_present": true,
+    "commercial_terms_excluded": true,
+    "customer_identifiers_excluded": true,
+    "executive_summary_complete": true,
+    "next_checkpoint_scheduled": true,
+    "private_notes_excluded": true
+  },
+  "rollup_id": "cavra-sample-customer-lifecycle-executive-rollup",
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-executive-rollup.packet.v1"
+}

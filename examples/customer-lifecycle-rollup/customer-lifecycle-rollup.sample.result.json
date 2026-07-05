@@ -1,0 +1,51 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle executive rollup schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample lifecycle rollup validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "customer_profile_ref is a sanitized reference.",
+      "name": "customer_profile_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Executive owner refs are present and sanitized.",
+      "name": "executive_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Customer lifecycle gates validate shape but are not live: R7.1, R7.2, R7.3, R7.4, R7.5, R7.6.",
+      "name": "lifecycle_gates",
+      "status": "warn"
+    },
+    {
+      "message": "Executive summary sections are complete.",
+      "name": "executive_summary_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Lifecycle rollup controls validate shape but lifecycle gates are not live.",
+      "name": "rollup_controls",
+      "status": "warn"
+    },
+    {
+      "message": "Lifecycle rollup contains sanitized refs and executive-safe control metadata only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_executive_rollup": false,
+  "schema_version": "cavra.customer-lifecycle-executive-rollup.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 3
+}

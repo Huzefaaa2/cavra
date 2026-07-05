@@ -71,6 +71,11 @@ from cavra.customer_renewal_outcome import (
     validate_customer_renewal_outcome_packet,
     write_customer_renewal_outcome_artifacts,
 )
+from cavra.customer_lifecycle_rollup import (
+    build_customer_lifecycle_rollup_packet,
+    validate_customer_lifecycle_rollup_packet,
+    write_customer_lifecycle_rollup_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2632,6 +2637,26 @@ def release_customer_renewal_outcome(
         result = validate_customer_renewal_outcome_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_renewal_outcome_closeout"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-rollup")
+def release_customer_lifecycle_rollup(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle rollup packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle executive rollup packet."""
+    if export_dir:
+        result = write_customer_lifecycle_rollup_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            payload = build_customer_lifecycle_rollup_packet(evidence_mode="live" if require_live else "sample")
+        result = validate_customer_lifecycle_rollup_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_executive_rollup"]):
         raise typer.Exit(code=1)
 
 

@@ -1,0 +1,36 @@
+name: Customer Lifecycle Executive Rollup
+
+on:
+  push:
+    paths:
+      - "src/cavra/customer_lifecycle_rollup.py"
+      - "scripts/validate_customer_lifecycle_rollup.py"
+      - "examples/customer-lifecycle-rollup/**"
+      - "tests/test_customer_lifecycle_rollup.py"
+      - ".github/workflows/customer-lifecycle-rollup.yml"
+  pull_request:
+    paths:
+      - "src/cavra/customer_lifecycle_rollup.py"
+      - "scripts/validate_customer_lifecycle_rollup.py"
+      - "examples/customer-lifecycle-rollup/**"
+      - "tests/test_customer_lifecycle_rollup.py"
+      - ".github/workflows/customer-lifecycle-rollup.yml"
+
+jobs:
+  validate-customer-lifecycle-rollup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e . pytest ruff
+      - name: Validate sample rollup
+        run: python scripts/validate_customer_lifecycle_rollup.py --packet examples/customer-lifecycle-rollup/customer-lifecycle-rollup.sample.json
+      - name: Validate live sanitized rollup
+        run: python scripts/validate_customer_lifecycle_rollup.py --packet examples/customer-lifecycle-rollup/customer-lifecycle-rollup.live.sanitized.example.json --require-live
+      - name: Run tests
+        run: python -m pytest tests/test_customer_lifecycle_rollup.py -q
+      - name: Lint
+        run: python -m ruff check src/cavra/customer_lifecycle_rollup.py scripts/validate_customer_lifecycle_rollup.py tests/test_customer_lifecycle_rollup.py
