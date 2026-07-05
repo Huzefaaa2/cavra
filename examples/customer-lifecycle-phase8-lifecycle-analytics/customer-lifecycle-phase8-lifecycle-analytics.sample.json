@@ -1,0 +1,120 @@
+{
+  "analytics_controls": {
+    "analytics_input_contract_defined": true,
+    "ci_gates_defined": true,
+    "dashboard_outputs_defined": true,
+    "evidence_refs_sanitized": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "sprint1_checkpoint_ready": true,
+    "summary_refs_defined": true
+  },
+  "analytics_evidence_refs": [
+    "sample://phase8/sprint1/analytics-progress",
+    "sample://phase8/lifecycle-analytics/input-contract",
+    "sample://phase8/lifecycle-analytics/dashboard-safe-outputs",
+    "sample://phase8/lifecycle-analytics/summary-refs"
+  ],
+  "analytics_input_contract": {
+    "contract_ref": "sample://phase8/lifecycle-analytics/input-contract",
+    "redaction_model_ref": "sample://phase8/lifecycle-analytics/redaction-model",
+    "schema_fields": [
+      "adoption_signal",
+      "analytics_event_ref",
+      "cadence_signal",
+      "evidence_ref",
+      "posture_signal",
+      "redaction_status",
+      "source_signal_ref"
+    ],
+    "version_ref": "sample://phase8/lifecycle-analytics/input-contract/v1"
+  },
+  "analytics_owner_refs": {
+    "analytics_owner_ref": "sample://owner/product-analytics",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "product_owner_ref": "sample://owner/product-management",
+    "program_owner_ref": "sample://owner/customer-lifecycle-program",
+    "security_owner_ref": "sample://owner/security-platform"
+  },
+  "ci_gate_coverage": {
+    "dashboard_output_validation": "sample://ci/phase8/lifecycle-analytics/dashboard-output-validation",
+    "input_validation": "sample://ci/phase8/lifecycle-analytics/input-validation",
+    "redaction_validation": "sample://ci/phase8/lifecycle-analytics/redaction-validation",
+    "summary_validation": "sample://ci/phase8/lifecycle-analytics/summary-validation"
+  },
+  "dashboard_safe_outputs": {
+    "adoption_summary_ref": "sample://phase8/lifecycle-analytics/dashboard/adoption-summary",
+    "cadence_summary_ref": "sample://phase8/lifecycle-analytics/dashboard/cadence-summary",
+    "executive_summary_ref": "sample://phase8/lifecycle-analytics/dashboard/executive-summary",
+    "posture_summary_ref": "sample://phase8/lifecycle-analytics/dashboard/posture-summary",
+    "redaction_status": "sanitized",
+    "trend_ref": "sample://phase8/lifecycle-analytics/dashboard/trends"
+  },
+  "evidence_mode": "sample",
+  "lifecycle_analytics_id": "cavra-sample-customer-lifecycle-phase8-lifecycle-analytics",
+  "lifecycle_summary_refs": {
+    "adoption_summary_ref": "sample://phase8/lifecycle-analytics/summary/adoption",
+    "cadence_summary_ref": "sample://phase8/lifecycle-analytics/summary/cadence",
+    "posture_summary_ref": "sample://phase8/lifecycle-analytics/summary/posture"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-lifecycle-analytics.packet.v1",
+  "source_phase": "R7",
+  "sprint1_checkpoint_ref": "sample://customer-lifecycle-phase8-sprint1-checkpoint/r7",
+  "sprint1_checkpoint_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 Sprint 1 checkpoint schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 Sprint 1 checkpoint validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "kickoff_ref is a sanitized reference.",
+        "name": "kickoff_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source Phase 8 kickoff validates shape but is not live.",
+        "name": "kickoff_result",
+        "status": "warn"
+      },
+      {
+        "message": "checkpoint_owner_refs are present and sanitized.",
+        "name": "checkpoint_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint sections are complete.",
+        "name": "checkpoint_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint controls are explicit.",
+        "name": "checkpoint_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 Sprint 1 checkpoint contains sanitized refs and customer-safe progress text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_sprint1_checkpoint": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-sprint1-checkpoint.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  }
+}

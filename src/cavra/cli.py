@@ -131,6 +131,11 @@ from cavra.customer_lifecycle_phase8_support_automation import (
     validate_customer_lifecycle_phase8_support_automation_packet,
     write_customer_lifecycle_phase8_support_automation_artifacts,
 )
+from cavra.customer_lifecycle_phase8_lifecycle_analytics import (
+    build_customer_lifecycle_phase8_lifecycle_analytics_packet,
+    validate_customer_lifecycle_phase8_lifecycle_analytics_packet,
+    write_customer_lifecycle_phase8_lifecycle_analytics_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -3010,6 +3015,34 @@ def release_customer_lifecycle_phase8_support_automation(
         result = validate_customer_lifecycle_phase8_support_automation_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_phase8_support_automation"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-phase8-lifecycle-analytics")
+def release_customer_lifecycle_phase8_lifecycle_analytics(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle Phase 8 analytics packet JSON.")] = None,
+    sprint1: Annotated[Optional[Path], typer.Option(help="Optional lifecycle Phase 8 Sprint 1 packet JSON.")] = None,
+    repo_root: Annotated[Path, typer.Option(help="Repository root used for Sprint 1 generation.")] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle Phase 8 lifecycle analytics packet."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_customer_lifecycle_phase8_lifecycle_analytics_artifacts(export_dir, root)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            sprint1_payload = json.loads(sprint1.read_text(encoding="utf-8")) if sprint1 else None
+            payload = build_customer_lifecycle_phase8_lifecycle_analytics_packet(
+                sprint1_payload,
+                repo_root=root,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_phase8_lifecycle_analytics_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_phase8_lifecycle_analytics"]):
         raise typer.Exit(code=1)
 
 

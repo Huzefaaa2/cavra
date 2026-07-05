@@ -1,0 +1,73 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 lifecycle analytics schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 lifecycle analytics supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "sprint1_checkpoint_ref is a sanitized reference.",
+      "name": "sprint1_checkpoint_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source Phase 8 Sprint 1 checkpoint is ready.",
+      "name": "sprint1_checkpoint_result",
+      "status": "pass"
+    },
+    {
+      "message": "analytics_owner_refs are present and sanitized.",
+      "name": "analytics_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Analytics input contract fields and refs are complete.",
+      "name": "analytics_input_contract",
+      "status": "pass"
+    },
+    {
+      "message": "Dashboard-safe analytics outputs are complete.",
+      "name": "dashboard_safe_outputs",
+      "status": "pass"
+    },
+    {
+      "message": "Lifecycle posture, adoption, and cadence summary refs are complete.",
+      "name": "lifecycle_summary_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "analytics_evidence_refs are sanitized.",
+      "name": "analytics_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Lifecycle analytics controls are explicit.",
+      "name": "analytics_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 lifecycle analytics contains sanitized refs and customer-safe analytics contract text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_lifecycle_analytics": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-lifecycle-analytics.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
