@@ -76,6 +76,11 @@ from cavra.customer_lifecycle_rollup import (
     validate_customer_lifecycle_rollup_packet,
     write_customer_lifecycle_rollup_artifacts,
 )
+from cavra.customer_lifecycle_archive import (
+    build_customer_lifecycle_archive_manifest,
+    validate_customer_lifecycle_archive_manifest,
+    write_customer_lifecycle_archive_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2657,6 +2662,31 @@ def release_customer_lifecycle_rollup(
         result = validate_customer_lifecycle_rollup_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_executive_rollup"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-archive")
+def release_customer_lifecycle_archive(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle archive manifest JSON.")] = None,
+    rollup: Annotated[Optional[Path], typer.Option(help="Optional lifecycle executive rollup packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live manifests.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle archive manifest."""
+    if export_dir:
+        result = write_customer_lifecycle_archive_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            rollup_payload = json.loads(rollup.read_text(encoding="utf-8")) if rollup else None
+            payload = build_customer_lifecycle_archive_manifest(
+                rollup_payload,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_archive_manifest(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_archive_manifest"]):
         raise typer.Exit(code=1)
 
 

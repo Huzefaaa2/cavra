@@ -1,0 +1,138 @@
+{
+  "archive_controls": {
+    "archive_sections_complete": true,
+    "audit_handoff_ready": true,
+    "commercial_terms_excluded": true,
+    "customer_identifiers_excluded": true,
+    "lifecycle_rollup_ready": true,
+    "private_notes_excluded": true,
+    "retention_controls_present": true,
+    "verifier_refs_present": true
+  },
+  "archive_manifest_id": "cavra-live-customer-lifecycle-archive-manifest",
+  "archive_owner_refs": {
+    "archive_owner_ref": "evidence://owner/archive",
+    "compliance_owner_ref": "evidence://owner/compliance",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "operations_owner_ref": "evidence://owner/platform-operations",
+    "security_owner_ref": "evidence://owner/security-platform"
+  },
+  "archive_sections": [
+    {
+      "archive_refs": [
+        "evidence://archive/executive-rollup",
+        "evidence://customer-lifecycle-rollup/result"
+      ],
+      "section_id": "executive_rollup",
+      "status": "archived"
+    },
+    {
+      "archive_refs": [
+        "evidence://archive/evidence-room-index",
+        "evidence://evidence-room/manifest"
+      ],
+      "section_id": "evidence_room",
+      "status": "archived"
+    },
+    {
+      "archive_refs": [
+        "evidence://audit/lifecycle-archive-manifest",
+        "evidence://audit/hash-chain-check"
+      ],
+      "section_id": "audit_manifest",
+      "status": "ready"
+    },
+    {
+      "archive_refs": [
+        "evidence://retention/customer-lifecycle-policy",
+        "evidence://retention/legal-hold-policy"
+      ],
+      "section_id": "retention_policy",
+      "status": "retained"
+    },
+    {
+      "archive_refs": [
+        "evidence://verifier/customer-lifecycle-bundle",
+        "evidence://verifier/trust-root"
+      ],
+      "section_id": "verifier_bundle",
+      "status": "verified"
+    },
+    {
+      "archive_refs": [
+        "evidence://operations/archive-handoff",
+        "ticket://operations/archive-closeout"
+      ],
+      "section_id": "handoff_record",
+      "status": "handed_off"
+    }
+  ],
+  "customer_profile_ref": "evidence://customer/redacted",
+  "evidence_mode": "live",
+  "lifecycle_rollup_ref": "evidence://customer-lifecycle-rollup/packet",
+  "lifecycle_rollup_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle executive rollup schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized lifecycle rollup packet supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Executive owner refs are present and sanitized.",
+        "name": "executive_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "All customer lifecycle gates are ready.",
+        "name": "lifecycle_gates",
+        "status": "pass"
+      },
+      {
+        "message": "Executive summary sections are complete.",
+        "name": "executive_summary_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Lifecycle rollup controls are explicit.",
+        "name": "rollup_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Lifecycle rollup contains sanitized refs and executive-safe control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_executive_rollup": true,
+    "schema_version": "cavra.customer-lifecycle-executive-rollup.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "product": "CAVRA",
+  "retention_controls": {
+    "deletion_review_policy_ref": "evidence://retention/deletion-review-policy",
+    "immutability_policy_ref": "evidence://storage/immutable-archive-policy",
+    "legal_hold_policy_ref": "evidence://retention/legal-hold-policy",
+    "retention_policy_ref": "evidence://retention/customer-lifecycle-policy"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-archive-manifest.packet.v1",
+  "verifier_refs": [
+    "evidence://verifier/customer-lifecycle-bundle",
+    "evidence://verifier/trust-root",
+    "evidence://audit/hash-chain-check"
+  ]
+}
