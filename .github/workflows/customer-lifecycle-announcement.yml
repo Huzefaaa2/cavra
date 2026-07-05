@@ -1,0 +1,39 @@
+name: Customer Lifecycle Announcement
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-announcement.yml"
+      - "examples/customer-lifecycle-announcement/**"
+      - "scripts/validate_customer_lifecycle_announcement.py"
+      - "src/cavra/customer_lifecycle_announcement.py"
+      - "tests/test_customer_lifecycle_announcement.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/customer-lifecycle-announcement.yml"
+      - "examples/customer-lifecycle-announcement/**"
+      - "scripts/validate_customer_lifecycle_announcement.py"
+      - "src/cavra/customer_lifecycle_announcement.py"
+      - "tests/test_customer_lifecycle_announcement.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest ruff
+      - name: Validate sample packet shape
+        run: python scripts/validate_customer_lifecycle_announcement.py --packet examples/customer-lifecycle-announcement/customer-lifecycle-announcement.sample.json --repo-root .
+      - name: Validate live sanitized packet
+        run: python scripts/validate_customer_lifecycle_announcement.py --packet examples/customer-lifecycle-announcement/customer-lifecycle-announcement.live.sanitized.example.json --repo-root . --require-live
+      - name: Run announcement tests
+        run: python -m pytest tests/test_customer_lifecycle_announcement.py tests/test_customer_lifecycle_verification_index.py -q
+      - name: Lint announcement implementation
+        run: python -m ruff check src/cavra/customer_lifecycle_announcement.py scripts/validate_customer_lifecycle_announcement.py tests/test_customer_lifecycle_announcement.py src/cavra/cli.py

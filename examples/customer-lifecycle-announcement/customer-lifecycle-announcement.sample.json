@@ -1,0 +1,123 @@
+{
+  "announcement_controls": {
+    "customer_safe_language_approved": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "operator_handoff_ready": true,
+    "release_notes_approved": true,
+    "support_path_verified": true,
+    "verification_index_ready": true
+  },
+  "announcement_id": "cavra-sample-customer-lifecycle-closeout-announcement",
+  "announcement_owner_refs": {
+    "communications_owner_ref": "sample://owner/customer-communications",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "release_owner_ref": "sample://owner/release-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "support_owner_ref": "sample://owner/support"
+  },
+  "announcement_sections": [
+    {
+      "copy": "CAVRA customer lifecycle closeout is ready for customer-safe release.",
+      "section_id": "headline",
+      "supporting_refs": [
+        "sample://release-notes/customer-lifecycle-closeout"
+      ]
+    },
+    {
+      "copy": "Runtime authority, evidence, AISPM posture, archive, and support handoff are verified.",
+      "section_id": "customer_safe_summary",
+      "supporting_refs": [
+        "sample://customer-lifecycle-verification-index/r7"
+      ]
+    },
+    {
+      "copy": "All R7 customer lifecycle gates have ready live sanitized examples and validation evidence.",
+      "section_id": "what_is_ready",
+      "supporting_refs": [
+        "sample://customer-lifecycle-final-seal/release"
+      ]
+    },
+    {
+      "copy": "Customer-safe evidence refs, verification index, and archive refs are ready for operator review.",
+      "section_id": "evidence_and_trust",
+      "supporting_refs": [
+        "sample://archive/customer-lifecycle",
+        "sample://verifier/customer-lifecycle"
+      ]
+    },
+    {
+      "copy": "Support path, next checkpoint, and customer-success handoff references are ready.",
+      "section_id": "support_and_next_steps",
+      "supporting_refs": [
+        "sample://support/customer-handoff",
+        "sample://success/next-quarter-plan"
+      ]
+    },
+    {
+      "copy": "Operators can use the release notes, verification index, and support refs for final closeout.",
+      "section_id": "operator_handoff",
+      "supporting_refs": [
+        "sample://operator/customer-lifecycle-handoff"
+      ]
+    }
+  ],
+  "evidence_mode": "sample",
+  "operator_handoff_refs": [
+    "sample://operator/customer-lifecycle-handoff",
+    "sample://support/customer-handoff",
+    "sample://success/next-quarter-plan"
+  ],
+  "phase": "R7",
+  "product": "CAVRA",
+  "release_note_refs": [
+    "sample://release-notes/customer-lifecycle-closeout",
+    "sample://public-status/customer-lifecycle"
+  ],
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-announcement.packet.v1",
+  "verification_index_ref": "sample://customer-lifecycle-verification-index/r7",
+  "verification_index_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle verification index schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample verification index validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "Verification index contains all 10 R7 gates.",
+        "name": "gate_count",
+        "status": "pass"
+      },
+      {
+        "message": "All R7 gates are present, ready, documented, tested, and wired to CI.",
+        "name": "gates",
+        "status": "pass"
+      },
+      {
+        "message": "Completion condition is explicit.",
+        "name": "completion_condition",
+        "status": "pass"
+      },
+      {
+        "message": "Verification index contains public artifact refs and sanitized release commands only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R7",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_verification_index": false,
+    "schema_version": "cavra.customer-lifecycle-verification-index.result.v1",
+    "status": "ready_with_warnings",
+    "warning_count": 1
+  }
+}
