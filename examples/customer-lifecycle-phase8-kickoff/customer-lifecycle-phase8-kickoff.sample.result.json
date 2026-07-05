@@ -1,0 +1,53 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 kickoff schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample Phase 8 kickoff validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "backlog_ref is a sanitized reference.",
+      "name": "backlog_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source Phase 8 backlog validates shape but is not live.",
+      "name": "backlog_result",
+      "status": "warn"
+    },
+    {
+      "message": "kickoff_owner_refs are present and sanitized.",
+      "name": "kickoff_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 kickoff sections are complete.",
+      "name": "kickoff_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 kickoff controls are explicit.",
+      "name": "kickoff_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 kickoff contains sanitized refs and customer-safe planning text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_kickoff": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-kickoff.result.v1",
+  "source_phase": "R7",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}

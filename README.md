@@ -235,6 +235,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Closeout Announcement](docs/customer-lifecycle-announcement.md)
 - [CAVRA Customer Lifecycle Retrospective](docs/customer-lifecycle-retrospective.md)
 - [CAVRA Customer Lifecycle Phase 8 Backlog](docs/customer-lifecycle-phase8-backlog.md)
+- [CAVRA Customer Lifecycle Phase 8 Kickoff](docs/customer-lifecycle-phase8-kickoff.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

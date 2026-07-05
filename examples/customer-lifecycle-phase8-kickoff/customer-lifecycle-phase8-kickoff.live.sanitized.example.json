@@ -1,0 +1,130 @@
+{
+  "backlog_ref": "evidence://customer-lifecycle-phase8-backlog/r7",
+  "backlog_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 backlog schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 backlog supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "retrospective_ref is a sanitized reference.",
+        "name": "retrospective_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source retrospective packet is ready.",
+        "name": "retrospective_result",
+        "status": "pass"
+      },
+      {
+        "message": "backlog_owner_refs are present and sanitized.",
+        "name": "backlog_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 backlog items are prioritized, owned, and gated.",
+        "name": "backlog_items",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 backlog controls are explicit.",
+        "name": "backlog_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 backlog contains sanitized refs and customer-safe roadmap text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_backlog": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-backlog.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "evidence_mode": "live",
+  "kickoff_controls": {
+    "backlog_ready": true,
+    "communication_plan_defined": true,
+    "evidence_boundary_confirmed": true,
+    "first_sprint_defined": true,
+    "kickoff_owners_assigned": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "readiness_gates_defined": true
+  },
+  "kickoff_id": "cavra-live-customer-lifecycle-phase8-kickoff",
+  "kickoff_owner_refs": {
+    "engineering_owner_ref": "evidence://owner/engineering-delivery",
+    "product_owner_ref": "evidence://owner/product-management",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "kickoff_sections": {
+    "communication_plan": [
+      "Publish internal Phase 8 kickoff note using sanitized references only.",
+      "Keep customer-specific delivery context in deployment-private systems.",
+      "Update public roadmap only after validated gate completion."
+    ],
+    "first_sprint_plan": [
+      {
+        "acceptance_tasks": [
+          "Draft telemetry packet schema.",
+          "Add live sanitized validation fixture.",
+          "Prepare CI gate for telemetry packet examples."
+        ],
+        "item_id": "phase8-telemetry-depth",
+        "owner_ref": "evidence://owner/security-platform",
+        "tracking_ref": "evidence://roadmap/phase8-telemetry-depth"
+      },
+      {
+        "acceptance_tasks": [
+          "Define support checkpoint packet shape.",
+          "Map escalation and owner references.",
+          "Prepare automation readiness validator."
+        ],
+        "item_id": "phase8-support-automation",
+        "owner_ref": "evidence://owner/support",
+        "tracking_ref": "evidence://roadmap/phase8-support-automation"
+      },
+      {
+        "acceptance_tasks": [
+          "Define lifecycle analytics input contract.",
+          "Add dashboard-safe output examples.",
+          "Prepare tests for posture, adoption, and cadence summaries."
+        ],
+        "item_id": "phase8-analytics",
+        "owner_ref": "evidence://owner/product-management",
+        "tracking_ref": "evidence://roadmap/phase8-analytics"
+      }
+    ],
+    "kickoff_agenda": [
+      "Review R7 closeout evidence and R7.14 backlog priorities.",
+      "Confirm Phase 8 scope, owners, readiness gates, and evidence boundary.",
+      "Approve first sprint execution plan for telemetry, support, and analytics workstreams."
+    ],
+    "readiness_gates": [
+      "Backlog packet validates live sanitized with no blockers.",
+      "Every first sprint item has owner, tracking ref, and acceptance tasks.",
+      "No customer identities, raw evidence, private notes, pricing, legal, or commercial terms are embedded."
+    ]
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-kickoff.packet.v1",
+  "source_phase": "R7"
+}
