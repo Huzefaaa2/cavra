@@ -1,0 +1,39 @@
+name: Customer Lifecycle Final Release Seal
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-final-seal.yml"
+      - "examples/customer-lifecycle-final-seal/**"
+      - "scripts/validate_customer_lifecycle_final_seal.py"
+      - "src/cavra/customer_lifecycle_final_seal.py"
+      - "tests/test_customer_lifecycle_final_seal.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/customer-lifecycle-final-seal.yml"
+      - "examples/customer-lifecycle-final-seal/**"
+      - "scripts/validate_customer_lifecycle_final_seal.py"
+      - "src/cavra/customer_lifecycle_final_seal.py"
+      - "tests/test_customer_lifecycle_final_seal.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest ruff
+      - name: Validate sample packet shape
+        run: python scripts/validate_customer_lifecycle_final_seal.py --packet examples/customer-lifecycle-final-seal/customer-lifecycle-final-seal.sample.json
+      - name: Validate live sanitized packet
+        run: python scripts/validate_customer_lifecycle_final_seal.py --packet examples/customer-lifecycle-final-seal/customer-lifecycle-final-seal.live.sanitized.example.json --require-live
+      - name: Run final seal tests
+        run: python -m pytest tests/test_customer_lifecycle_final_seal.py tests/test_customer_lifecycle_status.py -q
+      - name: Lint final seal implementation
+        run: python -m ruff check src/cavra/customer_lifecycle_final_seal.py scripts/validate_customer_lifecycle_final_seal.py tests/test_customer_lifecycle_final_seal.py src/cavra/cli.py

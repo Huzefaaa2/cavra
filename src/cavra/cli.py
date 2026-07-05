@@ -86,6 +86,11 @@ from cavra.customer_lifecycle_status import (
     validate_customer_lifecycle_status_packet,
     write_customer_lifecycle_status_artifacts,
 )
+from cavra.customer_lifecycle_final_seal import (
+    build_customer_lifecycle_final_seal_packet,
+    validate_customer_lifecycle_final_seal_packet,
+    write_customer_lifecycle_final_seal_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -2717,6 +2722,31 @@ def release_customer_lifecycle_status(
         result = validate_customer_lifecycle_status_packet(payload, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_public_status"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-final-seal")
+def release_customer_lifecycle_final_seal(
+    packet: Annotated[Optional[Path], typer.Option(help="Optional customer lifecycle final release seal packet JSON.")] = None,
+    status: Annotated[Optional[Path], typer.Option(help="Optional lifecycle public status packet JSON.")] = None,
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle final release seal packet."""
+    if export_dir:
+        result = write_customer_lifecycle_final_seal_artifacts(export_dir)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            status_payload = json.loads(status.read_text(encoding="utf-8")) if status else None
+            payload = build_customer_lifecycle_final_seal_packet(
+                status_payload,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_final_seal_packet(payload, require_live=require_live)
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_final_release_seal"]):
         raise typer.Exit(code=1)
 
 

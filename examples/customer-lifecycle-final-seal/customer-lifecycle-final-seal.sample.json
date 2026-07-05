@@ -1,0 +1,134 @@
+{
+  "completion_statement": "The CAVRA customer lifecycle public status, archive, executive rollup, renewal outcome, operating review, evidence room, and live evidence intake are sealed for customer-safe release.",
+  "customer_profile_ref": "sample://customer/redacted",
+  "evidence_mode": "sample",
+  "final_release_controls": {
+    "archive_manifest_ready": true,
+    "communications_owner_accepted": true,
+    "customer_success_handoff_ready": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "public_status_ready": true,
+    "release_notes_ready": true,
+    "security_owner_accepted": true,
+    "support_handoff_ready": true
+  },
+  "final_seal_id": "cavra-sample-customer-lifecycle-final-release-seal",
+  "product": "CAVRA",
+  "public_status_ref": "sample://customer-lifecycle-status/public-summary",
+  "public_status_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle public status schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample lifecycle public status validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "archive_manifest_ref is a sanitized reference.",
+        "name": "archive_manifest_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source lifecycle archive validates shape but is not live.",
+        "name": "archive_manifest_result",
+        "status": "warn"
+      },
+      {
+        "message": "status_owner_refs are present and sanitized.",
+        "name": "status_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public status sections are complete.",
+        "name": "public_status_sections",
+        "status": "pass"
+      },
+      {
+        "message": "support_refs are present and sanitized.",
+        "name": "support_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public status publication controls are explicit.",
+        "name": "publication_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Public status packet contains sanitized refs and customer-safe status text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_public_status": false,
+    "schema_version": "cavra.customer-lifecycle-public-status.result.v1",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "release_publication_refs": [
+    "sample://release-notes/customer-lifecycle-closeout",
+    "sample://public-status/customer-lifecycle",
+    "sample://support/customer-handoff",
+    "sample://success/next-quarter-plan"
+  ],
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-final-release-seal.packet.v1",
+  "seal_owner_refs": {
+    "archive_owner_ref": "sample://owner/evidence-archive",
+    "communications_owner_ref": "sample://owner/customer-communications",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "release_owner_ref": "sample://owner/release-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "support_owner_ref": "sample://owner/support"
+  },
+  "sealed_components": [
+    {
+      "component_id": "lifecycle_public_status",
+      "seal_ref": "sample://customer-lifecycle-status/public-summary",
+      "status": "sealed"
+    },
+    {
+      "component_id": "archive_manifest",
+      "seal_ref": "sample://customer-lifecycle-archive/manifest",
+      "status": "sealed"
+    },
+    {
+      "component_id": "executive_rollup",
+      "seal_ref": "sample://customer-lifecycle-rollup/executive",
+      "status": "sealed"
+    },
+    {
+      "component_id": "renewal_outcome",
+      "seal_ref": "sample://customer-renewal-outcome/closeout",
+      "status": "sealed"
+    },
+    {
+      "component_id": "operating_review",
+      "seal_ref": "sample://customer-operating-review/current",
+      "status": "sealed"
+    },
+    {
+      "component_id": "evidence_room",
+      "seal_ref": "sample://customer-evidence-room/index",
+      "status": "sealed"
+    },
+    {
+      "component_id": "live_evidence_intake",
+      "seal_ref": "sample://customer-live-evidence/intake",
+      "status": "sealed"
+    }
+  ]
+}
