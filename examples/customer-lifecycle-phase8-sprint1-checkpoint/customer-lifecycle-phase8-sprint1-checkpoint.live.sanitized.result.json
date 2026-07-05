@@ -1,0 +1,53 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 Sprint 1 checkpoint schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 Sprint 1 checkpoint supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "kickoff_ref is a sanitized reference.",
+      "name": "kickoff_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source Phase 8 kickoff packet is ready.",
+      "name": "kickoff_result",
+      "status": "pass"
+    },
+    {
+      "message": "checkpoint_owner_refs are present and sanitized.",
+      "name": "checkpoint_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 Sprint 1 checkpoint sections are complete.",
+      "name": "checkpoint_sections",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 Sprint 1 checkpoint controls are explicit.",
+      "name": "checkpoint_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 Sprint 1 checkpoint contains sanitized refs and customer-safe progress text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_sprint1_checkpoint": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-sprint1-checkpoint.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

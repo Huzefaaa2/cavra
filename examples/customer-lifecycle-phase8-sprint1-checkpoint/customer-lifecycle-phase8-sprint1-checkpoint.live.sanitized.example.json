@@ -1,0 +1,140 @@
+{
+  "checkpoint_controls": {
+    "blockers_triaged": true,
+    "evidence_boundary_confirmed": true,
+    "kickoff_ready": true,
+    "next_checkpoint_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "progress_updates_recorded": true
+  },
+  "checkpoint_id": "cavra-live-customer-lifecycle-phase8-sprint1-checkpoint",
+  "checkpoint_owner_refs": {
+    "engineering_owner_ref": "evidence://owner/engineering-delivery",
+    "product_owner_ref": "evidence://owner/product-management",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "checkpoint_sections": {
+    "blocker_review": {
+      "open_blocker_count": 0,
+      "triage_ref": "evidence://phase8/sprint1/blocker-triage",
+      "triage_summary": "No open blockers remain after Sprint 1 checkpoint triage."
+    },
+    "evidence_summary": [
+      "Progress evidence uses sanitized owner, roadmap, and checkpoint refs only.",
+      "Deployment-private customer details remain outside the public packet."
+    ],
+    "next_checkpoint_plan": [
+      "Validate telemetry depth packet with live sanitized examples.",
+      "Confirm support automation readiness and lifecycle analytics input contract.",
+      "Update roadmap only after the next checkpoint gate passes."
+    ],
+    "sprint_progress": [
+      {
+        "completed_tasks": [
+          "Telemetry packet shape drafted for customer-safe runtime signals.",
+          "Live sanitized telemetry fixture scope identified."
+        ],
+        "evidence_ref": "evidence://phase8/sprint1/telemetry-progress",
+        "item_id": "phase8-telemetry-depth",
+        "open_tasks": [
+          "Finalize CI validation gate for telemetry examples."
+        ],
+        "owner_ref": "evidence://owner/security-platform",
+        "status": "on_track",
+        "tracking_ref": "evidence://roadmap/phase8-telemetry-depth"
+      },
+      {
+        "completed_tasks": [
+          "Support checkpoint packet responsibilities mapped.",
+          "Escalation and owner refs reviewed for public-safe representation."
+        ],
+        "evidence_ref": "evidence://phase8/sprint1/support-progress",
+        "item_id": "phase8-support-automation",
+        "open_tasks": [
+          "Confirm automation trigger names in deployment-private workspace."
+        ],
+        "owner_ref": "evidence://owner/support",
+        "status": "watch",
+        "tracking_ref": "evidence://roadmap/phase8-support-automation"
+      },
+      {
+        "completed_tasks": [
+          "Lifecycle analytics dimensions drafted for posture and adoption.",
+          "Dashboard-safe output categories reviewed with product owner."
+        ],
+        "evidence_ref": "evidence://phase8/sprint1/analytics-progress",
+        "item_id": "phase8-analytics",
+        "open_tasks": [
+          "Define cadence summary acceptance tests."
+        ],
+        "owner_ref": "evidence://owner/product-management",
+        "status": "on_track",
+        "tracking_ref": "evidence://roadmap/phase8-analytics"
+      }
+    ]
+  },
+  "evidence_mode": "live",
+  "kickoff_ref": "evidence://customer-lifecycle-phase8-kickoff/r7",
+  "kickoff_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 kickoff schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 kickoff supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "backlog_ref is a sanitized reference.",
+        "name": "backlog_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source Phase 8 backlog packet is ready.",
+        "name": "backlog_result",
+        "status": "pass"
+      },
+      {
+        "message": "kickoff_owner_refs are present and sanitized.",
+        "name": "kickoff_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 kickoff sections are complete.",
+        "name": "kickoff_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 kickoff controls are explicit.",
+        "name": "kickoff_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 kickoff contains sanitized refs and customer-safe planning text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_kickoff": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-kickoff.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-sprint1-checkpoint.packet.v1",
+  "source_phase": "R7"
+}
