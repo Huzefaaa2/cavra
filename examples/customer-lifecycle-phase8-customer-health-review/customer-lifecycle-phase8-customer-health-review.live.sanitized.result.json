@@ -1,0 +1,68 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 customer health review schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 customer health review supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "phase8_input_refs are present and sanitized.",
+      "name": "phase8_input_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 input results are ready.",
+      "name": "phase8_input_results",
+      "status": "pass"
+    },
+    {
+      "message": "health_owner_refs are present and sanitized.",
+      "name": "health_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Customer health review contract is complete.",
+      "name": "health_review_contract",
+      "status": "pass"
+    },
+    {
+      "message": "health_dashboard_refs are sanitized.",
+      "name": "health_dashboard_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "health_evidence_refs are sanitized.",
+      "name": "health_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Customer health review controls are explicit.",
+      "name": "health_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 customer health review contains sanitized refs and customer-safe health review text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_customer_health_review": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-customer-health-review.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

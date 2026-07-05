@@ -1,0 +1,276 @@
+{
+  "ci_gate_coverage": {
+    "dashboard_validation": "evidence://ci/phase8/customer-health-review/dashboard-validation",
+    "input_gate_validation": "evidence://ci/phase8/customer-health-review/input-gate-validation",
+    "redaction_validation": "evidence://ci/phase8/customer-health-review/redaction-validation",
+    "review_contract_validation": "evidence://ci/phase8/customer-health-review/review-contract-validation"
+  },
+  "customer_health_review_id": "cavra-live-customer-lifecycle-phase8-customer-health-review",
+  "evidence_mode": "live",
+  "health_controls": {
+    "ci_gates_defined": true,
+    "dashboard_refs_defined": true,
+    "evidence_refs_sanitized": true,
+    "lifecycle_analytics_ready": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "review_contract_defined": true,
+    "support_automation_ready": true,
+    "telemetry_depth_ready": true
+  },
+  "health_dashboard_refs": [
+    "evidence://phase8/customer-health-review/dashboard/posture",
+    "evidence://phase8/customer-health-review/dashboard/support-load",
+    "evidence://phase8/customer-health-review/dashboard/adoption",
+    "evidence://phase8/customer-health-review/dashboard/cadence"
+  ],
+  "health_evidence_refs": [
+    "evidence://phase8/customer-health-review/input-gate-summary",
+    "evidence://phase8/customer-health-review/review-contract",
+    "evidence://phase8/customer-health-review/dashboard-refs",
+    "evidence://phase8/customer-health-review/next-actions"
+  ],
+  "health_owner_refs": {
+    "analytics_owner_ref": "evidence://owner/product-analytics",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "health_review_contract": {
+    "lifecycle_summary_ref": "evidence://phase8/customer-health-review/lifecycle-summary",
+    "next_action_ref": "evidence://phase8/customer-health-review/next-actions",
+    "redaction_status": "sanitized",
+    "review_ref": "evidence://phase8/customer-health-review/review",
+    "risk_review_ref": "evidence://phase8/customer-health-review/risk-review",
+    "support_summary_ref": "evidence://phase8/customer-health-review/support-summary",
+    "telemetry_summary_ref": "evidence://phase8/customer-health-review/telemetry-summary"
+  },
+  "phase": "R8",
+  "phase8_input_refs": {
+    "lifecycle_analytics_ref": "evidence://customer-lifecycle-phase8-lifecycle-analytics/r7",
+    "support_automation_ref": "evidence://customer-lifecycle-phase8-support-automation/r7",
+    "telemetry_depth_ref": "evidence://customer-lifecycle-phase8-telemetry-depth/r7"
+  },
+  "phase8_input_results": {
+    "lifecycle_analytics_result": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Customer lifecycle Phase 8 lifecycle analytics schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Live sanitized Phase 8 lifecycle analytics supplied.",
+          "name": "evidence_mode",
+          "status": "pass"
+        },
+        {
+          "message": "sprint1_checkpoint_ref is a sanitized reference.",
+          "name": "sprint1_checkpoint_ref",
+          "status": "pass"
+        },
+        {
+          "message": "Source Phase 8 Sprint 1 checkpoint is ready.",
+          "name": "sprint1_checkpoint_result",
+          "status": "pass"
+        },
+        {
+          "message": "analytics_owner_refs are present and sanitized.",
+          "name": "analytics_owner_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Analytics input contract fields and refs are complete.",
+          "name": "analytics_input_contract",
+          "status": "pass"
+        },
+        {
+          "message": "Dashboard-safe analytics outputs are complete.",
+          "name": "dashboard_safe_outputs",
+          "status": "pass"
+        },
+        {
+          "message": "Lifecycle posture, adoption, and cadence summary refs are complete.",
+          "name": "lifecycle_summary_refs",
+          "status": "pass"
+        },
+        {
+          "message": "CI gate coverage refs are complete.",
+          "name": "ci_gate_coverage",
+          "status": "pass"
+        },
+        {
+          "message": "analytics_evidence_refs are sanitized.",
+          "name": "analytics_evidence_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Lifecycle analytics controls are explicit.",
+          "name": "analytics_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Phase 8 lifecycle analytics contains sanitized refs and customer-safe analytics contract text only.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "evidence_mode": "live",
+      "phase": "R8",
+      "product": "CAVRA",
+      "ready_for_customer_lifecycle_phase8_lifecycle_analytics": true,
+      "schema_version": "cavra.customer-lifecycle-phase8-lifecycle-analytics.result.v1",
+      "source_phase": "R7",
+      "status": "ready",
+      "warning_count": 0
+    },
+    "support_automation_result": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Customer lifecycle Phase 8 support automation schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Live sanitized Phase 8 support automation supplied.",
+          "name": "evidence_mode",
+          "status": "pass"
+        },
+        {
+          "message": "sprint1_checkpoint_ref is a sanitized reference.",
+          "name": "sprint1_checkpoint_ref",
+          "status": "pass"
+        },
+        {
+          "message": "Source Phase 8 Sprint 1 checkpoint is ready.",
+          "name": "sprint1_checkpoint_result",
+          "status": "pass"
+        },
+        {
+          "message": "support_owner_refs are present and sanitized.",
+          "name": "support_owner_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Support checkpoint schema fields and refs are complete.",
+          "name": "support_checkpoint_schema",
+          "status": "pass"
+        },
+        {
+          "message": "Automation trigger contract is complete.",
+          "name": "automation_trigger_contract",
+          "status": "pass"
+        },
+        {
+          "message": "escalation_matrix_refs are sanitized.",
+          "name": "escalation_matrix_refs",
+          "status": "pass"
+        },
+        {
+          "message": "CI gate coverage refs are complete.",
+          "name": "ci_gate_coverage",
+          "status": "pass"
+        },
+        {
+          "message": "support_evidence_refs are sanitized.",
+          "name": "support_evidence_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Support automation controls are explicit.",
+          "name": "support_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Phase 8 support automation contains sanitized refs and customer-safe support contract text only.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "evidence_mode": "live",
+      "phase": "R8",
+      "product": "CAVRA",
+      "ready_for_customer_lifecycle_phase8_support_automation": true,
+      "schema_version": "cavra.customer-lifecycle-phase8-support-automation.result.v1",
+      "source_phase": "R7",
+      "status": "ready",
+      "warning_count": 0
+    },
+    "telemetry_depth_result": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Customer lifecycle Phase 8 telemetry depth schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Live sanitized Phase 8 telemetry depth supplied.",
+          "name": "evidence_mode",
+          "status": "pass"
+        },
+        {
+          "message": "sprint1_checkpoint_ref is a sanitized reference.",
+          "name": "sprint1_checkpoint_ref",
+          "status": "pass"
+        },
+        {
+          "message": "Source Phase 8 Sprint 1 checkpoint is ready.",
+          "name": "sprint1_checkpoint_result",
+          "status": "pass"
+        },
+        {
+          "message": "telemetry_owner_refs are present and sanitized.",
+          "name": "telemetry_owner_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Telemetry schema fields and refs are complete.",
+          "name": "telemetry_schema",
+          "status": "pass"
+        },
+        {
+          "message": "Live sanitized telemetry fixture is complete.",
+          "name": "live_sanitized_fixture",
+          "status": "pass"
+        },
+        {
+          "message": "CI gate coverage refs are complete.",
+          "name": "ci_gate_coverage",
+          "status": "pass"
+        },
+        {
+          "message": "Telemetry evidence refs are sanitized.",
+          "name": "telemetry_evidence_refs",
+          "status": "pass"
+        },
+        {
+          "message": "Telemetry depth controls are explicit.",
+          "name": "telemetry_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Phase 8 telemetry depth contains sanitized refs and customer-safe telemetry contract text only.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "evidence_mode": "live",
+      "phase": "R8",
+      "product": "CAVRA",
+      "ready_for_customer_lifecycle_phase8_telemetry_depth": true,
+      "schema_version": "cavra.customer-lifecycle-phase8-telemetry-depth.result.v1",
+      "source_phase": "R7",
+      "status": "ready",
+      "warning_count": 0
+    }
+  },
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-customer-health-review.packet.v1",
+  "source_phase": "R7"
+}
