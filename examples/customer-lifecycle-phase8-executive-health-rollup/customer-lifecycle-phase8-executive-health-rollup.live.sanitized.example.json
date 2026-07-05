@@ -1,0 +1,126 @@
+{
+  "ci_gate_coverage": {
+    "executive_brief_validation": "evidence://ci/phase8/executive-health-rollup/executive-brief-validation",
+    "redaction_validation": "evidence://ci/phase8/executive-health-rollup/redaction-validation",
+    "rollup_contract_validation": "evidence://ci/phase8/executive-health-rollup/rollup-contract-validation",
+    "source_health_validation": "evidence://ci/phase8/executive-health-rollup/source-health-validation"
+  },
+  "customer_health_review_ref": "evidence://customer-lifecycle-phase8-customer-health-review/r7",
+  "customer_health_review_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 customer health review schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 customer health review supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "phase8_input_refs are present and sanitized.",
+        "name": "phase8_input_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 input results are ready.",
+        "name": "phase8_input_results",
+        "status": "pass"
+      },
+      {
+        "message": "health_owner_refs are present and sanitized.",
+        "name": "health_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Customer health review contract is complete.",
+        "name": "health_review_contract",
+        "status": "pass"
+      },
+      {
+        "message": "health_dashboard_refs are sanitized.",
+        "name": "health_dashboard_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "health_evidence_refs are sanitized.",
+        "name": "health_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Customer health review controls are explicit.",
+        "name": "health_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 customer health review contains sanitized refs and customer-safe health review text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_customer_health_review": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-customer-health-review.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "evidence_mode": "live",
+  "executive_brief_refs": [
+    "evidence://phase8/executive-health-rollup/brief/summary",
+    "evidence://phase8/executive-health-rollup/brief/risk",
+    "evidence://phase8/executive-health-rollup/brief/support",
+    "evidence://phase8/executive-health-rollup/brief/adoption"
+  ],
+  "executive_health_rollup_id": "cavra-live-customer-lifecycle-phase8-executive-health-rollup",
+  "executive_owner_refs": {
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "executive_rollup_contract": {
+    "adoption_status_ref": "evidence://phase8/executive-health-rollup/adoption-status",
+    "decision_ref": "evidence://phase8/executive-health-rollup/decision",
+    "next_action_readiness_ref": "evidence://phase8/executive-health-rollup/next-action-readiness",
+    "redaction_status": "sanitized",
+    "risk_posture_ref": "evidence://phase8/executive-health-rollup/risk-posture",
+    "support_status_ref": "evidence://phase8/executive-health-rollup/support-status",
+    "trend_ref": "evidence://phase8/executive-health-rollup/trends"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "rollup_controls": {
+    "adoption_status_defined": true,
+    "ci_gates_defined": true,
+    "customer_health_review_ready": true,
+    "decision_refs_defined": true,
+    "evidence_refs_sanitized": true,
+    "next_action_readiness_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "risk_posture_defined": true,
+    "support_status_defined": true,
+    "trend_refs_defined": true
+  },
+  "rollup_evidence_refs": [
+    "evidence://phase8/executive-health-rollup/customer-health-review-source",
+    "evidence://phase8/executive-health-rollup/rollup-contract",
+    "evidence://phase8/executive-health-rollup/executive-brief",
+    "evidence://phase8/executive-health-rollup/next-actions"
+  ],
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-executive-health-rollup.packet.v1",
+  "source_phase": "R7"
+}

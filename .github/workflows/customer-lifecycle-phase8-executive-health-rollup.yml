@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Executive Health Rollup
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-executive-health-rollup.yml"
+      - "examples/customer-lifecycle-phase8-executive-health-rollup/**"
+      - "scripts/validate_customer_lifecycle_phase8_executive_health_rollup.py"
+      - "src/cavra/customer_lifecycle_phase8_executive_health_rollup.py"
+      - "tests/test_customer_lifecycle_phase8_executive_health_rollup.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-executive-health-rollup.yml"
+      - "examples/customer-lifecycle-phase8-executive-health-rollup/**"
+      - "scripts/validate_customer_lifecycle_phase8_executive_health_rollup.py"
+      - "src/cavra/customer_lifecycle_phase8_executive_health_rollup.py"
+      - "tests/test_customer_lifecycle_phase8_executive_health_rollup.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-executive-health-rollup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 executive health rollup packet
+        run: python scripts/validate_customer_lifecycle_phase8_executive_health_rollup.py --packet examples/customer-lifecycle-phase8-executive-health-rollup/customer-lifecycle-phase8-executive-health-rollup.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 executive health rollup packet
+        run: python scripts/validate_customer_lifecycle_phase8_executive_health_rollup.py --packet examples/customer-lifecycle-phase8-executive-health-rollup/customer-lifecycle-phase8-executive-health-rollup.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_executive_health_rollup.py tests/test_customer_lifecycle_phase8_customer_health_review.py -q
+      - name: Lint Phase 8 executive health rollup surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_executive_health_rollup.py scripts/validate_customer_lifecycle_phase8_executive_health_rollup.py tests/test_customer_lifecycle_phase8_executive_health_rollup.py src/cavra/cli.py

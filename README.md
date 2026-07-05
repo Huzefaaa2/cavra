@@ -241,6 +241,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Phase 8 Support Automation](docs/customer-lifecycle-phase8-support-automation.md)
 - [CAVRA Customer Lifecycle Phase 8 Lifecycle Analytics](docs/customer-lifecycle-phase8-lifecycle-analytics.md)
 - [CAVRA Customer Lifecycle Phase 8 Customer Health Review](docs/customer-lifecycle-phase8-customer-health-review.md)
+- [CAVRA Customer Lifecycle Phase 8 Executive Health Rollup](docs/customer-lifecycle-phase8-executive-health-rollup.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)
