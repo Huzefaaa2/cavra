@@ -1,0 +1,150 @@
+{
+  "archive_manifest_ref": "evidence://customer-lifecycle-archive/manifest",
+  "archive_manifest_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle archive manifest schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized lifecycle archive manifest supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "customer_profile_ref is a sanitized reference.",
+        "name": "customer_profile_ref",
+        "status": "pass"
+      },
+      {
+        "message": "lifecycle_rollup_ref is a sanitized reference.",
+        "name": "lifecycle_rollup_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source lifecycle executive rollup is ready.",
+        "name": "lifecycle_rollup_result",
+        "status": "pass"
+      },
+      {
+        "message": "archive_owner_refs are present and sanitized.",
+        "name": "archive_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Lifecycle archive sections are complete.",
+        "name": "archive_sections",
+        "status": "pass"
+      },
+      {
+        "message": "Retention controls are present and sanitized.",
+        "name": "retention_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Verifier refs are present and sanitized.",
+        "name": "verifier_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Lifecycle archive controls are explicit.",
+        "name": "archive_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Lifecycle archive manifest contains sanitized refs and archive control metadata only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_archive_manifest": true,
+    "schema_version": "cavra.customer-lifecycle-archive-manifest.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "customer_profile_ref": "evidence://customer/redacted",
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "public_status_id": "cavra-live-customer-lifecycle-public-status",
+  "public_status_sections": [
+    {
+      "evidence_refs": [
+        "evidence://status/deployment",
+        "evidence://archive/executive-rollup"
+      ],
+      "section_id": "deployment_status",
+      "status": "active",
+      "summary": "CAVRA lifecycle controls are active and the customer lifecycle archive is complete."
+    },
+    {
+      "evidence_refs": [
+        "evidence://status/security-posture",
+        "evidence://metrics/aispm-posture-trend"
+      ],
+      "section_id": "security_posture",
+      "status": "ready",
+      "summary": "Runtime authority, evidence, and AISPM posture controls are ready for ongoing review."
+    },
+    {
+      "evidence_refs": [
+        "evidence://archive/evidence-room-index",
+        "evidence://verifier/customer-lifecycle-bundle"
+      ],
+      "section_id": "evidence_status",
+      "status": "complete",
+      "summary": "Sanitized evidence references are archived and verifier references are available."
+    },
+    {
+      "evidence_refs": [
+        "evidence://operating-review/next-cycle",
+        "evidence://success/next-quarter-plan"
+      ],
+      "section_id": "operating_cadence",
+      "status": "scheduled",
+      "summary": "Customer success and security review cadence is scheduled for the next lifecycle checkpoint."
+    },
+    {
+      "evidence_refs": [
+        "evidence://renewal/executive-acceptance",
+        "evidence://expansion/activation-plan"
+      ],
+      "section_id": "renewal_outcome",
+      "status": "complete",
+      "summary": "Renewal outcome and expansion activation references are closed out in the archive."
+    },
+    {
+      "evidence_refs": [
+        "evidence://support/customer-handoff",
+        "evidence://verifier/trust-root"
+      ],
+      "section_id": "next_steps",
+      "status": "published",
+      "summary": "Next success plan, support handoff, and archive verification paths are ready for the customer."
+    }
+  ],
+  "publication_controls": {
+    "archive_manifest_ready": true,
+    "customer_safe_language_approved": true,
+    "next_checkpoint_visible": true,
+    "no_commercial_terms_embedded": true,
+    "no_private_evidence_embedded": true,
+    "support_handoff_ready": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-public-status.packet.v1",
+  "status_owner_refs": {
+    "communications_owner_ref": "evidence://owner/customer-communications",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "support_refs": [
+    "evidence://support/customer-handoff",
+    "evidence://support/escalation-path",
+    "evidence://success/next-quarter-plan"
+  ]
+}

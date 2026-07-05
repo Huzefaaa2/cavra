@@ -229,6 +229,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Renewal Outcome Closeout](docs/customer-renewal-outcome-closeout.md)
 - [CAVRA Customer Lifecycle Executive Rollup](docs/customer-lifecycle-executive-rollup.md)
 - [CAVRA Customer Lifecycle Archive Manifest](docs/customer-lifecycle-archive-manifest.md)
+- [CAVRA Customer Lifecycle Public Status Summary](docs/customer-lifecycle-public-status.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

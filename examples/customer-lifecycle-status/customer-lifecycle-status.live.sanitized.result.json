@@ -1,0 +1,61 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle public status schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized lifecycle public status supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "customer_profile_ref is a sanitized reference.",
+      "name": "customer_profile_ref",
+      "status": "pass"
+    },
+    {
+      "message": "archive_manifest_ref is a sanitized reference.",
+      "name": "archive_manifest_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source lifecycle archive manifest is ready.",
+      "name": "archive_manifest_result",
+      "status": "pass"
+    },
+    {
+      "message": "status_owner_refs are present and sanitized.",
+      "name": "status_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public status sections are complete.",
+      "name": "public_status_sections",
+      "status": "pass"
+    },
+    {
+      "message": "support_refs are present and sanitized.",
+      "name": "support_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public status publication controls are explicit.",
+      "name": "publication_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Public status packet contains sanitized refs and customer-safe status text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_public_status": true,
+  "schema_version": "cavra.customer-lifecycle-public-status.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}
