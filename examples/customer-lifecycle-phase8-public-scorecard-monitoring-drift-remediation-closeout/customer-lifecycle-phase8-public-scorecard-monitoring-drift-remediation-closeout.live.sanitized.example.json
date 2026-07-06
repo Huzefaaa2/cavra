@@ -1,0 +1,210 @@
+{
+  "accepted_risk_refs": {
+    "accepted_risk_expiry_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/risk/expiry",
+    "accepted_risk_owner_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/risk/owner",
+    "accepted_risk_public_boundary_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/risk/public-boundary",
+    "accepted_risk_review_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/risk/review"
+  },
+  "blocker_clearance_refs": {
+    "blocker_clearance_owner_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/blockers/owner",
+    "next_cycle_blocker_register_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/blockers/register",
+    "next_cycle_go_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/blockers/next-cycle-go",
+    "no_unassigned_blockers_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/blockers/no-unassigned"
+  },
+  "ci_gate_coverage": {
+    "accepted_risk_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/risk-validation",
+    "drift_register_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/drift-register-validation",
+    "next_cycle_blocker_clearance_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/blocker-validation",
+    "owner_acknowledgement_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/owner-ack-validation",
+    "public_status_update_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/public-status-validation",
+    "remediation_archive_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/archive-validation",
+    "remediation_disposition_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/disposition-validation",
+    "source_first_cycle_review_validation": "evidence://ci/phase8/public-scorecard-monitoring-drift-remediation-closeout/source-first-cycle-validation"
+  },
+  "drift_register_refs": {
+    "archive_freshness_drift_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift/archive-freshness",
+    "broken_link_drift_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift/broken-link",
+    "redaction_posture_drift_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift/redaction-posture",
+    "stale_scorecard_drift_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift/stale-scorecard"
+  },
+  "drift_remediation_contract": {
+    "accepted_risk_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/accepted-risk",
+    "drift_register_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift-register",
+    "drift_remediation_closeout_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/closeout",
+    "next_cycle_blocker_clearance_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/next-cycle-blockers",
+    "owner_acknowledgement_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/owner-acknowledgement",
+    "public_status_update_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/public-status-update",
+    "redaction_status": "sanitized",
+    "remediation_archive_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive",
+    "remediation_disposition_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/remediation-disposition",
+    "source_first_cycle_review_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/source-first-cycle-review"
+  },
+  "drift_remediation_controls": {
+    "accepted_risks_owned": true,
+    "ci_gates_defined": true,
+    "critical_drift_cleared": true,
+    "drift_items_dispositioned": true,
+    "drift_items_registered": true,
+    "evidence_refs_sanitized": true,
+    "first_cycle_review_ready": true,
+    "next_cycle_blockers_cleared": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_acknowledgements_complete": true,
+    "public_status_updated": true,
+    "remediation_archive_complete": true
+  },
+  "drift_remediation_evidence_refs": [
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/source-first-cycle-review",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/drift-register",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/remediation-disposition",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/accepted-risk",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/public-status-update",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/blocker-clearance",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/remediation-archive",
+    "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/owner-acknowledgement"
+  ],
+  "drift_remediation_owner_refs": {
+    "audit_owner_ref": "evidence://owner/audit",
+    "communications_owner_ref": "evidence://owner/communications",
+    "compliance_owner_ref": "evidence://owner/compliance",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "operations_owner_ref": "evidence://owner/operations",
+    "product_owner_ref": "evidence://owner/product-management",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "web_owner_ref": "evidence://owner/web-platform"
+  },
+  "evidence_mode": "live",
+  "first_cycle_review_ref": "evidence://customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review/r7",
+  "first_cycle_review_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard monitoring first-cycle review schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 monitoring first-cycle review supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "monitoring_activation_closeout_ref is a sanitized reference.",
+        "name": "monitoring_activation_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard monitoring activation closeout is ready.",
+        "name": "monitoring_activation_closeout_result",
+        "status": "pass"
+      },
+      {
+        "message": "first_cycle_owner_refs are present and sanitized.",
+        "name": "first_cycle_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard monitoring first-cycle review contract is complete.",
+        "name": "first_cycle_contract",
+        "status": "pass"
+      },
+      {
+        "message": "cycle_window_refs are present and sanitized.",
+        "name": "cycle_window_refs",
+        "status": "pass"
+      },
+      {
+        "message": "findings_triage_refs are present and sanitized.",
+        "name": "findings_triage_refs",
+        "status": "pass"
+      },
+      {
+        "message": "alert_review_refs are present and sanitized.",
+        "name": "alert_review_refs",
+        "status": "pass"
+      },
+      {
+        "message": "snapshot_archive_refs are present and sanitized.",
+        "name": "snapshot_archive_refs",
+        "status": "pass"
+      },
+      {
+        "message": "public_status_refresh_refs are present and sanitized.",
+        "name": "public_status_refresh_refs",
+        "status": "pass"
+      },
+      {
+        "message": "followup_owner_refs are present and sanitized.",
+        "name": "followup_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "next_cycle_schedule_refs are present and sanitized.",
+        "name": "next_cycle_schedule_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "first_cycle_evidence_refs are sanitized.",
+        "name": "first_cycle_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard monitoring first-cycle review controls are explicit.",
+        "name": "first_cycle_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard monitoring first-cycle review contains sanitized refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_first_cycle_review": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "monitoring_drift_remediation_closeout_id": "cavra-live-customer-lifecycle-phase8-public-scorecard-monitoring-drift-remediation-closeout",
+  "owner_acknowledgement_refs": {
+    "audit_owner_ack_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/ack/audit",
+    "communications_owner_ack_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/ack/communications",
+    "operations_owner_ack_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/ack/operations",
+    "security_owner_ack_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/ack/security"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "public_status_update_refs": {
+    "public_scorecard_update_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/status/scorecard",
+    "public_status_summary_update_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/status/summary",
+    "readme_status_update_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/status/readme",
+    "wiki_status_update_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/status/wiki"
+  },
+  "remediation_archive_refs": {
+    "drift_remediation_manifest_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive/manifest",
+    "first_cycle_review_archive_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive/first-cycle-review",
+    "immutable_remediation_archive_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive/immutable",
+    "public_status_update_archive_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive/public-status",
+    "remediation_disposition_archive_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/archive/disposition"
+  },
+  "remediation_disposition_refs": {
+    "accepted_risk_register_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/disposition/accepted-risk",
+    "deferred_item_register_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/disposition/deferred",
+    "no_open_critical_drift_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/disposition/no-critical-drift",
+    "remediated_item_register_ref": "evidence://phase8/public-scorecard-monitoring-drift-remediation-closeout/disposition/remediated"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-drift-remediation-closeout.packet.v1",
+  "source_phase": "R7"
+}

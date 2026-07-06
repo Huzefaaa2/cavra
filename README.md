@@ -259,6 +259,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Continuous Monitoring Readiness](docs/customer-lifecycle-phase8-public-scorecard-continuous-monitoring-readiness.md)
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Monitoring Activation Closeout](docs/customer-lifecycle-phase8-public-scorecard-monitoring-activation-closeout.md)
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Monitoring First-Cycle Review](docs/customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review.md)
+- [CAVRA Customer Lifecycle Phase 8 Public Scorecard Monitoring Drift Remediation Closeout](docs/customer-lifecycle-phase8-public-scorecard-monitoring-drift-remediation-closeout.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)
