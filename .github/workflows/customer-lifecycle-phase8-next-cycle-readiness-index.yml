@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Next-Cycle Readiness Index
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-next-cycle-readiness-index.yml"
+      - "examples/customer-lifecycle-phase8-next-cycle-readiness-index/**"
+      - "scripts/validate_customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "src/cavra/customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "tests/test_customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-next-cycle-readiness-index.yml"
+      - "examples/customer-lifecycle-phase8-next-cycle-readiness-index/**"
+      - "scripts/validate_customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "src/cavra/customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "tests/test_customer_lifecycle_phase8_next_cycle_readiness_index.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-next-cycle-readiness-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 next-cycle readiness index packet
+        run: python scripts/validate_customer_lifecycle_phase8_next_cycle_readiness_index.py --packet examples/customer-lifecycle-phase8-next-cycle-readiness-index/customer-lifecycle-phase8-next-cycle-readiness-index.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 next-cycle readiness index packet
+        run: python scripts/validate_customer_lifecycle_phase8_next_cycle_readiness_index.py --packet examples/customer-lifecycle-phase8-next-cycle-readiness-index/customer-lifecycle-phase8-next-cycle-readiness-index.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_next_cycle_readiness_index.py tests/test_customer_lifecycle_phase8_executive_followup_closeout.py -q
+      - name: Lint Phase 8 next-cycle readiness index surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_next_cycle_readiness_index.py scripts/validate_customer_lifecycle_phase8_next_cycle_readiness_index.py tests/test_customer_lifecycle_phase8_next_cycle_readiness_index.py src/cavra/cli.py
