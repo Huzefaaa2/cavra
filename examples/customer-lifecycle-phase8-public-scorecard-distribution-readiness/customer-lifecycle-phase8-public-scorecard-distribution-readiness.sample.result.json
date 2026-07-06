@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard distribution readiness schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample Phase 8 public scorecard distribution readiness validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "executive_summary_closeout_ref is a sanitized reference.",
+      "name": "executive_summary_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard executive summary closeout validates shape but is not live.",
+      "name": "executive_summary_closeout_result",
+      "status": "warn"
+    },
+    {
+      "message": "distribution_owner_refs are present and sanitized.",
+      "name": "distribution_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution readiness contract is complete.",
+      "name": "distribution_contract",
+      "status": "pass"
+    },
+    {
+      "message": "channel_refs are present and sanitized.",
+      "name": "channel_refs",
+      "status": "pass"
+    },
+    {
+      "message": "audience_refs are present and sanitized.",
+      "name": "audience_refs",
+      "status": "pass"
+    },
+    {
+      "message": "notification_refs are present and sanitized.",
+      "name": "notification_refs",
+      "status": "pass"
+    },
+    {
+      "message": "linkage_refs are present and sanitized.",
+      "name": "linkage_refs",
+      "status": "pass"
+    },
+    {
+      "message": "archive_refs are present and sanitized.",
+      "name": "archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "redaction_refs are present and sanitized.",
+      "name": "redaction_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "distribution_evidence_refs are sanitized.",
+      "name": "distribution_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution readiness controls are explicit.",
+      "name": "distribution_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard distribution readiness contains sanitized refs and public-safe distribution refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_readiness": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-readiness.result.v1",
+  "source_phase": "R7",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}
