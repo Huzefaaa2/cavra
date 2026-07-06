@@ -243,6 +243,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Phase 8 Customer Health Review](docs/customer-lifecycle-phase8-customer-health-review.md)
 - [CAVRA Customer Lifecycle Phase 8 Executive Health Rollup](docs/customer-lifecycle-phase8-executive-health-rollup.md)
 - [CAVRA Customer Lifecycle Phase 8 Executive Action Plan](docs/customer-lifecycle-phase8-executive-action-plan.md)
+- [CAVRA Customer Lifecycle Phase 8 Action Follow-up Checkpoint](docs/customer-lifecycle-phase8-action-followup-checkpoint.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

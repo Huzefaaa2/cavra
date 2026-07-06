@@ -1,0 +1,133 @@
+{
+  "action_followup_checkpoint_id": "cavra-live-customer-lifecycle-phase8-action-followup-checkpoint",
+  "checkpoint_blocker_refs": {
+    "adoption_blocker_ref": "evidence://phase8/action-followup-checkpoint/blocker/adoption",
+    "executive_escalation_blocker_ref": "evidence://phase8/action-followup-checkpoint/blocker/executive-escalation",
+    "risk_posture_blocker_ref": "evidence://phase8/action-followup-checkpoint/blocker/risk-posture",
+    "support_blocker_ref": "evidence://phase8/action-followup-checkpoint/blocker/support"
+  },
+  "checkpoint_status_refs": {
+    "adoption_status_ref": "evidence://phase8/action-followup-checkpoint/status/adoption",
+    "next_review_status_ref": "evidence://phase8/action-followup-checkpoint/status/next-review",
+    "risk_posture_status_ref": "evidence://phase8/action-followup-checkpoint/status/risk-posture",
+    "support_status_ref": "evidence://phase8/action-followup-checkpoint/status/support"
+  },
+  "ci_gate_coverage": {
+    "blocker_ref_validation": "evidence://ci/phase8/action-followup-checkpoint/blocker-ref-validation",
+    "followup_checkpoint_validation": "evidence://ci/phase8/action-followup-checkpoint/followup-checkpoint-validation",
+    "redaction_validation": "evidence://ci/phase8/action-followup-checkpoint/redaction-validation",
+    "source_action_plan_validation": "evidence://ci/phase8/action-followup-checkpoint/source-action-plan-validation",
+    "status_ref_validation": "evidence://ci/phase8/action-followup-checkpoint/status-ref-validation"
+  },
+  "evidence_mode": "live",
+  "executive_action_plan_ref": "evidence://customer-lifecycle-phase8-executive-action-plan/r7",
+  "executive_action_plan_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 executive action plan schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 executive action plan supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "executive_health_rollup_ref is a sanitized reference.",
+        "name": "executive_health_rollup_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source executive health rollup is ready.",
+        "name": "executive_health_rollup_result",
+        "status": "pass"
+      },
+      {
+        "message": "action_owner_refs are present and sanitized.",
+        "name": "action_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Executive action plan contract is complete.",
+        "name": "executive_action_plan_contract",
+        "status": "pass"
+      },
+      {
+        "message": "action_commitment_refs are present and sanitized.",
+        "name": "action_commitment_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "action_plan_evidence_refs are sanitized.",
+        "name": "action_plan_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Executive action plan controls are explicit.",
+        "name": "action_plan_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 executive action plan contains sanitized refs and customer-safe action text only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_executive_action_plan": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-executive-action-plan.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "followup_checkpoint_contract": {
+    "blocker_register_ref": "evidence://phase8/action-followup-checkpoint/blocker-register",
+    "checkpoint_plan_ref": "evidence://phase8/action-followup-checkpoint/plan",
+    "escalation_path_ref": "evidence://phase8/action-followup-checkpoint/escalation-path",
+    "owner_followup_ref": "evidence://phase8/action-followup-checkpoint/owner-followup",
+    "redaction_status": "sanitized",
+    "review_cadence_ref": "evidence://phase8/action-followup-checkpoint/review-cadence",
+    "status_register_ref": "evidence://phase8/action-followup-checkpoint/status-register"
+  },
+  "followup_controls": {
+    "blocker_refs_defined": true,
+    "checkpoint_refs_defined": true,
+    "ci_gates_defined": true,
+    "evidence_refs_sanitized": true,
+    "executive_action_plan_ready": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_followup_refs_defined": true,
+    "review_cadence_defined": true,
+    "status_refs_defined": true
+  },
+  "followup_evidence_refs": [
+    "evidence://phase8/action-followup-checkpoint/source-action-plan",
+    "evidence://phase8/action-followup-checkpoint/status-register",
+    "evidence://phase8/action-followup-checkpoint/blocker-register",
+    "evidence://phase8/action-followup-checkpoint/review-cadence"
+  ],
+  "followup_owner_refs": {
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "product_owner_ref": "evidence://owner/product-management",
+    "program_owner_ref": "evidence://owner/customer-lifecycle-program",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-action-followup-checkpoint.packet.v1",
+  "source_phase": "R7"
+}

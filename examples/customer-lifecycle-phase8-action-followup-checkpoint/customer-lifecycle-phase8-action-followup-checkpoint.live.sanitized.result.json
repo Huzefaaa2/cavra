@@ -1,0 +1,73 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 action follow-up checkpoint schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 action follow-up checkpoint supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "executive_action_plan_ref is a sanitized reference.",
+      "name": "executive_action_plan_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source executive action plan is ready.",
+      "name": "executive_action_plan_result",
+      "status": "pass"
+    },
+    {
+      "message": "followup_owner_refs are present and sanitized.",
+      "name": "followup_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Action follow-up checkpoint contract is complete.",
+      "name": "followup_checkpoint_contract",
+      "status": "pass"
+    },
+    {
+      "message": "checkpoint_status_refs are present and sanitized.",
+      "name": "checkpoint_status_refs",
+      "status": "pass"
+    },
+    {
+      "message": "checkpoint_blocker_refs are present and sanitized.",
+      "name": "checkpoint_blocker_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "followup_evidence_refs are sanitized.",
+      "name": "followup_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Action follow-up checkpoint controls are explicit.",
+      "name": "followup_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 action follow-up checkpoint contains sanitized refs and customer-safe status text only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_action_followup_checkpoint": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-action-followup-checkpoint.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
