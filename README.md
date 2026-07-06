@@ -251,6 +251,7 @@ Start with the wiki textbook:
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Refresh Checkpoint](docs/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.md)
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Refresh Closeout](docs/customer-lifecycle-phase8-public-scorecard-refresh-closeout.md)
 - [CAVRA Customer Lifecycle Phase 8 Public Scorecard Operating Loop Index](docs/customer-lifecycle-phase8-public-scorecard-operating-loop-index.md)
+- [CAVRA Customer Lifecycle Phase 8 Public Scorecard Executive Summary Closeout](docs/customer-lifecycle-phase8-public-scorecard-executive-summary-closeout.md)
 - [CAVRA CISO And Enterprise Trust Pack](docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](docs/governance/maintainer-governance.md)
 - [CAVRA RFC Process](docs/governance/rfc-process.md)

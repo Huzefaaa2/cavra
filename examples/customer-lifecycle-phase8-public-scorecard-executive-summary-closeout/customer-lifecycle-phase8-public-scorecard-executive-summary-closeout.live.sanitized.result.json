@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard executive summary closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 public scorecard executive summary closeout supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "operating_loop_index_ref is a sanitized reference.",
+      "name": "operating_loop_index_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard operating loop index is ready.",
+      "name": "operating_loop_index_result",
+      "status": "pass"
+    },
+    {
+      "message": "executive_summary_owner_refs are present and sanitized.",
+      "name": "executive_summary_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard executive summary closeout contract is complete.",
+      "name": "executive_summary_contract",
+      "status": "pass"
+    },
+    {
+      "message": "summary_refs are present and sanitized.",
+      "name": "summary_refs",
+      "status": "pass"
+    },
+    {
+      "message": "audience_refs are present and sanitized.",
+      "name": "audience_refs",
+      "status": "pass"
+    },
+    {
+      "message": "approval_refs are present and sanitized.",
+      "name": "approval_refs",
+      "status": "pass"
+    },
+    {
+      "message": "publication_refs are present and sanitized.",
+      "name": "publication_refs",
+      "status": "pass"
+    },
+    {
+      "message": "archive_refs are present and sanitized.",
+      "name": "archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "redaction_refs are present and sanitized.",
+      "name": "redaction_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "executive_summary_evidence_refs are sanitized.",
+      "name": "executive_summary_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard executive summary closeout controls are explicit.",
+      "name": "executive_summary_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard executive summary closeout contains sanitized refs and public-safe summary refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_executive_summary_closeout": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-executive-summary-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
