@@ -211,6 +211,11 @@ from cavra.customer_lifecycle_phase8_public_scorecard_distribution_audit_index i
     validate_customer_lifecycle_phase8_public_scorecard_distribution_audit_index_packet,
     write_customer_lifecycle_phase8_public_scorecard_distribution_audit_index_artifacts,
 )
+from cavra.customer_lifecycle_phase8_public_scorecard_audit_review_closeout import (
+    build_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_packet,
+    validate_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_packet,
+    write_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -3636,6 +3641,42 @@ def release_customer_lifecycle_phase8_public_scorecard_distribution_audit_index(
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (
         require_live and not result["ready_for_customer_lifecycle_phase8_public_scorecard_distribution_audit_index"]
+    ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-phase8-public-scorecard-audit-review-closeout")
+def release_customer_lifecycle_phase8_public_scorecard_audit_review_closeout(
+    packet: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional customer lifecycle Phase 8 public scorecard audit review closeout packet JSON."),
+    ] = None,
+    repo_root: Annotated[
+        Path,
+        typer.Option(help="Repository root used for source public scorecard distribution audit index generation."),
+    ] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle Phase 8 public scorecard audit review closeout packet."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_artifacts(export_dir, root)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            payload = build_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_packet(
+                repo_root=root,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_phase8_public_scorecard_audit_review_closeout_packet(
+            payload,
+            require_live=require_live,
+        )
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (
+        require_live and not result["ready_for_customer_lifecycle_phase8_public_scorecard_audit_review_closeout"]
     ):
         raise typer.Exit(code=1)
 

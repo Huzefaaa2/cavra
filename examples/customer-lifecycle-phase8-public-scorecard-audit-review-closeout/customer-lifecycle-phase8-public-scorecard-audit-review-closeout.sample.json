@@ -1,0 +1,206 @@
+{
+  "audit_review_closeout_id": "cavra-sample-customer-lifecycle-phase8-public-scorecard-audit-review-closeout",
+  "audit_review_contract": {
+    "audit_review_closeout_ref": "sample://phase8/public-scorecard-audit-review-closeout/closeout",
+    "final_audit_archive_ref": "sample://phase8/public-scorecard-audit-review-closeout/final-audit-archive",
+    "next_refresh_cadence_ref": "sample://phase8/public-scorecard-audit-review-closeout/next-refresh-cadence",
+    "owner_acknowledgement_ref": "sample://phase8/public-scorecard-audit-review-closeout/owner-acknowledgement",
+    "redaction_status": "sanitized",
+    "release_notes_ref": "sample://phase8/public-scorecard-audit-review-closeout/release-notes",
+    "remediation_plan_ref": "sample://phase8/public-scorecard-audit-review-closeout/remediation-plan",
+    "residual_findings_ref": "sample://phase8/public-scorecard-audit-review-closeout/residual-findings",
+    "source_distribution_audit_index_ref": "sample://phase8/public-scorecard-audit-review-closeout/source-distribution-audit-index"
+  },
+  "audit_review_controls": {
+    "ci_gates_defined": true,
+    "distribution_audit_index_ready": true,
+    "evidence_refs_sanitized": true,
+    "final_archive_complete": true,
+    "next_refresh_cadence_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_acknowledgements_complete": true,
+    "release_notes_defined": true,
+    "remediation_refs_defined": true,
+    "residual_findings_reviewed": true
+  },
+  "audit_review_evidence_refs": [
+    "sample://phase8/public-scorecard-audit-review-closeout/source-distribution-audit-index",
+    "sample://phase8/public-scorecard-audit-review-closeout/owner-acknowledgements",
+    "sample://phase8/public-scorecard-audit-review-closeout/residual-findings",
+    "sample://phase8/public-scorecard-audit-review-closeout/remediation",
+    "sample://phase8/public-scorecard-audit-review-closeout/refresh-cadence",
+    "sample://phase8/public-scorecard-audit-review-closeout/final-archive",
+    "sample://phase8/public-scorecard-audit-review-closeout/release-notes"
+  ],
+  "audit_review_owner_refs": {
+    "audit_owner_ref": "sample://owner/audit",
+    "communications_owner_ref": "sample://owner/communications",
+    "compliance_owner_ref": "sample://owner/compliance",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_owner_ref": "sample://owner/executive-sponsor",
+    "product_owner_ref": "sample://owner/product-management",
+    "release_manager_ref": "sample://owner/release-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "web_owner_ref": "sample://owner/web-platform"
+  },
+  "ci_gate_coverage": {
+    "final_archive_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/final-archive-validation",
+    "owner_acknowledgement_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/owner-acknowledgement-validation",
+    "refresh_cadence_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/refresh-cadence-validation",
+    "release_notes_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/release-notes-validation",
+    "remediation_plan_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/remediation-plan-validation",
+    "residual_findings_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/residual-findings-validation",
+    "source_distribution_audit_index_validation": "sample://ci/phase8/public-scorecard-audit-review-closeout/source-distribution-audit-index-validation"
+  },
+  "distribution_audit_index_ref": "sample://customer-lifecycle-phase8-public-scorecard-distribution-audit-index/r7",
+  "distribution_audit_index_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard distribution audit index schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 public scorecard distribution audit index validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "distribution_closeout_ref is a sanitized reference.",
+        "name": "distribution_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard distribution readiness validates shape but is not live.",
+        "name": "distribution_readiness_result",
+        "status": "warn"
+      },
+      {
+        "message": "Source public scorecard distribution closeout validates shape but is not live.",
+        "name": "distribution_closeout_result",
+        "status": "warn"
+      },
+      {
+        "message": "audit_index_owner_refs are present and sanitized.",
+        "name": "audit_index_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution audit index contract is complete.",
+        "name": "audit_index_contract",
+        "status": "pass"
+      },
+      {
+        "message": "dependency_refs are present and sanitized.",
+        "name": "dependency_refs",
+        "status": "pass"
+      },
+      {
+        "message": "publication_snapshot_refs are present and sanitized.",
+        "name": "publication_snapshot_refs",
+        "status": "pass"
+      },
+      {
+        "message": "delivery_proof_refs are present and sanitized.",
+        "name": "delivery_proof_refs",
+        "status": "pass"
+      },
+      {
+        "message": "link_audit_refs are present and sanitized.",
+        "name": "link_audit_refs",
+        "status": "pass"
+      },
+      {
+        "message": "redaction_scan_refs are present and sanitized.",
+        "name": "redaction_scan_refs",
+        "status": "pass"
+      },
+      {
+        "message": "archive_handoff_refs are present and sanitized.",
+        "name": "archive_handoff_refs",
+        "status": "pass"
+      },
+      {
+        "message": "next_review_refs are present and sanitized.",
+        "name": "next_review_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "audit_index_evidence_refs are sanitized.",
+        "name": "audit_index_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution audit index controls are explicit.",
+        "name": "audit_index_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard distribution audit index contains sanitized refs and public-safe audit refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_audit_index": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-audit-index.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 3
+  },
+  "evidence_mode": "sample",
+  "final_archive_refs": {
+    "audit_review_manifest_ref": "sample://phase8/public-scorecard-audit-review-closeout/archive/manifest",
+    "distribution_audit_index_archive_ref": "sample://phase8/public-scorecard-audit-review-closeout/archive/distribution-audit-index",
+    "immutable_closeout_snapshot_ref": "sample://phase8/public-scorecard-audit-review-closeout/archive/immutable-closeout-snapshot",
+    "owner_ack_archive_ref": "sample://phase8/public-scorecard-audit-review-closeout/archive/owner-acks",
+    "remediation_archive_ref": "sample://phase8/public-scorecard-audit-review-closeout/archive/remediation"
+  },
+  "owner_acknowledgement_refs": {
+    "audit_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/audit",
+    "communications_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/communications",
+    "customer_success_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/customer-success",
+    "executive_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/executive",
+    "product_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/product",
+    "security_ack_ref": "sample://phase8/public-scorecard-audit-review-closeout/ack/security"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "refresh_cadence_refs": {
+    "cadence_owner_ref": "sample://phase8/public-scorecard-audit-review-closeout/cadence/owner",
+    "next_audit_review_ref": "sample://phase8/public-scorecard-audit-review-closeout/cadence/next-audit-review",
+    "next_distribution_review_ref": "sample://phase8/public-scorecard-audit-review-closeout/cadence/next-distribution-review",
+    "next_scorecard_refresh_ref": "sample://phase8/public-scorecard-audit-review-closeout/cadence/next-scorecard-refresh"
+  },
+  "release_note_refs": {
+    "public_release_note_ref": "sample://phase8/public-scorecard-audit-review-closeout/release-note/public",
+    "readme_update_ref": "sample://phase8/public-scorecard-audit-review-closeout/release-note/readme-update",
+    "roadmap_update_ref": "sample://phase8/public-scorecard-audit-review-closeout/release-note/roadmap-update",
+    "wiki_update_ref": "sample://phase8/public-scorecard-audit-review-closeout/release-note/wiki-update"
+  },
+  "remediation_refs": {
+    "remediation_due_window_ref": "sample://phase8/public-scorecard-audit-review-closeout/remediation/due-window",
+    "remediation_owner_ref": "sample://phase8/public-scorecard-audit-review-closeout/remediation/owner",
+    "remediation_plan_ref": "sample://phase8/public-scorecard-audit-review-closeout/remediation/plan",
+    "remediation_tracking_ref": "sample://phase8/public-scorecard-audit-review-closeout/remediation/tracking"
+  },
+  "residual_finding_refs": {
+    "accepted_risk_ref": "sample://phase8/public-scorecard-audit-review-closeout/findings/accepted-risk",
+    "followup_owner_ref": "sample://phase8/public-scorecard-audit-review-closeout/findings/followup-owner",
+    "no_critical_findings_ref": "sample://phase8/public-scorecard-audit-review-closeout/findings/no-critical-findings",
+    "residual_findings_register_ref": "sample://phase8/public-scorecard-audit-review-closeout/findings/register"
+  },
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-audit-review-closeout.packet.v1",
+  "source_phase": "R7"
+}

@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard audit review closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 public scorecard audit review closeout supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "distribution_audit_index_ref is a sanitized reference.",
+      "name": "distribution_audit_index_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard distribution audit index is ready.",
+      "name": "distribution_audit_index_result",
+      "status": "pass"
+    },
+    {
+      "message": "audit_review_owner_refs are present and sanitized.",
+      "name": "audit_review_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard audit review closeout contract is complete.",
+      "name": "audit_review_contract",
+      "status": "pass"
+    },
+    {
+      "message": "owner_acknowledgement_refs are present and sanitized.",
+      "name": "owner_acknowledgement_refs",
+      "status": "pass"
+    },
+    {
+      "message": "residual_finding_refs are present and sanitized.",
+      "name": "residual_finding_refs",
+      "status": "pass"
+    },
+    {
+      "message": "remediation_refs are present and sanitized.",
+      "name": "remediation_refs",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_cadence_refs are present and sanitized.",
+      "name": "refresh_cadence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "final_archive_refs are present and sanitized.",
+      "name": "final_archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "release_note_refs are present and sanitized.",
+      "name": "release_note_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "audit_review_evidence_refs are sanitized.",
+      "name": "audit_review_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard audit review closeout controls are explicit.",
+      "name": "audit_review_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard audit review closeout contains sanitized refs and public-safe audit refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_audit_review_closeout": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-audit-review-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
