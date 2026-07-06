@@ -1,0 +1,204 @@
+{
+  "alert_review_refs": {
+    "communications_alert_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alerts/communications",
+    "executive_escalation_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alerts/executive",
+    "operations_alert_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alerts/operations",
+    "security_alert_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alerts/security"
+  },
+  "ci_gate_coverage": {
+    "alert_review_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/alert-review-validation",
+    "cycle_window_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/cycle-window-validation",
+    "findings_triage_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/findings-triage-validation",
+    "followup_owner_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/followup-owner-validation",
+    "next_cycle_schedule_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/next-cycle-validation",
+    "public_status_refresh_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/public-status-validation",
+    "snapshot_archive_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/snapshot-archive-validation",
+    "source_monitoring_activation_closeout_validation": "evidence://ci/phase8/public-scorecard-monitoring-first-cycle-review/source-activation-validation"
+  },
+  "cycle_window_refs": {
+    "first_cycle_completed_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle/completed",
+    "first_cycle_started_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle/started",
+    "review_window_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle/review-window",
+    "reviewer_owner_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle/reviewer"
+  },
+  "evidence_mode": "live",
+  "findings_triage_refs": {
+    "accepted_risk_triage_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings/accepted-risk",
+    "blocker_triage_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings/blockers",
+    "drift_triage_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings/drift",
+    "findings_register_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings/register-review"
+  },
+  "first_cycle_contract": {
+    "alert_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alert-review",
+    "cycle_window_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle-window",
+    "findings_triage_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings-triage",
+    "first_cycle_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/review",
+    "followup_owner_assignment_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup-owner-assignment",
+    "next_cycle_schedule_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next-cycle-schedule",
+    "public_status_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/public-status-refresh",
+    "redaction_status": "sanitized",
+    "snapshot_archive_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot-archive",
+    "source_monitoring_activation_closeout_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/source-activation-closeout"
+  },
+  "first_cycle_controls": {
+    "alerts_reviewed": true,
+    "ci_gates_defined": true,
+    "evidence_refs_sanitized": true,
+    "findings_triaged": true,
+    "first_cycle_completed": true,
+    "followup_owners_assigned": true,
+    "monitoring_activation_closeout_ready": true,
+    "next_cycle_scheduled": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "public_status_refreshed": true,
+    "snapshots_archived": true
+  },
+  "first_cycle_evidence_refs": [
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/source-activation-closeout",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/cycle-window",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/findings-triage",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/alert-review",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot-archive",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/public-status-refresh",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup-owner-assignment",
+    "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next-cycle-schedule"
+  ],
+  "first_cycle_owner_refs": {
+    "audit_owner_ref": "evidence://owner/audit",
+    "communications_owner_ref": "evidence://owner/communications",
+    "compliance_owner_ref": "evidence://owner/compliance",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "operations_owner_ref": "evidence://owner/operations",
+    "product_owner_ref": "evidence://owner/product-management",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "web_owner_ref": "evidence://owner/web-platform"
+  },
+  "followup_owner_refs": {
+    "archive_drift_followup_owner_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup/archive-drift-owner",
+    "broken_link_followup_owner_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup/broken-link-owner",
+    "redaction_regression_followup_owner_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup/redaction-owner",
+    "stale_scorecard_followup_owner_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/followup/stale-scorecard-owner"
+  },
+  "monitoring_activation_closeout_ref": "evidence://customer-lifecycle-phase8-public-scorecard-monitoring-activation-closeout/r7",
+  "monitoring_activation_closeout_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard monitoring activation closeout schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 monitoring activation closeout supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "continuous_monitoring_readiness_ref is a sanitized reference.",
+        "name": "continuous_monitoring_readiness_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard continuous monitoring readiness is ready.",
+        "name": "continuous_monitoring_readiness_result",
+        "status": "pass"
+      },
+      {
+        "message": "activation_owner_refs are present and sanitized.",
+        "name": "activation_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard monitoring activation closeout contract is complete.",
+        "name": "activation_contract",
+        "status": "pass"
+      },
+      {
+        "message": "activated_monitor_refs are present and sanitized.",
+        "name": "activated_monitor_refs",
+        "status": "pass"
+      },
+      {
+        "message": "alert_route_refs are present and sanitized.",
+        "name": "alert_route_refs",
+        "status": "pass"
+      },
+      {
+        "message": "cadence_start_refs are present and sanitized.",
+        "name": "cadence_start_refs",
+        "status": "pass"
+      },
+      {
+        "message": "first_snapshot_refs are present and sanitized.",
+        "name": "first_snapshot_refs",
+        "status": "pass"
+      },
+      {
+        "message": "escalation_acceptance_refs are present and sanitized.",
+        "name": "escalation_acceptance_refs",
+        "status": "pass"
+      },
+      {
+        "message": "operational_closeout_refs are present and sanitized.",
+        "name": "operational_closeout_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "activation_evidence_refs are sanitized.",
+        "name": "activation_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard monitoring activation closeout controls are explicit.",
+        "name": "activation_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard monitoring activation closeout contains sanitized refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_activation_closeout": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-activation-closeout.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "monitoring_first_cycle_review_id": "cavra-live-customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review",
+  "next_cycle_schedule_refs": {
+    "next_cycle_owner_ack_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next/owner-ack",
+    "next_monthly_audit_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next/monthly-audit",
+    "next_quarterly_scorecard_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next/quarterly-refresh",
+    "next_weekly_health_review_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/next/weekly-health"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "public_status_refresh_refs": {
+    "public_scorecard_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/status/scorecard-refresh",
+    "public_status_page_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/status/page-refresh",
+    "readme_status_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/status/readme-refresh",
+    "wiki_status_refresh_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/status/wiki-refresh"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review.packet.v1",
+  "snapshot_archive_refs": {
+    "first_cycle_archive_snapshot_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot/archive",
+    "first_cycle_health_snapshot_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot/health",
+    "first_cycle_link_snapshot_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot/link-health",
+    "first_cycle_redaction_snapshot_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot/redaction",
+    "immutable_cycle_archive_ref": "evidence://phase8/public-scorecard-monitoring-first-cycle-review/snapshot/immutable"
+  },
+  "source_phase": "R7"
+}

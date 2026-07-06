@@ -1,0 +1,98 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard monitoring first-cycle review schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 monitoring first-cycle review supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "monitoring_activation_closeout_ref is a sanitized reference.",
+      "name": "monitoring_activation_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard monitoring activation closeout is ready.",
+      "name": "monitoring_activation_closeout_result",
+      "status": "pass"
+    },
+    {
+      "message": "first_cycle_owner_refs are present and sanitized.",
+      "name": "first_cycle_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard monitoring first-cycle review contract is complete.",
+      "name": "first_cycle_contract",
+      "status": "pass"
+    },
+    {
+      "message": "cycle_window_refs are present and sanitized.",
+      "name": "cycle_window_refs",
+      "status": "pass"
+    },
+    {
+      "message": "findings_triage_refs are present and sanitized.",
+      "name": "findings_triage_refs",
+      "status": "pass"
+    },
+    {
+      "message": "alert_review_refs are present and sanitized.",
+      "name": "alert_review_refs",
+      "status": "pass"
+    },
+    {
+      "message": "snapshot_archive_refs are present and sanitized.",
+      "name": "snapshot_archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "public_status_refresh_refs are present and sanitized.",
+      "name": "public_status_refresh_refs",
+      "status": "pass"
+    },
+    {
+      "message": "followup_owner_refs are present and sanitized.",
+      "name": "followup_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "next_cycle_schedule_refs are present and sanitized.",
+      "name": "next_cycle_schedule_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "first_cycle_evidence_refs are sanitized.",
+      "name": "first_cycle_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard monitoring first-cycle review controls are explicit.",
+      "name": "first_cycle_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard monitoring first-cycle review contains sanitized refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_first_cycle_review": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-first-cycle-review.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
