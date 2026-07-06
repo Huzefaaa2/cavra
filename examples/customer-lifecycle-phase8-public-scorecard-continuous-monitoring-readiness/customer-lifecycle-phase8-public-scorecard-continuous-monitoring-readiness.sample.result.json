@@ -1,0 +1,98 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard continuous monitoring readiness schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample Phase 8 public scorecard continuous monitoring readiness validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "audit_review_closeout_ref is a sanitized reference.",
+      "name": "audit_review_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard audit review closeout validates shape but is not live.",
+      "name": "audit_review_closeout_result",
+      "status": "warn"
+    },
+    {
+      "message": "monitoring_owner_refs are present and sanitized.",
+      "name": "monitoring_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard continuous monitoring readiness contract is complete.",
+      "name": "monitoring_contract",
+      "status": "pass"
+    },
+    {
+      "message": "scorecard_health_refs are present and sanitized.",
+      "name": "scorecard_health_refs",
+      "status": "pass"
+    },
+    {
+      "message": "link_health_refs are present and sanitized.",
+      "name": "link_health_refs",
+      "status": "pass"
+    },
+    {
+      "message": "archive_freshness_refs are present and sanitized.",
+      "name": "archive_freshness_refs",
+      "status": "pass"
+    },
+    {
+      "message": "redaction_posture_refs are present and sanitized.",
+      "name": "redaction_posture_refs",
+      "status": "pass"
+    },
+    {
+      "message": "alert_routing_refs are present and sanitized.",
+      "name": "alert_routing_refs",
+      "status": "pass"
+    },
+    {
+      "message": "review_cadence_refs are present and sanitized.",
+      "name": "review_cadence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "escalation_readiness_refs are present and sanitized.",
+      "name": "escalation_readiness_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "monitoring_evidence_refs are sanitized.",
+      "name": "monitoring_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard continuous monitoring readiness controls are explicit.",
+      "name": "monitoring_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard continuous monitoring readiness contains sanitized refs and public-safe monitor refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_continuous_monitoring_readiness": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-continuous-monitoring-readiness.result.v1",
+  "source_phase": "R7",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}
