@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard distribution closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample Phase 8 public scorecard distribution closeout validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "distribution_readiness_ref is a sanitized reference.",
+      "name": "distribution_readiness_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard distribution readiness validates shape but is not live.",
+      "name": "distribution_readiness_result",
+      "status": "warn"
+    },
+    {
+      "message": "closeout_owner_refs are present and sanitized.",
+      "name": "closeout_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution closeout contract is complete.",
+      "name": "closeout_contract",
+      "status": "pass"
+    },
+    {
+      "message": "published_channel_refs are present and sanitized.",
+      "name": "published_channel_refs",
+      "status": "pass"
+    },
+    {
+      "message": "notification_delivery_refs are present and sanitized.",
+      "name": "notification_delivery_refs",
+      "status": "pass"
+    },
+    {
+      "message": "link_check_refs are present and sanitized.",
+      "name": "link_check_refs",
+      "status": "pass"
+    },
+    {
+      "message": "archive_snapshot_refs are present and sanitized.",
+      "name": "archive_snapshot_refs",
+      "status": "pass"
+    },
+    {
+      "message": "redaction_closeout_refs are present and sanitized.",
+      "name": "redaction_closeout_refs",
+      "status": "pass"
+    },
+    {
+      "message": "audit_handoff_refs are present and sanitized.",
+      "name": "audit_handoff_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "closeout_evidence_refs are sanitized.",
+      "name": "closeout_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution closeout controls are explicit.",
+      "name": "closeout_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard distribution closeout contains sanitized refs and public-safe closeout refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_closeout": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}
