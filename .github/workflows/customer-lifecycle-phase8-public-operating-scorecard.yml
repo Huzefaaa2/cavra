@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Public Operating Scorecard
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-operating-scorecard.yml"
+      - "examples/customer-lifecycle-phase8-public-operating-scorecard/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "src/cavra/customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "tests/test_customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-operating-scorecard.yml"
+      - "examples/customer-lifecycle-phase8-public-operating-scorecard/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "src/cavra/customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "tests/test_customer_lifecycle_phase8_public_operating_scorecard.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-public-operating-scorecard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 public operating scorecard packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_operating_scorecard.py --packet examples/customer-lifecycle-phase8-public-operating-scorecard/customer-lifecycle-phase8-public-operating-scorecard.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 public operating scorecard packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_operating_scorecard.py --packet examples/customer-lifecycle-phase8-public-operating-scorecard/customer-lifecycle-phase8-public-operating-scorecard.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_public_operating_scorecard.py tests/test_customer_lifecycle_phase8_next_cycle_readiness_index.py -q
+      - name: Lint Phase 8 public operating scorecard surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_public_operating_scorecard.py scripts/validate_customer_lifecycle_phase8_public_operating_scorecard.py tests/test_customer_lifecycle_phase8_public_operating_scorecard.py src/cavra/cli.py

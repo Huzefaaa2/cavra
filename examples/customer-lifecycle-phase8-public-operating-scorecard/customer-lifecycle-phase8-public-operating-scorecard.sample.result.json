@@ -1,0 +1,83 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public operating scorecard schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample Phase 8 public operating scorecard validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "next_cycle_readiness_index_ref is a sanitized reference.",
+      "name": "next_cycle_readiness_index_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source next-cycle readiness index validates shape but is not live.",
+      "name": "next_cycle_readiness_index_result",
+      "status": "warn"
+    },
+    {
+      "message": "public_scorecard_owner_refs are present and sanitized.",
+      "name": "public_scorecard_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public operating scorecard contract is complete.",
+      "name": "public_operating_scorecard_contract",
+      "status": "pass"
+    },
+    {
+      "message": "public_status_refs are present and sanitized.",
+      "name": "public_status_refs",
+      "status": "pass"
+    },
+    {
+      "message": "public_trend_refs are present and sanitized.",
+      "name": "public_trend_refs",
+      "status": "pass"
+    },
+    {
+      "message": "release_decision_refs are present and sanitized.",
+      "name": "release_decision_refs",
+      "status": "pass"
+    },
+    {
+      "message": "executive_summary_refs are sanitized.",
+      "name": "executive_summary_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "publication_evidence_refs are sanitized.",
+      "name": "publication_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public operating scorecard controls are explicit.",
+      "name": "scorecard_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public operating scorecard contains sanitized refs and public-safe summary refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_operating_scorecard": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-operating-scorecard.result.v1",
+  "source_phase": "R7",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}
