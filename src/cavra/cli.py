@@ -176,6 +176,11 @@ from cavra.customer_lifecycle_phase8_public_scorecard_publication_closeout impor
     validate_customer_lifecycle_phase8_public_scorecard_publication_closeout_packet,
     write_customer_lifecycle_phase8_public_scorecard_publication_closeout_artifacts,
 )
+from cavra.customer_lifecycle_phase8_public_scorecard_refresh_checkpoint import (
+    build_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_packet,
+    validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_packet,
+    write_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_artifacts,
+)
 from cavra.approvals import (
     ApprovalStore,
     SQLiteApprovalStore,
@@ -3349,6 +3354,42 @@ def release_customer_lifecycle_phase8_public_scorecard_publication_closeout(
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (
         require_live and not result["ready_for_customer_lifecycle_phase8_public_scorecard_publication_closeout"]
+    ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("customer-lifecycle-phase8-public-scorecard-refresh-checkpoint")
+def release_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint(
+    packet: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional customer lifecycle Phase 8 public scorecard refresh checkpoint packet JSON."),
+    ] = None,
+    repo_root: Annotated[
+        Path,
+        typer.Option(help="Repository root used for source public scorecard publication closeout generation."),
+    ] = Path("."),
+    export_dir: Annotated[Optional[Path], typer.Option(help="Optional directory to export sample/live packets.")] = None,
+    require_live: Annotated[bool, typer.Option(help="Require evidence_mode=live and sanitized=true.")] = False,
+) -> None:
+    """Validate or export the customer lifecycle Phase 8 public scorecard refresh checkpoint packet."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_artifacts(export_dir, root)
+    else:
+        if packet:
+            payload = json.loads(packet.read_text(encoding="utf-8"))
+        else:
+            payload = build_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_packet(
+                repo_root=root,
+                evidence_mode="live" if require_live else "sample",
+            )
+        result = validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint_packet(
+            payload,
+            require_live=require_live,
+        )
+    print(json.dumps(result, indent=2))
+    if result["blocker_count"] or (
+        require_live and not result["ready_for_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint"]
     ):
         raise typer.Exit(code=1)
 

@@ -1,0 +1,88 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard refresh checkpoint schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 public scorecard refresh checkpoint supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "publication_closeout_ref is a sanitized reference.",
+      "name": "publication_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard publication closeout is ready.",
+      "name": "publication_closeout_result",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_owner_refs are present and sanitized.",
+      "name": "refresh_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard refresh checkpoint contract is complete.",
+      "name": "refresh_checkpoint_contract",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_cadence_refs are present and sanitized.",
+      "name": "refresh_cadence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "stale_scorecard_refs are present and sanitized.",
+      "name": "stale_scorecard_refs",
+      "status": "pass"
+    },
+    {
+      "message": "owner_followup_refs are present and sanitized.",
+      "name": "owner_followup_refs",
+      "status": "pass"
+    },
+    {
+      "message": "update_publication_refs are present and sanitized.",
+      "name": "update_publication_refs",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_audit_refs are present and sanitized.",
+      "name": "refresh_audit_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_checkpoint_evidence_refs are sanitized.",
+      "name": "refresh_checkpoint_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard refresh checkpoint controls are explicit.",
+      "name": "refresh_checkpoint_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard refresh checkpoint contains sanitized refs and public-safe refresh refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

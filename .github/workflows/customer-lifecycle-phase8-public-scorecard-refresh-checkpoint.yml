@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Public Scorecard Refresh Checkpoint
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.yml"
+      - "examples/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "src/cavra/customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "tests/test_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.yml"
+      - "examples/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "src/cavra/customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "tests/test_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-public-scorecard-refresh-checkpoint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 public scorecard refresh checkpoint packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py --packet examples/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 public scorecard refresh checkpoint packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py --packet examples/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint/customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py tests/test_customer_lifecycle_phase8_public_scorecard_publication_closeout.py -q
+      - name: Lint Phase 8 public scorecard refresh checkpoint surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py scripts/validate_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py tests/test_customer_lifecycle_phase8_public_scorecard_refresh_checkpoint.py src/cavra/cli.py

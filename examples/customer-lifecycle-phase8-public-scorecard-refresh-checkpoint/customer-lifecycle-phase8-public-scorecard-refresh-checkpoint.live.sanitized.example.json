@@ -1,0 +1,182 @@
+{
+  "ci_gate_coverage": {
+    "cadence_ref_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/cadence-ref-validation",
+    "owner_followup_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/owner-followup-validation",
+    "refresh_audit_redaction_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/refresh-audit-redaction-validation",
+    "refresh_contract_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/refresh-contract-validation",
+    "source_publication_closeout_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/source-publication-closeout-validation",
+    "staleness_ref_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/staleness-ref-validation",
+    "update_publication_validation": "evidence://ci/phase8/public-scorecard-refresh-checkpoint/update-publication-validation"
+  },
+  "evidence_mode": "live",
+  "owner_followup_refs": {
+    "customer_success_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/followup/customer-success",
+    "executive_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/followup/executive",
+    "product_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/followup/product",
+    "security_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/followup/security",
+    "support_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/followup/support"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "publication_closeout_ref": "evidence://customer-lifecycle-phase8-public-scorecard-publication-closeout/r7",
+  "publication_closeout_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard publication closeout schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 public scorecard publication closeout supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "public_operating_scorecard_ref is a sanitized reference.",
+        "name": "public_operating_scorecard_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public operating scorecard is ready.",
+        "name": "public_operating_scorecard_result",
+        "status": "pass"
+      },
+      {
+        "message": "publication_owner_refs are present and sanitized.",
+        "name": "publication_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard publication closeout contract is complete.",
+        "name": "publication_closeout_contract",
+        "status": "pass"
+      },
+      {
+        "message": "publication_refs are present and sanitized.",
+        "name": "publication_refs",
+        "status": "pass"
+      },
+      {
+        "message": "announcement_refs are present and sanitized.",
+        "name": "announcement_refs",
+        "status": "pass"
+      },
+      {
+        "message": "evidence_archive_refs are present and sanitized.",
+        "name": "evidence_archive_refs",
+        "status": "pass"
+      },
+      {
+        "message": "refresh_cadence_refs are present and sanitized.",
+        "name": "refresh_cadence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "hold_rollback_refs are present and sanitized.",
+        "name": "hold_rollback_refs",
+        "status": "pass"
+      },
+      {
+        "message": "post_publication_audit_refs are sanitized.",
+        "name": "post_publication_audit_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "publication_closeout_evidence_refs are sanitized.",
+        "name": "publication_closeout_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard publication closeout controls are explicit.",
+        "name": "publication_closeout_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard publication closeout contains sanitized refs and public-safe closeout refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_publication_closeout": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-publication-closeout.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "refresh_audit_refs": {
+    "archive_snapshot_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/audit/archive-snapshot",
+    "redaction_audit_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/audit/redaction",
+    "refresh_evidence_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/audit/refresh-evidence",
+    "refresh_manifest_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/audit/refresh-manifest"
+  },
+  "refresh_cadence_refs": {
+    "active_cadence_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/cadence/active",
+    "cadence_exception_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/cadence/exception",
+    "last_refresh_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/cadence/last-refresh",
+    "next_refresh_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/cadence/next-refresh"
+  },
+  "refresh_checkpoint_contract": {
+    "owner_followup_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/owner-followup",
+    "redaction_status": "sanitized",
+    "refresh_audit_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/refresh-audit",
+    "refresh_cadence_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/refresh-cadence",
+    "refresh_checkpoint_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/checkpoint",
+    "source_publication_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/source-publication",
+    "staleness_detection_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/staleness-detection",
+    "update_publication_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/update-publication"
+  },
+  "refresh_checkpoint_controls": {
+    "ci_gates_defined": true,
+    "evidence_refs_sanitized": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_followup_refs_defined": true,
+    "publication_closeout_ready": true,
+    "refresh_audit_refs_defined": true,
+    "refresh_cadence_defined": true,
+    "staleness_detection_defined": true,
+    "update_publication_refs_defined": true
+  },
+  "refresh_checkpoint_evidence_refs": [
+    "evidence://phase8/public-scorecard-refresh-checkpoint/source-publication-closeout",
+    "evidence://phase8/public-scorecard-refresh-checkpoint/cadence-refs",
+    "evidence://phase8/public-scorecard-refresh-checkpoint/staleness-refs",
+    "evidence://phase8/public-scorecard-refresh-checkpoint/followup-refs",
+    "evidence://phase8/public-scorecard-refresh-checkpoint/update-publication-refs",
+    "evidence://phase8/public-scorecard-refresh-checkpoint/audit-refs"
+  ],
+  "refresh_checkpoint_id": "cavra-live-customer-lifecycle-phase8-public-scorecard-refresh-checkpoint",
+  "refresh_owner_refs": {
+    "communications_owner_ref": "evidence://owner/communications",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "product_owner_ref": "evidence://owner/product-management",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-refresh-checkpoint.packet.v1",
+  "source_phase": "R7",
+  "stale_scorecard_refs": {
+    "stale_owner_escalation_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/stale/owner-escalation",
+    "stale_public_notice_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/stale/public-notice",
+    "stale_scorecard_detection_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/stale/detection",
+    "staleness_threshold_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/stale/threshold"
+  },
+  "update_publication_refs": {
+    "public_status_update_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/update/public-status",
+    "stakeholder_update_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/update/stakeholder",
+    "update_release_notes_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/update/release-notes",
+    "updated_scorecard_ref": "evidence://phase8/public-scorecard-refresh-checkpoint/update/scorecard"
+  }
+}
