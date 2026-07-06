@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard monitoring activation closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 monitoring activation closeout supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "continuous_monitoring_readiness_ref is a sanitized reference.",
+      "name": "continuous_monitoring_readiness_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard continuous monitoring readiness is ready.",
+      "name": "continuous_monitoring_readiness_result",
+      "status": "pass"
+    },
+    {
+      "message": "activation_owner_refs are present and sanitized.",
+      "name": "activation_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard monitoring activation closeout contract is complete.",
+      "name": "activation_contract",
+      "status": "pass"
+    },
+    {
+      "message": "activated_monitor_refs are present and sanitized.",
+      "name": "activated_monitor_refs",
+      "status": "pass"
+    },
+    {
+      "message": "alert_route_refs are present and sanitized.",
+      "name": "alert_route_refs",
+      "status": "pass"
+    },
+    {
+      "message": "cadence_start_refs are present and sanitized.",
+      "name": "cadence_start_refs",
+      "status": "pass"
+    },
+    {
+      "message": "first_snapshot_refs are present and sanitized.",
+      "name": "first_snapshot_refs",
+      "status": "pass"
+    },
+    {
+      "message": "escalation_acceptance_refs are present and sanitized.",
+      "name": "escalation_acceptance_refs",
+      "status": "pass"
+    },
+    {
+      "message": "operational_closeout_refs are present and sanitized.",
+      "name": "operational_closeout_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "activation_evidence_refs are sanitized.",
+      "name": "activation_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard monitoring activation closeout controls are explicit.",
+      "name": "activation_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard monitoring activation closeout contains sanitized refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_activation_closeout": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-activation-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
