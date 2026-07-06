@@ -1,0 +1,188 @@
+{
+  "ci_gate_coverage": {
+    "archive_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/archive-validation",
+    "cadence_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/cadence-validation",
+    "dependency_index_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/dependency-index-validation",
+    "governance_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/governance-validation",
+    "loop_health_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/loop-health-validation",
+    "next_cycle_trigger_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/next-cycle-trigger-validation",
+    "redaction_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/redaction-validation",
+    "source_refresh_closeout_validation": "evidence://ci/phase8/public-scorecard-operating-loop-index/source-refresh-closeout-validation"
+  },
+  "evidence_mode": "live",
+  "governance_review_refs": {
+    "communications_review_ref": "evidence://phase8/public-scorecard-operating-loop-index/governance/communications",
+    "executive_review_ref": "evidence://phase8/public-scorecard-operating-loop-index/governance/executive",
+    "product_review_ref": "evidence://phase8/public-scorecard-operating-loop-index/governance/product",
+    "security_review_ref": "evidence://phase8/public-scorecard-operating-loop-index/governance/security"
+  },
+  "loop_archive_refs": {
+    "closeout_archive_ref": "evidence://phase8/public-scorecard-operating-loop-index/archive/closeout",
+    "operating_loop_manifest_ref": "evidence://phase8/public-scorecard-operating-loop-index/archive/manifest",
+    "publication_archive_ref": "evidence://phase8/public-scorecard-operating-loop-index/archive/publication",
+    "refresh_archive_ref": "evidence://phase8/public-scorecard-operating-loop-index/archive/refresh"
+  },
+  "loop_cadence_refs": {
+    "active_loop_cadence_ref": "evidence://phase8/public-scorecard-operating-loop-index/cadence/active",
+    "exception_handling_ref": "evidence://phase8/public-scorecard-operating-loop-index/cadence/exceptions",
+    "last_loop_completion_ref": "evidence://phase8/public-scorecard-operating-loop-index/cadence/last-completion",
+    "next_loop_due_ref": "evidence://phase8/public-scorecard-operating-loop-index/cadence/next-due"
+  },
+  "loop_dependency_refs": {
+    "next_cycle_readiness_ref": "evidence://phase8/public-scorecard-operating-loop-index/dependency/next-cycle-readiness",
+    "public_operating_scorecard_ref": "evidence://phase8/public-scorecard-operating-loop-index/dependency/public-operating-scorecard",
+    "publication_closeout_ref": "evidence://phase8/public-scorecard-operating-loop-index/dependency/publication-closeout",
+    "refresh_checkpoint_ref": "evidence://phase8/public-scorecard-operating-loop-index/dependency/refresh-checkpoint",
+    "refresh_closeout_ref": "evidence://phase8/public-scorecard-operating-loop-index/dependency/refresh-closeout"
+  },
+  "loop_health_refs": {
+    "loop_health_summary_ref": "evidence://phase8/public-scorecard-operating-loop-index/health/summary",
+    "owner_response_slo_ref": "evidence://phase8/public-scorecard-operating-loop-index/health/owner-response-slo",
+    "publication_freshness_ref": "evidence://phase8/public-scorecard-operating-loop-index/health/publication-freshness",
+    "stale_resolution_slo_ref": "evidence://phase8/public-scorecard-operating-loop-index/health/stale-resolution-slo"
+  },
+  "next_cycle_trigger_refs": {
+    "next_closeout_trigger_ref": "evidence://phase8/public-scorecard-operating-loop-index/next-cycle/closeout",
+    "next_public_scorecard_cycle_ref": "evidence://phase8/public-scorecard-operating-loop-index/next-cycle/public-scorecard",
+    "next_refresh_checkpoint_trigger_ref": "evidence://phase8/public-scorecard-operating-loop-index/next-cycle/refresh-checkpoint",
+    "owner_review_trigger_ref": "evidence://phase8/public-scorecard-operating-loop-index/next-cycle/owner-review"
+  },
+  "operating_loop_contract": {
+    "cadence_ref": "evidence://phase8/public-scorecard-operating-loop-index/cadence",
+    "governance_review_ref": "evidence://phase8/public-scorecard-operating-loop-index/governance-review",
+    "loop_health_ref": "evidence://phase8/public-scorecard-operating-loop-index/loop-health",
+    "next_cycle_trigger_ref": "evidence://phase8/public-scorecard-operating-loop-index/next-cycle-trigger",
+    "operating_loop_index_ref": "evidence://phase8/public-scorecard-operating-loop-index/index",
+    "publication_closeout_ref": "evidence://phase8/public-scorecard-operating-loop-index/publication-closeout",
+    "redaction_status": "sanitized",
+    "refresh_checkpoint_ref": "evidence://phase8/public-scorecard-operating-loop-index/refresh-checkpoint",
+    "refresh_closeout_ref": "evidence://phase8/public-scorecard-operating-loop-index/refresh-closeout",
+    "source_refresh_closeout_ref": "evidence://phase8/public-scorecard-operating-loop-index/source-refresh-closeout"
+  },
+  "operating_loop_controls": {
+    "archive_refs_defined": true,
+    "cadence_refs_defined": true,
+    "ci_gates_defined": true,
+    "dependency_refs_defined": true,
+    "evidence_refs_sanitized": true,
+    "governance_refs_defined": true,
+    "loop_health_refs_defined": true,
+    "next_cycle_trigger_refs_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "refresh_closeout_ready": true
+  },
+  "operating_loop_evidence_refs": [
+    "evidence://phase8/public-scorecard-operating-loop-index/source-refresh-closeout",
+    "evidence://phase8/public-scorecard-operating-loop-index/dependency-index",
+    "evidence://phase8/public-scorecard-operating-loop-index/cadence",
+    "evidence://phase8/public-scorecard-operating-loop-index/loop-health",
+    "evidence://phase8/public-scorecard-operating-loop-index/archive",
+    "evidence://phase8/public-scorecard-operating-loop-index/next-cycle-triggers",
+    "evidence://phase8/public-scorecard-operating-loop-index/governance"
+  ],
+  "operating_loop_index_id": "cavra-live-customer-lifecycle-phase8-public-scorecard-operating-loop-index",
+  "operating_loop_owner_refs": {
+    "communications_owner_ref": "evidence://owner/communications",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "product_owner_ref": "evidence://owner/product-management",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "refresh_closeout_ref": "evidence://customer-lifecycle-phase8-public-scorecard-refresh-closeout/r7",
+  "refresh_closeout_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard refresh closeout schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 public scorecard refresh closeout supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "refresh_checkpoint_ref is a sanitized reference.",
+        "name": "refresh_checkpoint_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard refresh checkpoint is ready.",
+        "name": "refresh_checkpoint_result",
+        "status": "pass"
+      },
+      {
+        "message": "refresh_closeout_owner_refs are present and sanitized.",
+        "name": "refresh_closeout_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard refresh closeout contract is complete.",
+        "name": "refresh_closeout_contract",
+        "status": "pass"
+      },
+      {
+        "message": "updated_scorecard_publication_refs are present and sanitized.",
+        "name": "updated_scorecard_publication_refs",
+        "status": "pass"
+      },
+      {
+        "message": "notification_refs are present and sanitized.",
+        "name": "notification_refs",
+        "status": "pass"
+      },
+      {
+        "message": "archive_snapshot_refs are present and sanitized.",
+        "name": "archive_snapshot_refs",
+        "status": "pass"
+      },
+      {
+        "message": "stale_resolution_refs are present and sanitized.",
+        "name": "stale_resolution_refs",
+        "status": "pass"
+      },
+      {
+        "message": "refresh_audit_closeout_refs are present and sanitized.",
+        "name": "refresh_audit_closeout_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "refresh_closeout_evidence_refs are sanitized.",
+        "name": "refresh_closeout_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard refresh closeout controls are explicit.",
+        "name": "refresh_closeout_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard refresh closeout contains sanitized refs and public-safe closeout refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_refresh_closeout": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-refresh-closeout.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-operating-loop-index.packet.v1",
+  "source_phase": "R7"
+}

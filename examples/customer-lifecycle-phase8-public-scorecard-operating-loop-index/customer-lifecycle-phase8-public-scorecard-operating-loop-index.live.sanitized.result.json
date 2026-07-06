@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard operating loop index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 public scorecard operating loop index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "refresh_closeout_ref is a sanitized reference.",
+      "name": "refresh_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard refresh closeout is ready.",
+      "name": "refresh_closeout_result",
+      "status": "pass"
+    },
+    {
+      "message": "operating_loop_owner_refs are present and sanitized.",
+      "name": "operating_loop_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard operating loop index contract is complete.",
+      "name": "operating_loop_contract",
+      "status": "pass"
+    },
+    {
+      "message": "loop_dependency_refs are present and sanitized.",
+      "name": "loop_dependency_refs",
+      "status": "pass"
+    },
+    {
+      "message": "loop_cadence_refs are present and sanitized.",
+      "name": "loop_cadence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "loop_health_refs are present and sanitized.",
+      "name": "loop_health_refs",
+      "status": "pass"
+    },
+    {
+      "message": "loop_archive_refs are present and sanitized.",
+      "name": "loop_archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "next_cycle_trigger_refs are present and sanitized.",
+      "name": "next_cycle_trigger_refs",
+      "status": "pass"
+    },
+    {
+      "message": "governance_review_refs are present and sanitized.",
+      "name": "governance_review_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "operating_loop_evidence_refs are sanitized.",
+      "name": "operating_loop_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard operating loop index controls are explicit.",
+      "name": "operating_loop_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard operating loop index contains sanitized refs and public-safe loop refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_operating_loop_index": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-operating-loop-index.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

@@ -1,0 +1,39 @@
+name: Customer Lifecycle Phase 8 Public Scorecard Operating Loop Index
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-scorecard-operating-loop-index.yml"
+      - "examples/customer-lifecycle-phase8-public-scorecard-operating-loop-index/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "src/cavra/customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "tests/test_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "src/cavra/cli.py"
+  push:
+    paths:
+      - ".github/workflows/customer-lifecycle-phase8-public-scorecard-operating-loop-index.yml"
+      - "examples/customer-lifecycle-phase8-public-scorecard-operating-loop-index/**"
+      - "scripts/validate_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "src/cavra/customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "tests/test_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py"
+      - "src/cavra/cli.py"
+  workflow_dispatch:
+
+jobs:
+  validate-phase8-public-scorecard-operating-loop-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Phase 8 public scorecard operating loop index packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py --packet examples/customer-lifecycle-phase8-public-scorecard-operating-loop-index/customer-lifecycle-phase8-public-scorecard-operating-loop-index.sample.json --repo-root .
+      - name: Validate live sanitized Phase 8 public scorecard operating loop index packet
+        run: python scripts/validate_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py --packet examples/customer-lifecycle-phase8-public-scorecard-operating-loop-index/customer-lifecycle-phase8-public-scorecard-operating-loop-index.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py tests/test_customer_lifecycle_phase8_public_scorecard_refresh_closeout.py -q
+      - name: Lint Phase 8 public scorecard operating loop index surfaces
+        run: python -m ruff check src/cavra/customer_lifecycle_phase8_public_scorecard_operating_loop_index.py scripts/validate_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py tests/test_customer_lifecycle_phase8_public_scorecard_operating_loop_index.py src/cavra/cli.py
