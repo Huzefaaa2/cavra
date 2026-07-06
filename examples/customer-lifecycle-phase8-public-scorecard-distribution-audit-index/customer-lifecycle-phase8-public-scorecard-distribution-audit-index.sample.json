@@ -1,0 +1,297 @@
+{
+  "archive_handoff_refs": {
+    "audit_index_archive_ref": "sample://phase8/public-scorecard-distribution-audit-index/archive/audit-index",
+    "distribution_archive_manifest_ref": "sample://phase8/public-scorecard-distribution-audit-index/archive/distribution-manifest",
+    "evidence_room_handoff_ref": "sample://phase8/public-scorecard-distribution-audit-index/archive/evidence-room-handoff",
+    "immutable_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/archive/immutable-snapshot"
+  },
+  "audit_index_contract": {
+    "archive_handoff_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/archive-handoff-index",
+    "delivery_proof_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/delivery-proof-index",
+    "distribution_audit_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/index",
+    "link_check_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-check-index",
+    "next_review_ref": "sample://phase8/public-scorecard-distribution-audit-index/next-review",
+    "publication_snapshot_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/publication-snapshot-index",
+    "redaction_scan_index_ref": "sample://phase8/public-scorecard-distribution-audit-index/redaction-scan-index",
+    "redaction_status": "sanitized",
+    "source_distribution_closeout_ref": "sample://phase8/public-scorecard-distribution-audit-index/source-distribution-closeout",
+    "source_distribution_readiness_ref": "sample://phase8/public-scorecard-distribution-audit-index/source-distribution-readiness"
+  },
+  "audit_index_controls": {
+    "archive_handoff_indexed": true,
+    "ci_gates_defined": true,
+    "delivery_proofs_indexed": true,
+    "distribution_closeout_ready": true,
+    "distribution_readiness_ready": true,
+    "evidence_refs_sanitized": true,
+    "link_checks_indexed": true,
+    "next_review_defined": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "publication_snapshots_indexed": true,
+    "redaction_scans_indexed": true
+  },
+  "audit_index_evidence_refs": [
+    "sample://phase8/public-scorecard-distribution-audit-index/source-distribution-readiness",
+    "sample://phase8/public-scorecard-distribution-audit-index/source-distribution-closeout",
+    "sample://phase8/public-scorecard-distribution-audit-index/publication-snapshots",
+    "sample://phase8/public-scorecard-distribution-audit-index/delivery-proofs",
+    "sample://phase8/public-scorecard-distribution-audit-index/link-audits",
+    "sample://phase8/public-scorecard-distribution-audit-index/redaction-scans",
+    "sample://phase8/public-scorecard-distribution-audit-index/archive-handoff",
+    "sample://phase8/public-scorecard-distribution-audit-index/next-review"
+  ],
+  "audit_index_owner_refs": {
+    "audit_owner_ref": "sample://owner/audit",
+    "communications_owner_ref": "sample://owner/communications",
+    "compliance_owner_ref": "sample://owner/compliance",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_owner_ref": "sample://owner/executive-sponsor",
+    "product_owner_ref": "sample://owner/product-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "web_owner_ref": "sample://owner/web-platform"
+  },
+  "ci_gate_coverage": {
+    "archive_handoff_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/archive-handoff-validation",
+    "delivery_proof_index_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/delivery-proof-index-validation",
+    "link_audit_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/link-audit-validation",
+    "next_review_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/next-review-validation",
+    "publication_snapshot_index_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/publication-snapshot-index-validation",
+    "redaction_scan_index_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/redaction-scan-index-validation",
+    "source_distribution_closeout_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/source-distribution-closeout-validation",
+    "source_distribution_readiness_validation": "sample://ci/phase8/public-scorecard-distribution-audit-index/source-distribution-readiness-validation"
+  },
+  "delivery_proof_refs": {
+    "customer_success_notification_proof_ref": "sample://phase8/public-scorecard-distribution-audit-index/delivery-proof/customer-success",
+    "public_status_notification_proof_ref": "sample://phase8/public-scorecard-distribution-audit-index/delivery-proof/public-status",
+    "release_notification_proof_ref": "sample://phase8/public-scorecard-distribution-audit-index/delivery-proof/release",
+    "security_notification_proof_ref": "sample://phase8/public-scorecard-distribution-audit-index/delivery-proof/security"
+  },
+  "dependency_refs": {
+    "distribution_closeout_ref": "sample://phase8/public-scorecard-distribution-audit-index/dependency/distribution-closeout",
+    "distribution_readiness_ref": "sample://phase8/public-scorecard-distribution-audit-index/dependency/distribution-readiness",
+    "executive_summary_closeout_ref": "sample://phase8/public-scorecard-distribution-audit-index/dependency/executive-summary-closeout",
+    "public_scorecard_operating_loop_ref": "sample://phase8/public-scorecard-distribution-audit-index/dependency/operating-loop-index"
+  },
+  "distribution_audit_index_id": "cavra-sample-customer-lifecycle-phase8-public-scorecard-distribution-audit-index",
+  "distribution_closeout_ref": "sample://customer-lifecycle-phase8-public-scorecard-distribution-closeout/r7",
+  "distribution_closeout_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard distribution closeout schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 public scorecard distribution closeout validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "distribution_readiness_ref is a sanitized reference.",
+        "name": "distribution_readiness_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard distribution readiness validates shape but is not live.",
+        "name": "distribution_readiness_result",
+        "status": "warn"
+      },
+      {
+        "message": "closeout_owner_refs are present and sanitized.",
+        "name": "closeout_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution closeout contract is complete.",
+        "name": "closeout_contract",
+        "status": "pass"
+      },
+      {
+        "message": "published_channel_refs are present and sanitized.",
+        "name": "published_channel_refs",
+        "status": "pass"
+      },
+      {
+        "message": "notification_delivery_refs are present and sanitized.",
+        "name": "notification_delivery_refs",
+        "status": "pass"
+      },
+      {
+        "message": "link_check_refs are present and sanitized.",
+        "name": "link_check_refs",
+        "status": "pass"
+      },
+      {
+        "message": "archive_snapshot_refs are present and sanitized.",
+        "name": "archive_snapshot_refs",
+        "status": "pass"
+      },
+      {
+        "message": "redaction_closeout_refs are present and sanitized.",
+        "name": "redaction_closeout_refs",
+        "status": "pass"
+      },
+      {
+        "message": "audit_handoff_refs are present and sanitized.",
+        "name": "audit_handoff_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "closeout_evidence_refs are sanitized.",
+        "name": "closeout_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution closeout controls are explicit.",
+        "name": "closeout_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard distribution closeout contains sanitized refs and public-safe closeout refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_closeout": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-closeout.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "distribution_readiness_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard distribution readiness schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 public scorecard distribution readiness validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "executive_summary_closeout_ref is a sanitized reference.",
+        "name": "executive_summary_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source public scorecard executive summary closeout validates shape but is not live.",
+        "name": "executive_summary_closeout_result",
+        "status": "warn"
+      },
+      {
+        "message": "distribution_owner_refs are present and sanitized.",
+        "name": "distribution_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution readiness contract is complete.",
+        "name": "distribution_contract",
+        "status": "pass"
+      },
+      {
+        "message": "channel_refs are present and sanitized.",
+        "name": "channel_refs",
+        "status": "pass"
+      },
+      {
+        "message": "audience_refs are present and sanitized.",
+        "name": "audience_refs",
+        "status": "pass"
+      },
+      {
+        "message": "notification_refs are present and sanitized.",
+        "name": "notification_refs",
+        "status": "pass"
+      },
+      {
+        "message": "linkage_refs are present and sanitized.",
+        "name": "linkage_refs",
+        "status": "pass"
+      },
+      {
+        "message": "archive_refs are present and sanitized.",
+        "name": "archive_refs",
+        "status": "pass"
+      },
+      {
+        "message": "redaction_refs are present and sanitized.",
+        "name": "redaction_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "distribution_evidence_refs are sanitized.",
+        "name": "distribution_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard distribution readiness controls are explicit.",
+        "name": "distribution_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard distribution readiness contains sanitized refs and public-safe distribution refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_readiness": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-readiness.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "evidence_mode": "sample",
+  "link_audit_refs": {
+    "product_website_link_audit_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-audit/product-website",
+    "readme_link_audit_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-audit/readme",
+    "sandbox_link_audit_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-audit/sandbox",
+    "trial_field_guide_link_audit_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-audit/trial-field-guide",
+    "wiki_link_audit_ref": "sample://phase8/public-scorecard-distribution-audit-index/link-audit/wiki"
+  },
+  "next_review_refs": {
+    "next_audit_review_ref": "sample://phase8/public-scorecard-distribution-audit-index/next-review/audit-review",
+    "next_refresh_trigger_ref": "sample://phase8/public-scorecard-distribution-audit-index/next-review/refresh-trigger",
+    "owner_ack_ref": "sample://phase8/public-scorecard-distribution-audit-index/next-review/owner-ack",
+    "roadmap_followup_ref": "sample://phase8/public-scorecard-distribution-audit-index/next-review/roadmap-followup"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "publication_snapshot_refs": {
+    "email_update_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/snapshot/email-update",
+    "github_readme_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/snapshot/github-readme",
+    "github_wiki_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/snapshot/github-wiki",
+    "product_website_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/snapshot/product-website",
+    "status_page_snapshot_ref": "sample://phase8/public-scorecard-distribution-audit-index/snapshot/status-page"
+  },
+  "redaction_scan_refs": {
+    "commercial_terms_scan_ref": "sample://phase8/public-scorecard-distribution-audit-index/redaction/commercial-terms-scan",
+    "customer_identity_scan_ref": "sample://phase8/public-scorecard-distribution-audit-index/redaction/customer-identity-scan",
+    "private_material_scan_ref": "sample://phase8/public-scorecard-distribution-audit-index/redaction/private-material-scan",
+    "public_boundary_scan_ref": "sample://phase8/public-scorecard-distribution-audit-index/redaction/public-boundary-scan"
+  },
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-audit-index.packet.v1",
+  "source_phase": "R7"
+}

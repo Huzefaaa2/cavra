@@ -1,0 +1,103 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard distribution audit index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 public scorecard distribution audit index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "distribution_closeout_ref is a sanitized reference.",
+      "name": "distribution_closeout_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard distribution readiness is ready.",
+      "name": "distribution_readiness_result",
+      "status": "pass"
+    },
+    {
+      "message": "Source public scorecard distribution closeout is ready.",
+      "name": "distribution_closeout_result",
+      "status": "pass"
+    },
+    {
+      "message": "audit_index_owner_refs are present and sanitized.",
+      "name": "audit_index_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution audit index contract is complete.",
+      "name": "audit_index_contract",
+      "status": "pass"
+    },
+    {
+      "message": "dependency_refs are present and sanitized.",
+      "name": "dependency_refs",
+      "status": "pass"
+    },
+    {
+      "message": "publication_snapshot_refs are present and sanitized.",
+      "name": "publication_snapshot_refs",
+      "status": "pass"
+    },
+    {
+      "message": "delivery_proof_refs are present and sanitized.",
+      "name": "delivery_proof_refs",
+      "status": "pass"
+    },
+    {
+      "message": "link_audit_refs are present and sanitized.",
+      "name": "link_audit_refs",
+      "status": "pass"
+    },
+    {
+      "message": "redaction_scan_refs are present and sanitized.",
+      "name": "redaction_scan_refs",
+      "status": "pass"
+    },
+    {
+      "message": "archive_handoff_refs are present and sanitized.",
+      "name": "archive_handoff_refs",
+      "status": "pass"
+    },
+    {
+      "message": "next_review_refs are present and sanitized.",
+      "name": "next_review_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "audit_index_evidence_refs are sanitized.",
+      "name": "audit_index_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard distribution audit index controls are explicit.",
+      "name": "audit_index_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard distribution audit index contains sanitized refs and public-safe audit refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_distribution_audit_index": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-distribution-audit-index.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
