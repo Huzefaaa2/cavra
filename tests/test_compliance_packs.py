@@ -131,3 +131,11 @@ def test_enterprise_compliance_pack_workflow_runs_require_live_gate() -> None:
     assert "Validate live compliance mapping-pack packet" in workflow
     assert "--require-live" in workflow
     assert "examples/compliance/enterprise-compliance-packs.live.sanitized.example.json" in workflow
+
+
+def test_enterprise_compliance_pack_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/compliance-packs-r3-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/compliance/enterprise-compliance-packs.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_compliance_mapping" in closeout
+    assert "R3.4 Handoff" in closeout

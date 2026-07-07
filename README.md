@@ -213,6 +213,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Immutable Append-Only Audit Log](docs/immutable-append-only-audit-log.md)
 - [CAVRA Enterprise Immutable Append-Only Audit Log R3.2 Closeout](docs/audit-log-r3-closeout.md)
 - [CAVRA Enterprise Compliance Mapping Packs](docs/enterprise-compliance-mapping-packs.md)
+- [CAVRA Enterprise Compliance Mapping Packs R3.3 Closeout](docs/compliance-packs-r3-closeout.md)
 - [CAVRA Enterprise Reporting Exports](docs/enterprise-reporting-exports.md)
 - [CAVRA Connector SDK And Certification](docs/connector-sdk-certification.md)
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)

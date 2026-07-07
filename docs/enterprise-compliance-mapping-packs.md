@@ -1,5 +1,7 @@
 # Enterprise Compliance Mapping Packs
 
+Last updated: 2026-07-07
+
 CAVRA Enterprise compliance mapping packs convert runtime evidence and AISPM findings into clause-level control mappings for auditor, CISO, board, and customer-success workflows.
 
 R3.3 adds a public-safe contract for five required framework packs:
@@ -11,6 +13,8 @@ R3.3 adds a public-safe contract for five required framework packs:
 - EU AI Act
 
 The public repository includes representative clause mappings and deterministic finding-to-clause tests. Customer-specific control narratives, legal interpretations, and live evidence rooms remain deployment-specific Enterprise operating evidence.
+
+R3.3 is public-repository complete. The closeout boundary is documented in [CAVRA Enterprise Compliance Mapping Packs R3.3 Closeout](compliance-packs-r3-closeout.md). Customer-specific legal interpretations, approved exceptions, private AISPM findings, evidence-room references, and auditor handoff notes remain Managed or Enterprise deployment evidence.
 
 ## What Is Implemented
 
@@ -73,3 +77,5 @@ For `ready_for_enterprise_live_compliance_mapping: true`, the live packet must p
 ## Operating Boundary
 
 The public CAVRA repository ships the contract, schema, sample packs, tests, and public-safe readiness evidence. Production Enterprise deployments must attach their own legal review, customer control mappings, evidence room references, approved exception register, and auditor handoff evidence.
+
+Public completion means the mapper, registry, readiness contract, samples, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means the customer-specific legal review and auditor evidence room have been attached to the live deployment.

@@ -35,7 +35,7 @@ New Enterprise contract references: [Zero-Trust Scanner Agent](Zero-Trust-Scanne
 
 For Phase 2 implementation, use [Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md), [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md), [Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout.md), [Tenant Workspace Persistence](Tenant-Workspace-Persistence.md), and [Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout.md).
 
-For Phase 3 evidence trust implementation, use [Enterprise KMS/HSM Evidence Custody](Enterprise-KMS-HSM-Evidence-Custody.md), [Enterprise KMS/HSM Evidence Custody R3.1 Closeout](Enterprise-KMS-HSM-Evidence-Custody-R3.1-Closeout.md), [Enterprise Immutable Append-Only Audit Log](Enterprise-Immutable-Append-Only-Audit-Log.md), [Enterprise Immutable Append-Only Audit Log R3.2 Closeout](Enterprise-Immutable-Append-Only-Audit-Log-R3.2-Closeout.md), and [Enterprise Compliance Mapping Packs](Enterprise-Compliance-Mapping-Packs.md).
+For Phase 3 evidence trust implementation, use [Enterprise KMS/HSM Evidence Custody](Enterprise-KMS-HSM-Evidence-Custody.md), [Enterprise KMS/HSM Evidence Custody R3.1 Closeout](Enterprise-KMS-HSM-Evidence-Custody-R3.1-Closeout.md), [Enterprise Immutable Append-Only Audit Log](Enterprise-Immutable-Append-Only-Audit-Log.md), [Enterprise Immutable Append-Only Audit Log R3.2 Closeout](Enterprise-Immutable-Append-Only-Audit-Log-R3.2-Closeout.md), [Enterprise Compliance Mapping Packs](Enterprise-Compliance-Mapping-Packs.md), and [Enterprise Compliance Mapping Packs R3.3 Closeout](Enterprise-Compliance-Mapping-Packs-R3.3-Closeout.md).
 
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
