@@ -131,3 +131,11 @@ def test_connector_sdk_workflow_runs_require_live_gate() -> None:
     assert "--require-live" in workflow
     assert "examples/connectors/enterprise-connector-sdk.live.sanitized.example.json" in workflow
     assert all(suite in workflow for suite in REQUIRED_TEST_SUITES)
+
+
+def test_connector_sdk_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/connector-sdk-r4-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/connectors/enterprise-connector-sdk.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_connector_certification" in closeout
+    assert "R4.2 Handoff" in closeout

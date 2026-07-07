@@ -1,8 +1,12 @@
 # Connector SDK And Certification
 
+Last updated: 2026-07-08
+
 CAVRA R4.1 introduces a public connector SDK contract and certification harness. It standardizes how connectors describe capabilities, authentication, runtime defaults, security controls, test suites, and compatibility with CAVRA API contracts.
 
 This step does not certify the full priority connector backlog. That is R4.2. R4.1 provides the stable interface and validation path those provider connectors must pass.
+
+R4.1 is public-repository complete. The closeout boundary is documented in [CAVRA Connector SDK And Certification R4.1 Closeout](connector-sdk-r4-closeout.md). Provider-specific live sandbox logs, tenant credentials, partner onboarding evidence, support ownership records, and production connector run evidence remain R4.2 or deployment-specific evidence.
 
 ## What Is Implemented
 
@@ -72,3 +76,5 @@ python3 scripts/validate_connector_sdk.py \
 ## Operating Boundary
 
 The public repository ships the SDK contract, reference manifest, validator, sample certification packet, and public-safe tests. Production certified connectors still need provider-specific live sandbox validation, credential custody, customer routing policies, support ownership, and partner onboarding evidence.
+
+Public completion means the SDK contract, reference manifest, certification validator, compatibility matrix, sample packet, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means provider-specific connectors have passed live sandbox validation and attached private evidence for credentials, routing, support ownership, and operations.

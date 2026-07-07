@@ -217,6 +217,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Reporting Exports](docs/enterprise-reporting-exports.md)
 - [CAVRA Enterprise Reporting Exports R3.4 Closeout](docs/reporting-exports-r3-closeout.md)
 - [CAVRA Connector SDK And Certification](docs/connector-sdk-certification.md)
+- [CAVRA Connector SDK And Certification R4.1 Closeout](docs/connector-sdk-r4-closeout.md)
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
 - [CAVRA Zero-Trust Scanner Agent](docs/zero-trust-scanner-agent.md)
