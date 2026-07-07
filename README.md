@@ -207,6 +207,7 @@ Start with the wiki textbook:
 - [CAVRA Tenant And Workspace Persistence](docs/tenant-workspace-persistence.md)
 - [CAVRA Tenant Persistence R2.2 Closeout](docs/tenant-persistence-r2-closeout.md)
 - [CAVRA Enterprise HA/DR Readiness](docs/enterprise-ha-dr-readiness.md)
+- [CAVRA Enterprise HA/DR R2.3 Closeout](docs/enterprise-ha-r2-closeout.md)
 - [CAVRA Enterprise KMS/HSM Evidence Custody](docs/evidence-kms-hsm-custody.md)
 - [CAVRA Enterprise Immutable Append-Only Audit Log](docs/immutable-append-only-audit-log.md)
 - [CAVRA Enterprise Compliance Mapping Packs](docs/enterprise-compliance-mapping-packs.md)

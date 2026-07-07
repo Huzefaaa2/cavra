@@ -135,6 +135,7 @@ close out the trial without leaving stale package or license access behind.
 - [CAVRA Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md)
 - [CAVRA Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout.md)
 - [CAVRA Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout.md)
+- [CAVRA Enterprise HA/DR R2.3 Closeout](Enterprise-HA-DR-R2.3-Closeout.md)
 - [CAVRA CISO And Enterprise Trust Pack](https://github.com/Huzefaaa2/cavra/blob/main/docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](https://github.com/Huzefaaa2/cavra/blob/main/docs/governance/maintainer-governance.md)
 - [CAVRA Maintainer Onboarding](Maintainer-Onboarding.md)

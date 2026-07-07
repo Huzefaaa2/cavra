@@ -1,6 +1,6 @@
 # CAVRA Enterprise HA/DR Readiness
 
-Last updated: 2026-07-04
+Last updated: 2026-07-07
 
 This page defines the R2.3 public-safe high availability, disaster recovery, and data residency contract for CAVRA Enterprise and Managed deployments.
 
@@ -149,7 +149,13 @@ python3 -m pytest tests/test_enterprise_ha.py -q
 
 ## Completion Criteria
 
-R2.3 is production-complete only when the live packet returns:
+R2.3 is public-repository complete. The public code exposes and validates the HA/DR contract, sample packet, sanitized live-mode packet, strict workflow, Azure evidence map runbook, RTO/RPO checks, failover checks, restore checks, health endpoint checks, monitor alert checks, data residency checks, and immutable evidence-store checks.
+
+Real cloud topology, runtime failover logs, restore transcripts, monitor alert histories, private network details, database identifiers, and customer residency evidence remain deployment-specific and belong in private Managed or Enterprise evidence rooms.
+
+See [Enterprise HA/DR R2.3 Closeout](enterprise-ha-r2-closeout.md) for the completion boundary.
+
+Production deployment readiness requires a private live packet that returns:
 
 ```json
 {
@@ -159,7 +165,7 @@ R2.3 is production-complete only when the live packet returns:
 }
 ```
 
-Until then, the public contract is implemented but the Enterprise deployment remains pending live HA/DR evidence.
+Until then, the public contract is complete but the Enterprise deployment remains pending private live HA/DR evidence.
 
 ## AISPM Production Gate Link
 

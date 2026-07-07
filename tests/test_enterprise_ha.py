@@ -95,3 +95,11 @@ def test_enterprise_ha_workflow_runs_require_live_gate() -> None:
     assert "Validate live HA/DR packet" in workflow
     assert "--require-live" in workflow
     assert "examples/operations/enterprise-ha-readiness.live.sanitized.example.json" in workflow
+
+
+def test_enterprise_ha_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/enterprise-ha-r2-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/operations/enterprise-ha-readiness.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_ha" in closeout
+    assert "R3.1 And R3.2 Handoff" in closeout
