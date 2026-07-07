@@ -219,6 +219,7 @@ Start with the wiki textbook:
 - [CAVRA Connector SDK And Certification](docs/connector-sdk-certification.md)
 - [CAVRA Connector SDK And Certification R4.1 Closeout](docs/connector-sdk-r4-closeout.md)
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)
+- [CAVRA Priority Certified Connectors R4.2 Closeout](docs/priority-connectors-r4-closeout.md)
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
 - [CAVRA Zero-Trust Scanner Agent](docs/zero-trust-scanner-agent.md)
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)

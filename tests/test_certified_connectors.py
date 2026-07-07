@@ -136,3 +136,19 @@ def test_priority_connector_request_specs_require_auth() -> None:
         assert "connector github must configure" in str(exc)
     else:
         raise AssertionError("expected missing GitHub connector credentials to fail")
+
+
+def test_priority_connector_workflow_runs_require_live_gate() -> None:
+    workflow = Path(".github/workflows/priority-connectors.yml").read_text(encoding="utf-8")
+
+    assert "Validate sanitized live packet" in workflow
+    assert "--require-live" in workflow
+    assert "examples/connectors/enterprise-priority-connectors.live.sanitized.example.json" in workflow
+
+
+def test_priority_connector_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/priority-connectors-r4-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/connectors/enterprise-priority-connectors.live.sanitized.example.json" in closeout
+    assert "ready_for_live_priority_connectors" in closeout
+    assert "R4.3 Handoff" in closeout

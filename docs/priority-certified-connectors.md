@@ -1,6 +1,10 @@
 # Priority Certified Connectors
 
+Last updated: 2026-07-08
+
 CAVRA R4.2 adds a public-safe certified connector registry for the first priority provider wave. It builds on the R4.1 connector SDK and covers SCM, CI/CD, SIEM, ITSM, and ChatOps providers.
+
+R4.2 is public-repository complete. The closeout boundary is documented in [CAVRA Priority Certified Connectors R4.2 Closeout](priority-connectors-r4-closeout.md). Tenant credentials, provider sandbox transcripts, firewall allowlisting, token rotation proof, support ownership, and production connector run evidence remain deployment-specific evidence.
 
 ## Certified Provider Set
 
@@ -57,3 +61,5 @@ python3 scripts/validate_priority_connectors.py \
 ## Operating Boundary
 
 The public repository now certifies the manifest contract, provider coverage, compatibility matrix, request-spec generation, credential redaction behavior, and readiness packet shape. Customer production use still requires tenant-specific credential custody, provider sandbox evidence, firewall allowlisting, webhook or token rotation, and support ownership records.
+
+Public completion means the registry, provider manifests, SDK-compatible validation, compatibility matrix, sample packet, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means each customer deployment attaches real provider sandbox validation, credentials custody, routing, allowlisting, token rotation, monitoring, and support evidence.
