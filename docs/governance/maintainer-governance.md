@@ -1,8 +1,10 @@
 # CAVRA Maintainer Governance
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
-This document implements the Phase 1 governance baseline for CAVRA. It reduces bus-factor risk by defining review ownership, maintainer onboarding, decision records, and security-sensitive change gates. It does not claim that the project already has multiple active maintainers; that remains an explicit roadmap follow-up until additional maintainers are onboarded.
+This document implements the Phase 1 governance baseline for CAVRA. It reduces bus-factor risk by defining review ownership, maintainer onboarding, decision records, release cadence, and security-sensitive change gates.
+
+R1.2 completion means the repository has the public governance system required to onboard and manage additional maintainers. It does not claim that multiple named human maintainers have already been assigned; named maintainer assignment remains a repository administration action that follows [Maintainer Onboarding](maintainer-onboarding.md).
 
 ## Maintainer Roles
 
@@ -37,6 +39,8 @@ The following changes require at least one Project Maintainer and one Security M
 7. Confirm no private customer data, credentials, private keys, or Enterprise source code are included in public docs or examples.
 8. Receive CODEOWNERS assignment for a bounded area.
 
+Use [Maintainer Onboarding](maintainer-onboarding.md) for the full stage model, public-safety rules, graduation criteria, and CODEOWNERS update rules.
+
 ## Review Rules
 
 - Every PR must have a clear product area, risk level, test evidence, and documentation impact.
@@ -59,3 +63,15 @@ An RFC is required for:
 - public API breaking changes.
 
 Use [RFC Process](rfc-process.md) for template and approval flow.
+
+## Release Cadence
+
+CAVRA release governance follows [Release Cadence](release-cadence.md). The short form is:
+
+- weekly issue, security, release, docs, roadmap, and dependency triage;
+- biweekly roadmap status review;
+- monthly Community and public Enterprise contract release-readiness review;
+- quarterly maintainer coverage, CODEOWNERS, RFC, and trust-documentation review;
+- emergency security releases with security review, regression evidence, and advisory tracking.
+
+Roadmap rows should be marked `Completed` only when implementation evidence, docs, and validation commands are present.

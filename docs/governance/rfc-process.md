@@ -1,6 +1,6 @@
 # CAVRA RFC Process
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
 The RFC process governs architecture changes that affect CAVRA's decision, identity, evidence, posture, connector, scanner, or API surfaces.
 
@@ -49,6 +49,44 @@ Examples:
 docs/governance/rfcs/2026-001-tenant-isolation.md
 docs/governance/rfcs/2026-002-kms-evidence-signing.md
 docs/governance/rfcs/2026-003-zero-trust-scanner-agent.md
+```
+
+## Lightweight RFC Template
+
+```markdown
+# RFC YYYY-NNN: Title
+
+Status: Draft
+Owners:
+Roadmap mapping:
+
+## Summary
+
+## Problem Statement
+
+## Threat Model
+
+## Public/Private Boundary
+
+## Compatibility
+
+## Migration
+
+## Observability And Evidence
+
+## Test Plan
+
+## Alternatives Considered
+
+## Rollout And Rollback
+
+## Approval Checklist
+
+- [ ] Project Maintainer
+- [ ] Security Maintainer, if security-sensitive
+- [ ] API Maintainer, if API surface changes
+- [ ] Documentation Maintainer, if public docs change
+- [ ] Release Maintainer, if release process changes
 ```
 
 ## Roadmap Status Updates

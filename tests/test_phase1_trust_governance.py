@@ -15,9 +15,21 @@ PHASE1_REQUIRED_FILES = {
         "Security-Sensitive Change Classes",
         "Maintainer Onboarding Checklist",
         "RFC Requirement",
+        "Release Cadence",
+    ],
+    "docs/governance/maintainer-onboarding.md": [
+        "Onboarding Stages",
+        "CODEOWNERS Update Rules",
+        "R1.2 Completion Boundary",
+    ],
+    "docs/governance/release-cadence.md": [
+        "Release Types",
+        "Cadence",
+        "Roadmap Hygiene",
     ],
     "docs/governance/rfc-process.md": [
         "RFC Lifecycle",
+        "Lightweight RFC Template",
         "Threat model",
         "Roadmap Status Updates",
     ],
