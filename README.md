@@ -221,6 +221,7 @@ Start with the wiki textbook:
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)
 - [CAVRA Priority Certified Connectors R4.2 Closeout](docs/priority-connectors-r4-closeout.md)
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
+- [CAVRA Model Registry Connectors R4.3 Closeout](docs/model-registry-connectors-r4-closeout.md)
 - [CAVRA Zero-Trust Scanner Agent](docs/zero-trust-scanner-agent.md)
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)
 - [CAVRA Policy Lifecycle Tooling](docs/policy-lifecycle-tooling.md)

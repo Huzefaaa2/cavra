@@ -127,3 +127,20 @@ def test_model_registry_live_sanitized_packet_passes_live_gate() -> None:
     assert result["ready_for_live_model_registry_connectors"] is True
     assert result["status"] == "ready"
     assert result["blocker_count"] == 0
+
+
+def test_model_registry_workflow_runs_require_live_gate() -> None:
+    workflow = Path(".github/workflows/model-registry-connectors.yml").read_text(encoding="utf-8")
+
+    assert "Validate sanitized live packet" in workflow
+    assert "--require-live" in workflow
+    assert "examples/model-registries/enterprise-model-registry-connectors.live.sanitized.example.json" in workflow
+
+
+def test_model_registry_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/model-registry-connectors-r4-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/model-registries/enterprise-model-registry-connectors.live.sanitized.example.json" in closeout
+    assert "ready_for_live_model_registry_connectors" in closeout
+    assert "no-raw-model-egress" in closeout
+    assert "R4.4 Handoff" in closeout

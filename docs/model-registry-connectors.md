@@ -1,6 +1,10 @@
 # Model Registry Connectors
 
+Last updated: 2026-07-08
+
 CAVRA R4.3 adds model registry connectors that work by reference. They collect metadata, hashes, lineage, owner, risk tier, and evidence references without exporting raw model bytes, weights, training data, prompts, private features, or raw artifacts.
+
+R4.3 is public-repository complete. The closeout boundary is documented in [CAVRA Model Registry Connectors R4.3 Closeout](model-registry-connectors-r4-closeout.md). Customer registry credentials, private owner maps, registry sandbox transcripts, scanner deployment evidence, token rotation proof, and production registry run evidence remain deployment-specific evidence.
 
 ## Certified Provider Set
 
@@ -63,3 +67,5 @@ python3 scripts/validate_model_registry_connectors.py \
 ## Operating Boundary
 
 The public repository certifies the manifest contract, metadata-only payload shape, no-raw-model-egress behavior, compatibility metadata, and readiness packet structure. Customer deployments still provide real registry credentials, tenant scoping, private model-owner mapping, registry sandbox evidence, and zero-trust scanner evidence when required.
+
+Public completion means the registry, provider manifests, SDK-compatible validation, compatibility matrix, metadata-only event builder, raw-egress negative test, sample packet, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means each customer deployment attaches real registry sandbox validation, credential custody, private ownership mapping, artifact access controls, token rotation, scanner deployment evidence, monitoring, and support evidence.
