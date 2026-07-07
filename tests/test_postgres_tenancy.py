@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -22,6 +24,8 @@ from cavra.postgres_tenancy import (
     postgres_table_for_source,
 )
 from cavra.tenancy import SQLiteTenantWorkspaceStore, TenantWorkspaceStore
+
+LIVE_RLS_SANITIZED = Path("examples/postgres/enterprise-postgres-rls-smoke.live.sanitized.example.json")
 
 
 def test_postgres_rls_contract() -> None:
@@ -83,6 +87,31 @@ def test_postgres_rls_smoke_plan_defines_positive_and_negative_scopes() -> None:
     assert plan["positive_scope"] == {"tenant_id": "tenant-a", "workspace_id": "prod"}
     assert plan["negative_scope"] == {"tenant_id": "tenant-b", "workspace_id": "prod"}
     assert "tenant_b_cannot_read_tenant_a_workspace_a" in plan["required_negative_assertions"]
+
+
+def test_postgres_rls_sanitized_live_packet_validates(tmp_path: Path) -> None:
+    result_path = tmp_path / "postgres-rls-smoke-live-sanitized-result.json"
+
+    subprocess.run(
+        [
+            "python3",
+            "scripts/validate_postgres_tenant_rls_smoke.py",
+            "--packet",
+            str(LIVE_RLS_SANITIZED),
+            "--require-live",
+            "--output",
+            str(result_path),
+        ],
+        check=True,
+    )
+
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["packet_validated"] is True
+    assert result["live_rls_smoke_tested"] is True
+    assert result["dsn_value_included"] is False
+    assert result["positive_count"] == 1
+    assert result["negative_count"] == 0
+    assert result["validation_failures"] == []
 
 
 def test_postgres_rls_migration_sql_contains_required_tables_and_policies() -> None:

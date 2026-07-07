@@ -1,0 +1,50 @@
+{
+  "schema_version": "cavra.postgres_tenant_rls.smoke.v1",
+  "product": "CAVRA",
+  "status": "pass",
+  "live_rls_smoke_tested": true,
+  "message": "Postgres tenant RLS smoke passed in a sanitized Enterprise validation run.",
+  "dsn_env": "CAVRA_ENTERPRISE_POSTGRES_DSN",
+  "dsn_value_included": false,
+  "migration_applied": true,
+  "positive_count": 1,
+  "negative_count": 0,
+  "evidence_refs": [
+    {
+      "ref": "evidence://enterprise/postgres-rls-smoke/2026-07-07/sanitized",
+      "public_safe": true,
+      "redaction": "dsn, host, username, database name, and tenant display names redacted"
+    },
+    {
+      "ref": "evidence://enterprise/postgres-rls-smoke/2026-07-07/runtime-role",
+      "public_safe": true,
+      "redaction": "runtime role identifier hashed"
+    }
+  ],
+  "plan": {
+    "schema_version": "cavra.postgres_tenant_rls.smoke.v1",
+    "product": "CAVRA",
+    "purpose": "Live private Postgres RLS positive and negative smoke validation plan.",
+    "positive_scope": {
+      "tenant_id": "tenant-live-a",
+      "workspace_id": "workspace-prod"
+    },
+    "negative_scope": {
+      "tenant_id": "tenant-live-b",
+      "workspace_id": "workspace-prod"
+    },
+    "steps": [
+      "Apply the Postgres migration contract before running smoke checks.",
+      "Open a transaction as the application runtime role.",
+      "Apply tenant A/workspace A using set_config(..., true).",
+      "Write a tenant A/workspace A smoke row and verify it is readable.",
+      "Switch to tenant B/workspace B in a new transaction using the same runtime role.",
+      "Verify tenant B/workspace B cannot read tenant A/workspace A smoke rows.",
+      "Record the sanitized packet as AISPM production readiness evidence."
+    ],
+    "required_negative_assertions": [
+      "tenant_b_cannot_read_tenant_a_workspace_a",
+      "workspace_b_cannot_read_workspace_a"
+    ]
+  }
+}

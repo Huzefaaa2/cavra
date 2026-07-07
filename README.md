@@ -205,6 +205,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Live Identity Validation](docs/enterprise-live-identity-validation.md)
 - [CAVRA Enterprise Identity R2.1 Closeout](docs/enterprise-identity-r2-closeout.md)
 - [CAVRA Tenant And Workspace Persistence](docs/tenant-workspace-persistence.md)
+- [CAVRA Tenant Persistence R2.2 Closeout](docs/tenant-persistence-r2-closeout.md)
 - [CAVRA Enterprise HA/DR Readiness](docs/enterprise-ha-dr-readiness.md)
 - [CAVRA Enterprise KMS/HSM Evidence Custody](docs/evidence-kms-hsm-custody.md)
 - [CAVRA Enterprise Immutable Append-Only Audit Log](docs/immutable-append-only-audit-log.md)

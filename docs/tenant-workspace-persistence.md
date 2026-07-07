@@ -1,6 +1,6 @@
 # CAVRA Tenant And Workspace Persistence
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
 This page defines the first R2.2 tenant/workspace persistence contract for CAVRA. It is a public-safe foundation for tenant isolation, workspace scoping, and later production database migration.
 
@@ -136,11 +136,21 @@ The packet intentionally reports `dsn_value_included: false`. A passing live res
 - tenant B/workspace B cannot read tenant A/workspace A smoke rows with the same runtime role;
 - the sanitized packet is attached to the AISPM production readiness evidence room.
 
+The public repo also includes a sanitized live-style packet example. It proves the public validation path without exposing a DSN, host, username, database name, or tenant display names:
+
+```bash
+python3 scripts/validate_postgres_tenant_rls_smoke.py \
+  --packet examples/postgres/enterprise-postgres-rls-smoke.live.sanitized.example.json \
+  --require-live \
+  --output dist/test/postgres-rls-smoke-live-sanitized-result.json
+```
+
 ## Validation
 
 ```bash
 python3 scripts/validate_tenant_persistence_readiness.py
 python3 scripts/validate_postgres_tenant_rls_smoke.py --output dist/test/postgres-rls-smoke-skipped.json
+python3 scripts/validate_postgres_tenant_rls_smoke.py --packet examples/postgres/enterprise-postgres-rls-smoke.live.sanitized.example.json --require-live --output dist/test/postgres-rls-smoke-live-sanitized-result.json
 python3 -m pytest tests/test_postgres_tenancy.py tests/test_tenancy.py tests/test_activity.py tests/test_approvals.py tests/test_evidence.py tests/test_inventory.py tests/test_integrations.py -q
 ```
 
@@ -159,6 +169,10 @@ Completed in the public R2.2 foundation:
 - public Postgres/RLS DDL contract for the production operational stores;
 - JSON/SQLite to Postgres import row validation tests.
 - request-scoped Postgres session adapter and public-safe live smoke harness.
+
+R2.2 is public-repository complete. The public code exposes and validates the tenant/workspace persistence contract, JSON and SQLite reference stores, tenant-scoped operational stores, Postgres/RLS contract, request-scoped session adapter, public-safe smoke harness, and sanitized live-style RLS smoke packet. Real Postgres runtime roles, DSNs, database hosts, backup details, and customer tenant data remain deployment-specific and belong in private Managed or Enterprise evidence rooms.
+
+See [Tenant Persistence R2.2 Closeout](tenant-persistence-r2-closeout.md) for the completion boundary.
 
 Remaining Enterprise deployment work:
 

@@ -45,6 +45,7 @@ REQUIRED_TEXT = {
         "build_postgres_rls_smoke_plan",
         "dsn_value_included",
         "live_rls_smoke_tested",
+        "--packet",
         "--require-live",
     ],
     "migrations/postgres/001_tenant_scoped_operational_stores.sql": [
@@ -145,6 +146,21 @@ REQUIRED_TEXT = {
         "validate_postgres_tenant_rls_smoke.py",
         "cavra.tenant_id",
         "cavra.workspace_id",
+        "R2.2 is public-repository complete",
+        "Tenant Persistence R2.2 Closeout",
+    ],
+    "docs/tenant-persistence-r2-closeout.md": [
+        "R2.2 is closed",
+        "Sanitized live-style Postgres RLS packet",
+        "R2.3 Handoff",
+    ],
+    "examples/postgres/enterprise-postgres-rls-smoke.live.sanitized.example.json": [
+        "cavra.postgres_tenant_rls.smoke.v1",
+        "\"live_rls_smoke_tested\": true",
+        "\"dsn_value_included\": false",
+        "\"positive_count\": 1",
+        "\"negative_count\": 0",
+        "tenant_b_cannot_read_tenant_a_workspace_a",
     ],
     "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md": [
         "| R2.2 |",
@@ -172,6 +188,7 @@ REQUIRED_TEXT = {
         "RLS",
         "migrations/postgres/001_tenant_scoped_operational_stores.sql",
         "validate_postgres_tenant_rls_smoke.py",
+        "Tenant Persistence R2.2 Closeout",
     ],
 }
 

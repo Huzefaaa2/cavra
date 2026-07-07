@@ -95,6 +95,15 @@ def test_tenant_persistence_contract_and_readiness_shape() -> None:
     assert readiness["status"] == "ready"
 
 
+def test_tenant_persistence_closeout_docs_reference_sanitized_rls_packet() -> None:
+    closeout = Path("docs/tenant-persistence-r2-closeout.md").read_text(encoding="utf-8")
+    packet = Path("examples/postgres/enterprise-postgres-rls-smoke.live.sanitized.example.json")
+
+    assert str(packet) in closeout
+    assert "live_rls_smoke_tested" in closeout
+    assert "R2.3 Handoff" in closeout
+
+
 def test_tenant_ids_are_validated(tmp_path: Path) -> None:
     store = TenantWorkspaceStore(tmp_path / "tenants.json")
 

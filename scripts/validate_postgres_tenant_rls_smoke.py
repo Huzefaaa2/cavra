@@ -34,12 +34,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smoke-id", default="cavra-rls-smoke")
     parser.add_argument("--apply-migration", action="store_true", help="Apply the public migration SQL before smoke checks.")
     parser.add_argument("--require-live", action="store_true", help="Fail instead of skipping when DSN or psycopg is missing.")
+    parser.add_argument("--packet", type=Path, help="Validate a sanitized live RLS smoke packet instead of using a DSN.")
     parser.add_argument("--output", type=Path, help="Optional path for the sanitized smoke packet.")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.packet is not None:
+        packet = json.loads(args.packet.read_text(encoding="utf-8"))
+        failures = validate_smoke_packet(packet, require_live=args.require_live)
+        status = "pass" if not failures else "failed"
+        result = {
+            **packet,
+            "status": status,
+            "packet_validated": not failures,
+            "validation_failures": failures,
+        }
+        _write_packet(result, args.output)
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0 if not failures else 1
+
     dsn = os.getenv(args.dsn_env)
     if not dsn:
         packet = _packet(
@@ -82,6 +97,38 @@ def main() -> int:
     _write_packet(packet, args.output)
     print(json.dumps(packet, indent=2, sort_keys=True))
     return 0 if packet["live_rls_smoke_tested"] else 1
+
+
+def validate_smoke_packet(packet: dict[str, Any], *, require_live: bool = False) -> list[str]:
+    failures: list[str] = []
+    if packet.get("schema_version") != POSTGRES_TENANT_RLS_SMOKE_VERSION:
+        failures.append("schema_version must be cavra.postgres_tenant_rls.smoke.v1")
+    if packet.get("dsn_value_included") is not False:
+        failures.append("sanitized packet must not include a DSN value")
+    if require_live and packet.get("live_rls_smoke_tested") is not True:
+        failures.append("live_rls_smoke_tested must be true when --require-live is used")
+    if packet.get("status") != "pass":
+        failures.append("status must be pass")
+    if packet.get("positive_count") != 1:
+        failures.append("positive_count must equal 1")
+    if packet.get("negative_count") != 0:
+        failures.append("negative_count must equal 0")
+    plan = packet.get("plan")
+    if not isinstance(plan, dict):
+        failures.append("plan must be present")
+        return failures
+    if plan.get("schema_version") != POSTGRES_TENANT_RLS_SMOKE_VERSION:
+        failures.append("plan schema_version must be cavra.postgres_tenant_rls.smoke.v1")
+    required_negative_assertions = set(plan.get("required_negative_assertions", []))
+    if "tenant_b_cannot_read_tenant_a_workspace_a" not in required_negative_assertions:
+        failures.append("plan must include tenant_b_cannot_read_tenant_a_workspace_a")
+    if "workspace_b_cannot_read_workspace_a" not in required_negative_assertions:
+        failures.append("plan must include workspace_b_cannot_read_workspace_a")
+    for scope_key in ("positive_scope", "negative_scope"):
+        scope = plan.get(scope_key)
+        if not isinstance(scope, dict) or not scope.get("tenant_id") or not scope.get("workspace_id"):
+            failures.append(f"plan {scope_key} must include tenant_id and workspace_id")
+    return failures
 
 
 def run_live_smoke(connection: Any, *, args: argparse.Namespace) -> dict[str, Any]:
