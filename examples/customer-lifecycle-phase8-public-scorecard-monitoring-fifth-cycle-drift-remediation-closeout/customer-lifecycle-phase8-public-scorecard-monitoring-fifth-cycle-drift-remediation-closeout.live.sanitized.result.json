@@ -1,0 +1,98 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard monitoring fifth-cycle drift remediation closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 fifth-cycle drift remediation closeout supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "fifth_cycle_first_review_ref is a sanitized reference.",
+      "name": "fifth_cycle_first_review_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source fifth-cycle review is ready.",
+      "name": "fifth_cycle_first_review_result",
+      "status": "pass"
+    },
+    {
+      "message": "drift_remediation_owner_refs are present and sanitized.",
+      "name": "drift_remediation_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard fifth-cycle drift remediation closeout contract is complete.",
+      "name": "drift_remediation_contract",
+      "status": "pass"
+    },
+    {
+      "message": "drift_register_refs are present and sanitized.",
+      "name": "drift_register_refs",
+      "status": "pass"
+    },
+    {
+      "message": "remediation_disposition_refs are present and sanitized.",
+      "name": "remediation_disposition_refs",
+      "status": "pass"
+    },
+    {
+      "message": "accepted_risk_refs are present and sanitized.",
+      "name": "accepted_risk_refs",
+      "status": "pass"
+    },
+    {
+      "message": "public_status_update_refs are present and sanitized.",
+      "name": "public_status_update_refs",
+      "status": "pass"
+    },
+    {
+      "message": "blocker_clearance_refs are present and sanitized.",
+      "name": "blocker_clearance_refs",
+      "status": "pass"
+    },
+    {
+      "message": "remediation_archive_refs are present and sanitized.",
+      "name": "remediation_archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "owner_acknowledgement_refs are present and sanitized.",
+      "name": "owner_acknowledgement_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "drift_remediation_evidence_refs are sanitized.",
+      "name": "drift_remediation_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard fifth-cycle drift remediation closeout controls are explicit.",
+      "name": "drift_remediation_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard monitoring fifth-cycle drift remediation closeout contains sanitized refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_fifth_cycle_drift_remediation_closeout": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}

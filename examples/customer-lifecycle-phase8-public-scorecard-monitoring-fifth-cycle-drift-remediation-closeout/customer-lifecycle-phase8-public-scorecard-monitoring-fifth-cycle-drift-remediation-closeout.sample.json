@@ -1,0 +1,210 @@
+{
+  "accepted_risk_refs": {
+    "accepted_risk_expiry_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/risk/expiry",
+    "accepted_risk_owner_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/risk/owner",
+    "accepted_risk_public_boundary_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/risk/public-boundary",
+    "accepted_risk_review_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/risk/review"
+  },
+  "blocker_clearance_refs": {
+    "blocker_clearance_owner_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blockers/owner",
+    "next_cycle_blocker_register_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blockers/register",
+    "next_cycle_go_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blockers/next-cycle-go",
+    "no_unassigned_blockers_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blockers/no-unassigned"
+  },
+  "ci_gate_coverage": {
+    "accepted_risk_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/risk-validation",
+    "drift_register_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift-register-validation",
+    "next_cycle_blocker_clearance_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blocker-validation",
+    "owner_acknowledgement_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/owner-ack-validation",
+    "public_status_update_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/public-status-validation",
+    "remediation_archive_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive-validation",
+    "remediation_disposition_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/disposition-validation",
+    "source_fifth_cycle_first_review_validation": "sample://ci/phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/source-fifth-cycle-validation"
+  },
+  "drift_register_refs": {
+    "archive_freshness_drift_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift/archive-freshness",
+    "broken_link_drift_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift/broken-link",
+    "redaction_posture_drift_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift/redaction-posture",
+    "stale_scorecard_drift_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift/stale-scorecard"
+  },
+  "drift_remediation_contract": {
+    "accepted_risk_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/accepted-risk",
+    "drift_register_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift-register",
+    "fifth_cycle_drift_remediation_closeout_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/closeout",
+    "next_cycle_blocker_clearance_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/next-cycle-blockers",
+    "owner_acknowledgement_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/owner-acknowledgement",
+    "public_status_update_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/public-status-update",
+    "redaction_status": "sanitized",
+    "remediation_archive_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive",
+    "remediation_disposition_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/remediation-disposition",
+    "source_fifth_cycle_first_review_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/source-fifth-cycle-first-review"
+  },
+  "drift_remediation_controls": {
+    "accepted_risks_owned": true,
+    "ci_gates_defined": true,
+    "critical_drift_cleared": true,
+    "drift_items_dispositioned": true,
+    "drift_items_registered": true,
+    "evidence_refs_sanitized": true,
+    "fifth_cycle_first_review_ready": true,
+    "next_cycle_blockers_cleared": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_acknowledgements_complete": true,
+    "public_status_updated": true,
+    "remediation_archive_complete": true
+  },
+  "drift_remediation_evidence_refs": [
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/source-fifth-cycle-first-review",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/drift-register",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/remediation-disposition",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/accepted-risk",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/public-status-update",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/blocker-clearance",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/remediation-archive",
+    "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/owner-acknowledgement"
+  ],
+  "drift_remediation_owner_refs": {
+    "audit_owner_ref": "sample://owner/audit",
+    "communications_owner_ref": "sample://owner/communications",
+    "compliance_owner_ref": "sample://owner/compliance",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_owner_ref": "sample://owner/executive-sponsor",
+    "operations_owner_ref": "sample://owner/operations",
+    "product_owner_ref": "sample://owner/product-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "web_owner_ref": "sample://owner/web-platform"
+  },
+  "evidence_mode": "sample",
+  "fifth_cycle_first_review_ref": "sample://customer-lifecycle-phase8-public-scorecard-monitoring-fifth-cycle-first-review/r7",
+  "fifth_cycle_first_review_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard monitoring fifth-cycle first review schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 fifth-cycle first review validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "fifth_cycle_activation_closeout_ref is a sanitized reference.",
+        "name": "fifth_cycle_activation_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source fifth-cycle activation closeout validates shape but is not live.",
+        "name": "fifth_cycle_activation_closeout_result",
+        "status": "warn"
+      },
+      {
+        "message": "fifth_cycle_first_review_owner_refs are present and sanitized.",
+        "name": "fifth_cycle_first_review_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard fifth-cycle first review contract is complete.",
+        "name": "fifth_cycle_first_review_contract",
+        "status": "pass"
+      },
+      {
+        "message": "review_window_refs are present and sanitized.",
+        "name": "review_window_refs",
+        "status": "pass"
+      },
+      {
+        "message": "findings_triage_refs are present and sanitized.",
+        "name": "findings_triage_refs",
+        "status": "pass"
+      },
+      {
+        "message": "signal_review_refs are present and sanitized.",
+        "name": "signal_review_refs",
+        "status": "pass"
+      },
+      {
+        "message": "snapshot_archive_refs are present and sanitized.",
+        "name": "snapshot_archive_refs",
+        "status": "pass"
+      },
+      {
+        "message": "public_status_refresh_refs are present and sanitized.",
+        "name": "public_status_refresh_refs",
+        "status": "pass"
+      },
+      {
+        "message": "followup_owner_refs are present and sanitized.",
+        "name": "followup_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "next_review_schedule_refs are present and sanitized.",
+        "name": "next_review_schedule_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "fifth_cycle_first_review_evidence_refs are sanitized.",
+        "name": "fifth_cycle_first_review_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard fifth-cycle first review controls are explicit.",
+        "name": "fifth_cycle_first_review_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard monitoring fifth-cycle first review contains sanitized refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_fifth_cycle_first_review": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fifth-cycle-first-review.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  },
+  "monitoring_fifth_cycle_drift_remediation_closeout_id": "cavra-sample-customer-lifecycle-phase8-public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout",
+  "owner_acknowledgement_refs": {
+    "audit_owner_ack_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/ack/audit",
+    "communications_owner_ack_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/ack/communications",
+    "operations_owner_ack_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/ack/operations",
+    "security_owner_ack_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/ack/security"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "public_status_update_refs": {
+    "public_scorecard_update_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/status/scorecard",
+    "public_status_summary_update_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/status/summary",
+    "readme_status_update_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/status/readme",
+    "wiki_status_update_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/status/wiki"
+  },
+  "remediation_archive_refs": {
+    "drift_remediation_manifest_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive/manifest",
+    "fifth_cycle_first_review_archive_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive/fifth-cycle-first-review",
+    "immutable_remediation_archive_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive/immutable",
+    "public_status_update_archive_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive/public-status",
+    "remediation_disposition_archive_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/archive/disposition"
+  },
+  "remediation_disposition_refs": {
+    "accepted_risk_register_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/disposition/accepted-risk",
+    "deferred_item_register_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/disposition/deferred",
+    "no_open_critical_drift_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/disposition/no-critical-drift",
+    "remediated_item_register_ref": "sample://phase8/public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout/disposition/remediated"
+  },
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fifth-cycle-drift-remediation-closeout.packet.v1",
+  "source_phase": "R7"
+}
