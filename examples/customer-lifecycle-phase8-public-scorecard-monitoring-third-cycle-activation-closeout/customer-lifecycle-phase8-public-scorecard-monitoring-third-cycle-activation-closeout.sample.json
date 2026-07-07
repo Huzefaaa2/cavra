@@ -1,0 +1,202 @@
+{
+  "activation_archive_refs": {
+    "activation_manifest_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive/manifest",
+    "alert_route_archive_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive/alert-routes",
+    "immutable_activation_archive_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive/immutable",
+    "initial_signal_archive_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive/initial-signals",
+    "monitor_run_archive_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive/monitor-runs"
+  },
+  "alert_route_check_refs": {
+    "alert_route_smoke_test_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert/smoke-test",
+    "escalation_route_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert/escalation-ack",
+    "no_dead_route_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert/no-dead-route",
+    "on_call_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert/on-call-ack"
+  },
+  "ci_gate_coverage": {
+    "alert_route_check_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert-route-validation",
+    "cycle_start_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/cycle-start-validation",
+    "evidence_archive_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive-validation",
+    "initial_signal_capture_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/signal-validation",
+    "monitor_run_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor-validation",
+    "owner_activation_ack_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/owner-ack-validation",
+    "public_safe_activation_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/public-safe-validation",
+    "source_third_cycle_readiness_validation": "sample://ci/phase8/public-scorecard-monitoring-third-cycle-activation-closeout/source-validation"
+  },
+  "cycle_start_refs": {
+    "activation_window_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/start/window",
+    "operating_calendar_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/start/calendar",
+    "review_cadence_start_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/start/cadence",
+    "third_cycle_start_decision_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/start/decision"
+  },
+  "evidence_mode": "sample",
+  "initial_signal_refs": {
+    "archive_freshness_signal_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/signal/archive-freshness",
+    "link_health_signal_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/signal/link-health",
+    "redaction_posture_signal_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/signal/redaction-posture",
+    "scorecard_health_signal_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/signal/scorecard-health"
+  },
+  "monitor_run_refs": {
+    "archive_monitor_run_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor/archive",
+    "link_monitor_run_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor/link",
+    "redaction_monitor_run_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor/redaction",
+    "scorecard_monitor_run_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor/scorecard"
+  },
+  "monitoring_third_cycle_activation_closeout_id": "cavra-sample-customer-lifecycle-phase8-public-scorecard-monitoring-third-cycle-activation-closeout",
+  "owner_activation_ack_refs": {
+    "audit_activation_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/ack/audit",
+    "communications_activation_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/ack/communications",
+    "operations_activation_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/ack/operations",
+    "security_activation_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/ack/security"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": false,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-third-cycle-activation-closeout.packet.v1",
+  "source_phase": "R7",
+  "third_cycle_activation_contract": {
+    "alert_route_check_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert-routes",
+    "cycle_start_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/cycle-start",
+    "evidence_archive_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive",
+    "initial_signal_capture_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/initial-signals",
+    "monitor_run_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor-run",
+    "owner_activation_ack_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/owner-activation",
+    "redaction_status": "sanitized",
+    "source_third_cycle_readiness_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/source-readiness",
+    "third_cycle_activation_closeout_ref": "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/closeout"
+  },
+  "third_cycle_activation_controls": {
+    "activation_archive_complete": true,
+    "alert_routes_checked": true,
+    "ci_gates_defined": true,
+    "cycle_started": true,
+    "evidence_refs_sanitized": true,
+    "initial_signals_captured": true,
+    "monitors_ran": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_activation_acknowledged": true,
+    "public_safe_activation_confirmed": true,
+    "third_cycle_readiness_ready": true
+  },
+  "third_cycle_activation_evidence_refs": [
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/source-readiness",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/cycle-start",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/initial-signals",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/monitor-runs",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/alert-routes",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/archive",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/owner-activation",
+    "sample://phase8/public-scorecard-monitoring-third-cycle-activation-closeout/public-safe-closeout"
+  ],
+  "third_cycle_activation_owner_refs": {
+    "audit_owner_ref": "sample://owner/audit",
+    "communications_owner_ref": "sample://owner/communications",
+    "compliance_owner_ref": "sample://owner/compliance",
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "executive_owner_ref": "sample://owner/executive-sponsor",
+    "operations_owner_ref": "sample://owner/operations",
+    "product_owner_ref": "sample://owner/product-management",
+    "security_owner_ref": "sample://owner/security-platform",
+    "web_owner_ref": "sample://owner/web-platform"
+  },
+  "third_cycle_readiness_ref": "sample://customer-lifecycle-phase8-public-scorecard-monitoring-third-cycle-readiness/r7",
+  "third_cycle_readiness_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard monitoring third-cycle readiness schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample Phase 8 third-cycle readiness validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "second_cycle_drift_remediation_closeout_ref is a sanitized reference.",
+        "name": "second_cycle_drift_remediation_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source second-cycle drift remediation closeout validates shape but is not live.",
+        "name": "second_cycle_drift_remediation_closeout_result",
+        "status": "warn"
+      },
+      {
+        "message": "third_cycle_owner_refs are present and sanitized.",
+        "name": "third_cycle_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard third-cycle readiness contract is complete.",
+        "name": "third_cycle_readiness_contract",
+        "status": "pass"
+      },
+      {
+        "message": "remediated_state_refs are present and sanitized.",
+        "name": "remediated_state_refs",
+        "status": "pass"
+      },
+      {
+        "message": "accepted_risk_boundary_refs are present and sanitized.",
+        "name": "accepted_risk_boundary_refs",
+        "status": "pass"
+      },
+      {
+        "message": "public_surface_currency_refs are present and sanitized.",
+        "name": "public_surface_currency_refs",
+        "status": "pass"
+      },
+      {
+        "message": "monitoring_input_refs are present and sanitized.",
+        "name": "monitoring_input_refs",
+        "status": "pass"
+      },
+      {
+        "message": "third_cycle_blocker_refs are present and sanitized.",
+        "name": "third_cycle_blocker_refs",
+        "status": "pass"
+      },
+      {
+        "message": "third_cycle_schedule_refs are present and sanitized.",
+        "name": "third_cycle_schedule_refs",
+        "status": "pass"
+      },
+      {
+        "message": "owner_readiness_ack_refs are present and sanitized.",
+        "name": "owner_readiness_ack_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "third_cycle_readiness_evidence_refs are sanitized.",
+        "name": "third_cycle_readiness_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard third-cycle readiness controls are explicit.",
+        "name": "third_cycle_readiness_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard monitoring third-cycle readiness contains sanitized refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "sample",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_third_cycle_readiness": false,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-third-cycle-readiness.result.v1",
+    "source_phase": "R7",
+    "status": "ready_with_warnings",
+    "warning_count": 2
+  }
+}
