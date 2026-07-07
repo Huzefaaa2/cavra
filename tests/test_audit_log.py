@@ -148,3 +148,11 @@ def test_enterprise_audit_log_workflow_runs_require_live_gate() -> None:
     assert "Validate live audit-log packet" in workflow
     assert "--require-live" in workflow
     assert "examples/audit/enterprise-audit-log.live.sanitized.example.json" in workflow
+
+
+def test_enterprise_audit_log_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/audit-log-r3-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/audit/enterprise-audit-log.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_audit_log" in closeout
+    assert "R3.3 Handoff" in closeout

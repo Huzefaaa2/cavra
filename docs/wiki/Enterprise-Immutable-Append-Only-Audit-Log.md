@@ -4,6 +4,8 @@ CAVRA R3.2 defines a public-safe immutable append-only audit log contract for En
 
 The audit log is separate from evidence bundles. Evidence bundles package reviewer and auditor artifacts for a session. The audit log is the continuous operating record of decisions, approvals, exports, failures, recovery actions, and administrative changes.
 
+R3.2 is public-repository complete. The closeout boundary is documented in [Enterprise Immutable Append-Only Audit Log R3.2 Closeout](Enterprise-Immutable-Append-Only-Audit-Log-R3.2-Closeout.md). Real immutable store identifiers, SIEM archive targets, alert histories, legal-hold records, tamper drill transcripts, recovery drill transcripts, auditor exports, tenant names, and customer evidence remain Managed or Enterprise evidence-room records.
+
 ## Implemented Foundation
 
 | Component | Purpose |
@@ -56,6 +58,6 @@ python3 scripts/validate_enterprise_audit_log.py \
   --require-live
 ```
 
-R3.2 is production-complete only when the live packet returns `ready_for_enterprise_live_audit_log: true`, `blocker_count: 0`, and `warning_count: 0`.
+R3.2 is public-repository complete when the local hash-chain tests, sample packet, sanitized live-mode packet, docs, and closeout boundary validate. A specific Managed or Enterprise deployment is production-complete only when its private live packet returns `ready_for_enterprise_live_audit_log: true`, `blocker_count: 0`, and `warning_count: 0`.
 
 Detailed repo document: [Enterprise Immutable Append-Only Audit Log](https://github.com/Huzefaaa2/cavra/blob/main/docs/immutable-append-only-audit-log.md).

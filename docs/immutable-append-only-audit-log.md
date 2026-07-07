@@ -1,10 +1,12 @@
 # CAVRA Enterprise Immutable Append-Only Audit Log
 
-Last updated: 2026-07-04
+Last updated: 2026-07-07
 
 This page defines the R3.2 public-safe immutable append-only audit log contract for CAVRA Enterprise and Managed deployments.
 
 The audit log is deliberately separate from evidence bundles. Evidence bundles package reviewer and auditor artifacts for a session. The audit log is the continuous operating record of decisions, approvals, exports, failures, recovery actions, and administrative changes.
+
+R3.2 is public-repository complete. The closeout boundary is documented in [CAVRA Enterprise Immutable Append-Only Audit Log R3.2 Closeout](audit-log-r3-closeout.md). Real immutable store identifiers, SIEM archive destinations, append-only database roles, alert histories, legal-hold records, tamper drill transcripts, recovery drill transcripts, auditor exports, tenant names, and customer evidence remain deployment-specific Managed or Enterprise evidence-room records.
 
 ## Scope
 
@@ -86,7 +88,7 @@ python3 scripts/validate_enterprise_audit_log.py \
 
 ## Completion Criteria
 
-R3.2 is production-complete only when the live packet returns:
+R3.2 is public-repository complete when the local hash-chain tests, sample packet, sanitized live-mode packet, docs, and closeout boundary validate. A specific Managed or Enterprise deployment is production-complete only when its private live packet returns:
 
 ```json
 {
@@ -96,7 +98,7 @@ R3.2 is production-complete only when the live packet returns:
 }
 ```
 
-Until then, the public contract is implemented but the Enterprise deployment remains pending private immutable audit-store evidence.
+The public repository ships a sanitized live-mode packet that proves this validator path without exposing real immutable audit infrastructure. Private deployments must replace the sanitized packet with actual immutable store, retention, alert, export, tamper drill, recovery drill, and auditor handoff evidence.
 
 ## AISPM Production Gate Link
 
