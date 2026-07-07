@@ -59,3 +59,12 @@ def test_oidc_rbac_docs_reference_identity_bundles_and_next_work() -> None:
     assert "production release-signing operations" in doc
     assert str(ENTRA_DIR) in wiki
     assert str(OKTA_DIR) in wiki
+
+
+def test_enterprise_identity_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/enterprise-identity-r2-closeout.md").read_text(encoding="utf-8")
+    packet = Path("examples/identity/enterprise-live-identity-validation.live.sanitized.example.json")
+
+    assert str(packet) in closeout
+    assert "ready_for_live_enterprise_identity" in closeout
+    assert "R2.2 Handoff" in closeout

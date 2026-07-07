@@ -47,6 +47,7 @@ REQUIRED_TEXT = {
         "Runtime ABAC Enforcement",
         "approve_model_artifact",
         "validate_enterprise_live_identity_packet.py",
+        "R2.1 is public-repository complete",
     ],
     "docs/enterprise-live-identity-validation.md": [
         "ready_for_live_enterprise_identity",
@@ -89,6 +90,19 @@ REQUIRED_TEXT = {
         "oidc_token_validation",
         "scim_deprovisioning",
         "break_glass_audit",
+    ],
+    "examples/identity/enterprise-live-identity-validation.live.sanitized.example.json": [
+        "cavra.enterprise.identity_live_validation.v1",
+        "\"validation_mode\": \"live\"",
+        "oidc_token_validation",
+        "scim_deprovisioning",
+        "break_glass_audit",
+        "audit_evidence_retention",
+    ],
+    "docs/enterprise-identity-r2-closeout.md": [
+        "R2.1 is closed",
+        "Sanitized live-style packet example",
+        "R2.2 Handoff",
     ],
     "scripts/validate_enterprise_live_identity_packet.py": [
         "validate_enterprise_live_identity_packet",

@@ -1,0 +1,75 @@
+{
+  "schema_version": "cavra.enterprise.identity_live_validation.v1",
+  "product": "CAVRA",
+  "packet_id": "identity-live-sanitized-example-2026-07-07",
+  "generated_at": "2026-07-07T12:00:00Z",
+  "environment": {
+    "validation_mode": "live",
+    "identity_provider": "Microsoft Entra ID",
+    "issuer": "https://login.microsoftonline.com/redacted-tenant-id/v2.0",
+    "tenant_id": "tenant-redacted-prod",
+    "workspace_id": "workspace-redacted-platform",
+    "repository": "Huzefaaa2/cavra"
+  },
+  "evidence": {
+    "redaction_status": "public_safe",
+    "evidence_refs": [
+      "evidence://identity/live/oidc-token-validation/redacted",
+      "evidence://identity/live/rbac-group-mapping/redacted",
+      "evidence://identity/live/abac-runtime-scope/redacted",
+      "evidence://identity/live/scim-group-sync/redacted",
+      "evidence://identity/live/scim-deprovisioning/redacted",
+      "evidence://identity/live/break-glass-audit/redacted",
+      "evidence://identity/live/audit-evidence-retention/redacted"
+    ],
+    "notes": "Sanitized live-style example. It contains only public-safe evidence references, summaries, and SLA metrics; no tokens, certificates, SCIM bearer values, raw users, or private directory exports are included."
+  },
+  "checks": [
+    {
+      "check_id": "oidc_token_validation",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/oidc-token-validation/redacted",
+      "summary": "Issuer, audience, expiry, not-before, JWKS key ID, and RS256 signature validation passed against redacted live IdP metadata."
+    },
+    {
+      "check_id": "rbac_group_mapping",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/rbac-group-mapping/redacted",
+      "summary": "CISO, security operator, platform security, model owner, auditor, and break-glass approver groups mapped to CAVRA roles."
+    },
+    {
+      "check_id": "abac_runtime_scope",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/abac-runtime-scope/redacted",
+      "summary": "Tenant, workspace, repository, environment, model owner, and data classification attributes were present in actor and resource checks."
+    },
+    {
+      "check_id": "scim_group_sync",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/scim-group-sync/redacted",
+      "summary": "SCIM group and role synchronization completed with redacted counts, timestamps, and tenant/workspace membership references."
+    },
+    {
+      "check_id": "scim_deprovisioning",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/scim-deprovisioning/redacted",
+      "summary": "Disabled identity lost active CAVRA role membership within the required SLA.",
+      "metrics": {
+        "deprovisioning_sla_minutes": 45
+      }
+    },
+    {
+      "check_id": "break_glass_audit",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/break-glass-audit/redacted",
+      "summary": "Break-glass action included CAB role, mandatory reason, external reference, short TTL, and retained audit evidence."
+    },
+    {
+      "check_id": "audit_evidence_retention",
+      "status": "pass",
+      "evidence_ref": "evidence://identity/live/audit-evidence-retention/redacted",
+      "summary": "Identity validation evidence was retained in the evidence room with public-safe redaction status."
+    }
+  ]
+}
+

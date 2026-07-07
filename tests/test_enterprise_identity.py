@@ -18,6 +18,7 @@ from cavra.enterprise_identity import (
 
 
 LIVE_IDENTITY_SAMPLE = Path("examples/identity/enterprise-live-identity-validation.sample.json")
+LIVE_IDENTITY_SANITIZED = Path("examples/identity/enterprise-live-identity-validation.live.sanitized.example.json")
 
 
 def test_enterprise_identity_contract_covers_r2_1_controls() -> None:
@@ -207,6 +208,27 @@ def test_enterprise_live_identity_packet_can_be_ready_with_live_evidence(tmp_pat
     assert result["ready_for_live_enterprise_identity"] is True
     assert result_path.exists()
     assert json.loads(result_path.read_text(encoding="utf-8"))["status"] == "ready"
+
+
+def test_enterprise_live_identity_sanitized_example_is_ready(tmp_path) -> None:
+    result_path = tmp_path / "identity-live-sanitized-result.json"
+
+    subprocess.run(
+        [
+            "python3",
+            "scripts/validate_enterprise_live_identity_packet.py",
+            "--packet",
+            str(LIVE_IDENTITY_SANITIZED),
+            "--output",
+            str(result_path),
+        ],
+        check=True,
+    )
+
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["ready_for_live_enterprise_identity"] is True
+    assert result["status"] == "ready"
+    assert result["blocker_count"] == 0
 
 
 def test_enterprise_live_identity_packet_rejects_secret_like_fields() -> None:

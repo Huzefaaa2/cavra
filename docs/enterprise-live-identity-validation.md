@@ -1,6 +1,6 @@
 # CAVRA Enterprise Live Identity Validation Packet
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
 This page defines the R2.1 live identity evidence packet used to close the gap between the public Enterprise identity contract and a real customer or private Enterprise identity deployment.
 
@@ -62,9 +62,17 @@ python3 scripts/validate_enterprise_live_identity_packet.py \
   --allow-not-ready
 ```
 
+The repository also includes a sanitized live-style packet for public verification of the closeout gate:
+
+```bash
+python3 scripts/validate_enterprise_live_identity_packet.py \
+  --packet examples/identity/enterprise-live-identity-validation.live.sanitized.example.json \
+  --output dist/test/enterprise-live-identity-validation-result.json
+```
+
 ## R2.1 Exit Criteria
 
-R2.1 is public-code complete when the contract, API endpoints, runtime scoped approval enforcement, and live packet validator are implemented and tested.
+R2.1 is public-code complete when the contract, API endpoints, runtime scoped approval enforcement, live packet validator, and sanitized live-style packet are implemented and tested.
 
 R2.1 is production-evidence complete only after a private or customer deployment produces a live packet with:
 
@@ -76,3 +84,5 @@ R2.1 is production-evidence complete only after a private or customer deployment
 - retained public-safe evidence references.
 
 The same `tenant_id` and `workspace_id` values become required inputs for R2.2 tenant persistence and isolation validation.
+
+See [Enterprise Identity R2.1 Closeout](enterprise-identity-r2-closeout.md) for the public closeout boundary.

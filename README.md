@@ -203,6 +203,7 @@ Start with the wiki textbook:
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)
 - [CAVRA Enterprise Live Identity Validation](docs/enterprise-live-identity-validation.md)
+- [CAVRA Enterprise Identity R2.1 Closeout](docs/enterprise-identity-r2-closeout.md)
 - [CAVRA Tenant And Workspace Persistence](docs/tenant-workspace-persistence.md)
 - [CAVRA Enterprise HA/DR Readiness](docs/enterprise-ha-dr-readiness.md)
 - [CAVRA Enterprise KMS/HSM Evidence Custody](docs/evidence-kms-hsm-custody.md)

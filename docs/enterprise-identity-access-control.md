@@ -1,6 +1,6 @@
 # CAVRA Enterprise Identity And Access Control
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
 This document defines the public-safe R2.1 Enterprise identity contract for CAVRA. It covers the identity controls that CAVRA Community can validate publicly and the private Managed or Enterprise services that complete production SSO, SCIM, tenant directory, and customer-specific automation.
 
@@ -76,7 +76,7 @@ CAVRA treats RBAC as necessary but not sufficient for Enterprise operation. ABAC
 
 The public helper `actor_has_enterprise_scope` enforces tenant and workspace equality for scoped resources and role checks for runtime action approval, model/artifact approval, audit read access, and break-glass access.
 
-## Runtime ABAC Enforcement
+## Runtime Enforcement: Runtime ABAC Enforcement
 
 Approval decisions now enforce the same Enterprise scope contract at runtime. When an approval request includes Enterprise resource attributes, CAVRA checks the verified actor context before legacy approval group or repository RBAC can authorize the mutation.
 
@@ -129,11 +129,11 @@ When OIDC or RBAC is configured, CAVRA console mutation endpoints reject unauthe
 ```bash
 python3 scripts/validate_enterprise_identity_readiness.py
 python3 scripts/validate_enterprise_live_identity_packet.py \
-  --packet .cavra/identity/enterprise-live-identity-validation.json \
-  --output dist/enterprise-live-identity-validation-result.json
+  --packet examples/identity/enterprise-live-identity-validation.live.sanitized.example.json \
+  --output dist/test/enterprise-live-identity-validation-result.json
 python3 -m pytest tests/test_enterprise_identity.py tests/test_identity_references.py -q
 ```
 
-R2.1 is considered implementation-in-progress until live customer or private Enterprise IdP/SCIM integration tests produce a live packet where `ready_for_live_enterprise_identity` is `true`, but the public code now exposes and validates the Enterprise identity shape, runtime scoped approval enforcement, and public-safe live evidence packet.
+R2.1 is public-repository complete. The public code exposes and validates the Enterprise identity shape, runtime scoped approval enforcement, public-safe live identity validation packet, and sanitized live-style packet example. Real customer IdP, SAML bridge, SCIM worker, tenant directory, and break-glass audit evidence remains deployment-specific and belongs in private Managed or Enterprise evidence rooms.
 
-See [Enterprise Live Identity Validation](enterprise-live-identity-validation.md) for the packet format and completion gate.
+See [Enterprise Live Identity Validation](enterprise-live-identity-validation.md) for the packet format and [Enterprise Identity R2.1 Closeout](enterprise-identity-r2-closeout.md) for the completion boundary.
