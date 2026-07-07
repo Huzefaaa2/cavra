@@ -340,6 +340,11 @@ from cavra.phase6_rollup import (
     validate_phase6_rollup_packet,
     write_phase6_rollup_artifacts,
 )
+from cavra.phase4_closeout import (
+    build_phase4_closeout_packet,
+    validate_phase4_closeout_packet,
+    write_phase4_closeout_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -2674,6 +2679,48 @@ def release_phase6_rollup(
     print(json.dumps(result, indent=2))
     if not result["ready_for_phase6_public_contract_release"] or (
         require_customer_live and not result["ready_for_customer_live_phase6_closeout"]
+    ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("phase4-closeout")
+def release_phase4_closeout(
+    packet: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional checked-in Phase 4 closeout packet JSON."),
+    ] = None,
+    repo_root: Annotated[
+        Path,
+        typer.Option(help="Repository root for artifact validation."),
+    ] = Path("."),
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export generated packet/result."),
+    ] = None,
+    require_customer_live: Annotated[
+        bool,
+        typer.Option(help="Require customer live deployment evidence refs."),
+    ] = False,
+) -> None:
+    """Validate or export the Phase 4 connector and scanner closeout."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_phase4_closeout_artifacts(root, export_dir)
+    else:
+        payload = (
+            json.loads(packet.read_text(encoding="utf-8"))
+            if packet
+            else build_phase4_closeout_packet(root)
+        )
+        result = validate_phase4_closeout_packet(
+            payload,
+            repo_root=root,
+            require_customer_live=require_customer_live,
+        )
+    print(json.dumps(result, indent=2))
+    if not result["ready_for_phase4_public_contract_release"] or (
+        require_customer_live
+        and not result["ready_for_customer_live_phase4_closeout"]
     ):
         raise typer.Exit(code=1)
 

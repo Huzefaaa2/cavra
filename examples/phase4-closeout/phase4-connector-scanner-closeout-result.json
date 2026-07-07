@@ -1,0 +1,82 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Phase 4 closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "All R4 connector and scanner gates are present.",
+      "name": "required_gates",
+      "status": "pass"
+    },
+    {
+      "message": "R4.1 public contract gate is ready.",
+      "name": "R4.1_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R4.1 public artifacts are present.",
+      "name": "R4.1_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R4.1 customer live evidence remains deployment-specific: provider_sandbox_transcript_ref, credential_custody_ref, partner_support_owner_ref.",
+      "name": "R4.1_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R4.2 public contract gate is ready.",
+      "name": "R4.2_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R4.2 public artifacts are present.",
+      "name": "R4.2_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R4.2 customer live evidence remains deployment-specific: provider_delivery_run_ref, firewall_allowlist_ref, token_rotation_ref, support_escalation_ref.",
+      "name": "R4.2_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R4.3 public contract gate is ready.",
+      "name": "R4.3_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R4.3 public artifacts are present.",
+      "name": "R4.3_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R4.3 customer live evidence remains deployment-specific: registry_sandbox_ref, model_owner_mapping_ref, artifact_access_control_ref, no_raw_model_egress_run_ref.",
+      "name": "R4.3_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R4.4 public contract gate is ready.",
+      "name": "R4.4_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R4.4 public artifacts are present.",
+      "name": "R4.4_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R4.4 customer live evidence remains deployment-specific: scanner_deployment_ref, private_network_evidence_ref, egress_control_run_ref, incident_drill_ref.",
+      "name": "R4.4_customer_live_evidence",
+      "status": "warn"
+    }
+  ],
+  "phase": "R4 connector and scanner closeout",
+  "product": "CAVRA",
+  "ready_for_customer_live_phase4_closeout": false,
+  "ready_for_phase4_public_contract_release": true,
+  "schema_version": "cavra.phase4-connector-scanner.closeout-result.v1",
+  "status": "ready_with_customer_live_warnings",
+  "warning_count": 4
+}

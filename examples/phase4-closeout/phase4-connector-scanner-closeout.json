@@ -1,0 +1,348 @@
+{
+  "evidence_mode": "public_contract_rollup",
+  "gates": [
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "provider_sandbox_transcript_ref",
+        "credential_custody_ref",
+        "partner_support_owner_ref"
+      ],
+      "gate_id": "R4.1",
+      "packet_path": "examples/connectors/enterprise-connector-sdk.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/connectors/enterprise-connector-sdk.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/connector-sdk-certification.md"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/connector-sdk-r4-closeout.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Connector-SDK-And-Certification.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Connector-SDK-And-Certification-R4.1-Closeout.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/connector-sdk.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Connector SDK evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live connector SDK evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Connector SDK artifacts are versioned and published.",
+            "name": "sdk_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "Certification program and required test suites are defined.",
+            "name": "certification_program",
+            "status": "pass"
+          },
+          {
+            "message": "Reference connector validates against the SDK contract.",
+            "name": "reference_connector",
+            "status": "pass"
+          },
+          {
+            "message": "Connector SDK compatibility policy is declared.",
+            "name": "compatibility",
+            "status": "pass"
+          },
+          {
+            "message": "Connector SDK operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_enterprise_connector_sdk_contract": true,
+        "ready_for_enterprise_live_connector_certification": true,
+        "schema_version": "cavra.connector.sdk.readiness.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_enterprise_live_connector_certification",
+      "title": "Connector SDK and certification",
+      "validator": "connector_sdk"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "provider_delivery_run_ref",
+        "firewall_allowlist_ref",
+        "token_rotation_ref",
+        "support_escalation_ref"
+      ],
+      "gate_id": "R4.2",
+      "packet_path": "examples/connectors/enterprise-priority-connectors.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/connectors/enterprise-priority-connectors.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/priority-certified-connectors.md"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/priority-connectors-r4-closeout.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Priority-Certified-Connectors.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Priority-Certified-Connectors-R4.2-Closeout.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/priority-connectors.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Certified connector evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live priority connector evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Priority connector registry is complete.",
+            "name": "provider_registry",
+            "status": "pass"
+          },
+          {
+            "message": "Required connector groups are covered.",
+            "name": "provider_groups",
+            "status": "pass"
+          },
+          {
+            "message": "Priority connector delivery contracts are tested.",
+            "name": "delivery_contracts",
+            "status": "pass"
+          },
+          {
+            "message": "Priority connector operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_priority_connectors": true,
+        "ready_for_priority_connector_contract": true,
+        "schema_version": "cavra.certified-connectors.readiness.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_priority_connectors",
+      "title": "Priority certified connectors",
+      "validator": "priority_connectors"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "registry_sandbox_ref",
+        "model_owner_mapping_ref",
+        "artifact_access_control_ref",
+        "no_raw_model_egress_run_ref"
+      ],
+      "gate_id": "R4.3",
+      "packet_path": "examples/model-registries/enterprise-model-registry-connectors.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/model-registries/enterprise-model-registry-connectors.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/model-registry-connectors.md"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/model-registry-connectors-r4-closeout.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Model-Registry-Connectors.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Model-Registry-Connectors-R4.3-Closeout.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/model-registry-connectors.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Model registry connector evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live model registry connector evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Model registry provider registry is complete.",
+            "name": "provider_registry",
+            "status": "pass"
+          },
+          {
+            "message": "Metadata-only model registry contract is complete.",
+            "name": "metadata_contract",
+            "status": "pass"
+          },
+          {
+            "message": "Raw model and training data egress controls are tested.",
+            "name": "no_raw_model_egress",
+            "status": "pass"
+          },
+          {
+            "message": "Model registry connector operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_model_registry_connectors": true,
+        "ready_for_model_registry_connector_contract": true,
+        "schema_version": "cavra.model-registry-connectors.readiness.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_model_registry_connectors",
+      "title": "Model registry connectors",
+      "validator": "model_registry_connectors"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "scanner_deployment_ref",
+        "private_network_evidence_ref",
+        "egress_control_run_ref",
+        "incident_drill_ref"
+      ],
+      "gate_id": "R4.4",
+      "packet_path": "examples/zero-trust-scanner/enterprise-zero-trust-scanner.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/zero-trust-scanner/enterprise-zero-trust-scanner.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/zero-trust-scanner-agent.md"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/zero-trust-scanner-r4-closeout.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Zero-Trust-Scanner-Agent.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Zero-Trust-Scanner-Agent-R4.4-Closeout.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/zero-trust-scanner.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Zero-trust scanner evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live zero-trust scanner evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Scanner deployment topology supports customer-side execution.",
+            "name": "deployment",
+            "status": "pass"
+          },
+          {
+            "message": "Scanner contract artifacts are versioned and validated.",
+            "name": "scanner_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "Scanner egress controls are enforced and tested.",
+            "name": "egress_controls",
+            "status": "pass"
+          },
+          {
+            "message": "Zero-trust scanner operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_zero_trust_scanner": true,
+        "ready_for_zero_trust_scanner_contract": true,
+        "schema_version": "cavra.zero-trust-scanner.readiness.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_zero_trust_scanner",
+      "title": "Zero-trust scanner agent",
+      "validator": "zero_trust_scanner"
+    }
+  ],
+  "phase": "R4 connector and scanner closeout",
+  "product": "CAVRA",
+  "schema_version": "cavra.phase4-connector-scanner.closeout.v1",
+  "scope": {
+    "customer_live_evidence": "not included in the public repository; must be supplied by a managed or enterprise deployment",
+    "public_contracts": "validated from repository source, live-sanitized examples, docs, and CI workflows"
+  }
+}
