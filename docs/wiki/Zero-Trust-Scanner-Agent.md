@@ -1,6 +1,10 @@
 # Zero-Trust Scanner Agent
 
+Last updated: 2026-07-08
+
 CAVRA zero-trust scanner agents run where sensitive AI assets already live: customer VPCs, private subnets, on-premises networks, containers, Kubernetes clusters, and air-gapped estates. The scanner emits metadata, hashes, risk scores, finding metadata, and evidence references only.
+
+R4.4 is public-repository complete. The closeout boundary is documented in [CAVRA Zero-Trust Scanner Agent R4.4 Closeout](Zero-Trust-Scanner-Agent-R4.4-Closeout.md). Real scanner packaging, private network placement, tenant routing, scanner credentials, firewall/private endpoint evidence, custody review logs, and production scanner operations remain deployment-specific evidence.
 
 It is built to prevent raw model bytes, model weights, training data, source code, prompt samples, file contents, credentials, or private artifacts from leaving the customer-controlled environment.
 
@@ -81,3 +85,5 @@ blocker_count: 0
 ```
 
 Enterprise deployments still provide private scanner packaging, real network placement, tenant scoping, private credentials, egress-control run logs, and operating evidence inside the customer evidence room.
+
+Public completion means the result contract, sanitizer, hash-only reference scan, raw-egress negative fixture, sample packet, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means each customer deployment attaches scanner image or binary provenance, network placement proof, identity scope, key custody, firewall/private endpoint evidence, egress-control run logs, incident drill evidence, monitoring, and support ownership.

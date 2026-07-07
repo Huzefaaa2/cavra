@@ -223,6 +223,7 @@ Start with the wiki textbook:
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
 - [CAVRA Model Registry Connectors R4.3 Closeout](docs/model-registry-connectors-r4-closeout.md)
 - [CAVRA Zero-Trust Scanner Agent](docs/zero-trust-scanner-agent.md)
+- [CAVRA Zero-Trust Scanner Agent R4.4 Closeout](docs/zero-trust-scanner-r4-closeout.md)
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)
 - [CAVRA Policy Lifecycle Tooling](docs/policy-lifecycle-tooling.md)
 - [CAVRA Continuous Monitoring Event Core](docs/continuous-monitoring-event-core.md)

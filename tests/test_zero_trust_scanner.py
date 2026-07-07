@@ -119,3 +119,20 @@ def test_zero_trust_packet_blocks_missing_controls() -> None:
     blocker_names = {check["name"] for check in result["checks"] if check["status"] == "blocker"}
     assert {"deployment", "scanner_artifacts", "egress_controls", "operating_evidence"} <= blocker_names
     assert result["ready_for_live_zero_trust_scanner"] is False
+
+
+def test_zero_trust_workflow_runs_require_live_gate() -> None:
+    workflow = Path(".github/workflows/zero-trust-scanner.yml").read_text(encoding="utf-8")
+
+    assert "Validate sanitized live packet" in workflow
+    assert "--require-live" in workflow
+    assert "examples/zero-trust-scanner/enterprise-zero-trust-scanner.live.sanitized.example.json" in workflow
+
+
+def test_zero_trust_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/zero-trust-scanner-r4-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/zero-trust-scanner/enterprise-zero-trust-scanner.live.sanitized.example.json" in closeout
+    assert "ready_for_live_zero_trust_scanner" in closeout
+    assert "raw-egress negative fixture" in closeout
+    assert "Phase 4 Closeout Handoff" in closeout
