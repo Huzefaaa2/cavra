@@ -1,5 +1,7 @@
 # Enterprise Reporting Exports
 
+Last updated: 2026-07-07
+
 CAVRA Enterprise reporting exports package runtime evidence, AISPM posture, compliance mappings, immutable audit trails, and executive summaries into artifacts that auditors, BI teams, executives, and boards can consume.
 
 R3.4 adds a public-safe reporting export contract with four export lanes:
@@ -10,6 +12,8 @@ R3.4 adds a public-safe reporting export contract with four export lanes:
 - Board PDF manifest for Enterprise private rendering.
 
 The public repository generates sample artifacts and validates the contract. Production PDF rendering, workbook generation, tenant-scoped evidence rooms, recipient delivery, GRC upload, and approval workflows remain Enterprise deployment responsibilities.
+
+R3.4 is public-repository complete. The closeout boundary is documented in [CAVRA Enterprise Reporting Exports R3.4 Closeout](reporting-exports-r3-closeout.md). Private tenant PDFs, BI workbooks, recipient delivery logs, GRC upload receipts, approval records, and evidence-room publication evidence remain Managed or Enterprise deployment evidence.
 
 ## What Is Implemented
 
@@ -69,3 +73,5 @@ For `ready_for_enterprise_live_report_exports: true`, the live packet must prove
 ## Operating Boundary
 
 The public CAVRA repository ships the export contract, sample artifacts, validator, workflow, and public-safe docs. Real Enterprise deployments attach private tenant metrics, real board PDFs, BI workbooks, recipient delivery logs, audit evidence rooms, and approved GRC upload evidence.
+
+Public completion means the exporter, generated sample artifacts, readiness contract, sanitized live gate, workflow, docs, and tests are present and repeatable. Production completion means customer-specific report rendering, delivery, evidence-room publication, and recipient approval records have been attached to the live deployment.

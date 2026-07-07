@@ -111,3 +111,11 @@ def test_enterprise_report_export_workflow_runs_require_live_gate() -> None:
     assert "Validate live report export packet" in workflow
     assert "--require-live" in workflow
     assert "examples/reports/enterprise-report-exports.live.sanitized.example.json" in workflow
+
+
+def test_enterprise_report_export_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/reporting-exports-r3-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/reports/enterprise-report-exports.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_report_exports" in closeout
+    assert "R4.1 Handoff" in closeout

@@ -215,6 +215,7 @@ Start with the wiki textbook:
 - [CAVRA Enterprise Compliance Mapping Packs](docs/enterprise-compliance-mapping-packs.md)
 - [CAVRA Enterprise Compliance Mapping Packs R3.3 Closeout](docs/compliance-packs-r3-closeout.md)
 - [CAVRA Enterprise Reporting Exports](docs/enterprise-reporting-exports.md)
+- [CAVRA Enterprise Reporting Exports R3.4 Closeout](docs/reporting-exports-r3-closeout.md)
 - [CAVRA Connector SDK And Certification](docs/connector-sdk-certification.md)
 - [CAVRA Priority Certified Connectors](docs/priority-certified-connectors.md)
 - [CAVRA Model Registry Connectors](docs/model-registry-connectors.md)
