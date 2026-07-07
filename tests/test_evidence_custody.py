@@ -88,3 +88,11 @@ def test_enterprise_evidence_custody_workflow_runs_require_live_gate() -> None:
     assert "Validate live evidence custody packet" in workflow
     assert "--require-live" in workflow
     assert "examples/evidence/enterprise-evidence-custody.live.sanitized.example.json" in workflow
+
+
+def test_enterprise_evidence_custody_closeout_docs_reference_sanitized_live_packet() -> None:
+    closeout = Path("docs/evidence-custody-r3-closeout.md").read_text(encoding="utf-8")
+
+    assert "examples/evidence/enterprise-evidence-custody.live.sanitized.example.json" in closeout
+    assert "ready_for_enterprise_live_evidence_custody" in closeout
+    assert "R3.2 Handoff" in closeout

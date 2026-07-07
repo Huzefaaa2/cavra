@@ -1,10 +1,12 @@
 # CAVRA Enterprise KMS/HSM Evidence Custody
 
-Last updated: 2026-07-04
+Last updated: 2026-07-07
 
 This page defines the R3.1 public-safe KMS/HSM evidence signing, key rotation, custody policy, revocation, and independent verifier readiness contract for CAVRA Enterprise and Managed deployments.
 
 The public repository implements the readiness contract, sample packets, strict live validation gate, and documentation. Private Enterprise deployments must supply the real KMS/HSM provider references, operator approvals, signer logs, rotation evidence, revocation drill evidence, and verifier handoff evidence.
+
+R3.1 is public-repository complete. The closeout boundary is documented in [CAVRA Enterprise KMS/HSM Evidence Custody R3.1 Closeout](evidence-custody-r3-closeout.md). Real KMS/HSM key identifiers, signer logs, operator approvals, custody exports, revocation transcripts, verifier handoff packets, provider account details, and tenant evidence remain deployment-specific Managed or Enterprise evidence-room records.
 
 ## Scope
 
@@ -136,7 +138,7 @@ python3 -m pytest tests/test_evidence_custody.py -q
 
 ## Completion Criteria
 
-R3.1 is production-complete only when the live packet returns:
+R3.1 is public-repository complete when the sample and sanitized live-mode packet validate, tests pass, and the closeout boundary is documented. A specific Managed or Enterprise deployment is production-complete only when its private live packet returns:
 
 ```json
 {
@@ -146,7 +148,7 @@ R3.1 is production-complete only when the live packet returns:
 }
 ```
 
-Until then, the public contract is implemented but the Enterprise deployment remains pending private KMS/HSM custody and verifier evidence.
+The public repository ships a sanitized live-mode packet that proves this validator path without exposing real custody details. Private deployments must replace the sanitized packet with actual KMS/HSM signer, custody, rotation, revocation, trust-root, and verifier evidence.
 
 ## AISPM Production Gate Link
 

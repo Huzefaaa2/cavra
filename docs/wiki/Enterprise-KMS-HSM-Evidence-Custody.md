@@ -2,6 +2,8 @@
 
 CAVRA R3.1 defines a public-safe KMS/HSM evidence signing, key rotation, custody policy, revocation, and independent verifier readiness contract for Enterprise and Managed deployments.
 
+R3.1 is public-repository complete. The closeout boundary is documented in [Enterprise KMS/HSM Evidence Custody R3.1 Closeout](Enterprise-KMS-HSM-Evidence-Custody-R3.1-Closeout.md). Real KMS/HSM key identifiers, signer logs, operator approvals, custody exports, revocation transcripts, verifier handoff packets, provider account details, and tenant evidence remain Managed or Enterprise evidence-room records.
+
 ## Implemented Foundation
 
 | Component | Purpose |
@@ -53,6 +55,6 @@ python3 scripts/validate_enterprise_evidence_custody.py \
   --require-live
 ```
 
-R3.1 is production-complete only when the live packet returns `ready_for_enterprise_live_evidence_custody: true`, `blocker_count: 0`, and `warning_count: 0`.
+R3.1 is public-repository complete when the sample and sanitized live-mode packet validate, tests pass, and the closeout boundary is documented. A specific Managed or Enterprise deployment is production-complete only when its private live packet returns `ready_for_enterprise_live_evidence_custody: true`, `blocker_count: 0`, and `warning_count: 0`.
 
 Detailed repo document: [Enterprise KMS/HSM Evidence Custody](https://github.com/Huzefaaa2/cavra/blob/main/docs/evidence-kms-hsm-custody.md).
