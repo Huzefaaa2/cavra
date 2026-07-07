@@ -1,0 +1,202 @@
+{
+  "activation_archive_refs": {
+    "activation_manifest_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive/manifest",
+    "alert_route_archive_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive/alert-routes",
+    "immutable_activation_archive_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive/immutable",
+    "initial_signal_archive_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive/initial-signals",
+    "monitor_run_archive_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive/monitor-runs"
+  },
+  "alert_route_check_refs": {
+    "alert_route_smoke_test_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert/smoke-test",
+    "escalation_route_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert/escalation-ack",
+    "no_dead_route_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert/no-dead-route",
+    "on_call_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert/on-call-ack"
+  },
+  "ci_gate_coverage": {
+    "alert_route_check_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert-route-validation",
+    "cycle_start_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/cycle-start-validation",
+    "evidence_archive_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive-validation",
+    "initial_signal_capture_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/signal-validation",
+    "monitor_run_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor-validation",
+    "owner_activation_ack_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/owner-ack-validation",
+    "public_safe_activation_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/public-safe-validation",
+    "source_fourth_cycle_readiness_validation": "evidence://ci/phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/source-validation"
+  },
+  "cycle_start_refs": {
+    "activation_window_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/start/window",
+    "fourth_cycle_start_decision_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/start/decision",
+    "operating_calendar_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/start/calendar",
+    "review_cadence_start_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/start/cadence"
+  },
+  "evidence_mode": "live",
+  "fourth_cycle_activation_contract": {
+    "alert_route_check_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert-routes",
+    "cycle_start_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/cycle-start",
+    "evidence_archive_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive",
+    "fourth_cycle_activation_closeout_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/closeout",
+    "initial_signal_capture_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/initial-signals",
+    "monitor_run_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor-run",
+    "owner_activation_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/owner-activation",
+    "redaction_status": "sanitized",
+    "source_fourth_cycle_readiness_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/source-readiness"
+  },
+  "fourth_cycle_activation_controls": {
+    "activation_archive_complete": true,
+    "alert_routes_checked": true,
+    "ci_gates_defined": true,
+    "cycle_started": true,
+    "evidence_refs_sanitized": true,
+    "fourth_cycle_readiness_ready": true,
+    "initial_signals_captured": true,
+    "monitors_ran": true,
+    "no_commercial_terms_embedded": true,
+    "no_customer_identity_embedded": true,
+    "no_private_material_embedded": true,
+    "owner_activation_acknowledged": true,
+    "public_safe_activation_confirmed": true
+  },
+  "fourth_cycle_activation_evidence_refs": [
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/source-readiness",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/cycle-start",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/initial-signals",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor-runs",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/alert-routes",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/archive",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/owner-activation",
+    "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/public-safe-closeout"
+  ],
+  "fourth_cycle_activation_owner_refs": {
+    "audit_owner_ref": "evidence://owner/audit",
+    "communications_owner_ref": "evidence://owner/communications",
+    "compliance_owner_ref": "evidence://owner/compliance",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "executive_owner_ref": "evidence://owner/executive-sponsor",
+    "operations_owner_ref": "evidence://owner/operations",
+    "product_owner_ref": "evidence://owner/product-management",
+    "security_owner_ref": "evidence://owner/security-platform",
+    "web_owner_ref": "evidence://owner/web-platform"
+  },
+  "fourth_cycle_readiness_ref": "evidence://customer-lifecycle-phase8-public-scorecard-monitoring-fourth-cycle-readiness/r7",
+  "fourth_cycle_readiness_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Customer lifecycle Phase 8 public scorecard monitoring fourth-cycle readiness schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized Phase 8 fourth-cycle readiness supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "third_cycle_drift_remediation_closeout_ref is a sanitized reference.",
+        "name": "third_cycle_drift_remediation_closeout_ref",
+        "status": "pass"
+      },
+      {
+        "message": "Source third-cycle drift remediation closeout is ready.",
+        "name": "third_cycle_drift_remediation_closeout_result",
+        "status": "pass"
+      },
+      {
+        "message": "fourth_cycle_owner_refs are present and sanitized.",
+        "name": "fourth_cycle_owner_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard fourth-cycle readiness contract is complete.",
+        "name": "fourth_cycle_readiness_contract",
+        "status": "pass"
+      },
+      {
+        "message": "remediated_state_refs are present and sanitized.",
+        "name": "remediated_state_refs",
+        "status": "pass"
+      },
+      {
+        "message": "accepted_risk_boundary_refs are present and sanitized.",
+        "name": "accepted_risk_boundary_refs",
+        "status": "pass"
+      },
+      {
+        "message": "public_surface_currency_refs are present and sanitized.",
+        "name": "public_surface_currency_refs",
+        "status": "pass"
+      },
+      {
+        "message": "monitoring_input_refs are present and sanitized.",
+        "name": "monitoring_input_refs",
+        "status": "pass"
+      },
+      {
+        "message": "fourth_cycle_blocker_refs are present and sanitized.",
+        "name": "fourth_cycle_blocker_refs",
+        "status": "pass"
+      },
+      {
+        "message": "fourth_cycle_schedule_refs are present and sanitized.",
+        "name": "fourth_cycle_schedule_refs",
+        "status": "pass"
+      },
+      {
+        "message": "owner_readiness_ack_refs are present and sanitized.",
+        "name": "owner_readiness_ack_refs",
+        "status": "pass"
+      },
+      {
+        "message": "CI gate coverage refs are complete.",
+        "name": "ci_gate_coverage",
+        "status": "pass"
+      },
+      {
+        "message": "fourth_cycle_readiness_evidence_refs are sanitized.",
+        "name": "fourth_cycle_readiness_evidence_refs",
+        "status": "pass"
+      },
+      {
+        "message": "Public scorecard fourth-cycle readiness controls are explicit.",
+        "name": "fourth_cycle_readiness_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Phase 8 public scorecard monitoring fourth-cycle readiness contains sanitized refs only.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "evidence_mode": "live",
+    "phase": "R8",
+    "product": "CAVRA",
+    "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_fourth_cycle_readiness": true,
+    "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fourth-cycle-readiness.result.v1",
+    "source_phase": "R7",
+    "status": "ready",
+    "warning_count": 0
+  },
+  "initial_signal_refs": {
+    "archive_freshness_signal_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/signal/archive-freshness",
+    "link_health_signal_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/signal/link-health",
+    "redaction_posture_signal_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/signal/redaction-posture",
+    "scorecard_health_signal_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/signal/scorecard-health"
+  },
+  "monitor_run_refs": {
+    "archive_monitor_run_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor/archive",
+    "link_monitor_run_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor/link",
+    "redaction_monitor_run_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor/redaction",
+    "scorecard_monitor_run_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/monitor/scorecard"
+  },
+  "monitoring_fourth_cycle_activation_closeout_id": "cavra-live-customer-lifecycle-phase8-public-scorecard-monitoring-fourth-cycle-activation-closeout",
+  "owner_activation_ack_refs": {
+    "audit_activation_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/ack/audit",
+    "communications_activation_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/ack/communications",
+    "operations_activation_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/ack/operations",
+    "security_activation_ack_ref": "evidence://phase8/public-scorecard-monitoring-fourth-cycle-activation-closeout/ack/security"
+  },
+  "phase": "R8",
+  "product": "CAVRA",
+  "sanitized": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fourth-cycle-activation-closeout.packet.v1",
+  "source_phase": "R7"
+}

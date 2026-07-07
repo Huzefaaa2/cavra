@@ -1,0 +1,93 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Customer lifecycle Phase 8 public scorecard monitoring fourth-cycle activation closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized Phase 8 fourth-cycle activation closeout supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "fourth_cycle_readiness_ref is a sanitized reference.",
+      "name": "fourth_cycle_readiness_ref",
+      "status": "pass"
+    },
+    {
+      "message": "Source fourth-cycle readiness is ready.",
+      "name": "fourth_cycle_readiness_result",
+      "status": "pass"
+    },
+    {
+      "message": "fourth_cycle_activation_owner_refs are present and sanitized.",
+      "name": "fourth_cycle_activation_owner_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard fourth-cycle activation closeout contract is complete.",
+      "name": "fourth_cycle_activation_contract",
+      "status": "pass"
+    },
+    {
+      "message": "cycle_start_refs are present and sanitized.",
+      "name": "cycle_start_refs",
+      "status": "pass"
+    },
+    {
+      "message": "initial_signal_refs are present and sanitized.",
+      "name": "initial_signal_refs",
+      "status": "pass"
+    },
+    {
+      "message": "monitor_run_refs are present and sanitized.",
+      "name": "monitor_run_refs",
+      "status": "pass"
+    },
+    {
+      "message": "alert_route_check_refs are present and sanitized.",
+      "name": "alert_route_check_refs",
+      "status": "pass"
+    },
+    {
+      "message": "activation_archive_refs are present and sanitized.",
+      "name": "activation_archive_refs",
+      "status": "pass"
+    },
+    {
+      "message": "owner_activation_ack_refs are present and sanitized.",
+      "name": "owner_activation_ack_refs",
+      "status": "pass"
+    },
+    {
+      "message": "CI gate coverage refs are complete.",
+      "name": "ci_gate_coverage",
+      "status": "pass"
+    },
+    {
+      "message": "fourth_cycle_activation_evidence_refs are sanitized.",
+      "name": "fourth_cycle_activation_evidence_refs",
+      "status": "pass"
+    },
+    {
+      "message": "Public scorecard fourth-cycle activation closeout controls are explicit.",
+      "name": "fourth_cycle_activation_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Phase 8 public scorecard monitoring fourth-cycle activation closeout contains sanitized refs only.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "phase": "R8",
+  "product": "CAVRA",
+  "ready_for_customer_lifecycle_phase8_public_scorecard_monitoring_fourth_cycle_activation_closeout": true,
+  "schema_version": "cavra.customer-lifecycle-phase8-public-scorecard-monitoring-fourth-cycle-activation-closeout.result.v1",
+  "source_phase": "R7",
+  "status": "ready",
+  "warning_count": 0
+}
