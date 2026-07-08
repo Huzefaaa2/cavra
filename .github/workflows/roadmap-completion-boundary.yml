@@ -8,6 +8,7 @@ on:
       - "docs/phase7-roadmap-closeout.md"
       - "docs/roadmap-intake-gate.md"
       - "docs/roadmap-candidate-charter.md"
+      - "docs/roadmap-future-phase-opening-gate.md"
       - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
       - "docs/product/cavra-unified-enterprise-status-report.md"
       - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
@@ -15,6 +16,7 @@ on:
       - "docs/wiki/Phase-7-Roadmap-Closeout.md"
       - "docs/wiki/Roadmap-Intake-Gate.md"
       - "docs/wiki/Roadmap-Candidate-Charter.md"
+      - "docs/wiki/Roadmap-Future-Phase-Opening-Gate.md"
       - "scripts/validate_roadmap_completion_boundary.py"
       - "tests/test_roadmap_completion_boundary.py"
   push:
@@ -24,6 +26,7 @@ on:
       - "docs/phase7-roadmap-closeout.md"
       - "docs/roadmap-intake-gate.md"
       - "docs/roadmap-candidate-charter.md"
+      - "docs/roadmap-future-phase-opening-gate.md"
       - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
       - "docs/product/cavra-unified-enterprise-status-report.md"
       - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
@@ -31,6 +34,7 @@ on:
       - "docs/wiki/Phase-7-Roadmap-Closeout.md"
       - "docs/wiki/Roadmap-Intake-Gate.md"
       - "docs/wiki/Roadmap-Candidate-Charter.md"
+      - "docs/wiki/Roadmap-Future-Phase-Opening-Gate.md"
       - "scripts/validate_roadmap_completion_boundary.py"
       - "tests/test_roadmap_completion_boundary.py"
   workflow_dispatch:

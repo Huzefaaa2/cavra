@@ -43,6 +43,7 @@
 - [Managed Enterprise Certificate Publication Index](Managed-Enterprise-Certificate-Publication-Index.md)
 - [Roadmap Intake Gate](Roadmap-Intake-Gate.md)
 - [Roadmap Candidate Charter](Roadmap-Candidate-Charter.md)
+- [Roadmap Future Phase Opening Gate](Roadmap-Future-Phase-Opening-Gate.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

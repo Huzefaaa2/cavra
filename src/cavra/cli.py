@@ -405,6 +405,11 @@ from cavra.roadmap_candidate_charter import (
     validate_roadmap_candidate_charter,
     write_roadmap_candidate_charter_artifacts,
 )
+from cavra.roadmap_future_phase_opening_gate import (
+    build_roadmap_future_phase_opening_gate,
+    validate_roadmap_future_phase_opening_gate,
+    write_roadmap_future_phase_opening_gate_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3614,6 +3619,55 @@ def release_roadmap_candidate_charter(
         result = validate_roadmap_candidate_charter(payload, require_live=require_live)
         exit_ok = result["blocker_count"] == 0 and (
             not require_live or result["ready_for_roadmap_candidate_charter"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("roadmap-future-phase-opening-gate")
+def release_roadmap_future_phase_opening_gate(
+    gate: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional roadmap future phase opening gate JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized future phase opening gates."),
+    ] = None,
+    change_type: Annotated[
+        str,
+        typer.Option(help="Change type to use when building a default future phase opening gate."),
+    ] = "new_product_capability",
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the roadmap future phase opening gate."""
+    if export_dir:
+        result = write_roadmap_future_phase_opening_gate_artifacts(export_dir)
+        exit_ok = result["ready_for_roadmap_future_phase_opening"] is True
+    else:
+        payload = (
+            json.loads(gate.read_text(encoding="utf-8"))
+            if gate
+            else build_roadmap_future_phase_opening_gate(
+                evidence_mode="live" if require_live else "sample",
+                requested_change_type=change_type,
+            )
+        )
+        result = validate_roadmap_future_phase_opening_gate(payload, require_live=require_live)
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live or result["ready_for_roadmap_future_phase_opening"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

@@ -1,0 +1,121 @@
+{
+  "evidence_mode": "live",
+  "opening_controls": {
+    "backlog_ref": "evidence://github/backlog/new_product_capability",
+    "docs_plan_ref": "evidence://docs/plan/new_product_capability",
+    "implementation_plan_ref": "evidence://plan/implementation/new_product_capability",
+    "release_gate_ref": "evidence://workflow/release-gate/new_product_capability",
+    "rollback_plan_ref": "evidence://plan/rollback/new_product_capability",
+    "security_review_ref": "evidence://security/review/new_product_capability",
+    "test_plan_ref": "evidence://test/plan/new_product_capability"
+  },
+  "opening_decision": {
+    "decision_ref": "evidence://decision/ready_to_open_future_product_phase",
+    "next_action_ref": "evidence://next-action/ready_to_open_future_product_phase",
+    "opening_decision": "ready_to_open_future_product_phase",
+    "target_phase_ref": "evidence://roadmap/future-product-phase"
+  },
+  "phase_opening_profile": {
+    "architecture_owner_ref": "evidence://owner/architecture",
+    "phase_candidate_ref": "evidence://phase-candidate/new_product_capability",
+    "phase_owner_ref": "evidence://owner/future-phase",
+    "product_owner_ref": "evidence://owner/product",
+    "roadmap_boundary_ref": "evidence://roadmap/phase-7-closeout-r7-61",
+    "source_charter_ref": "evidence://charter/new_product_capability"
+  },
+  "phase_plan": {
+    "dependency_refs": [
+      "evidence://dependency/roadmap-intake-gate",
+      "evidence://dependency/roadmap-candidate-charter",
+      "evidence://dependency/release-boundary"
+    ],
+    "exit_criteria_ref": "evidence://phase/exit-criteria/new_product_capability",
+    "milestone_refs": [
+      "evidence://phase/milestone/contract",
+      "evidence://phase/milestone/implementation",
+      "evidence://phase/milestone/validation"
+    ],
+    "phase_name_ref": "evidence://phase/name/new_product_capability",
+    "problem_statement_ref": "evidence://phase/problem/new_product_capability",
+    "scope_ref": "evidence://phase/scope/new_product_capability"
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.roadmap-future-phase-opening-gate.v1",
+  "source_candidate_charter_result": {
+    "acceptance_criteria_count": 7,
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Roadmap candidate charter schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized roadmap candidate charter supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "Source roadmap intake is a product candidate.",
+        "name": "source_intake_result",
+        "status": "pass"
+      },
+      {
+        "message": "charter_profile references are complete.",
+        "name": "charter_profile",
+        "status": "pass"
+      },
+      {
+        "message": "Candidate scope is complete.",
+        "name": "candidate_scope",
+        "status": "pass"
+      },
+      {
+        "message": "Acceptance criteria are complete.",
+        "name": "acceptance_criteria",
+        "status": "pass"
+      },
+      {
+        "message": "release_controls references are complete.",
+        "name": "release_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Charter decision is ready for product planning.",
+        "name": "charter_decision",
+        "status": "pass"
+      },
+      {
+        "message": "Redaction controls are asserted.",
+        "name": "redaction_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Roadmap candidate charter contains only sanitized references and control booleans.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "decision": "ready_for_product_roadmap_planning",
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_roadmap_candidate_charter": true,
+    "required_acceptance_criteria_count": 7,
+    "schema_version": "cavra.roadmap-candidate-charter.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  }
+}

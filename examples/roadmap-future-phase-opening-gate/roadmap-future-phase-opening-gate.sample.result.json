@@ -1,0 +1,59 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap future phase opening gate schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample future phase opening gate validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "Sample source candidate charter validates shape only.",
+      "name": "source_candidate_charter_result",
+      "status": "warn"
+    },
+    {
+      "message": "phase_opening_profile references are complete.",
+      "name": "phase_opening_profile",
+      "status": "pass"
+    },
+    {
+      "message": "Future phase plan references are complete.",
+      "name": "phase_plan",
+      "status": "pass"
+    },
+    {
+      "message": "opening_controls references are complete.",
+      "name": "opening_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Future phase opening decision is ready.",
+      "name": "opening_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap future phase opening gate contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "ready_to_open_future_product_phase",
+  "dependency_count": 3,
+  "evidence_mode": "sample",
+  "milestone_count": 3,
+  "product": "CAVRA",
+  "ready_for_roadmap_future_phase_opening": false,
+  "schema_version": "cavra.roadmap-future-phase-opening-gate.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}

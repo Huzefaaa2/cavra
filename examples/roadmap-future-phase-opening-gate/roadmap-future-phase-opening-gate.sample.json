@@ -1,0 +1,121 @@
+{
+  "evidence_mode": "sample",
+  "opening_controls": {
+    "backlog_ref": "sample://github/backlog/new_product_capability",
+    "docs_plan_ref": "sample://docs/plan/new_product_capability",
+    "implementation_plan_ref": "sample://plan/implementation/new_product_capability",
+    "release_gate_ref": "sample://workflow/release-gate/new_product_capability",
+    "rollback_plan_ref": "sample://plan/rollback/new_product_capability",
+    "security_review_ref": "sample://security/review/new_product_capability",
+    "test_plan_ref": "sample://test/plan/new_product_capability"
+  },
+  "opening_decision": {
+    "decision_ref": "sample://decision/ready_to_open_future_product_phase",
+    "next_action_ref": "sample://next-action/ready_to_open_future_product_phase",
+    "opening_decision": "ready_to_open_future_product_phase",
+    "target_phase_ref": "sample://roadmap/future-product-phase"
+  },
+  "phase_opening_profile": {
+    "architecture_owner_ref": "sample://owner/architecture",
+    "phase_candidate_ref": "sample://phase-candidate/new_product_capability",
+    "phase_owner_ref": "sample://owner/future-phase",
+    "product_owner_ref": "sample://owner/product",
+    "roadmap_boundary_ref": "sample://roadmap/phase-7-closeout-r7-61",
+    "source_charter_ref": "sample://charter/new_product_capability"
+  },
+  "phase_plan": {
+    "dependency_refs": [
+      "sample://dependency/roadmap-intake-gate",
+      "sample://dependency/roadmap-candidate-charter",
+      "sample://dependency/release-boundary"
+    ],
+    "exit_criteria_ref": "sample://phase/exit-criteria/new_product_capability",
+    "milestone_refs": [
+      "sample://phase/milestone/contract",
+      "sample://phase/milestone/implementation",
+      "sample://phase/milestone/validation"
+    ],
+    "phase_name_ref": "sample://phase/name/new_product_capability",
+    "problem_statement_ref": "sample://phase/problem/new_product_capability",
+    "scope_ref": "sample://phase/scope/new_product_capability"
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": false,
+  "schema_version": "cavra.roadmap-future-phase-opening-gate.v1",
+  "source_candidate_charter_result": {
+    "acceptance_criteria_count": 7,
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Roadmap candidate charter schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Sample roadmap candidate charter validates shape only.",
+        "name": "evidence_mode",
+        "status": "warn"
+      },
+      {
+        "message": "Source roadmap intake is a product candidate.",
+        "name": "source_intake_result",
+        "status": "pass"
+      },
+      {
+        "message": "charter_profile references are complete.",
+        "name": "charter_profile",
+        "status": "pass"
+      },
+      {
+        "message": "Candidate scope is complete.",
+        "name": "candidate_scope",
+        "status": "pass"
+      },
+      {
+        "message": "Acceptance criteria are complete.",
+        "name": "acceptance_criteria",
+        "status": "pass"
+      },
+      {
+        "message": "release_controls references are complete.",
+        "name": "release_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Charter decision is ready for product planning.",
+        "name": "charter_decision",
+        "status": "pass"
+      },
+      {
+        "message": "Redaction controls are asserted.",
+        "name": "redaction_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Roadmap candidate charter contains only sanitized references and control booleans.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "decision": "ready_for_product_roadmap_planning",
+    "evidence_mode": "sample",
+    "product": "CAVRA",
+    "ready_for_roadmap_candidate_charter": false,
+    "required_acceptance_criteria_count": 7,
+    "schema_version": "cavra.roadmap-candidate-charter.result.v1",
+    "status": "ready_with_warnings",
+    "warning_count": 1
+  }
+}
