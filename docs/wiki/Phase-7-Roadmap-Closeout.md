@@ -22,6 +22,14 @@ R7.61 closes Phase 7.
 
 Do not add R7.62 or later rows for another routine monitoring cycle. Add a new roadmap item only when the work changes CAVRA itself: a new API, CLI command, validator family, connector, deployment target, AISPM posture capability, evidence schema, trust artifact, or edition/packaging model.
 
+## Roadmap Boundary
+
+The public roadmap is now closed for the numbered rows currently listed in the
+tracker: R0.1 through R7.61 are complete for their stated public-contract scope.
+Phase 7 is therefore `Completed` in the phase summary. Managed and Enterprise
+customers still need real deployment validation, but that work is recorded as
+live operations evidence rather than new R7 rows.
+
 ## Normalized Gates
 
 | Gate | Status |
@@ -46,4 +54,3 @@ python3 -m pytest tests/test_customer_live_evidence.py tests/test_customer_evide
 ```
 
 All four validators return ready with zero blockers, and the focused tests pass.
-

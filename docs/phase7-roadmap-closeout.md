@@ -37,6 +37,14 @@ The following continue as customer operations, not as endless roadmap rows:
 
 Those activities belong in live evidence rooms, release packets, customer-success systems, and private Enterprise operations records.
 
+## Roadmap Boundary
+
+The public roadmap is now closed for the numbered rows currently listed in the
+tracker: R0.1 through R7.61 are complete for their stated public-contract scope.
+Phase 7 is therefore `Completed` in the phase summary. Managed and Enterprise
+customers still need real deployment validation, but that work is recorded as
+live operations evidence rather than new R7 rows.
+
 ## What Becomes New Roadmap Work
 
 Create a new roadmap item only when the work changes CAVRA itself, such as:
@@ -77,4 +85,3 @@ python3 -m pytest \
 ```
 
 Current result: all four validators return ready with zero blockers, and the focused test suite passes.
-

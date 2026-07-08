@@ -36,12 +36,27 @@ The common control planes are:
 | --- | --- | --- | --- | --- |
 | 0 | Positioning and public roadmap | Review agreement, product scope decision | Completed | README, wiki, and product site describe unified agent-action plus model/artifact governance and link to this tracker. |
 | 1 | Foundation trust | Phase 0 | Completed | Security governance, maintainer governance, release cadence, API contract, signed release, SBOM, and buyer trust documentation are publishable. |
-| 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | In Progress | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, and production data architecture are implemented and tested. |
-| 3 | Evidence, audit, and compliance | Phase 1 trust model, Phase 2 tenancy model | Planned | KMS-backed evidence, immutable audit log, and dynamic compliance mapping are production-ready. |
+| 2 | Identity, data, and multi-tenancy | Phase 1 API contract and trust model | Completed | Enterprise identity, RBAC/ABAC, tenant/workspace isolation, HA/DR topology, and production data architecture contracts are implemented with public-safe live-sanitized evidence boundaries. |
+| 3 | Evidence, audit, and compliance | Phase 1 trust model, Phase 2 tenancy model | Completed | KMS/HSM evidence custody, immutable audit log, compliance mapping packs, reporting exports, and closeout boundaries are implemented with public-safe live-sanitized evidence boundaries. |
 | 4 | Zero-trust scanning and connectors | Phase 2 tenancy, Phase 3 evidence/audit | Completed | Certified connector SDK, priority connectors, model registry connectors, scanner contracts, and the Phase 4 closeout gate are implemented with public-safe live-sanitized evidence boundaries. |
 | 5 | Policy lifecycle and event core | Phase 2 identity/data, Phase 4 connectors | Completed | OPA/Rego compatibility, policy lifecycle tooling, continuous monitoring, and the Phase 5 closeout gate are implemented with public-safe live-sanitized evidence boundaries. |
 | 6 | Scale and ecosystem expansion | Phases 1-5 | Completed | Benchmarks, SLO gates, broader agent adapters, LLM guardrails, supply-chain checks, red-team automation, zero-trust reference deployments, and the Phase 6 rollup gate are implemented with public-safe live-sanitized evidence boundaries. |
-| 7 | Live customer evidence capture | Phase 6 public-contract closeout | In Progress | Managed and Enterprise deployments can submit sanitized live evidence references without exposing private data. |
+| 7 | Live customer evidence capture | Phase 6 public-contract closeout | Completed | Customer-live evidence intake, evidence-room closeout, lifecycle handoff, operating review, renewal/archive/status/verification controls, Phase 8 operating packet patterns, and the Phase 7 stop rule are implemented; future recurring customer cycles are live operations evidence unless they introduce a new product capability. |
+
+## Roadmap Boundary
+
+All numbered public roadmap rows currently in this tracker are `Completed` for
+their stated public-contract scope. The remaining work is not another R7
+implementation loop. It is live Managed or Enterprise deployment execution:
+attach real customer evidence refs, run customer validators with
+`--require-live`, and store the resulting packets in the appropriate customer
+evidence room.
+
+New roadmap rows should be added only when work changes CAVRA itself: a new API,
+CLI command, validator family, connector, deployment target, AISPM capability,
+evidence schema, trust artifact, edition, packaging model, or buyer-facing
+surface. Routine customer monitoring, scorecard refresh, drift remediation,
+renewal, and closeout cycles continue as operations evidence.
 
 ## Numbered Enhancement Tracker
 
@@ -153,7 +168,7 @@ The common control planes are:
 ## Immediate Next Implementation Steps
 
 1. Convert this roadmap into GitHub issues or a GitHub Project when the team is ready to assign owners.
-2. Preserve Phase 4, Phase 5, and Phase 6 customer-live closeout as deployment tasks: attach real provider delivery, scanner, policy rollout, event-bus, benchmark, adapter, red-team, and zero-trust deployment evidence refs when validating a Managed or Enterprise customer environment.
+2. Preserve Phase 4, Phase 5, Phase 6, and Phase 7 customer-live closeout as deployment tasks: attach real provider delivery, scanner, policy rollout, event-bus, benchmark, adapter, red-team, zero-trust deployment, evidence-room, operating-review, renewal, archive, and scorecard evidence refs when validating a Managed or Enterprise customer environment.
 3. Use Phase 7 closeout as the public roadmap stop rule and move future recurring customer operating cycles into live operations evidence unless they introduce a new product capability.
 4. Add named additional maintainers/reviewers as an operating action using `docs/governance/maintainer-onboarding.md` when candidates are ready.
 5. Keep this tracker current by updating the `Status`, `Code/docs status`, `Tests and verification`, and `GitHub evidence` columns whenever code is pushed and validated.

@@ -24,6 +24,8 @@ For implementation details, read the new textbook chapter [CAVRA Technology Stac
 
 For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 
+The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model.
+
 For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
 
 For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
