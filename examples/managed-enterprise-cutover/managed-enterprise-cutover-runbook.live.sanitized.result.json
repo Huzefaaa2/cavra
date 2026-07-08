@@ -1,0 +1,48 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Cutover runbook schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized cutover runbook supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "cutover_profile references are complete.",
+      "name": "cutover_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required cutover steps are present.",
+      "name": "cutover_steps",
+      "status": "pass"
+    },
+    {
+      "message": "cutover_controls references are complete.",
+      "name": "cutover_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Runbook contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_cutover": true,
+  "required_step_count": 11,
+  "schema_version": "cavra.managed-enterprise-cutover-runbook.result.v1",
+  "status": "ready",
+  "step_count": 11,
+  "warning_count": 0
+}

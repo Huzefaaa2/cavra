@@ -1,0 +1,143 @@
+{
+  "cutover_controls": {
+    "change_freeze_ref": "evidence://control/change-freeze",
+    "customer_notification_ref": "evidence://control/customer-notification",
+    "evidence_archive_ref": "evidence://control/evidence-archive",
+    "go_no_go_ref": "evidence://control/go-no-go",
+    "incident_channel_ref": "evidence://control/incident-channel",
+    "rollback_trigger_ref": "evidence://control/rollback-trigger"
+  },
+  "cutover_profile": {
+    "change_window_ref": "evidence://change-window/managed-enterprise-cutover",
+    "environment_ref": "evidence://environment/managed-enterprise-production",
+    "evidence_room_ref": "evidence://evidence-room/managed-enterprise-cutover",
+    "live_validation_plan_ref": "evidence://managed-enterprise-live-validation/plan",
+    "rollback_plan_ref": "evidence://runbook/managed-enterprise-rollback",
+    "runbook_ref": "evidence://runbook/managed-enterprise-cutover"
+  },
+  "cutover_steps": [
+    {
+      "approver_ref": "evidence://approval/preflight_freeze",
+      "objective": "Confirm change freeze, release candidate, operator staffing, and evidence room are ready.",
+      "owner_ref": "evidence://owner/preflight_freeze",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/preflight_freeze/evidence",
+      "status_ref": "evidence://status/preflight_freeze",
+      "step_id": "preflight_freeze",
+      "title": "Preflight Freeze",
+      "validator_command": "operator evidence-room reference required"
+    },
+    {
+      "approver_ref": "evidence://approval/identity_access",
+      "objective": "Validate Enterprise identity, SSO/RBAC, and break-glass controls.",
+      "owner_ref": "evidence://owner/identity_access",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/identity_access/evidence",
+      "status_ref": "evidence://status/identity_access",
+      "step_id": "identity_access",
+      "title": "Identity Access",
+      "validator_command": "python3 scripts/validate_enterprise_live_identity_packet.py --require-live"
+    },
+    {
+      "approver_ref": "evidence://approval/tenant_isolation",
+      "objective": "Validate tenant isolation and persistence boundaries.",
+      "owner_ref": "evidence://owner/tenant_isolation",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/tenant_isolation/evidence",
+      "status_ref": "evidence://status/tenant_isolation",
+      "step_id": "tenant_isolation",
+      "title": "Tenant Isolation",
+      "validator_command": "python3 scripts/validate_postgres_tenant_rls_smoke.py --require-live"
+    },
+    {
+      "approver_ref": "evidence://approval/connectors_runtime",
+      "objective": "Validate live connectors, scanners, runtime workflows, and MCP/tool controls.",
+      "owner_ref": "evidence://owner/connectors_runtime",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/connectors_runtime/evidence",
+      "status_ref": "evidence://status/connectors_runtime",
+      "step_id": "connectors_runtime",
+      "title": "Connectors Runtime",
+      "validator_command": "python3 scripts/validate_priority_connectors.py --require-live"
+    },
+    {
+      "approver_ref": "evidence://approval/smtp_reporting",
+      "objective": "Validate production SMTP/report delivery and recipient policy.",
+      "owner_ref": "evidence://owner/smtp_reporting",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/smtp_reporting/evidence",
+      "status_ref": "evidence://status/smtp_reporting",
+      "step_id": "smtp_reporting",
+      "title": "Smtp Reporting",
+      "validator_command": "python3 scripts/validate_aispm_report_delivery_production.py"
+    },
+    {
+      "approver_ref": "evidence://approval/aispm_gate",
+      "objective": "Validate AISPM production readiness with no blockers.",
+      "owner_ref": "evidence://owner/aispm_gate",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/aispm_gate/evidence",
+      "status_ref": "evidence://status/aispm_gate",
+      "step_id": "aispm_gate",
+      "title": "Aispm Gate",
+      "validator_command": "python3 scripts/validate_aispm_production_readiness.py"
+    },
+    {
+      "approver_ref": "evidence://approval/go_no_go",
+      "objective": "Record executive go/no-go decision and approval references.",
+      "owner_ref": "evidence://owner/go_no_go",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/go_no_go/evidence",
+      "status_ref": "evidence://status/go_no_go",
+      "step_id": "go_no_go",
+      "title": "Go No Go",
+      "validator_command": "operator evidence-room reference required"
+    },
+    {
+      "approver_ref": "evidence://approval/activation",
+      "objective": "Activate Managed or Enterprise control plane under operator supervision.",
+      "owner_ref": "evidence://owner/activation",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/activation/evidence",
+      "status_ref": "evidence://status/activation",
+      "step_id": "activation",
+      "title": "Activation",
+      "validator_command": "operator evidence-room reference required"
+    },
+    {
+      "approver_ref": "evidence://approval/rollback_rehearsal",
+      "objective": "Confirm rollback trigger, owner, and rehearsal evidence references.",
+      "owner_ref": "evidence://owner/rollback_rehearsal",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/rollback_rehearsal/evidence",
+      "status_ref": "evidence://status/rollback_rehearsal",
+      "step_id": "rollback_rehearsal",
+      "title": "Rollback Rehearsal",
+      "validator_command": "operator evidence-room reference required"
+    },
+    {
+      "approver_ref": "evidence://approval/customer_closeout",
+      "objective": "Attach customer evidence-room, operating-review, and closeout references.",
+      "owner_ref": "evidence://owner/customer_closeout",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/customer_closeout/evidence",
+      "status_ref": "evidence://status/customer_closeout",
+      "step_id": "customer_closeout",
+      "title": "Customer Closeout",
+      "validator_command": "python3 scripts/validate_customer_operating_review.py --require-live"
+    },
+    {
+      "approver_ref": "evidence://approval/public_status_sync",
+      "objective": "Publish only customer-safe status and documentation references.",
+      "owner_ref": "evidence://owner/public_status_sync",
+      "required_evidence_ref": "evidence://managed-enterprise-cutover/public_status_sync/evidence",
+      "status_ref": "evidence://status/public_status_sync",
+      "step_id": "public_status_sync",
+      "title": "Public Status Sync",
+      "validator_command": "operator evidence-room reference required"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-cutover-runbook.v1"
+}
