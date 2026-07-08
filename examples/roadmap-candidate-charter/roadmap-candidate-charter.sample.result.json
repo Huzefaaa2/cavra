@@ -1,0 +1,64 @@
+{
+  "acceptance_criteria_count": 7,
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap candidate charter schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample roadmap candidate charter validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "Source roadmap intake is a product candidate.",
+      "name": "source_intake_result",
+      "status": "pass"
+    },
+    {
+      "message": "charter_profile references are complete.",
+      "name": "charter_profile",
+      "status": "pass"
+    },
+    {
+      "message": "Candidate scope is complete.",
+      "name": "candidate_scope",
+      "status": "pass"
+    },
+    {
+      "message": "Acceptance criteria are complete.",
+      "name": "acceptance_criteria",
+      "status": "pass"
+    },
+    {
+      "message": "release_controls references are complete.",
+      "name": "release_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Charter decision is ready for product planning.",
+      "name": "charter_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap candidate charter contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "ready_for_product_roadmap_planning",
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_roadmap_candidate_charter": false,
+  "required_acceptance_criteria_count": 7,
+  "schema_version": "cavra.roadmap-candidate-charter.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}

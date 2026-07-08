@@ -1,0 +1,155 @@
+{
+  "acceptance_criteria": [
+    {
+      "criterion_id": "api_or_cli_contract_defined",
+      "evidence_ref": "evidence://acceptance/api_or_cli_contract_defined",
+      "owner_ref": "evidence://owner/api_or_cli_contract_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "docs_surface_defined",
+      "evidence_ref": "evidence://acceptance/docs_surface_defined",
+      "owner_ref": "evidence://owner/docs_surface_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "evidence_model_defined",
+      "evidence_ref": "evidence://acceptance/evidence_model_defined",
+      "owner_ref": "evidence://owner/evidence_model_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "public_contract_boundary_defined",
+      "evidence_ref": "evidence://acceptance/public_contract_boundary_defined",
+      "owner_ref": "evidence://owner/public_contract_boundary_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "release_gate_defined",
+      "evidence_ref": "evidence://acceptance/release_gate_defined",
+      "owner_ref": "evidence://owner/release_gate_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "security_boundary_defined",
+      "evidence_ref": "evidence://acceptance/security_boundary_defined",
+      "owner_ref": "evidence://owner/security_boundary_defined",
+      "status": "defined"
+    },
+    {
+      "criterion_id": "test_plan_defined",
+      "evidence_ref": "evidence://acceptance/test_plan_defined",
+      "owner_ref": "evidence://owner/test_plan_defined",
+      "status": "defined"
+    }
+  ],
+  "candidate_scope": {
+    "capability_statement_ref": "evidence://capability/new_product_capability",
+    "customer_value_ref": "evidence://value/new_product_capability",
+    "dependency_refs": [
+      "evidence://dependency/roadmap-intake-gate",
+      "evidence://dependency/release-boundary"
+    ],
+    "excluded_scope_ref": "evidence://scope/exclusions/new_product_capability",
+    "included_surface_refs": [
+      "evidence://surface/api-or-cli",
+      "evidence://surface/docs",
+      "evidence://surface/validation"
+    ]
+  },
+  "charter_decision": {
+    "charter_decision": "ready_for_product_roadmap_planning",
+    "decision_ref": "evidence://decision/ready_for_product_roadmap_planning",
+    "next_action_ref": "evidence://next-action/ready_for_product_roadmap_planning",
+    "target_phase_ref": "evidence://roadmap/future-product-phase"
+  },
+  "charter_profile": {
+    "architecture_owner_ref": "evidence://owner/architecture",
+    "candidate_id_ref": "evidence://roadmap-candidate/new_product_capability",
+    "product_owner_ref": "evidence://owner/product",
+    "roadmap_boundary_ref": "evidence://roadmap/phase-7-closeout-r7-61",
+    "source_intake_ref": "evidence://roadmap-intake/new_product_capability",
+    "sponsor_ref": "evidence://owner/product-sponsor"
+  },
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "release_controls": {
+    "docs_plan_ref": "evidence://docs/plan/new_product_capability",
+    "implementation_plan_ref": "evidence://plan/implementation/new_product_capability",
+    "release_owner_ref": "evidence://owner/release/new_product_capability",
+    "review_cadence_ref": "evidence://workflow/review-cadence/new_product_capability",
+    "rollback_plan_ref": "evidence://plan/rollback/new_product_capability",
+    "test_plan_ref": "evidence://test/plan/new_product_capability"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.roadmap-candidate-charter.v1",
+  "source_intake_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Roadmap intake gate schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized roadmap intake packet supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "intake_profile references are complete.",
+        "name": "intake_profile",
+        "status": "pass"
+      },
+      {
+        "message": "Request classification is consistent.",
+        "name": "request_classification",
+        "status": "pass"
+      },
+      {
+        "message": "operating_evidence references are complete.",
+        "name": "operating_evidence",
+        "status": "pass"
+      },
+      {
+        "message": "boundary_decision references are complete.",
+        "name": "boundary_decision",
+        "status": "pass"
+      },
+      {
+        "message": "Boundary decision matches request type.",
+        "name": "roadmap_boundary_decision",
+        "status": "pass"
+      },
+      {
+        "message": "Redaction controls are asserted.",
+        "name": "redaction_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Roadmap intake gate contains only sanitized references and control booleans.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "decision": "new_product_roadmap_candidate",
+    "evidence_mode": "live",
+    "product": "CAVRA",
+    "ready_for_roadmap_intake_decision": true,
+    "schema_version": "cavra.roadmap-intake-gate.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  }
+}

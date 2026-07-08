@@ -400,6 +400,11 @@ from cavra.roadmap_intake_gate import (
     validate_roadmap_intake_gate_packet,
     write_roadmap_intake_gate_artifacts,
 )
+from cavra.roadmap_candidate_charter import (
+    build_roadmap_candidate_charter,
+    validate_roadmap_candidate_charter,
+    write_roadmap_candidate_charter_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3560,6 +3565,55 @@ def release_roadmap_intake_gate(
         result = validate_roadmap_intake_gate_packet(payload, require_live=require_live)
         exit_ok = result["blocker_count"] == 0 and (
             not require_live or result["ready_for_roadmap_intake_decision"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("roadmap-candidate-charter")
+def release_roadmap_candidate_charter(
+    charter: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional roadmap candidate charter JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized roadmap candidate charters."),
+    ] = None,
+    change_type: Annotated[
+        str,
+        typer.Option(help="Change type to use when building a default charter."),
+    ] = "new_product_capability",
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the roadmap candidate charter."""
+    if export_dir:
+        result = write_roadmap_candidate_charter_artifacts(export_dir)
+        exit_ok = result["ready_for_roadmap_candidate_charter"] is True
+    else:
+        payload = (
+            json.loads(charter.read_text(encoding="utf-8"))
+            if charter
+            else build_roadmap_candidate_charter(
+                evidence_mode="live" if require_live else "sample",
+                requested_change_type=change_type,
+            )
+        )
+        result = validate_roadmap_candidate_charter(payload, require_live=require_live)
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live or result["ready_for_roadmap_candidate_charter"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

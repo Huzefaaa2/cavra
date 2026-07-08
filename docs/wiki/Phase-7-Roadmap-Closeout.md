@@ -25,6 +25,8 @@ Future work should not add R7.62, R7.63, or more monitoring-cycle rows unless it
 
 Run the [Roadmap Intake Gate](roadmap-intake-gate.md) before adding any future roadmap item. It classifies a request as live operations evidence, a new product roadmap candidate, or needing architect review.
 
+If the intake gate returns `new_product_roadmap_candidate`, run the [Roadmap Candidate Charter](roadmap-candidate-charter.md) before opening a future phase. The charter proves scope, ownership, acceptance criteria, docs/test/release plans, public-contract boundaries, and redaction controls.
+
 ## What Continues After Closeout
 
 The following continue as customer operations, not as endless roadmap rows:
@@ -40,6 +42,8 @@ The following continue as customer operations, not as endless roadmap rows:
 Those activities belong in live evidence rooms, release packets, customer-success systems, and private Enterprise operations records.
 
 Use `python3 scripts/validate_roadmap_intake_gate.py --require-live` or `cavra release roadmap-intake-gate --require-live` to record that classification with sanitized references.
+
+Use `python3 scripts/validate_roadmap_candidate_charter.py --require-live` or `cavra release roadmap-candidate-charter --require-live` only for requests that the intake gate already classified as product candidates.
 
 ## Roadmap Boundary
 
