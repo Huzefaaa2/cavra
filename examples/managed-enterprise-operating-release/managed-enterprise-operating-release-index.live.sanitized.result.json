@@ -1,0 +1,48 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Operating release index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized operating release index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "release_profile references are complete.",
+      "name": "release_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required operating release gates are present.",
+      "name": "operating_gates",
+      "status": "pass"
+    },
+    {
+      "message": "operating_release_outcome references are complete.",
+      "name": "operating_release_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Index contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "live",
+  "gate_count": 6,
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_operating_release": true,
+  "required_gate_count": 6,
+  "schema_version": "cavra.managed-enterprise-operating-release-index.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

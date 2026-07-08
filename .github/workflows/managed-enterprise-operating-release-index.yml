@@ -1,0 +1,47 @@
+name: Managed Enterprise Operating Release Index
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/managed-enterprise-operating-release-index.yml"
+      - "README.md"
+      - "docs/managed-enterprise-operating-release-index.md"
+      - "docs/wiki/Managed-Enterprise-Operating-Release-Index.md"
+      - "examples/managed-enterprise-operating-release/**"
+      - "scripts/validate_managed_enterprise_operating_release_index.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_operating_release_index.py"
+      - "tests/test_managed_enterprise_operating_release_index.py"
+  push:
+    paths:
+      - ".github/workflows/managed-enterprise-operating-release-index.yml"
+      - "README.md"
+      - "docs/managed-enterprise-operating-release-index.md"
+      - "docs/wiki/Managed-Enterprise-Operating-Release-Index.md"
+      - "examples/managed-enterprise-operating-release/**"
+      - "scripts/validate_managed_enterprise_operating_release_index.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_operating_release_index.py"
+      - "tests/test_managed_enterprise_operating_release_index.py"
+  workflow_dispatch:
+
+jobs:
+  validate-managed-enterprise-operating-release-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Managed/Enterprise operating release index
+        run: python scripts/validate_managed_enterprise_operating_release_index.py --index examples/managed-enterprise-operating-release/managed-enterprise-operating-release-index.sample.json
+      - name: Validate live sanitized Managed/Enterprise operating release index
+        run: python scripts/validate_managed_enterprise_operating_release_index.py --index examples/managed-enterprise-operating-release/managed-enterprise-operating-release-index.live.sanitized.example.json --require-live
+      - name: Validate live sanitized operating release index through CAVRA CLI
+        run: python -m cavra.cli release managed-enterprise-operating-release-index --index examples/managed-enterprise-operating-release/managed-enterprise-operating-release-index.live.sanitized.example.json --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_managed_enterprise_operating_release_index.py -q
+      - name: Lint Managed/Enterprise operating release index surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/managed_enterprise_operating_release_index.py scripts/validate_managed_enterprise_operating_release_index.py tests/test_managed_enterprise_operating_release_index.py

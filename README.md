@@ -32,6 +32,8 @@ For the first post-cutover window, use the [CAVRA Managed And Enterprise Stabili
 
 For steady-state operations, use the [CAVRA Managed And Enterprise Steady-State Handoff](docs/managed-enterprise-steady-state-handoff.md). It proves named ownership, SLO monitoring, security operations, connector operations, runtime operations, AISPM operations, support, customer success, and evidence custody before launch mode becomes normal operating cadence. Installed operators can run it with `cavra release managed-enterprise-steady-state-handoff --require-live`.
 
+For final operating release indexing, use the [CAVRA Managed And Enterprise Operating Release Index](docs/managed-enterprise-operating-release-index.md). It aggregates live validation, cutover, stabilization, steady-state handoff, evidence archive, and public-safe status sync into one customer-safe readiness result. Installed operators can run it with `cavra release managed-enterprise-operating-release-index --require-live`.
+
 For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 
 The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model. This boundary is enforced by `python3 scripts/validate_roadmap_completion_boundary.py --repo-root .`.
@@ -216,6 +218,7 @@ Start with the wiki textbook:
 - [CAVRA Managed And Enterprise Cutover Runbook](docs/managed-enterprise-cutover-runbook.md)
 - [CAVRA Managed And Enterprise Stabilization Report](docs/managed-enterprise-stabilization-report.md)
 - [CAVRA Managed And Enterprise Steady-State Handoff](docs/managed-enterprise-steady-state-handoff.md)
+- [CAVRA Managed And Enterprise Operating Release Index](docs/managed-enterprise-operating-release-index.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)

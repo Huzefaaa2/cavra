@@ -1,0 +1,91 @@
+{
+  "evidence_mode": "live",
+  "operating_gates": [
+    {
+      "evidence_ref": "evidence://operating-release/live_validation/evidence",
+      "gate_id": "live_validation",
+      "objective": "Real tenants, connectors, SMTP/report delivery, runtime workflows, AISPM, and closeout evidence refs are attached.",
+      "owner_ref": "evidence://owner/live_validation",
+      "result_ref": "evidence://operating-release/live_validation/result",
+      "status_ref": "evidence://operating-release/live_validation/status",
+      "title": "Live Validation"
+    },
+    {
+      "evidence_ref": "evidence://operating-release/cutover/evidence",
+      "gate_id": "cutover",
+      "objective": "Activation, go/no-go, rollback, customer closeout, and status synchronization are complete.",
+      "owner_ref": "evidence://owner/cutover",
+      "result_ref": "evidence://operating-release/cutover/result",
+      "status_ref": "evidence://operating-release/cutover/status",
+      "title": "Cutover"
+    },
+    {
+      "evidence_ref": "evidence://operating-release/stabilization/evidence",
+      "gate_id": "stabilization",
+      "objective": "The first post-cutover health window is closed with no unresolved blocker.",
+      "owner_ref": "evidence://owner/stabilization",
+      "result_ref": "evidence://operating-release/stabilization/result",
+      "status_ref": "evidence://operating-release/stabilization/status",
+      "title": "Stabilization"
+    },
+    {
+      "evidence_ref": "evidence://operating-release/steady_state_handoff/evidence",
+      "gate_id": "steady_state_handoff",
+      "objective": "Named operating owners, cadence, support, AISPM operations, and evidence custody are active.",
+      "owner_ref": "evidence://owner/steady_state_handoff",
+      "result_ref": "evidence://operating-release/steady_state_handoff/result",
+      "status_ref": "evidence://operating-release/steady_state_handoff/status",
+      "title": "Steady State Handoff"
+    },
+    {
+      "evidence_ref": "evidence://operating-release/evidence_archive/evidence",
+      "gate_id": "evidence_archive",
+      "objective": "Final operating evidence archive, retention, and verifier access are recorded.",
+      "owner_ref": "evidence://owner/evidence_archive",
+      "result_ref": "evidence://operating-release/evidence_archive/result",
+      "status_ref": "evidence://operating-release/evidence_archive/status",
+      "title": "Evidence Archive"
+    },
+    {
+      "evidence_ref": "evidence://operating-release/public_safe_status_sync/evidence",
+      "gate_id": "public_safe_status_sync",
+      "objective": "Public-safe README, wiki, status, and release notes are aligned without customer-private material.",
+      "owner_ref": "evidence://owner/public_safe_status_sync",
+      "result_ref": "evidence://operating-release/public_safe_status_sync/result",
+      "status_ref": "evidence://operating-release/public_safe_status_sync/status",
+      "title": "Public Safe Status Sync"
+    }
+  ],
+  "operating_release_outcome": {
+    "accepted_risks_ref": "evidence://risks/accepted-operating-risks",
+    "customer_success_owner_ref": "evidence://owner/customer-success",
+    "next_operating_review_ref": "evidence://review/next-managed-enterprise-operating-review",
+    "open_blockers_ref": "evidence://blockers/none-or-accepted",
+    "operating_release_decision_ref": "evidence://decision/managed-enterprise-operating-release-ready",
+    "security_owner_ref": "evidence://owner/security",
+    "support_owner_ref": "evidence://owner/support"
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "release_profile": {
+    "customer_status_ref": "evidence://status/customer-safe-operating-release",
+    "environment_ref": "evidence://environment/managed-enterprise-production",
+    "evidence_room_ref": "evidence://evidence-room/managed-enterprise-operating-release",
+    "operating_model_ref": "evidence://runbook/managed-enterprise-operating-model",
+    "public_status_ref": "evidence://status/public-safe-operating-release",
+    "release_owner_ref": "evidence://owner/managed-enterprise-operating-release"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-operating-release-index.v1"
+}
