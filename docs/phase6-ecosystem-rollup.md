@@ -91,3 +91,16 @@ The checked-in validation result is:
 The CI workflow is:
 
 - `.github/workflows/phase6-rollup.yml`
+
+## Roadmap Normalization
+
+Phase 6 is closed for public-contract implementation. R6.1 through R6.4 are
+marked complete because their validators, live-sanitized examples, docs,
+workflows, tests, and rollup bindings are present and the Phase 6 rollup returns
+`ready_for_phase6_public_contract_release: true` with no blockers.
+
+The remaining `ready_for_customer_live_phase6_closeout: false` state is not an
+implementation gap in the public repo. It is the expected boundary for Managed
+or Enterprise deployments until real benchmark runs, adapter installs,
+red-team closeout records, and zero-trust deployment smoke evidence are attached
+to a customer evidence room.

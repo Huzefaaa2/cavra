@@ -57,3 +57,14 @@ Related pages: [Benchmark SLO Regression Gates](Benchmark-SLO-Regression-Gates.m
 [Generic Agent Adapter SDK And Action Taxonomy](Generic-Agent-Adapter-SDK-And-Action-Taxonomy.md),
 [AI Red-Team And Supply-Chain Gates](AI-Red-Team-And-Supply-Chain-Gates.md), and
 [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments.md).
+
+## Roadmap Normalization
+
+Phase 6 is closed for public-contract implementation. R6.1 through R6.4 are
+marked complete because their validators, live-sanitized examples, docs,
+workflows, tests, and rollup bindings are present and the Phase 6 rollup returns
+`ready_for_phase6_public_contract_release: true` with no blockers.
+
+The remaining customer-live state is expected to stay deployment-specific until
+a Managed or Enterprise environment attaches real benchmark, adapter,
+red-team, and zero-trust deployment evidence refs.
