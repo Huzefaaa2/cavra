@@ -138,11 +138,25 @@ Open `http://localhost:5173` and explore the dashboard, demo scenarios, evidence
 
 The repository includes Docker examples for local evaluation and demo environments:
 
+- `docker/Dockerfile.community`
+- `docker/Dockerfile.azure-api`
 - `docker-compose.yml`
 - `docker/docker-compose.community.yml`
 - `examples/docker/README.md`
 
-Use Docker when you want repeatable local startup or a shared demo environment. Use the Python editable install when you are modifying policy, CLI, or source behavior.
+Use Docker when you want repeatable local startup or a shared demo environment.
+Use the Python editable install when you are modifying policy, CLI, or source
+behavior.
+
+| Container path | Use it for | First validation |
+| --- | --- | --- |
+| CLI image from `docker/Dockerfile.community` | Validating the CAVRA package, CLI help, policy commands, and local evidence commands inside Docker. | `docker run --rm cavra-community-cli:local --help` |
+| API image from `docker/Dockerfile.azure-api` | Running the FastAPI service locally or deploying through Kubernetes and Helm. | `curl http://127.0.0.1:8000/health` |
+
+For Docker Desktop, Kubernetes, Helm, local images, `kind`, Minikube, cloud
+Kubernetes, on-premises clusters, external PostgreSQL, secrets, and TLS, use
+[Kubernetes Deployment](Kubernetes-Deployment.md). Start with the Docker Desktop
+Kubernetes section if you are testing on a Mac with Docker Desktop.
 
 ## API Deployment
 

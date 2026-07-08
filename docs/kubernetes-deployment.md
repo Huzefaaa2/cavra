@@ -19,11 +19,41 @@ operators aligning with tenant/Enterprise persistence contracts. Do not assume
 every public Community store automatically migrates to PostgreSQL unless the
 operator has configured the corresponding adapter path.
 
-## Container Image
+## Prerequisites
 
-The Community API image is built from:
+For local testing on a Mac, Docker Desktop is enough to validate both the
+container image and the Helm chart. Enable Kubernetes in Docker Desktop before
+running the Kubernetes steps:
 
-- `docker/Dockerfile.azure-api`
+1. Open Docker Desktop.
+2. Go to **Settings > Kubernetes**.
+3. Enable Kubernetes and wait until the cluster is running.
+4. Verify the active context:
+
+```bash
+kubectl config current-context
+```
+
+For Docker Desktop, the expected context is usually:
+
+```text
+docker-desktop
+```
+
+Install command-line tools if they are not already available:
+
+```bash
+brew install kubectl helm
+```
+
+## Container Images
+
+CAVRA includes two public Community container entry points:
+
+| Dockerfile | Purpose | Default process | Use when |
+| --- | --- | --- | --- |
+| `docker/Dockerfile.community` | CLI and package smoke testing | `cavra version` | You want to verify the installed CAVRA package, CLI help, policy commands, and local evidence commands inside a container. |
+| `docker/Dockerfile.azure-api` | API and Kubernetes deployment | `uvicorn cavra.api:app --host 0.0.0.0 --port 8000` | You want to run the FastAPI service locally, in Docker Desktop Kubernetes, or through the Helm chart. |
 
 The GitHub Container Registry publish workflow is:
 
@@ -35,12 +65,93 @@ Default image:
 ghcr.io/huzefaaa2/cavra-community-api:1.0.0
 ```
 
-Build locally:
+## CLI Container Smoke Test
+
+Use the CLI image first when you want to confirm that the CAVRA package and help
+system work correctly in a clean container:
+
+```bash
+docker build -f docker/Dockerfile.community -t cavra-community-cli:local .
+docker run --rm cavra-community-cli:local
+docker run --rm cavra-community-cli:local --help
+docker run --rm cavra-community-cli:local version
+docker run --rm cavra-community-cli:local policy list
+docker run --rm cavra-community-cli:local evaluate execute_command "terraform apply -auto-approve" --json
+```
+
+Command-specific help is available through the same image:
+
+```bash
+docker run --rm cavra-community-cli:local evaluate --help
+docker run --rm cavra-community-cli:local policy validate --help
+docker run --rm cavra-community-cli:local evidence bundle --help
+```
+
+## API Container Smoke Test
+
+Build and run the API image locally before deploying to Kubernetes:
 
 ```bash
 docker build -f docker/Dockerfile.azure-api -t cavra-community-api:local .
 docker run --rm -p 8000:8000 cavra-community-api:local
 curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/version
+curl http://127.0.0.1:8000/console/config
+```
+
+Expected health output:
+
+```json
+{"status":"ok","product":"CAVRA"}
+```
+
+## Docker Desktop Kubernetes
+
+Use this path when Docker Desktop Kubernetes is enabled and you want to deploy
+the locally built API image without pushing it to a registry.
+
+Build the local image:
+
+```bash
+docker build -f docker/Dockerfile.azure-api -t cavra-community-api:local .
+```
+
+Validate the chart:
+
+```bash
+helm dependency build charts/cavra
+helm lint charts/cavra
+helm template cavra charts/cavra --namespace cavra > /tmp/cavra.yaml
+```
+
+Install with the local image:
+
+```bash
+helm upgrade --install cavra charts/cavra \
+  --namespace cavra \
+  --create-namespace \
+  --set image.repository=cavra-community-api \
+  --set image.tag=local \
+  --set image.pullPolicy=Never
+```
+
+Validate the deployment:
+
+```bash
+kubectl -n cavra rollout status deployment/cavra
+kubectl -n cavra get pods,svc,pvc
+kubectl -n cavra port-forward svc/cavra 8000:80
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/version
+curl http://127.0.0.1:8000/console/config
+helm test cavra --namespace cavra
+```
+
+Clean up:
+
+```bash
+helm uninstall cavra --namespace cavra
+kubectl delete namespace cavra
 ```
 
 ## Local kind Or minikube
