@@ -31,6 +31,8 @@ If the charter passes, run the [Roadmap Future Phase Opening Gate](Roadmap-Futur
 
 If the opening gate passes, run the [Roadmap Future Phase Registry](Roadmap-Future-Phase-Registry.md) to record the approved future phase with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs. The registry is a future-phase ledger, not a continuation of R7.
 
+After the registry passes, run the [Roadmap Future Work Governance Index](Roadmap-Future-Work-Governance-Index.md) as the one-pass closeout for intake, charter, opening, and registry results. The index closes the future-work governance chain without reopening R7.
+
 ## What Continues After Closeout
 
 The following continue as customer operations, not as endless roadmap rows:
@@ -52,6 +54,8 @@ Use `python3 scripts/validate_roadmap_candidate_charter.py --require-live` or `c
 Use `python3 scripts/validate_roadmap_future_phase_opening_gate.py --require-live` or `cavra release roadmap-future-phase-opening-gate --require-live` only after the candidate charter passes.
 
 Use `python3 scripts/validate_roadmap_future_phase_registry.py --require-live` or `cavra release roadmap-future-phase-registry --require-live` only after the future phase opening gate passes.
+
+Use `python3 scripts/validate_roadmap_future_work_governance_index.py --require-live` or `cavra release roadmap-future-work-governance-index --require-live` as the final one-pass governance check for future product work.
 
 ## Roadmap Boundary
 

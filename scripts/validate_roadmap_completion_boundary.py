@@ -124,6 +124,8 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
     wiki_future_phase_gate_path = repo_root / "docs/wiki/Roadmap-Future-Phase-Opening-Gate.md"
     future_phase_registry_path = repo_root / "docs/roadmap-future-phase-registry.md"
     wiki_future_phase_registry_path = repo_root / "docs/wiki/Roadmap-Future-Phase-Registry.md"
+    future_work_governance_index_path = repo_root / "docs/roadmap-future-work-governance-index.md"
+    wiki_future_work_governance_index_path = repo_root / "docs/wiki/Roadmap-Future-Work-Governance-Index.md"
     readme_path = repo_root / "README.md"
 
     roadmap_text = _read(roadmap_path, blockers)
@@ -140,6 +142,8 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
     wiki_future_phase_gate_text = _read(wiki_future_phase_gate_path, blockers)
     future_phase_registry_text = _read(future_phase_registry_path, blockers)
     wiki_future_phase_registry_text = _read(wiki_future_phase_registry_path, blockers)
+    future_work_governance_index_text = _read(future_work_governance_index_path, blockers)
+    wiki_future_work_governance_index_text = _read(wiki_future_work_governance_index_path, blockers)
     readme_text = _read(readme_path, blockers)
 
     roadmap_result = _validate_roadmap(roadmap_path, roadmap_text, blockers)
@@ -162,6 +166,7 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
                 "roadmap candidate charter",
                 "future phase opening gate",
                 "future phase registry",
+                "future work governance index",
                 "Create a new roadmap item only when the work changes CAVRA itself",
             ],
             blockers,
@@ -182,6 +187,7 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
                 "Roadmap Candidate Charter",
                 "Roadmap Future Phase Opening Gate",
                 "Roadmap Future Phase Registry",
+                "Roadmap Future Work Governance Index",
                 "live operations evidence",
             ],
             blockers,
@@ -251,6 +257,22 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
             blockers,
         )
 
+    for path, text in (
+        (future_work_governance_index_path, future_work_governance_index_text),
+        (wiki_future_work_governance_index_path, wiki_future_work_governance_index_text),
+    ):
+        _require_fragments(
+            path,
+            text,
+            [
+                "ready_for_roadmap_future_work_governance_index",
+                "ready_to_close_future_work_governance_chain",
+                "This index does not add `R7.62`",
+                "The future work governance index is not itself a new product phase",
+            ],
+            blockers,
+        )
+
     _require_fragments(
         readme_path,
         readme_text,
@@ -262,6 +284,7 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
             "CAVRA Roadmap Candidate Charter",
             "CAVRA Roadmap Future Phase Opening Gate",
             "CAVRA Roadmap Future Phase Registry",
+            "CAVRA Roadmap Future Work Governance Index",
             "Future repeated customer monitoring",
         ],
         blockers,

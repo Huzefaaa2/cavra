@@ -10,6 +10,7 @@ on:
       - "docs/roadmap-candidate-charter.md"
       - "docs/roadmap-future-phase-opening-gate.md"
       - "docs/roadmap-future-phase-registry.md"
+      - "docs/roadmap-future-work-governance-index.md"
       - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
       - "docs/product/cavra-unified-enterprise-status-report.md"
       - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
@@ -19,6 +20,7 @@ on:
       - "docs/wiki/Roadmap-Candidate-Charter.md"
       - "docs/wiki/Roadmap-Future-Phase-Opening-Gate.md"
       - "docs/wiki/Roadmap-Future-Phase-Registry.md"
+      - "docs/wiki/Roadmap-Future-Work-Governance-Index.md"
       - "scripts/validate_roadmap_completion_boundary.py"
       - "tests/test_roadmap_completion_boundary.py"
   push:
@@ -30,6 +32,7 @@ on:
       - "docs/roadmap-candidate-charter.md"
       - "docs/roadmap-future-phase-opening-gate.md"
       - "docs/roadmap-future-phase-registry.md"
+      - "docs/roadmap-future-work-governance-index.md"
       - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
       - "docs/product/cavra-unified-enterprise-status-report.md"
       - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
@@ -39,6 +42,7 @@ on:
       - "docs/wiki/Roadmap-Candidate-Charter.md"
       - "docs/wiki/Roadmap-Future-Phase-Opening-Gate.md"
       - "docs/wiki/Roadmap-Future-Phase-Registry.md"
+      - "docs/wiki/Roadmap-Future-Work-Governance-Index.md"
       - "scripts/validate_roadmap_completion_boundary.py"
       - "tests/test_roadmap_completion_boundary.py"
   workflow_dispatch:

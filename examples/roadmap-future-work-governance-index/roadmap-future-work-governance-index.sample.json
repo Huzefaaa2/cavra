@@ -1,0 +1,278 @@
+{
+  "evidence_mode": "sample",
+  "governance_controls": {
+    "docs_sync_ref": "sample://docs/sync/future-work-governance",
+    "evidence_boundary_ref": "sample://security/evidence-boundary",
+    "registration_policy_ref": "sample://governance/registration-policy",
+    "release_guard_ref": "sample://workflow/roadmap-completion-boundary",
+    "rollback_policy_ref": "sample://plan/rollback/future-work-registration",
+    "status_report_ref": "sample://docs/status/future-work-governance",
+    "wiki_sync_ref": "sample://docs/wiki-sync/future-work-governance"
+  },
+  "governance_decision": {
+    "decision_ref": "sample://decision/ready_to_close_future_work_governance_chain",
+    "governance_decision": "ready_to_close_future_work_governance_chain",
+    "next_action_ref": "sample://next-action/ready_to_close_future_work_governance_chain",
+    "target_boundary_ref": "sample://roadmap/phase-7-closeout-r7-61"
+  },
+  "governance_profile": {
+    "governance_index_ref": "sample://governance/future-work-index/new_product_capability",
+    "governance_owner_ref": "sample://owner/product-operations",
+    "review_cadence_ref": "sample://workflow/future-work-governance-review",
+    "roadmap_boundary_ref": "sample://roadmap/phase-7-closeout-r7-61",
+    "source_candidate_charter_ref": "sample://charter/new_product_capability",
+    "source_future_phase_opening_gate_ref": "sample://phase-opening-gate/new_product_capability",
+    "source_future_phase_registry_ref": "sample://registry/future-phase/new_product_capability",
+    "source_intake_gate_ref": "sample://intake/new_product_capability"
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": false,
+  "schema_version": "cavra.roadmap-future-work-governance-index.v1",
+  "source_results": {
+    "roadmap_candidate_charter": {
+      "acceptance_criteria_count": 7,
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Roadmap candidate charter schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Sample roadmap candidate charter validates shape only.",
+          "name": "evidence_mode",
+          "status": "warn"
+        },
+        {
+          "message": "Source roadmap intake is a product candidate.",
+          "name": "source_intake_result",
+          "status": "pass"
+        },
+        {
+          "message": "charter_profile references are complete.",
+          "name": "charter_profile",
+          "status": "pass"
+        },
+        {
+          "message": "Candidate scope is complete.",
+          "name": "candidate_scope",
+          "status": "pass"
+        },
+        {
+          "message": "Acceptance criteria are complete.",
+          "name": "acceptance_criteria",
+          "status": "pass"
+        },
+        {
+          "message": "release_controls references are complete.",
+          "name": "release_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Charter decision is ready for product planning.",
+          "name": "charter_decision",
+          "status": "pass"
+        },
+        {
+          "message": "Redaction controls are asserted.",
+          "name": "redaction_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Roadmap candidate charter contains only sanitized references and control booleans.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "decision": "ready_for_product_roadmap_planning",
+      "evidence_mode": "sample",
+      "product": "CAVRA",
+      "ready_for_roadmap_candidate_charter": false,
+      "required_acceptance_criteria_count": 7,
+      "schema_version": "cavra.roadmap-candidate-charter.result.v1",
+      "status": "ready_with_warnings",
+      "warning_count": 1
+    },
+    "roadmap_future_phase_opening_gate": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Roadmap future phase opening gate schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Sample future phase opening gate validates shape only.",
+          "name": "evidence_mode",
+          "status": "warn"
+        },
+        {
+          "message": "Sample source candidate charter validates shape only.",
+          "name": "source_candidate_charter_result",
+          "status": "warn"
+        },
+        {
+          "message": "phase_opening_profile references are complete.",
+          "name": "phase_opening_profile",
+          "status": "pass"
+        },
+        {
+          "message": "Future phase plan references are complete.",
+          "name": "phase_plan",
+          "status": "pass"
+        },
+        {
+          "message": "opening_controls references are complete.",
+          "name": "opening_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Future phase opening decision is ready.",
+          "name": "opening_decision",
+          "status": "pass"
+        },
+        {
+          "message": "Redaction controls are asserted.",
+          "name": "redaction_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Roadmap future phase opening gate contains only sanitized references and control booleans.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "decision": "ready_to_open_future_product_phase",
+      "dependency_count": 3,
+      "evidence_mode": "sample",
+      "milestone_count": 3,
+      "product": "CAVRA",
+      "ready_for_roadmap_future_phase_opening": false,
+      "schema_version": "cavra.roadmap-future-phase-opening-gate.result.v1",
+      "status": "ready_with_warnings",
+      "warning_count": 2
+    },
+    "roadmap_future_phase_registry": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Roadmap future phase registry schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Sample future phase registry validates shape only.",
+          "name": "evidence_mode",
+          "status": "warn"
+        },
+        {
+          "message": "Sample source opening gate validates shape only.",
+          "name": "source_opening_gate_result",
+          "status": "warn"
+        },
+        {
+          "message": "registry_profile references are complete.",
+          "name": "registry_profile",
+          "status": "pass"
+        },
+        {
+          "message": "Future phase registry entries are complete.",
+          "name": "future_phase_entries",
+          "status": "pass"
+        },
+        {
+          "message": "Future phase registry decision is ready.",
+          "name": "registry_decision",
+          "status": "pass"
+        },
+        {
+          "message": "Redaction controls are asserted.",
+          "name": "redaction_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Roadmap future phase registry contains only sanitized references and control booleans.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "decision": "ready_to_register_future_phase",
+      "evidence_mode": "sample",
+      "future_phase_entry_count": 1,
+      "product": "CAVRA",
+      "ready_for_roadmap_future_phase_registry": false,
+      "schema_version": "cavra.roadmap-future-phase-registry.result.v1",
+      "status": "ready_with_warnings",
+      "warning_count": 2
+    },
+    "roadmap_intake_gate": {
+      "blocker_count": 0,
+      "checks": [
+        {
+          "message": "Roadmap intake gate schema is valid.",
+          "name": "schema_version",
+          "status": "pass"
+        },
+        {
+          "message": "Sample roadmap intake packet validates shape only.",
+          "name": "evidence_mode",
+          "status": "warn"
+        },
+        {
+          "message": "intake_profile references are complete.",
+          "name": "intake_profile",
+          "status": "pass"
+        },
+        {
+          "message": "Request classification is consistent.",
+          "name": "request_classification",
+          "status": "pass"
+        },
+        {
+          "message": "operating_evidence references are complete.",
+          "name": "operating_evidence",
+          "status": "pass"
+        },
+        {
+          "message": "boundary_decision references are complete.",
+          "name": "boundary_decision",
+          "status": "pass"
+        },
+        {
+          "message": "Boundary decision matches request type.",
+          "name": "roadmap_boundary_decision",
+          "status": "pass"
+        },
+        {
+          "message": "Redaction controls are asserted.",
+          "name": "redaction_controls",
+          "status": "pass"
+        },
+        {
+          "message": "Roadmap intake gate contains only sanitized references and control booleans.",
+          "name": "no_private_material",
+          "status": "pass"
+        }
+      ],
+      "decision": "new_product_roadmap_candidate",
+      "evidence_mode": "sample",
+      "product": "CAVRA",
+      "ready_for_roadmap_intake_decision": false,
+      "schema_version": "cavra.roadmap-intake-gate.result.v1",
+      "status": "ready_with_warnings",
+      "warning_count": 1
+    }
+  }
+}

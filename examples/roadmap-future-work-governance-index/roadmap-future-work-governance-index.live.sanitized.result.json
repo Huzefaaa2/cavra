@@ -1,0 +1,53 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap future work governance index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized future work governance index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "All future work governance source gates are ready.",
+      "name": "source_results",
+      "status": "pass"
+    },
+    {
+      "message": "governance_profile references are complete.",
+      "name": "governance_profile",
+      "status": "pass"
+    },
+    {
+      "message": "governance_controls references are complete.",
+      "name": "governance_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Future work governance chain is ready.",
+      "name": "governance_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap future work governance index contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "ready_to_close_future_work_governance_chain",
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_roadmap_future_work_governance_index": true,
+  "schema_version": "cavra.roadmap-future-work-governance-index.result.v1",
+  "source_gate_count": 4,
+  "status": "ready",
+  "warning_count": 0
+}

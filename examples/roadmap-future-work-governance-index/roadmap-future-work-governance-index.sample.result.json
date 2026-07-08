@@ -1,0 +1,53 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap future work governance index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample future work governance index validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "roadmap_intake_gate is sample or not ready; roadmap_candidate_charter is sample or not ready; roadmap_future_phase_opening_gate is sample or not ready; roadmap_future_phase_registry is sample or not ready",
+      "name": "source_results",
+      "status": "warn"
+    },
+    {
+      "message": "governance_profile references are complete.",
+      "name": "governance_profile",
+      "status": "pass"
+    },
+    {
+      "message": "governance_controls references are complete.",
+      "name": "governance_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Future work governance chain is ready.",
+      "name": "governance_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap future work governance index contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "ready_to_close_future_work_governance_chain",
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_roadmap_future_work_governance_index": false,
+  "schema_version": "cavra.roadmap-future-work-governance-index.result.v1",
+  "source_gate_count": 4,
+  "status": "ready_with_warnings",
+  "warning_count": 2
+}

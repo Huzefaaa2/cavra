@@ -54,6 +54,8 @@ For future phase opening, use the [CAVRA Roadmap Future Phase Opening Gate](docs
 
 For registered future phases, use the [CAVRA Roadmap Future Phase Registry](docs/roadmap-future-phase-registry.md). It records approved future phases with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs without adding R7.62. Installed operators can run it with `cavra release roadmap-future-phase-registry --require-live`.
 
+For one-pass future work governance closeout, use the [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md). It aggregates intake, charter, phase-opening, and registry results into a single ready/blocked decision without reopening R7. Installed operators can run it with `cavra release roadmap-future-work-governance-index --require-live`.
+
 For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
 
 For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
@@ -243,6 +245,7 @@ Start with the wiki textbook:
 - [CAVRA Roadmap Candidate Charter](docs/roadmap-candidate-charter.md)
 - [CAVRA Roadmap Future Phase Opening Gate](docs/roadmap-future-phase-opening-gate.md)
 - [CAVRA Roadmap Future Phase Registry](docs/roadmap-future-phase-registry.md)
+- [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)
