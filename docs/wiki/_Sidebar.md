@@ -44,6 +44,7 @@
 - [Roadmap Intake Gate](Roadmap-Intake-Gate.md)
 - [Roadmap Candidate Charter](Roadmap-Candidate-Charter.md)
 - [Roadmap Future Phase Opening Gate](Roadmap-Future-Phase-Opening-Gate.md)
+- [Roadmap Future Phase Registry](Roadmap-Future-Phase-Registry.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

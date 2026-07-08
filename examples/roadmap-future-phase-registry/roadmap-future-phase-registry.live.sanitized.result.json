@@ -1,0 +1,53 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap future phase registry schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized future phase registry supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "Source future phase opening gate is ready.",
+      "name": "source_opening_gate_result",
+      "status": "pass"
+    },
+    {
+      "message": "registry_profile references are complete.",
+      "name": "registry_profile",
+      "status": "pass"
+    },
+    {
+      "message": "Future phase registry entries are complete.",
+      "name": "future_phase_entries",
+      "status": "pass"
+    },
+    {
+      "message": "Future phase registry decision is ready.",
+      "name": "registry_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap future phase registry contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "ready_to_register_future_phase",
+  "evidence_mode": "live",
+  "future_phase_entry_count": 1,
+  "product": "CAVRA",
+  "ready_for_roadmap_future_phase_registry": true,
+  "schema_version": "cavra.roadmap-future-phase-registry.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

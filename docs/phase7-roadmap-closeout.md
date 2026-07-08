@@ -29,6 +29,8 @@ If the intake gate returns `new_product_roadmap_candidate`, run the [Roadmap Can
 
 If the charter passes, run the [Roadmap Future Phase Opening Gate](roadmap-future-phase-opening-gate.md) before creating a future phase or row set. The gate proves phase owner, product owner, architecture owner, milestones, dependencies, exit criteria, test/docs/release/security controls, rollback planning, and the R7.61 boundary reference. It still does not add `R7.62`.
 
+If the opening gate passes, run the [Roadmap Future Phase Registry](roadmap-future-phase-registry.md) to record the approved future phase with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs. The registry is a future-phase ledger, not a continuation of R7.
+
 ## What Continues After Closeout
 
 The following continue as customer operations, not as endless roadmap rows:
@@ -48,6 +50,8 @@ Use `python3 scripts/validate_roadmap_intake_gate.py --require-live` or `cavra r
 Use `python3 scripts/validate_roadmap_candidate_charter.py --require-live` or `cavra release roadmap-candidate-charter --require-live` only for requests that the intake gate already classified as product candidates.
 
 Use `python3 scripts/validate_roadmap_future_phase_opening_gate.py --require-live` or `cavra release roadmap-future-phase-opening-gate --require-live` only after the candidate charter passes.
+
+Use `python3 scripts/validate_roadmap_future_phase_registry.py --require-live` or `cavra release roadmap-future-phase-registry --require-live` only after the future phase opening gate passes.
 
 ## Roadmap Boundary
 

@@ -410,6 +410,11 @@ from cavra.roadmap_future_phase_opening_gate import (
     validate_roadmap_future_phase_opening_gate,
     write_roadmap_future_phase_opening_gate_artifacts,
 )
+from cavra.roadmap_future_phase_registry import (
+    build_roadmap_future_phase_registry,
+    validate_roadmap_future_phase_registry,
+    write_roadmap_future_phase_registry_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3668,6 +3673,55 @@ def release_roadmap_future_phase_opening_gate(
         result = validate_roadmap_future_phase_opening_gate(payload, require_live=require_live)
         exit_ok = result["blocker_count"] == 0 and (
             not require_live or result["ready_for_roadmap_future_phase_opening"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("roadmap-future-phase-registry")
+def release_roadmap_future_phase_registry(
+    registry: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional roadmap future phase registry JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized future phase registries."),
+    ] = None,
+    change_type: Annotated[
+        str,
+        typer.Option(help="Change type to use when building a default future phase registry."),
+    ] = "new_product_capability",
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the roadmap future phase registry."""
+    if export_dir:
+        result = write_roadmap_future_phase_registry_artifacts(export_dir)
+        exit_ok = result["ready_for_roadmap_future_phase_registry"] is True
+    else:
+        payload = (
+            json.loads(registry.read_text(encoding="utf-8"))
+            if registry
+            else build_roadmap_future_phase_registry(
+                evidence_mode="live" if require_live else "sample",
+                requested_change_type=change_type,
+            )
+        )
+        result = validate_roadmap_future_phase_registry(payload, require_live=require_live)
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live or result["ready_for_roadmap_future_phase_registry"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

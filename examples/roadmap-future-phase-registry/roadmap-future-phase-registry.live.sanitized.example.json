@@ -1,0 +1,105 @@
+{
+  "evidence_mode": "live",
+  "future_phase_entries": [
+    {
+      "architecture_owner_ref": "evidence://owner/architecture",
+      "exit_criteria_ref": "evidence://phase/exit-criteria/new_product_capability",
+      "initial_backlog_ref": "evidence://github/backlog/new_product_capability",
+      "phase_id_ref": "evidence://phase/new_product_capability",
+      "phase_owner_ref": "evidence://owner/future-phase",
+      "phase_status": "registered_pending_execution",
+      "phase_title_ref": "evidence://phase/title/new_product_capability",
+      "product_owner_ref": "evidence://owner/product",
+      "public_contract_boundary_ref": "evidence://product/public-contract/new_product_capability",
+      "release_gate_ref": "evidence://workflow/release-gate/new_product_capability",
+      "source_opening_gate_ref": "evidence://phase-opening-gate/new_product_capability",
+      "status_report_ref": "evidence://docs/status/new_product_capability"
+    }
+  ],
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "registry_decision": {
+    "decision_ref": "evidence://decision/ready_to_register_future_phase",
+    "next_action_ref": "evidence://next-action/ready_to_register_future_phase",
+    "registry_decision": "ready_to_register_future_phase",
+    "target_registry_ref": "evidence://registry/future-phase"
+  },
+  "registry_profile": {
+    "registry_owner_ref": "evidence://owner/product-operations",
+    "registry_ref": "evidence://registry/future-phase",
+    "review_cadence_ref": "evidence://workflow/future-phase-registry-review",
+    "roadmap_boundary_ref": "evidence://roadmap/phase-7-closeout-r7-61"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.roadmap-future-phase-registry.v1",
+  "source_opening_gate_result": {
+    "blocker_count": 0,
+    "checks": [
+      {
+        "message": "Roadmap future phase opening gate schema is valid.",
+        "name": "schema_version",
+        "status": "pass"
+      },
+      {
+        "message": "Live sanitized future phase opening gate supplied.",
+        "name": "evidence_mode",
+        "status": "pass"
+      },
+      {
+        "message": "Source candidate charter is ready.",
+        "name": "source_candidate_charter_result",
+        "status": "pass"
+      },
+      {
+        "message": "phase_opening_profile references are complete.",
+        "name": "phase_opening_profile",
+        "status": "pass"
+      },
+      {
+        "message": "Future phase plan references are complete.",
+        "name": "phase_plan",
+        "status": "pass"
+      },
+      {
+        "message": "opening_controls references are complete.",
+        "name": "opening_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Future phase opening decision is ready.",
+        "name": "opening_decision",
+        "status": "pass"
+      },
+      {
+        "message": "Redaction controls are asserted.",
+        "name": "redaction_controls",
+        "status": "pass"
+      },
+      {
+        "message": "Roadmap future phase opening gate contains only sanitized references and control booleans.",
+        "name": "no_private_material",
+        "status": "pass"
+      }
+    ],
+    "decision": "ready_to_open_future_product_phase",
+    "dependency_count": 3,
+    "evidence_mode": "live",
+    "milestone_count": 3,
+    "product": "CAVRA",
+    "ready_for_roadmap_future_phase_opening": true,
+    "schema_version": "cavra.roadmap-future-phase-opening-gate.result.v1",
+    "status": "ready",
+    "warning_count": 0
+  }
+}

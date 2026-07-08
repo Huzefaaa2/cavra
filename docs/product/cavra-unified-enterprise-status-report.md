@@ -15,7 +15,7 @@ CAVRA's public Community-to-Enterprise implementation roadmap is complete for th
 | Phase 7 closeout | Complete | [Phase 7 Roadmap Closeout](../phase7-roadmap-closeout.md) defines the stop rule and closes the public R7 implementation loop. |
 | Post-cutover operating bridge | Complete | Live validation, cutover, stabilization, [steady-state handoff](../managed-enterprise-steady-state-handoff.md), [operating release index](../managed-enterprise-operating-release-index.md), [operating announcement](../managed-enterprise-operating-announcement.md), [operating chain](../managed-enterprise-operating-chain.md), [operating certificate](../managed-enterprise-operating-certificate.md), and [certificate publication index](../managed-enterprise-certificate-publication-index.md) validators document the transition from launch mode into normal Managed or Enterprise operations. |
 | Live customer readiness | Deployment evidence required | Real tenants, connectors, SMTP/report providers, runtime workflows, customer evidence rooms, and private operational logs must be validated in the target Managed or Enterprise environment. |
-| Future roadmap | Closed unless product scope changes | Use the [roadmap intake gate](../roadmap-intake-gate.md), [roadmap candidate charter](../roadmap-candidate-charter.md), and [future phase opening gate](../roadmap-future-phase-opening-gate.md) before adding rows. Add new rows only for a new API, CLI command, validator family, connector, deployment target, AISPM capability, evidence schema, trust artifact, edition, packaging model, or buyer-facing surface. |
+| Future roadmap | Closed unless product scope changes | Use the [roadmap intake gate](../roadmap-intake-gate.md), [roadmap candidate charter](../roadmap-candidate-charter.md), [future phase opening gate](../roadmap-future-phase-opening-gate.md), and [future phase registry](../roadmap-future-phase-registry.md) before adding rows. Add new rows only for a new API, CLI command, validator family, connector, deployment target, AISPM capability, evidence schema, trust artifact, edition, packaging model, or buyer-facing surface. |
 
 ## What Is Implemented
 
@@ -59,12 +59,13 @@ python3 scripts/validate_roadmap_completion_boundary.py --repo-root .
 python3 scripts/validate_roadmap_intake_gate.py --require-live
 python3 scripts/validate_roadmap_candidate_charter.py --require-live
 python3 scripts/validate_roadmap_future_phase_opening_gate.py --require-live
+python3 scripts/validate_roadmap_future_phase_registry.py --require-live
 python3 -m pytest tests/test_roadmap_completion_boundary.py -q
 ```
 
 The validator fails if the phase summary is no longer complete, if any numbered row is not `Completed`, if the public roadmap grows past `R7.61`, or if README/wiki/status-report text loses the live-operations boundary.
 
-The [roadmap intake gate](../roadmap-intake-gate.md) should be used before future roadmap expansion so repeated customer operations stay as operating evidence and genuine product changes become explicit candidates. The [roadmap candidate charter](../roadmap-candidate-charter.md) should be used after a product-candidate intake decision so scope, ownership, acceptance criteria, release controls, and evidence boundaries are clear. The [roadmap future phase opening gate](../roadmap-future-phase-opening-gate.md) should be used after the candidate charter so phase owners, milestones, dependencies, exit criteria, release controls, and rollback/security gates are complete before a new phase is opened.
+The [roadmap intake gate](../roadmap-intake-gate.md) should be used before future roadmap expansion so repeated customer operations stay as operating evidence and genuine product changes become explicit candidates. The [roadmap candidate charter](../roadmap-candidate-charter.md) should be used after a product-candidate intake decision so scope, ownership, acceptance criteria, release controls, and evidence boundaries are clear. The [roadmap future phase opening gate](../roadmap-future-phase-opening-gate.md) should be used after the candidate charter so phase owners, milestones, dependencies, exit criteria, release controls, and rollback/security gates are complete before a new phase is opened. The [roadmap future phase registry](../roadmap-future-phase-registry.md) should then record approved future phases with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs without reopening R7.
 
 ## When To Add New Roadmap Work
 
@@ -95,4 +96,5 @@ Routine customer scorecard refresh, monitoring-cycle review, drift remediation, 
 11. Run the [CAVRA Roadmap Intake Gate](../roadmap-intake-gate.md) before adding any future roadmap item.
 12. Run the [CAVRA Roadmap Candidate Charter](../roadmap-candidate-charter.md) before opening a future product phase for accepted candidates.
 13. Run the [CAVRA Roadmap Future Phase Opening Gate](../roadmap-future-phase-opening-gate.md) before creating a future phase or row set from a chartered product candidate.
-14. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
+14. Run the [CAVRA Roadmap Future Phase Registry](../roadmap-future-phase-registry.md) to register approved future phases outside the closed R7 sequence.
+15. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
