@@ -1,0 +1,114 @@
+{
+  "evidence_mode": "sample",
+  "health_signals": [
+    {
+      "evidence_ref": "sample://stabilization/api_health/evidence",
+      "objective": "API health and uptime are within the agreed stabilization window.",
+      "owner_ref": "sample://owner/api_health",
+      "reviewed_by_ref": "sample://review/api_health",
+      "signal_id": "api_health",
+      "status_ref": "sample://stabilization/api_health/status",
+      "title": "Api Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/identity_health/evidence",
+      "objective": "SSO, RBAC, break-glass, and operator access are stable.",
+      "owner_ref": "sample://owner/identity_health",
+      "reviewed_by_ref": "sample://review/identity_health",
+      "signal_id": "identity_health",
+      "status_ref": "sample://stabilization/identity_health/status",
+      "title": "Identity Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/tenant_isolation_health/evidence",
+      "objective": "Tenant isolation checks remain clean after activation.",
+      "owner_ref": "sample://owner/tenant_isolation_health",
+      "reviewed_by_ref": "sample://review/tenant_isolation_health",
+      "signal_id": "tenant_isolation_health",
+      "status_ref": "sample://stabilization/tenant_isolation_health/status",
+      "title": "Tenant Isolation Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/connector_health/evidence",
+      "objective": "Connectors and scanners are delivering expected evidence references.",
+      "owner_ref": "sample://owner/connector_health",
+      "reviewed_by_ref": "sample://review/connector_health",
+      "signal_id": "connector_health",
+      "status_ref": "sample://stabilization/connector_health/status",
+      "title": "Connector Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/runtime_control_health/evidence",
+      "objective": "Runtime agent/tool controls are evaluating expected workflows.",
+      "owner_ref": "sample://owner/runtime_control_health",
+      "reviewed_by_ref": "sample://review/runtime_control_health",
+      "signal_id": "runtime_control_health",
+      "status_ref": "sample://stabilization/runtime_control_health/status",
+      "title": "Runtime Control Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/smtp_report_health/evidence",
+      "objective": "SMTP/report delivery has no unresolved blocker.",
+      "owner_ref": "sample://owner/smtp_report_health",
+      "reviewed_by_ref": "sample://review/smtp_report_health",
+      "signal_id": "smtp_report_health",
+      "status_ref": "sample://stabilization/smtp_report_health/status",
+      "title": "Smtp Report Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/aispm_health/evidence",
+      "objective": "AISPM posture generation has no production-readiness blocker.",
+      "owner_ref": "sample://owner/aispm_health",
+      "reviewed_by_ref": "sample://review/aispm_health",
+      "signal_id": "aispm_health",
+      "status_ref": "sample://stabilization/aispm_health/status",
+      "title": "Aispm Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/audit_evidence_health/evidence",
+      "objective": "Audit, evidence custody, and archive refs are complete.",
+      "owner_ref": "sample://owner/audit_evidence_health",
+      "reviewed_by_ref": "sample://review/audit_evidence_health",
+      "signal_id": "audit_evidence_health",
+      "status_ref": "sample://stabilization/audit_evidence_health/status",
+      "title": "Audit Evidence Health"
+    },
+    {
+      "evidence_ref": "sample://stabilization/support_alert_health/evidence",
+      "objective": "Alerts, incidents, and customer-visible support items are triaged.",
+      "owner_ref": "sample://owner/support_alert_health",
+      "reviewed_by_ref": "sample://review/support_alert_health",
+      "signal_id": "support_alert_health",
+      "status_ref": "sample://stabilization/support_alert_health/status",
+      "title": "Support Alert Health"
+    }
+  ],
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": false,
+  "schema_version": "cavra.managed-enterprise-stabilization-report.v1",
+  "stabilization_outcome": {
+    "customer_acceptance_ref": "sample://acceptance/customer-safe",
+    "next_review_ref": "sample://review/next-operating-review",
+    "open_blockers_ref": "sample://blockers/none-or-triaged",
+    "rollback_required_ref": "sample://rollback/not-required-or-documented",
+    "stabilization_decision_ref": "sample://decision/stabilization-ready"
+  },
+  "stabilization_profile": {
+    "customer_status_ref": "sample://status/customer-safe-stabilization",
+    "cutover_runbook_ref": "sample://managed-enterprise-cutover/runbook",
+    "environment_ref": "sample://environment/managed-enterprise-production",
+    "evidence_room_ref": "sample://evidence-room/managed-enterprise-stabilization",
+    "operator_channel_ref": "sample://channel/operator-war-room",
+    "stabilization_window_ref": "sample://window/post-cutover-stabilization"
+  }
+}

@@ -1,0 +1,47 @@
+name: Managed Enterprise Stabilization Report
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/managed-enterprise-stabilization-report.yml"
+      - "README.md"
+      - "docs/managed-enterprise-stabilization-report.md"
+      - "docs/wiki/Managed-Enterprise-Stabilization-Report.md"
+      - "examples/managed-enterprise-stabilization/**"
+      - "scripts/validate_managed_enterprise_stabilization_report.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_stabilization_report.py"
+      - "tests/test_managed_enterprise_stabilization_report.py"
+  push:
+    paths:
+      - ".github/workflows/managed-enterprise-stabilization-report.yml"
+      - "README.md"
+      - "docs/managed-enterprise-stabilization-report.md"
+      - "docs/wiki/Managed-Enterprise-Stabilization-Report.md"
+      - "examples/managed-enterprise-stabilization/**"
+      - "scripts/validate_managed_enterprise_stabilization_report.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_stabilization_report.py"
+      - "tests/test_managed_enterprise_stabilization_report.py"
+  workflow_dispatch:
+
+jobs:
+  validate-managed-enterprise-stabilization-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Managed/Enterprise stabilization report
+        run: python scripts/validate_managed_enterprise_stabilization_report.py --report examples/managed-enterprise-stabilization/managed-enterprise-stabilization-report.sample.json
+      - name: Validate live sanitized Managed/Enterprise stabilization report
+        run: python scripts/validate_managed_enterprise_stabilization_report.py --report examples/managed-enterprise-stabilization/managed-enterprise-stabilization-report.live.sanitized.example.json --require-live
+      - name: Validate live sanitized stabilization report through CAVRA CLI
+        run: python -m cavra.cli release managed-enterprise-stabilization-report --report examples/managed-enterprise-stabilization/managed-enterprise-stabilization-report.live.sanitized.example.json --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_managed_enterprise_stabilization_report.py -q
+      - name: Lint Managed/Enterprise stabilization report surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/managed_enterprise_stabilization_report.py scripts/validate_managed_enterprise_stabilization_report.py tests/test_managed_enterprise_stabilization_report.py

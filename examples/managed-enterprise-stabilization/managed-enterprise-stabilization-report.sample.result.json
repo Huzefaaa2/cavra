@@ -1,0 +1,48 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Stabilization report schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample stabilization report validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "stabilization_profile references are complete.",
+      "name": "stabilization_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required stabilization health signals are present.",
+      "name": "health_signals",
+      "status": "pass"
+    },
+    {
+      "message": "stabilization_outcome references are complete.",
+      "name": "stabilization_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Report contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_stabilization_closeout": false,
+  "required_signal_count": 9,
+  "schema_version": "cavra.managed-enterprise-stabilization-report.result.v1",
+  "signal_count": 9,
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}
