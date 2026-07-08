@@ -49,7 +49,7 @@ REQUIRED_PHASE6_GATES = {
         "workflow": ".github/workflows/ai-red-team.yml",
         "customer_live_evidence_required": [
             "customer_prompt_suite_ref",
-            "proprietary_scanner_plugin_ref",
+            "customer_scanner_plugin_ref",
             "red_team_closeout_ref",
         ],
     },

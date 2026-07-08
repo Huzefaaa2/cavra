@@ -52,7 +52,7 @@
       "status": "pass"
     },
     {
-      "message": "R6.3 customer live evidence remains deployment-specific: customer_prompt_suite_ref, proprietary_scanner_plugin_ref, red_team_closeout_ref.",
+      "message": "R6.3 customer live evidence remains deployment-specific: customer_prompt_suite_ref, customer_scanner_plugin_ref, red_team_closeout_ref.",
       "name": "R6.3_customer_live_evidence",
       "status": "warn"
     },
