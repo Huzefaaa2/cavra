@@ -1,0 +1,55 @@
+{
+  "blocker_count": 0,
+  "channel_count": 6,
+  "checks": [
+    {
+      "message": "Certificate publication index schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized certificate publication index supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "publication_profile references are complete.",
+      "name": "publication_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required certificate publication channels are present.",
+      "name": "publication_channels",
+      "status": "pass"
+    },
+    {
+      "message": "All required public-safe claims are present.",
+      "name": "public_safe_claims",
+      "status": "pass"
+    },
+    {
+      "message": "publication_outcome references are complete.",
+      "name": "publication_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Publication index contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "claim_count": 5,
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_certificate_publication": true,
+  "required_channel_count": 6,
+  "required_claim_count": 5,
+  "schema_version": "cavra.managed-enterprise-certificate-publication-index.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

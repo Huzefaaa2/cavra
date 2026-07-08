@@ -1,0 +1,121 @@
+{
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "public_safe_claims": [
+    {
+      "approved_by_ref": "evidence://approval/aispm_operations_active",
+      "claim_id": "aispm_operations_active",
+      "claim_ref": "evidence://claims/aispm_operations_active",
+      "source_evidence_ref": "evidence://certificate-publication/aispm_operations_active/evidence"
+    },
+    {
+      "approved_by_ref": "evidence://approval/certificate_approved",
+      "claim_id": "certificate_approved",
+      "claim_ref": "evidence://claims/certificate_approved",
+      "source_evidence_ref": "evidence://certificate-publication/certificate_approved/evidence"
+    },
+    {
+      "approved_by_ref": "evidence://approval/evidence_custody_active",
+      "claim_id": "evidence_custody_active",
+      "claim_ref": "evidence://claims/evidence_custody_active",
+      "source_evidence_ref": "evidence://certificate-publication/evidence_custody_active/evidence"
+    },
+    {
+      "approved_by_ref": "evidence://approval/operating_chain_validated",
+      "claim_id": "operating_chain_validated",
+      "claim_ref": "evidence://claims/operating_chain_validated",
+      "source_evidence_ref": "evidence://certificate-publication/operating_chain_validated/evidence"
+    },
+    {
+      "approved_by_ref": "evidence://approval/support_path_active",
+      "claim_id": "support_path_active",
+      "claim_ref": "evidence://claims/support_path_active",
+      "source_evidence_ref": "evidence://certificate-publication/support_path_active/evidence"
+    }
+  ],
+  "publication_channels": [
+    {
+      "approval_ref": "evidence://approval/product_website",
+      "channel_id": "product_website",
+      "objective": "Commercial product site certificate reference.",
+      "owner_ref": "evidence://owner/product_website",
+      "publication_status_ref": "evidence://publication/product_website/status",
+      "rollback_ref": "evidence://rollback/product_website",
+      "target_ref": "evidence://publication/product_website/target"
+    },
+    {
+      "approval_ref": "evidence://approval/github_readme",
+      "channel_id": "github_readme",
+      "objective": "Repository README certificate pointer.",
+      "owner_ref": "evidence://owner/github_readme",
+      "publication_status_ref": "evidence://publication/github_readme/status",
+      "rollback_ref": "evidence://rollback/github_readme",
+      "target_ref": "evidence://publication/github_readme/target"
+    },
+    {
+      "approval_ref": "evidence://approval/github_wiki",
+      "channel_id": "github_wiki",
+      "objective": "Wiki textbook and operating docs certificate pointer.",
+      "owner_ref": "evidence://owner/github_wiki",
+      "publication_status_ref": "evidence://publication/github_wiki/status",
+      "rollback_ref": "evidence://rollback/github_wiki",
+      "target_ref": "evidence://publication/github_wiki/target"
+    },
+    {
+      "approval_ref": "evidence://approval/customer_success",
+      "channel_id": "customer_success",
+      "objective": "Customer-success communication reference.",
+      "owner_ref": "evidence://owner/customer_success",
+      "publication_status_ref": "evidence://publication/customer_success/status",
+      "rollback_ref": "evidence://rollback/customer_success",
+      "target_ref": "evidence://publication/customer_success/target"
+    },
+    {
+      "approval_ref": "evidence://approval/sales_enablement",
+      "channel_id": "sales_enablement",
+      "objective": "Sales and partner enablement reference.",
+      "owner_ref": "evidence://owner/sales_enablement",
+      "publication_status_ref": "evidence://publication/sales_enablement/status",
+      "rollback_ref": "evidence://rollback/sales_enablement",
+      "target_ref": "evidence://publication/sales_enablement/target"
+    },
+    {
+      "approval_ref": "evidence://approval/support_portal",
+      "channel_id": "support_portal",
+      "objective": "Support portal or customer helpdesk reference.",
+      "owner_ref": "evidence://owner/support_portal",
+      "publication_status_ref": "evidence://publication/support_portal/status",
+      "rollback_ref": "evidence://rollback/support_portal",
+      "target_ref": "evidence://publication/support_portal/target"
+    }
+  ],
+  "publication_outcome": {
+    "next_review_ref": "evidence://review/next-certificate-publication-review",
+    "publication_blockers_ref": "evidence://blockers/none-or-accepted",
+    "publication_decision_ref": "evidence://decision/certificate-publication-ready",
+    "published_certificate_ref": "evidence://certificate/published-managed-enterprise-operating",
+    "support_contact_ref": "evidence://support/customer-safe-contact-path"
+  },
+  "publication_profile": {
+    "approval_record_ref": "evidence://approval/certificate-publication",
+    "evidence_room_ref": "evidence://evidence-room/certificate-publication",
+    "operating_certificate_ref": "evidence://certificate/managed-enterprise-operating",
+    "publication_owner_ref": "evidence://owner/certificate-publication",
+    "publication_window_ref": "evidence://window/certificate-publication",
+    "rollback_plan_ref": "evidence://runbook/certificate-publication-rollback"
+  },
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-certificate-publication-index.v1"
+}

@@ -40,6 +40,8 @@ For one-pass launch-to-operations verification, use the [CAVRA Managed And Enter
 
 For customer-safe release attestation, use the [CAVRA Managed And Enterprise Operating Release Certificate](docs/managed-enterprise-operating-certificate.md). It summarizes the operating chain into certificate sections, owner signoffs, public-safe claims, evidence custody, validity window, and next review. Installed operators can run it with `cavra release managed-enterprise-operating-certificate --require-live`.
 
+For publication control, use the [CAVRA Managed And Enterprise Certificate Publication Index](docs/managed-enterprise-certificate-publication-index.md). It proves approved certificate publication targets, public-safe claims, rollback references, channel owners, and evidence refs before the certificate is surfaced publicly or to customers. Installed operators can run it with `cavra release managed-enterprise-certificate-publication-index --require-live`.
+
 For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 
 The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model. This boundary is enforced by `python3 scripts/validate_roadmap_completion_boundary.py --repo-root .`.
@@ -228,6 +230,7 @@ Start with the wiki textbook:
 - [CAVRA Managed And Enterprise Operating Announcement](docs/managed-enterprise-operating-announcement.md)
 - [CAVRA Managed And Enterprise Operating Chain](docs/managed-enterprise-operating-chain.md)
 - [CAVRA Managed And Enterprise Operating Release Certificate](docs/managed-enterprise-operating-certificate.md)
+- [CAVRA Managed And Enterprise Certificate Publication Index](docs/managed-enterprise-certificate-publication-index.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)
