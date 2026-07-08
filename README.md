@@ -56,6 +56,8 @@ For registered future phases, use the [CAVRA Roadmap Future Phase Registry](docs
 
 For one-pass future work governance closeout, use the [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md). It aggregates intake, charter, phase-opening, and registry results into a single ready/blocked decision without reopening R7. Installed operators can run it with `cavra release roadmap-future-work-governance-index --require-live`.
 
+For an operator shortcut across the closed roadmap boundary and the future-work governance chain, use the [CAVRA Roadmap Governance Quickcheck](docs/roadmap-governance-quickcheck.md). It validates the R7.61 completion boundary and the future-work governance index in one pass. Installed operators can run it with `cavra release roadmap-governance-quickcheck --repo-root . --require-live`.
+
 For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
 
 For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
@@ -246,6 +248,7 @@ Start with the wiki textbook:
 - [CAVRA Roadmap Future Phase Opening Gate](docs/roadmap-future-phase-opening-gate.md)
 - [CAVRA Roadmap Future Phase Registry](docs/roadmap-future-phase-registry.md)
 - [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md)
+- [CAVRA Roadmap Governance Quickcheck](docs/roadmap-governance-quickcheck.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)

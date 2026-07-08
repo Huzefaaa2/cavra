@@ -420,6 +420,10 @@ from cavra.roadmap_future_work_governance_index import (
     validate_roadmap_future_work_governance_index,
     write_roadmap_future_work_governance_index_artifacts,
 )
+from cavra.roadmap_governance_quickcheck import (
+    validate_roadmap_governance_quickcheck,
+    write_roadmap_governance_quickcheck_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3776,6 +3780,59 @@ def release_roadmap_future_work_governance_index(
         result = validate_roadmap_future_work_governance_index(payload, require_live=require_live)
         exit_ok = result["blocker_count"] == 0 and (
             not require_live or result["ready_for_roadmap_future_work_governance_index"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("roadmap-governance-quickcheck")
+def release_roadmap_governance_quickcheck(
+    repo_root: Annotated[
+        Path,
+        typer.Option(help="Repository root used for roadmap boundary validation."),
+    ] = Path("."),
+    index: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional roadmap future work governance index JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live quickcheck results."),
+    ] = None,
+    change_type: Annotated[
+        str,
+        typer.Option(help="Change type to use when building a default future work governance index."),
+    ] = "new_product_capability",
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require live sanitized governance evidence."),
+    ] = False,
+) -> None:
+    """Validate the closed roadmap boundary and future-work governance chain in one pass."""
+    if export_dir:
+        result = write_roadmap_governance_quickcheck_artifacts(export_dir, repo_root=repo_root)
+        exit_ok = result["ready_for_roadmap_governance_quickcheck"] is True
+    else:
+        payload = json.loads(index.read_text(encoding="utf-8")) if index else None
+        result = validate_roadmap_governance_quickcheck(
+            repo_root=repo_root,
+            index=payload,
+            require_live=require_live,
+            change_type=change_type,
+        )
+        exit_ok = (
+            result["ready_for_roadmap_governance_quickcheck"] is True
+            if require_live
+            else result["blocker_count"] == 0
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

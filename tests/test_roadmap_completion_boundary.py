@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from scripts.validate_roadmap_completion_boundary import validate_repository
+from cavra.roadmap_completion_boundary import validate_repository
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

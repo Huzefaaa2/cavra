@@ -46,6 +46,7 @@
 - [Roadmap Future Phase Opening Gate](Roadmap-Future-Phase-Opening-Gate.md)
 - [Roadmap Future Phase Registry](Roadmap-Future-Phase-Registry.md)
 - [Roadmap Future Work Governance Index](Roadmap-Future-Work-Governance-Index.md)
+- [Roadmap Governance Quickcheck](Roadmap-Governance-Quickcheck.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

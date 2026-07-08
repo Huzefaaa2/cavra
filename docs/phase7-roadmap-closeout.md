@@ -33,6 +33,8 @@ If the opening gate passes, run the [Roadmap Future Phase Registry](roadmap-futu
 
 After the registry passes, run the [Roadmap Future Work Governance Index](roadmap-future-work-governance-index.md) as the one-pass closeout for intake, charter, opening, and registry results. The index closes the future-work governance chain without reopening R7.
 
+For executive status or future-phase planning, run the [Roadmap Governance Quickcheck](roadmap-governance-quickcheck.md). It validates the R7.61 completion boundary and the future-work governance index together without adding another roadmap row.
+
 ## What Continues After Closeout
 
 The following continue as customer operations, not as endless roadmap rows:
@@ -56,6 +58,8 @@ Use `python3 scripts/validate_roadmap_future_phase_opening_gate.py --require-liv
 Use `python3 scripts/validate_roadmap_future_phase_registry.py --require-live` or `cavra release roadmap-future-phase-registry --require-live` only after the future phase opening gate passes.
 
 Use `python3 scripts/validate_roadmap_future_work_governance_index.py --require-live` or `cavra release roadmap-future-work-governance-index --require-live` as the final one-pass governance check for future product work.
+
+Use `python3 scripts/validate_roadmap_governance_quickcheck.py --repo-root . --require-live` or `cavra release roadmap-governance-quickcheck --repo-root . --require-live` as the operator shortcut for proving the roadmap boundary and future-work governance chain together.
 
 ## Roadmap Boundary
 

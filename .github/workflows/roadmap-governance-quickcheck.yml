@@ -1,0 +1,51 @@
+name: Roadmap Governance Quickcheck
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/roadmap-governance-quickcheck.yml"
+      - "README.md"
+      - "docs/roadmap-governance-quickcheck.md"
+      - "docs/wiki/Roadmap-Governance-Quickcheck.md"
+      - "examples/roadmap-governance-quickcheck/**"
+      - "scripts/validate_roadmap_completion_boundary.py"
+      - "scripts/validate_roadmap_governance_quickcheck.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/roadmap_completion_boundary.py"
+      - "src/cavra/roadmap_governance_quickcheck.py"
+      - "tests/test_roadmap_completion_boundary.py"
+      - "tests/test_roadmap_governance_quickcheck.py"
+  push:
+    paths:
+      - ".github/workflows/roadmap-governance-quickcheck.yml"
+      - "README.md"
+      - "docs/roadmap-governance-quickcheck.md"
+      - "docs/wiki/Roadmap-Governance-Quickcheck.md"
+      - "examples/roadmap-governance-quickcheck/**"
+      - "scripts/validate_roadmap_completion_boundary.py"
+      - "scripts/validate_roadmap_governance_quickcheck.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/roadmap_completion_boundary.py"
+      - "src/cavra/roadmap_governance_quickcheck.py"
+      - "tests/test_roadmap_completion_boundary.py"
+      - "tests/test_roadmap_governance_quickcheck.py"
+  workflow_dispatch:
+
+jobs:
+  validate-roadmap-governance-quickcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate roadmap governance quickcheck
+        run: python scripts/validate_roadmap_governance_quickcheck.py --repo-root . --require-live
+      - name: Validate through CAVRA CLI
+        run: python -m cavra.cli release roadmap-governance-quickcheck --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_roadmap_governance_quickcheck.py tests/test_roadmap_future_work_governance_index.py tests/test_roadmap_completion_boundary.py -q
+      - name: Lint roadmap governance quickcheck surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/roadmap_completion_boundary.py src/cavra/roadmap_governance_quickcheck.py scripts/validate_roadmap_completion_boundary.py scripts/validate_roadmap_governance_quickcheck.py tests/test_roadmap_governance_quickcheck.py tests/test_roadmap_completion_boundary.py
