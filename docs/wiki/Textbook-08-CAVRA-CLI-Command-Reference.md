@@ -4,7 +4,9 @@ The `cavra` CLI is the main command surface for local users, automation, CI/CD, 
 
 ![CAVRA command map](assets/textbook/cavra-command-map.svg)
 
-For the complete generated command list, see [CLI](CLI.md). This chapter groups the commands by job-to-be-done.
+For every command and option generated directly from Typer help output, see
+[CAVRA Full CLI Reference](CLI-Reference.md). This chapter groups the commands
+by job-to-be-done.
 
 ## Core Commands
 

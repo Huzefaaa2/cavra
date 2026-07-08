@@ -1,228 +1,65 @@
-# CAVRA — Complete Implementation Summary
+# CAVRA Implementation Summary
 
-## What was built
+This file is the current public implementation summary for the CAVRA Community repository.
 
-A production-ready runtime governance platform for AI coding agents in regulated environments, with core infrastructure, policy framework, integrations, and comprehensive documentation.
+The previous early-MVP implementation summary has been archived at
+[`docs/archive/development-and-testing-artifacts/IMPLEMENTATION_SUMMARY-legacy-mvp.md`](docs/archive/development-and-testing-artifacts/IMPLEMENTATION_SUMMARY-legacy-mvp.md).
 
-## Repository structure
+## Current Release
 
-```
-cavra/
-├── src/cavra/          # Python package
-│   ├── __init__.py                      # Package init
-│   ├── cli.py                           # CLI entrypoint (typer)
-│   ├── agent.py                         # AgentSessionManager
-│   ├── runtime.py                       # RuntimeGuard (policy evaluation)
-│   ├── audit.py                         # SessionAudit, attestation export
-│   ├── policy_registry.py               # PolicyRegistry (YAML loading)
-│   └── integrations.py                  # GitHub, webhook, attestation
-├── policies/                            # Baseline policy packs
-│   ├── cavra-ai-agent-baseline/
-│   ├── cavra-banking-baseline/
-│   ├── cavra-terraform-prod/
-│   └── cavra-mcp-enterprise/
-├── docs/                                # Comprehensive documentation
-│   ├── vision.md                        # Product vision
-│   ├── architecture.md                  # Technical architecture
-│   ├── policy-authoring.md              # How to write custom policies
-│   ├── threat-model.md                  # Security threats & mitigations
-│   ├── webhook-integration.md           # SIEM/webhook setup
-│   ├── implementation-guide.md          # Step-by-step enterprise deployment
-│   └── roadmap.md                       # 5-year product roadmap
-├── tests/                               # Unit + integration tests
-│   ├── conftest.py                      # Pytest configuration
-│   ├── test_policy_registry.py
-│   ├── test_runtime.py
-│   └── test_integrations.py
-├── .github/workflows/                   # GitHub Actions
-│   ├── test.yml                         # CI/CD tests
-│   └── cavra.yml                  # AI governance workflow
-├── README.md                            # Main documentation
-├── pyproject.toml                       # Python packaging
-├── CONTRIBUTING.md                      # Contributor guide
-├── LICENSE                              # BUSL-1.1
-└── .gitignore                           # Git config
-```
+- **Current public version:** CAVRA Community `1.0.0`
+- **Published release tag:** [`community-v1.0.0`](https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0)
+- **Primary product site:** [cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/)
+- **Public sandbox/demo:** [huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/)
+- **Technical textbook:** [GitHub Wiki](https://github.com/Huzefaaa2/cavra/wiki)
+- **Documentation start point:** [`docs/public-documentation-map.md`](docs/public-documentation-map.md)
 
-## Core modules
+## Implementation Status
 
-### 1. Policy Registry (`policy_registry.py`)
-- Load YAML policy packs from `policies/` directory
-- In-memory policy cache
-- Support for multiple policy pack formats
-- Ready for OPA bundle integration
+CAVRA Community is implemented as the public self-hosted runtime authority baseline for AI agents.
 
-### 2. Runtime Guard (`runtime.py`)
-- Evaluate actions against policy rules
-- File access control (block read/write)
-- Command pattern matching (block/allow/require_approval)
-- Git action evaluation
-- Pluggable decision engine
+The current implementation includes:
 
-### 3. Agent Session Manager (`agent.py`)
-- Create isolated session contexts
-- UUID session tracking
-- Metadata capture (tool, repo, timestamp)
-- Integration with RuntimeGuard
+- Python package and CLI with Typer/Rich command surfaces.
+- FastAPI/Uvicorn API service.
+- Runtime policy evaluation for agent actions, files, commands, Git operations, and MCP-style tool calls.
+- Policy authoring, validation, signing, dry-run, diff, and lifecycle workflows.
+- Approval routing, provider payloads, and delivery contracts.
+- Evidence bundles, signed manifests, SIEM exports, retention policies, trust roots, and searchable metadata.
+- Agent and MCP registry/trust surfaces.
+- AISPM report, readiness, posture, trial, pilot, and production-readiness contracts.
+- Community static sandbox UI and commercial product website assets.
+- Docker and Azure deployment paths for Community API and static UI.
+- Release, roadmap, live-validation, customer lifecycle, and future-work governance validators.
 
-### 4. Audit Recording (`audit.py`)
-- JSON session audit generation
-- Markdown PR attestation export
-- Action tracking and decision logging
-- Immutable audit trail
+The public roadmap status is maintained in
+[`docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md`](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md).
+The current public-contract completion status is summarized in
+[`docs/product/cavra-unified-enterprise-status-report.md`](docs/product/cavra-unified-enterprise-status-report.md).
 
-### 5. Integrations (`integrations.py`)
-- Command interceptor with result capture
-- GitHub PR attestation exporter
-- Webhook export for SIEM (Splunk, Datadog, etc.)
-- Artifact generation for compliance
+## What Is Public Community Scope
 
-### 6. CLI (`cli.py`)
-- `cavra agent start`
-- `cavra agent exec`
-- `cavra agent attest`
-- `cavra policy list`
-- `cavra policy describe`
+The public repository contains the Community product, public documentation, schemas, examples, tests, validators, deployment references, and public-safe Managed/Enterprise contracts.
 
-## Policy packs included
+Community users can self-host and operate CAVRA with local files, optional SQLite stores, Docker, Azure Container Apps, Azure Static Web Apps, and their own configured providers.
 
-| Pack | Use case | Key rules |
-| --- | --- | --- |
-| `cavra-ai-agent-baseline` | Any AI agent | Block secrets, dangerous commands |
-| `cavra-banking-baseline` | Banking/regulated | Approval for infrastructure, strict commands |
-| `cavra-terraform-prod` | IaC safety | Block apply/destroy, require plan approval |
-| `cavra-mcp-enterprise` | Tool control | MCP allowlist, capability-based access |
+## What Is Not Public Repository Scope
 
-## Test coverage
+Private customer tenant records, private Enterprise source, commercial policy packs, private connector credentials, license-service internals, managed-service runtime operations, customer evidence rooms, and private signing material are not included in this public repository.
 
-All tests passing:
-```
-tests/test_policy_registry.py::test_list_policy_packs PASSED
-tests/test_policy_registry.py::test_get_policy_pack PASSED
-tests/test_runtime.py::test_runtime_guard_blocks_sensitive_read PASSED
-tests/test_runtime.py::test_runtime_guard_blocks_terraform_apply PASSED
-tests/test_runtime.py::test_runtime_guard_requires_approval_for_unknown_command PASSED
-tests/test_integrations.py::test_command_interceptor_blocks_terraform_apply PASSED
-tests/test_integrations.py::test_github_attestation_export PASSED
-tests/test_integrations.py::test_attestation_artifact_export PASSED
+Those items are represented only through public-safe contracts, manifests, validators, and documentation.
 
-Result: 8/8 passed ✓
-```
+## Current Verification Entry Points
 
-## Documentation provided
+- Release notes: [`RELEASE_NOTES.md`](RELEASE_NOTES.md)
+- Community release index: [`docs/community-release-index.md`](docs/community-release-index.md)
+- Release readiness dashboard: [`docs/community-release-readiness-dashboard.md`](docs/community-release-readiness-dashboard.md)
+- Full CLI reference: [`docs/cli-reference.md`](docs/cli-reference.md)
+- Roadmap governance quickcheck: [`docs/roadmap-governance-quickcheck.md`](docs/roadmap-governance-quickcheck.md)
+- Phase 7 closeout boundary: [`docs/phase7-roadmap-closeout.md`](docs/phase7-roadmap-closeout.md)
 
-### For users
-- **README.md**: Quick start, features, usage examples
-- **implementation-guide.md**: Step-by-step deployment (local, GitHub, SIEM, Jira, ServiceNow)
-- **webhook-integration.md**: SIEM webhook setup and payloads
+## Operator Boundary
 
-### For developers
-- **architecture.md**: Technical design and layers
-- **policy-authoring.md**: How to create custom policies with examples
-- **threat-model.md**: Security threats and controls
+Final live-environment readiness for Managed or Enterprise Subscription still depends on real deployment validation with real tenants, connectors, SMTP/report-provider settings, runtime workflows, identity controls, and evidence stores.
 
-### For product strategy
-- **vision.md**: Product positioning and value proposition
-- **roadmap.md**: 5-year product roadmap (Phases 1-5)
-
-### For contributors
-- **CONTRIBUTING.md**: Code style, testing, pull request process
-
-## Quick start
-
-```bash
-# Install
-pip install -e .
-
-# Start a session
-cavra agent start \
-  --tool claude-code \
-  --repo . \
-  --policy-pack cavra-banking-baseline
-
-# Execute command under governance
-cavra agent exec "terraform plan" \
-  --policy-pack cavra-terraform-prod
-
-# List available policies
-cavra policy list
-
-# Generate PR attestation
-cavra agent attest <session-id> \
-  --format markdown
-```
-
-## Integration capabilities
-
-- ✓ GitHub Actions (CI/CD workflow)
-- ✓ GitHub PR comment attestation
-- ✓ Webhook export for SIEM (Splunk, Datadog, Sentinel)
-- ✓ Jira integration (issue linking)
-- ✓ ServiceNow (change request sync)
-- ✓ JSON evidence for compliance/audit
-
-## Enterprise-ready features
-
-- ✓ Policy-as-code (YAML)
-- ✓ Immutable audit trails
-- ✓ Multi-tenancy support (via policy packs)
-- ✓ BUSL-1.1 licensing (enterprise-friendly)
-- ✓ Zero external dependencies (minimal deps)
-- ✓ Offline operation (no cloud required)
-
-## Next steps (from here)
-
-### Immediate (Week 1)
-1. Initialize Git repository and push to GitHub
-2. Set up GitHub Actions workflows
-3. Create PyPI package and upload
-4. Create Homebrew formula for easy installation
-
-### Short-term (Month 1)
-1. Add Claude Code hooks integration (proof-of-concept)
-2. Add GitHub Copilot agent integration example
-3. Create 3 enterprise reference implementations
-4. Set up example Splunk/Datadog webhook receivers
-
-### Medium-term (Q3 2026)
-1. Implement MCP server governance (allowlist, capability control)
-2. Add policy signing and verification
-3. Create web UI for policy management
-4. Build Slack/Teams notifications
-
-### Long-term (Q4 2026+)
-1. Semantic policy engine (intent-based decision making)
-2. ML-powered risk scoring
-3. Enterprise approval workflow orchestration
-4. SIEM/GRC native integrations
-
-## Resources
-
-- **GitHub**: https://github.com/Huzefaaa2/cavra
-- **PyPI**: `pip install cavra` (when released)
-- **Documentation**: All in `docs/`
-- **Contact**: huzefa@example.com
-
-## Success metrics to track
-
-| Metric | Target | Phase |
-| --- | --- | --- |
-| GitHub stars | 100+ | Phase 1 |
-| PyPI downloads | 1K+/month | Phase 1 |
-| Enterprise pilots | 5+ | Phase 1 |
-| Policy pack downloads | 10K+/month | Phase 2 |
-| Revenue | $1M ARR | Phase 3 |
-| Market penetration | Industry standard | Phase 5 |
-
-## Summary
-
-You now have a production-ready AI agent governance platform with:
-- ✓ Core runtime policy engine
-- ✓ 4 baseline policy packs
-- ✓ Full CLI and integration framework
-- ✓ Comprehensive enterprise documentation
-- ✓ Test suite (8/8 passing)
-- ✓ GitHub Actions workflows
-- ✓ 5-year product roadmap
-
-The foundation is solid and ready for market. Next phase is to expand integrations, gather customer feedback, and iterate on policies.
+That work is tracked through the Managed/Enterprise live validation and cutover documents, not by adding private details to this public repository.

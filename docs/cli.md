@@ -1,141 +1,97 @@
-# CLI
+# CAVRA CLI Guide
 
-Primary commands: `cavra version`, `cavra evaluate`, `cavra agent start`, `cavra agent exec`, `cavra agent attest`, `cavra policy list`, `cavra policy validate`, `cavra policy test`, `cavra policy explain`, `cavra policy sign`, `cavra policy verify`, `cavra approval create`, `cavra approval list`, `cavra approval approve`, `cavra approval deny`, `cavra approval expire`, `cavra approval break-glass`, `cavra approval route`, `cavra approval migrate`, `cavra approval export-notifications`, `cavra approval provider-requests`, `cavra approval deliver`, `cavra integration deliver`, `cavra registry agent-register`, `cavra registry agent-list`, `cavra registry profiles`, `cavra registry mcp-register`, `cavra registry mcp-list`, `cavra registry mcp-check`, `cavra registry mcp-classifications`, `cavra registry migrate`, `cavra ops stores`, `cavra ops backup`, `cavra ops restore`, `cavra ops retention-plan`, `cavra evidence generate-keypair`, `cavra evidence trust-root`, `cavra evidence trust-bundle`, `cavra evidence trust-distribution`, `cavra evidence bundle`, `cavra evidence verify`, `cavra evidence siem-event`, `cavra evidence export-siem`, `cavra evidence retention-policy`, `cavra evidence storage-plan`, `cavra evidence verify-attestation`, `cavra evidence migrate`, `cavra evidence index`, `cavra evidence search`, `cavra runtime go-rollback-drills`, `cavra runtime go-rollback-drill-schedule`, `cavra runtime go-rollback-drill-notification-plan`, `cavra runtime go-rollback-drill-notification-ack`, `cavra runtime go-rollback-drill-escalation-plan`, `cavra release verify-go-package`, `cavra release verify-airgap-bundle`, `cavra release validate-upgrade`, `cavra release smoke-installers`, `cavra release channel-manifest`, `cavra release updater-policy`, `cavra release request-channel-promotion`, `cavra release export-endpoint-management`, `cavra release deliver-endpoint-export`, `cavra release reconcile-endpoint-deployment`, `cavra release ingest-endpoint-inventory`, `cavra release endpoint-inventory-history`, `cavra release endpoint-inventory-dashboard`, `cavra release endpoint-inventory-freshness`, `cavra release endpoint-inventory-freshness-history`, `cavra release endpoint-inventory-freshness-dashboard`, `cavra release automate-endpoint-reconciliation`, `cavra release endpoint-reconciliation-automation-history`, `cavra release endpoint-reconciliation-automation-dashboard`, `cavra release request-endpoint-remediation`, `cavra release execute-endpoint-remediation`, `cavra release endpoint-remediation-history`, `cavra release endpoint-remediation-dashboard`, `cavra release export-endpoint-remediation-handoff`, `cavra release record-endpoint-remediation-handoff-status`, `cavra release endpoint-remediation-handoff-history`, `cavra release endpoint-remediation-handoff-dashboard`, `cavra release endpoint-remediation-handoff-status-history`, `cavra release endpoint-remediation-handoff-status-dashboard`, `cavra release endpoint-remediation-sla-report`, `cavra release deliver-endpoint-remediation-sla`, `cavra release ack-endpoint-remediation-sla`, `cavra release endpoint-remediation-sla-notification-history`, `cavra release endpoint-remediation-sla-notification-dashboard`, `cavra release endpoint-remediation-sla-escalation-plan`, `cavra release deliver-endpoint-remediation-sla-escalation`, `cavra release review-endpoint-remediation-sla-escalation`, `cavra release endpoint-remediation-sla-escalation-action-history`, `cavra release endpoint-remediation-sla-escalation-action-dashboard`, `cavra release endpoint-remediation-sla-escalation-recurrence-plan`, `cavra release deliver-endpoint-remediation-sla-escalation-recurrence`, `cavra release export-endpoint-remediation-sla-escalation-suppression-audit`, `cavra release endpoint-remediation-sla-escalation-recurrence-retry-plan`, `cavra release deliver-endpoint-remediation-sla-escalation-owner-digest`, `cavra release endpoint-remediation-sla-escalation-suppression-trends`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation-history`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation-dashboard`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation-health`, `cavra release deliver-endpoint-remediation-sla-escalation-recurrence-automation-health-alert`, `cavra release ack-endpoint-remediation-sla-escalation-recurrence-automation-health-alert`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation-health-alert-history`, `cavra release endpoint-remediation-sla-escalation-recurrence-automation-health-alert-dashboard`, `cavra release endpoint-remediation-sla-escalation-recurrence-history`, `cavra release endpoint-remediation-sla-escalation-recurrence-dashboard`, `cavra release endpoint-remediation-sla-escalation-history`, `cavra release endpoint-remediation-sla-escalation-dashboard`, `cavra release endpoint-remediation-sla-history`, `cavra release endpoint-remediation-sla-dashboard`, `cavra release endpoint-publication-history`, `cavra release endpoint-publication-dashboard`, `cavra release endpoint-reconciliation-history`, `cavra release endpoint-reconciliation-dashboard`, `cavra release capture-rollout`, `cavra release verify-rollout`, `cavra release request-rollout-promotion`, `cavra release execute-rollout-promotion`, `cavra release execute-rollout-rollback`, `cavra release export-promotion-audit`, `cavra release deliver-promotion-audit`, `cavra release deliver-rollback-execution`, `cavra release connector-delivery-history`, `cavra release connector-delivery-dashboard`, `cavra init claude-code`, and `cavra demo before-the-agent-acts`.
+The `cavra` CLI is the main automation surface for Community users, CI/CD jobs,
+release operators, and evidence workflows.
 
-Approval examples:
+For every command and every option generated directly from Typer help output, use
+the authoritative reference:
+
+- [CAVRA Full CLI Reference](cli-reference.md)
+
+Regenerate the reference after CLI changes:
+
+```bash
+python3 scripts/generate_cli_reference.py --repo-root .
+```
+
+## Core Command Families
+
+| Family | Purpose |
+| --- | --- |
+| `cavra version` | Print the installed CAVRA version. |
+| `cavra evaluate` | Evaluate a file, command, Git, or MCP/tool action before it happens. |
+| `cavra agent` | Start governed sessions, execute commands, and generate attestations. |
+| `cavra policy` | List, validate, test, explain, compile, diff, sign, and verify policies. |
+| `cavra approval` | Create, route, approve, deny, expire, break-glass, and deliver approval requests. |
+| `cavra evidence` | Bundle, sign, verify, export, index, search, and manage evidence. |
+| `cavra registry` | Register and check governed agents and MCP/tool trust metadata. |
+| `cavra ops` | Inspect, back up, restore, and plan retention for local stores. |
+| `cavra runtime` | Validate Go/runtime pilot, deployment, promotion, rollback, and drill readiness. |
+| `cavra release` | Run release, endpoint, roadmap, Managed/Enterprise, customer-lifecycle, and governance validators. |
+| `cavra aispm` | Validate AISPM review and CI-gate readiness packets. |
+| `cavra monitor` | Generate and replay monitoring events. |
+| `cavra benchmark` | Run benchmark/SLO regression readiness checks. |
+| `cavra adapter` | Validate action taxonomy and generic agent adapter manifests. |
+| `cavra ai-red-team` | Run public-safe guardrail, supply-chain, malicious-model, and readiness checks. |
+| `cavra deployment` | Generate and validate zero-trust deployment catalogs. |
+
+## Five-Minute CLI Path
+
+```bash
+cavra version
+cavra policy list
+cavra evaluate read_file .env --json
+cavra evaluate execute_command "terraform apply -auto-approve" --json
+cavra demo before-the-agent-acts
+```
+
+## Policy Authoring Loop
+
+```bash
+cavra policy init --destination .cavra/policy.yaml
+cavra policy validate .cavra/policy.yaml
+cavra policy test --policy-pack cavra-ai-agent-baseline
+cavra policy explain execute_command "terraform apply -auto-approve"
+cavra policy keygen
+cavra policy sign .cavra/policy.yaml --signer platform-security --private-key .cavra/policy-signing/local-policy-signing-key.private.pem --key-id local-policy-signing-key
+cavra policy verify .cavra/policy.yaml --public-key .cavra/policy-signing/local-policy-signing-key.public.pem
+```
+
+## Approval Loop
 
 ```bash
 cavra evaluate write_file iam/admin-role.tf --json > /tmp/cavra-decision.json
-cavra approval migrate --sqlite .cavra/approvals.db
 cavra approval create /tmp/cavra-decision.json --requested-by developer
-cavra approval create /tmp/cavra-decision.json --sqlite .cavra/approvals.db --routing-file .cavra/approval-routing.json --requested-by developer
 cavra approval route /tmp/cavra-decision.json
-cavra approval route /tmp/cavra-decision.json --routing-file .cavra/approval-routing.json
 cavra approval list --state pending
-cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed" --external-ref CHG-123
-cavra approval approve apr_123 --actor iam@example.com --actor-claims /tmp/oidc-claims.json --reason "Scoped IAM change reviewed"
-cavra approval approve apr_123 --actor iam@example.com --actor-token /tmp/oidc.jwt --oidc-config .cavra/approval-oidc.json --rbac-file .cavra/approval-rbac.yaml --reason "Signed identity verified"
-cavra approval deny apr_123 --actor platform-security --reason "Missing rollback plan"
-cavra approval expire apr_123
-cavra approval break-glass /tmp/cavra-decision.json --actor incident-commander --reason "Production recovery" --external-ref INC-777
-cavra approval export-notifications apr_123 --output .cavra/approvals/notifications
-cavra approval provider-requests apr_123 --provider jira --output .cavra/approvals/provider-requests
-cavra approval deliver apr_123 --config .cavra/approval-providers.yaml --provider jira --retries 2 --timeout-seconds 10 --output .cavra/approvals/deliveries
+cavra approval approve apr_123 --actor platform-security --reason "Scoped IAM change reviewed"
 ```
 
-Evidence integration examples:
+## Evidence Loop
 
 ```bash
-cavra evidence bundle --output .cavra/evidence/latest --key "$CAVRA_EVIDENCE_SIGNING_KEY"
-cavra evidence generate-keypair --private-key .cavra/keys/evidence-private.pem --public-key .cavra/keys/evidence-public.pem
-cavra evidence trust-root .cavra/keys/evidence-public.pem --output .cavra/keys/evidence-trust-root.json --key-id prod-evidence
-cavra evidence trust-bundle .cavra/keys/evidence-trust-root.json --output .cavra/keys/evidence-trust-roots.json
-cavra evidence trust-distribution .cavra/keys/evidence-trust-root.json --output .cavra/keys/trust-root-distribution --distribution-id prod-trust-roots-2026-q2 --channel source-control --channel offline-media
-cavra evidence verify .cavra/evidence/latest --trust-root .cavra/keys/evidence-trust-roots.json --key-id prod-evidence --minimum-retention-days 2555
+cavra evidence bundle --output .cavra/evidence/latest
+cavra evidence verify .cavra/evidence/latest
 cavra evidence export-siem .cavra/evidence/latest --output .cavra/evidence/siem
-cavra evidence retention-policy .cavra/evidence/latest --output .cavra/evidence/retention --retention-days 2555
-cavra evidence storage-plan .cavra/evidence/latest --output .cavra/evidence/storage --retention-days 2555
-cavra evidence verify-attestation .cavra/evidence/latest --output .cavra/evidence/attestation
-cavra evidence migrate --sqlite .cavra/evidence/metadata.db
 cavra evidence index .cavra/evidence/latest --sqlite .cavra/evidence/metadata.db
 cavra evidence search --sqlite .cavra/evidence/metadata.db --min-blocked 1 --limit 25
-cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind managed-endpoint-rollout --rollout-status staged --environment production --deployment-target github-actions-linux-amd64-runner
-cavra release verify-airgap-bundle go/cavra-runtime/dist/cavra-go-runtime-v0.1.0.zip
-cavra release validate-upgrade go/cavra-runtime/dist/go-runtime-v0.1.0 go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1
-cavra release smoke-installers go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --json
-cavra release channel-manifest go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --json
-cavra release updater-policy go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --json
-cavra release request-channel-promotion go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release export-endpoint-management go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --channel stable --provider all --promotion-request .cavra/release/channel-promotion/release-channel-promotion-request.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-endpoint-export .cavra/release/endpoint-management-export/endpoint-management-export-manifest.json --config .cavra/connectors.json --provider jamf --metadata-json .cavra/evidence/metadata.json --json
-cavra release ingest-endpoint-inventory .cavra/release/jamf-inventory.json --provider jamf --channel stable --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-inventory-history --metadata-json .cavra/evidence/metadata.json --provider jamf
-cavra release endpoint-inventory-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-inventory-freshness --metadata-json .cavra/evidence/metadata.json --max-age-hours 24 --critical-age-hours 48 --json
-cavra release endpoint-inventory-freshness-history --metadata-json .cavra/evidence/metadata.json --alert-level critical
-cavra release endpoint-inventory-freshness-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release reconcile-endpoint-deployment go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 .cavra/release/endpoint-inventory/endpoint-inventory.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release automate-endpoint-reconciliation go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 .cavra/release/endpoint-inventory/endpoint-inventory-ingestion.json --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release capture-rollout go/cavra-runtime/dist/go-runtime-v0.2.0-rc.1 --deployment-id github-actions-linux-amd64-runner --change-record CHG-123 --json
-cavra release verify-rollout .cavra/release/rollout --metadata-json .cavra/evidence/metadata.json --sqlite .cavra/evidence/metadata.db --json
-cavra release request-rollout-promotion .cavra/release/rollout --target-ring production --approval-store .cavra/api/approvals.json --json
-cavra release execute-rollout-promotion .cavra/release/rollout-promotion/rollout-promotion-approval-request.json --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release export-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json --provider all --json
-cavra release execute-rollout-rollback .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json --approval-store .cavra/api/approvals.json --approval-id apr_rollback_prod --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-promotion-audit .cavra/release/rollout-promotion-execution/rollout-promotion-execution.json --config .cavra/connectors.json --provider webhook --retries 1 --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-rollback-execution .cavra/release/rollout-rollback-execution/rollout-rollback-execution.json --config .cavra/connectors.json --provider webhook --retries 1 --metadata-json .cavra/evidence/metadata.json --json
-cavra release connector-delivery-history --metadata-json .cavra/evidence/metadata.json --provider webhook --no-success
-cavra release connector-delivery-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-publication-history --metadata-json .cavra/evidence/metadata.json --provider jamf --no-success
-cavra release endpoint-publication-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-reconciliation-history --metadata-json .cavra/evidence/metadata.json --drift-status drift_detected
-cavra release endpoint-reconciliation-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-reconciliation-automation-history --metadata-json .cavra/evidence/metadata.json --approval-state pending
-cavra release endpoint-reconciliation-automation-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release request-endpoint-remediation .cavra/release/endpoint-reconciliation/managed-endpoint-reconciliation.json --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release execute-endpoint-remediation .cavra/release/endpoint-remediation/endpoint-remediation-request.json --approval-store .cavra/api/approvals.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-history --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release export-endpoint-remediation-handoff .cavra/release/endpoint-remediation/endpoint-remediation-request.json --provider jira --provider private_queue --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-endpoint-remediation-sla .cavra/release/endpoint-remediation-sla/endpoint-remediation-sla-report.json --config .cavra/connectors.json --routing-policy .cavra/sla-notification-policy.json --provider all --metadata-json .cavra/evidence/metadata.json --json
-cavra release ack-endpoint-remediation-sla ersla_123 --provider slack --acknowledged-by release-manager --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-sla-notification-history --metadata-json .cavra/evidence/metadata.json --provider slack
-cavra release endpoint-remediation-sla-notification-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-sla-escalation-plan --slo-policy .cavra/sla-escalation-policy.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-endpoint-remediation-sla-escalation .cavra/release/endpoint-remediation-sla-escalation-plan.json --config .cavra/connectors.json --provider all --metadata-json .cavra/evidence/metadata.json --json
-cavra release review-endpoint-remediation-sla-escalation erslaesc_123 --report-id ersla_123 --provider slack --owner release-governance --reviewed-by release-manager --review-state escalated --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-sla-escalation-action-history --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-sla-escalation-action-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-sla-escalation-recurrence-plan --recurrence-policy .cavra/sla-escalation-recurrence-policy.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-endpoint-remediation-sla-escalation-recurrence .cavra/release/endpoint-remediation-sla-escalation-recurrence-plan.json --config .cavra/connectors.json --provider all --metadata-json .cavra/evidence/metadata.json --json
-cavra release export-endpoint-remediation-sla-escalation-suppression-audit .cavra/release/endpoint-remediation-sla-escalation-recurrence-plan.json --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-sla-escalation-recurrence-retry-plan --metadata-json .cavra/evidence/metadata.json --json
-cavra release deliver-endpoint-remediation-sla-escalation-owner-digest .cavra/release/endpoint-remediation-sla-escalation-recurrence-plan.json --retry-plan .cavra/release/endpoint-remediation-sla-escalation-recurrence-retry-plan.json --config .cavra/connectors.json --provider all --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-sla-escalation-suppression-trends --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-sla-escalation-recurrence-history --metadata-json .cavra/evidence/metadata.json --action suppress
-cavra release endpoint-remediation-sla-escalation-recurrence-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-sla-escalation-history --metadata-json .cavra/evidence/metadata.json --active-only
-cavra release endpoint-remediation-sla-escalation-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-handoff-history --metadata-json .cavra/evidence/metadata.json --provider private_queue
-cavra release endpoint-remediation-handoff-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release record-endpoint-remediation-handoff-status .cavra/release/endpoint-remediation-handoff/endpoint-remediation-handoff.json --provider private_queue --status completed --external-ref queue-job-123 --metadata-json .cavra/evidence/metadata.json --json
-cavra release endpoint-remediation-handoff-status-history --metadata-json .cavra/evidence/metadata.json --provider private_queue
-cavra release endpoint-remediation-handoff-status-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra release endpoint-remediation-sla-report --metadata-json .cavra/evidence/metadata.json --index-metadata-json .cavra/evidence/metadata.json --warning-hours 24 --critical-hours 48 --json
-cavra release endpoint-remediation-sla-history --metadata-json .cavra/evidence/metadata.json --alert-level critical
-cavra release endpoint-remediation-sla-dashboard --metadata-json .cavra/evidence/metadata.json
-cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind rollout-promotion-execution --rollout-status promoted --target-ring production --approval-state approved --promotion-execution-status executed --deployment-target github-actions-linux-amd64-runner
-cavra evidence search --sqlite .cavra/evidence/metadata.db --metadata-kind rollout-rollback-execution --rollback-execution-status executed --approval-state approved
 ```
 
-`cavra evidence verify-attestation` exits with a nonzero status when `pr-attestation.md` is missing or does not match the bundle evidence, so CI/CD systems can use it as a required merge check.
+## Managed/Enterprise Public-Safe Validators
 
-Connector delivery example:
+Managed and Enterprise live operations use sanitized manifest and evidence refs.
+Do not commit private tenant, SMTP, connector, license, or customer data.
 
 ```bash
-cavra integration deliver .cavra/evidence/latest/siem-event.json --config .cavra/connectors.json --provider splunk
+cavra release managed-enterprise-live-validation-plan --require-live
+cavra release managed-enterprise-cutover-runbook --require-live
+cavra release managed-enterprise-operating-chain --require-live
+cavra release roadmap-governance-quickcheck --repo-root . --require-live
 ```
 
-Registry examples:
+## Notes
 
-```bash
-cavra registry agent-register codex-agent --vendor OpenAI --capability code_edit --repository payments/api --owner "Platform AI"
-cavra registry agent-register claude-code --vendor Anthropic --capability mcp_tool_call --sqlite .cavra/registry.db
-cavra registry agent-list --owner "Platform AI"
-cavra registry profiles
-cavra registry mcp-register github-mcp --trust-tier approved --approval-state approved --capability repository --tool create_pull_request --owner "Developer Platform"
-cavra registry mcp-register filesystem-mcp --trust-tier approved --approval-state approved --capability filesystem --tool read_file --sqlite .cavra/registry.db
-cavra registry mcp-list --trust-tier approved
-cavra registry mcp-check github-mcp create_pull_request --capability repository
-cavra registry mcp-classifications --capability cloud
-cavra registry migrate --sqlite .cavra/registry.db
-```
-
-## Persistent API Operations
-
-```bash
-cavra ops stores
-cavra ops backup --output .cavra/backups/$(date +%Y%m%d)
-cavra ops restore .cavra/backups/20260518/manifest.json --target-dir /tmp/cavra-restore-test
-cavra ops retention-plan --output .cavra/operations/retention --retention-days 2555 --legal-hold
-```
+- Use `--help` on any command for local help.
+- Use [CAVRA Full CLI Reference](cli-reference.md) for complete command options.
+- Use [Public Documentation Map](public-documentation-map.md) to find user guides,
+  release evidence, and archive material.

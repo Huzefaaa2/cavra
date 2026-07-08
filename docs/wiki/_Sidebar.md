@@ -2,6 +2,7 @@
 
 - [Home](Home.md)
 - [Product Website](https://cavra.mind-ops.cloud/)
+- [Public Documentation Map](Public-Documentation-Map.md)
 - [Five-Minute Quick Start](Home.md#five-minute-quick-start)
 - [Learning Paths](Home.md#learning-paths)
 
@@ -16,6 +17,7 @@
 7. [Community Guide](Textbook-06-Community-Edition-User-Guide.md)
 8. [Enterprise Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
 9. [CLI Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
+   - [Generated Full CLI Reference](CLI-Reference.md)
 10. [GUI And Sandbox](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
 11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
 12. [Policy And Evidence](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)

@@ -1,140 +1,99 @@
-# Release Notes
+# CAVRA Release Notes
 
-## v0.1.0 - May 14, 2026
+## Current Release: CAVRA Community v1.0.0
 
-### Initial MVP Release
+CAVRA Community `1.0.0` is the stable public Community baseline for Controlled
+Agentic Verification and Runtime Authority.
 
-**CAVRA** is a runtime governance platform for AI coding agents in regulated engineering environments.
+- **GitHub release:** [`community-v1.0.0`](https://github.com/Huzefaaa2/cavra/releases/tag/community-v1.0.0)
+- **Release documentation:** [`docs/releases/community-v1.0.0.md`](docs/releases/community-v1.0.0.md)
+- **Release index:** [`docs/community-release-index.md`](docs/community-release-index.md)
+- **Readiness dashboard:** [`docs/community-release-readiness-dashboard.md`](docs/community-release-readiness-dashboard.md)
+- **Post-publication verification:** [`docs/release-verifications/community-v1.0.0-post-publication-verification.md`](docs/release-verifications/community-v1.0.0-post-publication-verification.md)
 
-#### Features
+The release was published from merged `main` commit
+`bb5dd1005e9c2efb6e7e4df40ad153751476a6d2` at `2026-06-05T07:30:35Z`.
 
-**Core Governance**
-- ✓ Policy-as-code with YAML definitions
-- ✓ File access control (read/write blocking)
-- ✓ Command pattern matching (allow/block/require_approval)
-- ✓ Git action governance
-- ✓ Session-based audit trails
+## What Is Included
 
-**Policy Packs**
-- ✓ `cavra-ai-agent-baseline`: Security for any AI agent
-- ✓ `cavra-banking-baseline`: Banking/regulated compliance
-- ✓ `cavra-terraform-prod`: Infrastructure-as-code safety
-- ✓ `cavra-mcp-enterprise`: Tool access control
+Community v1.0.0 includes the public self-hosted CAVRA baseline:
 
-**Integrations**
-- ✓ GitHub PR attestation comments
-- ✓ Webhook export for SIEM (Splunk, Datadog, Sentinel)
-- ✓ JSON audit artifact generation
-- ✓ Markdown evidence export
+- Python package and `cavra` CLI.
+- FastAPI/Uvicorn API surface.
+- Runtime authority checks for files, commands, Git, MCP/tool workflows, and agent actions.
+- YAML policy packs with JSON Schema validation.
+- Policy signing, verification, lifecycle, diff, compile, dry-run, and Rego export paths.
+- Approval routing, provider payloads, and delivery contracts.
+- Evidence bundles, signed manifests, trust roots, SIEM exports, retention plans, and searchable metadata.
+- Agent registry, MCP trust registry, and trust classifications.
+- AISPM report, review-packet, CI-gate, trial, pilot, production-readiness, and operating evidence contracts.
+- Community sandbox UI and product documentation surfaces.
+- Docker and Azure deployment references for Community API and static UI.
+- Release governance, roadmap closeout, and future-work intake validators.
 
-**CLI**
-- ✓ `cavra agent start` — Initialize session
-- ✓ `cavra agent exec` — Execute under governance
-- ✓ `cavra agent attest` — Generate attestation
-- ✓ `cavra policy list` — Show available policies
-- ✓ `cavra policy describe` — Policy details
+## Published Artifacts
 
-**Quality**
-- ✓ Comprehensive test suite (8/8 passing)
-- ✓ GitHub Actions CI/CD workflows
-- ✓ Type hints throughout codebase
-- ✓ BUSL-1.1 enterprise-friendly licensing
+| Artifact | SHA-256 | Size |
+| --- | --- | --- |
+| `cavra-1.0.0-py3-none-any.whl` | `464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914` | 324060 bytes |
+| `cavra-1.0.0.tar.gz` | `851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331` | 1043690 bytes |
+| `cavra-1.0.0-SHA256SUMS.txt` | `c9049c68d23e089f2129ab3f1f130f7a8e07aecc4bb1e8b4b5360b22a5c617fd` | 274 bytes |
+| `cavra-1.0.0.provenance.json` | `38b6e2127695050e697d33dde22f111eaee5cccbcf598cb82fc60c6a795c99aa` | 893 bytes |
 
-#### Documentation
-
-- [Vision](docs/vision.md) — Product positioning and value proposition
-- [Architecture](docs/architecture.md) — Technical design and components
-- [Threat Model](docs/threat-model.md) — Security threats and controls
-- [Policy Authoring](docs/policy-authoring.md) — How to write custom policies
-- [Implementation Guide](docs/implementation-guide.md) — Enterprise deployment steps
-- [Webhook Integration](docs/webhook-integration.md) — SIEM setup
-- [5-Year Roadmap](docs/roadmap.md) — Product vision and phases
-
-#### Installation
+Verification command:
 
 ```bash
-pip install cavra
+python3 scripts/verify-community-release-artifacts.py \
+  --tag community-v1.0.0 \
+  --version 1.0.0 \
+  --wheel-sha256 464e7146f74a039b89fe1f163f9b825df7a700942be480c32e611f00fe625914 \
+  --sdist-sha256 851f28a38a6e9df6cbe7637a3963a1dc8eb535478730d3ff3eccf260a025d331
 ```
 
-#### Quick Start
+Observed clean install smoke:
 
-```bash
-# Start a governed session
-cavra agent start \
-  --tool claude-code \
-  --repo . \
-  --policy-pack cavra-banking-baseline
-
-# Execute command with governance
-cavra agent exec "terraform plan"
-
-# List available policies
-cavra policy list
-
-# Generate PR attestation
-cavra agent attest <session-id> --format markdown
+```text
+cavra 1.0.0
 ```
 
-#### Known Limitations
+## Attestation And Verification
 
-- Phase 2 features not yet implemented (MCP server governance)
-- Enterprise integrations (Jira, ServiceNow) are skeleton only
-- Semantic policy engine (Phase 4) not implemented
-- Web UI for policy management coming in Phase 2
+The release uses GitHub keyless release asset attestation through
+`.github/workflows/attest-community-release.yml`.
 
-#### Roadmap
+Workflow run `27003626701` downloaded the published assets, validated SHA-256
+checksums, generated a Sigstore-backed attestation with `actions/attest@v4`,
+and verified each asset with `gh attestation verify`.
 
-See [docs/roadmap.md](docs/roadmap.md) for 5-year product vision:
-- **Phase 1**: MVP & market entry (current)
-- **Phase 2**: MCP governance & tool control (Q4 2026)
-- **Phase 3**: Enterprise integrations (Q1 2027)
-- **Phase 4**: Semantic policy & intelligence (Q2-Q3 2027)
-- **Phase 5**: AI-assisted engineering control plane (2028+)
+Attestation `29988580` is available at
+<https://github.com/Huzefaaa2/cavra/attestations/29988580>.
 
-#### Support
+## Upgrade Notes
 
-- 📖 Documentation: https://github.com/Huzefaaa2/cavra
-- 🐛 Issue tracker: https://github.com/Huzefaaa2/cavra/issues
-- 💬 Discussions: https://github.com/Huzefaaa2/cavra/discussions
-- 📧 Contact: huzefa@example.com
+- From Community v0.1.x: install the final `1.0.0` wheel or source distribution,
+  then run `cavra version`, `cavra policy list`, and an evidence bundle smoke.
+- From Community v1.0.0 RC1: replace the release-candidate package with the
+  final `1.0.0` package, rerun policy validation, and verify evidence bundle
+  generation.
+- Enterprise source, paid policy packs, managed service internals, private
+  connector credentials, license-service internals, customer records, and private
+  signing material are outside this public Community artifact.
 
-#### License
+## Release History
 
-BUSL-1.1 (Business Source License 1.1)
-- Unrestricted use for internal purposes
-- Change deadline: May 14, 2030
-- After change date: Apache 2.0
-- Commercial license available
+| Release | Status | Notes |
+| --- | --- | --- |
+| [`community-v1.0.0`](docs/releases/community-v1.0.0.md) | Stable public baseline | Current Community release. |
+| [`community-v1.0.0-rc.1`](docs/releases/community-v1.0.0-rc.1.md) | Superseded RC | Release candidate before final GA. |
+| [`community-v1.0.0-aispm`](docs/releases/community-v1.0.0-aispm.md) | AISPM milestone | AISPM public release readiness record. |
+| [`community-v0.1.3`](docs/releases/community-v0.1.3.md) | Superseded | Pre-GA Community milestone. |
+| [`community-v0.1.2`](docs/releases/community-v0.1.2.md) | Superseded | Pre-GA Community milestone. |
+| [`community-v0.1.1`](docs/releases/community-v0.1.1.md) | Superseded | Pre-GA Community milestone. |
+| [`community-v0.1.0`](docs/releases/community-v0.1.0.md) | Superseded | Initial public Community release record. |
 
----
+## Documentation Start Points
 
-## Planned future releases
-
-### v0.2.0 (Phase 1 completion)
-- MCP server allowlisting
-- Terraform-specific governance enhancements
-- Claude Code integration (proof-of-concept)
-- GitHub Copilot integration
-- Splunk SIEM connector
-- Organization policy pack templates
-
-### v0.3.0 (Phase 2 preview)
-- MCP capability control
-- Tool risk scoring
-- Advanced policy inheritance
-- Policy signing and verification
-
-### v1.0.0 (Phase 2 completion)
-- MCP server marketplace integration
-- Enterprise policy templates
-- Advanced approval workflows
-- Performance optimizations
-
----
-
-## Credits
-
-**Author**: Huzefa Husain
-**Inspired by**: CAVRA V3 vision for AI agent governance in regulated environments
-
-**Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- Public documentation map: [`docs/public-documentation-map.md`](docs/public-documentation-map.md)
+- Full CLI reference: [`docs/cli-reference.md`](docs/cli-reference.md)
+- GitHub Wiki textbook: <https://github.com/Huzefaaa2/cavra/wiki>
+- Product website: <https://cavra.mind-ops.cloud/>

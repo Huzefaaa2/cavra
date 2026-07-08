@@ -18,6 +18,8 @@ The primary commercial product front door is [cavra.mind-ops.cloud](https://cavr
 
 The GitHub Pages site at [huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/) remains the public interactive sandbox and documentation bridge.
 
+If you are not sure where to begin, use the [CAVRA Public Documentation Map](Public-Documentation-Map.md). It separates the public user journey from release evidence, development/testing artifacts, and historical archive material.
+
 ## Current Product Model
 
 CAVRA is now organized around a Community-first model:
@@ -116,7 +118,7 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md)
 7. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide.md)
 8. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
-9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
+9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md) and [Generated Full CLI Reference](CLI-Reference.md)
 10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
 11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
 12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)
@@ -168,6 +170,7 @@ close out the trial without leaving stale package or license access behind.
 ## Primary Product References
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
+- [CAVRA Public Documentation Map](Public-Documentation-Map.md)
 - [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](https://github.com/Huzefaaa2/cavra/blob/main/docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md)
