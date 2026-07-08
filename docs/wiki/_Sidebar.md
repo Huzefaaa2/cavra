@@ -18,6 +18,7 @@
 8. [Enterprise Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
 9. [CLI Reference](Textbook-08-CAVRA-CLI-Command-Reference.md)
    - [Generated Full CLI Reference](CLI-Reference.md)
+   - [GitHub-Style CLI Manual](CLI-Manual.md)
 10. [GUI And Sandbox](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
 11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
 12. [Policy And Evidence](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)
@@ -33,6 +34,7 @@
 ## Practical Paths
 
 - [Development And Testing Archive](Development-And-Testing-Artifacts.md)
+- [Kubernetes Deployment](Kubernetes-Deployment.md)
 - [Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report.md)
 - [Managed Enterprise Live Validation](Managed-Enterprise-Live-Validation-Plan.md)
 - [Managed Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook.md)
@@ -52,6 +54,7 @@
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)
+- [CLI Manual](CLI-Manual.md)
 - [API](API.md)
 - [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)

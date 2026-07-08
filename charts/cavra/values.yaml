@@ -1,0 +1,133 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/huzefaaa2/cavra-community-api
+  pullPolicy: IfNotPresent
+  tag: "1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: cavra.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+  mountPath: /data
+
+env:
+  CAVRA_EDITION: community
+  CAVRA_CORS_ORIGINS: ""
+  CAVRA_PUBLIC_API_BASE_URL: ""
+  CAVRA_EVIDENCE_METADATA_DB: /data/evidence-metadata.db
+  CAVRA_APPROVAL_DB: /data/approvals.db
+  CAVRA_REGISTRY_DB: /data/registry.db
+  CAVRA_ACTIVITY_DB: /data/activity.db
+  CAVRA_INVENTORY_DB: /data/inventory.db
+  CAVRA_INTEGRATION_DB: /data/integrations.db
+  CAVRA_EVIDENCE_ARTIFACT_ROOT: /data/evidence-artifacts
+
+extraEnv: []
+
+existingSecret: ""
+secretEnv: {}
+
+postgresql:
+  enabled: false
+  auth:
+    username: cavra
+    database: cavra
+    password: ""
+    postgresPassword: ""
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+externalPostgresql:
+  enabled: false
+  host: ""
+  port: 5432
+  database: cavra
+  username: cavra
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: password
+  sslmode: require
+
+networkPolicy:
+  enabled: false
+  ingressNamespaceSelector: {}
+  ingressPodSelector: {}
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 20
+    periodSeconds: 20
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10

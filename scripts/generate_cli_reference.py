@@ -109,6 +109,16 @@ def _anchor(command: Command) -> str:
     return text.lower().replace("_", "-")
 
 
+def _manual_filename(command: Command) -> str:
+    if not command.path:
+        return "cavra.md"
+    return "cavra_" + "_".join(part.replace("-", "_") for part in command.path) + ".md"
+
+
+def _manual_title(command: Command) -> str:
+    return "cavra" if not command.path else "cavra " + " ".join(command.path)
+
+
 def _render(repo_root: Path, commands: list[Command]) -> str:
     version = _read_version(repo_root)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -150,6 +160,104 @@ def _render(repo_root: Path, commands: list[Command]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _render_manual_index(commands: list[Command]) -> str:
+    lines = [
+        "# CAVRA CLI Manual",
+        "",
+        "This directory contains GitHub CLI-style manual pages generated from the live Typer command surface.",
+        "",
+        "Regenerate after CLI changes:",
+        "",
+        "```bash",
+        "python3 scripts/generate_cli_reference.py --repo-root .",
+        "```",
+        "",
+        "## Commands",
+        "",
+    ]
+    for command in commands:
+        label = _manual_title(command)
+        lines.append(f"- [`{label}`]({_manual_filename(command)})")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _render_manual_page(repo_root: Path, command: Command, commands: list[Command]) -> str:
+    label = _manual_title(command)
+    parent = command.path[:-1]
+    siblings = [
+        candidate
+        for candidate in commands
+        if candidate.path
+        and candidate.path[:-1] == parent
+        and candidate.path != command.path
+    ]
+    group_children = [
+        candidate
+        for candidate in commands
+        if candidate.path
+        and candidate.path[:-1] == command.path
+    ]
+    related = siblings[:8] if siblings else group_children[:8]
+    lines = [
+        f"# {label}",
+        "",
+        "## Name",
+        "",
+        f"`{label}` - generated CAVRA CLI manual page.",
+        "",
+        "## Synopsis",
+        "",
+        "```bash",
+        f"{label} --help",
+        "```",
+        "",
+        "## Description",
+        "",
+        "This page is generated from the command's Typer help output. Use it as the "
+        "authoritative option reference for this command.",
+        "",
+        "## Help Output",
+        "",
+        "```text",
+        _run_help(repo_root, command.path),
+        "```",
+        "",
+    ]
+    if related:
+        lines.extend(["## See Also", ""])
+        for item in related:
+            lines.append(f"- [`{_manual_title(item)}`]({_manual_filename(item)})")
+        lines.append("")
+    lines.extend(
+        [
+            "## Regenerate",
+            "",
+            "```bash",
+            "python3 scripts/generate_cli_reference.py --repo-root .",
+            "```",
+            "",
+        ]
+    )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _render_wiki_manual_index() -> str:
+    return """# CAVRA CLI Manual
+
+The generated GitHub CLI-style manual pages live in the main repository:
+
+- [CAVRA CLI Manual Index](https://github.com/Huzefaaa2/cavra/tree/main/docs/cli-manual)
+- [Generated Full CLI Reference](CLI-Reference.md)
+- [CLI Guide](CLI.md)
+
+The manual pages are generated from Typer help output by:
+
+```bash
+python3 scripts/generate_cli_reference.py --repo-root .
+```
+"""
+
+
 def _read_version(repo_root: Path) -> str:
     init_path = repo_root / "src" / "cavra" / "__init__.py"
     match = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", init_path.read_text(encoding="utf-8"))
@@ -171,9 +279,26 @@ def main() -> int:
         repo_root / "docs" / "cli-reference.md",
         repo_root / "docs" / "wiki" / "CLI-Reference.md",
     ]
+    manual_dir = repo_root / "docs" / "cli-manual"
+    manual_targets = [manual_dir / "README.md", *(manual_dir / _manual_filename(command) for command in commands)]
+    wiki_manual_index = repo_root / "docs" / "wiki" / "CLI-Manual.md"
+    targets.extend(manual_targets)
+    targets.append(wiki_manual_index)
 
     if args.check:
-        stale = [str(path.relative_to(repo_root)) for path in targets if not path.exists() or path.read_text(encoding="utf-8") != rendered]
+        expected: dict[Path, str] = {
+            repo_root / "docs" / "cli-reference.md": rendered,
+            repo_root / "docs" / "wiki" / "CLI-Reference.md": rendered,
+            manual_dir / "README.md": _render_manual_index(commands),
+            wiki_manual_index: _render_wiki_manual_index(),
+        }
+        for command in commands:
+            expected[manual_dir / _manual_filename(command)] = _render_manual_page(repo_root, command, commands)
+        stale = [
+            str(path.relative_to(repo_root))
+            for path in targets
+            if not path.exists() or path.read_text(encoding="utf-8") != expected[path]
+        ]
         if stale:
             print("CLI reference is stale:", ", ".join(stale), file=sys.stderr)
             return 1
@@ -182,7 +307,16 @@ def main() -> int:
 
     for target in targets:
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(rendered, encoding="utf-8")
+        if target == repo_root / "docs" / "cli-reference.md" or target == repo_root / "docs" / "wiki" / "CLI-Reference.md":
+            content = rendered
+        elif target == manual_dir / "README.md":
+            content = _render_manual_index(commands)
+        elif target == wiki_manual_index:
+            content = _render_wiki_manual_index()
+        else:
+            command = next(item for item in commands if manual_dir / _manual_filename(item) == target)
+            content = _render_manual_page(repo_root, command, commands)
+        target.write_text(content, encoding="utf-8")
         print(f"Wrote {target.relative_to(repo_root)}")
     print(f"Documented {len(commands)} help surfaces.")
     return 0

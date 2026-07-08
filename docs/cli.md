@@ -7,6 +7,7 @@ For every command and every option generated directly from Typer help output, us
 the authoritative reference:
 
 - [CAVRA Full CLI Reference](cli-reference.md)
+- [GitHub-style CAVRA CLI Manual](cli-manual/README.md)
 
 Regenerate the reference after CLI changes:
 
@@ -93,5 +94,6 @@ cavra release roadmap-governance-quickcheck --repo-root . --require-live
 
 - Use `--help` on any command for local help.
 - Use [CAVRA Full CLI Reference](cli-reference.md) for complete command options.
+- Use [GitHub-style CAVRA CLI Manual](cli-manual/README.md) when you want one page per command, similar to GitHub CLI manual pages.
 - Use [Public Documentation Map](public-documentation-map.md) to find user guides,
   release evidence, and archive material.

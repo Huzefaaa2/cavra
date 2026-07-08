@@ -1,0 +1,64 @@
+name: Helm CAVRA Chart
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "charts/cavra/**"
+      - "docs/kubernetes-deployment.md"
+      - ".github/workflows/helm-cavra.yml"
+  push:
+    branches: [main]
+    paths:
+      - "charts/cavra/**"
+      - "docs/kubernetes-deployment.md"
+      - ".github/workflows/helm-cavra.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: helm-lint-template
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.4
+
+      - name: Build chart dependencies
+        run: helm dependency build charts/cavra
+
+      - name: Lint default chart
+        run: helm lint charts/cavra
+
+      - name: Template default chart
+        run: helm template cavra charts/cavra --namespace cavra > /tmp/cavra-default.yaml
+
+      - name: Template PostgreSQL dependency mode
+        run: |
+          helm template cavra charts/cavra \
+            --namespace cavra \
+            --set postgresql.enabled=true \
+            --set postgresql.auth.password=dev-password \
+            --set postgresql.auth.postgresPassword=dev-postgres-password \
+            > /tmp/cavra-postgresql.yaml
+
+      - name: Template external PostgreSQL and ingress TLS mode
+        run: |
+          helm template cavra charts/cavra \
+            --namespace cavra \
+            --set externalPostgresql.enabled=true \
+            --set externalPostgresql.host=postgres.example.internal \
+            --set externalPostgresql.username=cavra \
+            --set externalPostgresql.password=example-password \
+            --set ingress.enabled=true \
+            --set ingress.className=nginx \
+            --set ingress.hosts[0].host=cavra.example.com \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.tls[0].secretName=cavra-tls \
+            --set ingress.tls[0].hosts[0]=cavra.example.com \
+            > /tmp/cavra-external-postgres.yaml

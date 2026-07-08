@@ -21,12 +21,14 @@ development notes, and release-verification artifacts.
 | Community self-hosting | [Community Self-Hosted Guide](Community-Self-Hosted-Guide.md) |
 | CLI overview | [CLI](CLI.md) |
 | Full generated CLI reference | [Full CLI Reference](CLI-Reference.md) |
+| GitHub-style CLI manual pages | [CLI Manual](CLI-Manual.md) |
 | API overview | [API](API.md) |
 | Sandbox and GUI | [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) |
 | Policy authoring | [Policy Authoring](https://github.com/Huzefaaa2/cavra/blob/main/docs/policy-authoring.md) |
 | Evidence and attestations | [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md) |
 | AISPM | [AISPM Guide](Textbook-10-AISPM-Guide.md) |
 | Azure Community deployment | [Azure Community Deployment](https://github.com/Huzefaaa2/cavra/blob/main/docs/azure-community-saas-deployment.md) |
+| Kubernetes and Helm deployment | [Kubernetes Deployment](Kubernetes-Deployment.md) |
 
 ## Managed, Enterprise, And Trial
 

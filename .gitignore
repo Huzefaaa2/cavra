@@ -49,6 +49,9 @@ node_modules/
 *.log
 *.sig.json
 
+# Helm dependency cache
+charts/*/charts/
+
 # OS
 .DS_Store
 Thumbs.db

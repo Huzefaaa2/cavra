@@ -1,0 +1,23 @@
+apiVersion: v2
+name: cavra
+description: CAVRA Community API microservice for Kubernetes.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+kubeVersion: ">=1.24.0-0"
+home: https://cavra.mind-ops.cloud/
+sources:
+  - https://github.com/Huzefaaa2/cavra
+maintainers:
+  - name: Huzefa Husain
+keywords:
+  - ai
+  - governance
+  - runtime-authority
+  - aispm
+  - fastapi
+dependencies:
+  - name: postgresql
+    version: "15.5.38"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled

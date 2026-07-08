@@ -173,6 +173,8 @@ close out the trial without leaving stale package or license access behind.
 - [CAVRA Public Documentation Map](Public-Documentation-Map.md)
 - [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](https://github.com/Huzefaaa2/cavra/blob/main/docs/api-versioning-and-openapi.md)
+- [CAVRA Kubernetes And Helm Deployment](Kubernetes-Deployment.md)
+- [CAVRA CLI Manual](CLI-Manual.md)
 - [CAVRA Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md)
 - [CAVRA Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout.md)
 - [CAVRA Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout.md)

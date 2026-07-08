@@ -21,12 +21,14 @@ development notes, and release-verification artifacts.
 | Community self-hosting | [`docs/wiki/Community-Self-Hosted-Guide.md`](wiki/Community-Self-Hosted-Guide.md) |
 | CLI overview | [`docs/cli.md`](cli.md) |
 | Full generated CLI reference | [`docs/cli-reference.md`](cli-reference.md) |
+| GitHub-style CLI manual pages | [`docs/cli-manual/README.md`](cli-manual/README.md) |
 | API overview | [`docs/wiki/API.md`](wiki/API.md) |
 | Sandbox and GUI | [`docs/wiki/Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md`](wiki/Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) |
 | Policy authoring | [`docs/policy-authoring.md`](policy-authoring.md) |
 | Evidence and attestations | [`docs/wiki/Textbook-11-Policies-Approvals-Evidence-And-Attestations.md`](wiki/Textbook-11-Policies-Approvals-Evidence-And-Attestations.md) |
 | AISPM | [`docs/wiki/Textbook-10-AISPM-Guide.md`](wiki/Textbook-10-AISPM-Guide.md) |
 | Azure Community deployment | [`docs/azure-community-saas-deployment.md`](azure-community-saas-deployment.md) |
+| Kubernetes and Helm deployment | [`docs/kubernetes-deployment.md`](kubernetes-deployment.md) |
 
 ## Managed, Enterprise, And Trial
 

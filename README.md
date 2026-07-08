@@ -183,6 +183,19 @@ The deployment artifacts are:
 
 Use [Azure Community Deployment](docs/azure-community-saas-deployment.md) for the full setup, required GitHub variables, Azure resources, persistence boundary, and validation steps. Provider-backed services such as report delivery, audit storage, object storage, database, policy registry, and connector credentials must be configured by the self-hosting operator.
 
+## Community Container And Kubernetes Deployment
+
+CAVRA Community can also run as a containerized API service on Kubernetes:
+
+- Community API image published to GitHub Container Registry through `.github/workflows/publish-community-api-image.yml`.
+- Docker source at `docker/Dockerfile.azure-api`.
+- Helm chart at `charts/cavra`.
+- Helm validation workflow at `.github/workflows/helm-cavra.yml`.
+- Optional bundled PostgreSQL dependency for test and small operator environments.
+- External PostgreSQL, Kubernetes Secret, ingress, TLS, and cloud/on-prem deployment paths for production-style clusters.
+
+Use [Kubernetes Deployment](docs/kubernetes-deployment.md) for local `kind`/Minikube, AKS/EKS/GKE, on-prem, external database, secrets, TLS, and validation instructions.
+
 Trial, Managed, and Enterprise Subscription Azure deployments use a separate private workflow set in
 `Huzefaaa2/cavra-enterprise` for the trial portal, evaluator entitlement workflow, private
 commercial packages, managed control plane, connector jobs, authenticated operator UI,
@@ -209,7 +222,7 @@ Common command groups:
 - `cavra init claude-code`
 - `cavra demo before-the-agent-acts`
 
-Full reference: [Generated CAVRA Full CLI Reference](docs/cli-reference.md), [CAVRA CLI Command Reference](docs/wiki/Textbook-08-CAVRA-CLI-Command-Reference.md), and [CLI](docs/wiki/CLI.md).
+Full reference: [Generated CAVRA Full CLI Reference](docs/cli-reference.md), [GitHub-style CLI Manual](docs/cli-manual/README.md), [CAVRA CLI Command Reference](docs/wiki/Textbook-08-CAVRA-CLI-Command-Reference.md), and [CLI](docs/wiki/CLI.md).
 
 ## GUI And Sandbox
 
@@ -243,9 +256,11 @@ Primary public paths:
 | Product overview | [cavra.mind-ops.cloud](https://cavra.mind-ops.cloud/) |
 | Technical textbook | [GitHub Wiki textbook](docs/wiki/Home.md) |
 | Full CLI reference | [Generated CAVRA Full CLI Reference](docs/cli-reference.md) |
+| GitHub-style CLI manual | [CAVRA CLI Manual](docs/cli-manual/README.md) |
 | API reference | [API](docs/wiki/API.md) |
 | Product model | [Product Model](docs/wiki/Product-Model.md) |
 | Install and deploy | [Install And Deploy CAVRA](docs/wiki/Textbook-05-Install-And-Deploy-CAVRA.md) |
+| Kubernetes and Helm | [Kubernetes Deployment](docs/kubernetes-deployment.md) |
 | Community guide | [CAVRA Community User Guide](docs/wiki/Textbook-06-Community-Edition-User-Guide.md) |
 | Managed and Enterprise guide | [CAVRA Managed And Enterprise Subscription Guide](docs/wiki/Textbook-07-Enterprise-Edition-User-Guide.md) |
 | AISPM guide | [AISPM Guide](docs/wiki/Textbook-10-AISPM-Guide.md) |
