@@ -1,0 +1,116 @@
+{
+  "evidence_mode": "sample",
+  "handoff_areas": [
+    {
+      "area_id": "service_ownership",
+      "cadence_ref": "sample://cadence/service_ownership",
+      "evidence_ref": "sample://steady-state/service_ownership/evidence",
+      "handoff_status_ref": "sample://steady-state/service_ownership/status",
+      "objective": "Named operating owner, backup owner, and escalation path are documented.",
+      "owner_ref": "sample://owner/service_ownership",
+      "title": "Service Ownership"
+    },
+    {
+      "area_id": "slo_monitoring",
+      "cadence_ref": "sample://cadence/slo_monitoring",
+      "evidence_ref": "sample://steady-state/slo_monitoring/evidence",
+      "handoff_status_ref": "sample://steady-state/slo_monitoring/status",
+      "objective": "SLOs, dashboards, alerts, and review cadence are active.",
+      "owner_ref": "sample://owner/slo_monitoring",
+      "title": "Slo Monitoring"
+    },
+    {
+      "area_id": "security_operations",
+      "cadence_ref": "sample://cadence/security_operations",
+      "evidence_ref": "sample://steady-state/security_operations/evidence",
+      "handoff_status_ref": "sample://steady-state/security_operations/status",
+      "objective": "Security review, incident path, break-glass review, and audit cadence are active.",
+      "owner_ref": "sample://owner/security_operations",
+      "title": "Security Operations"
+    },
+    {
+      "area_id": "connector_operations",
+      "cadence_ref": "sample://cadence/connector_operations",
+      "evidence_ref": "sample://steady-state/connector_operations/evidence",
+      "handoff_status_ref": "sample://steady-state/connector_operations/status",
+      "objective": "Connector ownership, retry handling, and delivery monitoring are active.",
+      "owner_ref": "sample://owner/connector_operations",
+      "title": "Connector Operations"
+    },
+    {
+      "area_id": "runtime_operations",
+      "cadence_ref": "sample://cadence/runtime_operations",
+      "evidence_ref": "sample://steady-state/runtime_operations/evidence",
+      "handoff_status_ref": "sample://steady-state/runtime_operations/status",
+      "objective": "Runtime workflow control review and agent/tool exception handling are active.",
+      "owner_ref": "sample://owner/runtime_operations",
+      "title": "Runtime Operations"
+    },
+    {
+      "area_id": "aispm_operations",
+      "cadence_ref": "sample://cadence/aispm_operations",
+      "evidence_ref": "sample://steady-state/aispm_operations/evidence",
+      "handoff_status_ref": "sample://steady-state/aispm_operations/status",
+      "objective": "AISPM posture, reporting, findings, and blocker review cadence are active.",
+      "owner_ref": "sample://owner/aispm_operations",
+      "title": "Aispm Operations"
+    },
+    {
+      "area_id": "support_operations",
+      "cadence_ref": "sample://cadence/support_operations",
+      "evidence_ref": "sample://steady-state/support_operations/evidence",
+      "handoff_status_ref": "sample://steady-state/support_operations/status",
+      "objective": "Support triage, escalation, customer communication, and SLA routing are active.",
+      "owner_ref": "sample://owner/support_operations",
+      "title": "Support Operations"
+    },
+    {
+      "area_id": "customer_success",
+      "cadence_ref": "sample://cadence/customer_success",
+      "evidence_ref": "sample://steady-state/customer_success/evidence",
+      "handoff_status_ref": "sample://steady-state/customer_success/status",
+      "objective": "Operating review, renewal path, enablement, and adoption checkpoints are active.",
+      "owner_ref": "sample://owner/customer_success",
+      "title": "Customer Success"
+    },
+    {
+      "area_id": "evidence_custody",
+      "cadence_ref": "sample://cadence/evidence_custody",
+      "evidence_ref": "sample://steady-state/evidence_custody/evidence",
+      "handoff_status_ref": "sample://steady-state/evidence_custody/status",
+      "objective": "Evidence archive, retention, immutable audit, and verifier access are active.",
+      "owner_ref": "sample://owner/evidence_custody",
+      "title": "Evidence Custody"
+    }
+  ],
+  "handoff_profile": {
+    "customer_success_plan_ref": "sample://customer-success/operating-plan",
+    "environment_ref": "sample://environment/managed-enterprise-production",
+    "evidence_room_ref": "sample://evidence-room/managed-enterprise-steady-state",
+    "operating_model_ref": "sample://runbook/managed-enterprise-operating-model",
+    "stabilization_report_ref": "sample://managed-enterprise-stabilization/report",
+    "support_model_ref": "sample://support/managed-enterprise-model"
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": false,
+  "schema_version": "cavra.managed-enterprise-steady-state-handoff.v1",
+  "steady_state_outcome": {
+    "customer_success_owner_ref": "sample://owner/customer-success",
+    "next_operating_review_ref": "sample://review/next-managed-enterprise-operating-review",
+    "open_risks_ref": "sample://risks/none-or-accepted",
+    "security_owner_ref": "sample://owner/security",
+    "steady_state_decision_ref": "sample://decision/steady-state-ready",
+    "support_owner_ref": "sample://owner/support"
+  }
+}

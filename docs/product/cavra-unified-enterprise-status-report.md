@@ -13,6 +13,7 @@ CAVRA's public Community-to-Enterprise implementation roadmap is complete for th
 | Overall roadmap | Complete | 91 of 91 numbered rows are `Completed`; phases 0-7 are complete. |
 | Public contracts | Complete | Validators, examples, docs, workflows, CLI surfaces, tests, and wiki pages are present for the tracked scope. |
 | Phase 7 closeout | Complete | [Phase 7 Roadmap Closeout](../phase7-roadmap-closeout.md) defines the stop rule and closes the public R7 implementation loop. |
+| Post-cutover operating bridge | Complete | Live validation, cutover, stabilization, and [steady-state handoff](../managed-enterprise-steady-state-handoff.md) validators document the transition from launch mode into normal Managed or Enterprise operations. |
 | Live customer readiness | Deployment evidence required | Real tenants, connectors, SMTP/report providers, runtime workflows, customer evidence rooms, and private operational logs must be validated in the target Managed or Enterprise environment. |
 | Future roadmap | Closed unless product scope changes | Add new rows only for a new API, CLI command, validator family, connector, deployment target, AISPM capability, evidence schema, trust artifact, edition, packaging model, or buyer-facing surface. |
 
@@ -26,6 +27,7 @@ CAVRA's public Community-to-Enterprise implementation roadmap is complete for th
 - Policy and event core: OPA/Rego compatibility path, policy lifecycle tooling, continuous monitoring event contracts, and Phase 5 closeout.
 - Scale and ecosystem expansion: benchmark/SLO gates, generic agent adapter SDK, AI red-team and supply-chain gates, and zero-trust reference deployments.
 - Customer lifecycle controls: evidence intake, evidence-room closeout, handoff, operating review, renewal, archive, public status, verification, announcement, retrospective, and normalized Phase 7 closeout.
+- Managed and Enterprise operating bridges: live validation plan, cutover runbook, stabilization report, and steady-state handoff for customer-safe transition into normal operations.
 
 ## What Remains Deployment-Specific
 
@@ -77,6 +79,7 @@ Routine customer scorecard refresh, monitoring-cycle review, drift remediation, 
 
 1. Use this status report for executive status and the full roadmap for row-level traceability.
 2. Use [CAVRA Managed And Enterprise Live Validation Plan](../managed-enterprise-live-validation-plan.md) to collect sanitized refs for the real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, evidence-room, and customer operating-review validators.
-3. Run live Managed or Enterprise validators against the actual target environment.
-4. Attach customer-specific evidence references to the relevant private evidence room.
-5. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
+3. Use the [CAVRA Managed And Enterprise Cutover Runbook](../managed-enterprise-cutover-runbook.md), [Stabilization Report](../managed-enterprise-stabilization-report.md), and [Steady-State Handoff](../managed-enterprise-steady-state-handoff.md) to prove activation, post-cutover health, ownership, support, AISPM operations, and evidence custody.
+4. Run live Managed or Enterprise validators against the actual target environment.
+5. Attach customer-specific evidence references to the relevant private evidence room.
+6. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.

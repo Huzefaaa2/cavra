@@ -1,0 +1,48 @@
+{
+  "area_count": 9,
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Steady-state handoff schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample steady-state handoff validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "handoff_profile references are complete.",
+      "name": "handoff_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required steady-state handoff areas are present.",
+      "name": "handoff_areas",
+      "status": "pass"
+    },
+    {
+      "message": "steady_state_outcome references are complete.",
+      "name": "steady_state_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Handoff contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_steady_state": false,
+  "required_area_count": 9,
+  "schema_version": "cavra.managed-enterprise-steady-state-handoff.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}

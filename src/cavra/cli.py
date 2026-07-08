@@ -365,6 +365,11 @@ from cavra.managed_enterprise_stabilization_report import (
     validate_managed_enterprise_stabilization_report,
     write_managed_enterprise_stabilization_report_artifacts,
 )
+from cavra.managed_enterprise_steady_state_handoff import (
+    build_managed_enterprise_steady_state_handoff,
+    validate_managed_enterprise_steady_state_handoff,
+    write_managed_enterprise_steady_state_handoff_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3183,6 +3188,54 @@ def release_managed_enterprise_stabilization_report(
         exit_ok = result["blocker_count"] == 0 and (
             not require_live
             or result["ready_for_managed_enterprise_stabilization_closeout"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("managed-enterprise-steady-state-handoff")
+def release_managed_enterprise_steady_state_handoff(
+    handoff: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional Managed/Enterprise steady-state handoff JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized steady-state handoff templates."),
+    ] = None,
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the Managed/Enterprise steady-state handoff packet."""
+    if export_dir:
+        result = write_managed_enterprise_steady_state_handoff_artifacts(export_dir)
+        exit_ok = result["ready_for_managed_enterprise_steady_state"] is True
+    else:
+        payload = (
+            json.loads(handoff.read_text(encoding="utf-8"))
+            if handoff
+            else build_managed_enterprise_steady_state_handoff(
+                evidence_mode="live" if require_live else "sample",
+            )
+        )
+        result = validate_managed_enterprise_steady_state_handoff(
+            payload,
+            require_live=require_live,
+        )
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live
+            or result["ready_for_managed_enterprise_steady_state"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

@@ -35,6 +35,7 @@
 - [Managed Enterprise Live Validation](Managed-Enterprise-Live-Validation-Plan.md)
 - [Managed Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook.md)
 - [Managed Enterprise Stabilization Report](Managed-Enterprise-Stabilization-Report.md)
+- [Managed Enterprise Steady-State Handoff](Managed-Enterprise-Steady-State-Handoff.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

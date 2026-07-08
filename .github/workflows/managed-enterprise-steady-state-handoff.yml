@@ -1,0 +1,47 @@
+name: Managed Enterprise Steady-State Handoff
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/managed-enterprise-steady-state-handoff.yml"
+      - "README.md"
+      - "docs/managed-enterprise-steady-state-handoff.md"
+      - "docs/wiki/Managed-Enterprise-Steady-State-Handoff.md"
+      - "examples/managed-enterprise-steady-state/**"
+      - "scripts/validate_managed_enterprise_steady_state_handoff.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_steady_state_handoff.py"
+      - "tests/test_managed_enterprise_steady_state_handoff.py"
+  push:
+    paths:
+      - ".github/workflows/managed-enterprise-steady-state-handoff.yml"
+      - "README.md"
+      - "docs/managed-enterprise-steady-state-handoff.md"
+      - "docs/wiki/Managed-Enterprise-Steady-State-Handoff.md"
+      - "examples/managed-enterprise-steady-state/**"
+      - "scripts/validate_managed_enterprise_steady_state_handoff.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_steady_state_handoff.py"
+      - "tests/test_managed_enterprise_steady_state_handoff.py"
+  workflow_dispatch:
+
+jobs:
+  validate-managed-enterprise-steady-state-handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Managed/Enterprise steady-state handoff
+        run: python scripts/validate_managed_enterprise_steady_state_handoff.py --handoff examples/managed-enterprise-steady-state/managed-enterprise-steady-state-handoff.sample.json
+      - name: Validate live sanitized Managed/Enterprise steady-state handoff
+        run: python scripts/validate_managed_enterprise_steady_state_handoff.py --handoff examples/managed-enterprise-steady-state/managed-enterprise-steady-state-handoff.live.sanitized.example.json --require-live
+      - name: Validate live sanitized steady-state handoff through CAVRA CLI
+        run: python -m cavra.cli release managed-enterprise-steady-state-handoff --handoff examples/managed-enterprise-steady-state/managed-enterprise-steady-state-handoff.live.sanitized.example.json --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_managed_enterprise_steady_state_handoff.py -q
+      - name: Lint Managed/Enterprise steady-state handoff surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/managed_enterprise_steady_state_handoff.py scripts/validate_managed_enterprise_steady_state_handoff.py tests/test_managed_enterprise_steady_state_handoff.py
