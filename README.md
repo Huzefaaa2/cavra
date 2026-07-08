@@ -14,57 +14,11 @@ The commercial product front door is **[cavra.mind-ops.cloud](https://cavra.mind
 
 ## Introduction Video
 
-Start with the CAVRA product introduction video to see the runtime authority model, evidence flow, AISPM posture loop, and product paths before reading the full documentation.
+Start with the product introduction video for a quick view of CAVRA's runtime authority model, evidence flow, AISPM posture loop, and product paths.
 
 https://github.com/user-attachments/assets/60105a67-7c2f-4fda-8743-4d53146c3983
 
-The full CAVRA e-book is now the first page of the GitHub Wiki: [Before the Agent Acts: The CAVRA Technical Textbook](docs/wiki/Home.md). Start there for the end-to-end guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.
-
-If you are unsure where to start, use the [CAVRA Public Documentation Map](docs/public-documentation-map.md). It separates public user documentation from release evidence, development/testing artifacts, and historical archive material.
-
-For implementation details, read the new textbook chapter [CAVRA Technology Stack And Implementation Model](docs/wiki/Textbook-18-CAVRA-Technology-Stack.md). It explains the public Community stack across Python, FastAPI, Typer/Rich, static web front ends, JSON/SQLite persistence, policy and evidence formats, cryptography, Docker, Azure, GitHub Actions, and validation.
-
-For the current implementation summary, read [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) and [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md). They explain that the public roadmap scope is complete, what remains deployment-specific, and when new roadmap work should be added.
-
-For live Managed and Enterprise execution, read [CAVRA Managed And Enterprise Live Validation Plan](docs/managed-enterprise-live-validation-plan.md). It defines the sanitized manifest that operators use to attach real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, and customer closeout evidence refs without committing private material. Installed operators can run it with `cavra release managed-enterprise-live-validation-plan --require-live`.
-
-For production activation, use the [CAVRA Managed And Enterprise Cutover Runbook](docs/managed-enterprise-cutover-runbook.md). It binds the live validation plan to preflight freeze, go/no-go, rollback, activation, customer closeout, and public-safe status synchronization. Installed operators can run it with `cavra release managed-enterprise-cutover-runbook --require-live`.
-
-For the first post-cutover window, use the [CAVRA Managed And Enterprise Stabilization Report](docs/managed-enterprise-stabilization-report.md). It proves API, identity, tenant isolation, connectors, runtime controls, SMTP/reporting, AISPM, audit/evidence, and support-alert health before exiting cutover mode. Installed operators can run it with `cavra release managed-enterprise-stabilization-report --require-live`.
-
-For steady-state operations, use the [CAVRA Managed And Enterprise Steady-State Handoff](docs/managed-enterprise-steady-state-handoff.md). It proves named ownership, SLO monitoring, security operations, connector operations, runtime operations, AISPM operations, support, customer success, and evidence custody before launch mode becomes normal operating cadence. Installed operators can run it with `cavra release managed-enterprise-steady-state-handoff --require-live`.
-
-For final operating release indexing, use the [CAVRA Managed And Enterprise Operating Release Index](docs/managed-enterprise-operating-release-index.md). It aggregates live validation, cutover, stabilization, steady-state handoff, evidence archive, and public-safe status sync into one customer-safe readiness result. Installed operators can run it with `cavra release managed-enterprise-operating-release-index --require-live`.
-
-For customer-safe launch communication, use the [CAVRA Managed And Enterprise Operating Announcement](docs/managed-enterprise-operating-announcement.md). It proves the release summary, customer value, operating assurance, security/trust claims, publication channels, and approvals are ready without private tenant or commercial material. Installed operators can run it with `cavra release managed-enterprise-operating-announcement --require-live`.
-
-For one-pass launch-to-operations verification, use the [CAVRA Managed And Enterprise Operating Chain](docs/managed-enterprise-operating-chain.md). It loads and validates the live validation plan, cutover runbook, stabilization report, steady-state handoff, operating release index, and operating announcement as a single end-to-end gate. Installed operators can run it with `cavra release managed-enterprise-operating-chain --require-live`.
-
-For customer-safe release attestation, use the [CAVRA Managed And Enterprise Operating Release Certificate](docs/managed-enterprise-operating-certificate.md). It summarizes the operating chain into certificate sections, owner signoffs, public-safe claims, evidence custody, validity window, and next review. Installed operators can run it with `cavra release managed-enterprise-operating-certificate --require-live`.
-
-For publication control, use the [CAVRA Managed And Enterprise Certificate Publication Index](docs/managed-enterprise-certificate-publication-index.md). It proves approved certificate publication targets, public-safe claims, rollback references, channel owners, and evidence refs before the certificate is surfaced publicly or to customers. Installed operators can run it with `cavra release managed-enterprise-certificate-publication-index --require-live`.
-
-For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
-
-The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model. This boundary is enforced by `python3 scripts/validate_roadmap_completion_boundary.py --repo-root .`.
-
-For future work triage, use the [CAVRA Roadmap Intake Gate](docs/roadmap-intake-gate.md). It classifies new requests as either `live_operations_evidence`, `new_product_roadmap_candidate`, or `needs_architect_review` before anything is added beyond the closed R7.61 roadmap boundary. Installed operators can run it with `cavra release roadmap-intake-gate --require-live`.
-
-For accepted product candidates, use the [CAVRA Roadmap Candidate Charter](docs/roadmap-candidate-charter.md). It proves scope, ownership, public-contract boundaries, acceptance criteria, docs/test/release plans, and redaction controls before a future phase or roadmap item is opened. Installed operators can run it with `cavra release roadmap-candidate-charter --require-live`.
-
-For future phase opening, use the [CAVRA Roadmap Future Phase Opening Gate](docs/roadmap-future-phase-opening-gate.md). It proves a chartered product candidate has phase owner, product and architecture owners, scoped milestones, dependencies, exit criteria, test/docs/release/security controls, rollback planning, and the R7.61 boundary reference before a future product phase is opened. Installed operators can run it with `cavra release roadmap-future-phase-opening-gate --require-live`.
-
-For registered future phases, use the [CAVRA Roadmap Future Phase Registry](docs/roadmap-future-phase-registry.md). It records approved future phases with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs without adding R7.62. Installed operators can run it with `cavra release roadmap-future-phase-registry --require-live`.
-
-For one-pass future work governance closeout, use the [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md). It aggregates intake, charter, phase-opening, and registry results into a single ready/blocked decision without reopening R7. Installed operators can run it with `cavra release roadmap-future-work-governance-index --require-live`.
-
-For an operator shortcut across the closed roadmap boundary and the future-work governance chain, use the [CAVRA Roadmap Governance Quickcheck](docs/roadmap-governance-quickcheck.md). It validates the R7.61 completion boundary and the future-work governance index in one pass. Installed operators can run it with `cavra release roadmap-governance-quickcheck --repo-root . --require-live`.
-
-For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
-
-For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
-
-For native AI risk validation, read [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md). It defines public guardrail tests, AI artifact supply-chain checks, malicious model checks, and red-team readiness packets without raw prompt or model egress.
+For the full guide, use the [CAVRA Technical Textbook](docs/wiki/Home.md). For a practical starting point, use the [CAVRA Public Documentation Map](docs/public-documentation-map.md).
 
 ![CAVRA runtime authority](docs/wiki/assets/textbook/cavra-runtime-authority-map.svg)
 

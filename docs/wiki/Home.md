@@ -18,62 +18,20 @@ The primary commercial product front door is [cavra.mind-ops.cloud](https://cavr
 
 The GitHub Pages site at [huzefaaa2.github.io/cavra](https://huzefaaa2.github.io/cavra/) remains the public interactive sandbox and documentation bridge.
 
-If you are not sure where to begin, use the [CAVRA Public Documentation Map](Public-Documentation-Map.md). It separates the public user journey from release evidence, development/testing artifacts, and historical archive material.
+If you are not sure where to begin, use the [CAVRA Public Documentation Map](Public-Documentation-Map). It separates the public user journey from release evidence, development/testing artifacts, and historical archive material.
 
 ## Current Product Model
 
-CAVRA is now organized around a Community-first model:
+CAVRA has four public product paths:
 
-- **CAVRA Community:** the full public self-hosted product and default codebase.
-- **CAVRA Managed:** hosted CAVRA operated as a managed service.
-- **CAVRA Enterprise Subscription:** commercial support, SLA, certified integrations, policy packs, compliance packs, implementation help, and private customer operations.
-- **CAVRA Trial:** temporary evaluation access for Managed or Enterprise Subscription capabilities. Trial is not a separate source edition.
+- **Community:** the public self-hosted product in this repository.
+- **Managed:** CAVRA operated as a hosted service.
+- **Enterprise Subscription:** commercial support, SLA, certified integrations, policy packs, compliance packs, and implementation help.
+- **Trial:** time-limited evaluation access for approved users.
 
-Start with [Product Model](Product-Model.md), [Community Self-Hosted Guide](Community-Self-Hosted-Guide.md), [CAVRA Managed Guide](CAVRA-Managed-Guide.md), [Enterprise Subscription Guide](Enterprise-Subscription-Guide.md), and [Trial Access Guide](Trial-Access-Guide.md).
+Start with [Product Model](Product-Model), [Community Self-Hosted Guide](Community-Self-Hosted-Guide), [CAVRA Managed Guide](CAVRA-Managed-Guide), [Enterprise Subscription Guide](Enterprise-Subscription-Guide), and [Trial Access Guide](Trial-Access-Guide).
 
-The short implementation summary is [CAVRA Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report.md). It explains that the public roadmap scope is complete, what remains live deployment evidence, and when new roadmap work should be added.
-
-The live execution bridge is [CAVRA Managed And Enterprise Live Validation Plan](Managed-Enterprise-Live-Validation-Plan.md). It gives operators a sanitized manifest for real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, evidence-room, and customer closeout evidence refs.
-
-The production activation bridge is [CAVRA Managed And Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook.md). It binds live validation to preflight freeze, go/no-go approval, rollback readiness, activation, customer closeout, and public-safe status synchronization.
-
-The post-cutover closeout bridge is [CAVRA Managed And Enterprise Stabilization Report](Managed-Enterprise-Stabilization-Report.md). It proves API, identity, tenant isolation, connector, runtime control, SMTP/reporting, AISPM, audit/evidence, and support-alert health before operators exit cutover mode.
-
-The steady-state operating bridge is [CAVRA Managed And Enterprise Steady-State Handoff](Managed-Enterprise-Steady-State-Handoff.md). It proves named ownership, SLO monitoring, security operations, connector operations, runtime operations, AISPM operations, support, customer success, and evidence custody before launch mode becomes normal operating cadence.
-
-The final operating release bridge is [CAVRA Managed And Enterprise Operating Release Index](Managed-Enterprise-Operating-Release-Index.md). It aggregates live validation, cutover, stabilization, steady-state handoff, evidence archive, and public-safe status sync into one customer-safe readiness result.
-
-The customer-safe communication bridge is [CAVRA Managed And Enterprise Operating Announcement](Managed-Enterprise-Operating-Announcement.md). It proves the release summary, customer value, operating assurance, security/trust claims, publication channels, and approvals are ready without private tenant or commercial material.
-
-The one-pass verification bridge is [CAVRA Managed And Enterprise Operating Chain](Managed-Enterprise-Operating-Chain.md). It loads and validates the live validation plan, cutover runbook, stabilization report, steady-state handoff, operating release index, and operating announcement as one end-to-end gate.
-
-The customer-safe attestation bridge is [CAVRA Managed And Enterprise Operating Release Certificate](Managed-Enterprise-Operating-Certificate.md). It summarizes the validated operating chain into certificate sections, owner signoffs, public-safe claims, evidence custody, validity window, and next-review refs.
-
-The publication-control bridge is [CAVRA Managed And Enterprise Certificate Publication Index](Managed-Enterprise-Certificate-Publication-Index.md). It proves approved certificate publication targets, public-safe claims, rollback references, channel owners, and evidence refs before the certificate is surfaced publicly or to customers.
-
-The active enhancement tracker is [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md). It records the numbered plan for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, model/artifact governance, policy lifecycle tooling, event-driven monitoring, and scale validation.
-
-The future-work triage gate is [CAVRA Roadmap Intake Gate](Roadmap-Intake-Gate.md). It classifies new requests as live operations evidence, new product roadmap candidates, or architect-review items before anything is added beyond the closed R7.61 roadmap boundary.
-
-The product-planning gate is [CAVRA Roadmap Candidate Charter](Roadmap-Candidate-Charter.md). It proves scope, owners, acceptance criteria, evidence boundaries, and release controls before an accepted product candidate can become a future phase.
-
-The future-phase opening gate is [CAVRA Roadmap Future Phase Opening Gate](Roadmap-Future-Phase-Opening-Gate.md). It proves phase owners, milestones, dependencies, exit criteria, release controls, rollback planning, security review, and the R7.61 boundary reference before a future product phase is opened.
-
-The future-phase ledger is [CAVRA Roadmap Future Phase Registry](Roadmap-Future-Phase-Registry.md). It records approved future phases with sanitized ownership, backlog, release gate, status report, public-contract boundary, and exit-criteria refs without adding R7.62.
-
-The future-work closeout index is [CAVRA Roadmap Future Work Governance Index](Roadmap-Future-Work-Governance-Index.md). It validates intake, charter, phase-opening, and registry results in one pass without reopening the closed R7 sequence.
-
-The roadmap operator shortcut is [CAVRA Roadmap Governance Quickcheck](Roadmap-Governance-Quickcheck.md). It validates the R7.61 completion boundary and future-work governance index together before executive status or future-phase planning is published.
-
-New Enterprise contract references: [Phase 4 Connector And Scanner Closeout](Phase-4-Connector-Scanner-Closeout.md), [Phase 5 Policy Event Core Closeout](Phase-5-Policy-Event-Core-Closeout.md), [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md), [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments.md), [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md), [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md), [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core.md), [Benchmark SLO Regression Gates](Benchmark-SLO-Regression-Gates.md), [Generic Agent Adapter SDK And Action Taxonomy](Generic-Agent-Adapter-SDK-And-Action-Taxonomy.md), [AI Red-Team And Supply-Chain Gates](AI-Red-Team-And-Supply-Chain-Gates.md), [Phase 6 Ecosystem Expansion Rollup](Phase-6-Ecosystem-Expansion-Rollup.md), [Customer Live Evidence Intake](Customer-Live-Evidence-Intake.md), [Customer Evidence Room Closeout](Customer-Evidence-Room-Closeout.md), [Customer Closeout Handoff](Customer-Closeout-Handoff.md), [Customer Operating Review](Customer-Operating-Review.md), [Customer Renewal And Expansion Readiness](Customer-Renewal-And-Expansion-Readiness.md), [Customer Renewal Outcome Closeout](Customer-Renewal-Outcome-Closeout.md), [Customer Lifecycle Executive Rollup](Customer-Lifecycle-Executive-Rollup.md), [Customer Lifecycle Archive Manifest](Customer-Lifecycle-Archive-Manifest.md), [Customer Lifecycle Public Status Summary](Customer-Lifecycle-Public-Status.md), [Customer Lifecycle Final Release Seal](Customer-Lifecycle-Final-Release-Seal.md), [Customer Lifecycle Verification Index](Customer-Lifecycle-Verification-Index.md), [Customer Lifecycle Closeout Announcement](Customer-Lifecycle-Closeout-Announcement.md), [Customer Lifecycle Retrospective](Customer-Lifecycle-Retrospective.md), [Customer Lifecycle Phase 8 Backlog](Customer-Lifecycle-Phase-8-Backlog.md), [Customer Lifecycle Phase 8 Kickoff](Customer-Lifecycle-Phase-8-Kickoff.md), [Customer Lifecycle Phase 8 Sprint 1 Checkpoint](Customer-Lifecycle-Phase-8-Sprint-1-Checkpoint.md), [Customer Lifecycle Phase 8 Telemetry Depth](Customer-Lifecycle-Phase-8-Telemetry-Depth.md), [Customer Lifecycle Phase 8 Support Automation](Customer-Lifecycle-Phase-8-Support-Automation.md), [Customer Lifecycle Phase 8 Lifecycle Analytics](Customer-Lifecycle-Phase-8-Lifecycle-Analytics.md), [Customer Lifecycle Phase 8 Customer Health Review](Customer-Lifecycle-Phase-8-Customer-Health-Review.md), [Customer Lifecycle Phase 8 Executive Health Rollup](Customer-Lifecycle-Phase-8-Executive-Health-Rollup.md), [Customer Lifecycle Phase 8 Executive Action Plan](Customer-Lifecycle-Phase-8-Executive-Action-Plan.md), [Customer Lifecycle Phase 8 Action Follow-up Checkpoint](Customer-Lifecycle-Phase-8-Action-Follow-up-Checkpoint.md), [Customer Lifecycle Phase 8 Executive Follow-up Closeout](Customer-Lifecycle-Phase-8-Executive-Follow-up-Closeout.md), [Customer Lifecycle Phase 8 Next-Cycle Readiness Index](Customer-Lifecycle-Phase-8-Next-Cycle-Readiness-Index.md), [Customer Lifecycle Phase 8 Public Operating Scorecard](Customer-Lifecycle-Phase-8-Public-Operating-Scorecard.md), [Customer Lifecycle Phase 8 Public Scorecard Publication Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Publication-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Refresh Checkpoint](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Checkpoint.md), [Customer Lifecycle Phase 8 Public Scorecard Refresh Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Operating Loop Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Operating-Loop-Index.md), [Customer Lifecycle Phase 8 Public Scorecard Executive Summary Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Executive-Summary-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Distribution Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Distribution Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Distribution Audit Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Audit-Index.md), [Customer Lifecycle Phase 8 Public Scorecard Audit Review Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Audit-Review-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Continuous Monitoring Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Continuous-Monitoring-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring First-Cycle Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-First-Cycle-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-First-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-First-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-First-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-First-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Readiness.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Activation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-First-Review.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Drift-Remediation-Closeout.md), [Customer Lifecycle Phase 8 Public Scorecard Monitoring Seventh-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Seventh-Cycle-Readiness.md), and [Phase 7 Roadmap Closeout](Phase-7-Roadmap-Closeout.md).
-
-For Phase 2 implementation, use [Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md), [Enterprise Live Identity Validation](Enterprise-Live-Identity-Validation.md), [Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout.md), [Tenant Workspace Persistence](Tenant-Workspace-Persistence.md), and [Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout.md).
-
-For Phase 3 evidence trust implementation, use [Enterprise KMS/HSM Evidence Custody](Enterprise-KMS-HSM-Evidence-Custody.md), [Enterprise KMS/HSM Evidence Custody R3.1 Closeout](Enterprise-KMS-HSM-Evidence-Custody-R3.1-Closeout.md), [Enterprise Immutable Append-Only Audit Log](Enterprise-Immutable-Append-Only-Audit-Log.md), [Enterprise Immutable Append-Only Audit Log R3.2 Closeout](Enterprise-Immutable-Append-Only-Audit-Log-R3.2-Closeout.md), [Enterprise Compliance Mapping Packs](Enterprise-Compliance-Mapping-Packs.md), [Enterprise Compliance Mapping Packs R3.3 Closeout](Enterprise-Compliance-Mapping-Packs-R3.3-Closeout.md), [Enterprise Reporting Exports](Enterprise-Reporting-Exports.md), and [Enterprise Reporting Exports R3.4 Closeout](Enterprise-Reporting-Exports-R3.4-Closeout.md).
-
-For Phase 4 connector and scanner implementation, use [Connector SDK And Certification](Connector-SDK-And-Certification.md), [Connector SDK And Certification R4.1 Closeout](Connector-SDK-And-Certification-R4.1-Closeout.md), [Priority Certified Connectors](Priority-Certified-Connectors.md), [Priority Certified Connectors R4.2 Closeout](Priority-Certified-Connectors-R4.2-Closeout.md), [Model Registry Connectors](Model-Registry-Connectors.md), [Model Registry Connectors R4.3 Closeout](Model-Registry-Connectors-R4.3-Closeout.md), [Zero-Trust Scanner Agent](Zero-Trust-Scanner-Agent.md), [Zero-Trust Scanner Agent R4.4 Closeout](Zero-Trust-Scanner-Agent-R4.4-Closeout.md), and [Phase 4 Connector And Scanner Closeout](Phase-4-Connector-Scanner-Closeout.md).
-
-For Phase 5 policy lifecycle and event core implementation, use [OPA/Rego Policy Path](OPA-Rego-Policy-Path.md), [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md), [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core.md), and [Phase 5 Policy Event Core Closeout](Phase-5-Policy-Event-Core-Closeout.md).
+For current implementation status, use [CAVRA Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report). For roadmap governance and historical operating references, use [Enterprise Contract Reference Archive](Enterprise-Contract-Reference-Archive) and [Development And Testing Artifacts](Development-And-Testing-Artifacts).
 
 ![CAVRA runtime authority map](assets/textbook/cavra-runtime-authority-map.svg)
 
@@ -96,7 +54,7 @@ If you want to see CAVRA work before reading the full book, follow this short pa
 5. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
 6. Open the sandbox GUI and review the decision, evidence, and AISPM views.
 
-The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md), [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide.md), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md).
+The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA), [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows).
 
 ## Learning Paths
 
@@ -110,25 +68,25 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 
 ## Complete Table Of Contents
 
-1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths.md)
-2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists.md)
-3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model.md)
-4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design.md)
-5. [Product Model, Licensing, And Capability Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries.md)
-6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md)
-7. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide.md)
-8. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide.md)
-9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference.md) and [Generated Full CLI Reference](CLI-Reference.md)
-10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md)
-11. [AISPM Guide](Textbook-10-AISPM-Guide.md)
-12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations.md)
-13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns.md)
-14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows.md)
-15. [Reference Appendices](Textbook-14-Reference-Appendices.md)
-16. [Policy Language Reference](Textbook-15-Policy-Language-Reference.md)
-17. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ.md)
-18. [CAVRA Technology Stack And Implementation Model](Textbook-18-CAVRA-Technology-Stack.md)
-19. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution.md)
+1. [Foreword, Preface, And Reader Paths](Textbook-00-Foreword-Preface-And-Reader-Paths)
+2. [Why CAVRA Exists](Textbook-01-Why-CAVRA-Exists)
+3. [The Runtime Authority Model](Textbook-02-Runtime-Authority-Model)
+4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design)
+5. [Product Model, Licensing, And Capability Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries)
+6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA)
+7. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide)
+8. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide)
+9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference) and [Generated Full CLI Reference](CLI-Reference)
+10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
+11. [AISPM Guide](Textbook-10-AISPM-Guide)
+12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
+13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
+14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
+15. [Reference Appendices](Textbook-14-Reference-Appendices)
+16. [Policy Language Reference](Textbook-15-Policy-Language-Reference)
+17. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ)
+18. [CAVRA Technology Stack And Implementation Model](Textbook-18-CAVRA-Technology-Stack)
+19. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution)
 
 ## Visual Index
 
@@ -162,7 +120,7 @@ Approved evaluators start at the public trial portal:
 
 The trial portal is the starting point for requesting operator-reviewed access,
 hosted or package entitlement where applicable, and time-limited evaluator material. After
-approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) to run a
+approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide) to run a
 complete proof-of-value scenario: choose one repository or workflow, govern one
 risky AI-agent action, route one approval, generate evidence, review AISPM, and
 close out the trial without leaving stale package or license access behind.
@@ -170,128 +128,128 @@ close out the trial without leaving stale package or license access behind.
 ## Primary Product References
 
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
-- [CAVRA Public Documentation Map](Public-Documentation-Map.md)
-- [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
+- [CAVRA Public Documentation Map](Public-Documentation-Map)
+- [CAVRA Unified Enterprise Enhancement Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap)
 - [CAVRA API Versioning And OpenAPI Contract](https://github.com/Huzefaaa2/cavra/blob/main/docs/api-versioning-and-openapi.md)
-- [CAVRA Kubernetes And Helm Deployment](Kubernetes-Deployment.md)
-- [CAVRA CLI Manual](CLI-Manual.md)
-- [CAVRA Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control.md)
-- [CAVRA Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout.md)
-- [CAVRA Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout.md)
-- [CAVRA Enterprise HA/DR R2.3 Closeout](Enterprise-HA-DR-R2.3-Closeout.md)
+- [CAVRA Kubernetes And Helm Deployment](Kubernetes-Deployment)
+- [CAVRA CLI Manual](CLI-Manual)
+- [CAVRA Enterprise Identity And Access Control](Enterprise-Identity-And-Access-Control)
+- [CAVRA Enterprise Identity R2.1 Closeout](Enterprise-Identity-R2.1-Closeout)
+- [CAVRA Tenant Persistence R2.2 Closeout](Tenant-Persistence-R2.2-Closeout)
+- [CAVRA Enterprise HA/DR R2.3 Closeout](Enterprise-HA-DR-R2.3-Closeout)
 - [CAVRA CISO And Enterprise Trust Pack](https://github.com/Huzefaaa2/cavra/blob/main/docs/trust/ciso-enterprise-trust-pack.md)
 - [CAVRA Maintainer Governance](https://github.com/Huzefaaa2/cavra/blob/main/docs/governance/maintainer-governance.md)
-- [CAVRA Maintainer Onboarding](Maintainer-Onboarding.md)
+- [CAVRA Maintainer Onboarding](Maintainer-Onboarding)
 - [CAVRA RFC Process](https://github.com/Huzefaaa2/cavra/blob/main/docs/governance/rfc-process.md)
-- [CAVRA Release Cadence](Release-Cadence.md)
+- [CAVRA Release Cadence](Release-Cadence)
 - [CAVRA Release Trust Checklist](https://github.com/Huzefaaa2/cavra/blob/main/docs/release-trust-checklist.md)
 - [CAVRA Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CAVRA Product Introduction Video Script](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-product-introduction-video-script.md)
-- [CLI](CLI.md)
-- [API](API.md)
-- [Diagrams](Diagrams.md)
-- [Product Model](Product-Model.md)
-- [Product Boundaries](Product-Boundaries.md)
-- [Capability Configuration Guide](Capability-Configuration-Guide.md)
-- [Provider Interfaces](Provider-Interfaces.md)
-- [Edition Boundaries](Edition-Boundaries.md)
-- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model.md)
-- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust.md)
-- [Approval Workflows](Approval-Workflows.md)
-- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation.md)
-- [Policy Engine Hardening](Policy-Engine-Hardening.md)
-- [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling.md)
-- [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core.md)
-- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap.md)
-- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract.md)
-- [AISPM CSO Report Center](AISPM-CSO-Report-Center.md)
-- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion.md)
-- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
-- [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments.md)
-- [Phase 6 Ecosystem Expansion Rollup](Phase-6-Ecosystem-Expansion-Rollup.md)
-- [Customer Live Evidence Intake](Customer-Live-Evidence-Intake.md)
-- [Customer Evidence Room Closeout](Customer-Evidence-Room-Closeout.md)
-- [Customer Renewal Outcome Closeout](Customer-Renewal-Outcome-Closeout.md)
-- [Customer Lifecycle Executive Rollup](Customer-Lifecycle-Executive-Rollup.md)
-- [Customer Lifecycle Archive Manifest](Customer-Lifecycle-Archive-Manifest.md)
-- [Customer Lifecycle Public Status Summary](Customer-Lifecycle-Public-Status.md)
-- [Customer Lifecycle Final Release Seal](Customer-Lifecycle-Final-Release-Seal.md)
-- [Customer Lifecycle Verification Index](Customer-Lifecycle-Verification-Index.md)
-- [Customer Lifecycle Closeout Announcement](Customer-Lifecycle-Closeout-Announcement.md)
-- [Customer Lifecycle Retrospective](Customer-Lifecycle-Retrospective.md)
-- [Customer Lifecycle Phase 8 Backlog](Customer-Lifecycle-Phase-8-Backlog.md)
-- [Customer Lifecycle Phase 8 Kickoff](Customer-Lifecycle-Phase-8-Kickoff.md)
-- [Customer Lifecycle Phase 8 Sprint 1 Checkpoint](Customer-Lifecycle-Phase-8-Sprint-1-Checkpoint.md)
-- [Customer Lifecycle Phase 8 Telemetry Depth](Customer-Lifecycle-Phase-8-Telemetry-Depth.md)
-- [Customer Lifecycle Phase 8 Support Automation](Customer-Lifecycle-Phase-8-Support-Automation.md)
-- [Customer Lifecycle Phase 8 Lifecycle Analytics](Customer-Lifecycle-Phase-8-Lifecycle-Analytics.md)
-- [Customer Lifecycle Phase 8 Customer Health Review](Customer-Lifecycle-Phase-8-Customer-Health-Review.md)
-- [Customer Lifecycle Phase 8 Executive Health Rollup](Customer-Lifecycle-Phase-8-Executive-Health-Rollup.md)
-- [Customer Lifecycle Phase 8 Executive Action Plan](Customer-Lifecycle-Phase-8-Executive-Action-Plan.md)
-- [Customer Lifecycle Phase 8 Action Follow-up Checkpoint](Customer-Lifecycle-Phase-8-Action-Follow-up-Checkpoint.md)
-- [Customer Lifecycle Phase 8 Executive Follow-up Closeout](Customer-Lifecycle-Phase-8-Executive-Follow-up-Closeout.md)
-- [Customer Lifecycle Phase 8 Next-Cycle Readiness Index](Customer-Lifecycle-Phase-8-Next-Cycle-Readiness-Index.md)
-- [Customer Lifecycle Phase 8 Public Operating Scorecard](Customer-Lifecycle-Phase-8-Public-Operating-Scorecard.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Publication Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Publication-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Refresh Checkpoint](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Checkpoint.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Refresh Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Operating Loop Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Operating-Loop-Index.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Executive Summary Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Executive-Summary-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Distribution Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Distribution Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Distribution Audit Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Audit-Index.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Audit Review Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Audit-Review-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Continuous Monitoring Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Continuous-Monitoring-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring First-Cycle Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-First-Cycle-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-First-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-First-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-First-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-First-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Readiness.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Activation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-First-Review.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Drift-Remediation-Closeout.md)
-- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Seventh-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Seventh-Cycle-Readiness.md)
-- [CAVRA Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report.md)
-- [Managed Enterprise Live Validation Plan](Managed-Enterprise-Live-Validation-Plan.md)
-- [Managed Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook.md)
-- [Managed Enterprise Stabilization Report](Managed-Enterprise-Stabilization-Report.md)
-- [Managed Enterprise Steady-State Handoff](Managed-Enterprise-Steady-State-Handoff.md)
-- [Managed Enterprise Operating Release Index](Managed-Enterprise-Operating-Release-Index.md)
-- [Managed Enterprise Operating Announcement](Managed-Enterprise-Operating-Announcement.md)
-- [Managed Enterprise Operating Chain](Managed-Enterprise-Operating-Chain.md)
-- [Managed Enterprise Operating Release Certificate](Managed-Enterprise-Operating-Certificate.md)
-- [Phase 7 Roadmap Closeout](Phase-7-Roadmap-Closeout.md)
-- [Customer Closeout Handoff](Customer-Closeout-Handoff.md)
-- [Customer Operating Review](Customer-Operating-Review.md)
-- [Customer Renewal And Expansion Readiness](Customer-Renewal-And-Expansion-Readiness.md)
-- [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
-- [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
-- [Trial Access Guide](Trial-Access-Guide.md)
-- [Enterprise Trial Availability](Enterprise-Trial-Availability.md)
-- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access.md)
-- [Azure Community Deployment](Azure-Community-SaaS-Deployment.md)
-- [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment.md)
+- [CLI](CLI)
+- [API](API)
+- [Diagrams](Diagrams)
+- [Product Model](Product-Model)
+- [Product Boundaries](Product-Boundaries)
+- [Capability Configuration Guide](Capability-Configuration-Guide)
+- [Provider Interfaces](Provider-Interfaces)
+- [Edition Boundaries](Edition-Boundaries)
+- [AI Agent Enforcement And Anti-Bypass Model](AI-Agent-Enforcement-And-Anti-Bypass-Model)
+- [Agent Registry And MCP Trust](Agent-Registry-and-MCP-Trust)
+- [Approval Workflows](Approval-Workflows)
+- [Evidence Hub And Attestation](Evidence-Hub-and-Attestation)
+- [Policy Engine Hardening](Policy-Engine-Hardening)
+- [Policy Lifecycle Tooling](Policy-Lifecycle-Tooling)
+- [Continuous Monitoring Event Core](Continuous-Monitoring-Event-Core)
+- [AISPM Dashboard Roadmap](AISPM-Dashboard-Roadmap)
+- [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
+- [AISPM CSO Report Center](AISPM-CSO-Report-Center)
+- [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
+- [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments)
+- [Phase 6 Ecosystem Expansion Rollup](Phase-6-Ecosystem-Expansion-Rollup)
+- [Customer Live Evidence Intake](Customer-Live-Evidence-Intake)
+- [Customer Evidence Room Closeout](Customer-Evidence-Room-Closeout)
+- [Customer Renewal Outcome Closeout](Customer-Renewal-Outcome-Closeout)
+- [Customer Lifecycle Executive Rollup](Customer-Lifecycle-Executive-Rollup)
+- [Customer Lifecycle Archive Manifest](Customer-Lifecycle-Archive-Manifest)
+- [Customer Lifecycle Public Status Summary](Customer-Lifecycle-Public-Status)
+- [Customer Lifecycle Final Release Seal](Customer-Lifecycle-Final-Release-Seal)
+- [Customer Lifecycle Verification Index](Customer-Lifecycle-Verification-Index)
+- [Customer Lifecycle Closeout Announcement](Customer-Lifecycle-Closeout-Announcement)
+- [Customer Lifecycle Retrospective](Customer-Lifecycle-Retrospective)
+- [Customer Lifecycle Phase 8 Backlog](Customer-Lifecycle-Phase-8-Backlog)
+- [Customer Lifecycle Phase 8 Kickoff](Customer-Lifecycle-Phase-8-Kickoff)
+- [Customer Lifecycle Phase 8 Sprint 1 Checkpoint](Customer-Lifecycle-Phase-8-Sprint-1-Checkpoint)
+- [Customer Lifecycle Phase 8 Telemetry Depth](Customer-Lifecycle-Phase-8-Telemetry-Depth)
+- [Customer Lifecycle Phase 8 Support Automation](Customer-Lifecycle-Phase-8-Support-Automation)
+- [Customer Lifecycle Phase 8 Lifecycle Analytics](Customer-Lifecycle-Phase-8-Lifecycle-Analytics)
+- [Customer Lifecycle Phase 8 Customer Health Review](Customer-Lifecycle-Phase-8-Customer-Health-Review)
+- [Customer Lifecycle Phase 8 Executive Health Rollup](Customer-Lifecycle-Phase-8-Executive-Health-Rollup)
+- [Customer Lifecycle Phase 8 Executive Action Plan](Customer-Lifecycle-Phase-8-Executive-Action-Plan)
+- [Customer Lifecycle Phase 8 Action Follow-up Checkpoint](Customer-Lifecycle-Phase-8-Action-Follow-up-Checkpoint)
+- [Customer Lifecycle Phase 8 Executive Follow-up Closeout](Customer-Lifecycle-Phase-8-Executive-Follow-up-Closeout)
+- [Customer Lifecycle Phase 8 Next-Cycle Readiness Index](Customer-Lifecycle-Phase-8-Next-Cycle-Readiness-Index)
+- [Customer Lifecycle Phase 8 Public Operating Scorecard](Customer-Lifecycle-Phase-8-Public-Operating-Scorecard)
+- [Customer Lifecycle Phase 8 Public Scorecard Publication Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Publication-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Refresh Checkpoint](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Checkpoint)
+- [Customer Lifecycle Phase 8 Public Scorecard Refresh Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Refresh-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Operating Loop Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Operating-Loop-Index)
+- [Customer Lifecycle Phase 8 Public Scorecard Executive Summary Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Executive-Summary-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Distribution Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Distribution Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Distribution Audit Index](Customer-Lifecycle-Phase-8-Public-Scorecard-Distribution-Audit-Index)
+- [Customer Lifecycle Phase 8 Public Scorecard Audit Review Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Audit-Review-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Continuous Monitoring Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Continuous-Monitoring-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring First-Cycle Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-First-Cycle-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-First-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Second-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Second-Cycle-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-First-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Third-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Third-Cycle-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-First-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fourth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fourth-Cycle-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-First-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Fifth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Fifth-Cycle-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Readiness)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Activation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Activation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle First Review](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-First-Review)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Sixth-Cycle Drift Remediation Closeout](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Sixth-Cycle-Drift-Remediation-Closeout)
+- [Customer Lifecycle Phase 8 Public Scorecard Monitoring Seventh-Cycle Readiness](Customer-Lifecycle-Phase-8-Public-Scorecard-Monitoring-Seventh-Cycle-Readiness)
+- [CAVRA Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report)
+- [Managed Enterprise Live Validation Plan](Managed-Enterprise-Live-Validation-Plan)
+- [Managed Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook)
+- [Managed Enterprise Stabilization Report](Managed-Enterprise-Stabilization-Report)
+- [Managed Enterprise Steady-State Handoff](Managed-Enterprise-Steady-State-Handoff)
+- [Managed Enterprise Operating Release Index](Managed-Enterprise-Operating-Release-Index)
+- [Managed Enterprise Operating Announcement](Managed-Enterprise-Operating-Announcement)
+- [Managed Enterprise Operating Chain](Managed-Enterprise-Operating-Chain)
+- [Managed Enterprise Operating Release Certificate](Managed-Enterprise-Operating-Certificate)
+- [Phase 7 Roadmap Closeout](Phase-7-Roadmap-Closeout)
+- [Customer Closeout Handoff](Customer-Closeout-Handoff)
+- [Customer Operating Review](Customer-Operating-Review)
+- [Customer Renewal And Expansion Readiness](Customer-Renewal-And-Expansion-Readiness)
+- [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
+- [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
+- [Trial Access Guide](Trial-Access-Guide)
+- [Enterprise Trial Availability](Enterprise-Trial-Availability)
+- [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
+- [Azure Community Deployment](Azure-Community-SaaS-Deployment)
+- [Azure Trial And Enterprise Deployment](Azure-Trial-And-Enterprise-Deployment)
 
 ## Development And Testing Archive
 
 Historical implementation notes, release packets, validation records, trial synchronization notes, rollback-drill records, closeout documents, and readiness artifacts are preserved in one archive:
 
-- [Development And Testing Artifacts](Development-And-Testing-Artifacts.md)
+- [Development And Testing Artifacts](Development-And-Testing-Artifacts)
 
 The archive is intentionally separated from the textbook so new readers can learn CAVRA without walking through every development milestone.
 
