@@ -1,6 +1,6 @@
 # CAVRA Unified Enterprise Product Enhancement Roadmap
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 This roadmap converts the merged product enhancement review into a numbered implementation tracker for CAVRA. It is intentionally written as a product and engineering control document, not as a marketing summary.
 
@@ -44,6 +44,8 @@ The common control planes are:
 | 7 | Live customer evidence capture | Phase 6 public-contract closeout | Completed | Customer-live evidence intake, evidence-room closeout, lifecycle handoff, operating review, renewal/archive/status/verification controls, Phase 8 operating packet patterns, and the Phase 7 stop rule are implemented; future recurring customer cycles are live operations evidence unless they introduce a new product capability. |
 
 ## Roadmap Boundary
+
+For the short executive view, read the [CAVRA Unified Enterprise Status Report](cavra-unified-enterprise-status-report.md).
 
 All numbered public roadmap rows currently in this tracker are `Completed` for
 their stated public-contract scope. The remaining work is not another R7
