@@ -120,7 +120,7 @@ Approved evaluators start at the public trial portal:
 
 The trial portal is the starting point for requesting operator-reviewed access,
 hosted or package entitlement where applicable, and time-limited evaluator material. After
-approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide) to run a
+approval, use the [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md) to run a
 complete proof-of-value scenario: choose one repository or workflow, govern one
 risky AI-agent action, route one approval, generate evidence, review AISPM, and
 close out the trial without leaving stale package or license access behind.
@@ -164,7 +164,7 @@ close out the trial without leaving stale package or license access behind.
 - [AI Security Posture Dashboard Contract](AI-Security-Posture-Dashboard-Contract)
 - [AISPM CSO Report Center](AISPM-CSO-Report-Center)
 - [AISPM Enterprise Live Ingestion](AISPM-Enterprise-Live-Ingestion)
-- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide)
+- [CAVRA Trial Field Guide](CAVRA-Trial-Field-Guide.md)
 - [Zero-Trust Reference Deployments](Zero-Trust-Reference-Deployments)
 - [Phase 6 Ecosystem Expansion Rollup](Phase-6-Ecosystem-Expansion-Rollup)
 - [Customer Live Evidence Intake](Customer-Live-Evidence-Intake)
@@ -237,8 +237,8 @@ close out the trial without leaving stale package or license access behind.
 - [Customer Closeout Handoff](Customer-Closeout-Handoff)
 - [Customer Operating Review](Customer-Operating-Review)
 - [Customer Renewal And Expansion Readiness](Customer-Renewal-And-Expansion-Readiness)
-- [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval)
-- [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout)
+- [AISPM Trial Access And Operator Approval](AISPM-Trial-Access-And-Operator-Approval.md)
+- [AISPM Trial Revocation, Expiry, And Closeout](AISPM-Trial-Revocation-Expiry-And-Closeout.md)
 - [Trial Access Guide](Trial-Access-Guide)
 - [Enterprise Trial Availability](Enterprise-Trial-Availability)
 - [Enterprise Trial Self-Service Access](Enterprise-Trial-Self-Service-Access)
