@@ -24,6 +24,8 @@ For implementation details, read the new textbook chapter [CAVRA Technology Stac
 
 For the current implementation summary, read [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md). It explains that the public roadmap scope is complete, what remains deployment-specific, and when new roadmap work should be added.
 
+For live Managed and Enterprise execution, read [CAVRA Managed And Enterprise Live Validation Plan](docs/managed-enterprise-live-validation-plan.md). It defines the sanitized manifest that operators use to attach real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, and customer closeout evidence refs without committing private material.
+
 For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 
 The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model. This boundary is enforced by `python3 scripts/validate_roadmap_completion_boundary.py --repo-root .`.
@@ -204,6 +206,7 @@ Start with the wiki textbook:
 - [CAVRA Product Website](https://cavra.mind-ops.cloud/)
 - [CAVRA Technical Textbook](docs/wiki/Home.md)
 - [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md)
+- [CAVRA Managed And Enterprise Live Validation Plan](docs/managed-enterprise-live-validation-plan.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)

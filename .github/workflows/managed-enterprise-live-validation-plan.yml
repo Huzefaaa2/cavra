@@ -1,0 +1,41 @@
+name: Managed Enterprise Live Validation Plan
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/managed-enterprise-live-validation-plan.yml"
+      - "docs/managed-enterprise-live-validation-plan.md"
+      - "docs/wiki/Managed-Enterprise-Live-Validation-Plan.md"
+      - "examples/managed-enterprise-live-validation/**"
+      - "scripts/validate_managed_enterprise_live_validation_plan.py"
+      - "src/cavra/managed_enterprise_live_validation_plan.py"
+      - "tests/test_managed_enterprise_live_validation_plan.py"
+  push:
+    paths:
+      - ".github/workflows/managed-enterprise-live-validation-plan.yml"
+      - "docs/managed-enterprise-live-validation-plan.md"
+      - "docs/wiki/Managed-Enterprise-Live-Validation-Plan.md"
+      - "examples/managed-enterprise-live-validation/**"
+      - "scripts/validate_managed_enterprise_live_validation_plan.py"
+      - "src/cavra/managed_enterprise_live_validation_plan.py"
+      - "tests/test_managed_enterprise_live_validation_plan.py"
+  workflow_dispatch:
+
+jobs:
+  validate-managed-enterprise-live-validation-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Managed/Enterprise live validation plan
+        run: python scripts/validate_managed_enterprise_live_validation_plan.py --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.sample.json
+      - name: Validate live sanitized Managed/Enterprise live validation plan
+        run: python scripts/validate_managed_enterprise_live_validation_plan.py --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_managed_enterprise_live_validation_plan.py -q
+      - name: Lint Managed/Enterprise live validation plan surfaces
+        run: python -m ruff check src/cavra/managed_enterprise_live_validation_plan.py scripts/validate_managed_enterprise_live_validation_plan.py tests/test_managed_enterprise_live_validation_plan.py

@@ -1,0 +1,48 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Live validation plan schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample plan validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "Deployment profile references are complete.",
+      "name": "deployment_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required validation stages are present.",
+      "name": "validation_stages",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Attestation references are complete.",
+      "name": "attestation",
+      "status": "pass"
+    },
+    {
+      "message": "Plan contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_live_validation": false,
+  "required_stage_count": 12,
+  "schema_version": "cavra.managed-enterprise-live-validation-plan.result.v1",
+  "stage_count": 12,
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}

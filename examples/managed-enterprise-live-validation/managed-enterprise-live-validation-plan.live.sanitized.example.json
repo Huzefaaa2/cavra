@@ -1,0 +1,160 @@
+{
+  "attestation": {
+    "approval_ref": "evidence://approval/managed-enterprise-live-validation",
+    "prepared_by_ref": "evidence://operator/platform-security",
+    "reviewed_by_ref": "evidence://approver/security-leadership"
+  },
+  "deployment_profile": {
+    "change_window_ref": "evidence://change-window/live-validation",
+    "deployment_ref": "evidence://deployment/managed-enterprise",
+    "environment_ref": "evidence://environment/production",
+    "evidence_room_ref": "evidence://evidence-room/managed-enterprise-live-validation",
+    "owner_group_ref": "evidence://owner/platform-security"
+  },
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-live-validation-plan.v1",
+  "validation_stages": [
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/identity_and_access/evidence",
+      "owner_ref": "evidence://owner/identity_and_access",
+      "packet_ref": "evidence://managed-enterprise-live-validation/identity_and_access/packet",
+      "ready_flag": "ready_for_enterprise_live_identity",
+      "result_ref": "evidence://managed-enterprise-live-validation/identity_and_access/result",
+      "run_id_ref": "evidence://run/identity_and_access",
+      "stage_id": "identity_and_access",
+      "title": "Identity And Access",
+      "validator_command": "python3 scripts/validate_enterprise_live_identity_packet.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/tenant_isolation/evidence",
+      "owner_ref": "evidence://owner/tenant_isolation",
+      "packet_ref": "evidence://managed-enterprise-live-validation/tenant_isolation/packet",
+      "ready_flag": "ready_for_postgres_tenant_rls_smoke",
+      "result_ref": "evidence://managed-enterprise-live-validation/tenant_isolation/result",
+      "run_id_ref": "evidence://run/tenant_isolation",
+      "stage_id": "tenant_isolation",
+      "title": "Tenant Isolation",
+      "validator_command": "python3 scripts/validate_postgres_tenant_rls_smoke.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/ha_dr/evidence",
+      "owner_ref": "evidence://owner/ha_dr",
+      "packet_ref": "evidence://managed-enterprise-live-validation/ha_dr/packet",
+      "ready_flag": "ready_for_enterprise_live_ha",
+      "result_ref": "evidence://managed-enterprise-live-validation/ha_dr/result",
+      "run_id_ref": "evidence://run/ha_dr",
+      "stage_id": "ha_dr",
+      "title": "Ha Dr",
+      "validator_command": "python3 scripts/validate_enterprise_ha_readiness.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/evidence_custody/evidence",
+      "owner_ref": "evidence://owner/evidence_custody",
+      "packet_ref": "evidence://managed-enterprise-live-validation/evidence_custody/packet",
+      "ready_flag": "ready_for_enterprise_evidence_custody",
+      "result_ref": "evidence://managed-enterprise-live-validation/evidence_custody/result",
+      "run_id_ref": "evidence://run/evidence_custody",
+      "stage_id": "evidence_custody",
+      "title": "Evidence Custody",
+      "validator_command": "python3 scripts/validate_enterprise_evidence_custody.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/immutable_audit/evidence",
+      "owner_ref": "evidence://owner/immutable_audit",
+      "packet_ref": "evidence://managed-enterprise-live-validation/immutable_audit/packet",
+      "ready_flag": "ready_for_enterprise_audit_log",
+      "result_ref": "evidence://managed-enterprise-live-validation/immutable_audit/result",
+      "run_id_ref": "evidence://run/immutable_audit",
+      "stage_id": "immutable_audit",
+      "title": "Immutable Audit",
+      "validator_command": "python3 scripts/validate_enterprise_audit_log.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/connectors_and_scanners/evidence",
+      "owner_ref": "evidence://owner/connectors_and_scanners",
+      "packet_ref": "evidence://managed-enterprise-live-validation/connectors_and_scanners/packet",
+      "ready_flag": "ready_for_enterprise_connectors_and_scanners",
+      "result_ref": "evidence://managed-enterprise-live-validation/connectors_and_scanners/result",
+      "run_id_ref": "evidence://run/connectors_and_scanners",
+      "stage_id": "connectors_and_scanners",
+      "title": "Connectors And Scanners",
+      "validator_command": "python3 scripts/validate_priority_connectors.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/policy_and_monitoring/evidence",
+      "owner_ref": "evidence://owner/policy_and_monitoring",
+      "packet_ref": "evidence://managed-enterprise-live-validation/policy_and_monitoring/packet",
+      "ready_flag": "ready_for_continuous_monitoring",
+      "result_ref": "evidence://managed-enterprise-live-validation/policy_and_monitoring/result",
+      "run_id_ref": "evidence://run/policy_and_monitoring",
+      "stage_id": "policy_and_monitoring",
+      "title": "Policy And Monitoring",
+      "validator_command": "python3 scripts/validate_continuous_monitoring.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/runtime_workflows/evidence",
+      "owner_ref": "evidence://owner/runtime_workflows",
+      "packet_ref": "evidence://managed-enterprise-live-validation/runtime_workflows/packet",
+      "ready_flag": "ready_for_runtime_workflow_validation",
+      "result_ref": "evidence://managed-enterprise-live-validation/runtime_workflows/result",
+      "run_id_ref": "evidence://run/runtime_workflows",
+      "stage_id": "runtime_workflows",
+      "title": "Runtime Workflows",
+      "validator_command": "cavra evaluate ..."
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/aispm_production_gate/evidence",
+      "owner_ref": "evidence://owner/aispm_production_gate",
+      "packet_ref": "evidence://managed-enterprise-live-validation/aispm_production_gate/packet",
+      "ready_flag": "ready_for_aispm_production",
+      "result_ref": "evidence://managed-enterprise-live-validation/aispm_production_gate/result",
+      "run_id_ref": "evidence://run/aispm_production_gate",
+      "stage_id": "aispm_production_gate",
+      "title": "Aispm Production Gate",
+      "validator_command": "python3 scripts/validate_aispm_production_readiness.py"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/smtp_report_delivery/evidence",
+      "owner_ref": "evidence://owner/smtp_report_delivery",
+      "packet_ref": "evidence://managed-enterprise-live-validation/smtp_report_delivery/packet",
+      "ready_flag": "ready_for_report_delivery",
+      "result_ref": "evidence://managed-enterprise-live-validation/smtp_report_delivery/result",
+      "run_id_ref": "evidence://run/smtp_report_delivery",
+      "stage_id": "smtp_report_delivery",
+      "title": "Smtp Report Delivery",
+      "validator_command": "python3 scripts/validate_aispm_report_delivery_production.py"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/customer_evidence_room/evidence",
+      "owner_ref": "evidence://owner/customer_evidence_room",
+      "packet_ref": "evidence://managed-enterprise-live-validation/customer_evidence_room/packet",
+      "ready_flag": "ready_for_customer_evidence_room_closeout",
+      "result_ref": "evidence://managed-enterprise-live-validation/customer_evidence_room/result",
+      "run_id_ref": "evidence://run/customer_evidence_room",
+      "stage_id": "customer_evidence_room",
+      "title": "Customer Evidence Room",
+      "validator_command": "python3 scripts/validate_customer_evidence_room.py --require-live"
+    },
+    {
+      "evidence_ref": "evidence://managed-enterprise-live-validation/customer_operating_closeout/evidence",
+      "owner_ref": "evidence://owner/customer_operating_closeout",
+      "packet_ref": "evidence://managed-enterprise-live-validation/customer_operating_closeout/packet",
+      "ready_flag": "ready_for_customer_operating_review",
+      "result_ref": "evidence://managed-enterprise-live-validation/customer_operating_closeout/result",
+      "run_id_ref": "evidence://run/customer_operating_closeout",
+      "stage_id": "customer_operating_closeout",
+      "title": "Customer Operating Closeout",
+      "validator_command": "python3 scripts/validate_customer_operating_review.py --require-live"
+    }
+  ]
+}

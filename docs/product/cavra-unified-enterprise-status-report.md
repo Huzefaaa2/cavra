@@ -76,6 +76,7 @@ Routine customer scorecard refresh, monitoring-cycle review, drift remediation, 
 ## Recommended Operating Next Steps
 
 1. Use this status report for executive status and the full roadmap for row-level traceability.
-2. Run live Managed or Enterprise validators against the actual target environment.
-3. Attach customer-specific evidence references to the relevant private evidence room.
-4. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
+2. Use [CAVRA Managed And Enterprise Live Validation Plan](../managed-enterprise-live-validation-plan.md) to collect sanitized refs for the real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, evidence-room, and customer operating-review validators.
+3. Run live Managed or Enterprise validators against the actual target environment.
+4. Attach customer-specific evidence references to the relevant private evidence room.
+5. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
