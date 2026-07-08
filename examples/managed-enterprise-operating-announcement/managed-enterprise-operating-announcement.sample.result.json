@@ -1,0 +1,55 @@
+{
+  "blocker_count": 0,
+  "channel_count": 5,
+  "checks": [
+    {
+      "message": "Operating announcement schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample operating announcement validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "announcement_profile references are complete.",
+      "name": "announcement_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required announcement sections are present.",
+      "name": "announcement_sections",
+      "status": "pass"
+    },
+    {
+      "message": "All required publication channels are present.",
+      "name": "publication_channels",
+      "status": "pass"
+    },
+    {
+      "message": "announcement_outcome references are complete.",
+      "name": "announcement_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Announcement contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_operating_announcement": false,
+  "required_channel_count": 5,
+  "required_section_count": 5,
+  "schema_version": "cavra.managed-enterprise-operating-announcement.result.v1",
+  "section_count": 5,
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}

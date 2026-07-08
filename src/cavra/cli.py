@@ -375,6 +375,11 @@ from cavra.managed_enterprise_operating_release_index import (
     validate_managed_enterprise_operating_release_index,
     write_managed_enterprise_operating_release_index_artifacts,
 )
+from cavra.managed_enterprise_operating_announcement import (
+    build_managed_enterprise_operating_announcement,
+    validate_managed_enterprise_operating_announcement,
+    write_managed_enterprise_operating_announcement_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3289,6 +3294,54 @@ def release_managed_enterprise_operating_release_index(
         exit_ok = result["blocker_count"] == 0 and (
             not require_live
             or result["ready_for_managed_enterprise_operating_release"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("managed-enterprise-operating-announcement")
+def release_managed_enterprise_operating_announcement(
+    announcement: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional Managed/Enterprise operating announcement JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized operating announcement templates."),
+    ] = None,
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the Managed/Enterprise operating announcement packet."""
+    if export_dir:
+        result = write_managed_enterprise_operating_announcement_artifacts(export_dir)
+        exit_ok = result["ready_for_managed_enterprise_operating_announcement"] is True
+    else:
+        payload = (
+            json.loads(announcement.read_text(encoding="utf-8"))
+            if announcement
+            else build_managed_enterprise_operating_announcement(
+                evidence_mode="live" if require_live else "sample",
+            )
+        )
+        result = validate_managed_enterprise_operating_announcement(
+            payload,
+            require_live=require_live,
+        )
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live
+            or result["ready_for_managed_enterprise_operating_announcement"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

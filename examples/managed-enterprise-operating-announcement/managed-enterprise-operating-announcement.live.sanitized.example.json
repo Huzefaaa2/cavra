@@ -1,0 +1,117 @@
+{
+  "announcement_outcome": {
+    "announcement_decision_ref": "evidence://decision/managed-enterprise-announcement-ready",
+    "next_review_ref": "evidence://review/next-announcement-review",
+    "public_safe_claims_ref": "evidence://claims/public-safe-managed-enterprise",
+    "publication_blockers_ref": "evidence://blockers/none-or-accepted",
+    "support_contact_ref": "evidence://support/customer-safe-contact-path"
+  },
+  "announcement_profile": {
+    "announcement_owner_ref": "evidence://owner/managed-enterprise-announcement",
+    "approval_record_ref": "evidence://approval/managed-enterprise-announcement",
+    "evidence_room_ref": "evidence://evidence-room/managed-enterprise-announcement",
+    "operating_release_index_ref": "evidence://managed-enterprise-operating-release/index",
+    "publication_window_ref": "evidence://window/managed-enterprise-announcement",
+    "target_audience_ref": "evidence://audience/customer-safe-managed-enterprise"
+  },
+  "announcement_sections": [
+    {
+      "approved_by_ref": "evidence://approval/release_summary",
+      "content_ref": "evidence://announcement/release_summary/content",
+      "evidence_ref": "evidence://announcement/release_summary/evidence",
+      "objective": "Public-safe summary of the Managed or Enterprise operating release.",
+      "section_id": "release_summary",
+      "title": "Release Summary"
+    },
+    {
+      "approved_by_ref": "evidence://approval/customer_value",
+      "content_ref": "evidence://announcement/customer_value/content",
+      "evidence_ref": "evidence://announcement/customer_value/evidence",
+      "objective": "Customer-safe value statement without customer names or private commercial terms.",
+      "section_id": "customer_value",
+      "title": "Customer Value"
+    },
+    {
+      "approved_by_ref": "evidence://approval/operating_assurance",
+      "content_ref": "evidence://announcement/operating_assurance/content",
+      "evidence_ref": "evidence://announcement/operating_assurance/evidence",
+      "objective": "Statement of live validation, cutover, stabilization, and steady-state assurance.",
+      "section_id": "operating_assurance",
+      "title": "Operating Assurance"
+    },
+    {
+      "approved_by_ref": "evidence://approval/security_and_trust",
+      "content_ref": "evidence://announcement/security_and_trust/content",
+      "evidence_ref": "evidence://announcement/security_and_trust/evidence",
+      "objective": "Trust posture, evidence custody, support path, and AISPM operating assurance.",
+      "section_id": "security_and_trust",
+      "title": "Security And Trust"
+    },
+    {
+      "approved_by_ref": "evidence://approval/next_steps",
+      "content_ref": "evidence://announcement/next_steps/content",
+      "evidence_ref": "evidence://announcement/next_steps/evidence",
+      "objective": "Customer-safe next action, contact path, and operating review cadence.",
+      "section_id": "next_steps",
+      "title": "Next Steps"
+    }
+  ],
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "publication_channels": [
+    {
+      "approval_ref": "evidence://approval/website",
+      "audience_ref": "evidence://audience/website",
+      "channel_id": "website",
+      "message_ref": "evidence://announcement/website/message",
+      "owner_ref": "evidence://owner/website",
+      "publication_status_ref": "evidence://publication/website/status"
+    },
+    {
+      "approval_ref": "evidence://approval/github_readme",
+      "audience_ref": "evidence://audience/github_readme",
+      "channel_id": "github_readme",
+      "message_ref": "evidence://announcement/github_readme/message",
+      "owner_ref": "evidence://owner/github_readme",
+      "publication_status_ref": "evidence://publication/github_readme/status"
+    },
+    {
+      "approval_ref": "evidence://approval/github_wiki",
+      "audience_ref": "evidence://audience/github_wiki",
+      "channel_id": "github_wiki",
+      "message_ref": "evidence://announcement/github_wiki/message",
+      "owner_ref": "evidence://owner/github_wiki",
+      "publication_status_ref": "evidence://publication/github_wiki/status"
+    },
+    {
+      "approval_ref": "evidence://approval/customer_success",
+      "audience_ref": "evidence://audience/customer_success",
+      "channel_id": "customer_success",
+      "message_ref": "evidence://announcement/customer_success/message",
+      "owner_ref": "evidence://owner/customer_success",
+      "publication_status_ref": "evidence://publication/customer_success/status"
+    },
+    {
+      "approval_ref": "evidence://approval/sales_enablement",
+      "audience_ref": "evidence://audience/sales_enablement",
+      "channel_id": "sales_enablement",
+      "message_ref": "evidence://announcement/sales_enablement/message",
+      "owner_ref": "evidence://owner/sales_enablement",
+      "publication_status_ref": "evidence://publication/sales_enablement/status"
+    }
+  ],
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-operating-announcement.v1"
+}
