@@ -1,0 +1,67 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Phase 5 closeout schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "All R5 policy lifecycle and event core gates are present.",
+      "name": "required_gates",
+      "status": "pass"
+    },
+    {
+      "message": "R5.1 public contract gate is ready.",
+      "name": "R5.1_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R5.1 public artifacts are present.",
+      "name": "R5.1_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R5.1 customer live evidence remains deployment-specific: customer_policy_pr_ref, opa_runtime_deployment_ref, policy_review_approval_ref.",
+      "name": "R5.1_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R5.2 public contract gate is ready.",
+      "name": "R5.2_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R5.2 public artifacts are present.",
+      "name": "R5.2_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R5.2 customer live evidence remains deployment-specific: customer_ui_validation_ref, policy_rollout_approval_ref, rollback_rehearsal_ref.",
+      "name": "R5.2_customer_live_evidence",
+      "status": "warn"
+    },
+    {
+      "message": "R5.3 public contract gate is ready.",
+      "name": "R5.3_public_contract",
+      "status": "pass"
+    },
+    {
+      "message": "R5.3 public artifacts are present.",
+      "name": "R5.3_public_artifacts",
+      "status": "pass"
+    },
+    {
+      "message": "R5.3 customer live evidence remains deployment-specific: customer_event_bus_config_ref, monitor_dashboard_ref, event_bus_evidence_ref.",
+      "name": "R5.3_customer_live_evidence",
+      "status": "warn"
+    }
+  ],
+  "phase": "R5 policy lifecycle and event core closeout",
+  "product": "CAVRA",
+  "ready_for_customer_live_phase5_closeout": false,
+  "ready_for_phase5_public_contract_release": true,
+  "schema_version": "cavra.phase5-policy-event-core.closeout-result.v1",
+  "status": "ready_with_customer_live_warnings",
+  "warning_count": 3
+}

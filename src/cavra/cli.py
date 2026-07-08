@@ -345,6 +345,11 @@ from cavra.phase4_closeout import (
     validate_phase4_closeout_packet,
     write_phase4_closeout_artifacts,
 )
+from cavra.phase5_closeout import (
+    build_phase5_closeout_packet,
+    validate_phase5_closeout_packet,
+    write_phase5_closeout_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -2721,6 +2726,48 @@ def release_phase4_closeout(
     if not result["ready_for_phase4_public_contract_release"] or (
         require_customer_live
         and not result["ready_for_customer_live_phase4_closeout"]
+    ):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("phase5-closeout")
+def release_phase5_closeout(
+    packet: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional checked-in Phase 5 closeout packet JSON."),
+    ] = None,
+    repo_root: Annotated[
+        Path,
+        typer.Option(help="Repository root for artifact validation."),
+    ] = Path("."),
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export generated packet/result."),
+    ] = None,
+    require_customer_live: Annotated[
+        bool,
+        typer.Option(help="Require customer live deployment evidence refs."),
+    ] = False,
+) -> None:
+    """Validate or export the Phase 5 policy lifecycle and event core closeout."""
+    root = repo_root.resolve()
+    if export_dir:
+        result = write_phase5_closeout_artifacts(root, export_dir)
+    else:
+        payload = (
+            json.loads(packet.read_text(encoding="utf-8"))
+            if packet
+            else build_phase5_closeout_packet(root)
+        )
+        result = validate_phase5_closeout_packet(
+            payload,
+            repo_root=root,
+            require_customer_live=require_customer_live,
+        )
+    print(json.dumps(result, indent=2))
+    if not result["ready_for_phase5_public_contract_release"] or (
+        require_customer_live
+        and not result["ready_for_customer_live_phase5_closeout"]
     ):
         raise typer.Exit(code=1)
 

@@ -1,0 +1,269 @@
+{
+  "evidence_mode": "public_contract_rollup",
+  "gates": [
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "customer_policy_pr_ref",
+        "opa_runtime_deployment_ref",
+        "policy_review_approval_ref"
+      ],
+      "gate_id": "R5.1",
+      "packet_path": "examples/opa-rego/enterprise-opa-rego-policy.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/opa-rego/enterprise-opa-rego-policy.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/policy-opa-rego-path.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/OPA-Rego-Policy-Path.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/opa-rego-policy.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "OPA/Rego policy evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live OPA/Rego policy evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "OPA/Rego artifacts are generated, Git-versioned, and reviewed.",
+            "name": "rego_artifacts",
+            "status": "pass"
+          },
+          {
+            "message": "Rego parity tests cover required runtime decisions.",
+            "name": "parity_tests",
+            "status": "pass"
+          },
+          {
+            "message": "Policy source, generated Rego, review workflow, and rollback references are present.",
+            "name": "policy_lifecycle",
+            "status": "pass"
+          },
+          {
+            "message": "OPA/Rego operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_opa_rego_policy_path": true,
+        "ready_for_opa_rego_policy_contract": true,
+        "schema_version": "cavra.opa-rego-policy.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_opa_rego_policy_path",
+      "title": "OPA/Rego policy path",
+      "validator": "opa_rego_policy"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "customer_ui_validation_ref",
+        "policy_rollout_approval_ref",
+        "rollback_rehearsal_ref"
+      ],
+      "gate_id": "R5.2",
+      "packet_path": "examples/policy-lifecycle/enterprise-policy-lifecycle.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/policy-lifecycle/enterprise-policy-lifecycle.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/policy-lifecycle-tooling.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Policy-Lifecycle-Tooling.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/policy-lifecycle.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Policy lifecycle evidence packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live policy lifecycle evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Required policy lifecycle capabilities are present.",
+            "name": "lifecycle_capabilities",
+            "status": "pass"
+          },
+          {
+            "message": "Authoring UI contract covers editor, lint, simulation, approval, and rollback surfaces.",
+            "name": "authoring_ui_contract",
+            "status": "pass"
+          },
+          {
+            "message": "Policy lint has no blockers.",
+            "name": "lint_report",
+            "status": "pass"
+          },
+          {
+            "message": "Policy version manifest is digest-backed and Git-versioned.",
+            "name": "version_manifest",
+            "status": "pass"
+          },
+          {
+            "message": "Shadow mode plan is non-enforcing and promotion-gated.",
+            "name": "shadow_mode_plan",
+            "status": "pass"
+          },
+          {
+            "message": "Dry-run report covers required decisions with no failures.",
+            "name": "dry_run_report",
+            "status": "pass"
+          },
+          {
+            "message": "Rollback plan is approval-gated and executable.",
+            "name": "rollback_plan",
+            "status": "pass"
+          },
+          {
+            "message": "Approval workflow requires reviewers and lifecycle evidence.",
+            "name": "approval_workflow",
+            "status": "pass"
+          },
+          {
+            "message": "Policy lifecycle operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_live_policy_lifecycle": true,
+        "ready_for_policy_lifecycle_contract": true,
+        "schema_version": "cavra.policy-lifecycle.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_policy_lifecycle",
+      "title": "Policy lifecycle tooling",
+      "validator": "policy_lifecycle"
+    },
+    {
+      "customer_live_evidence": {},
+      "customer_live_evidence_required": [
+        "customer_event_bus_config_ref",
+        "monitor_dashboard_ref",
+        "event_bus_evidence_ref"
+      ],
+      "gate_id": "R5.3",
+      "packet_path": "examples/continuous-monitoring/enterprise-continuous-monitoring.live.sanitized.example.json",
+      "public_artifacts": [
+        {
+          "kind": "repo_doc",
+          "path": "examples/continuous-monitoring/enterprise-continuous-monitoring.live.sanitized.example.json"
+        },
+        {
+          "kind": "repo_doc",
+          "path": "docs/continuous-monitoring-event-core.md"
+        },
+        {
+          "kind": "wiki_doc",
+          "path": "docs/wiki/Continuous-Monitoring-Event-Core.md"
+        },
+        {
+          "kind": "ci_workflow",
+          "path": ".github/workflows/continuous-monitoring.yml"
+        }
+      ],
+      "public_contract_ready": true,
+      "readiness_result": {
+        "blocker_count": 0,
+        "checks": [
+          {
+            "message": "Continuous monitoring packet schema is valid.",
+            "name": "schema_version",
+            "status": "pass"
+          },
+          {
+            "message": "Live continuous monitoring evidence packet supplied.",
+            "name": "evidence_mode",
+            "status": "pass"
+          },
+          {
+            "message": "Event bus is durable, replayable, idempotent, and observable.",
+            "name": "event_bus",
+            "status": "pass"
+          },
+          {
+            "message": "Required event triggers are registered.",
+            "name": "event_triggers",
+            "status": "pass"
+          },
+          {
+            "message": "Replay covers required events with no invalid inputs.",
+            "name": "event_replay",
+            "status": "pass"
+          },
+          {
+            "message": "Event processing latency is within SLO.",
+            "name": "latency_slo",
+            "status": "pass"
+          },
+          {
+            "message": "Continuous assessments are fresh.",
+            "name": "stale_assessment",
+            "status": "pass"
+          },
+          {
+            "message": "Continuous monitoring operating evidence references are present.",
+            "name": "operating_evidence",
+            "status": "pass"
+          }
+        ],
+        "evidence_mode": "live",
+        "product": "CAVRA",
+        "ready_for_continuous_monitoring_contract": true,
+        "ready_for_live_continuous_monitoring": true,
+        "schema_version": "cavra.continuous-monitoring.readiness-result.v1",
+        "status": "ready",
+        "warning_count": 0
+      },
+      "ready_key": "ready_for_live_continuous_monitoring",
+      "title": "Continuous monitoring event core",
+      "validator": "continuous_monitoring"
+    }
+  ],
+  "phase": "R5 policy lifecycle and event core closeout",
+  "product": "CAVRA",
+  "schema_version": "cavra.phase5-policy-event-core.closeout.v1",
+  "scope": {
+    "customer_live_evidence": "not included in the public repository; must be supplied by a managed or enterprise deployment",
+    "public_contracts": "validated from repository source, live-sanitized examples, docs, and CI workflows"
+  }
+}

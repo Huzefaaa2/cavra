@@ -1,0 +1,63 @@
+name: Phase 5 Policy Event Closeout
+
+on:
+  pull_request:
+    paths:
+      - "src/cavra/phase5_closeout.py"
+      - "src/cavra/opa_rego_policy.py"
+      - "src/cavra/policy_lifecycle.py"
+      - "src/cavra/continuous_monitoring.py"
+      - "scripts/validate_phase5_policy_event_closeout.py"
+      - "examples/phase5-closeout/**"
+      - "examples/opa-rego/**"
+      - "examples/policy-lifecycle/**"
+      - "examples/continuous-monitoring/**"
+      - "tests/test_phase5_closeout.py"
+      - ".github/workflows/phase5-policy-event-closeout.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/cavra/phase5_closeout.py"
+      - "src/cavra/opa_rego_policy.py"
+      - "src/cavra/policy_lifecycle.py"
+      - "src/cavra/continuous_monitoring.py"
+      - "scripts/validate_phase5_policy_event_closeout.py"
+      - "examples/phase5-closeout/**"
+      - "examples/opa-rego/**"
+      - "examples/policy-lifecycle/**"
+      - "examples/continuous-monitoring/**"
+      - "tests/test_phase5_closeout.py"
+      - ".github/workflows/phase5-policy-event-closeout.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CAVRA
+        run: python -m pip install -e . pytest ruff
+
+      - name: Validate generated closeout
+        run: python scripts/validate_phase5_policy_event_closeout.py --repo-root .
+
+      - name: Validate checked-in closeout packet
+        run: |
+          python scripts/validate_phase5_policy_event_closeout.py \
+            --packet examples/phase5-closeout/phase5-policy-event-core-closeout.json \
+            --repo-root .
+
+      - name: Test
+        run: python -m pytest tests/test_phase5_closeout.py -q
+
+      - name: Lint
+        run: |
+          python -m ruff check \
+            src/cavra/phase5_closeout.py \
+            scripts/validate_phase5_policy_event_closeout.py \
+            tests/test_phase5_closeout.py

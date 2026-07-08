@@ -228,6 +228,7 @@ Start with the wiki textbook:
 - [CAVRA OPA/Rego Policy Path](docs/policy-opa-rego-path.md)
 - [CAVRA Policy Lifecycle Tooling](docs/policy-lifecycle-tooling.md)
 - [CAVRA Continuous Monitoring Event Core](docs/continuous-monitoring-event-core.md)
+- [CAVRA Phase 5 Policy Lifecycle And Event Core Closeout](docs/phase5-policy-event-core-closeout.md)
 - [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md)
 - [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md)
 - [CAVRA AI Red-Team And Supply-Chain Gates](docs/ai-red-team-and-supply-chain-gates.md)
