@@ -39,6 +39,7 @@
 - [Managed Enterprise Operating Release Index](Managed-Enterprise-Operating-Release-Index.md)
 - [Managed Enterprise Operating Announcement](Managed-Enterprise-Operating-Announcement.md)
 - [Managed Enterprise Operating Chain](Managed-Enterprise-Operating-Chain.md)
+- [Managed Enterprise Operating Release Certificate](Managed-Enterprise-Operating-Certificate.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

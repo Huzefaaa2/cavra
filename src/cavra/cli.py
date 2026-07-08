@@ -385,6 +385,11 @@ from cavra.managed_enterprise_operating_chain import (
     validate_managed_enterprise_operating_chain,
     write_managed_enterprise_operating_chain_artifacts,
 )
+from cavra.managed_enterprise_operating_certificate import (
+    build_managed_enterprise_operating_certificate,
+    validate_managed_enterprise_operating_certificate,
+    write_managed_enterprise_operating_certificate_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3400,6 +3405,54 @@ def release_managed_enterprise_operating_chain(
         exit_ok = result["blocker_count"] == 0 and (
             not require_live
             or result["ready_for_managed_enterprise_operating_chain"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("managed-enterprise-operating-certificate")
+def release_managed_enterprise_operating_certificate(
+    certificate: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional Managed/Enterprise operating certificate JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized operating certificate templates."),
+    ] = None,
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the Managed/Enterprise operating release certificate."""
+    if export_dir:
+        result = write_managed_enterprise_operating_certificate_artifacts(export_dir)
+        exit_ok = result["ready_for_managed_enterprise_operating_certificate"] is True
+    else:
+        payload = (
+            json.loads(certificate.read_text(encoding="utf-8"))
+            if certificate
+            else build_managed_enterprise_operating_certificate(
+                evidence_mode="live" if require_live else "sample",
+            )
+        )
+        result = validate_managed_enterprise_operating_certificate(
+            payload,
+            require_live=require_live,
+        )
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live
+            or result["ready_for_managed_enterprise_operating_certificate"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

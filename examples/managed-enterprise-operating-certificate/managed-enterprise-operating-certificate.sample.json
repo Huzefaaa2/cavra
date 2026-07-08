@@ -1,0 +1,107 @@
+{
+  "certificate_outcome": {
+    "certificate_decision_ref": "sample://decision/managed-enterprise-operating-certificate-ready",
+    "next_review_ref": "sample://review/next-operating-certificate-review",
+    "open_blockers_ref": "sample://blockers/none-or-accepted",
+    "operating_release_ref": "sample://release/managed-enterprise-operating-release",
+    "public_safe_claims_ref": "sample://claims/managed-enterprise-operating-certificate"
+  },
+  "certificate_profile": {
+    "certificate_owner_ref": "sample://owner/managed-enterprise-operating-certificate",
+    "certificate_version_ref": "sample://certificate/managed-enterprise-operating/v1",
+    "evidence_room_ref": "sample://evidence-room/managed-enterprise-operating-certificate",
+    "operating_chain_result_ref": "sample://managed-enterprise-operating-chain/result",
+    "publication_ref": "sample://publication/managed-enterprise-operating-certificate",
+    "validity_window_ref": "sample://window/managed-enterprise-operating-certificate"
+  },
+  "certificate_sections": [
+    {
+      "content_ref": "sample://certificate/scope/content",
+      "evidence_ref": "sample://certificate/scope/evidence",
+      "objective": "Customer-safe statement of the Managed or Enterprise operating release scope.",
+      "section_id": "scope",
+      "title": "Scope"
+    },
+    {
+      "content_ref": "sample://certificate/readiness_basis/content",
+      "evidence_ref": "sample://certificate/readiness_basis/evidence",
+      "objective": "References the operating chain, live validation, cutover, stabilization, handoff, index, and announcement.",
+      "section_id": "readiness_basis",
+      "title": "Readiness Basis"
+    },
+    {
+      "content_ref": "sample://certificate/operating_model/content",
+      "evidence_ref": "sample://certificate/operating_model/evidence",
+      "objective": "Summarizes named ownership, support path, review cadence, and AISPM operations.",
+      "section_id": "operating_model",
+      "title": "Operating Model"
+    },
+    {
+      "content_ref": "sample://certificate/trust_controls/content",
+      "evidence_ref": "sample://certificate/trust_controls/evidence",
+      "objective": "Summarizes evidence custody, redaction boundary, audit posture, and security signoff.",
+      "section_id": "trust_controls",
+      "title": "Trust Controls"
+    },
+    {
+      "content_ref": "sample://certificate/customer_next_steps/content",
+      "evidence_ref": "sample://certificate/customer_next_steps/evidence",
+      "objective": "Customer-safe next actions, support path, and review cadence.",
+      "section_id": "customer_next_steps",
+      "title": "Customer Next Steps"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": false,
+  "schema_version": "cavra.managed-enterprise-operating-certificate.v1",
+  "signoffs": [
+    {
+      "approval_ref": "sample://approval/release_owner",
+      "evidence_ref": "sample://certificate/release_owner/evidence",
+      "objective": "Release owner approves the operating certificate.",
+      "owner_ref": "sample://owner/release_owner",
+      "signoff_id": "release_owner"
+    },
+    {
+      "approval_ref": "sample://approval/security_owner",
+      "evidence_ref": "sample://certificate/security_owner/evidence",
+      "objective": "Security owner approves the public-safe trust and evidence claims.",
+      "owner_ref": "sample://owner/security_owner",
+      "signoff_id": "security_owner"
+    },
+    {
+      "approval_ref": "sample://approval/support_owner",
+      "evidence_ref": "sample://certificate/support_owner/evidence",
+      "objective": "Support owner approves the support and escalation path.",
+      "owner_ref": "sample://owner/support_owner",
+      "signoff_id": "support_owner"
+    },
+    {
+      "approval_ref": "sample://approval/customer_success_owner",
+      "evidence_ref": "sample://certificate/customer_success_owner/evidence",
+      "objective": "Customer-success owner approves customer-safe next steps.",
+      "owner_ref": "sample://owner/customer_success_owner",
+      "signoff_id": "customer_success_owner"
+    },
+    {
+      "approval_ref": "sample://approval/evidence_custodian",
+      "evidence_ref": "sample://certificate/evidence_custodian/evidence",
+      "objective": "Evidence custodian approves archive and verifier access references.",
+      "owner_ref": "sample://owner/evidence_custodian",
+      "signoff_id": "evidence_custodian"
+    }
+  ]
+}

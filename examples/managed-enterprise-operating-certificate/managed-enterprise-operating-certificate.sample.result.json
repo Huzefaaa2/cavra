@@ -1,0 +1,55 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Operating certificate schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample operating certificate validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "certificate_profile references are complete.",
+      "name": "certificate_profile",
+      "status": "pass"
+    },
+    {
+      "message": "All required certificate sections are present.",
+      "name": "certificate_sections",
+      "status": "pass"
+    },
+    {
+      "message": "All required certificate signoffs are present.",
+      "name": "signoffs",
+      "status": "pass"
+    },
+    {
+      "message": "certificate_outcome references are complete.",
+      "name": "certificate_outcome",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Certificate contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_operating_certificate": false,
+  "required_section_count": 5,
+  "required_signoff_count": 5,
+  "schema_version": "cavra.managed-enterprise-operating-certificate.result.v1",
+  "section_count": 5,
+  "signoff_count": 5,
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}
