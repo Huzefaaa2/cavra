@@ -222,6 +222,13 @@ Primary public paths:
 | Current release notes | [Release Notes](RELEASE_NOTES.md) |
 | Public roadmap status | [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md) |
 
+Roadmap governance status:
+
+- The [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md) is the public status source; every numbered row currently in the tracker is completed.
+- The closed roadmap boundary is documented in [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md).
+- Future product work must pass the [CAVRA Roadmap Intake Gate](docs/roadmap-intake-gate.md), [CAVRA Roadmap Candidate Charter](docs/roadmap-candidate-charter.md), [CAVRA Roadmap Future Phase Opening Gate](docs/roadmap-future-phase-opening-gate.md), [CAVRA Roadmap Future Phase Registry](docs/roadmap-future-phase-registry.md), [CAVRA Roadmap Future Work Governance Index](docs/roadmap-future-work-governance-index.md), and [CAVRA Roadmap Governance Quickcheck](docs/roadmap-governance-quickcheck.md).
+- Future repeated customer monitoring is treated as operating evidence unless it changes the public CAVRA product.
+
 Historical implementation, release, validation, and testing records are archived
 away from the main user journey in [Development And Testing Artifacts](docs/wiki/Development-And-Testing-Artifacts/Index.md)
 and [Development And Testing Artifacts Archive](docs/archive/development-and-testing-artifacts/README.md).
