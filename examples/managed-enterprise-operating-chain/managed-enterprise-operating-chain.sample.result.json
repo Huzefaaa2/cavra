@@ -1,0 +1,112 @@
+{
+  "artifact_count": 6,
+  "artifact_results": {
+    "cutover_runbook": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-cutover/managed-enterprise-cutover-runbook.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_cutover",
+      "warning_count": 1
+    },
+    "live_validation_plan": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_live_validation",
+      "warning_count": 1
+    },
+    "operating_announcement": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-operating-announcement/managed-enterprise-operating-announcement.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_operating_announcement",
+      "warning_count": 1
+    },
+    "operating_release_index": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-operating-release/managed-enterprise-operating-release-index.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_operating_release",
+      "warning_count": 1
+    },
+    "stabilization_report": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-stabilization/managed-enterprise-stabilization-report.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_stabilization_closeout",
+      "warning_count": 1
+    },
+    "steady_state_handoff": {
+      "blocker_count": 0,
+      "path": "examples/managed-enterprise-steady-state/managed-enterprise-steady-state-handoff.sample.json",
+      "ready": false,
+      "ready_flag": "ready_for_managed_enterprise_steady_state",
+      "warning_count": 1
+    }
+  },
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Operating chain schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Sample operating chain validates shape only.",
+      "name": "evidence_mode",
+      "status": "warn"
+    },
+    {
+      "message": "chain_profile references are complete.",
+      "name": "chain_profile",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Manifest contains only sanitized references, relative paths, and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    },
+    {
+      "message": "live_validation_plan validates.",
+      "name": "live_validation_plan",
+      "status": "pass"
+    },
+    {
+      "message": "cutover_runbook validates.",
+      "name": "cutover_runbook",
+      "status": "pass"
+    },
+    {
+      "message": "stabilization_report validates.",
+      "name": "stabilization_report",
+      "status": "pass"
+    },
+    {
+      "message": "steady_state_handoff validates.",
+      "name": "steady_state_handoff",
+      "status": "pass"
+    },
+    {
+      "message": "operating_release_index validates.",
+      "name": "operating_release_index",
+      "status": "pass"
+    },
+    {
+      "message": "operating_announcement validates.",
+      "name": "operating_announcement",
+      "status": "pass"
+    }
+  ],
+  "evidence_mode": "sample",
+  "product": "CAVRA",
+  "ready_for_managed_enterprise_operating_chain": false,
+  "required_artifact_count": 6,
+  "schema_version": "cavra.managed-enterprise-operating-chain.result.v1",
+  "status": "ready_with_warnings",
+  "warning_count": 1
+}

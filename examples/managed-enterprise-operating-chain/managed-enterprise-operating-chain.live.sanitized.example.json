@@ -1,0 +1,32 @@
+{
+  "artifact_paths": {
+    "cutover_runbook_path": "examples/managed-enterprise-cutover/managed-enterprise-cutover-runbook.live.sanitized.example.json",
+    "live_validation_plan_path": "examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json",
+    "operating_announcement_path": "examples/managed-enterprise-operating-announcement/managed-enterprise-operating-announcement.live.sanitized.example.json",
+    "operating_release_index_path": "examples/managed-enterprise-operating-release/managed-enterprise-operating-release-index.live.sanitized.example.json",
+    "stabilization_report_path": "examples/managed-enterprise-stabilization/managed-enterprise-stabilization-report.live.sanitized.example.json",
+    "steady_state_handoff_path": "examples/managed-enterprise-steady-state/managed-enterprise-steady-state-handoff.live.sanitized.example.json"
+  },
+  "chain_profile": {
+    "approval_record_ref": "evidence://approval/managed-enterprise-operating-chain",
+    "evidence_room_ref": "evidence://evidence-room/managed-enterprise-operating-chain",
+    "operating_chain_ref": "evidence://managed-enterprise-operating-chain",
+    "release_owner_ref": "evidence://owner/managed-enterprise-operating-chain"
+  },
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "sanitized": true,
+  "schema_version": "cavra.managed-enterprise-operating-chain.v1"
+}

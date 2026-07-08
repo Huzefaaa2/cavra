@@ -1,0 +1,47 @@
+name: Managed Enterprise Operating Chain
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/managed-enterprise-operating-chain.yml"
+      - "README.md"
+      - "docs/managed-enterprise-operating-chain.md"
+      - "docs/wiki/Managed-Enterprise-Operating-Chain.md"
+      - "examples/managed-enterprise-operating-chain/**"
+      - "scripts/validate_managed_enterprise_operating_chain.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_operating_chain.py"
+      - "tests/test_managed_enterprise_operating_chain.py"
+  push:
+    paths:
+      - ".github/workflows/managed-enterprise-operating-chain.yml"
+      - "README.md"
+      - "docs/managed-enterprise-operating-chain.md"
+      - "docs/wiki/Managed-Enterprise-Operating-Chain.md"
+      - "examples/managed-enterprise-operating-chain/**"
+      - "scripts/validate_managed_enterprise_operating_chain.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/managed_enterprise_operating_chain.py"
+      - "tests/test_managed_enterprise_operating_chain.py"
+  workflow_dispatch:
+
+jobs:
+  validate-managed-enterprise-operating-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate sample Managed/Enterprise operating chain
+        run: python scripts/validate_managed_enterprise_operating_chain.py --manifest examples/managed-enterprise-operating-chain/managed-enterprise-operating-chain.sample.json --repo-root .
+      - name: Validate live sanitized Managed/Enterprise operating chain
+        run: python scripts/validate_managed_enterprise_operating_chain.py --manifest examples/managed-enterprise-operating-chain/managed-enterprise-operating-chain.live.sanitized.example.json --repo-root . --require-live
+      - name: Validate live sanitized operating chain through CAVRA CLI
+        run: python -m cavra.cli release managed-enterprise-operating-chain --manifest examples/managed-enterprise-operating-chain/managed-enterprise-operating-chain.live.sanitized.example.json --repo-root . --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_managed_enterprise_operating_chain.py -q
+      - name: Lint Managed/Enterprise operating chain surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/managed_enterprise_operating_chain.py scripts/validate_managed_enterprise_operating_chain.py tests/test_managed_enterprise_operating_chain.py
