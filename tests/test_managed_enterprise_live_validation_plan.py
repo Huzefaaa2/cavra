@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 
+from typer.testing import CliRunner
+
+from cavra.cli import app
 from cavra.managed_enterprise_live_validation_plan import (
     REQUIRED_VALIDATION_STAGES,
     build_managed_enterprise_live_validation_plan,
@@ -11,6 +15,7 @@ from cavra.managed_enterprise_live_validation_plan import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+runner = CliRunner()
 
 
 def test_sample_managed_enterprise_live_validation_plan_warns_without_blocking_shape() -> None:
@@ -115,3 +120,56 @@ def test_managed_enterprise_live_validation_plan_script_exports_and_validates(tm
         cwd=REPO_ROOT,
         check=True,
     )
+
+
+def test_managed_enterprise_live_validation_plan_cli_exports_and_validates(tmp_path: Path) -> None:
+    export_dir = tmp_path / "managed-enterprise-live-validation"
+    export_result = runner.invoke(
+        app,
+        [
+            "release",
+            "managed-enterprise-live-validation-plan",
+            "--export-dir",
+            str(export_dir),
+        ],
+    )
+
+    assert export_result.exit_code == 0, export_result.output
+    live_plan = export_dir / "managed-enterprise-live-validation-plan.live.sanitized.example.json"
+    assert live_plan.exists()
+
+    validate_result = runner.invoke(
+        app,
+        [
+            "release",
+            "managed-enterprise-live-validation-plan",
+            "--plan",
+            str(live_plan),
+            "--require-live",
+        ],
+    )
+
+    assert validate_result.exit_code == 0, validate_result.output
+    assert '"ready_for_managed_enterprise_live_validation": true' in validate_result.output
+
+
+def test_managed_enterprise_live_validation_plan_cli_rejects_sample_when_live_required(tmp_path: Path) -> None:
+    sample_plan = tmp_path / "sample-plan.json"
+    sample_plan.write_text(
+        json.dumps(build_managed_enterprise_live_validation_plan(evidence_mode="sample"), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "release",
+            "managed-enterprise-live-validation-plan",
+            "--plan",
+            str(sample_plan),
+            "--require-live",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert '"blocker_count": 1' in result.output

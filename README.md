@@ -24,7 +24,7 @@ For implementation details, read the new textbook chapter [CAVRA Technology Stac
 
 For the current implementation summary, read [CAVRA Unified Enterprise Status Report](docs/product/cavra-unified-enterprise-status-report.md). It explains that the public roadmap scope is complete, what remains deployment-specific, and when new roadmap work should be added.
 
-For live Managed and Enterprise execution, read [CAVRA Managed And Enterprise Live Validation Plan](docs/managed-enterprise-live-validation-plan.md). It defines the sanitized manifest that operators use to attach real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, and customer closeout evidence refs without committing private material.
+For live Managed and Enterprise execution, read [CAVRA Managed And Enterprise Live Validation Plan](docs/managed-enterprise-live-validation-plan.md). It defines the sanitized manifest that operators use to attach real tenant, connector, SMTP/report delivery, runtime workflow, AISPM production gate, and customer closeout evidence refs without committing private material. Installed operators can run it with `cavra release managed-enterprise-live-validation-plan --require-live`.
 
 For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md). This is the numbered tracker for identity, multi-tenancy, KMS/HSM signing, immutable audit, compliance packs, connector SDKs, zero-trust scanner agents, policy lifecycle tooling, event-driven monitoring, scale testing, broader agent adapters, model/artifact governance, LLM guardrail testing, supply-chain security, and buyer trust documentation.
 

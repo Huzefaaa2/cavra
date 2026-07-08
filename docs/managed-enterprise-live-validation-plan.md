@@ -25,10 +25,25 @@ python3 scripts/validate_managed_enterprise_live_validation_plan.py \
   --export-dir examples/managed-enterprise-live-validation
 ```
 
+Installed/operator CLI equivalent:
+
+```bash
+cavra release managed-enterprise-live-validation-plan \
+  --export-dir examples/managed-enterprise-live-validation
+```
+
 ## Validate A Live Sanitized Plan
 
 ```bash
 python3 scripts/validate_managed_enterprise_live_validation_plan.py \
+  --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json \
+  --require-live
+```
+
+Installed/operator CLI equivalent:
+
+```bash
+cavra release managed-enterprise-live-validation-plan \
   --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json \
   --require-live
 ```

@@ -25,10 +25,25 @@ python3 scripts/validate_managed_enterprise_live_validation_plan.py \
   --export-dir examples/managed-enterprise-live-validation
 ```
 
+Installed/operator CLI equivalent:
+
+```bash
+cavra release managed-enterprise-live-validation-plan \
+  --export-dir examples/managed-enterprise-live-validation
+```
+
 ## Validate A Live Sanitized Plan
 
 ```bash
 python3 scripts/validate_managed_enterprise_live_validation_plan.py \
+  --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json \
+  --require-live
+```
+
+Installed/operator CLI equivalent:
+
+```bash
+cavra release managed-enterprise-live-validation-plan \
   --plan examples/managed-enterprise-live-validation/managed-enterprise-live-validation-plan.live.sanitized.example.json \
   --require-live
 ```
@@ -44,7 +59,19 @@ The completion condition is:
 
 ## Evidence Boundary
 
-Do not commit tenant names, customer names, emails, SMTP credentials, tokens, raw connector responses, raw runtime logs, raw prompt samples, raw model data, customer payloads, or private policy packs.
+Do not commit:
+
+- tenant names;
+- customer names;
+- emails;
+- SMTP credentials;
+- tokens;
+- raw connector responses;
+- raw runtime logs;
+- raw prompt samples;
+- raw model data;
+- customer payloads;
+- private policy packs.
 
 Commit only references such as `evidence://`, `ticket://`, `audit://`, `runbook://`, `workflow://`, `vault://`, or `share://`.
 

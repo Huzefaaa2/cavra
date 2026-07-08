@@ -350,6 +350,11 @@ from cavra.phase5_closeout import (
     validate_phase5_closeout_packet,
     write_phase5_closeout_artifacts,
 )
+from cavra.managed_enterprise_live_validation_plan import (
+    build_managed_enterprise_live_validation_plan,
+    validate_managed_enterprise_live_validation_plan,
+    write_managed_enterprise_live_validation_plan_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3031,6 +3036,54 @@ def release_customer_lifecycle_verification_index(
         result = validate_customer_lifecycle_verification_index(payload, repo_root=root, require_live=require_live)
     print(json.dumps(result, indent=2))
     if result["blocker_count"] or (require_live and not result["ready_for_customer_lifecycle_verification_index"]):
+        raise typer.Exit(code=1)
+
+
+@release_app.command("managed-enterprise-live-validation-plan")
+def release_managed_enterprise_live_validation_plan(
+    plan: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional Managed/Enterprise live validation plan JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized plan templates."),
+    ] = None,
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the Managed/Enterprise live validation plan."""
+    if export_dir:
+        result = write_managed_enterprise_live_validation_plan_artifacts(export_dir)
+        exit_ok = result["ready_for_managed_enterprise_live_validation"] is True
+    else:
+        payload = (
+            json.loads(plan.read_text(encoding="utf-8"))
+            if plan
+            else build_managed_enterprise_live_validation_plan(
+                evidence_mode="live" if require_live else "sample",
+            )
+        )
+        result = validate_managed_enterprise_live_validation_plan(
+            payload,
+            require_live=require_live,
+        )
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live
+            or result["ready_for_managed_enterprise_live_validation"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
         raise typer.Exit(code=1)
 
 
