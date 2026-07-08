@@ -1,0 +1,47 @@
+name: Roadmap Intake Gate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/roadmap-intake-gate.yml"
+      - "README.md"
+      - "docs/roadmap-intake-gate.md"
+      - "docs/wiki/Roadmap-Intake-Gate.md"
+      - "examples/roadmap-intake-gate/**"
+      - "scripts/validate_roadmap_intake_gate.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/roadmap_intake_gate.py"
+      - "tests/test_roadmap_intake_gate.py"
+  push:
+    paths:
+      - ".github/workflows/roadmap-intake-gate.yml"
+      - "README.md"
+      - "docs/roadmap-intake-gate.md"
+      - "docs/wiki/Roadmap-Intake-Gate.md"
+      - "examples/roadmap-intake-gate/**"
+      - "scripts/validate_roadmap_intake_gate.py"
+      - "src/cavra/cli.py"
+      - "src/cavra/roadmap_intake_gate.py"
+      - "tests/test_roadmap_intake_gate.py"
+  workflow_dispatch:
+
+jobs:
+  validate-roadmap-intake-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate operating evidence intake packet
+        run: python scripts/validate_roadmap_intake_gate.py --packet examples/roadmap-intake-gate/roadmap-intake-gate.operating.live.sanitized.example.json --require-live
+      - name: Validate product candidate intake packet
+        run: python scripts/validate_roadmap_intake_gate.py --packet examples/roadmap-intake-gate/roadmap-intake-gate.product-candidate.live.sanitized.example.json --require-live
+      - name: Validate through CAVRA CLI
+        run: python -m cavra.cli release roadmap-intake-gate --packet examples/roadmap-intake-gate/roadmap-intake-gate.operating.live.sanitized.example.json --require-live
+      - name: Run focused tests
+        run: python -m pytest tests/test_roadmap_intake_gate.py tests/test_roadmap_completion_boundary.py -q
+      - name: Lint roadmap intake gate surfaces
+        run: python -m ruff check src/cavra/cli.py src/cavra/roadmap_intake_gate.py scripts/validate_roadmap_intake_gate.py tests/test_roadmap_intake_gate.py

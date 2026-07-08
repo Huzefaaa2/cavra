@@ -23,6 +23,8 @@ R7.60 remains the final implemented recurring public-scorecard monitoring readin
 
 Future work should not add R7.62, R7.63, or more monitoring-cycle rows unless it introduces a genuinely new product capability, public contract, API, CLI command, validator family, deployment model, or buyer-facing trust surface.
 
+Run the [Roadmap Intake Gate](roadmap-intake-gate.md) before adding any future roadmap item. It classifies a request as live operations evidence, a new product roadmap candidate, or needing architect review.
+
 ## What Continues After Closeout
 
 The following continue as customer operations, not as endless roadmap rows:
@@ -36,6 +38,8 @@ The following continue as customer operations, not as endless roadmap rows:
 - archiving customer-safe closeout artifacts.
 
 Those activities belong in live evidence rooms, release packets, customer-success systems, and private Enterprise operations records.
+
+Use `python3 scripts/validate_roadmap_intake_gate.py --require-live` or `cavra release roadmap-intake-gate --require-live` to record that classification with sanitized references.
 
 ## Roadmap Boundary
 
@@ -56,6 +60,8 @@ Create a new roadmap item only when the work changes CAVRA itself, such as:
 - a new evidence schema;
 - a new trust, compliance, or buyer-facing artifact;
 - a new documented edition or packaging model.
+
+If a request does not meet those criteria, classify it as `live_operations_evidence` and attach it to the relevant customer evidence room or operating packet.
 
 ## Verification Commands
 

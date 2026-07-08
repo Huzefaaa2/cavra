@@ -46,6 +46,8 @@ For the merged Community-to-Enterprise enhancement plan, read [CAVRA Unified Ent
 
 The roadmap is normalized at the public-contract level: every numbered row currently in the tracker is completed for the stated repository scope, and [Phase 7 Roadmap Closeout](docs/phase7-roadmap-closeout.md) defines the stop rule. Future repeated customer monitoring, scorecard refresh, drift remediation, renewal, and closeout cycles are live operations evidence unless they introduce a new CAVRA capability, API, CLI command, validator, connector, deployment target, evidence schema, trust artifact, edition, or packaging model. This boundary is enforced by `python3 scripts/validate_roadmap_completion_boundary.py --repo-root .`.
 
+For future work triage, use the [CAVRA Roadmap Intake Gate](docs/roadmap-intake-gate.md). It classifies new requests as either `live_operations_evidence`, `new_product_roadmap_candidate`, or `needs_architect_review` before anything is added beyond the closed R7.61 roadmap boundary. Installed operators can run it with `cavra release roadmap-intake-gate --require-live`.
+
 For scale-readiness controls, read [CAVRA Benchmark And SLO Regression Gates](docs/benchmark-slo-regression-gates.md). It defines the latency, throughput, HA/DR, and failure-mode evidence gate used to prove the R6.1 benchmark contract before live Enterprise readiness.
 
 For broader agent coverage, read [CAVRA Generic Agent Adapter SDK And Action Taxonomy](docs/generic-agent-adapter-sdk.md). It explains how non-coding agents can normalize business, identity, data, finance, model-governance, support, and communications actions into CAVRA decisions.
@@ -231,6 +233,7 @@ Start with the wiki textbook:
 - [CAVRA Managed And Enterprise Operating Chain](docs/managed-enterprise-operating-chain.md)
 - [CAVRA Managed And Enterprise Operating Release Certificate](docs/managed-enterprise-operating-certificate.md)
 - [CAVRA Managed And Enterprise Certificate Publication Index](docs/managed-enterprise-certificate-publication-index.md)
+- [CAVRA Roadmap Intake Gate](docs/roadmap-intake-gate.md)
 - [CAVRA Unified Enterprise Product Enhancement Roadmap](docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md)
 - [CAVRA API Versioning And OpenAPI Contract](docs/api-versioning-and-openapi.md)
 - [CAVRA Enterprise Identity And Access Control](docs/enterprise-identity-access-control.md)

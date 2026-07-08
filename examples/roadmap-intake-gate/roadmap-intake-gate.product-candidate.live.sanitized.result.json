@@ -1,0 +1,57 @@
+{
+  "blocker_count": 0,
+  "checks": [
+    {
+      "message": "Roadmap intake gate schema is valid.",
+      "name": "schema_version",
+      "status": "pass"
+    },
+    {
+      "message": "Live sanitized roadmap intake packet supplied.",
+      "name": "evidence_mode",
+      "status": "pass"
+    },
+    {
+      "message": "intake_profile references are complete.",
+      "name": "intake_profile",
+      "status": "pass"
+    },
+    {
+      "message": "Request classification is consistent.",
+      "name": "request_classification",
+      "status": "pass"
+    },
+    {
+      "message": "operating_evidence references are complete.",
+      "name": "operating_evidence",
+      "status": "pass"
+    },
+    {
+      "message": "boundary_decision references are complete.",
+      "name": "boundary_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Boundary decision matches request type.",
+      "name": "roadmap_boundary_decision",
+      "status": "pass"
+    },
+    {
+      "message": "Redaction controls are asserted.",
+      "name": "redaction_controls",
+      "status": "pass"
+    },
+    {
+      "message": "Roadmap intake gate contains only sanitized references and control booleans.",
+      "name": "no_private_material",
+      "status": "pass"
+    }
+  ],
+  "decision": "new_product_roadmap_candidate",
+  "evidence_mode": "live",
+  "product": "CAVRA",
+  "ready_for_roadmap_intake_decision": true,
+  "schema_version": "cavra.roadmap-intake-gate.result.v1",
+  "status": "ready",
+  "warning_count": 0
+}

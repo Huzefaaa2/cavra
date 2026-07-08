@@ -1,0 +1,44 @@
+{
+  "boundary_decision": {
+    "decision": "live_operations_evidence",
+    "decision_ref": "evidence://decision/live_operations_evidence",
+    "next_action_ref": "evidence://next-action/live_operations_evidence",
+    "owner_ref": "evidence://owner/roadmap-intake",
+    "rationale_ref": "evidence://rationale/customer_monitoring_cycle"
+  },
+  "evidence_mode": "live",
+  "intake_profile": {
+    "classification_owner_ref": "evidence://owner/roadmap-boundary",
+    "request_id_ref": "evidence://roadmap-intake/request",
+    "request_summary_ref": "evidence://roadmap-intake/summary",
+    "requester_ref": "evidence://roadmap-intake/requester",
+    "roadmap_boundary_ref": "evidence://roadmap/phase-7-closeout-r7-61"
+  },
+  "operating_evidence": {
+    "customer_safe_record_ref": "evidence://customer-safe/operating-cycle",
+    "evidence_room_ref": "evidence://evidence-room/operating-cycle",
+    "private_operations_record_ref": "evidence://operations/private-cycle-record",
+    "repeated_customer_cycle": true
+  },
+  "product": "CAVRA",
+  "redaction_controls": {
+    "contains_no_credentials": true,
+    "contains_no_customer_pii": true,
+    "contains_no_private_release_notes": true,
+    "contains_no_raw_alert_payloads": true,
+    "contains_no_raw_contracts": true,
+    "contains_no_raw_logs": true,
+    "contains_no_raw_model_data": true,
+    "contains_no_raw_prompts": true,
+    "contains_no_secrets": true,
+    "contains_no_tenant_names": true
+  },
+  "request_classification": {
+    "candidate_new_capability": false,
+    "product_surface_refs": [],
+    "requested_change_type": "customer_monitoring_cycle",
+    "requested_scope_ref": "evidence://roadmap-intake/scope/customer_monitoring_cycle"
+  },
+  "sanitized": true,
+  "schema_version": "cavra.roadmap-intake-gate.v1"
+}

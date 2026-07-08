@@ -15,7 +15,7 @@ CAVRA's public Community-to-Enterprise implementation roadmap is complete for th
 | Phase 7 closeout | Complete | [Phase 7 Roadmap Closeout](../phase7-roadmap-closeout.md) defines the stop rule and closes the public R7 implementation loop. |
 | Post-cutover operating bridge | Complete | Live validation, cutover, stabilization, [steady-state handoff](../managed-enterprise-steady-state-handoff.md), [operating release index](../managed-enterprise-operating-release-index.md), [operating announcement](../managed-enterprise-operating-announcement.md), [operating chain](../managed-enterprise-operating-chain.md), [operating certificate](../managed-enterprise-operating-certificate.md), and [certificate publication index](../managed-enterprise-certificate-publication-index.md) validators document the transition from launch mode into normal Managed or Enterprise operations. |
 | Live customer readiness | Deployment evidence required | Real tenants, connectors, SMTP/report providers, runtime workflows, customer evidence rooms, and private operational logs must be validated in the target Managed or Enterprise environment. |
-| Future roadmap | Closed unless product scope changes | Add new rows only for a new API, CLI command, validator family, connector, deployment target, AISPM capability, evidence schema, trust artifact, edition, packaging model, or buyer-facing surface. |
+| Future roadmap | Closed unless product scope changes | Use the [roadmap intake gate](../roadmap-intake-gate.md) before adding rows. Add new rows only for a new API, CLI command, validator family, connector, deployment target, AISPM capability, evidence schema, trust artifact, edition, packaging model, or buyer-facing surface. |
 
 ## What Is Implemented
 
@@ -56,10 +56,13 @@ The normalized roadmap boundary is enforced by:
 
 ```bash
 python3 scripts/validate_roadmap_completion_boundary.py --repo-root .
+python3 scripts/validate_roadmap_intake_gate.py --require-live
 python3 -m pytest tests/test_roadmap_completion_boundary.py -q
 ```
 
 The validator fails if the phase summary is no longer complete, if any numbered row is not `Completed`, if the public roadmap grows past `R7.61`, or if README/wiki/status-report text loses the live-operations boundary.
+
+The [roadmap intake gate](../roadmap-intake-gate.md) should be used before future roadmap expansion so repeated customer operations stay as operating evidence and genuine product changes become explicit candidates.
 
 ## When To Add New Roadmap Work
 
@@ -87,4 +90,5 @@ Routine customer scorecard refresh, monitoring-cycle review, drift remediation, 
 8. Use the [CAVRA Managed And Enterprise Certificate Publication Index](../managed-enterprise-certificate-publication-index.md) to validate approved publication targets, public-safe claims, rollback refs, channel owners, and evidence references before surfacing the certificate.
 9. Run live Managed or Enterprise validators against the actual target environment.
 10. Attach customer-specific evidence references to the relevant private evidence room.
-11. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.
+11. Run the [CAVRA Roadmap Intake Gate](../roadmap-intake-gate.md) before adding any future roadmap item.
+12. Keep repeated monitoring and customer-success cycles out of the public roadmap unless they create a new CAVRA product capability.

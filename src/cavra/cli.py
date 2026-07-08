@@ -395,6 +395,11 @@ from cavra.managed_enterprise_certificate_publication_index import (
     validate_managed_enterprise_certificate_publication_index,
     write_managed_enterprise_certificate_publication_index_artifacts,
 )
+from cavra.roadmap_intake_gate import (
+    build_roadmap_intake_gate_packet,
+    validate_roadmap_intake_gate_packet,
+    write_roadmap_intake_gate_artifacts,
+)
 from cavra.policy_engine import (
     compile_policy as compile_policy_payload,
     diff_policies,
@@ -3506,6 +3511,55 @@ def release_managed_enterprise_certificate_publication_index(
         exit_ok = result["blocker_count"] == 0 and (
             not require_live
             or result["ready_for_managed_enterprise_certificate_publication"] is True
+        )
+    payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload_json, encoding="utf-8")
+    print(payload_json, end="")
+    if not exit_ok:
+        raise typer.Exit(code=1)
+
+
+@release_app.command("roadmap-intake-gate")
+def release_roadmap_intake_gate(
+    packet: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional roadmap intake gate packet JSON."),
+    ] = None,
+    export_dir: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional directory to export sample and live sanitized roadmap intake packets."),
+    ] = None,
+    change_type: Annotated[
+        str,
+        typer.Option(help="Change type to use when building a default packet."),
+    ] = "customer_monitoring_cycle",
+    output: Annotated[
+        Optional[Path],
+        typer.Option(help="Optional path for the validation result JSON."),
+    ] = None,
+    require_live: Annotated[
+        bool,
+        typer.Option(help="Require evidence_mode=live and sanitized=true."),
+    ] = False,
+) -> None:
+    """Validate or export the roadmap intake gate."""
+    if export_dir:
+        result = write_roadmap_intake_gate_artifacts(export_dir)
+        exit_ok = result["ready_for_roadmap_intake_decision"] is True
+    else:
+        payload = (
+            json.loads(packet.read_text(encoding="utf-8"))
+            if packet
+            else build_roadmap_intake_gate_packet(
+                evidence_mode="live" if require_live else "sample",
+                requested_change_type=change_type,
+            )
+        )
+        result = validate_roadmap_intake_gate_packet(payload, require_live=require_live)
+        exit_ok = result["blocker_count"] == 0 and (
+            not require_live or result["ready_for_roadmap_intake_decision"] is True
         )
     payload_json = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if output:

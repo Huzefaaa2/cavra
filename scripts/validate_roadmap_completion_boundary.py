@@ -116,6 +116,8 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
     wiki_status_path = repo_root / "docs/wiki/CAVRA-Unified-Enterprise-Status-Report.md"
     closeout_path = repo_root / "docs/phase7-roadmap-closeout.md"
     wiki_closeout_path = repo_root / "docs/wiki/Phase-7-Roadmap-Closeout.md"
+    intake_gate_path = repo_root / "docs/roadmap-intake-gate.md"
+    wiki_intake_gate_path = repo_root / "docs/wiki/Roadmap-Intake-Gate.md"
     readme_path = repo_root / "README.md"
 
     roadmap_text = _read(roadmap_path, blockers)
@@ -124,6 +126,8 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
     wiki_status_text = _read(wiki_status_path, blockers)
     closeout_text = _read(closeout_path, blockers)
     wiki_closeout_text = _read(wiki_closeout_path, blockers)
+    intake_gate_text = _read(intake_gate_path, blockers)
+    wiki_intake_gate_text = _read(wiki_intake_gate_path, blockers)
     readme_text = _read(readme_path, blockers)
 
     roadmap_result = _validate_roadmap(roadmap_path, roadmap_text, blockers)
@@ -142,6 +146,7 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
                 "Phase 7 closes at R7.61",
                 "not public repository blockers",
                 "live Managed or Enterprise operating tasks",
+                "roadmap intake gate",
                 "Create a new roadmap item only when the work changes CAVRA itself",
             ],
             blockers,
@@ -158,7 +163,24 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
                 "R7.1 through R7.4",
                 "Future work should not add R7.62",
                 "Phase 7 closes at R7.61",
+                "Roadmap Intake Gate",
                 "live operations evidence",
+            ],
+            blockers,
+        )
+
+    for path, text in (
+        (intake_gate_path, intake_gate_text),
+        (wiki_intake_gate_path, wiki_intake_gate_text),
+    ):
+        _require_fragments(
+            path,
+            text,
+            [
+                "live_operations_evidence",
+                "new_product_roadmap_candidate",
+                "needs_architect_review",
+                "Phase 7 closes at `R7.61`",
             ],
             blockers,
         )
@@ -170,6 +192,7 @@ def validate_repository(repo_root: Path) -> dict[str, Any]:
             "CAVRA Unified Enterprise Status Report",
             "every numbered row currently in the tracker is completed",
             "Phase 7 Roadmap Closeout",
+            "CAVRA Roadmap Intake Gate",
             "Future repeated customer monitoring",
         ],
         blockers,
