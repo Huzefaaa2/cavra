@@ -31,6 +31,7 @@
 ## Practical Paths
 
 - [Development And Testing Archive](Development-And-Testing-Artifacts.md)
+- [Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report.md)
 - [Unified Enterprise Roadmap](CAVRA-Unified-Enterprise-Enhancement-Roadmap.md)
 - [Commercial Site Hosting](https://github.com/Huzefaaa2/cavra/blob/main/docs/product/cavra-commercial-site-hosting.md)
 - [CLI](CLI.md)

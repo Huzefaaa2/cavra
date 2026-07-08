@@ -1,0 +1,43 @@
+name: Roadmap Completion Boundary
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/roadmap-completion-boundary.yml"
+      - "README.md"
+      - "docs/phase7-roadmap-closeout.md"
+      - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
+      - "docs/product/cavra-unified-enterprise-status-report.md"
+      - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
+      - "docs/wiki/CAVRA-Unified-Enterprise-Status-Report.md"
+      - "docs/wiki/Phase-7-Roadmap-Closeout.md"
+      - "scripts/validate_roadmap_completion_boundary.py"
+      - "tests/test_roadmap_completion_boundary.py"
+  push:
+    paths:
+      - ".github/workflows/roadmap-completion-boundary.yml"
+      - "README.md"
+      - "docs/phase7-roadmap-closeout.md"
+      - "docs/product/cavra-unified-enterprise-product-enhancement-roadmap.md"
+      - "docs/product/cavra-unified-enterprise-status-report.md"
+      - "docs/wiki/CAVRA-Unified-Enterprise-Enhancement-Roadmap.md"
+      - "docs/wiki/CAVRA-Unified-Enterprise-Status-Report.md"
+      - "docs/wiki/Phase-7-Roadmap-Closeout.md"
+      - "scripts/validate_roadmap_completion_boundary.py"
+      - "tests/test_roadmap_completion_boundary.py"
+  workflow_dispatch:
+
+jobs:
+  validate-roadmap-completion-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependency
+        run: python -m pip install pytest
+      - name: Validate normalized roadmap completion boundary
+        run: python scripts/validate_roadmap_completion_boundary.py --repo-root . --output dist/roadmap-completion-boundary.json
+      - name: Run focused roadmap boundary tests
+        run: python -m pytest tests/test_roadmap_completion_boundary.py -q

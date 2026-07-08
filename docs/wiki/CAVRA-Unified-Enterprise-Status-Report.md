@@ -48,6 +48,17 @@ These items are not public repository blockers. They are live Managed or Enterpr
 | Repeated customer cycles | Operate as live evidence, not new R7 rows. |
 | Public implementation boundary | Complete for repository-visible public contracts. |
 
+## Automated Boundary Guard
+
+The normalized roadmap boundary is enforced by:
+
+```bash
+python3 scripts/validate_roadmap_completion_boundary.py --repo-root .
+python3 -m pytest tests/test_roadmap_completion_boundary.py -q
+```
+
+The validator fails if the phase summary is no longer complete, if any numbered row is not `Completed`, if the public roadmap grows past `R7.61`, or if README/wiki/status-report text loses the live-operations boundary.
+
 ## When To Add New Roadmap Work
 
 Create a new roadmap item only when the work changes CAVRA itself, such as:
