@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.json import JSON
 
 from cavra import __version__
+from cavra.activity import ActivityStore
 from cavra.agent import AgentSessionManager
 from cavra.agent_enforcement import agent_enforcement_readiness_report
 from cavra.ai_red_team import (
@@ -463,6 +464,18 @@ from cavra.saas_control_plane import (
     build_saas_operating_automation_worker_handoff_response,
     describe_public_contract,
 )
+from cavra.setup import (
+    bootstrap_setup,
+    build_policy_action_catalog,
+    complete_setup,
+    create_demo_workspace,
+    plan_policy_action_change,
+    setup_status,
+    smtp_test_plan,
+    test_policy_action,
+    update_smtp_setup,
+    validate_setup,
+)
 from cavra.release import (
     automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_metadata,
@@ -586,6 +599,7 @@ benchmark_app = typer.Typer(help="Benchmark and SLO regression commands.")
 adapter_app = typer.Typer(help="Generic agent adapter and action taxonomy commands.")
 ai_red_team_app = typer.Typer(help="Native AI red-team, guardrail, and supply-chain commands.")
 deployment_app = typer.Typer(help="Reference deployment and zero-trust packaging commands.")
+setup_app = typer.Typer(help="First-run setup, defaults, demo workspace, SMTP, and validation commands.")
 app.add_typer(agent_app, name="agent")
 app.add_typer(policy_app, name="policy")
 app.add_typer(demo_app, name="demo")
@@ -604,6 +618,7 @@ app.add_typer(benchmark_app, name="benchmark")
 app.add_typer(adapter_app, name="adapter")
 app.add_typer(ai_red_team_app, name="ai-red-team")
 app.add_typer(deployment_app, name="deployment")
+app.add_typer(setup_app, name="setup")
 
 
 @app.command()
@@ -988,6 +1003,161 @@ def evaluate(
         _print_json(mode_summary)
     else:
         console.print(f"{mode_summary['effective_decision']}: {mode_summary['mode_reason']}")
+
+
+@setup_app.command("status")
+def setup_status_command(
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+) -> None:
+    """Show first-run setup status."""
+    _print_json(setup_status(state))
+
+
+@setup_app.command("init")
+def setup_init_command(
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+    workspace_name: Annotated[str, typer.Option(help="Workspace name for local setup state.")] = "local-community",
+    policy_pack: Annotated[str, typer.Option(help="Default CAVRA policy pack.")] = "cavra-ai-agent-baseline",
+    overwrite: Annotated[bool, typer.Option(help="Overwrite existing setup state.")] = False,
+    complete: Annotated[bool, typer.Option(help="Mark setup complete immediately.")] = False,
+) -> None:
+    """Create default first-run CAVRA setup state."""
+    _print_json(
+        bootstrap_setup(
+            path=state,
+            workspace_name=workspace_name,
+            policy_pack=policy_pack,
+            overwrite=overwrite,
+            complete=complete,
+        )
+    )
+
+
+@setup_app.command("wizard")
+def setup_wizard_command(
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+    workspace_name: Annotated[str, typer.Option(help="Workspace name for local setup state.")] = "local-community",
+    overwrite: Annotated[bool, typer.Option(help="Overwrite existing setup state.")] = False,
+) -> None:
+    """Run the non-interactive default setup wizard for local Community validation."""
+    bootstrap = bootstrap_setup(path=state, workspace_name=workspace_name, overwrite=overwrite)
+    demo = create_demo_workspace()
+    validation = validate_setup(path=state)
+    _print_json(
+        {
+            "schema_version": "cavra.setup-wizard.v1",
+            "product": "CAVRA",
+            "bootstrap": bootstrap,
+            "demo_workspace": demo,
+            "validation": validation,
+            "next_steps": [
+                "Configure SMTP when report delivery is required.",
+                "Connect Claude Code, Codex, or Copilot workflows through MCP or guarded wrappers.",
+                "Open AISPM posture after decisions are recorded.",
+            ],
+        }
+    )
+
+
+@setup_app.command("demo-env")
+def setup_demo_env_command(
+    output: Annotated[Path, typer.Option(help="Demo workspace output directory.")] = Path(".cavra/demo-workspace"),
+    overwrite: Annotated[bool, typer.Option(help="Overwrite existing demo files.")] = False,
+) -> None:
+    """Create a safe local demo workspace with known policy-triggering scenarios."""
+    _print_json(create_demo_workspace(output, overwrite=overwrite))
+
+
+@setup_app.command("validate")
+def setup_validate_command(
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+    record_decisions: Annotated[bool, typer.Option(help="Record validation decisions in the local activity store.")] = False,
+    activity_store: Annotated[Path, typer.Option(help="Activity store JSON path when recording decisions.")] = Path(
+        ".cavra/api/activity.json"
+    ),
+) -> None:
+    """Validate default setup, policy pack discovery, demo scenarios, and AISPM readiness inputs."""
+    store = ActivityStore(activity_store) if record_decisions else None
+    result = validate_setup(path=state, record_decisions=record_decisions, activity_store=store)
+    _print_json(result)
+    if result["status"] != "ready":
+        raise typer.Exit(code=1)
+
+
+@setup_app.command("complete")
+def setup_complete_command(
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+) -> None:
+    """Mark setup as complete after validation."""
+    _print_json(complete_setup(state))
+
+
+@setup_app.command("smtp")
+def setup_smtp_command(
+    host: Annotated[str, typer.Option(help="SMTP host.")] = "",
+    port: Annotated[int, typer.Option(help="SMTP port.")] = 587,
+    from_email: Annotated[str, typer.Option(help="Sender email address.")] = "",
+    recipient: Annotated[Optional[list[str]], typer.Option(help="Allowed report recipient email.")] = None,
+    username: Annotated[str, typer.Option(help="SMTP username, if different from sender.")] = "",
+    password_ref: Annotated[str, typer.Option(help="Environment variable or secret reference for SMTP password.")] = (
+        "CAVRA_REPORT_SMTP_PASSWORD"
+    ),
+    state: Annotated[Optional[Path], typer.Option(help="Optional setup-state JSON path.")] = None,
+    live: Annotated[bool, typer.Option(help="Attempt a live SMTP connection check without sending mail.")] = False,
+    save: Annotated[bool, typer.Option(help="Save SMTP metadata into setup state.")] = False,
+) -> None:
+    """Validate or save SMTP/report-delivery setup metadata without storing passwords."""
+    payload = {
+        "host": host,
+        "port": port,
+        "from_email": from_email,
+        "username": username,
+        "recipient_allowlist": recipient or [],
+        "password_ref": password_ref,
+        "live": live,
+    }
+    result = update_smtp_setup(payload, path=state) if save else smtp_test_plan(payload, live=live)
+    _print_json(result)
+    if result["status"] != "ready":
+        raise typer.Exit(code=1)
+
+
+@setup_app.command("policy-actions")
+def setup_policy_actions_command(
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+) -> None:
+    """List editable allow, block, approval, and MCP action catalog entries from a policy pack."""
+    _print_json(build_policy_action_catalog(policy_pack))
+
+
+@setup_app.command("policy-action-test")
+def setup_policy_action_test_command(
+    action_type: Annotated[str, typer.Option(help="read_file, write_file, execute_command, git_operation, mcp_tool_call.")] = "execute_command",
+    target: Annotated[str, typer.Option(help="Action target, command, file, branch, or MCP server.")] = "",
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+) -> None:
+    """Test one action against the selected policy pack."""
+    if not target:
+        raise typer.BadParameter("target is required")
+    _print_json(test_policy_action({"action_type": action_type, "target": target}, policy_pack=policy_pack))
+
+
+@setup_app.command("policy-action-plan")
+def setup_policy_action_plan_command(
+    operation: Annotated[str, typer.Option(help="add, update, or delete.")] = "add",
+    section: Annotated[str, typer.Option(help="Policy section, such as commands or filesystem.")] = "commands",
+    action: Annotated[str, typer.Option(help="Policy action, such as block, allow, or block_read.")] = "block",
+    value: Annotated[str, typer.Option(help="Policy value for add/update.")] = "",
+    policy_pack: Annotated[str, typer.Option(help="Policy pack ID.")] = "cavra-ai-agent-baseline",
+    index: Annotated[int, typer.Option(help="Entry index for update/delete.")] = -1,
+) -> None:
+    """Create a policy draft plan for an allow/block/approval catalog change."""
+    _print_json(
+        plan_policy_action_change(
+            {"operation": operation, "section": section, "action": action, "value": value, "index": index},
+            policy_pack=policy_pack,
+        )
+    )
 
 
 @saas_app.command("contract")

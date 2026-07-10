@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY pyproject.toml setup.py README.md LICENSE NOTICE ./
 COPY src ./src
-COPY policies/community ./policies/community
+COPY policies ./policies
 RUN pip install --no-cache-dir .
 
 ENV CAVRA_EDITION=community

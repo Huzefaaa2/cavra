@@ -18,6 +18,7 @@ development notes, and release-verification artifacts.
 | Topic | Public documentation |
 | --- | --- |
 | Install and deploy | [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA.md) |
+| First-run setup | [First-Run Setup](First-Run-Setup.md) |
 | Community self-hosting | [Community Self-Hosted Guide](Community-Self-Hosted-Guide.md) |
 | CLI overview | [CLI](CLI.md) |
 | Full generated CLI reference | [Full CLI Reference](CLI-Reference.md) |

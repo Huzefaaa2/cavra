@@ -49,12 +49,13 @@ If you want to see CAVRA work before reading the full book, follow this short pa
 
 1. Install CAVRA Community from the repository with `pip install -e .`.
 2. Run `cavra version` and `cavra policy list`.
-3. Run `cavra demo before-the-agent-acts` to see CAVRA block risky agent behavior.
-4. Run `cavra evaluate execute_command "terraform apply -auto-approve" --json` to evaluate a dangerous command directly.
-5. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
-6. Open the sandbox GUI and review the decision, evidence, and AISPM views.
+3. Run `cavra setup init`, `cavra setup demo-env`, and `cavra setup validate --record-decisions` to create the default environment and seed AISPM activity.
+4. Run `cavra demo before-the-agent-acts` to see CAVRA block risky agent behavior.
+5. Run `cavra evaluate execute_command "terraform apply -auto-approve" --json` to evaluate a dangerous command directly.
+6. Run `cavra evidence bundle --output .cavra/evidence/latest` and `cavra evidence verify .cavra/evidence/latest` to prove the control path.
+7. Open the sandbox GUI and review the setup, decision, evidence, and AISPM views.
 
-The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA), [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows).
+The detailed walkthrough is in [First-Run Setup](First-Run-Setup), [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA), [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide), and [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows).
 
 ## Learning Paths
 
@@ -74,19 +75,20 @@ The detailed walkthrough is in [Install And Deploy CAVRA](Textbook-05-Install-An
 4. [Architecture And Open-Core Design](Textbook-03-Architecture-And-Open-Core-Design)
 5. [Product Model, Licensing, And Capability Boundaries](Textbook-04-Editions-Licensing-And-Feature-Boundaries)
 6. [Install And Deploy CAVRA](Textbook-05-Install-And-Deploy-CAVRA)
-7. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide)
-8. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide)
-9. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference) and [Generated Full CLI Reference](CLI-Reference)
-10. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
-11. [AISPM Guide](Textbook-10-AISPM-Guide)
-12. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
-13. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
-14. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
-15. [Reference Appendices](Textbook-14-Reference-Appendices)
-16. [Policy Language Reference](Textbook-15-Policy-Language-Reference)
-17. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ)
-18. [CAVRA Technology Stack And Implementation Model](Textbook-18-CAVRA-Technology-Stack)
-19. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution)
+7. [First-Run Setup](First-Run-Setup)
+8. [CAVRA Community User Guide](Textbook-06-Community-Edition-User-Guide)
+9. [CAVRA Managed And Enterprise Subscription Guide](Textbook-07-Enterprise-Edition-User-Guide)
+10. [CAVRA CLI Command Reference](Textbook-08-CAVRA-CLI-Command-Reference) and [Generated Full CLI Reference](CLI-Reference)
+11. [CAVRA GUI And Sandbox Guide](Textbook-09-CAVRA-GUI-And-Sandbox-Guide)
+12. [AISPM Guide](Textbook-10-AISPM-Guide)
+13. [Policies, Approvals, Evidence, And Attestations](Textbook-11-Policies-Approvals-Evidence-And-Attestations)
+14. [Operations, Integrations, And Deployment Patterns](Textbook-12-Operations-Integrations-And-Deployment-Patterns)
+15. [Use Cases, Labs, And Example Workflows](Textbook-13-Use-Cases-Labs-And-Example-Workflows)
+16. [Reference Appendices](Textbook-14-Reference-Appendices)
+17. [Policy Language Reference](Textbook-15-Policy-Language-Reference)
+18. [Troubleshooting And FAQ](Textbook-16-Troubleshooting-And-FAQ)
+19. [CAVRA Technology Stack And Implementation Model](Textbook-18-CAVRA-Technology-Stack)
+20. [Conclusion: The Runtime Authority Revolution](Textbook-17-The-Runtime-Authority-Revolution)
 
 ## Visual Index
 

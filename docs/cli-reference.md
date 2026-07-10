@@ -1,6 +1,6 @@
 # CAVRA Full CLI Reference
 
-Generated from Typer help output for CAVRA `1.0.0` on 2026-07-08.
+Generated from Typer help output for CAVRA `1.0.0` on 2026-07-10.
 
 This is the authoritative command reference for the public CAVRA CLI. If a shorter guide and this generated reference disagree, prefer this file and regenerate it from the current source tree.
 
@@ -31,6 +31,7 @@ python3 scripts/generate_cli_reference.py --repo-root .
 - [cavra adapter](#cavra-adapter)
 - [cavra ai-red-team](#cavra-ai-red-team)
 - [cavra deployment](#cavra-deployment)
+- [cavra setup](#cavra-setup)
 - [cavra version](#cavra-version)
 - [cavra ai-red-team guardrails](#cavra-ai-red-team-guardrails)
 - [cavra ai-red-team supply-chain](#cavra-ai-red-team-supply-chain)
@@ -56,6 +57,16 @@ python3 scripts/generate_cli_reference.py --repo-root .
 - [cavra aispm validate-review-packet](#cavra-aispm-validate-review-packet)
 - [cavra aispm validate-ci-gate-readiness](#cavra-aispm-validate-ci-gate-readiness)
 - [cavra evaluate](#cavra-evaluate)
+- [cavra setup status](#cavra-setup-status)
+- [cavra setup init](#cavra-setup-init)
+- [cavra setup wizard](#cavra-setup-wizard)
+- [cavra setup demo-env](#cavra-setup-demo-env)
+- [cavra setup validate](#cavra-setup-validate)
+- [cavra setup complete](#cavra-setup-complete)
+- [cavra setup smtp](#cavra-setup-smtp)
+- [cavra setup policy-actions](#cavra-setup-policy-actions)
+- [cavra setup policy-action-test](#cavra-setup-policy-action-test)
+- [cavra setup policy-action-plan](#cavra-setup-policy-action-plan)
 - [cavra saas contract](#cavra-saas-contract)
 - [cavra saas operating-automation](#cavra-saas-operating-automation)
 - [cavra saas worker-handoff](#cavra-saas-worker-handoff)
@@ -297,6 +308,7 @@ python3 scripts/generate_cli_reference.py --repo-root .
 │ adapter      Generic agent adapter and action taxonomy commands.                                                                         │
 │ ai-red-team  Native AI red-team, guardrail, and supply-chain commands.                                                                   │
 │ deployment   Reference deployment and zero-trust packaging commands.                                                                     │
+│ setup        First-run setup, defaults, demo workspace, SMTP, and validation commands.                                                   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -971,6 +983,31 @@ python3 scripts/generate_cli_reference.py --repo-root .
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
+## `cavra setup`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup [OPTIONS] COMMAND [ARGS]...                                                                               
+                                                                                                                                            
+ First-run setup, defaults, demo workspace, SMTP, and validation commands.                                                                  
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ status              Show first-run setup status.                                                                                         │
+│ init                Create default first-run CAVRA setup state.                                                                          │
+│ wizard              Run the non-interactive default setup wizard for local Community validation.                                         │
+│ demo-env            Create a safe local demo workspace with known policy-triggering scenarios.                                           │
+│ validate            Validate default setup, policy pack discovery, demo scenarios, and AISPM readiness inputs.                           │
+│ complete            Mark setup as complete after validation.                                                                             │
+│ smtp                Validate or save SMTP/report-delivery setup metadata without storing passwords.                                      │
+│ policy-actions      List editable allow, block, approval, and MCP action catalog entries from a policy pack.                             │
+│ policy-action-test  Test one action against the selected policy pack.                                                                    │
+│ policy-action-plan  Create a policy draft plan for an allow/block/approval catalog change.                                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
 ## `cavra version`
 
 ```text
@@ -1363,6 +1400,170 @@ python3 scripts/generate_cli_reference.py --repo-root .
 │ --break-glass-actor         TEXT                                                                                                         │
 │ --json                            Print the full decision JSON.                                                                          │
 │ --help                            Show this message and exit.                                                                            │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup status`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup status [OPTIONS]                                                                                          
+                                                                                                                                            
+ Show first-run setup status.                                                                                                               
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --state        PATH                                                                                                                      │
+│ --help               Show this message and exit.                                                                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup init`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup init [OPTIONS]                                                                                            
+                                                                                                                                            
+ Create default first-run CAVRA setup state.                                                                                                
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --state                               PATH                                                                                               │
+│ --workspace-name                      TEXT  [default: local-community]                                                                   │
+│ --policy-pack                         TEXT  [default: cavra-ai-agent-baseline]                                                           │
+│ --overwrite         --no-overwrite          [default: no-overwrite]                                                                      │
+│ --complete          --no-complete           [default: no-complete]                                                                       │
+│ --help                                      Show this message and exit.                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup wizard`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup wizard [OPTIONS]                                                                                          
+                                                                                                                                            
+ Run the non-interactive default setup wizard for local Community validation.                                                               
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --state                               PATH                                                                                               │
+│ --workspace-name                      TEXT  [default: local-community]                                                                   │
+│ --overwrite         --no-overwrite          [default: no-overwrite]                                                                      │
+│ --help                                      Show this message and exit.                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup demo-env`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup demo-env [OPTIONS]                                                                                        
+                                                                                                                                            
+ Create a safe local demo workspace with known policy-triggering scenarios.                                                                 
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --output                         PATH  [default: .cavra/demo-workspace]                                                                  │
+│ --overwrite    --no-overwrite          [default: no-overwrite]                                                                           │
+│ --help                                 Show this message and exit.                                                                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup validate`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup validate [OPTIONS]                                                                                        
+                                                                                                                                            
+ Validate default setup, policy pack discovery, demo scenarios, and AISPM readiness inputs.                                                 
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --state                                        PATH                                                                                      │
+│ --record-decisions    --no-record-decisions          [default: no-record-decisions]                                                      │
+│ --activity-store                               PATH  [default: .cavra/api/activity.json]                                                 │
+│ --help                                               Show this message and exit.                                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup complete`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup complete [OPTIONS]                                                                                        
+                                                                                                                                            
+ Mark setup as complete after validation.                                                                                                   
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --state        PATH                                                                                                                      │
+│ --help               Show this message and exit.                                                                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup smtp`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup smtp [OPTIONS]                                                                                            
+                                                                                                                                            
+ Validate or save SMTP/report-delivery setup metadata without storing passwords.                                                            
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --host                         TEXT                                                                                                      │
+│ --port                         INTEGER  [default: 587]                                                                                   │
+│ --from-email                   TEXT                                                                                                      │
+│ --recipient                    TEXT                                                                                                      │
+│ --username                     TEXT                                                                                                      │
+│ --password-ref                 TEXT     [default: CAVRA_REPORT_SMTP_PASSWORD]                                                            │
+│ --state                        PATH                                                                                                      │
+│ --live            --no-live             [default: no-live]                                                                               │
+│ --save            --no-save             [default: no-save]                                                                               │
+│ --help                                  Show this message and exit.                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup policy-actions`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup policy-actions [OPTIONS]                                                                                  
+                                                                                                                                            
+ List editable allow, block, approval, and MCP action catalog entries from a policy pack.                                                   
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --policy-pack        TEXT  [default: cavra-ai-agent-baseline]                                                                            │
+│ --help                     Show this message and exit.                                                                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup policy-action-test`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup policy-action-test [OPTIONS]                                                                              
+                                                                                                                                            
+ Test one action against the selected policy pack.                                                                                          
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --action-type        TEXT  [default: execute_command]                                                                                    │
+│ --target             TEXT                                                                                                                │
+│ --policy-pack        TEXT  [default: cavra-ai-agent-baseline]                                                                            │
+│ --help                     Show this message and exit.                                                                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## `cavra setup policy-action-plan`
+
+```text
+                                                                                                                                            
+ Usage: python -m cavra.cli setup policy-action-plan [OPTIONS]                                                                              
+                                                                                                                                            
+ Create a policy draft plan for an allow/block/approval catalog change.                                                                     
+                                                                                                                                            
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --operation          TEXT     [default: add]                                                                                             │
+│ --section            TEXT     [default: commands]                                                                                        │
+│ --action             TEXT     [default: block]                                                                                           │
+│ --value              TEXT                                                                                                                │
+│ --policy-pack        TEXT     [default: cavra-ai-agent-baseline]                                                                         │
+│ --index              INTEGER  [default: -1]                                                                                              │
+│ --help                        Show this message and exit.                                                                                │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 

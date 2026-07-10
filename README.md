@@ -110,6 +110,25 @@ cavra policy list
 cavra evaluate write_file iam/admin-role.tf --json
 ```
 
+Create the default first-run setup and demo workspace:
+
+```bash
+cavra setup init --workspace-name local-community
+cavra setup demo-env --output .cavra/demo-workspace
+cavra setup validate --record-decisions
+cavra setup complete
+```
+
+For a one-command local onboarding pass, use the setup wizard:
+
+```bash
+cavra setup wizard
+```
+
+The setup flow creates safe defaults, fake high-risk fixtures, SMTP/report
+delivery placeholders, policy action catalog access, validation decisions, and
+AISPM seed activity. Full guide: [CAVRA First-Run Setup](docs/first-run-setup.md).
+
 Start the sandbox GUI:
 
 ```bash
@@ -211,6 +230,7 @@ Primary public paths:
 | Technical textbook | [GitHub Wiki textbook](docs/wiki/Home.md) |
 | Full CLI reference | [Generated CAVRA Full CLI Reference](docs/cli-reference.md) |
 | GitHub-style CLI manual | [CAVRA CLI Manual](docs/cli-manual/README.md) |
+| First-run setup | [CAVRA First-Run Setup](docs/first-run-setup.md) |
 | API reference | [API](docs/wiki/API.md) |
 | Product model | [Product Model](docs/wiki/Product-Model.md) |
 | Install and deploy | [Install And Deploy CAVRA](docs/wiki/Textbook-05-Install-And-Deploy-CAVRA.md) |

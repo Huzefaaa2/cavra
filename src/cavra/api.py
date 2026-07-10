@@ -261,6 +261,19 @@ from cavra.saas_control_plane import (
     build_saas_operating_automation_worker_handoff_response,
     describe_public_contract,
 )
+from cavra.setup import (
+    bootstrap_setup,
+    build_policy_action_catalog,
+    complete_setup,
+    create_demo_workspace,
+    default_setup_state,
+    plan_policy_action_change,
+    setup_status,
+    smtp_test_plan,
+    test_policy_action,
+    update_smtp_setup,
+    validate_setup,
+)
 from cavra.release import (
     automate_endpoint_reconciliation_from_ingestion,
     build_endpoint_management_export_dashboard,
@@ -678,6 +691,15 @@ def create_app():
                 "go_rollback_drill_notification_routes": "/runtime/go-pilot/rollback-drill-notifications/routes",
                 "go_rollback_drill_notification_suppression_trends": "/runtime/go-pilot/rollback-drill-notifications/suppression-trends",
                 "go_backend_evaluate": "/runtime/go-pilot/evaluate",
+                "setup_status": "/setup/status",
+                "setup_defaults": "/setup/defaults",
+                "setup_bootstrap": "/setup/bootstrap",
+                "setup_demo_workspace": "/setup/demo-workspace",
+                "setup_smtp_test": "/setup/smtp/test",
+                "setup_validate": "/setup/validate",
+                "setup_complete": "/setup/complete",
+                "policy_action_catalog": "/policy-action-catalog",
+                "policy_action_test": "/policy-action-catalog/test",
                 "policy_pack_catalog": "/policy-pack-catalog",
                 "policy_pack_draft": "/policy-packs/draft",
                 "policy_pack_publish_plan": "/policy-packs/publish-plan",
@@ -908,6 +930,103 @@ def create_app():
                 actor=actor_context.get("actor") if actor_context else payload.get("actor", "policy-authoring-api"),
             )
         except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/setup/status")
+    def setup_status_endpoint() -> dict:
+        return setup_status()
+
+    @app.get("/setup/defaults")
+    def setup_defaults_endpoint() -> dict:
+        return default_setup_state()
+
+    @app.post("/setup/bootstrap")
+    def setup_bootstrap_endpoint(payload: dict) -> dict:
+        return bootstrap_setup(
+            workspace_name=payload.get("workspace_name", "local-community"),
+            policy_pack=payload.get("policy_pack", "cavra-ai-agent-baseline"),
+            overwrite=bool(payload.get("overwrite", False)),
+            complete=bool(payload.get("complete", False)),
+        )
+
+    @app.post("/setup/demo-workspace")
+    def setup_demo_workspace_endpoint(payload: dict) -> dict:
+        output = Path(payload.get("output", ".cavra/demo-workspace"))
+        return create_demo_workspace(output, overwrite=bool(payload.get("overwrite", False)))
+
+    @app.post("/setup/smtp/test")
+    def setup_smtp_test_endpoint(payload: dict) -> dict:
+        if payload.get("save"):
+            return update_smtp_setup(payload)
+        return smtp_test_plan(payload, live=bool(payload.get("live", False)))
+
+    @app.post("/setup/validate")
+    def setup_validate_endpoint(payload: dict) -> dict:
+        return validate_setup(
+            record_decisions=bool(payload.get("record_decisions", False)),
+            activity_store=activity_store if payload.get("record_decisions") else None,
+            session_id=payload.get("session_id"),
+        )
+
+    @app.post("/setup/complete")
+    def setup_complete_endpoint() -> dict:
+        return complete_setup()
+
+    @app.get("/policy-action-catalog")
+    def policy_action_catalog_endpoint(policy_pack: str = "cavra-ai-agent-baseline") -> dict:
+        return build_policy_action_catalog(policy_pack)
+
+    @app.post("/policy-action-catalog")
+    def policy_action_catalog_create_endpoint(payload: dict) -> dict:
+        try:
+            return plan_policy_action_change(
+                {**payload, "operation": payload.get("operation", "add")},
+                policy_pack=payload.get("policy_pack", "cavra-ai-agent-baseline"),
+            )
+        except (ValueError, PolicyRegistryError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.patch("/policy-action-catalog/{entry_id}")
+    def policy_action_catalog_update_endpoint(entry_id: str, payload: dict) -> dict:
+        try:
+            section, action, index = _parse_policy_action_entry_id(entry_id)
+            return plan_policy_action_change(
+                {
+                    **payload,
+                    "operation": "update",
+                    "section": payload.get("section", section),
+                    "action": payload.get("action", action),
+                    "index": payload.get("index", index),
+                },
+                policy_pack=payload.get("policy_pack", "cavra-ai-agent-baseline"),
+            )
+        except (ValueError, PolicyRegistryError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.delete("/policy-action-catalog/{entry_id}")
+    def policy_action_catalog_delete_endpoint(entry_id: str, payload: Optional[dict] = None) -> dict:
+        payload = payload or {}
+        try:
+            section, action, index = _parse_policy_action_entry_id(entry_id)
+            return plan_policy_action_change(
+                {
+                    **payload,
+                    "operation": "delete",
+                    "section": payload.get("section", section),
+                    "action": payload.get("action", action),
+                    "index": payload.get("index", index),
+                    "value": payload.get("value", ""),
+                },
+                policy_pack=payload.get("policy_pack", "cavra-ai-agent-baseline"),
+            )
+        except (ValueError, PolicyRegistryError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/policy-action-catalog/test")
+    def policy_action_catalog_test_endpoint(payload: dict) -> dict:
+        try:
+            return test_policy_action(payload, policy_pack=payload.get("policy_pack", "cavra-ai-agent-baseline"))
+        except PolicyRegistryError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/decisions")
@@ -7810,6 +7929,11 @@ def _bearer_token(authorization: str | None) -> str | None:
     if scheme.lower() != "bearer" or not token.strip():
         raise HTTPException(status_code=401, detail="authorization header must use Bearer token")
     return token.strip()
+
+
+def _parse_policy_action_entry_id(entry_id: str) -> tuple[str, str, int]:
+    section, action, index = entry_id.split(":", 2)
+    return section, action, int(index)
 
 
 app = create_app() if FastAPI is not None else None

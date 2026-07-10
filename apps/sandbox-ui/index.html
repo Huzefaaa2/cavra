@@ -51,6 +51,7 @@
 
       <nav class="top-actions" aria-label="Primary links">
         <a href="#dashboard" data-route-link="dashboard">Overview</a>
+        <a href="#first-run-setup" data-route-link="first-run-setup">Setup</a>
         <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
         <a href="#architecture" data-route-link="architecture">Architecture</a>
         <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
@@ -267,6 +268,57 @@
           </div>
           <p class="key-point">
             <strong>Key Point:</strong> Run the demo, inspect evidence, review the board packet, then request guided Trial access.
+          </p>
+        </section>
+
+        <section class="page-panel" id="first-run-setup" data-title="First-Run Setup">
+          <section class="page-hero split-hero">
+            <div>
+              <p class="eyebrow">First-run setup</p>
+              <h1>Install CAVRA with a safe default environment before connecting agents.</h1>
+              <p>
+                CAVRA now includes a built-in setup path for Community operators:
+                initialize defaults, generate a known demo workspace, configure report
+                delivery by secret reference, list policy-controlled actions, validate
+                runtime decisions, and seed AISPM activity without asking users to invent
+                risky files by hand.
+              </p>
+              <div class="hero-actions">
+                <a class="primary-action" href="https://github.com/Huzefaaa2/cavra/blob/main/docs/first-run-setup.md" target="_blank" rel="noreferrer">Open Setup Guide</a>
+                <a href="#policy-engine" data-route-link="policy-engine">Review Policies</a>
+                <a href="#ai-posture" data-route-link="ai-posture">View AISPM</a>
+              </div>
+            </div>
+            <div class="setup-wizard-preview" aria-label="CAVRA first-run setup wizard preview">
+              <span class="eyebrow">Setup wizard</span>
+              <strong>Local Community</strong>
+              <ol>
+                <li>Accept safe defaults or edit policy/report settings.</li>
+                <li>Create demo workspace with known allow/block scenarios.</li>
+                <li>Configure SMTP using a deployment secret reference.</li>
+                <li>Run validation and record decisions for AISPM.</li>
+                <li>Mark setup complete before agent onboarding.</li>
+              </ol>
+            </div>
+          </section>
+
+          <div id="setupCards" class="setup-grid" aria-label="CAVRA first-run setup capabilities"></div>
+
+          <section class="setup-command-panel">
+            <div class="section-heading compact">
+              <p class="eyebrow">Operator command path</p>
+              <h2>Setup commands are available from the CLI and mirrored by `/setup/*` API endpoints.</h2>
+              <p>
+                The GUI should use `/setup/status`, `/setup/defaults`, `/setup/bootstrap`,
+                `/setup/demo-workspace`, `/setup/smtp/test`, `/setup/validate`,
+                `/setup/complete`, and `/policy-action-catalog` when connected to a self-hosted API.
+              </p>
+            </div>
+            <div id="setupCommandRail" class="setup-command-rail" aria-label="CAVRA setup command examples"></div>
+          </section>
+
+          <p class="key-point">
+            <strong>Key Point:</strong> The risky files and actions are generated as fake local fixtures so Claude Code, Codex, Copilot, MCP tools, and manual CLI tests can prove policy decisions without touching real production systems.
           </p>
         </section>
 
@@ -518,6 +570,21 @@
           <button id="closeSearch" aria-label="Close command palette">Close</button>
         </div>
         <div id="commandResults" class="command-results"></div>
+      </div>
+    </div>
+
+    <div class="setup-prompt" id="setupPrompt" aria-hidden="true" role="dialog" aria-label="CAVRA first-run setup">
+      <div class="setup-prompt-panel">
+        <span class="eyebrow">First-run setup</span>
+        <h2>Start with safe defaults before connecting AI agents.</h2>
+        <p>
+          Initialize CAVRA, generate the demo workspace, configure reports by secret reference,
+          validate policy decisions, and seed AISPM posture events.
+        </p>
+        <div class="setup-prompt-actions">
+          <button id="startSetupPrompt" class="primary-action" type="button">Open Setup</button>
+          <button id="dismissSetupPrompt" type="button">Later</button>
+        </div>
       </div>
     </div>
 

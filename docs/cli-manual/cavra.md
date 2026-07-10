@@ -44,6 +44,7 @@ This page is generated from the command's Typer help output. Use it as the autho
 │ adapter      Generic agent adapter and action taxonomy commands.                                                                         │
 │ ai-red-team  Native AI red-team, guardrail, and supply-chain commands.                                                                   │
 │ deployment   Reference deployment and zero-trust packaging commands.                                                                     │
+│ setup        First-run setup, defaults, demo workspace, SMTP, and validation commands.                                                   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
