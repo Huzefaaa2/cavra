@@ -304,6 +304,74 @@
 
           <div id="setupCards" class="setup-grid" aria-label="CAVRA first-run setup capabilities"></div>
 
+          <section class="setup-live-panel" aria-label="Interactive CAVRA setup wizard">
+            <div class="section-heading compact">
+              <p class="eyebrow">Interactive local wizard</p>
+              <h2>Run first-run setup from the browser when the local API is connected.</h2>
+              <p>
+                This panel uses the same `/setup/*` and `/policy-action-catalog/*`
+                endpoints as the CLI. If no API is reachable, it remains a safe
+                static guide for the public sandbox.
+              </p>
+            </div>
+
+            <div class="setup-live-status" id="setupApiStatus" aria-live="polite">
+              Checking local CAVRA API...
+            </div>
+
+            <div class="setup-action-grid" aria-label="Setup wizard actions">
+              <button type="button" data-setup-action="status">Check Status</button>
+              <button type="button" data-setup-action="bootstrap">Create Defaults</button>
+              <button type="button" data-setup-action="demo">Generate Demo Workspace</button>
+              <button type="button" data-setup-action="validate">Validate + Seed AISPM</button>
+              <button type="button" data-setup-action="complete">Mark Complete</button>
+              <button type="button" data-setup-action="catalog">Load Policy Actions</button>
+              <button type="button" data-setup-action="test-risk">Test Risky Action</button>
+            </div>
+
+            <form class="setup-smtp-form" id="setupSmtpForm">
+              <div class="setup-form-heading">
+                <h3>SMTP report delivery metadata</h3>
+                <p>Stores only metadata and a secret reference. The password value remains in your deployment secret manager.</p>
+              </div>
+              <label>
+                Host
+                <input name="host" placeholder="smtp.spacemail.com" autocomplete="off">
+              </label>
+              <label>
+                Port
+                <input name="port" type="number" value="587" min="1">
+              </label>
+              <label>
+                From email
+                <input name="from_email" type="email" placeholder="hello@mind-ops.cloud">
+              </label>
+              <label>
+                Recipient
+                <input name="recipient" type="email" placeholder="huzefaaa@gmail.com">
+              </label>
+              <label>
+                Password secret reference
+                <input name="password_ref" value="CAVRA_REPORT_SMTP_PASSWORD" autocomplete="off">
+              </label>
+              <div class="setup-smtp-actions">
+                <button type="button" data-setup-action="smtp-test">Test Metadata</button>
+                <button type="button" data-setup-action="smtp-save">Save Metadata</button>
+              </div>
+            </form>
+
+            <div class="setup-live-results">
+              <div>
+                <h3>Current status</h3>
+                <pre id="setupStatusOutput">{}</pre>
+              </div>
+              <div>
+                <h3>Last action result</h3>
+                <pre id="setupActionOutput">{}</pre>
+              </div>
+            </div>
+          </section>
+
           <section class="setup-command-panel">
             <div class="section-heading compact">
               <p class="eyebrow">Operator command path</p>

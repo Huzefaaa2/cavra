@@ -749,6 +749,117 @@ p { color: var(--muted); line-height: 1.58; }
   white-space: nowrap;
   color: var(--soft);
 }
+.setup-live-panel {
+  margin-top: 22px;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  border-radius: var(--radius);
+  padding: 22px;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 34%),
+    color-mix(in srgb, var(--panel-strong) 82%, transparent);
+  box-shadow: var(--shadow);
+}
+.setup-live-status {
+  margin: 16px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--soft);
+  background: var(--panel);
+  font-weight: 800;
+}
+.setup-live-status[data-state="ready"] {
+  border-color: color-mix(in srgb, var(--brand) 46%, var(--line));
+  color: var(--text);
+  background: color-mix(in srgb, var(--brand) 12%, var(--panel));
+}
+.setup-live-status[data-state="error"] {
+  border-color: color-mix(in srgb, #ff5e7a 52%, var(--line));
+  color: #ffd5dd;
+  background: color-mix(in srgb, #ff3158 12%, var(--panel));
+}
+.setup-action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.setup-action-grid button,
+.setup-smtp-actions button {
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--brand) 34%, var(--line));
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--brand) 12%, var(--panel));
+  font-weight: 900;
+  cursor: pointer;
+}
+.setup-action-grid button:hover,
+.setup-smtp-actions button:hover {
+  background: color-mix(in srgb, var(--brand) 22%, var(--panel));
+}
+.setup-smtp-form {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+.setup-form-heading {
+  grid-column: 1 / -1;
+}
+.setup-form-heading h3 {
+  margin: 0 0 6px;
+}
+.setup-form-heading p {
+  margin: 0;
+  color: var(--muted);
+}
+.setup-smtp-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--soft);
+  font-weight: 800;
+}
+.setup-smtp-form input {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg) 70%, var(--panel));
+}
+.setup-smtp-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.setup-live-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.setup-live-results > div {
+  min-width: 0;
+}
+.setup-live-results h3 {
+  margin: 0 0 8px;
+}
+.setup-live-results pre {
+  min-height: 220px;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  color: var(--soft);
+  background: color-mix(in srgb, #000 28%, var(--panel));
+  font-size: 13px;
+  line-height: 1.45;
+}
 .timeline {
   display: grid;
   gap: 14px;
@@ -954,7 +1065,8 @@ p { color: var(--muted); line-height: 1.58; }
   .report-center-grid, .policy-grid, .usecase-grid, .operator-path-grid,
   .trial-card-grid, .integration-grid, .compliance-grid, .roadmap-board, .setup-grid,
   .architecture-map, .outcome-grid, .deliverable-grid, .download-grid,
-  .next-steps-rail, .executive-value-flow {
+  .next-steps-rail, .executive-value-flow, .setup-action-grid,
+  .setup-smtp-form, .setup-live-results {
     grid-template-columns: 1fr;
   }
   .setup-command-card { grid-template-columns: 1fr; }

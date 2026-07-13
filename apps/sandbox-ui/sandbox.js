@@ -337,6 +337,8 @@ const routeContent = [
 ];
 
 const el = (selector) => document.querySelector(selector);
+const localApiDefault = ["localhost", "127.0.0.1"].includes(location.hostname) ? "http://localhost:8000" : "";
+const setupApiBase = String(window.CAVRA_API_BASE || localApiDefault).replace(/\/$/, "");
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
   "&": "&amp;",
   "<": "&lt;",
@@ -344,6 +346,118 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
   "\"": "&quot;",
   "'": "&#039;"
 }[char]));
+
+function prettyJson(payload) {
+  return JSON.stringify(payload, null, 2);
+}
+
+function writeSetupOutput(selector, payload) {
+  const target = el(selector);
+  if (!target) return;
+  target.textContent = typeof payload === "string" ? payload : prettyJson(payload);
+}
+
+function setSetupApiStatus(message, state = "neutral") {
+  const status = el("#setupApiStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.state = state;
+}
+
+async function setupApi(path, options = {}) {
+  if (!setupApiBase) {
+    throw new Error("No CAVRA API base configured. For local testing, start the API on http://localhost:8000 or set window.CAVRA_API_BASE in config.js.");
+  }
+  const response = await fetch(`${setupApiBase}${path}`, {
+    headers: {
+      "content-type": "application/json",
+      ...(options.headers || {})
+    },
+    ...options
+  });
+  const text = await response.text();
+  let payload;
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    payload = { raw: text };
+  }
+  if (!response.ok) {
+    const reason = payload.detail || payload.message || response.statusText;
+    throw new Error(`CAVRA API ${response.status}: ${reason}`);
+  }
+  return payload;
+}
+
+function setupPost(path, payload = {}) {
+  return setupApi(path, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+async function refreshSetupStatus() {
+  try {
+    const status = await setupApi("/setup/status");
+    const configured = status.configured ? "configured" : "not configured";
+    const complete = status.setup_complete ? "complete" : "not complete";
+    setSetupApiStatus(`Connected to ${setupApiBase}. Setup is ${configured} and ${complete}.`, "ready");
+    writeSetupOutput("#setupStatusOutput", status);
+    return status;
+  } catch (error) {
+    setSetupApiStatus(error.message, "error");
+    writeSetupOutput("#setupStatusOutput", {
+      status: "api_unavailable",
+      api_base: setupApiBase || "not configured",
+      message: error.message
+    });
+    return null;
+  }
+}
+
+function smtpPayloadFromForm(save = false) {
+  const form = el("#setupSmtpForm");
+  const data = new FormData(form);
+  const recipient = String(data.get("recipient") || "").trim();
+  return {
+    host: String(data.get("host") || "").trim(),
+    port: Number(data.get("port") || 587),
+    from_email: String(data.get("from_email") || "").trim(),
+    recipients: recipient ? [recipient] : [],
+    recipient_allowlist: recipient ? [recipient] : [],
+    password_ref: String(data.get("password_ref") || "CAVRA_REPORT_SMTP_PASSWORD").trim(),
+    live: false,
+    save
+  };
+}
+
+async function runSetupAction(action) {
+  const output = "#setupActionOutput";
+  writeSetupOutput(output, { status: "running", action });
+  try {
+    let result;
+    if (action === "status") result = await setupApi("/setup/status");
+    if (action === "bootstrap") result = await setupPost("/setup/bootstrap", { workspace_name: "local-community", overwrite: true });
+    if (action === "demo") result = await setupPost("/setup/demo-workspace", { output: ".cavra/demo-workspace", overwrite: true });
+    if (action === "validate") result = await setupPost("/setup/validate", { record_decisions: true });
+    if (action === "complete") result = await setupPost("/setup/complete", {});
+    if (action === "catalog") result = await setupApi("/policy-action-catalog");
+    if (action === "test-risk") {
+      result = await setupPost("/policy-action-catalog/test", {
+        action_type: "execute_command",
+        target: "terraform apply -auto-approve",
+        policy_pack: "cavra-ai-agent-baseline"
+      });
+    }
+    if (action === "smtp-test") result = await setupPost("/setup/smtp/test", smtpPayloadFromForm(false));
+    if (action === "smtp-save") result = await setupPost("/setup/smtp/test", smtpPayloadFromForm(true));
+    writeSetupOutput(output, result || { status: "unknown_action", action });
+    await refreshSetupStatus();
+  } catch (error) {
+    setSetupApiStatus(error.message, "error");
+    writeSetupOutput(output, { status: "failed", action, message: error.message });
+  }
+}
 
 function grouped(items) {
   return items.reduce((groups, item) => {
@@ -792,6 +906,12 @@ function wireEvents() {
       setSidebarCollapsed(!el("#sidebar").classList.contains("is-collapsed"));
       return;
     }
+    const setupAction = event.target.closest("[data-setup-action]");
+    if (setupAction) {
+      event.preventDefault();
+      await runSetupAction(setupAction.dataset.setupAction);
+      return;
+    }
     if (event.target.closest("#runScenario")) {
       runScenario();
       return;
@@ -852,6 +972,7 @@ function init() {
   setSidebarCollapsed(localStorage.getItem("cavra.sidebarCollapsed") === "true");
   const initialRoute = location.hash.slice(1) || "dashboard";
   setRoute(initialRoute, { fromHash: true });
+  refreshSetupStatus();
   if (!location.hash) setTimeout(openSetupPrompt, 500);
 }
 

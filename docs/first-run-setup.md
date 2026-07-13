@@ -141,10 +141,24 @@ Self-hosted GUI or automation can drive setup through the API:
 | `DELETE /policy-action-catalog/{entry_id}` | Plan a delete operation as a policy draft. |
 | `POST /policy-action-catalog/test` | Evaluate a sample action against the active policy pack. |
 
-## GUI Expectation
+## GUI Setup Flow
 
-The public sandbox includes a First-Run Setup page. A self-hosted authenticated
-GUI should call the setup endpoints above and present a setup wizard flow:
+The public sandbox includes a First-Run Setup page. When it is served on
+`localhost` and the CAVRA API is running on `http://localhost:8000`, the page
+automatically connects to the local API and exposes an interactive setup panel
+for:
+
+- checking setup status;
+- creating default setup state;
+- generating the demo workspace;
+- validating default scenarios and recording AISPM activity;
+- marking setup complete;
+- testing SMTP report-delivery metadata without storing the password value;
+- loading policy action catalog entries;
+- testing a known risky action.
+
+A self-hosted authenticated GUI should use the same setup endpoints above and
+present a setup wizard flow:
 
 1. Show setup status and recommended next steps.
 2. Let the operator accept defaults or change workspace, policy pack, evidence,
