@@ -46,6 +46,7 @@ node_modules/
 
 # CAVRA
 .cavra/
+.cavra-docker/
 *.log
 *.sig.json
 

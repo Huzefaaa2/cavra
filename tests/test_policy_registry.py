@@ -27,6 +27,16 @@ def test_get_policy_pack() -> None:
     assert "policy" in pack and "filesystem" in pack["policy"]
 
 
+def test_policy_registry_prefers_configured_policy_dir_from_arbitrary_workdir(monkeypatch, tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1] / "policies"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CAVRA_POLICY_DIR", str(root))
+
+    pack = PolicyRegistry().get_policy_pack("cavra-ai-agent-baseline")
+
+    assert pack["id"] == "cavra-ai-agent-baseline"
+
+
 def test_all_repository_policy_packs_validate() -> None:
     root = Path(__file__).resolve().parents[1] / "policies"
     registry = PolicyRegistry(root=root)

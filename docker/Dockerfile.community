@@ -7,5 +7,6 @@ COPY policies ./policies
 RUN pip install --no-cache-dir .
 
 ENV CAVRA_EDITION=community
+ENV CAVRA_POLICY_DIR=/app/policies
 ENTRYPOINT ["cavra"]
 CMD ["version"]

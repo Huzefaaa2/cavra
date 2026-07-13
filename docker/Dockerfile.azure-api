@@ -9,6 +9,7 @@ COPY policies ./policies
 RUN pip install --no-cache-dir .
 
 ENV CAVRA_EDITION=community
+ENV CAVRA_POLICY_DIR=/app/policies
 EXPOSE 8000
 
 CMD ["uvicorn", "cavra.api:app", "--host", "0.0.0.0", "--port", "8000"]

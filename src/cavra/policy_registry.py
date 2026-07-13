@@ -46,6 +46,7 @@ class PolicyRegistry:
             return Path(configured)
         candidates = [
             Path.cwd() / "policies",
+            Path("/app/policies"),
             POLICY_DIR,
         ]
         for candidate in candidates:
